@@ -1,0 +1,2 @@
+ALTER TABLE `s_users` ADD COLUMN `remind_code` VARCHAR(32) NULL DEFAULT NULL AFTER `created`;
+ALTER TABLE `s_users` ADD COLUMN `remind_expire` TIMESTAMP NULL DEFAULT NULL AFTER `remind_code`;

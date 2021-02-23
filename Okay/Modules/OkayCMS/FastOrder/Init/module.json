@@ -1,0 +1,43 @@
+{
+  "version": "1.0.1",
+  "vendor": {
+    "email": "info@okay-cms.com",
+    "site": "https://okay-cms.com"
+  },
+  "modifications": {
+    "backend": [
+      {
+        "file": "settings_general.tpl",
+        "changes": [
+          {
+            "find": "name=\"captcha_callback\"",
+            "closestFind": "col-",
+            "appendAfter": "activate_captcha_checkbox.tpl"
+          }
+        ]
+      }
+    ],
+    "front": [
+      {
+        "file": "head.tpl",
+        "changes": [
+          {
+            "find": "onloadCallback = function",
+            "parent": "",
+            "appendAfter": "recaptcha_init_v2.tpl"
+          },
+          {
+            "find": "onloadReCaptchaInvisible = function()",
+            "parent": "",
+            "appendAfter": "recaptcha_init_invisible.tpl"
+          },
+          {
+            "find": "grecaptcha.execute('{$settings->public_recaptcha_v3",
+            "parent": "",
+            "appendAfter": "recaptcha_init_v3.tpl"
+          }
+        ]
+      }
+    ]
+  }
+}

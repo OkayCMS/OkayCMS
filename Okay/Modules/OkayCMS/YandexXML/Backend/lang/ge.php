@@ -1,0 +1,37 @@
+<?php
+
+$lang['okaycms__yandex_xml__title'] = 'გადმოტვირთვა (Yandex)';
+$lang['okaycms__yandex_xml__left_title'] = 'გადმოტვირთვა (Yandex)';
+$lang['okaycms__yandex_xml__products'] = 'გადმოტვირთვისთვის საქონელი';
+$lang['okaycms__yandex_xml__products_remove'] = 'საქონელი, რომლის გადმოტვირთვა არ ჭირდება';
+$lang['okaycms__yandex_xml__select_all'] = 'აირჩიეთ ყველა';
+$lang['okaycms__yandex_xml__categories'] = 'კატეგორიები';
+$lang['okaycms__yandex_xml__select_none'] = 'გააუქმეთ ყველა';
+$lang['okaycms__yandex_xml__brands'] = 'კონიაკი';
+$lang['okaycms__yandex_xml__generation_url'] = 'ბმული, რომელზეც შესაძლებელია გადმოტვირთვის ფაილი';
+$lang['okaycms__yandex_xml__upload_non_exists_products_to_yandex'] = 'მხოლოდ გადმოტვირთეთ საქონელი საწყობში';
+$lang['okaycms__yandex_xml__use_full_description_to_yandex'] = 'გამოიყენეთ სრული აღწერა';
+$lang['okaycms__yandex_xml__products_for_upload'] = 'გადმოტვირთვისთვის საქონელი';
+$lang['okaycms__yandex_xml__products_not_for_upload'] = 'საქონელი არ გადმოტვირთვისთვის';
+$lang['okaycms__yandex_xml__select_products'] = 'შეარჩიეთ პროდუქტი';
+$lang['okaycms__yandex_xml__add_products'] = 'დაამატეთ პროდუქტი';
+$lang['okaycms__yandex_xml__has_manufacturer_warranty'] = 'მწარმოებლის გარანტია';
+$lang['okaycms__yandex_xml__params'] = 'პარამეტრები';
+$lang['okaycms__yandex_xml__company'] = 'კომპანია';
+$lang['okaycms__yandex_xml__no_export_without_price'] = 'არ გადმოტვირთოთ პროდუქტები 0 ფასით';
+$lang['okaycms__yandex_xml__pickup'] = 'შეგიძლიათ შეარჩიოთ არჩეული ნივთი და შეარჩიოთ იგი საკუთარ თავს';
+$lang['okaycms__yandex_xml__store'] = 'შეძენა შესაძლებელია საცალო მაღაზიაში';
+$lang['okaycms__yandex_xml__sales_max_length'] = 'ტექსტში მაქსიმალური სიგრძეა 50 სიმბოლო';
+$lang['okaycms__yandex_xml__delivery_disallow'] = 'მიწოდების უარყოფა';
+$lang['okaycms__yandex_xml__adult'] = 'სექსუალური პროდუქტები';
+$lang['okaycms__yandex_xml__country_of_origin'] = 'არმოშობის ქვეყანა';
+$lang['okaycms__yandex_xml__country_of_origin_notify'] = 'მიუთითეთ იმ პარამეტრის დასახელება, რომელიც შეიცავს ამ პარამეტრს';
+$lang['okaycms__yandex_xml__upload_products'] = 'საქონლის შერჩევა გადმოტვირთვისთვის';
+$lang['okaycms__yandex_xml__add_to_yandex_feed'] = 'დაამატეთ პროდუქტი Yandex ატვირთვაში';
+$lang['okaycms__yandex_xml__import_field'] = 'Yandex XML';
+$lang['okaycms__yandex_xml__edit_and_add_feeds'] = 'Editing and creating uploads';
+$lang['okaycms__yandex_xml__add_feed'] = 'Add upload';
+$lang['okaycms__yandex_xml__remove_feed'] = 'Remove upload';
+$lang['okaycms__yandex_xml__error_url_exist'] = 'An upload with the same URL already exists';
+$lang['okaycms__yandex_xml__error_url_cyrillic'] = 'The URL should contain only Latin letters and numbers';
+$lang['okaycms__yandex_xml__upload_without_images'] = 'Unload goods without images';

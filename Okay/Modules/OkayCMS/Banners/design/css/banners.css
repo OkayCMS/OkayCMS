@@ -1,0 +1,190 @@
+/***** #Main banner ****/
+
+.banner_group{
+    overflow: hidden;
+    background-color: #ffffff;
+    margin: 0;
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
+}
+.banner_group.no_js{
+    background-color: transparent;
+    margin-bottom: 0;
+}
+.banner_group__item{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    margin-bottom: 0px;
+}
+.banner_group.no_js .banner_group__item{
+    background-color: #ffffff;
+    margin-bottom: 15px;
+}
+.banner_group__item:before,
+.banner_group__item:after {
+    content: " ";
+    display: table;
+}
+.banner_group__link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    z-index: 9999;
+    filter: alpha(opacity=0);
+    opacity: 0;
+}
+.banner_group__image img {
+    display: block;
+    height: auto;
+    margin: 0 auto;
+    width: auto;
+    position: relative;
+    top: 0;
+    left: 0;
+}
+.banner_group__variant1 .banner_group__content,
+.banner_group__variant2 .banner_group__content{
+     position: absolute;
+     left: 10%;
+     top: 10%;
+     right: 10%;
+     bottom: 10%;
+     max-width: 100%;
+    text-align: center;
+}
+.banner_group__variant1 .banner_group__text,
+.banner_group__variant2 .banner_group__text{
+    position: absolute;
+    margin: 0px auto;
+    width: 100%;
+    top: 0px;
+    left: 0px;
+    right: auto;
+    z-index: 9;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+.banner_group__title {
+    color: #222;
+    padding: 0;
+    font-size: 28px;
+    line-height: 1.2;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+.banner_group__description {
+    color: #222;
+    padding: 0;
+    font-size: 18px;
+    line-height: 1.6;
+    font-weight: 400;
+    margin-bottom: 30px;
+}
+.banner_group__variant3 .banner_group__title,
+.banner_group__variant4 .banner_group__title,
+.banner_group__variant3 .banner_group__description,
+.banner_group__variant4 .banner_group__description{
+    color: #222;
+}
+.banner_group__variant1 .banner_group__content{
+    display: none;
+}
+.banner_group__variant2 .banner_group__title,
+.banner_group__variant2 .banner_group__description{
+    background: rgba(255, 255, 255, 0.7);
+    padding: 10px 20px;
+}
+.banner_group__variant3,
+.banner_group__variant4{
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: stretch;
+    -webkit-align-items: stretch;
+    -ms-flex-align: stretch;
+    align-items: stretch;
+}
+.banner_group__variant3 .banner_group__content,
+.banner_group__variant3 .banner_group__image,
+.banner_group__variant4 .banner_group__content,
+.banner_group__variant4 .banner_group__image{
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    position: relative;
+    min-height: 1px;
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 0 50%;
+    -ms-flex: 0 0 50%;
+    flex: 0 0 50%;
+    max-width: 50%;
+}
+.banner_group__variant3 .banner_group__image,
+.banner_group__variant4 .banner_group__image{
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+}
+.banner_group__variant3 .banner_group__content,
+.banner_group__variant4 .banner_group__content{
+    padding: 3% 5%;
+}
+.banner_group__variant4{
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: reverse;
+    -webkit-flex-direction: row-reverse;
+    -ms-flex-direction: row-reverse;
+    flex-direction: row-reverse;
+}
+
+@media only screen and (max-width : 991px) {
+    .banner_group.no_js .banner_group__item{
+        background-color: #ffffff;
+        margin-bottom: 10px;
+    }
+}
+
+@media only screen and (max-width : 767px) {
+    .banner_group__image img{
+        width: 100% !important;
+    }
+    .banner_group__variant1 .banner_group__content, .banner_group__variant2 .banner_group__content {
+        left: 5%;
+        top: 5%;
+        right: 5%;
+        bottom: 5%;
+    }
+    .banner_group__variant2 .banner_group__title, .banner_group__variant2 .banner_group__description {
+        padding: 5px 5px;
+    }
+    .banner_group__title {
+        font-size: 16px;
+        line-height: 1.2;
+        font-weight: 500;
+        text-transform: initial;
+        margin-bottom: 0;
+    }
+    .banner_group__description {
+        font-size: 12px;
+        font-weight: 400;
+    }
+}

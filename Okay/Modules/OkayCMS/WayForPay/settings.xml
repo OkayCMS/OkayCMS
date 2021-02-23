@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+    <name>
+        WayForPay
+    </name>
+    <settings>
+        <variable>wayforpay_merchant</variable>
+        <name>{$lang->way_for_pay_merchant}</name>
+    </settings>
+    <settings>
+        <variable>wayforpay_secretkey</variable>
+        <name>{$lang->way_for_pay_secret_key}</name>
+    </settings>
+</module>

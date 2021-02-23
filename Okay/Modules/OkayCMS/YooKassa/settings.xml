@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+    <name>
+        Яндекс.Касса (версия 2.0.0)
+    </name>
+    <settings>
+        <variable>yandex_api_shopid</variable>
+        <name>Идентификатор магазина (shopID)</name>
+    </settings>
+    <settings>
+        <variable>yandex_api_password</variable>
+        <name>Секретный ключ</name>
+    </settings>
+    <settings>
+        <variable>yandex_api_paymode</variable>
+        <name>Выбор способа оплаты</name>
+        <options>
+            <name>На стороне Кассы</name>
+            <value>kassa</value>
+        </options>
+        <options>
+            <name>На стороне магазина</name>
+            <value>site</value>
+        </options>
+    </settings>
+    <settings>
+        <variable>yandex_show_pay_with_yandex_button</variable>
+        <name>Назвать кнопку оплаты «Заплатить через Яндекс» (при выборе способа оплаты на стороне Кассы)</name>
+        <options>
+            <name>Назвать кнопку оплаты «Заплатить через Яндекс» (при выборе способа оплаты на стороне Кассы)</name>
+            <value>1</value>
+        </options>
+    </settings>
+    <settings>
+        <variable>yandex_show_installments_button</variable>
+        <name>Добавить кнопку «Заплатить по частям» на страницу оформления заказа (при выборе способа оплаты на стороне Кассы)</name>
+        <options>
+            <name>Добавить кнопку «Заплатить по частям» на страницу оформления заказа (при выборе способа оплаты на стороне Кассы)</name>
+            <value>1</value>
+        </options>
+    </settings>
+    <settings>
+        <variable>yandex_api_paymenttype</variable>
+        <name>Способ оплаты (при выборе способа оплаты на стороне магазина)</name>
+        <options>
+            <name>Не задан</name>
+            <value></value>
+        </options>
+        <options>
+            <name>Яндекс.Деньгах</name>
+            <value>yandex_money</value>
+        </options>
+        <options>
+            <name>Банковские карты — Visa, Mastercard и Maestro, «Мир»</name>
+            <value>bank_card</value>
+        </options>
+        <options>
+            <name>Оплата наличными через кассы и терминалы</name>
+            <value>cash</value>
+        </options>
+        <options>
+            <name>WebMoney</name>
+            <value>webmoney</value>
+        </options>
+        <options>
+            <name>Альфа-Клик</name>
+            <value>alfabank</value>
+        </options>
+        <options>
+            <name>Сбербанк Онлайн</name>
+            <value>sberbank</value>
+        </options>
+        <options>
+            <name>QIWI Wallet</name>
+            <value>qiwi</value>
+        </options>
+        <options>
+            <name>Интернет-банк Тинькофф</name>
+            <value>tinkoff_bank</value>
+        </options>
+        <options>
+            <name>Заплатить по частям</name>
+            <value>installments</value>
+        </options>
+    </settings>
+    <settings>
+        <variable>yandex_description_template</variable>
+        <name>Описание платежа</name>
+    </settings>
+    <settings>
+        <variable>ya_kassa_api_send_check</variable>
+        <name>Отправлять в Яндекс.Кассу данные для чеков (54-ФЗ)</name>
+        <options>
+            <name>Включить</name>
+            <value>1</value>
+        </options>
+        <options>
+            <name>Выключить</name>
+            <value>0</value>
+        </options>
+    </settings>
+    <settings>
+        <variable>ya_kassa_api_tax</variable>
+        <name>Ставка по умолчанию</name>
+        <options>
+            <name>Без НДС</name>
+            <value>1</value>
+        </options>
+        <options>
+            <name>0%</name>
+            <value>2</value>
+        </options>
+        <options>
+            <name>10%</name>
+            <value>3</value>
+        </options>
+        <options>
+            <name>20%</name>
+            <value>4</value>
+        </options>
+        <options>
+            <name>Рассчётная ставка 10/110</name>
+            <value>5</value>
+        </options>
+        <options>
+            <name>Рассчётная ставка 20/120</name>
+            <value>6</value>
+        </options>
+    </settings>
+    <settings>
+        <variable>ya_kassa_api_payment_mode</variable>
+        <name>Признак способа расчета (для чеков) https://kassa.yandex.ru/tech/payment-form/payment-form-receipt.html</name>
+        <options>
+            <name>Полная предоплата</name>
+            <value>full_prepayment</value>
+        </options>
+        <options>
+            <name>Частичная предоплата</name>
+            <value>partial_prepayment</value>
+        </options>
+        <options>
+            <name>Аванс</name>
+            <value>advance</value>
+        </options>
+        <options>
+            <name>Полный расчет</name>
+            <value>full_payment</value>
+        </options>
+        <options>
+            <name>Частичный расчет и кредит</name>
+            <value>partial_payment</value>
+        </options>
+        <options>
+            <name>Кредит</name>
+            <value>credit</value>
+        </options>
+        <options>
+            <name>Выплата по кредиту</name>
+            <value>credit_payment</value>
+        </options>
+    </settings>
+    <settings>
+        <variable>ya_kassa_api_payment_subject</variable>
+        <name>Признак предмета расчета (для чеков) https://kassa.yandex.ru/tech/payment-form/payment-form-receipt.html</name>
+        <options>
+            <name>Товар</name>
+            <value>commodity</value>
+        </options>
+        <options>
+            <name>Подакцизный товар</name>
+            <value>excise</value>
+        </options>
+        <options>
+            <name>Работа</name>
+            <value>job</value>
+        </options>
+        <options>
+            <name>Услуга</name>
+            <value>service</value>
+        </options>
+        <options>
+            <name>Ставка в азартной игре</name>
+            <value>gambling_bet</value>
+        </options>
+        <options>
+            <name>Выигрыш в азартной игре</name>
+            <value>gambling_prize</value>
+        </options>
+        <options>
+            <name>Лотерейный билет</name>
+            <value>lottery</value>
+        </options>
+        <options>
+            <name>Лотерейный билет</name>
+            <value>lottery</value>
+        </options>
+        <options>
+            <name>Выигрыш в лотерею</name>
+            <value>lottery_prize</value>
+        </options>
+        <options>
+            <name>Результаты интеллектуальной деятельности</name>
+            <value>intellectual_activity</value>
+        </options>
+        <options>
+            <name>Платеж</name>
+            <value>payment</value>
+        </options>
+        <options>
+            <name>Агентское вознаграждение</name>
+            <value>agent_commission</value>
+        </options>
+        <options>
+            <name>Несколько вариантов</name>
+            <value>composite</value>
+        </options>
+        <options>
+            <name>Другое</name>
+            <value>another</value>
+        </options>
+    </settings>
+    <settings>
+        <variable>ya_kassa_debug</variable>
+        <name>Запись отладочной информации</name>
+        <options>
+            <name>Включить</name>
+            <value>1</value>
+        </options>
+        <options>
+            <name>Выключить</name>
+            <value>0</value>
+        </options>
+    </settings>
+</module>

@@ -1,0 +1,10 @@
+.okay_list .okay_list_faq_name {
+    width: calc(100% - 240px);
+    position: relative;
+    text-align: left;
+}
+@media only screen and (max-width : 767px) {
+    .okay_list .okay_list_faq_name {
+        width: calc(100% - 60px);
+    }
+}

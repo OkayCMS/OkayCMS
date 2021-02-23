@@ -1,0 +1,564 @@
+[2019-10-09 00:06:48] [info] Message: Notification: {
+  "type" : "notification",
+  "event" : "payment.succeeded",
+  "object" : {
+    "id" : "252f0de6-000f-5000-9000-158fc9a69603",
+    "status" : "succeeded",
+    "paid" : true,
+    "amount" : {
+      "value" : "3050.00",
+      "currency" : "RUB"
+    },
+    "authorization_details" : {
+      "rrn" : "230073157504",
+      "auth_code" : "156695"
+    },
+    "captured_at" : "2019-10-08T21:06:47.526Z",
+    "created_at" : "2019-10-08T21:06:44.747Z",
+    "description" : "Оплата заказа",
+    "metadata" : {
+      "module_version" : "1.0.10",
+      "order_id" : "21",
+      "cms_name" : "ya_api_okay"
+    },
+    "payment_method" : {
+      "type" : "bank_card",
+      "id" : "252f0de6-000f-5000-9000-158fc9a69603",
+      "saved" : false,
+      "card" : {
+        "first6" : "555555",
+        "last4" : "4444",
+        "expiry_month" : "10",
+        "expiry_year" : "2021",
+        "card_type" : "MasterCard"
+      },
+      "title" : "Bank card *4444"
+    },
+    "recipient" : {
+      "account_id" : "642981",
+      "gateway_id" : "1627965"
+    },
+    "refundable" : true,
+    "refunded_amount" : {
+      "value" : "0.00",
+      "currency" : "RUB"
+    },
+    "test" : true
+  }
+} 
+[2019-10-09 00:06:48] [info] Message: Send request: GET /payments/252f0de6-000f-5000-9000-158fc9a69603 
+[2019-10-09 00:06:49] [info] Message: Response with code 200 received with headers: {"0":"HTTP\/1.1 200","Keep-Alive":"timeout=10000, max=100","Signature":"v1 252f0e29 1 MGQCME6SH\/MtSr6yCSvOXFGvcEWuymAdC8Y3RnXuLLqEo3GoPIt2\/BpHRTiPMpjStF97twIwTX70dq36j7Saxn9CqZHPOuvL3gWjHgFduMTIz\/vRTvGOFsnLO2nIOWzGBetN1jcN","Content-Type":"application\/json;charset=UTF-8","Content-Length":"1017","Date":"Tue, 08 Oct 2019 21:06:48 GMT","Connection":"close"} and body: {
+  "id" : "252f0de6-000f-5000-9000-158fc9a69603",
+  "status" : "succeeded",
+  "paid" : true,
+  "amount" : {
+    "value" : "3050.00",
+    "currency" : "RUB"
+  },
+  "authorization_details" : {
+    "rrn" : "230073157504",
+    "auth_code" : "156695"
+  },
+  "captured_at" : "2019-10-08T21:06:47.526Z",
+  "created_at" : "2019-10-08T21:06:44.747Z",
+  "description" : "Оплата заказа",
+  "metadata" : {
+    "module_version" : "1.0.10",
+    "order_id" : "21",
+    "cms_name" : "ya_api_okay"
+  },
+  "payment_method" : {
+    "type" : "bank_card",
+    "id" : "252f0de6-000f-5000-9000-158fc9a69603",
+    "saved" : false,
+    "card" : {
+      "first6" : "555555",
+      "last4" : "4444",
+      "expiry_month" : "10",
+      "expiry_year" : "2021",
+      "card_type" : "MasterCard"
+    },
+    "title" : "Bank card *4444"
+  },
+  "recipient" : {
+    "account_id" : "642981",
+    "gateway_id" : "1627965"
+  },
+  "refundable" : true,
+  "refunded_amount" : {
+    "value" : "0.00",
+    "currency" : "RUB"
+  },
+  "test" : true
+} 
+[2019-10-09 00:06:50] [info] Message: Complete payment #252f0de6-000f-5000-9000-158fc9a69603 orderId: 21 
+[2019-10-09 00:10:04] [info] Message: Notification: {
+  "type" : "notification",
+  "event" : "payment.succeeded",
+  "object" : {
+    "id" : "252f0ea4-000f-5000-9000-14972e123480",
+    "status" : "succeeded",
+    "paid" : true,
+    "amount" : {
+      "value" : "10452.00",
+      "currency" : "RUB"
+    },
+    "authorization_details" : {
+      "rrn" : "273941152440",
+      "auth_code" : "151274"
+    },
+    "captured_at" : "2019-10-08T21:10:04.176Z",
+    "created_at" : "2019-10-08T21:10:01.535Z",
+    "description" : "Оплата заказа",
+    "metadata" : {
+      "module_version" : "1.0.10",
+      "order_id" : "22",
+      "cms_name" : "ya_api_okay"
+    },
+    "payment_method" : {
+      "type" : "bank_card",
+      "id" : "252f0ea4-000f-5000-9000-14972e123480",
+      "saved" : false,
+      "card" : {
+        "first6" : "555555",
+        "last4" : "4444",
+        "expiry_month" : "11",
+        "expiry_year" : "2021",
+        "card_type" : "MasterCard"
+      },
+      "title" : "Bank card *4444"
+    },
+    "recipient" : {
+      "account_id" : "642981",
+      "gateway_id" : "1627965"
+    },
+    "refundable" : true,
+    "refunded_amount" : {
+      "value" : "0.00",
+      "currency" : "RUB"
+    },
+    "test" : true
+  }
+} 
+[2019-10-09 00:10:04] [info] Message: Send request: GET /payments/252f0ea4-000f-5000-9000-14972e123480 
+[2019-10-09 00:10:04] [info] Message: Response with code 200 received with headers: {"0":"HTTP\/1.1 200","Keep-Alive":"timeout=10000, max=100","Signature":"v1 252f0eec 1 MGQCME08qxpDNBUSjHr8uXoehVsQwgtLu8F6SbuywmeBIaPzc2dhI9wvsKnENj54lu+xbAIwdZl\/eHVnoqp7HlkFj9PheIJ1A6QLbBP+7rjtK\/6EwGM3hreaDuXjXXBEzioF6ApS","Content-Type":"application\/json;charset=UTF-8","Content-Length":"1018","Date":"Tue, 08 Oct 2019 21:10:04 GMT","Connection":"close"} and body: {
+  "id" : "252f0ea4-000f-5000-9000-14972e123480",
+  "status" : "succeeded",
+  "paid" : true,
+  "amount" : {
+    "value" : "10452.00",
+    "currency" : "RUB"
+  },
+  "authorization_details" : {
+    "rrn" : "273941152440",
+    "auth_code" : "151274"
+  },
+  "captured_at" : "2019-10-08T21:10:04.176Z",
+  "created_at" : "2019-10-08T21:10:01.535Z",
+  "description" : "Оплата заказа",
+  "metadata" : {
+    "module_version" : "1.0.10",
+    "order_id" : "22",
+    "cms_name" : "ya_api_okay"
+  },
+  "payment_method" : {
+    "type" : "bank_card",
+    "id" : "252f0ea4-000f-5000-9000-14972e123480",
+    "saved" : false,
+    "card" : {
+      "first6" : "555555",
+      "last4" : "4444",
+      "expiry_month" : "11",
+      "expiry_year" : "2021",
+      "card_type" : "MasterCard"
+    },
+    "title" : "Bank card *4444"
+  },
+  "recipient" : {
+    "account_id" : "642981",
+    "gateway_id" : "1627965"
+  },
+  "refundable" : true,
+  "refunded_amount" : {
+    "value" : "0.00",
+    "currency" : "RUB"
+  },
+  "test" : true
+} 
+[2019-10-09 00:10:05] [info] Message: Complete payment #252f0ea4-000f-5000-9000-14972e123480 orderId: 22 
+[2019-10-09 00:16:55] [info] Message: Notification: {
+  "type" : "notification",
+  "event" : "payment.succeeded",
+  "object" : {
+    "id" : "252f104b-000f-5000-a000-18a8b1c65480",
+    "status" : "succeeded",
+    "paid" : true,
+    "amount" : {
+      "value" : "3050.00",
+      "currency" : "RUB"
+    },
+    "authorization_details" : {
+      "rrn" : "836315181925",
+      "auth_code" : "181029"
+    },
+    "captured_at" : "2019-10-08T21:16:53.986Z",
+    "created_at" : "2019-10-08T21:16:51.096Z",
+    "description" : "Оплата заказа",
+    "metadata" : {
+      "module_version" : "1.0.10",
+      "order_id" : "23",
+      "cms_name" : "ya_api_okay"
+    },
+    "payment_method" : {
+      "type" : "bank_card",
+      "id" : "252f104b-000f-5000-a000-18a8b1c65480",
+      "saved" : false,
+      "card" : {
+        "first6" : "555555",
+        "last4" : "4444",
+        "expiry_month" : "08",
+        "expiry_year" : "2021",
+        "card_type" : "MasterCard"
+      },
+      "title" : "Bank card *4444"
+    },
+    "recipient" : {
+      "account_id" : "642981",
+      "gateway_id" : "1627965"
+    },
+    "refundable" : true,
+    "refunded_amount" : {
+      "value" : "0.00",
+      "currency" : "RUB"
+    },
+    "test" : true
+  }
+} 
+[2019-10-09 00:16:55] [info] Message: Send request: GET /payments/252f104b-000f-5000-a000-18a8b1c65480 
+[2019-10-09 00:16:55] [info] Message: Response with code 200 received with headers: {"0":"HTTP\/1.1 200","Keep-Alive":"timeout=10000, max=100","Signature":"v1 252f1087 1 MGQCMBHo0ojCwur3U\/TfU0Se66B5QznyEiQYUa\/O0n0Dv\/uIfV9qMlYQqxIM5c8apbJmdwIwTaIUosEWDqpYXbPQQ0vH7o8z+Omy5Er2VbJlzIeRxJon5gkpZGNlFXpv5AhjiFlU","Content-Type":"application\/json;charset=UTF-8","Content-Length":"1017","Date":"Tue, 08 Oct 2019 21:16:55 GMT","Connection":"close"} and body: {
+  "id" : "252f104b-000f-5000-a000-18a8b1c65480",
+  "status" : "succeeded",
+  "paid" : true,
+  "amount" : {
+    "value" : "3050.00",
+    "currency" : "RUB"
+  },
+  "authorization_details" : {
+    "rrn" : "836315181925",
+    "auth_code" : "181029"
+  },
+  "captured_at" : "2019-10-08T21:16:53.986Z",
+  "created_at" : "2019-10-08T21:16:51.096Z",
+  "description" : "Оплата заказа",
+  "metadata" : {
+    "module_version" : "1.0.10",
+    "order_id" : "23",
+    "cms_name" : "ya_api_okay"
+  },
+  "payment_method" : {
+    "type" : "bank_card",
+    "id" : "252f104b-000f-5000-a000-18a8b1c65480",
+    "saved" : false,
+    "card" : {
+      "first6" : "555555",
+      "last4" : "4444",
+      "expiry_month" : "08",
+      "expiry_year" : "2021",
+      "card_type" : "MasterCard"
+    },
+    "title" : "Bank card *4444"
+  },
+  "recipient" : {
+    "account_id" : "642981",
+    "gateway_id" : "1627965"
+  },
+  "refundable" : true,
+  "refunded_amount" : {
+    "value" : "0.00",
+    "currency" : "RUB"
+  },
+  "test" : true
+} 
+[2019-10-09 00:16:56] [info] Message: Complete payment #252f104b-000f-5000-a000-18a8b1c65480 orderId: 23 
+[2019-10-10 17:18:08] [info] Message: Notification: {
+  "type" : "notification",
+  "event" : "payment.succeeded",
+  "object" : {
+    "id" : "2531513f-000f-5000-a000-1e7590e17e36",
+    "status" : "succeeded",
+    "paid" : true,
+    "amount" : {
+      "value" : "6250.00",
+      "currency" : "RUB"
+    },
+    "authorization_details" : {
+      "rrn" : "509376089297",
+      "auth_code" : "087431"
+    },
+    "captured_at" : "2019-10-10T14:18:07.067Z",
+    "created_at" : "2019-10-10T14:18:04.049Z",
+    "description" : "Оплата заказа №31",
+    "metadata" : {
+      "module_version" : "1.5.2",
+      "order_id" : "31",
+      "cms_name" : "ya_api_okay"
+    },
+    "payment_method" : {
+      "type" : "bank_card",
+      "id" : "2531513f-000f-5000-a000-1e7590e17e36",
+      "saved" : false,
+      "card" : {
+        "first6" : "555555",
+        "last4" : "4444",
+        "expiry_month" : "12",
+        "expiry_year" : "2022",
+        "card_type" : "MasterCard"
+      },
+      "title" : "Bank card *4444"
+    },
+    "recipient" : {
+      "account_id" : "642981",
+      "gateway_id" : "1627965"
+    },
+    "refundable" : true,
+    "refunded_amount" : {
+      "value" : "0.00",
+      "currency" : "RUB"
+    },
+    "test" : true
+  }
+} 
+[2019-10-10 17:18:08] [info] Message: Send request: GET /payments/2531513f-000f-5000-a000-1e7590e17e36 with headers: ["Content-Type:application\/json","Accept:application\/json","YM-User-Agent:Ubuntu\/16.04 PHP\/5.6.37 YandexCheckout.PHP\/1.5.2","Authorization:Basic NjQyOTgxOnRlc3RfNmdQOHNMU19rdnc3aXE3enVJeFNZUVlXT29GTUo2d3B4RXNvb1RtaTllMA=="] 
+[2019-10-10 17:18:08] [info] Message: Response with code 200 received with headers: {"0":"HTTP\/1.1 200","Keep-Alive":"timeout=10000, max=100","Signature":"v1 25315160 1 MGUCMQCGPJaUzOfoyAN37gr8w\/6XbhRLTOagTxnMWbeno8OwP+l\/0RZc7+RKpt5YcvvmdaoCMBzoNn6QaZErjCpHZyzQhuIeenoeh6EPksnrSETuOZ6MI71tUaCl95IsSlA77wMqBw==","Content-Type":"application\/json;charset=UTF-8","Content-Length":"1022","Date":"Thu, 10 Oct 2019 14:18:08 GMT","Connection":"close"} and body: {
+  "id" : "2531513f-000f-5000-a000-1e7590e17e36",
+  "status" : "succeeded",
+  "paid" : true,
+  "amount" : {
+    "value" : "6250.00",
+    "currency" : "RUB"
+  },
+  "authorization_details" : {
+    "rrn" : "509376089297",
+    "auth_code" : "087431"
+  },
+  "captured_at" : "2019-10-10T14:18:07.067Z",
+  "created_at" : "2019-10-10T14:18:04.049Z",
+  "description" : "Оплата заказа №31",
+  "metadata" : {
+    "module_version" : "1.5.2",
+    "order_id" : "31",
+    "cms_name" : "ya_api_okay"
+  },
+  "payment_method" : {
+    "type" : "bank_card",
+    "id" : "2531513f-000f-5000-a000-1e7590e17e36",
+    "saved" : false,
+    "card" : {
+      "first6" : "555555",
+      "last4" : "4444",
+      "expiry_month" : "12",
+      "expiry_year" : "2022",
+      "card_type" : "MasterCard"
+    },
+    "title" : "Bank card *4444"
+  },
+  "recipient" : {
+    "account_id" : "642981",
+    "gateway_id" : "1627965"
+  },
+  "refundable" : true,
+  "refunded_amount" : {
+    "value" : "0.00",
+    "currency" : "RUB"
+  },
+  "test" : true
+} 
+[2019-10-10 17:18:09] [info] Message: Complete payment #2531513f-000f-5000-a000-1e7590e17e36 orderId: 31 
+[2019-10-10 17:36:09] [info] Message: Notification: {
+  "type" : "notification",
+  "event" : "payment.succeeded",
+  "object" : {
+    "id" : "25315588-000f-5000-9000-19e29d90076e",
+    "status" : "succeeded",
+    "paid" : true,
+    "amount" : {
+      "value" : "9300.00",
+      "currency" : "RUB"
+    },
+    "authorization_details" : {
+      "rrn" : "591601459782",
+      "auth_code" : "458862"
+    },
+    "captured_at" : "2019-10-10T14:36:08.947Z",
+    "created_at" : "2019-10-10T14:36:06.316Z",
+    "description" : "Оплата заказа №32",
+    "metadata" : {
+      "module_version" : "1.5.2",
+      "order_id" : "32",
+      "cms_name" : "ya_api_okay"
+    },
+    "payment_method" : {
+      "type" : "bank_card",
+      "id" : "25315588-000f-5000-9000-19e29d90076e",
+      "saved" : false,
+      "card" : {
+        "first6" : "555555",
+        "last4" : "4444",
+        "expiry_month" : "12",
+        "expiry_year" : "2022",
+        "card_type" : "MasterCard"
+      },
+      "title" : "Bank card *4444"
+    },
+    "recipient" : {
+      "account_id" : "642981",
+      "gateway_id" : "1627965"
+    },
+    "refundable" : true,
+    "refunded_amount" : {
+      "value" : "0.00",
+      "currency" : "RUB"
+    },
+    "test" : true
+  }
+} 
+[2019-10-10 17:36:09] [info] Message: Send request: GET /payments/25315588-000f-5000-9000-19e29d90076e with headers: ["Content-Type:application\/json","Accept:application\/json","YM-User-Agent:Ubuntu\/16.04 PHP\/5.6.37 YandexCheckout.PHP\/1.5.2","Authorization:Basic NjQyOTgxOnRlc3RfNmdQOHNMU19rdnc3aXE3enVJeFNZUVlXT29GTUo2d3B4RXNvb1RtaTllMA=="] 
+[2019-10-10 17:36:09] [info] Message: Response with code 200 received with headers: {"0":"HTTP\/1.1 200","Keep-Alive":"timeout=10000, max=100","Signature":"v1 25315599 1 MGUCMCcXLfbXLhUBHRpZE9MFR+MUg7VvdeEB4DRL21rM+zaWqgLE+rXt8A98mD\/S3ynePAIxAIWo43qP8l5WlVLAOiNQMZ6xepBnGDhBJsthVB5y6Np7\/VhksV4LySlXIIi517Hj8g==","Content-Type":"application\/json;charset=UTF-8","Content-Length":"1022","Date":"Thu, 10 Oct 2019 14:36:09 GMT","Connection":"close"} and body: {
+  "id" : "25315588-000f-5000-9000-19e29d90076e",
+  "status" : "succeeded",
+  "paid" : true,
+  "amount" : {
+    "value" : "9300.00",
+    "currency" : "RUB"
+  },
+  "authorization_details" : {
+    "rrn" : "591601459782",
+    "auth_code" : "458862"
+  },
+  "captured_at" : "2019-10-10T14:36:08.947Z",
+  "created_at" : "2019-10-10T14:36:06.316Z",
+  "description" : "Оплата заказа №32",
+  "metadata" : {
+    "module_version" : "1.5.2",
+    "order_id" : "32",
+    "cms_name" : "ya_api_okay"
+  },
+  "payment_method" : {
+    "type" : "bank_card",
+    "id" : "25315588-000f-5000-9000-19e29d90076e",
+    "saved" : false,
+    "card" : {
+      "first6" : "555555",
+      "last4" : "4444",
+      "expiry_month" : "12",
+      "expiry_year" : "2022",
+      "card_type" : "MasterCard"
+    },
+    "title" : "Bank card *4444"
+  },
+  "recipient" : {
+    "account_id" : "642981",
+    "gateway_id" : "1627965"
+  },
+  "refundable" : true,
+  "refunded_amount" : {
+    "value" : "0.00",
+    "currency" : "RUB"
+  },
+  "test" : true
+} 
+[2019-10-10 17:36:10] [info] Message: Complete payment #25315588-000f-5000-9000-19e29d90076e orderId: 32 
+[2019-10-10 17:43:53] [info] Message: Notification: {
+  "type" : "notification",
+  "event" : "payment.succeeded",
+  "object" : {
+    "id" : "2531575a-000f-5000-a000-17c69ee684c6",
+    "status" : "succeeded",
+    "paid" : true,
+    "amount" : {
+      "value" : "9300.00",
+      "currency" : "RUB"
+    },
+    "authorization_details" : {
+      "rrn" : "902933822381",
+      "auth_code" : "821185"
+    },
+    "captured_at" : "2019-10-10T14:43:52.940Z",
+    "created_at" : "2019-10-10T14:43:50.561Z",
+    "description" : "Оплата заказа №34",
+    "metadata" : {
+      "module_version" : "1.5.2",
+      "order_id" : "34",
+      "cms_name" : "ya_api_okay"
+    },
+    "payment_method" : {
+      "type" : "bank_card",
+      "id" : "2531575a-000f-5000-a000-17c69ee684c6",
+      "saved" : false,
+      "card" : {
+        "first6" : "555555",
+        "last4" : "4444",
+        "expiry_month" : "12",
+        "expiry_year" : "2022",
+        "card_type" : "MasterCard"
+      },
+      "title" : "Bank card *4444"
+    },
+    "recipient" : {
+      "account_id" : "642981",
+      "gateway_id" : "1627965"
+    },
+    "refundable" : true,
+    "refunded_amount" : {
+      "value" : "0.00",
+      "currency" : "RUB"
+    },
+    "test" : true
+  }
+} 
+[2019-10-10 17:43:53] [info] Message: Send request: GET /payments/2531575a-000f-5000-a000-17c69ee684c6 with headers: ["Content-Type:application\/json","Accept:application\/json","YM-User-Agent:Ubuntu\/16.04 PHP\/5.6.37 YandexCheckout.PHP\/1.5.2","Authorization:Basic NjQyOTgxOnRlc3RfNmdQOHNMU19rdnc3aXE3enVJeFNZUVlXT29GTUo2d3B4RXNvb1RtaTllMA=="] 
+[2019-10-10 17:43:53] [info] Message: Response with code 200 received with headers: {"0":"HTTP\/1.1 200","Keep-Alive":"timeout=10000, max=100","Signature":"v1 25315769 1 MGQCMEnlN0P6nINGROEbIOKweZP1aVvIUuOpLf6uEH8LrdxQIZmTGhUWdUsrrpThkEZB3wIwIfLoxnZAl5DZiaSusJUG+afw2DeTrvcvu0+GCM5y0W+984QkxwUATS3W58BZaZho","Content-Type":"application\/json;charset=UTF-8","Content-Length":"1022","Date":"Thu, 10 Oct 2019 14:43:53 GMT","Connection":"close"} and body: {
+  "id" : "2531575a-000f-5000-a000-17c69ee684c6",
+  "status" : "succeeded",
+  "paid" : true,
+  "amount" : {
+    "value" : "9300.00",
+    "currency" : "RUB"
+  },
+  "authorization_details" : {
+    "rrn" : "902933822381",
+    "auth_code" : "821185"
+  },
+  "captured_at" : "2019-10-10T14:43:52.940Z",
+  "created_at" : "2019-10-10T14:43:50.561Z",
+  "description" : "Оплата заказа №34",
+  "metadata" : {
+    "module_version" : "1.5.2",
+    "order_id" : "34",
+    "cms_name" : "ya_api_okay"
+  },
+  "payment_method" : {
+    "type" : "bank_card",
+    "id" : "2531575a-000f-5000-a000-17c69ee684c6",
+    "saved" : false,
+    "card" : {
+      "first6" : "555555",
+      "last4" : "4444",
+      "expiry_month" : "12",
+      "expiry_year" : "2022",
+      "card_type" : "MasterCard"
+    },
+    "title" : "Bank card *4444"
+  },
+  "recipient" : {
+    "account_id" : "642981",
+    "gateway_id" : "1627965"
+  },
+  "refundable" : true,
+  "refunded_amount" : {
+    "value" : "0.00",
+    "currency" : "RUB"
+  },
+  "test" : true
+} 
+[2019-10-10 17:43:54] [info] Message: Complete payment #2531575a-000f-5000-a000-17c69ee684c6 orderId: 34 

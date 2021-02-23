@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<name>
+		PayKeeper
+	</name>
+	<settings>
+		<variable>PAYKEEPER_PAYMENT_FORM_URL</variable>
+		<name>{$lang->okaycms__PAYKEEPER_PAYMENT_FORM_URL}</name>
+	</settings>
+	<settings>
+		<variable>PAYKEEPER_SECRET</variable>
+		<name>{$lang->okaycms__PAYKEEPER_PAYKEEPER_SECRET}</name>
+	</settings>
+</module>

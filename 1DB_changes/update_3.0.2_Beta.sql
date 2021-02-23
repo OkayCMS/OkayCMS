@@ -1,0 +1,1 @@
+ALTER TABLE `ok_managers` ADD COLUMN `last_activity` TIMESTAMP;

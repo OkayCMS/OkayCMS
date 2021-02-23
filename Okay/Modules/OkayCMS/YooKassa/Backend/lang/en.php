@@ -1,0 +1,6 @@
+<?php
+
+$lang['okaycms__yandex_money_api__title'] = 'Yoo cashier';
+$lang['okaycms__yandex_money_api__description_part_1'] = 'For the module to work, you will need to specify a link';
+$lang['okaycms__yandex_money_api__description_part_2'] = 'in your YooKassa dashboard, in the Settings - Shop settings section in the HTTP notification field, as indicated in the screenshot. Then you will need to be in the admin. panels in OkayCMS in the Settings - Payment Methods section, select the payment method to which you want to connect payment through the YooKassa service, in the "Module Type:" field, select "OkayCMS/YooKassa" from the drop-down list and specify shopID and Secret key in the fields that appear YooKassa personal account. Instructions for obtaining the Private Key are available at https://yandex.ru/support/checkout/merchant/keys.html';
+$lang['okaycms__yandex_money_api__description_part_3'] = 'Also, the option "Payment by installments in Yoo.Cash" has been added to the module, but note that this service must be enabled through the manager in the personal account of the Cashier. Only then will it be available when choosing a payment method on the cashier side.';

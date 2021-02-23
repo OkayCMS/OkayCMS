@@ -1,0 +1,3 @@
+RewriteEngine on
+
+RewriteRule ^admintooltip\.js$	admintooltip.php  [L,QSA]

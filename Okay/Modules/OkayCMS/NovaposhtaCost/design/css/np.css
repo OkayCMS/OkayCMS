@@ -1,0 +1,21 @@
+.novaposhta_div {
+    position: relative;
+}
+.np_preloader {
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    background: url("../images/fn_loader.svg") center center no-repeat;
+    background-size: 100px;
+    position: absolute;
+}
+#delivery_novaposhta {
+    position: relative;
+}
+.term_novaposhta {
+    display: none;
+    padding: 5px 0;
+}
+.warehouses_novaposhta {
+    display: none;
+}

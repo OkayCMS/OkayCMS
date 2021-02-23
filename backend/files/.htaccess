@@ -1,0 +1,7 @@
+RewriteEngine on
+
+RewriteRule ^export/([^/]+)\.csv$	index.php?file=$1&folder=export&ext=csv [L,QSA]
+RewriteRule ^export_users/([^/]+)\.csv$	index.php?file=$1&folder=export_users&ext=csv [L,QSA]
+RewriteRule ^import/([^/]+)\.csv$	index.php?file=$1&folder=import&ext=csv [L,QSA]
+RewriteRule ^watermark/([^/]+)\.(png|jpg|jpeg|gif|tif|bmp|ico)$	index.php?file=$1&folder=watermark&ext=$2 [L,QSA]
+RewriteRule ^(.+)$	index.php?file= [L,QSA]

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<settings>
+		<variable>service_type</variable>
+		<name>{$lang->settings_np_service_type}</name>
+		<options>
+			<name>{$lang->settings_np_service_dd}</name>
+			<value>DoorsDoors</value>
+		</options>
+		<options>
+			<name>{$lang->settings_np_service_dw}</name>
+			<value>DoorsWarehouse</value>
+		</options>
+		<options>
+			<name>{$lang->settings_np_service_ww}</name>
+			<value>WarehouseWarehouse</value>
+		</options>
+		<options>
+			<name>{$lang->settings_np_service_wd}</name>
+			<value>WarehouseDoors</value>
+		</options>
+	</settings>
+</module>
