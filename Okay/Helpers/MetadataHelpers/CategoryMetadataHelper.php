@@ -12,6 +12,7 @@ use Okay\Entities\FeaturesEntity;
 use Okay\Entities\FeaturesValuesAliasesValuesEntity;
 use Okay\Entities\SEOFilterPatternsEntity;
 use Okay\Helpers\FilterHelper;
+use Okay\Helpers\MetaRobotsHelper;
 
 class CategoryMetadataHelper extends CommonMetadataHelper
 {
@@ -20,6 +21,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
     private $seoFilterPattern;
     private $metaDelimiter = ', ';
     private $autoMeta;
+    private $metaRobots;
 
     private $featuresPlusFeaturesIds = [];
 
@@ -198,10 +200,23 @@ class CategoryMetadataHelper extends CommonMetadataHelper
 
     private function getFilterAutoMeta()
     {
-        /** @var FilterHelper $filterHelper */
-        $filterHelper = $this->SL->getService(FilterHelper::class);
-        if ($filterHelper->isSetCanonical() === true) {
-            return ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        
+        if (empty($this->metaRobots)) {
+            /** @var MetaRobotsHelper $metaRobotsHelper */
+            $metaRobotsHelper = $this->SL->getService(MetaRobotsHelper::class);
+
+            $metaArray = $this->getMetaArray();
+
+            $currentPage = isset($metaArray['page']) ? $metaArray['page'] : null;
+            $currentBrands = isset($metaArray['brand']) ? $metaArray['brand'] : [];
+            $currentOtherFilters = isset($metaArray['filter']) ? $metaArray['filter'] : [];
+            $filterFeatures = isset($metaArray['features_values']) ? $metaArray['features_values'] : [];
+
+            $this->metaRobots = $metaRobotsHelper->getCategoryRobots($currentPage, $currentOtherFilters, $filterFeatures, $currentBrands);
+        }
+
+        if ($this->metaRobots == ROBOTS_NOINDEX_FOLLOW || $this->metaRobots == ROBOTS_NOINDEX_NOFOLLOW) {
+            return false;
         }
         
         if (empty($this->autoMeta)) {
@@ -328,10 +343,23 @@ class CategoryMetadataHelper extends CommonMetadataHelper
 
     private function getSeoFilterPattern()
     {
-        /** @var FilterHelper $filterHelper */
-        $filterHelper = $this->SL->getService(FilterHelper::class);
-        if ($filterHelper->isSetCanonical() === true) {
-            return null;
+        
+        if (empty($this->metaRobots)) {
+            /** @var MetaRobotsHelper $metaRobotsHelper */
+            $metaRobotsHelper = $this->SL->getService(MetaRobotsHelper::class);
+
+            $metaArray = $this->getMetaArray();
+
+            $currentPage = isset($metaArray['page']) ? $metaArray['page'] : null;
+            $currentBrands = isset($metaArray['brand']) ? $metaArray['brand'] : [];
+            $currentOtherFilters = isset($metaArray['filter']) ? $metaArray['filter'] : [];
+            $filterFeatures = isset($metaArray['features_values']) ? $metaArray['features_values'] : [];
+
+            $this->metaRobots = $metaRobotsHelper->getCategoryRobots($currentPage, $currentOtherFilters, $filterFeatures, $currentBrands);
+        }
+        
+        if ($this->metaRobots == ROBOTS_NOINDEX_FOLLOW || $this->metaRobots == ROBOTS_NOINDEX_NOFOLLOW) {
+            return false;
         }
         
         if (empty($this->seoFilterPattern)) {
@@ -342,8 +370,6 @@ class CategoryMetadataHelper extends CommonMetadataHelper
 
             /** @var SEOFilterPatternsEntity $SEOFilterPatternsEntity */
             $SEOFilterPatternsEntity = $entityFactory->get(SEOFilterPatternsEntity::class);
-
-            $metaArray = $this->getMetaArray();
 
             if (!empty($metaArray['brand']) && count($metaArray['brand']) == 1 && !empty($metaArray['features_values']) && count($metaArray['features_values']) == 1) {
                 /** @var FeaturesEntity $featuresEntity */
