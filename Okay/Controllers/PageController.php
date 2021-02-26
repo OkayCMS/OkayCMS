@@ -16,14 +16,12 @@ class PageController extends AbstractController
         $page = $pagesEntity->get($url);
         
         // Отображать скрытые страницы только админу
-        if ((empty($page) || (!$page->visible && empty($_SESSION['admin']))) && $url != '404') {
+        if (empty($page) || (!$page->visible && empty($_SESSION['admin'])) || $url == '404') {
             return false;
         }
         
         //lastModify
-        if ($page->url != '404') {
-            $this->response->setHeaderLastModify($page->last_modify);
-        }
+        $this->response->setHeaderLastModify($page->last_modify);
         
         $this->design->assign('page', $page);
         $this->design->assign('canonical', Router::generateUrl('page', ['url' => $page->url], true));
