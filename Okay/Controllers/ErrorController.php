@@ -16,6 +16,7 @@ class ErrorController extends AbstractController
         
         $page = $pagesEntity->get('404');
         $this->design->assign('page', $page);
+        $this->design->assign('noindex_nofollow', true);
 
         $this->design->assign('canonical', Router::generateUrl('page', ['url' => $page->url], true));
         $this->response->setContent('page.tpl');

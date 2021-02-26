@@ -70,10 +70,10 @@ class FilterHelper
         $languagesEntity = $entityFactory->get(LanguagesEntity::class);
         $this->language = $languagesEntity->get($languages->getLangId());
 
-        $this->maxFilterBrands = $settings->get('max_filter_brands');
-        $this->maxFilterFilter = $settings->get('max_filter_filter');
-        $this->maxFilterFeaturesValues = $settings->get('max_filter_features_values');
-        $this->maxFilterFeatures = $settings->get('max_filter_features');
+        $this->maxFilterBrands = $settings->get('max_brands_filter_depth');
+        $this->maxFilterFilter = $settings->get('max_other_filter_depth');
+        $this->maxFilterFeaturesValues = $settings->get('max_features_values_filter_depth');
+        $this->maxFilterFeatures = $settings->get('max_features_filter_depth');
         $this->maxFilterDepth = $settings->get('max_filter_depth');
     }
 
@@ -561,8 +561,11 @@ class FilterHelper
                         }
                         break;
                     }
-                    case 'page': // no break
+                    case 'page':
+                        $metaArray['page'] = $paramValues;
+                        break;
                     case 'sort':
+                        $metaArray['sort'] = $paramValues;
                         break;
                     default:
                     {
@@ -598,57 +601,6 @@ class FilterHelper
         }
 
         return ExtenderFacade::execute(__METHOD__, $metaArray, func_get_args());
-    }
-    
-    public function isSetCanonical($filtersUrl = null)
-    {
-        if ($filtersUrl === null) {
-            $filtersUrl = $this->filtersUrl;
-        }
-        
-        $setCanonical = false;
-        $metaArray = $this->getMetaArray($filtersUrl);
-        $categoryFeatures = $this->getCategoryFeatures();
-        foreach ($metaArray as $type => $_metaArray) {
-            switch ($type) {
-                case 'brand':
-                {
-                    if (count($_metaArray) > $this->maxFilterBrands) {
-                        $setCanonical = true;
-                    }
-                    break;
-                }
-                case 'filter':
-                {
-                    if (count($_metaArray) > $this->maxFilterFilter) {
-                        $setCanonical = true;
-                    }
-                    break;
-                }
-                case 'features_values':
-                {
-                    foreach ($_metaArray as $fId => $fValues) {
-                        if (count($fValues) > $this->maxFilterFeaturesValues || count($_metaArray) > $this->maxFilterFeatures) {
-                            $setCanonical = true;
-                        }
-                        
-                        // Если хоть одно значение в фильтре отмечено как "не индексировать" 
-                        foreach ($fValues as $valueId => $fValue) {
-                            if (isset($categoryFeatures[$fId]->values[$valueId]) && !$categoryFeatures[$fId]->values[$valueId]->to_index) {
-                                $setCanonical = true;
-                            }
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-
-        if (count($metaArray) > $this->maxFilterDepth) {
-            $setCanonical = true;
-        }
-
-        return ExtenderFacade::execute(__METHOD__, $setCanonical, [$filtersUrl]);
     }
     
     public function changeLangUrls($filtersUrl)

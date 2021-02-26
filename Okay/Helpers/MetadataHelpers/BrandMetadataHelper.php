@@ -12,6 +12,7 @@ use Okay\Entities\FeaturesEntity;
 use Okay\Entities\FeaturesValuesAliasesValuesEntity;
 use Okay\Entities\SEOFilterPatternsEntity;
 use Okay\Helpers\FilterHelper;
+use Okay\Helpers\MetaRobotsHelper;
 
 class BrandMetadataHelper extends CommonMetadataHelper
 {
@@ -19,6 +20,7 @@ class BrandMetadataHelper extends CommonMetadataHelper
     private $metaArray = [];
     private $metaDelimiter = ', ';
     private $autoMeta;
+    private $metaRobots;
 
     /**
      * @inheritDoc
@@ -133,10 +135,21 @@ class BrandMetadataHelper extends CommonMetadataHelper
 
     private function getFilterAutoMeta()
     {
-        /** @var FilterHelper $filterHelper */
-        $filterHelper = $this->SL->getService(FilterHelper::class);
-        if ($filterHelper->isSetCanonical() === true) {
-            return null;
+
+        if (empty($this->metaRobots)) {
+            /** @var MetaRobotsHelper $metaRobotsHelper */
+            $metaRobotsHelper = $this->SL->getService(MetaRobotsHelper::class);
+
+            $metaArray = $this->getMetaArray();
+
+            $currentPage = isset($metaArray['page']) ? $metaArray['page'] : null;
+            $currentOtherFilters = isset($metaArray['filter']) ? $metaArray['filter'] : [];
+
+            $this->metaRobots = $metaRobotsHelper->getCatalogRobots($currentPage, $currentOtherFilters);
+        }
+
+        if ($this->metaRobots == ROBOTS_NOINDEX_FOLLOW || $this->metaRobots == ROBOTS_NOINDEX_NOFOLLOW) {
+            return false;
         }
         
         if (empty($this->autoMeta)) {

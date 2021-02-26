@@ -147,7 +147,11 @@ class IndexAdmin
         $this->design->assign('rootUrl', $this->request->getRootUrl());
         
         if (!isset($_SESSION['last_version_data'])) {
-            if ($versionData = @file_get_contents('https://okay-cms.com/last_version.json')) {
+            $query = http_build_query([
+                'domain' => Request::getDomain(),
+                'version' => $config->version,
+            ]);
+            if ($versionData = @file_get_contents('https://okay-cms.com/last_version.json?' . $query)) {
                 $versionData = json_decode($versionData, true);
                 $_SESSION['last_version_data'] = $versionData;
             } else {
