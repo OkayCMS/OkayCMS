@@ -34,16 +34,15 @@ class NoPrefixStrategy extends AbstractRouteStrategy
             return $this->mockRouteParams;
         }
 
+        $filter = trim($this->matchFiltersUrl($categoryUrl, $url), '/');
+        
         return [
             '{$url}{$filtersUrl}',
             [
-                '{$url}' => $categoryUrl,
-                '{$filtersUrl}' => '/'.$this->matchFiltersUrl($categoryUrl, $url)
+                '{$url}' => "({$categoryUrl})",
+                '{$filtersUrl}' => '/?(' . $filter . ')',
             ],
-            [
-                '{$url}' => $categoryUrl,
-                '{$filtersUrl}' => $this->matchFiltersUrl($categoryUrl, $url)
-            ]
+            []
         ];
     }
 
@@ -62,6 +61,7 @@ class NoPrefixStrategy extends AbstractRouteStrategy
         if (strpos($url, 'category_features') !== false) {
             $url = substr($url, strlen('category_features') + 1);
         }
-        return substr($url, strlen($categoryUrl) + 1);
+        
+        return substr($url, strlen($categoryUrl));
     }
 }
