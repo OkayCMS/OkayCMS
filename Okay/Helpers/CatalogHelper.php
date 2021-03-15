@@ -377,6 +377,23 @@ class CatalogHelper
 
         return ExtenderFacade::execute(__METHOD__, $priceFilter, func_get_args());
     }
+
+    /**
+     * Метод проверяет доступность категории для показа в контроллере
+     * если категория корректна, можно переопределить логику работы контроллера и отменить дальнейшие действия
+     * для этого после реализации другой логики необходимо вернуть true из экстендера
+     *
+     * @param object $category
+     * @return object
+     */
+    public function setCatalogCategory($category)
+    {
+        if (empty($category) || (!$category->visible && empty($_SESSION['admin']))) {
+            return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+        }
+
+        return ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
     
     private function resetPriceFilter() {
         return [

@@ -46,8 +46,9 @@ class CategoryController extends AbstractController
         $this->setMetadataHelper($categoryMetadataHelper);
         
         $category = $categoriesEntity->get((string)$url);
-        if (empty($category) || (!$category->visible && empty($_SESSION['admin']))) {
-            return false;
+        //метод можно расширять и отменить дальнейшую логику работы контроллера
+        if(($setCategory = $catalogHelper->setCatalogCategory($category)) !== null) {
+            return $setCategory;
         }
         $this->design->assign('category', $category);
         $filter['category_id'] = $category->children;
