@@ -12,6 +12,7 @@ use Okay\Admin\Helpers\BackendCategoryStatsHelper;
 use Okay\Admin\Helpers\BackendCommentsHelper;
 use Okay\Admin\Helpers\BackendCouponsHelper;
 use Okay\Admin\Helpers\BackendDeliveriesHelper;
+use Okay\Admin\Helpers\BackendDiscountsHelper;
 use Okay\Admin\Helpers\BackendFeaturesValuesHelper;
 use Okay\Admin\Helpers\BackendFeedbacksHelper;
 use Okay\Admin\Helpers\BackendImportHelper;
@@ -25,6 +26,7 @@ use Okay\Admin\Helpers\BackendOrderSettingsHelper;
 use Okay\Admin\Helpers\BackendOrdersHelper;
 use Okay\Admin\Helpers\BackendPagesHelper;
 use Okay\Admin\Helpers\BackendPaymentsHelper;
+use Okay\Admin\Helpers\BackendPurchasesHelper;
 use Okay\Admin\Helpers\BackendSettingsHelper;
 use Okay\Admin\Helpers\BackendUserGroupsHelper;
 use Okay\Admin\Helpers\BackendUsersHelper;
@@ -148,9 +150,24 @@ return [
         'class' => BackendOrdersHelper::class,
         'arguments' => [
             new SR(EntityFactory::class),
-            new SR(MoneyHelper::class),
             new SR(Request::class),
             new SR(Settings::class),
+            new SR(BackendPurchasesHelper::class),
+            new SR(BackendDiscountsHelper::class),
+        ]
+    ],
+    BackendPurchasesHelper::class => [
+        'class' => BackendPurchasesHelper::class,
+        'arguments' => [
+            new SR(EntityFactory::class),
+            new SR(MoneyHelper::class),
+            new SR(DiscountsHelper::class),
+        ]
+    ],
+    BackendDiscountsHelper::class => [
+        'class' => BackendDiscountsHelper::class,
+        'arguments' => [
+            new SR(EntityFactory::class),
             new SR(QueryFactory::class),
             new SR(DiscountsHelper::class),
         ]
