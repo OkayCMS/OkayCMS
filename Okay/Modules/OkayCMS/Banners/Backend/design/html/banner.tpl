@@ -118,7 +118,7 @@
                             </div>
                             <div class="form-group">
                                 <span class="boxes_inline bnr_id_grup">
-                                    <input type="text" class="form-control" name="group_name" value="{$banner->group_name}" />
+                                    <input type="text" class="form-control" name="group_name" value="{$banner->group_name|escape}" />
                                 </span>
                             </div>
                         </div>
@@ -131,7 +131,7 @@
                             </div>
                             <div class="form-group">
                                 <span class="boxes_inline bnr_id_grup">
-                                    <input type="text" class="form-control" readonly value="{literal}{$banner_shortcode_{/literal}{$banner->group_name}{literal}}{/literal}" />
+                                    <input type="text" class="form-control" readonly value="{literal}{$banner_shortcode_{/literal}{$banner->group_name|escape}{literal}}{/literal}" />
                                 </span>
                             </div>
                         </div>
@@ -175,7 +175,7 @@
                         {if $banner->individual_shortcode}
                         <p>
                             {$btr->banner_instruction_shortcode_part_1|escape}
-                            <a href=""  class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{${/literal}{$banner->individual_shortcode}{literal}}{/literal}</a>
+                            <a href=""  class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{${/literal}{$banner->individual_shortcode|escape}{literal}}{/literal}</a>
                             {$btr->banner_instruction_shortcode_part_2|escape}
                         </p>
                         <p>{$btr->banner_instruction_shortcode_part_3}</p>

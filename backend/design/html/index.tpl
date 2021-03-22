@@ -69,7 +69,7 @@
     <link rel="icon" href="design/images/favicon.png" type="image/x-icon" />
 
     {if in_array($smarty.get.controller, array("OrdersAdmin", "PostAdmin", "ReportStatsAdmin", "CouponsAdmin", "CategoryStatsAdmin"))}
-        {js file="jquery/datepicker/jquery.ui.datepicker-{$manager->lang}.js" admin=true}
+        {js file="jquery/datepicker/jquery.ui.datepicker-{$manager->lang|escape}.js" admin=true}
         {js file="jquery/datepicker/jquery.datepicker.extension.range.min.js" admin=true}
     {/if}
     
@@ -100,7 +100,7 @@
             </div>
             <div class="admin_switches">
                 <div class="box_adswitch">
-                    <a class="btn_admin" target="_blank" href="{url_generator route="main" absolute=1}">
+                    <a class="btn_admin" href="{url_generator route="main" absolute=1}">
                     {include file='svg_icon.tpl' svgId='icon_desktop'}
                     <span class="">{$btr->index_go_to_site|escape}</span>
                     </a>
@@ -114,12 +114,12 @@
                     {if !empty($has_new_version)}
                         <a class="btn_admin btn_version_old hint-bottom-middle-t-info-s-small-mobile  hint-anim" data-hint="{$btr->index_btn_version_old|escape} {$has_new_version.version|escape}" {if $has_new_version.info_href}target="_blank" href="{$has_new_version.info_href|escape}"{else}href="javascript:;"{/if}>
                             {include file='svg_icon.tpl' svgId='no_icon'}
-                            <span class="">Version {$config->version}</span>
+                            <span class="">Version {$config->version|escape}</span>
                         </a>
                     {else}
                         <div class="btn_admin btn_version_new hint-bottom-middle-t-info-s-small-mobile  hint-anim" data-hint="{$btr->index_btn_version_new|escape}">
                             {include file='svg_icon.tpl' svgId='yes_icon'}
-                            <span class="">Version {$config->version}</span>
+                            <span class="">Version {$config->version|escape}</span>
                         </div>
                     {/if}
                 </div>
@@ -218,7 +218,7 @@
                             <span class="quickview_hidden">{$btr->index_support|escape}</span>
                             {include file='svg_icon.tpl' svgId='techsupport'}
                             {if $support_info->public_key}
-                            <span class="counter">{$support_info->new_messages}</span>
+                            <span class="counter">{$support_info->new_messages|escape}</span>
                             {/if}
                         </a>
                         <div class="techsupport_toggle hidden-md-up">
@@ -366,14 +366,14 @@
                     <div class="col-md-12 font_12 text_white">
                         <a href="https://okay-cms.com">OkayCMS </a>
                         &copy; {$smarty.now|date_format:"%Y"} 
-                        v.{$config->version} | {$btr->index_logged|escape} 
+                        v.{$config->version|escape} | {$btr->index_logged|escape} 
                         <a href="index.php?controller=ManagerAdmin&id={$manager->id}">{$manager->login|escape}</a>
                         (<a href="{$rootUrl}?logout">{$btr->index_exit|escape}</a>)
                         <div class="float-md-right">
                             <a href='index.php?controller=LicenseAdmin' class="text_white">{$btr->license_text|escape} </a>
                             ,
                             {if $support_info->public_key}
-                                <a class="text_success" href="index.php?controller=SupportAdmin">{$btr->index_support_active|escape} ({$support_info->new_messages})</a>
+                                <a class="text_success" href="index.php?controller=SupportAdmin">{$btr->index_support_active|escape} ({$support_info->new_messages|escape})</a>
                             {else}
                                 <a href="index.php?controller=SupportAdmin">
                                     <span class="text_warning">{$btr->index_support_not_active|escape}</span>

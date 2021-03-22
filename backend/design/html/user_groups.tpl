@@ -61,12 +61,12 @@
                                             {get_design_block block="groups_list_name" vars=['group' => $group]}
                                         </div>
                                         <div class="okay_list_boding okay_list_usergroups_sale">
-                                            <span class="tag tag-danger">{$btr->general_discount|escape} {$group->discount} %</span>
+                                            <span class="tag tag-danger">{$btr->general_discount|escape} {$group->discount|escape} %</span>
                                             {get_design_block block="groups_list_discount" vars=['group' => $group]}
                                         </div>
                                         <div class="okay_list_boding okay_list_usergroups_counts">
                                             <span>
-                                                <a href="{url controller=UsersAdmin group_id=$group->id}">{$group->cnt_users}</a>
+                                                <a href="{url controller=UsersAdmin group_id=$group->id}">{$group->cnt_users|escape}</a>
                                             </span>
                                             {get_design_block block="groups_list_users_count" vars=['group' => $group]}
                                         </div>

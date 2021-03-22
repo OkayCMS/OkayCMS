@@ -118,7 +118,7 @@
                                                             <td class="es-p5t es-p5b" width="180"><span>IP:</span></td>
                                                             <td class="es-p5t es-p5b">
                                                                 {$feedback->ip|escape}
-                                                                (<a style="font-size: 13px;" href='http://www.ip-adress.com/ip_tracer/{$feedback->ip}/'>{$btr->email_where|escape}</a>)
+                                                                (<a style="font-size: 13px;" href='http://www.ip-adress.com/ip_tracer/{$feedback->ip|escape}/'>{$btr->email_where|escape}</a>)
                                                             </td>
                                                         </tr>
                                                         <tr valign="top">

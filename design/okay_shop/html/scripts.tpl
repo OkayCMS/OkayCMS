@@ -4,7 +4,7 @@
         okay.{$var} = {$value|escape};
     {/foreach}
     
-    okay.max_order_amount = {$settings->max_order_amount};
+    okay.max_order_amount = {$settings->max_order_amount|escape};
 
     /*Сброс фильтра*/
     {if $controller == 'ProductsController' || $controller == 'BrandController' || $controller == 'CategoryController'}
@@ -214,7 +214,7 @@
     });
 
     /* Предзаказ */
-    okay.is_preorder = {$settings->is_preorder};
+    okay.is_preorder = {$settings->is_preorder|escape};
 
     /* Ошибка при отправке комментария в посте */
     {if $controller == 'BlogController' && $error}

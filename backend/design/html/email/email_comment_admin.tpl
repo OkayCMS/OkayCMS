@@ -166,7 +166,7 @@
                                                             <td class="es-p5t es-p5b" width="180"><span>IP:</span></td>
                                                             <td class="es-p5t es-p5b">
                                                                 {$comment->ip|escape}
-                                                                (<a style="font-size: 13px;" href='http://www.ip-adress.com/ip_tracer/{$comment->ip}/'>{$btr->email_where|escape}</a>)
+                                                                (<a style="font-size: 13px;" href='http://www.ip-adress.com/ip_tracer/{$comment->ip|escape}/'>{$btr->email_where|escape}</a>)
                                                             </td>
                                                         </tr>
                                                         <tr valign="top">

@@ -30,7 +30,7 @@
                                                     <div class="feature_opt_aliases_list">
                                                         <div class="heading_label option_alias_name">{$fa->name|escape}</div>
                                                         <div class="option_alias_value">
-                                                            <input type="text" class="form-control" name="options_aliases[{$fv->translit}][{$fa->id}]" value="{$fv->aliases[{$fa->id}]->value|escape}">
+                                                            <input type="text" class="form-control" name="options_aliases[{$fv->translit|escape}][{$fa->id}]" value="{$fv->aliases[{$fa->id}]->value|escape}">
                                                         </div>
                                                     </div>
                                                 {/foreach}

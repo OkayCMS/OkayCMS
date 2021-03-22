@@ -1,5 +1,5 @@
 {if $theme->name}
-    {$meta_title = "`$btr->general_theme` {$theme->name}" scope=global}
+    {$meta_title = "`$btr->general_theme` {$theme->name|escape}" scope=global}
 {/if}
 
 {*Название страницы*}
@@ -7,12 +7,12 @@
     <div class="col-lg-12 col-md-12">
         <div class="wrap_heading">
             <div class="box_heading heading_page ">
-                {$btr->theme_current|escape} {$theme->name}
+                {$btr->theme_current|escape} {$theme->name|escape}
             </div>
             <div class="box_btn_heading theme_btn_heading">
                 <a class="fn_clone_theme btn btn_small btn-info" href="/">
                     {include file='svg_icon.tpl' svgId='plus'}
-                    <span>{$btr->theme_copy|escape} {$settings->theme}</span>
+                    <span>{$btr->theme_copy|escape} {$settings->theme|escape}</span>
                 </a>
             </div>
         </div>
@@ -94,7 +94,7 @@
                                             </div>
                                             <div class="banner_card_block">
                                                 <div class="theme_block_image" style="position:relative;">
-                                                    <img class="{if $theme->name != $t->name}gray_filter{/if}" width="" src='{$root_dir}../design/{$t->name}/preview.png'>
+                                                    <img class="{if $theme->name != $t->name}gray_filter{/if}" width="" src='{$root_dir}../design/{$t->name|escape}/preview.png'>
                                                     {if $theme->name != $t->name}
                                                         <div class="fn_set_theme btn btn_small btn_blue theme_btn_admin" data-set_name="{$t->name|escape}">
                                                             {include file='svg_icon.tpl' svgId='checked'}
@@ -141,9 +141,9 @@
                                         {foreach $managers as $m}
                                             <div class="col-xl-3 col-lg-4 col-md-6">
                                                 <div class="permission_box">
-                                                    <span>{$m->login}</span>
+                                                    <span>{$m->login|escape}</span>
                                                     <label class="switch switch-default">
-                                                        <input class="switch-input fn_manager" name="admin_theme_managers[]" value="{$m->login}" type="checkbox" {if $admin_theme_managers && in_array($m->login, $admin_theme_managers)}checked{/if} />
+                                                        <input class="switch-input fn_manager" name="admin_theme_managers[]" value="{$m->login|escape}" type="checkbox" {if $admin_theme_managers && in_array($m->login, $admin_theme_managers)}checked{/if} />
                                                         <span class="switch-label"></span>
                                                         <span class="switch-handle"></span>
                                                     </label>

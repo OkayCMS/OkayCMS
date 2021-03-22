@@ -1,7 +1,7 @@
 {foreach $modules as $module}
     <div class="fn_row okay_list_body_item fn_sort_item {if $now_downloaded} fn_now_downloaded{/if}"{if $now_downloaded} style="background-color: #ebffea; transition: background-color 1s linear;"{/if}>
         <div class="okay_list_row">
-            <input type="hidden" name="positions[{$module->id}]" value="{$module->position}">
+            <input type="hidden" name="positions[{$module->id}]" value="{$module->position|escape}">
 
             <div class="okay_list_boding okay_list_drag move_zone">
                 {if $module->status !== 'Not Installed'}{include file='svg_icon.tpl' svgId='drag_vertical'}{/if}
@@ -15,15 +15,15 @@
             <div class="okay_list_boding okay_list_photo">
                 {if $module->preview}
                     {if $module->backend_main_controller}
-                        <a href="{url controller=[{$module->vendor},{$module->module_name},{$module->backend_main_controller}] id=null return=$smarty.server.REQUEST_URI}">
-                            <img src="{$rootUrl}/{$module->preview}"/>
+                        <a href="{url controller=[{$module->vendor|escape},{$module->module_name|escape},{$module->backend_main_controller|escape}] id=null return=$smarty.server.REQUEST_URI}">
+                            <img src="{$rootUrl}/{$module->preview|escape}"/>
                         </a>
                     {else}
-                        <img src="{$rootUrl}/{$module->preview}"/>
+                        <img src="{$rootUrl}/{$module->preview|escape}"/>
                     {/if}
                 {else}
                     {if $module->backend_main_controller}
-                        <a href="{url controller=[{$module->vendor},{$module->module_name},{$module->backend_main_controller}] id=null return=$smarty.server.REQUEST_URI}">
+                        <a href="{url controller=[{$module->vendor|escape},{$module->module_name|escape},{$module->backend_main_controller|escape}] id=null return=$smarty.server.REQUEST_URI}">
                             {include file='svg_icon.tpl' svgId='modules_icon'}
                         </a>
                     {else}
@@ -35,7 +35,7 @@
             <div class="okay_list_boding okay_list_module_name">
                 <div class="text_600 mb-h mr-1">
                     {if $module->backend_main_controller}
-                        <a href="{url controller=[{$module->vendor},{$module->module_name},{$module->backend_main_controller}] id=null return=$smarty.server.REQUEST_URI}">
+                        <a href="{url controller=[{$module->vendor|escape},{$module->module_name|escape},{$module->backend_main_controller|escape}] id=null return=$smarty.server.REQUEST_URI}">
                             {$module->vendor|escape}/{$module->module_name|escape}
                         </a>
                     {else}
@@ -81,12 +81,12 @@
                     </div>
                 {/if}
             </div>
-            <div class="okay_list_boding okay_list_module_type hidden-md-down">{if $module->type}{$module->type}{else}{$btr->not_used_module_type}{/if}</div>
+            <div class="okay_list_boding okay_list_module_type hidden-md-down">{if $module->type}{$module->type|escape}{else}{$btr->not_used_module_type}{/if}</div>
 
             <div class="okay_list_boding okay_list_status">
                 {*visible*}
                 {if $module->status === 'Not Installed'}
-                    <button class="btn" name="install_module" value="{$module->vendor}/{$module->module_name}">{$btr->install_module}</button>
+                    <button class="btn" name="install_module" value="{$module->vendor|escape}/{$module->module_name|escape}">{$btr->install_module}</button>
                 {else}
                     <label class="switch switch-default">
                         <input class="switch-input fn_ajax_action {if $module->enabled}fn_active_class{/if}" data-controller="module" data-action="enabled" data-id="{$module->id}" name="enabled" value="1" type="checkbox"  {if $module->enabled}checked=""{/if}/>

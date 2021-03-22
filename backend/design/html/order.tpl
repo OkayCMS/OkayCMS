@@ -25,7 +25,7 @@
                 <div class="order_toolbar__status">
                     <select class="selectpicker form-control" name="status_id">
                         {foreach $all_status as $status_item}
-                            <option value="{$status_item->id}" {if $order->status_id == $status_item->id}selected=""{/if} {if $hasVariantNotInStock && !$order->closed && $status_item->is_close} disabled{/if} >{$status_item->name|escape}</option>
+                            <option value="{$status_item->id|escape}" {if $order->status_id == $status_item->id}selected=""{/if} {if $hasVariantNotInStock && !$order->closed && $status_item->is_close} disabled{/if} >{$status_item->name|escape}</option>
                         {/foreach}
                     </select>
                 </div>
@@ -47,9 +47,9 @@
                                 <span class="heading_label">{$btr->orders_choose|escape} <i class="fn_delete_labels_hide btn_close delete_labels_hide">{include file='svg_icon.tpl' svgId='delete'}</i></span>
                                 <ul class="option_labels_box">
                                     {foreach $labels as $l}
-                                        <li class="fn_ajax_labels" data-order_id="{$order->id}"  style="background-color: #{$l->color|escape}">
-                                            <input id="l{$order->id}_{$l->id}" type="checkbox" class="hidden_check_1" name="order_labels[]"  value="{$l->id}" {if in_array($l->id, array_keys($order_labels)) && is_array($order_labels)}checked=""{/if} />
-                                            <label   for="l{$order->id}_{$l->id}" class="label_labels"><span>{$l->name|escape}</span></label>
+                                        <li class="fn_ajax_labels" data-order_id="{$order->id|escape}"  style="background-color: #{$l->color|escape}">
+                                            <input id="l{$order->id|escape}_{$l->id|escape}" type="checkbox" class="hidden_check_1" name="order_labels[]" value="{$l->id|escape}" {if in_array($l->id, array_keys($order_labels)) && is_array($order_labels)}checked=""{/if} />
+                                            <label for="l{$order->id|escape}_{$l->id|escape}" class="label_labels"><span>{$l->name|escape}</span></label>
                                         </li>
                                     {/foreach}
                                 </ul>
@@ -186,7 +186,7 @@
                                     {foreach $purchases as $purchase}
                                         <div class="fn_row okay_list_body_item purchases">
                                             <div class="okay_list_row">
-                                                <input type=hidden name=purchases[id][{$purchase->id}] value='{$purchase->id}'>
+                                                <input type=hidden name=purchases[id][{$purchase->id|escape}] value='{$purchase->id|escape}'>
 
                                                 <div class="okay_list_boding okay_list_photo">
                                                     {if $purchase->variant}
@@ -215,20 +215,20 @@
                                                             {/if}
                                                         {/if}
                                                         <div class="hidden-lg-up mt-q">
-                                                            <span class="text_primary text_600 {if $purchase->discounts}text_warning{/if}">{$purchase->price}</span>
+                                                            <span class="text_primary text_600 {if $purchase->discounts}text_warning{/if}">{$purchase->price|escape}</span>
                                                             <span class="hidden-md-up text_500">
-                                                            {$purchase->amount} {if $purchase->units}{$purchase->units|escape}{else}{$settings->units|escape}{/if}</span>
+                                                            {$purchase->amount|escape} {if $purchase->units}{$purchase->units|escape}{else}{$settings->units|escape}{/if}</span>
                                                         </div>
                                                         {get_design_block block="order_purchase_name" vars=['purchase'=>$purchase]}
                                                     </div>
 
                                                     {if !$purchase->variant}
-                                                        <input class="form-control " type="hidden" name="purchases[variant_id][{$purchase->id}]" value="" />
+                                                        <input class="form-control " type="hidden" name="purchases[variant_id][{$purchase->id|escape}]" value="" />
                                                     {else}
                                                         <div class="boxes_inline mt-h">
-                                                            <select name="purchases[variant_id][{$purchase->id}]" class="selectpicker form-control {if $purchase->product->variants|count == 1}hidden{/if} fn_purchase_variant">
+                                                            <select name="purchases[variant_id][{$purchase->id|escape}]" class="selectpicker form-control {if $purchase->product->variants|count == 1}hidden{/if} fn_purchase_variant">
                                                                 {foreach $purchase->product->variants as $v}
-                                                                    <option data-price="{$v->price}" data-units="{if $v->units}{$v->units|escape}{else}{$settings->units|escape}{/if}" data-amount="{$v->stock}" value="{$v->id}" {if $v->id == $purchase->variant_id}selected{/if} >
+                                                                    <option data-price="{$v->price|escape}" data-units="{if $v->units}{$v->units|escape}{else}{$settings->units|escape}{/if}" data-amount="{$v->stock|escape}" value="{$v->id|escape}" {if $v->id == $purchase->variant_id}selected{/if} >
                                                                         {if $v->name}
                                                                             {$v->name|escape}
                                                                         {else}
@@ -248,13 +248,13 @@
                                                 </div>
                                                 <div class="okay_list_boding okay_list_price">
                                                     <div class="input-group">
-                                                        <input type="text" class="form-control fn_purchase_price" name="purchases[undiscounted_price][{$purchase->id}]" value="{$purchase->undiscounted_price}">
-                                                        <span class="input-group-addon">{$currency->code}</span>
+                                                        <input type="text" class="form-control fn_purchase_price" name="purchases[undiscounted_price][{$purchase->id|escape}]" value="{$purchase->undiscounted_price|escape}">
+                                                        <span class="input-group-addon">{$currency->code|escape}</span>
                                                     </div>
                                                 </div>
                                                 <div class="okay_list_boding okay_list_count">
                                                     <div class="input-group">
-                                                        <input class="form-control fn_purchase_amount" type="text" name="purchases[amount][{$purchase->id}]" value="{$purchase->amount}"/>
+                                                        <input class="form-control fn_purchase_amount" type="text" name="purchases[amount][{$purchase->id|escape}]" value="{$purchase->amount|escape}"/>
                                                         <span class="input-group-addon p-0 fn_purchase_units">
                                                              {if $purchase->units}{$purchase->units|escape}{else}{$settings->units|escape}{/if}
                                                         </span>
@@ -263,7 +263,7 @@
                                                 <div class="okay_list_boding okay_list_order_amount_price">
                                                     <div class="text_dark {if $purchase->discounts}text_warning text_600{/if}">
                                                         <span class="font_16">{($purchase->price) * ($purchase->amount)}</span>
-                                                        <span class="font_12">{$currency->sign}</span>
+                                                        <span class="font_12">{$currency->sign|escape}</span>
                                                     </div>
                                                 </div>
                                                 <div class="okay_list_boding okay_list_close">
@@ -423,7 +423,7 @@
                                                     <select name="delivery_id" class="selectpicker form-control">
                                                         <option value="0">{$btr->order_not_selected|escape}</option>
                                                         {foreach $deliveries as $d}
-                                                            <option value="{$d->id}" {if $d->id==$delivery->id}selected{/if} data-module_id="{$d->module_id}">{$d->name|escape}</option>
+                                                            <option value="{$d->id|escape}" {if $d->id==$delivery->id}selected{/if} data-module_id="{$d->module_id|escape}">{$d->name|escape}</option>
                                                         {/foreach}
                                                     </select>
                                                 </div>
@@ -431,7 +431,7 @@
                                             </div>
                                             <div class="okay_list_boding okay_list_ordfig_val">
                                                 <div class="input-group">
-                                                    <input type=text name=delivery_price class="form-control" value='{$order->delivery_price}'>
+                                                    <input type=text name=delivery_price class="form-control" value='{$order->delivery_price|escape}'>
                                                     <span class="input-group-addon p-0">{$currency->code|escape}</span>
                                                 </div>
                                             </div>
@@ -448,7 +448,7 @@
                                                     <select name="payment_method_id" class="selectpicker form-control">
                                                         <option value="0">{$btr->order_not_selected|escape}</option>
                                                         {foreach $payment_methods as $pm}
-                                                        <option value="{$pm->id}" {if $pm->id==$payment_method->id}selected{/if} data-module="{$pm->module}">{$pm->name|escape}</option>
+                                                        <option value="{$pm->id}" {if $pm->id==$payment_method->id}selected{/if} data-module="{$pm->module|escape}">{$pm->name|escape}</option>
                                                         {/foreach}
                                                     </select>
                                                 </div>
@@ -457,8 +457,8 @@
                                             <div class="okay_list_boding okay_list_ordfig_val"></div>
                                             <div class="okay_list_boding okay_list_ordfig_price">
                                                 <div class="text_dark">
-                                                    <span>{$order->total_price} </span>
-                                                    <span class="">{$currency->sign}</span>
+                                                    <span>{$order->total_price|escape} </span>
+                                                    <span class="">{$currency->sign|escape}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -485,7 +485,7 @@
                                             <div class="order_prices__total">
                                                 <span class="text_grey text_500 font_18 mr-1">{$btr->order_to_pay|escape}</span>
                                                 <span class="text_dark text_600 font_26">{$order->total_price|convert:$payment_currency->id}</span>
-                                                <span class="text_dark text_400 font_18 ml-q">{$payment_currency->sign}</span>
+                                                <span class="text_dark text_400 font_18 ml-q">{$payment_currency->sign|escape}</span>
                                             </div>
                                         {/if}
                                     </div>
@@ -543,7 +543,7 @@
                             <textarea name="comment" class="form-control short_textarea">{$order->comment|escape}</textarea>
                         </div>
                          <div class="mb-1">
-                            <div class="heading_label boxes_inline">{$btr->order_ip|escape} {if $order->id}<a href="https://who.is/whois-ip/ip-address/{$order->ip}" target="_blank"><i class="fa fa-map-marker"></i> whois</a>{/if}</div>
+                            <div class="heading_label boxes_inline">{$btr->order_ip|escape} {if $order->id}<a href="https://who.is/whois-ip/ip-address/{$order->ip|escape}" target="_blank"><i class="fa fa-map-marker"></i> whois</a>{/if}</div>
                             <div class="boxes_inline text_dark text_600">{$order->ip|escape}</div>
                         </div>
                         {if $order->referer_channel}
@@ -552,23 +552,23 @@
                                 <div class="boxes_inline text_dark">
                                     {if $order->referer_channel == Okay\Core\UserReferer\UserReferer::CHANNEL_EMAIL}
                                         <span class="tag tag-chanel_email" title="{$order->referer_source|escape}">
-                                            {include file='svg_icon.tpl' svgId='tag_email'} {$order->referer_channel}
+                                            {include file='svg_icon.tpl' svgId='tag_email'} {$order->referer_channel|escape}
                                         </span>
                                     {elseif $order->referer_channel == Okay\Core\UserReferer\UserReferer::CHANNEL_SEARCH}
                                         <span class="tag tag-chanel_search" title="{$order->referer_source|escape}">
-                                            {include file='svg_icon.tpl' svgId='tag_search'} {$order->referer_channel}
+                                            {include file='svg_icon.tpl' svgId='tag_search'} {$order->referer_channel|escape}
                                         </span>
                                     {elseif $order->referer_channel == Okay\Core\UserReferer\UserReferer::CHANNEL_SOCIAL}
                                         <a href="{$order->referer_source|escape}" target="_blank" class="tag tag-chanel_social" title="{$order->referer_source|escape}">
-                                            {include file='svg_icon.tpl' svgId='tag_social'} {$order->referer_channel}
+                                            {include file='svg_icon.tpl' svgId='tag_social'} {$order->referer_channel|escape}
                                         </a>
                                     {elseif $order->referer_channel == Okay\Core\UserReferer\UserReferer::CHANNEL_REFERRAL}
                                         <a href="{$order->referer_source|escape}" target="_blank" class="tag tag-chanel_referral" title="{$order->referer_source|escape}">
-                                            {include file='svg_icon.tpl' svgId='tag_referral'} {$order->referer_channel}
+                                            {include file='svg_icon.tpl' svgId='tag_referral'} {$order->referer_channel|escape}
                                         </a>
                                     {else}
                                         <span class="tag tag-chanel_unknown" title="{$order->referer_source|escape}">
-                                            {include file='svg_icon.tpl' svgId='tag_unknown'} {$order->referer_channel}
+                                            {include file='svg_icon.tpl' svgId='tag_unknown'} {$order->referer_channel|escape}
                                         </span>
                                     {/if}
                                 </div>
@@ -584,13 +584,13 @@
                                         {$btr->order_buyer_not_registred|escape}
                                     </div>
                                     <div style="position:relative;">
-                                        <input type="hidden" name="user_id" value="{$user->id}" />
+                                        <input type="hidden" name="user_id" value="{$user->id|escape}" />
 
                                         <input type="text" class="fn_user_complite form-control" placeholder="{$btr->order_user_select|escape}" />
                                     </div>
                                 {else}
                                     <div class="fn_user_row">
-                                        <input type="hidden" name="user_id" value="{$user->id}" />
+                                        <input type="hidden" name="user_id" value="{$user->id|escape}" />
                                         <div class="heading_label boxes_inline">
                                             {$btr->order_buyer|escape}
                                             <a href="{url controller=UserAdmin id=$user->id}" target=_blank>
@@ -616,7 +616,7 @@
                             <div class="heading_label">{$btr->order_language|escape}</div>
                             <select name="entity_lang_id" class="selectpicker form-control">
                                 {foreach $languages as $l}
-                                    <option value="{$l->id}" {if $l->id == $order->lang_id}selected=""{/if}>{$l->name|escape}</option>
+                                    <option value="{$l->id|escape}" {if $l->id == $order->lang_id}selected=""{/if}>{$l->name|escape}</option>
                                 {/foreach}
                             </select>
                         </div>

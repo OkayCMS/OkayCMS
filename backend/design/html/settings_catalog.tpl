@@ -325,7 +325,7 @@
                                         <input class="fn_accept_delete" name="delete_watermark" value="" type="hidden" />
                                         <div class="banner_image fn_image_wrapper text-xs-center">
                                             <a href="javascript:;" class="fn_delete_item remove_image"></a>
-                                            <img class="watermark_image" src="{$rootUrl}/{$config->watermark_file}" alt="" />
+                                            <img class="watermark_image" src="{$rootUrl}/{$config->watermark_file|escape}" alt="" />
                                         </div>
                                     </div>
                                 {else}

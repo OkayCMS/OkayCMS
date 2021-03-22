@@ -55,7 +55,7 @@
                         {foreach $menus as $menu}
                             <div class="fn_row okay_list_body_item fn_sort_item">
                                 <div class="okay_list_row">
-                                    <input type="hidden" name="positions[{$menu->id}]" value="{$menu->position}">
+                                    <input type="hidden" name="positions[{$menu->id}]" value="{$menu->position|escape}">
 
                                     <div class="okay_list_boding okay_list_drag move_zone">
                                         {include file='svg_icon.tpl' svgId='drag_vertical'}

@@ -260,7 +260,7 @@
                 <div class="toggle_body_wrap on fn_card">
                     <div class="okay_type_radio_wrap">
                         <label for="" class="okay_type_radio_no_width" >
-                            <span>{$btr->common_routes_brands}: {$rootUrl}/<input name="all_brands_routes_template__default" placeholder="brands" class="form-control prefix-url-input" type="text" value="{if $settings->all_brands_routes_template__default}{$settings->all_brands_routes_template__default}{else}brands{/if}" /></span>
+                            <span>{$btr->common_routes_brands}: {$rootUrl}/<input name="all_brands_routes_template__default" placeholder="brands" class="form-control prefix-url-input" type="text" value="{if $settings->all_brands_routes_template__default}{$settings->all_brands_routes_template__default|escape}{else}brands{/if}" /></span>
                         </label>
 
                         <div class="okay_switch clearfix">

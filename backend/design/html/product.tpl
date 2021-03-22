@@ -486,7 +486,7 @@
                                 <li class="product_image_item {if $special@iteration > 4}fn_toggle_hidden hidden{/if} fn_sort_item {if $product->special == $special->filename}product_special{/if}">
                                     <button type="button" class=" fn_remove_image remove_image"></button>
                                     <i class="move_zone">
-                                        <img class="product_icon" title="{$special->name}" src="../{$config->special_images_dir}{$special->filename}" alt="{$special->filename}" />
+                                        <img class="product_icon" title="{$special->name|escape}" src="../{$config->special_images_dir|escape}{$special->filename|escape}" alt="{$special->filename|escape}" />
                                         <span class="fn_change_special change_special" data-origin="{$btr->general_select|escape}" data-result="{$btr->general_unselect|escape}">
                                             {if $product->special == $special->filename}
                                                 {$btr->general_unselect|escape}
@@ -525,11 +525,11 @@
                 <div class="toggle_body_wrap on fn_card">
                     <div class="heading_label">
                         {$btr->product_rating_value|escape}
-                        <span class="font-weight-bold fn_show_rating">{$product->rating}</span>
+                        <span class="font-weight-bold fn_show_rating">{$product->rating|escape}</span>
                     </div>
                     <div class="raiting_boxed">
-                        <input class="fn_rating_value" type="hidden" value="{$product->rating}" name="rating" />
-                        <input class="fn_rating range_input" type="range" min="1" max="5" step="0.1" value="{$product->rating}" />
+                        <input class="fn_rating_value" type="hidden" value="{$product->rating|escape}" name="rating" />
+                        <input class="fn_rating range_input" type="range" min="1" max="5" step="0.1" value="{$product->rating|escape}" />
 
                         <div class="raiting_range_number">
                             <span class="float-xs-left">1</span>
@@ -538,7 +538,7 @@
                     </div>
                     <div class="heading_label">
                         {$btr->product_rating_number|escape}
-                        <input type="text" class="form-control" name="votes" value="{$product->votes}">
+                        <input type="text" class="form-control" name="votes" value="{$product->votes|escape}">
                     </div>
                 </div>
                 {get_design_block block="product_rationg"}

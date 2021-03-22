@@ -4,29 +4,29 @@
         <div class="order_history__content">
             <div class="boxed__content">
                 <div class="order_history__title">
-                    <span>{$btr->order_history_created}</span>
+                    <span>{$btr->order_history_created|escape}</span>
                     <span class="tag tag-chanel_unknown">{$order->date|date} | {$order->date|time}</span>
                     {if $order->referer_channel}
-                        <span>{$btr->order_from}</span>
+                        <span>{$btr->order_from|escape}</span>
                         {if $order->referer_channel == Okay\Core\UserReferer\UserReferer::CHANNEL_EMAIL}
-                            <span class="tag tag-chanel_email" title="{$order->referer_source}">
-                                {include file='svg_icon.tpl' svgId='tag_email'} {$order->referer_channel}
+                            <span class="tag tag-chanel_email" title="{$order->referer_source|escape}">
+                                {include file='svg_icon.tpl' svgId='tag_email'} {$order->referer_channel|escape}
                             </span>
                         {elseif $order->referer_channel == Okay\Core\UserReferer\UserReferer::CHANNEL_SEARCH}
-                            <span class="tag tag-chanel_search" title="{$order->referer_source}">
-                                {include file='svg_icon.tpl' svgId='tag_search'} {$order->referer_channel}
+                            <span class="tag tag-chanel_search" title="{$order->referer_source|escape}">
+                                {include file='svg_icon.tpl' svgId='tag_search'} {$order->referer_channel|escape}
                             </span>
                         {elseif $order->referer_channel == Okay\Core\UserReferer\UserReferer::CHANNEL_SOCIAL}
-                            <span class="tag tag-chanel_social" title="{$order->referer_source}">
-                                {include file='svg_icon.tpl' svgId='tag_social'} {$order->referer_channel}
+                            <span class="tag tag-chanel_social" title="{$order->referer_source|escape}">
+                                {include file='svg_icon.tpl' svgId='tag_social'} {$order->referer_channel|escape}
                             </span>
                         {elseif $order->referer_channel == Okay\Core\UserReferer\UserReferer::CHANNEL_REFERRAL}
-                            <span class="tag tag-chanel_referral" title="{$order->referer_source}">
-                                {include file='svg_icon.tpl' svgId='tag_referral'} {$order->referer_channel}
+                            <span class="tag tag-chanel_referral" title="{$order->referer_source|escape}">
+                                {include file='svg_icon.tpl' svgId='tag_referral'} {$order->referer_channel|escape}
                             </span>
                         {else}
-                            <span class="tag tag-chanel_unknown" title="{$order->referer_source}">
-                                {include file='svg_icon.tpl' svgId='tag_unknown'} {$order->referer_channel}
+                            <span class="tag tag-chanel_unknown" title="{$order->referer_source|escape}">
+                                {include file='svg_icon.tpl' svgId='tag_unknown'} {$order->referer_channel|escape}
                             </span>
                         {/if}
                     {/if}
@@ -43,7 +43,7 @@
                 </div>
                 <div class="boxed boxed--success">
                     <div class="boxed__content">
-                        {$order->comment}
+                        {$order->comment|escape}
                     </div>
                 </div>
             </div>
@@ -78,7 +78,7 @@
                         </div>
                         <div class="boxed boxed--grey">
                             <div class="boxed__content">
-                                {$history_item->text}
+                                {$history_item->text|escape}
                             </div>
                         </div>
                     </div>
