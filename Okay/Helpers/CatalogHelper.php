@@ -22,17 +22,25 @@ class CatalogHelper
     private $entityFactory;
     private $settings;
     private $request;
+    private $filterBuilderHelper;
+    
     private $otherFilters = [
         'discounted',
         'featured',
     ];
 
-    public function __construct(EntityFactory $entityFactory, MoneyCore $money, Settings $settings, Request $request)
-    {
+    public function __construct(
+        EntityFactory $entityFactory,
+        MoneyCore $money,
+        Settings $settings,
+        Request $request,
+        FurlFilterBuilderHelper $filterBuilderHelper
+    ) {
         $this->entityFactory = $entityFactory;
         $this->money = $money;
         $this->settings = $settings;
         $this->request = $request;
+        $this->filterBuilderHelper = $filterBuilderHelper;
     }
     
     public function assignCategoryFilterProcedure(
@@ -72,22 +80,22 @@ class CatalogHelper
          * Получаем значения свойств для категории, чтобы на страницах фильтров убрать фильтры
          * у которых изначально был только один вариант выбора
          */
-        $baseFeaturesValues = [];
-        if ($isFilterPage === true) {
-            $baseFeaturesValues = $filterHelper->getCategoryBaseFeaturesValues($category, $this->settings->get('missing_products'));
-
-            // Дополняем массив categoryFeatures значениями, которые в данный момент выбраны
-            // и были изначально, но их фильтрация (по бренду или цене) отсекла.
-            if (!empty($baseFeaturesValues)) {
-                foreach ($baseFeaturesValues as $values) {
-                    foreach ($values as $value) {
-                        if (isset($currentFeatures[$value->feature_id][$value->id]) && isset($categoryFeatures[$value->feature_id])) {
-                            $categoryFeatures[$value->feature_id]->features_values[$value->id] = $value;
-                        }
-                    }
-                }
-            }
-        }
+//        $baseFeaturesValues = [];
+//        if ($isFilterPage === true) {
+//            $baseFeaturesValues = $filterHelper->getCategoryBaseFeaturesValues($category, $this->settings->get('missing_products'));
+//
+//            // Дополняем массив categoryFeatures значениями, которые в данный момент выбраны
+//            // и были изначально, но их фильтрация (по бренду или цене) отсекла.
+//            if (!empty($baseFeaturesValues)) {
+//                foreach ($baseFeaturesValues as $values) {
+//                    foreach ($values as $value) {
+//                        if (isset($currentFeatures[$value->feature_id][$value->id]) && isset($categoryFeatures[$value->feature_id])) {
+//                            $categoryFeatures[$value->feature_id]->features_values[$value->id] = $value;
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
         if (!empty($categoryFeatures)) {
 
@@ -120,6 +128,9 @@ class CatalogHelper
                 }
             }
         }
+
+        $this->filterBuilderHelper->setAvailableFeatures($categoryFeatures);
+        
         $design->assign('features', $categoryFeatures);
 
         $otherFiltersFilter = $this->getOtherFiltersFilter($filter);

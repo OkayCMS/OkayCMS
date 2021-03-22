@@ -52,6 +52,7 @@ use Okay\Helpers\CouponHelper;
 use Okay\Helpers\CommentsHelper;
 use Okay\Helpers\DeliveriesHelper;
 use Okay\Helpers\DiscountsHelper;
+use Okay\Helpers\FurlFilterBuilderHelper;
 use Okay\Helpers\MainHelper;
 use Okay\Helpers\MetadataHelpers\AllProductsMetadataHelper;
 use Okay\Helpers\MetadataHelpers\BestsellersMetadataHelper;
@@ -67,6 +68,7 @@ use Okay\Helpers\MetadataHelpers\ProductMetadataHelper;
 use Okay\Helpers\MetadataHelpers\AuthorMetadataHelper;
 use Okay\Helpers\MetaRobotsHelper;
 use Okay\Helpers\NotifyHelper;
+use Okay\Helpers\FurlFilterParserHelper;
 use Okay\Helpers\PaymentsHelper;
 use Okay\Helpers\RelatedProductsHelper;
 use Okay\Helpers\CommonHelper;
@@ -434,6 +436,7 @@ return [
             new SR(Money::class),
             new SR(Settings::class),
             new SR(Request::class),
+            new SR(FurlFilterBuilderHelper::class),
         ],
     ],
     OrdersHelper::class => [
@@ -640,6 +643,20 @@ return [
                 ]
             ],
         ]
+    ],
+    FurlFilterParserHelper::class => [
+        'class' => FurlFilterParserHelper::class,
+        'arguments' => [
+            new SR(FilterHelper::class),
+            new SR(EntityFactory::class),
+        ],
+    ],
+    FurlFilterBuilderHelper::class => [
+        'class' => FurlFilterBuilderHelper::class,
+        'arguments' => [
+            new SR(FurlFilterParserHelper::class),
+            new SR(FilterHelper::class),
+        ],
     ],
 ];
 

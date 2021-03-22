@@ -24,6 +24,7 @@ use Okay\Core\OkayContainer\Reference\ServiceReference as SR;
 use Okay\Helpers\BlogHelper;
 use Okay\Helpers\BrandsHelper;
 use Okay\Helpers\FilterHelper;
+use Okay\Helpers\FurlFilterBuilderHelper;
 use Okay\Helpers\ProductsHelper;
 use Okay\Core\Phone as PhoneCore;
 
@@ -112,6 +113,7 @@ $plugins = [
         'arguments' => [
             new SR(Router::class),
             new SR(FilterHelper::class),
+            new SR(FurlFilterBuilderHelper::class),
         ],
     ],
     Plugins\First::class => [

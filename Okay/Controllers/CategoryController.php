@@ -11,8 +11,10 @@ use Okay\Entities\CategoriesEntity;
 use Okay\Helpers\CanonicalHelper;
 use Okay\Helpers\CatalogHelper;
 use Okay\Helpers\FilterHelper;
+use Okay\Helpers\FurlFilterBuilderHelper;
 use Okay\Helpers\MetadataHelpers\CategoryMetadataHelper;
 use Okay\Helpers\MetaRobotsHelper;
+use Okay\Helpers\FurlFilterParserHelper;
 use Okay\Helpers\ProductsHelper;
 
 class CategoryController extends AbstractController
@@ -31,9 +33,39 @@ class CategoryController extends AbstractController
         CategoryMetadataHelper $categoryMetadataHelper,
         CanonicalHelper $canonicalHelper,
         MetaRobotsHelper $metaRobotsHelper,
+        FurlFilterParserHelper $parserFilterHelper,
+        FurlFilterBuilderHelper $filterBuilderHelper,
         $url,
         $filtersUrl = ''
     ) {
+        
+        $parserFilterHelper->setFilterUrl($filtersUrl);
+        
+        
+        
+        if (($page = $parserFilterHelper->getCurrentPage()) === false
+            || ($sort = $parserFilterHelper->getCurrentSort()) === false
+            || ($filter = $parserFilterHelper->getCurrentOtherFilters()) === false
+            || ($brands = $parserFilterHelper->getCurrentBrandsUrls()) === false
+            || ($features = $parserFilterHelper->getCurrentFeaturesUrls()) === false) {
+            var_dump('wrong_url');
+            return false;
+        }
+        print "<pre>";
+        
+        //$filterBuilderHelper->buildFilterUrl([]);
+        var_dump($parserFilterHelper->validateUrl());
+//        print_r([
+//            'page' => $parserFilterHelper->getCurrentPage(),
+//            'sort' => $parserFilterHelper->getCurrentSort(),
+//            'filter' => $parserFilterHelper->getCurrentOtherFilters(),
+//            'brand' => $parserFilterHelper->getCurrentBrandsUrls(),
+//            'features' => $parserFilterHelper->getCurrentFeaturesUrls(),
+//        ]);
+        
+        //print_r($parserFilterHelper->getUrlParts());
+        print "</pre>";
+        
         $isFilterPage = false;
         $filter['visible'] = 1;
         $sortProducts = null;
@@ -98,7 +130,7 @@ class CategoryController extends AbstractController
 
         $filter['price'] = $catalogHelper->getPriceFilter($this->catalogType, $category->id);
 
-        // Сортировка товаров, сохраняем в сесси, чтобы текущая сортировка оставалась для всего сайта
+        // Сортировка товаров, сохраняем в сессии, чтобы текущая сортировка оставалась для всего сайта
         if (!empty($currentSort)) {
             $_SESSION['sort'] = $currentSort;
         }
@@ -125,7 +157,7 @@ class CategoryController extends AbstractController
             'product_visible' => 1,
         ];
         $categoryBrands = $brandsEntity->mappedBy('id')->find($brandsFilter);
-         
+        $filterBuilderHelper->setAvailableBrands($categoryBrands);
         $metaArray = $filterHelper->getMetaArray();
         // Если в строке есть параметры которые не должны быть в фильтре, либо параметры с другой категории, бросаем 404
         if (!empty($metaArray['features_values']) && array_intersect_key($metaArray['features_values'], $categoryFeatures) !== $metaArray['features_values'] ||
@@ -154,6 +186,30 @@ class CategoryController extends AbstractController
                 $this->catalogType
             );
         }
+//        print "<pre>";
+//        print_r($filterBuilderHelper->replaceUrlParamsFilterUrl(['ves'=> '13spkgd']));
+//        print "</pre>";
+//        $url = $filterBuilderHelper->filterChpuUrl([
+//            //'tkan' => null,
+//            //'ves' => null,
+//            //'page' => '2',
+//            //'sort' => null,
+//            //'filter' => null,
+//            //'brand' => null,
+//        ]);
+//        $parserFilterHelper->setFilterUrl($url);
+//        print "<pre>";
+//        print $url.PHP_EOL;
+//        var_dump($parserFilterHelper->validateUrl());
+//        //print_r($parserFilterHelper->getUrlParts());
+//        print_r([
+//            'page' => $parserFilterHelper->getCurrentPage(),
+//            'sort' => $parserFilterHelper->getCurrentSort(),
+//            'filter' => $parserFilterHelper->getCurrentOtherFilters(),
+//            'brand' => $parserFilterHelper->getCurrentBrandsUrls(),
+//            'features' => $parserFilterHelper->getCurrentFeaturesUrls(),
+//        ]);
+//        print "</pre>";
         
         $this->design->assign('selected_filters', $currentFeatures);
 

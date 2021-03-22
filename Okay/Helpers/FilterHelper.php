@@ -77,6 +77,27 @@ class FilterHelper
         $this->maxFilterDepth = $settings->get('max_filter_depth');
     }
 
+    /**
+     * Метод возвращает шаблон структуры урла. Если последовательность элементов не соответствует шаблону,
+     * такой урл считается не валидным
+     *
+     * @return string
+     */
+    public function getUrlPattern() : string
+    {
+        return ExtenderFacade::execute(__METHOD__, '{$page}/{$sort}/{$features}/{$brand}/{$otherFilter}', func_get_args());
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     public function getBrandProductsFilter(array $filter = [])
     {
         return ExtenderFacade::execute(__METHOD__, $filter, func_get_args());
@@ -187,7 +208,7 @@ class FilterHelper
      * @return array
      * @throws \Exception
      */
-    public function getCategoryBrands($brandsFilter, $currentBrandsIds)
+    public function getCategoryBrands($brandsFilter, $currentBrandsIds) : array
     {
         /** @var BrandsEntity $brandsEntity */
         $brandsEntity = $this->entityFactory->get(BrandsEntity::class);
@@ -338,6 +359,9 @@ class FilterHelper
         $featuresValuesEntity = $this->entityFactory->get(FeaturesValuesEntity::class);
         
         $featuresValuesEntity->addHighPriority('category_id');
+        $select = $featuresValuesEntity->getSelect($featuresValuesFilter);
+        $select->debugPrint();
+        print '-----------'.PHP_EOL;
         $featuresValues = $featuresValuesEntity->find($featuresValuesFilter);
         return ExtenderFacade::execute(__METHOD__, $featuresValues, func_get_args());
     }
@@ -441,7 +465,7 @@ class FilterHelper
         return ExtenderFacade::execute(__METHOD__, $currentBrands, func_get_args());
     }
 
-    private function getNotFeaturesParts()
+    public function getNotFeaturesParts() : array
     {
         return ExtenderFacade::execute(__METHOD__, ['brand', 'filter', 'page', 'sort'], func_get_args());
     }
@@ -475,7 +499,7 @@ class FilterHelper
             $valuesIds = [];
             if (!empty($this->categoryFeatures)) {
                 // Выше мы определили какие значения каких свойств выбраны, теперь достаем эти значения из базы, чтобы за один раз
-                foreach ($this->getFeaturesValues(['selected_features' => $selectedFeatures, 'category_id' => $this->category->children]) as $fv) {
+                foreach ($this->getFeaturesValues(['category_id' => $this->category->children]) as $fv) {
                     $valuesIds[$fv->feature_id][$fv->translit] = $fv->id;
                 }
             }
@@ -584,7 +608,7 @@ class FilterHelper
             $selectedFeaturesValues = [];
             if (!empty($this->categoryFeatures)) {
                 // Выше мы определили какие значения каких свойств выбраны, теперь достаем эти значения из базы, чтобы за один раз
-                foreach ($this->getFeaturesValues(['selected_features' => $selectedFeatures, 'category_id' => $this->category->children]) as $fv) {
+                foreach ($this->getFeaturesValues(['category_id' => $this->category->children]) as $fv) {
                     $selectedFeaturesValues[$fv->feature_id][$fv->id] = $fv;
                 }
             }
@@ -963,7 +987,7 @@ class FilterHelper
         if (empty($brandsUrls)) {
             return ExtenderFacade::execute(__METHOD__, false);
         }
-        
+        file_put_contents('test.txt', print_r($brandsUrls, true).PHP_EOL.'------------'.PHP_EOL, FILE_APPEND);
         $brandsEntity = $this->entityFactory->get(BrandsEntity::class);
         $sortedBrandsUrls = $brandsEntity->cols(['url'])
             ->order('position')

@@ -6,6 +6,7 @@ namespace Okay\Entities;
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Money;
+use Okay\Core\QueryFactory\Select;
 use Okay\Core\Translit;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 
@@ -95,14 +96,33 @@ class FeaturesValuesEntity extends Entity
         }
         
         $this->select->join('LEFT', '__features AS f', 'f.id=fv.feature_id');
-        //$this->select->groupBy(['l.value']); // TODO: разобраться, вроде не нужная группировка
-        //$this->select->groupBy(['l.translit']);
 
         if (isset($filter['visible']) || isset($filter['in_stock']) || isset($filter['price'])) {
             $this->select->join('LEFT', '__products AS p', 'p.id=pf.product_id');
         }
         
         return parent::find($filter);
+    }
+
+    public function getSelect(array $filter = []) : Select
+    {
+        $this->select->groupBy([$this->getTableAlias().'.id']);
+
+        $this->select->join('LEFT', '__products_features_values AS pf', 'pf.value_id=fv.id');
+        
+        // Нужно фильтр по свойствам применить здесь, чтобы он отработал до всех джоинов
+        if (isset($filter['features'])) {
+            $this->filter__features($filter['features']);
+            unset($filter['features']);
+        }
+        
+        $this->select->join('LEFT', '__features AS f', 'f.id=fv.feature_id');
+
+        if (isset($filter['visible']) || isset($filter['in_stock']) || isset($filter['price'])) {
+            $this->select->join('LEFT', '__products AS p', 'p.id=pf.product_id');
+        }
+        
+        return parent::getSelect($filter);
     }
 
     protected function filter__in_stock()
@@ -150,7 +170,7 @@ class FeaturesValuesEntity extends Entity
     
     protected function filter__features($features)
     {
-        foreach ($features as $featureId=>$value) {
+        foreach ($features as $featureId => $value) {
 
             $subQuery = $this->queryFactory->newSelect();
             $subQuery->from('__products_features_values AS pf')
@@ -177,6 +197,28 @@ class FeaturesValuesEntity extends Entity
             $this->select->where("(fv.feature_id =:feature_id_{$featureId} OR p.id IN (?))", $subQuery);
             $this->select->bindValue("feature_id_{$featureId}", $featureId);
         }
+    }
+    
+    protected function filter__selected_features($selectedFeatures)
+    {
+        $whereArray = [];
+
+        // Алиас для таблицы без языков
+        $optionsPx = 'fv';
+        if (!empty($this->lang->getLangId())) {
+            $this->select->where('lfv.lang_id=' . (int)$this->lang->getLangId())
+                ->join('LEFT', '__lang_features_values AS lfv', 'fv.id=lfv.feature_value_id');
+            // Алиас для таблицы с языками
+            $optionsPx = 'lfv';
+        }
+        
+        foreach ($selectedFeatures as $featureUrl => $value) {
+            $whereArray[] = "(f.url =:feature_url_{$featureUrl} AND {$optionsPx}.translit IN (:feature_value_translit_{$featureUrl}))";
+            $this->select->bindValue("feature_url_{$featureUrl}", $featureUrl);
+            $this->select->bindValue("feature_value_translit_{$featureUrl}", (array)$value);
+        }
+
+        $this->select->where('(' . implode(' OR ', $whereArray) . ')');
     }
 
     protected function filter__price(array $priceRange)

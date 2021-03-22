@@ -36,3 +36,18 @@ const CANONICAL_WITHOUT_FILTER_FIRST_PAGE = 7;
 const ROBOTS_INDEX_FOLLOW = 1;
 const ROBOTS_NOINDEX_FOLLOW = 2;
 const ROBOTS_NOINDEX_NOFOLLOW = 3;
+
+/**
+ * Фильтр содержит ошибочные параметры, которых для этой страницы быть не может
+ */
+const FILTER_ERROR_WRONG_PARAMS = 2;
+
+/**
+ * Фильтр содержит один или более параметров, которые структурно расположены не на своей позиции
+ */
+const FILTER_ERROR_MISCOUNTING_POSITION_OF_PARTS = 3;
+
+/**
+ * Фильтр содержит один или более параметров, значения которых структурно расположены не на своей позиции (перепутаны местами)
+ */
+const FILTER_ERROR_MISCOUNTING_POSITION_OF_VALUES = 4;

@@ -61,7 +61,7 @@ trait CRUD
      * @param array $filter
      * @return Select
      */
-    public function getSelect(array $filter = [])
+    public function getSelect(array $filter = []) : Select
     {
         $this->setUp();
         if ($this->noLimit === false) {
@@ -78,7 +78,7 @@ trait CRUD
 
     /**
      * @param array $filter
-     * @return false|array
+     * @return array
      */
     public function find(array $filter = [])
     {
@@ -105,7 +105,7 @@ trait CRUD
         return ExtenderFacade::execute([static::class, __FUNCTION__], $results, func_get_args());
     }
 
-    public function customChangeSelect(Select $select)
+    public function customChangeSelect(Select $select) : Select
     {
         return ExtenderFacade::execute([static::class, __FUNCTION__], $select, func_get_args());
     }
@@ -270,7 +270,7 @@ trait CRUD
      * @param $colName
      * @return $this
      */
-    final public function col($colName)
+    public function col($colName)
     {
         $defaultFields = $this->getAllDefaultFields();
         if (in_array($colName, $defaultFields)) {
@@ -287,7 +287,7 @@ trait CRUD
         return $results;
     }
 
-    public function getResults($field = null, $mapped = null)
+    public function getResults($field = null, $mapped = null) : array
     {
         $results = $this->db->results($field, $mapped);
         $this->flush();

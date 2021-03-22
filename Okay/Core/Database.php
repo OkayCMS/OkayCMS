@@ -205,7 +205,7 @@ class Database
      * @return array
      * @throws \Exception
      */
-    public function results($field = null, $mapped = null)
+    public function results($field = null, $mapped = null) : array
     {
         
         if (empty($this->result)) {

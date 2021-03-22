@@ -8,6 +8,7 @@ use Okay\Core\Entity\Entity;
 use Okay\Core\Entity\RelatedProductsInterface;
 use Okay\Core\Money;
 use Okay\Core\Modules\Extender\ExtenderFacade;
+use Okay\Core\QueryFactory\Select;
 use Okay\Core\Translit;
 
 class ProductsEntity extends Entity implements RelatedProductsInterface
@@ -70,7 +71,7 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         return parent::find($filter);
     }
     
-    public function getSelect(array $filter = [])
+    public function getSelect(array $filter = []) : Select
     {
         $this->select->leftJoin(RouterCacheEntity::getTable() . ' AS r', 'r.url=p.url AND r.type="product"');
         
