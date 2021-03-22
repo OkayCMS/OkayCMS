@@ -55,7 +55,7 @@
             c-15.348,0-30.114-6.18-40.896-17.036V90.587l38.597,13.128c0.679,0.231,1.386,0.346,2.093,0.346c0.71,0,1.421-0.116,2.102-0.349
             l38.213-13.056V118.235z M90.786,90.694L26.664,68.883l63.939-21.797l63.979,21.811L90.786,90.694z"/>
                         </svg>
-                        <i class="learning_card__header-category">{$lesson->button}</i>
+                        <i class="learning_card__header-category">{$lesson->button|escape}</i>
                     </div>
                     <div class="learning_card__bookmark hint-top-right-t-info-s-small-mobile  hint-anim {if $lesson->done}learning_card__bookmark--done{/if}" {if $lesson->done}data-hint="{$btr->lesson_status_done}"{else}data-hint="{$btr->lesson_status_not_done}"{/if}>
                         <svg viewBox="0 0 57 109">
@@ -73,7 +73,7 @@
                     <div class="learning_card__informers">
                         {if $lesson->video}
                         <span class="fn_video_open learning_card__informer learning_card__video hint-top-right-t-info-s-small-mobile  hint-anim" data-hint="{$btr->lesson_video}">
-                            <svg class="video_open" data-video="{$lesson->video}" width="40px" height="40px" viewBox="0 0 215.094 215.094" >
+                            <svg class="video_open" data-video="{$lesson->video|escape}" width="40px" height="40px" viewBox="0 0 215.094 215.094" >
                                 <path fill="currentColor" d="M28.302,32.547C12.673,32.547,0,45.22,0,60.849v93.396c0,15.629,12.673,28.302,28.302,28.302h158.491
                                 c15.629,0,28.301-12.673,28.301-28.302V60.849c0-15.629-12.672-28.302-28.301-28.302H28.302z M90.547,145.583V69.511l50,38.036
                                 L90.547,145.583z"/>

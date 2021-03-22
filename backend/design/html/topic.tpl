@@ -126,7 +126,7 @@
                                             </div>
 
                                             <div class="okay_list_boding okay_list_topic_message">
-                                                {$comment->text}
+                                                {$comment->text|escape}
                                             </div>
 
                                             <div class="okay_list_boding okay_list_topic_time {if $comment->spent_time < 0}text-success{/if}">
@@ -249,7 +249,7 @@
                 $("[type='submit']").trigger("click");
                 {literal}}{/literal},
 
-            language : "{$manager->lang}",
+            language : "{$manager->lang|escape}",
             /* Замена тега P на BR при разбивке на абзацы
              force_br_newlines : true,
              force_p_newlines : false,

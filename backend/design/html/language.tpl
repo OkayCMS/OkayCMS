@@ -96,7 +96,7 @@
 
                                    <select id="countries_select"  name="lang" size="1">
                                         {foreach $lang_list as $lang}
-                                            <option value='{$lang->label}' data-image="{if is_file("{$config->lang_images_dir}{$lang->label}.png")}{("{$lang->label}.png")|resize:23:23:false:$config->lang_resized_dir}"{/if}" data-imagecss="flag ad" data-title="{$lang->name|escape}">{$lang->name|escape} [{$lang->label|escape}]</option>
+                                            <option value='{$lang->label|escape}' data-image="{if is_file("{$config->lang_images_dir|escape}{$lang->label|escape}.png")}{("{$lang->label|escape}.png")|resize:23:23:false:$config->lang_resized_dir}"{/if}" data-imagecss="flag ad" data-title="{$lang->name|escape}">{$lang->name|escape} [{$lang->label|escape}]</option>
                                         {/foreach}
                                     </select>
                                 </div>
@@ -107,9 +107,9 @@
                                     {foreach $languages as $l}
                                         <div class="col-lg-4 col-md-4 col-sm-6 mb-1">
                                             <div class="heading_label mb-h">
-                                                {if is_file("{$config->lang_images_dir}{$l->label}.png")}
+                                                {if is_file("{$config->lang_images_dir|escape}{$l->label|escape}.png")}
                                                     <span class="wrap_flag">
-                                                        <img src="{("{$l->label}.png")|resize:55:55:false:$config->lang_resized_dir}" />
+                                                        <img src="{("{$l->label|escape}.png")|resize:55:55:false:$config->lang_resized_dir}" />
                                                     </span>
                                                 {/if}
                                                 {$l->name|escape}

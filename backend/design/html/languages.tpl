@@ -60,8 +60,8 @@
                                 </div>
                                 <div class="okay_list_boding okay_list_photo">
                                     <a href="{url controller=LanguageAdmin id=$language->id return=$smarty.server.REQUEST_URI}">
-                                        {if is_file("{$config->lang_images_dir}{$language->label}.png")}
-                                            <img src="{("{$language->label}.png")|resize:55:55:false:$config->lang_resized_dir}" />
+                                        {if is_file("{$config->lang_images_dir|escape}{$language->label|escape}.png")}
+                                            <img src="{("{$language->label|escape}.png")|resize:55:55:false:$config->lang_resized_dir}" />
                                         {/if}
                                     </a>
                                 </div>

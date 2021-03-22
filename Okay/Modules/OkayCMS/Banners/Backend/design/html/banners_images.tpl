@@ -97,7 +97,7 @@
                             {foreach $banners_images as $banners_image}
                             <div class="fn_row okay_list_body_item fn_sort_item">
                                 <div class="okay_list_row">
-                                    <input type="hidden" name="positions[{$banners_image->id}]" value="{$banners_image->position}">
+                                    <input type="hidden" name="positions[{$banners_image->id}]" value="{$banners_image->position|escape}">
     
                                     <div class="okay_list_boding okay_list_drag move_zone">
                                         {include file='svg_icon.tpl' svgId='drag_vertical'}
@@ -123,7 +123,7 @@
                                             {$banners_image->name|escape}
                                         </a>
                                         <div class="okay_list_name_brand">
-                                            {$banners_image->image}
+                                            {$banners_image->image|escape}
                                         </div>
                                         {get_design_block block="banners_images_list_name" vars=['banners_image' => $banners_image]}
                                     </div>
@@ -132,7 +132,7 @@
                                         {if $banners}
                                         <select class="selectpicker form-control" name=image_banners[{$banners_image->id}]">
                                             {foreach $banners as $b}
-                                            <option value="{$b->id}"{if $b->id == $banners_image->banner_id} selected{/if}>{$b->name}</option>
+                                            <option value="{$b->id}"{if $b->id == $banners_image->banner_id} selected{/if}>{$b->name|escape}</option>
                                             {/foreach}
                                         </select>
                                         {/if}

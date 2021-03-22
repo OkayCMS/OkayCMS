@@ -6,7 +6,7 @@
     <div class="col-lg-12 col-md-12">
         <div class="wrap_heading">
             <div class="box_heading heading_page">
-                {$btr->module_design_title} ({$module->vendor}/{$module->module_name})
+                {$btr->module_design_title} ({$module->vendor|escape}/{$module->module_name|escape})
             </div>
         </div>
     </div>
@@ -33,8 +33,8 @@
                             <div class="okay_list_row">
                                 {*<div class="okay_list_boding okay_list_drag move_zone"></div>*}
                                 <div class="okay_list_boding okay_list_check">
-                                    <input class="hidden_check" type="checkbox" id="id_{$file->directory}{$file->filename}" name="check[]" value="{$file->directory}{$file->filename}"/>
-                                    <label class="okay_ckeckbox" for="id_{$file->directory}{$file->filename}"></label>
+                                    <input class="hidden_check" type="checkbox" id="id_{$file->directory|escape}{$file->filename|escape}" name="check[]" value="{$file->directory|escape}{$file->filename|escape}"/>
+                                    <label class="okay_ckeckbox" for="id_{$file->directory|escape}{$file->filename|escape}"></label>
                                 </div>
                                 <div class="okay_list_boding okay_list_module_design_name">
                                     {$file->directory|escape}{$file->filename|escape}

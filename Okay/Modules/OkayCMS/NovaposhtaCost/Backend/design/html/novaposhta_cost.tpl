@@ -70,7 +70,7 @@
                                 </i>
                             </div>
                             <div class="mb-1">
-                                <input type="text" name="newpost_key" value="{$settings->newpost_key}" class="form-control">
+                                <input type="text" name="newpost_key" value="{$settings->newpost_key|escape}" class="form-control">
                             </div>
                         </div>
                         <div class="col-xxl-6 col-lg-6 col-md-12">
@@ -82,7 +82,7 @@
                             </div>
                             <div class="mb-1">
                                 <input type="text" class="fn_newpost_city_name form-control" name="newpost_city_name" value="{$settings->newpost_city|newpost_city}">
-                                <input type="hidden" name="newpost_city" value="{$settings->newpost_city}">
+                                <input type="hidden" name="newpost_city" value="{$settings->newpost_city|escape}">
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-12">
@@ -93,7 +93,7 @@
                                 </i>
                             </div>
                             <div class="mb-1">
-                                <input type="text" name="newpost_weight" value="{$settings->newpost_weight}" class="form-control">
+                                <input type="text" name="newpost_weight" value="{$settings->newpost_weight|escape}" class="form-control">
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-12">
@@ -103,7 +103,7 @@
                                 </i>
                             </div>
                             <div class="mb-1">
-                                <input type="text" name="newpost_volume" value="{$settings->newpost_volume}" class="form-control">
+                                <input type="text" name="newpost_volume" value="{$settings->newpost_volume|escape}" class="form-control">
                             </div>
                         </div>
 
@@ -113,7 +113,7 @@
                             <div class="mb-1">
                                 <select name="currency_id" class="selectpicker form-control" data-live-search="false">
                                     {foreach $all_currencies as $c}
-                                    <option value="{$c->id}"{if $c->id == $settings->newpost_currency_id} selected{/if}>{$c->name} ({$c->code})</option>
+                                    <option value="{$c->id}"{if $c->id == $settings->newpost_currency_id} selected{/if}>{$c->name|escape} ({$c->code|escape})</option>
                                     {/foreach}
                                 </select>
                             </div>
@@ -208,7 +208,7 @@
                         <div class="col-lg-6 col-md-6">
                             <div class="heading_label">{$btr->settings_np_cache_lifetime}</div>
                             <div class="mb-1">
-                                <input type="text" name="np_cache_lifetime" value="{$settings->np_cache_lifetime}" placeholder="86400" class="form-control">
+                                <input type="text" name="np_cache_lifetime" value="{$settings->np_cache_lifetime|escape}" placeholder="86400" class="form-control">
                             </div>
                         </div>
                     </div>*}

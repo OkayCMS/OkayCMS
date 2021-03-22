@@ -94,7 +94,7 @@
                             <option value="{url keyword=null brand_id=null page=null limit=null}" {if !$brand_id}selected{/if}>{$btr->general_all_brands|escape}</option>
                             <option value="{url keyword=null brand_id=-1 page=null limit=null}" {if $brand_id==-1}selected{/if}>{$btr->products_without_brand}</option>
                             {foreach $brands as $b}
-                                <option value="{url keyword=null page=null limit=null brand_id=$b->id}" brand_id="{$b->id}"  {if $brand_id == $b->id}selected{/if}>{$b->name}</option>
+                                <option value="{url keyword=null page=null limit=null brand_id=$b->id}" brand_id="{$b->id}"  {if $brand_id == $b->id}selected{/if}>{$b->name|escape}</option>
                             {/foreach}
                         </select>
                     </div>
@@ -199,7 +199,7 @@
                             {foreach $products as $product}
                                 <div class="fn_step-1 fn_row okay_list_body_item fn_sort_item">
                                     <div class="okay_list_row">
-                                        <input type="hidden" name="positions[{$product->id}]" value="{$product->position}">
+                                        <input type="hidden" name="positions[{$product->id}]" value="{$product->position|escape}">
 
                                         <div class="okay_list_boding okay_list_drag move_zone">
                                             {include file='svg_icon.tpl' svgId='drag_vertical'}
@@ -319,7 +319,7 @@
                                                     </div>
                                                     <div class="okay_list_boding okay_list_price">
                                                         <div class="input-group">
-                                                            <input class="form-control" type="text" name="price[{$variant->id}]" value="{$variant->price}">
+                                                            <input class="form-control" type="text" name="price[{$variant->id}]" value="{$variant->price|escape}">
                                                             <span class="input-group-addon">
                                                                   {if isset($currencies[$variant->currency_id])}
                                                                       {$currencies[$variant->currency_id]->code}
@@ -329,7 +329,7 @@
                                                     </div>
                                                     <div class="okay_list_boding okay_list_count">
                                                         <div class="input-group">
-                                                            <input class="form-control" type="text" name="stock[{$variant->id}]" value="{if $variant->infinity}∞{else}{$variant->stock}{/if}"/>
+                                                            <input class="form-control" type="text" name="stock[{$variant->id}]" value="{if $variant->infinity}∞{else}{$variant->stock|escape}{/if}"/>
                                                             <span class="input-group-addon p-0">
                                                                  {if $variant->units}{$variant->units|escape}{else}{$settings->units|escape}{/if}
                                                             </span>

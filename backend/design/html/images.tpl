@@ -63,7 +63,7 @@
                                                 <span class="font-weight-bold">{$image->name|escape|truncate:20:'...'}</span>
                                                 <i class="fa fa-pencil fn_rename_theme rename_theme p-h" data-old_name="{$image->name|escape}"></i>
 
-                                                <button type="button" data-name="{$image->name}" class="fn_delete_image btn_close float-xs-right">
+                                                <button type="button" data-name="{$image->name|escape}" class="fn_delete_image btn_close float-xs-right">
                                                     {include file='svg_icon.tpl' svgId='delete'}
                                                 </button>
                                             </div>
@@ -78,9 +78,9 @@
                                                         {elseif $image->size>1024}
                                                             {($image->size/1024)|round:2} {$btr->general_kb|escape}
                                                         {else}
-                                                            {$image->size} {$btr->general_byte|escape}
+                                                            {$image->size|escape} {$btr->general_byte|escape}
                                                         {/if},
-                                                        {$image->width}&times;{$image->height} px
+                                                        {$image->width|escape}&times;{$image->height|escape} px
                                                     </div>
                                                 </div>
                                             </div>
