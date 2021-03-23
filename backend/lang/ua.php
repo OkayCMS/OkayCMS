@@ -1569,3 +1569,5 @@ $lang['error_delete_statuses'] = 'Перед видаленням статусі
 $lang['settings_hide_equal_compare_price'] = 'Приховувати меншу стару ціну';
 $lang['settings_hide_equal_compare_price_notice'] = 'Приховувати стару ціну в разі якщо вона менше або дорівнює звичайній ціні';
 $lang['order_history_value'] = 'в размірі';
+$lang['settings_increased_image_size'] = 'Підвищений розмір зображень';
+$lang['settings_increased_image_size_notice'] = 'Це налаштування висновок зображень в списку товарів в підвищеному дозволі. Це впливає на якість відображення зображення на дисплеях з високою роздільною здатністю, але може негативно позначитися на швидкості роботи сайту (Pagespeed)';
