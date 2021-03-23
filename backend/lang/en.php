@@ -1566,3 +1566,5 @@ $lang['order_history_last_name'] = 'last name';
 $lang['index_btn_version_new'] = 'Current version is installed';
 $lang['index_btn_version_old'] = 'New version available';
 $lang['error_delete_statuses'] = 'Before deleting statuses, first transfer orders from the following statuses:';
+$lang['settings_hide_equal_compare_price'] = 'Hide old lower price';
+$lang['settings_hide_equal_compare_price_notice'] = 'Hide old price if it is less than or equal to the regular price';
