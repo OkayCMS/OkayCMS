@@ -288,7 +288,6 @@ class MainHelper
 
         // Передаем текущий контроллер
         if ($route = $router->getRouteByName($router->getCurrentRouteName())) {
-            //$reflector = new \ReflectionClass($route['params']['controller']);
             $design->assign('controller', $route['params']['controller']);
         }
 
