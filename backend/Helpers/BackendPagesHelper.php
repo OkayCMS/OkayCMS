@@ -44,7 +44,13 @@ class BackendPagesHelper
 
     public function getPage($id)
     {
-        $page = $this->pagesEntity->get($id);
+        $page = $this->pagesEntity->findOne(['id' => $id]);
+
+        if (empty($page)) {
+            $page = new \stdClass;
+            $page->visible = 1;
+        }
+        
         return ExtenderFacade::execute(__METHOD__, $page, func_get_args());
     }
 
