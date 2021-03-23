@@ -78,7 +78,7 @@
                         </div>
                         <div class="boxed boxed--grey">
                             <div class="boxed__content">
-                                {$history_item->text|escape}
+                                {$history_item->text}
                             </div>
                         </div>
                     </div>

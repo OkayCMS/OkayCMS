@@ -10,6 +10,7 @@ use Okay\Core\EntityFactory;
 use Okay\Core\Phone;
 use Okay\Core\QueryFactory;
 use Okay\Core\Request;
+use Okay\Entities\CurrenciesEntity;
 use Okay\Entities\DeliveriesEntity;
 use Okay\Entities\DiscountsEntity;
 use Okay\Entities\ManagersEntity;
@@ -224,10 +225,10 @@ class BackendOrderHistoryHelper
     private function getChangeOrderMessage(
         $orderBeforeUpdate,
         $orderAfterUpdate,
-        $purchasesBeforeUpdate,
-        $purchasesAfterUpdate,
-        $discountsBeforeUpdate,
-        $discountsAfterUpdate
+        array $purchasesBeforeUpdate,
+        array $purchasesAfterUpdate,
+        array $discountsBeforeUpdate,
+        array $discountsAfterUpdate
     ) {
         $changeOrderMessage = [];
         $changeOrderMessage = $changeOrderMessage + $this->getChangePurchasesMessage($purchasesBeforeUpdate, $purchasesAfterUpdate);
@@ -518,9 +519,15 @@ class BackendOrderHistoryHelper
      * @param $discountsBeforeUpdate
      * @param $discountsAfterUpdate
      * @return array
+     * @throws \Exception
      */
-    private function getChangeDiscountsMessage($discountsBeforeUpdate, $discountsAfterUpdate)
+    private function getChangeDiscountsMessage($discountsBeforeUpdate, $discountsAfterUpdate) : array
     {
+
+        /** @var CurrenciesEntity $currenciesEntity */
+        $currenciesEntity = $this->entityFactory->get(CurrenciesEntity::class);
+        $mainCurrency = $currenciesEntity->getMainCurrency();
+        
         $changeDiscountsMessage = [];
 
         foreach ($discountsBeforeUpdate as $discountId => $discount) {
@@ -556,6 +563,12 @@ class BackendOrderHistoryHelper
                 } else {
                     $message .= $this->BT->getTranslation('order_history_to_order');
                 }
+                $message .= ' '
+                    . $this->BT->getTranslation('order_history_value')
+                    . ' '
+                    . $discount->value
+                    . ' '
+                    . ($discount->type == 'percent' ? "%\" " : "{$mainCurrency->code}\" ");
                 $changeDiscountsMessage[] = $message;
             }
         }
@@ -569,9 +582,15 @@ class BackendOrderHistoryHelper
      * @param $discountBeforeUpdate
      * @param $discountAfterUpdate
      * @return array
+     * @throws \Exception
      */
-    private function getChangeDiscountMessage($discountBeforeUpdate, $discountAfterUpdate)
+    private function getChangeDiscountMessage($discountBeforeUpdate, $discountAfterUpdate) : array
     {
+        
+        /** @var CurrenciesEntity $currenciesEntity */
+        $currenciesEntity = $this->entityFactory->get(CurrenciesEntity::class);
+        $mainCurrency = $currenciesEntity->getMainCurrency();
+        
         $discountChanges = [];
         // Изменили значение или тип
         if (property_exists($discountBeforeUpdate, 'value')
@@ -588,10 +607,10 @@ class BackendOrderHistoryHelper
                 . " \"{$discountAfterUpdate->name}\" "
                 . $this->BT->getTranslation('order_history_from')
                 . " \"{$discountBeforeUpdate->value} "
-                . ($discountBeforeUpdate->type == 'percent' ? "%\" " : "RUR\" ")
+                . ($discountBeforeUpdate->type == 'percent' ? "%\" " : "{$mainCurrency->code}\" ")
                 . $this->BT->getTranslation('order_history_to')
                 . " \"{$discountAfterUpdate->value} "
-                . ($discountAfterUpdate->type == 'percent' ? "%\" " : "RUR\" ");
+                . ($discountAfterUpdate->type == 'percent' ? "%\" " : "{$mainCurrency->code}\" ");
             if ($discountAfterUpdate->entity == 'purchase') {
                 $purchaseName = $this->getPurchaseName($discountAfterUpdate->purchase);
                 $message .= $this->BT->getTranslation('order_history_in_product') . " \"{$purchaseName}\"";

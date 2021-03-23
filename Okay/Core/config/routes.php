@@ -151,9 +151,9 @@ return [
         ],
     ],
     'search' => [
-        'slug' => '/all-products{$filtersUrl}',
+        'slug' => '/all-products/?{$filtersUrl}',
         'patterns' => [
-            '{$filtersUrl}' => '/?(.*)',
+            '{$filtersUrl}' => '(.*)',
         ],
         'params' => [
             'controller' => 'ProductsController',
@@ -169,9 +169,9 @@ return [
         'to_front' => true,
     ],
     'discounted' => [
-        'slug' => '/discounted{$filtersUrl}',
+        'slug' => '/discounted/?{$filtersUrl}',
         'patterns' => [
-            '{$filtersUrl}' => '/?(.*)',
+            '{$filtersUrl}' => '(.*)',
         ],
         'params' => [
             'controller' => 'ProductsController',
@@ -179,9 +179,9 @@ return [
         ],
     ],
     'bestsellers' => [
-        'slug' => '/bestsellers{$filtersUrl}',
+        'slug' => '/bestsellers/?{$filtersUrl}',
         'patterns' => [
-            '{$filtersUrl}' => '/?(.*)',
+            '{$filtersUrl}' => '(.*)',
         ],
         'params' => [
             'controller' => 'ProductsController',

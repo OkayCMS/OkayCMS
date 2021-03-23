@@ -218,7 +218,7 @@ class CartHelper
     {
         /** @var DiscountsEntity $discountsEntity */
         $discountsEntity = $this->entityFactory->get(DiscountsEntity::class);
-        $mainLanguage = $this->languagesCore->getMainLanguage();
+        $currentLangId = $this->languagesCore->getLangId();
         foreach ($cart->discountsToDB as $i => $discountDB) {
             $discountDB->id = $discountsEntity->add($discountDB);
             foreach ($cart->langDiscountsToDB[$i] as $langId => $langDiscountToDB) {
@@ -226,7 +226,7 @@ class CartHelper
                 $discountsEntity->update($discountDB->id, $langDiscountToDB);
             }
         }
-        $this->languagesCore->setLangId($mainLanguage->id);
+        $this->languagesCore->setLangId($currentLangId);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 

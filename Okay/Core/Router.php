@@ -231,10 +231,18 @@ class Router {
     public function resolveCurrentLanguage()
     {
         $languages = self::$languages->getAllLanguages();
-        $request = $this->request;
 
         $languages = array_reverse($languages);
         $router = clone $this->router;
+
+        // Если в урле есть приставка основного языка, редиректим на без неё 
+        $mainLanguage = self::$languages->getMainLanguage();
+        $pattern = '/' . $mainLanguage->label . '(\/.*)?';
+        $router->all($pattern, function() use ($mainLanguage) {
+            $uri = preg_replace('~/?'.$mainLanguage->label.'/?~', '', Request::getRequestUri());
+            Response::redirectTo(Request::getRootUrl() . '/' . $uri, 301);
+        });
+        
         foreach ($languages as $language) {
             $label = self::$languages->getLangLink($language->id);
             if (!empty(trim($label, '/'))) {
@@ -243,7 +251,7 @@ class Router {
                 $pattern = '/.*';
             }
 
-            $router->all($pattern, function() use ($language, $request) {
+            $router->all($pattern, function() use ($language) {
                 self::$languages->setLangId((int)$language->id);
             });
         }

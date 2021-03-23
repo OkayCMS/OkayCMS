@@ -299,6 +299,10 @@ class CssConfig
         if (strpos($cssLine, 'url') !== false && strpos($cssLine, '..') !== false) {
             $cssLine = strtr($cssLine, ['../' => '../../' . $subDir . '/']);
         }
+//        if (strpos($cssLine, 'url') !== false) {
+//            //$cssLine = preg_replace('~url\s*\(\s*(\'|")(?!data)~', 'url($1../../' . $subDir . '/', $cssLine);
+//            $cssLine = preg_replace('~url\s*\(\s*(\'|")?(?!data)(.*?)\1?\)~', 'url($1../../' . $subDir . '/$2$1)', $cssLine);
+//        }
 
         return $cssLine;
     }

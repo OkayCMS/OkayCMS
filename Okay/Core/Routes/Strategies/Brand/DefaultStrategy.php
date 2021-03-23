@@ -27,8 +27,8 @@ class DefaultStrategy extends AbstractRouteStrategy
         }
 
         return [
-            '/'.$prefix.'/{$url}{$filtersUrl}', [
-                '{$url}' => '([^/]*)', '{$filtersUrl}' => '/?(.*)'
+            '/'.$prefix.'/{$url}/?{$filtersUrl}', [
+                '{$url}' => '([^/]*)', '{$filtersUrl}' => '(.*)'
             ],
             []
         ];
