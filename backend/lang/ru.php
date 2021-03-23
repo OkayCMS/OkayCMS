@@ -1568,3 +1568,4 @@ $lang['index_btn_version_old'] = 'Доступна новая версия';
 $lang['error_delete_statuses'] = 'Перед удалением статусов, сперва перенесите заказы со следующих статусов:';
 $lang['settings_hide_equal_compare_price'] = 'Скрывать меньшую старую цену';
 $lang['settings_hide_equal_compare_price_notice'] = 'Скрывать старую цену в случае если она меньше или равна обычной цене';
+$lang['order_history_value'] = 'в размере';
