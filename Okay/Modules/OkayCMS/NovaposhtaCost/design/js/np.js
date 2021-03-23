@@ -87,7 +87,8 @@ $( ".fn_delivery_novaposhta input.city_novaposhta_for_door" ).devbridgeAutocompl
         delivery_block.find('input[name=novaposhta_area_name]').val(suggestion.area);
         delivery_block.find('input[name=novaposhta_region_name]').val(suggestion.region);
         setDoorAddress();
-        if (suggestion.streets_availability) {
+       // if (suggestion.streets_availability) { Новая Почта перестала присылать корректный параметр у некоторых городов
+        if (true) {
             $(".fn_delivery_novaposhta input.fn_street").devbridgeAutocomplete({
                 serviceUrl: okay.router['OkayCMS_NovaposhtaCost_find_street'] + "?city_ref=" + suggestion.ref,
                 minChars:1,

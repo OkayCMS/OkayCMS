@@ -1,5 +1,10 @@
 <?php
 
+$lang['np_update_all'] = 'Update all';
+$lang['np_update'] = 'Update ';
+$lang['np_warehouses_data_info'] = 'Warehouses data';
+$lang['np_warehouses_data_description'] = 'Select which points of delivery will be available to the customer when choosing a delivery method. </br> The types of points that are not selected will be removed from the site with further updates.';
+$lang['np_warehouses_data_update_warning'] = 'Updating all points of issue at the same time can cause a heavy load on the server, which may prevent the data from being updated. If this happens to you, update the data on points of issue in parts, choosing specific categories of points of issue';
 $lang['left_setting_np_title'] = 'New Mail';
 $lang['settings_np'] = 'New Mail Settings';
 $lang['settings_np_key'] = 'New Mail API Key';
