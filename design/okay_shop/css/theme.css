@@ -1806,9 +1806,16 @@ b.filter__catalog_link.selected{
     margin: 0 auto;
     position: relative;
 }
-.product_preview__image a {
+.product_preview__image a{
     height: 200px;
     width: 100%;
+}
+.product_preview__image picture {
+    height: 200px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .product_preview__image img {max-height: 100%;}
 .product_preview__image .sticker__image {max-height: inherit;}
