@@ -1569,3 +1569,5 @@ $lang['error_delete_statuses'] = 'Перед удалением статусов
 $lang['settings_hide_equal_compare_price'] = 'Скрывать меньшую старую цену';
 $lang['settings_hide_equal_compare_price_notice'] = 'Скрывать старую цену в случае если она меньше или равна обычной цене';
 $lang['order_history_value'] = 'в размере';
+$lang['settings_increased_image_size'] = 'Повышенный размер изображений';
+$lang['settings_increased_image_size_notice'] = 'Данный параметр включает вывод изображений в списке товаров в повышенном разрешении. Это влияет на качество отображения изображения на дисплеях с высоким разрешением, но может негативно сказаться на скорости работы сайта (Pagespeed)';
