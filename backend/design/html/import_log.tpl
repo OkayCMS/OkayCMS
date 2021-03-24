@@ -106,9 +106,9 @@
                                         </div>
                                         <div class="okay_list_boding okay_list_log_status">
                                             {if $log->status == 'added'}
-                                                <i class="fa fa-plus font-2xl text-success" title="{$log->status}"></i>
+                                                <i class="fa fa-plus font-2xl text-success" title="{$log->status|escape}"></i>
                                             {elseif $log->status == 'updated'}
-                                                <i class="fa fa-refresh font-2xl text-info" title="{$log->status}"></i>
+                                                <i class="fa fa-refresh font-2xl text-info" title="{$log->status|escape}"></i>
                                             {/if}
                                         </div>
                                     </div>

@@ -6,7 +6,7 @@
                 <div class="okay_list_boding okay_list_photo p-1">
                     {if $module->image}
                         <a href="javascript:;">
-                            <img src="{$module->image}"/>
+                            <img src="{$module->image|escape}"/>
                         </a>
                     {else}
                         {include file='svg_icon.tpl' svgId='modules_icon'}
@@ -44,7 +44,7 @@
     
                 <div class="okay_list_boding okay_list_marketplace_demo hidden-sm-down">
                     {if $module->demoUrl}
-                        <a class="btn btn-outline-warning" href="{$module->demoUrl}" target="_blank">{$btr->marketplace_list_demo|escape}</a>
+                        <a class="btn btn-outline-warning" href="{$module->demoUrl|escape}" target="_blank">{$btr->marketplace_list_demo|escape}</a>
                     {/if}
                 </div>
     

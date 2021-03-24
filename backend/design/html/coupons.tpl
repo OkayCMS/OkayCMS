@@ -114,7 +114,7 @@
                                     <input class="form-control" name="new_value" type="text" value="" />
                                     <select class="selectpicker form-control" name="new_type">
                                         <option value="percentage">%</option>
-                                        <option value="absolute">{$currency->sign}</option>
+                                        <option value="absolute">{$currency->sign|escape}</option>
                                     </select>
                                 </div>
 
@@ -150,7 +150,7 @@
                                 </div>
                                 <div class="okay_list_boding okay_list_coupon_name">
                                     <span class="text_dark">
-                                        {$coupon->code}
+                                        {$coupon->code|escape}
                                     </span>
                                     <div class="hidden-lg-up mt-q">
                                         {if $coupon->expire}
@@ -291,7 +291,7 @@
                                     <input class="form-control" name="new_value" type="text" value="" />
                                     <select class="selectpicker form-control" name="new_type">
                                         <option value="percentage">%</option>
-                                        <option value="absolute">{$currency->sign}</option>
+                                        <option value="absolute">{$currency->sign|escape}</option>
                                     </select>
                                 </div>
                             </div>

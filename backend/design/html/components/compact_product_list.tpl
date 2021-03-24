@@ -91,7 +91,7 @@
                 new_item = {$name}_compact_product_list_item_add.clone().appendTo('.{$name}_compact_product_list');
                 new_item.find('a.compact_list_product_name').html(suggestion.data.name);
                 new_item.find('a.compact_list_product_name').attr('href', 'index.php?controller=ProductAdmin&id='+suggestion.data.id);
-                new_item.find('input[name*="related_products"]').val(suggestion.data.id);
+                new_item.find('input[name*="{$name}"]').val(suggestion.data.id);
                 if(suggestion.data.image) {
                     new_item.find('img.product_icon').attr("src", suggestion.data.image);
                 }

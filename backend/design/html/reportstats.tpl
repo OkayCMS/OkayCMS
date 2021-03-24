@@ -139,27 +139,27 @@
                         <div class="okay_list_row ">
                             <div class="okay_list_boding okay_list_reportstats_categories">
                                 {foreach $purchase->category->path as $c}
-                                    {$c->name}/
+                                    {$c->name|escape}/
                                 {/foreach}
                             </div>
                             <div class="okay_list_boding okay_list_reportstats_products">
-                                <a title="{$purchase->product_name|escape}" href="{url controller=ProductAdmin id=$purchase->product_id return=$smarty.server.REQUEST_URI}">{$purchase->product_name}</a> {$purchase->variant_name}
+                                <a title="{$purchase->product_name|escape}" href="{url controller=ProductAdmin id=$purchase->product_id return=$smarty.server.REQUEST_URI}">{$purchase->product_name|escape}</a> {$purchase->variant_name|escape}
                                 <div class="hidden-md-up mt-q">
                                     <span class="text_dark text_600">
                                         <span class="hidden-xs-down">Сумма продаж: </span>
                                         <span class="text_primary">
-                                            {$purchase->sum_price} {$currency->sign|escape}
+                                            {$purchase->sum_price|escape} {$currency->sign|escape}
                                         </span>
                                     </span>
                                 </div>
                             </div>
 
                             <div class="okay_list_boding okay_list_reportstats_total">
-                                {$purchase->sum_price} {$currency->sign|escape}
+                                {$purchase->sum_price|escape} {$currency->sign|escape}
                             </div>
 
                             <div class="okay_list_reportstats_setting">
-                                {$purchase->amount} {if $purchase->units}{$purchase->units|escape}{else}{$settings->units}{/if}
+                                {$purchase->amount|escape} {if $purchase->units}{$purchase->units|escape}{else}{$settings->units|escape}{/if}
                             </div>
                         </div>
                     </div>

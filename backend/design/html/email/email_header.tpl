@@ -11,7 +11,7 @@
                             <tr>
                                 <td align="center">
                                     <a target="_blank" href="{url_generator route='main' absolute=1}">
-                                        <img src="{$rootUrl}/{$config->design_images}{$settings->site_logo}?v={$settings->site_logo_version}" alt="logo" width="200" align="center" style="display: block; margin: 0 auto" />
+                                        <img src="{$rootUrl}/{$config->design_images|escape}{$settings->site_logo|escape}?v={$settings->site_logo_version|escape}" alt="logo" width="200" align="center" style="display: block; margin: 0 auto" />
                                     </a>
                                 </td>
                             </tr>

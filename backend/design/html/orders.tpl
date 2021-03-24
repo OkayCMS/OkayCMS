@@ -9,7 +9,7 @@
                 {if $orders_count}
                     {$btr->general_orders|escape}
                     {if !empty($order_user)}
-                        {$btr->general_orders_user|escape} {$order_user->name|escape} {$order_user->last_name}
+                        {$btr->general_orders_user|escape} {$order_user->name|escape} {$order_user->last_name|escape}
                     {/if}
                     - {$orders_count}
                 {else}
@@ -130,7 +130,7 @@
                 <div class="view_info_visited__item">
                     <div class="view_info_visited__inner">
                         <div class="view_info_visited__left">
-                            <a href="{url status=$s->id}" class="view_info_visited__status" style="color: #{$s->color};">{$s->name|escape}</a>
+                            <a href="{url status=$s->id}" class="view_info_visited__status" style="color: #{$s->color|escape};">{$s->name|escape}</a>
                             <div class="view_info_visited__percent">{round($ordersCount->count / $count_orders_for_statuses * 100, 1)}%</div>
                         </div>
                         <div class="view_info_visited__right">
@@ -234,7 +234,7 @@
                         {*Параметры элемента*}
                         <div class="okay_list_body">
                             {foreach $orders as $order}
-                            <div class="fn_step-1 fn_row okay_list_body_item " style="border-left: 5px solid #{$order->status_color};">
+                            <div class="fn_step-1 fn_row okay_list_body_item " style="border-left: 5px solid #{$order->status_color|escape};">
                                 <div class="okay_list_row">
                                     <div class="okay_list_boding okay_list_check">
                                         <input class="hidden_check" type="checkbox" id="id_{$order->id}" name="check[]" value="{$order->id}"/>
@@ -257,24 +257,24 @@
                                         {if $order->referer_channel}
                                             <div class="order_paid">
                                                 {if $order->referer_channel == Okay\Core\UserReferer\UserReferer::CHANNEL_EMAIL}
-                                                    <span class="tag tag-chanel_email" title="{$order->referer_source}">
-                                                        {include file='svg_icon.tpl' svgId='tag_email'} {$order->referer_channel}
+                                                    <span class="tag tag-chanel_email" title="{$order->referer_source|escape}">
+                                                        {include file='svg_icon.tpl' svgId='tag_email'} {$order->referer_channel|escape}
                                                     </span>
                                                 {elseif $order->referer_channel == Okay\Core\UserReferer\UserReferer::CHANNEL_SEARCH}
-                                                    <span class="tag tag-chanel_search" title="{$order->referer_source}">
-                                                        {include file='svg_icon.tpl' svgId='tag_search'} {$order->referer_channel}
+                                                    <span class="tag tag-chanel_search" title="{$order->referer_source|escape}">
+                                                        {include file='svg_icon.tpl' svgId='tag_search'} {$order->referer_channel|escape}
                                                     </span>
                                                 {elseif $order->referer_channel == Okay\Core\UserReferer\UserReferer::CHANNEL_SOCIAL}
-                                                    <span class="tag tag-chanel_social" title="{$order->referer_source}">
-                                                        {include file='svg_icon.tpl' svgId='tag_social'} {$order->referer_channel}
+                                                    <span class="tag tag-chanel_social" title="{$order->referer_source|escape}">
+                                                        {include file='svg_icon.tpl' svgId='tag_social'} {$order->referer_channel|escape}
                                                     </span>
                                                 {elseif $order->referer_channel == Okay\Core\UserReferer\UserReferer::CHANNEL_REFERRAL}
-                                                    <a href="https://{$order->referer_source|escape}" target="_blank" class="tag tag-chanel_referral" title="{$order->referer_source}">
-                                                        {include file='svg_icon.tpl' svgId='tag_referral'} {$order->referer_channel}
+                                                    <a href="https://{$order->referer_source|escape}" target="_blank" class="tag tag-chanel_referral" title="{$order->referer_source|escape}">
+                                                        {include file='svg_icon.tpl' svgId='tag_referral'} {$order->referer_channel|escape}
                                                     </a>
                                                 {else}
-                                                    <span class="tag tag-ind_unknown" title="{$order->referer_source}">
-                                                        {include file='svg_icon.tpl' svgId='tag_unknown'} {$order->referer_channel}
+                                                    <span class="tag tag-ind_unknown" title="{$order->referer_source|escape}">
+                                                        {include file='svg_icon.tpl' svgId='tag_unknown'} {$order->referer_channel|escape}
                                                     </span>
                                                 {/if}
                                             </div>
@@ -284,7 +284,7 @@
                                     <div class="okay_list_boding okay_list_orders_name">
                                         <a href="{url controller=OrderAdmin id=$order->id return=$smarty.server.REQUEST_URI}" class="text_400 mb-q">{$order->name|escape} {$order->last_name|escape}</a>
                                         <div class="hidden-lg-up mb-h">
-                                            <div class="text_600 font_12" style="color: #{$order->status_color};">{$orders_status[$order->status_id]->name|escape}</div>
+                                            <div class="text_600 font_12" style="color: #{$order->status_color|escape};">{$orders_status[$order->status_id]->name|escape}</div>
                                         </div>
                                         <div class="font_12 text_500 text_grey mb-q"><span class="hidden-md-down">{$btr->orders_order_in|escape}</span>
                                         <span class="font_12 text_500 text_grey mb-q">{$order->date|date} | {$order->date|time}</span></div>
@@ -296,7 +296,7 @@
                                     </div>
 
                                     <div class="okay_list_boding okay_list_order_status">
-                                        <div class="text_600 font_14" style="color: #{$order->status_color};">{$orders_status[$order->status_id]->name|escape}</div>
+                                        <div class="text_600 font_14" style="color: #{$order->status_color|escape};">{$orders_status[$order->status_id]->name|escape}</div>
                                     </div>
 
                                     <div class="okay_list_boding okay_list_order_product_count">
@@ -376,7 +376,7 @@
                                                                 {if $purchase->variant_name}({$purchase->variant_name|escape}){/if}
                                                             </div>
                                                             <div class="purchases_bodyng purchases_table_orders_price">{$purchase->price|convert} {$currency->sign|escape}</div>
-                                                            <div class="purchases_bodyng purchases_table_orders_unit"> {$purchase->amount}{if $purchase->units}{$purchase->units|escape}{else}{$settings->units|escape}{/if}</div>
+                                                            <div class="purchases_bodyng purchases_table_orders_unit"> {$purchase->amount|escape}{if $purchase->units}{$purchase->units|escape}{else}{$settings->units|escape}{/if}</div>
                                                             <div class="purchases_bodyng purchases_table_orders_total"> {($purchase->amount*$purchase->price)|convert} {$currency->sign|escape}</div>
 
                                                          </div>

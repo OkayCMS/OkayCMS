@@ -98,7 +98,7 @@
                             {$btr->translation_name|escape}
                         </div>
                         <div class="form-group">
-                            <input name="label" class="form-control" type="text" value="{$translation->label}" {if $locked_theme}readonly=""{/if} />
+                            <input name="label" class="form-control" type="text" value="{$translation->label|escape}" {if $locked_theme}readonly=""{/if} />
                         </div>
                     </div>
                 </div>
@@ -108,13 +108,13 @@
                             <div class="heading_label mb-h">
                                 {if is_file("{$config->lang_images_dir}{$lang->label}.png")}
                                 <div class="translation_icon">
-                                <img src="{("{$lang->label}.png")|resize:32:32:false:$config->lang_resized_dir}" />
+                                <img src="{("{$lang->label|escape}.png")|resize:32:32:false:$config->lang_resized_dir}" />
                                 </div>
                                 {/if}
                                 {$lang->name|escape}
                             </div>
                             <div class="">
-                                <textarea name="lang_{$lang->label}" class="form-control okay_textarea" {if $locked_theme}readonly=""{/if}>{$translation->values[{$lang->id}]}</textarea>
+                                <textarea name="lang_{$lang->label|escape}" class="form-control okay_textarea" {if $locked_theme}readonly=""{/if}>{$translation->values[{$lang->id}]}</textarea>
                             </div>
                         </div>
                     {/foreach}

@@ -11,7 +11,7 @@
             <div class="banner_group__item swiper-slide block--border banner_group__variant4" data-slide="{$banner_data->id}:{$bi->id}">
             {/if}
                 {if $bi->url}
-                <a class="banner_group__link" aria-label="{$bi->title}" href="{$bi->url|escape}" target="_blank"></a>
+                <a class="banner_group__link" aria-label="{$bi->title|escape}" href="{$bi->url|escape}" target="_blank"></a>
                 {/if}
                 <div class="banner_group__image">
                     <picture>
@@ -22,17 +22,17 @@
                         <source type="image/jpg" srcset="{$bi->image|resize:$bi->settings.mobile.w:$bi->settings.mobile.h:false:$config->resized_banners_images_dir}" media="(max-width: 767px)">
                         <source type="image/jpg" srcset="{$bi->image|resize:$bi->settings.desktop.w:$bi->settings.desktop.h:false:$config->resized_banners_images_dir:center:center}">
                             
-                        <img src="{$bi->image|resize:$bi->settings.desktop.w:$bi->settings.desktop.h:false:$config->resized_banners_images_dir:center:center}" data-src-retina="{$bi->image|resize:$bi->settings.desktop.w:$bi->settings.desktop.h:false:$config->resized_banners_images_dir:center:center}" alt="{$bi->alt}" title="{$bi->title}"/>
+                        <img src="{$bi->image|resize:$bi->settings.desktop.w:$bi->settings.desktop.h:false:$config->resized_banners_images_dir:center:center}" data-src-retina="{$bi->image|resize:$bi->settings.desktop.w:$bi->settings.desktop.h:false:$config->resized_banners_images_dir:center:center}" alt="{$bi->alt|escape}" title="{$bi->title|escape}"/>
                     </picture>
                 </div>
                 <div class="banner_group__content">
                     <div class="banner_group__text">
                         {if $bi->title}
-                            <div class="banner_group__title">{$bi->title}</div>
+                            <div class="banner_group__title">{$bi->title|escape}</div>
                         {/if}
 
                         {if $bi->description}
-                            <div class="banner_group__description">{$bi->description}</div>
+                            <div class="banner_group__description">{$bi->description|escape}</div>
                         {/if}
                     </div>
                 </div>
@@ -54,7 +54,7 @@
 {if $banner_data->settings.as_slider}
 <script>
     document.addEventListener('DOMContentLoaded', function(){
-        $('.fn_banner_{$banner_data->group_name}').each(function(){
+        $('.fn_banner_{$banner_data->group_name|escape}').each(function(){
             var swiper = new Swiper(this, {
             loop: {if isset($banner_data->settings.loop) && !empty($banner_data->settings.loop)}true{else}false{/if},
             {if isset($banner_data->settings.autoplay) && !empty($banner_data->settings.autoplay)}

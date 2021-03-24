@@ -31,7 +31,6 @@ class UserReferer
     public function parse()
     {
         $userReferer = null;
-        /** @var Referer $referer */
         $referer = $this->parser->parse(
             Request::getReferer(),
             Request::getCurrentUrl()

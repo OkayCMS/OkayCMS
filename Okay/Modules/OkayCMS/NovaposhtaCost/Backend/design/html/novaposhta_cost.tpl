@@ -70,7 +70,7 @@
                                 </i>
                             </div>
                             <div class="mb-1">
-                                <input type="text" name="newpost_key" value="{$settings->newpost_key}" class="form-control">
+                                <input type="text" name="newpost_key" value="{$settings->newpost_key|escape}" class="form-control">
                             </div>
                         </div>
                         <div class="col-xxl-6 col-lg-6 col-md-12">
@@ -82,7 +82,7 @@
                             </div>
                             <div class="mb-1">
                                 <input type="text" class="fn_newpost_city_name form-control" name="newpost_city_name" value="{$settings->newpost_city|newpost_city}">
-                                <input type="hidden" name="newpost_city" value="{$settings->newpost_city}">
+                                <input type="hidden" name="newpost_city" value="{$settings->newpost_city|escape}">
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-12">
@@ -93,7 +93,7 @@
                                 </i>
                             </div>
                             <div class="mb-1">
-                                <input type="text" name="newpost_weight" value="{$settings->newpost_weight}" class="form-control">
+                                <input type="text" name="newpost_weight" value="{$settings->newpost_weight|escape}" class="form-control">
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-12">
@@ -103,7 +103,7 @@
                                 </i>
                             </div>
                             <div class="mb-1">
-                                <input type="text" name="newpost_volume" value="{$settings->newpost_volume}" class="form-control">
+                                <input type="text" name="newpost_volume" value="{$settings->newpost_volume|escape}" class="form-control">
                             </div>
                         </div>
 
@@ -113,7 +113,7 @@
                             <div class="mb-1">
                                 <select name="currency_id" class="selectpicker form-control" data-live-search="false">
                                     {foreach $all_currencies as $c}
-                                    <option value="{$c->id}"{if $c->id == $settings->newpost_currency_id} selected{/if}>{$c->name} ({$c->code})</option>
+                                    <option value="{$c->id}"{if $c->id == $settings->newpost_currency_id} selected{/if}>{$c->name|escape} ({$c->code|escape})</option>
                                     {/foreach}
                                 </select>
                             </div>
@@ -158,7 +158,7 @@
         <div class="col-lg-6 col-md-12">
             <div class="boxed">
                 <div class="heading_box">
-                    {$btr->settings_np_options_updating}
+                    {$btr->np_warehouses_data_info}
                 </div>
                 <div class="">
                     <!--TODO "Этот блок возможно не нужен"-->
@@ -176,11 +176,48 @@
                     </div>
                     {/if}
 
-                    <div class="mb-2">
-                        <p>{$btr->settings_np_update_label}</p>
-                        <button type="submit" name="update_cache" value="1" class="btn btn_small btn-warning ">
-                            <span>{$btr->np_update_cache_now|escape}</span>
-                        </button>
+                    <div class="alert alert--icon alert--info">
+                        <div class="alert__content">
+                            <div class="alert__title">Инструкция</div>
+                            <p>{$btr->np_warehouses_data_description|escape}</p>
+                        </div>
+                    </div>
+
+                    {if $warehouses_types_data}
+                        <div class="mb-2 mt-2 row">
+                            {foreach $warehouses_types_data as $w_type}
+                                <div class="col-md-6">
+                                    <input name="np_warehouses_types[]" id="type_{$w_type@iteration}" value="{$w_type->Ref}"  type="checkbox" {if in_array($w_type->Ref,$settings->np_warehouses_types)}checked=""{/if} />
+                                    <label for="type_{$w_type@iteration}">{$w_type->DescriptionRu}</label>
+                                </div>
+                            {/foreach}
+                        </div>
+                    {/if}
+
+                    <div class="mt-2 mb-2">
+                        <p class="mt-2 mb-2">{$btr->settings_np_update_label}</p>
+                        <div class="flex_np_update">
+                            <div class="flex_np_update__select">
+                                <select class="selectpicker form-control mb-1" name="warehouse_update_type">
+                                    <option value="">{$btr->np_update_all|escape}</option>
+                                    {foreach $warehouses_types_data as $w_type}
+                                        <option value="{$w_type->Ref}">{$btr->np_update|escape}{$w_type->DescriptionRu}</option>
+                                    {/foreach}
+                                </select>
+                            </div>
+                            <div class="flex_np_update__btn">
+                                <button type="submit" name="update_cache" value="1" class="btn btn_small btn-warning ">
+                                    <span>{$btr->np_update_cache_now|escape}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert--icon alert--error">
+                        <div class="alert__content">
+                            <div class="alert__title">Важно!</div>
+                            <p>{$btr->np_warehouses_data_update_warning|escape}</p>
+                        </div>
                     </div>
 
                     <div class="alert alert--icon alert--warning mt-2 mb-0">
@@ -208,7 +245,7 @@
                         <div class="col-lg-6 col-md-6">
                             <div class="heading_label">{$btr->settings_np_cache_lifetime}</div>
                             <div class="mb-1">
-                                <input type="text" name="np_cache_lifetime" value="{$settings->np_cache_lifetime}" placeholder="86400" class="form-control">
+                                <input type="text" name="np_cache_lifetime" value="{$settings->np_cache_lifetime|escape}" placeholder="86400" class="form-control">
                             </div>
                         </div>
                     </div>*}

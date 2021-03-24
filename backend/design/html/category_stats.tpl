@@ -127,17 +127,17 @@
                                             <span class="text_dark text_600">
                                                 <span class="hidden-xs-down">{$btr->general_sales_amount|escape} </span>
                                                 <span class="{if $category->price}text_primary {else}text_dark {/if}">
-                                                    {$category->price} {$currency->sign}
+                                                    {$category->price|escape} {$currency->sign|escape}
                                                 </span>
                                             </span>
                                         </div>
                                         {get_design_block block="category_stats_list_name"}
                                     </div>
                                     <div class="okay_list_boding okay_list_categorystats_total">
-                                        {if $category->price}<span class="text_dark">{$category->price} {$currency->sign}</span>{else}{$category->price} {$currency->sign}{/if}
+                                        {if $category->price}<span class="text_dark">{$category->price|escape} {$currency->sign|escape}</span>{else}{$category->price|escape} {$currency->sign|escape}{/if}
                                     </div>
                                     <div class="okay_list_boding okay_list_categorystats_setting">
-                                        {if $category->amount}<span class="text_dark">{$category->amount} {$btr->reportstats_units}</span>{else}{$category->amount} {$btr->reportstats_units}{/if}
+                                        {if $category->amount}<span class="text_dark">{$category->amount|escape} {$btr->reportstats_units}</span>{else}{$category->amount|escape} {$btr->reportstats_units}{/if}
                                     </div>
                                 </div>
                             </div>

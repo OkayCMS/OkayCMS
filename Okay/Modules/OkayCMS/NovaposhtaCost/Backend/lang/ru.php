@@ -1,5 +1,9 @@
 <?php
-
+$lang['np_update_all'] = 'Обновить все пункты выдачи';
+$lang['np_update'] = 'Обновить ';
+$lang['np_warehouses_data_info'] = 'Данные о точках выдачи';
+$lang['np_warehouses_data_description'] = 'Выберите, какие точки выдачи будут доступны для клиента при выборе способа доставки.</br> Типы пунктов, которые не выбраны, будут удалены с сайта при дальнейших обновлениях.';
+$lang['np_warehouses_data_update_warning'] = 'Обновление всех пунктов выдачи одновременно может вызвать большую нагрузку на сервер из-за чего данные могут не обновиться. Если у вас такое происходит, обновите данные о точках выдачи по частям, выбирая конкретные категории пунктов выдачи';
 $lang['left_setting_np_title'] = 'Новая Почта';
 $lang['settings_np'] = 'Настройки Новой Почты';
 $lang['settings_np_key'] = 'Ключ API «Новая Почта»';
@@ -30,7 +34,7 @@ $lang['settings_np_np_auto_update_data_title'] = 'Обновление кеша 
 $lang['settings_np_cache_lifetime'] = 'Время жизни автоматического кеша (с)';
 $lang['settings_np_last_update_cities'] = 'Дата обновления кеша городов';
 $lang['settings_np_last_update_warehouses'] = 'Дата обновления кеша пунктов выдачи';
-$lang['np_update_cache_now'] = 'Обновить пункты выдачи';
+$lang['np_update_cache_now'] = 'Обновить';
 $lang['settings_np__description'] = 'Модуль Новой Почты позволяет в корзине выбирать город и отделение и показывать стоимость';
 $lang['settings_np_options'] = 'Параметры';
 $lang['tooltip_settings_np_api'] = 'Получить ключ API вы можете в личном кабинете на сайте Новая Почта';

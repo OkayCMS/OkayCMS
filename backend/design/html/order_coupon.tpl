@@ -4,7 +4,7 @@
             {foreach $purchase->discounts as $discount}
                 <div class="fn_row okay_list_body_item fn_sort_item">
                     <div class="okay_list_row">
-                        <input type="hidden" name="discount_positions[{$discount->id}]" value="{$discount->position}" />
+                        <input type="hidden" name="discount_positions[{$discount->id}]" value="{$discount->position|escape}" />
 
                         <div class="okay_list_boding okay_list_drag move_zone">
                             {include file='svg_icon.tpl' svgId='drag_vertical'}
@@ -52,7 +52,7 @@
 
                         <div class="okay_list_boding okay_list_price">
                             <div class="input-group">
-                                <input type="text" class="form-control" name="discounts[{$discount->id}][value]" value="{$discount->value}" />
+                                <input type="text" class="form-control" name="discounts[{$discount->id}][value]" value="{$discount->value|escape}" />
                                 <span class="input-group-addon p-0">
                                     {if $discount->type == 'absolute'}
                                         {$currency->code|escape}

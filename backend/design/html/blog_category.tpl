@@ -247,7 +247,7 @@
                                 {function name=category_select level=0}
                                     {foreach $cats as $cat}
                                         {if $category->id != $cat->id}
-                                            <option value='{$cat->id}' {if $category->parent_id == $cat->id}selected{/if}>{section name=sp loop=$level}--{/section}{$cat->name}</option>
+                                            <option value='{$cat->id}' {if $category->parent_id == $cat->id}selected{/if}>{section name=sp loop=$level}--{/section}{$cat->name|escape}</option>
                                             {category_select cats=$cat->subcategories level=$level+1}
                                         {/if}
                                     {/foreach}
