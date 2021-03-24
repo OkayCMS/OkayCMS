@@ -280,7 +280,7 @@
 
                     <div class="okay_type_radio_wrap">
                         <label for="" class="okay_type_radio_no_width" >
-                            <span>{$btr->common_routes_posts}: {$rootUrl}/<input name="all_blog_routes_template__default" placeholder="all-posts" class="form-control prefix-url-input" type="text" value="{if $settings->all_blog_routes_template__default}{$settings->all_blog_routes_template__default|escape}{else}blog{/if}" /></span>
+                            <span>{$btr->common_routes_posts}: {$rootUrl}/<input name="all_blog_routes_template__default" placeholder="all-posts" class="form-control prefix-url-input" type="text" value="{if $settings->all_blog_routes_template__default}{$settings->all_blog_routes_template__default|escape}{else}all-posts{/if}" /></span>
                         </label>
 
                         <div class="okay_switch clearfix">
