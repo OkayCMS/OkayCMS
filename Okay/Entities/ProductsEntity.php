@@ -202,14 +202,22 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         $filenameWithoutExt = implode($parts, '.');
 
         $pattern = $this->config->root_dir . $this->config->resized_images_dir . $filenameWithoutExt . ".*x*." . $ext;
-        $rezisedImages = glob($pattern);
+        $resizedImages = glob($pattern);
 
-        if (!is_array($rezisedImages)) {
+        if (!is_array($resizedImages)) {
             return;
         }
 
-        foreach ($rezisedImages as $rezisedImage) {
-            @unlink($rezisedImage);
+        foreach ($resizedImages as $resizedImage) {
+            @unlink($resizedImage);
+        }
+
+        $webpPattern = $this->config->root_dir . $this->config->resized_images_dir . $filenameWithoutExt . '.*x*.' . $ext . '.webp';
+        $resizedImagesWebp = glob($webpPattern);
+        if (is_array($resizedImagesWebp)) {
+            foreach ($resizedImagesWebp as $f) {
+                @unlink($f);
+            }
         }
     }
 

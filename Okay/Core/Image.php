@@ -505,9 +505,15 @@ class Image
 
                     // Удалить все ресайзы
                     if (!empty($resizedDir)) {
-                        $rezisedImages = glob($this->rootDir . $resizedDir . $file . ".*x*." . $ext);
-                        if (is_array($rezisedImages)) {
-                            foreach ($rezisedImages as $f) {
+                        $resizedImages = glob($this->rootDir . $resizedDir . $file . '.*x*.' . $ext);
+                        if (is_array($resizedImages)) {
+                            foreach ($resizedImages as $f) {
+                                @unlink($f);
+                            }
+                        }
+                        $resizedImagesWebp = glob($this->rootDir . $resizedDir . $file . '.*x*.' . $ext . '.webp');
+                        if (is_array($resizedImagesWebp)) {
+                            foreach ($resizedImagesWebp as $f) {
                                 @unlink($f);
                             }
                         }
@@ -557,11 +563,17 @@ class Image
 
                     // Удалить все ресайзы
                     if (!empty($resizedDir)) {
-                        $rezisedImages = glob($this->rootDir . $resizedDir . $file . ".*x*." . $ext);
-                        if (is_array($rezisedImages)) {
-                            foreach ($rezisedImages as $f) {
+                        $resizedImages = glob($this->rootDir . $resizedDir . $file . '.*x*.' . $ext);
+                        if (is_array($resizedImages)) {
+                            foreach ($resizedImages as $f) {
                                 @unlink($f);
                             }
+                        }
+                    }
+                    $resizedImagesWebp = glob($this->rootDir . $resizedDir . $file . '.*x*.' . $ext . '.webp');
+                    if (is_array($resizedImagesWebp)) {
+                        foreach ($resizedImagesWebp as $f) {
+                            @unlink($f);
                         }
                     }
 
