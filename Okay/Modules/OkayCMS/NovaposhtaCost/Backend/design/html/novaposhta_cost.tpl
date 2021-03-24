@@ -178,8 +178,8 @@
 
                     <div class="alert alert--icon alert--info">
                         <div class="alert__content">
-                            <div class="alert__title">Инструкция</div>
-                            <p>{$btr->np_warehouses_data_description|escape}</p>
+                            <div class="alert__title">{$btr->alert_info}</div>
+                            <p>{$btr->np_warehouses_data_description}</p>
                         </div>
                     </div>
 
