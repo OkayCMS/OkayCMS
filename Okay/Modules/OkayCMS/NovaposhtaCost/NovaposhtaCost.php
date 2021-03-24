@@ -238,40 +238,43 @@ class NovaposhtaCost
                     $currentWarehousesIds[$c->ref] = $c->id;
                 }
                 foreach ($response->data as $warehouseData) {
-                    unset($currentWarehousesIds[$warehouseData->Ref]);
-                    if (!isset($warehouses[$warehouseData->Ref])) {
-                        $warehouse = (object)[
-                            'name' => htmlspecialchars($warehouseData->Description),
-                            'ref' => $warehouseData->Ref,
-                            'city_ref' => $warehouseData->CityRef,
-                            'type' => $warehouseData->TypeOfWarehouse
-                        ];
-                        $warehouse->id = $warehousesEntity->add($warehouse);
-                        $warehouses[$warehouse->ref] = $warehouse;
+                    //Проверяем тип, так как НП может вернуть отделения не того типа и они задублируются на сайте
+                    if ($warehouseData->TypeOfWarehouse === $type) {
+                        unset($currentWarehousesIds[$warehouseData->Ref]);
+                        if (!isset($warehouses[$warehouseData->Ref])) {
+                            $warehouse = (object)[
+                                'name' => htmlspecialchars($warehouseData->Description),
+                                'ref' => $warehouseData->Ref,
+                                'city_ref' => $warehouseData->CityRef,
+                                'type' => $warehouseData->TypeOfWarehouse
+                            ];
+                            $warehouse->id = $warehousesEntity->add($warehouse);
+                            $warehouses[$warehouse->ref] = $warehouse;
 
-                        if (!empty($ruLanguage)) {
-                            $this->languages->setLangId($ruLanguage->id);
-                            $warehouse->name = htmlspecialchars($warehouseData->DescriptionRu);
-                            if (empty($warehouse->name)) {
-                                $warehouse->name = htmlspecialchars($warehouseData->Description);
-                            }
-                            $warehousesEntity->update($warehouse->id, $warehouse);
-                        }
-                    } else {
-                        foreach ($languages as $l) {
-                            $this->languages->setLangId($l->id);
-                            $warehouse = $warehouses[$warehouseData->Ref];
-                            $warehouse->type = $warehouseData->TypeOfWarehouse;
-                         
-                            if ($l->label == 'ru') {
+                            if (!empty($ruLanguage)) {
+                                $this->languages->setLangId($ruLanguage->id);
                                 $warehouse->name = htmlspecialchars($warehouseData->DescriptionRu);
                                 if (empty($warehouse->name)) {
                                     $warehouse->name = htmlspecialchars($warehouseData->Description);
                                 }
-                            } else {
-                                $warehouse->name = htmlspecialchars($warehouseData->Description);
+                                $warehousesEntity->update($warehouse->id, $warehouse);
                             }
-                            $warehousesEntity->update($warehouse->id, $warehouse);
+                        } else {
+                            foreach ($languages as $l) {
+                                $this->languages->setLangId($l->id);
+                                $warehouse = $warehouses[$warehouseData->Ref];
+                                $warehouse->type = $warehouseData->TypeOfWarehouse;
+
+                                if ($l->label == 'ru') {
+                                    $warehouse->name = htmlspecialchars($warehouseData->DescriptionRu);
+                                    if (empty($warehouse->name)) {
+                                        $warehouse->name = htmlspecialchars($warehouseData->Description);
+                                    }
+                                } else {
+                                    $warehouse->name = htmlspecialchars($warehouseData->Description);
+                                }
+                                $warehousesEntity->update($warehouse->id, $warehouse);
+                            }
                         }
                     }
                 }
