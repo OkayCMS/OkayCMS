@@ -194,17 +194,23 @@
                         </div>
                     {/if}
 
-                    <div class="mb-2">
-                        <p>{$btr->settings_np_update_label}</p>
-                        <select class="selectpicker form-control mb-1" name="warehouse_update_type">
-                            <option value="">{$btr->np_update_all|escape}</option>
-                            {foreach $warehouses_types_data as $w_type}
-                                <option value="{$w_type->Ref}">{$btr->np_update|escape}{$w_type->DescriptionRu}</option>
-                            {/foreach}
-                        </select>
-                        <button type="submit" name="update_cache" value="1" class="btn btn_small btn-warning ">
-                            <span>{$btr->np_update_cache_now|escape}</span>
-                        </button>
+                    <div class="mt-2 mb-2">
+                        <p class="mt-2 mb-2">{$btr->settings_np_update_label}</p>
+                        <div class="flex_np_update">
+                            <div class="flex_np_update__select">
+                                <select class="selectpicker form-control mb-1" name="warehouse_update_type">
+                                    <option value="">{$btr->np_update_all|escape}</option>
+                                    {foreach $warehouses_types_data as $w_type}
+                                        <option value="{$w_type->Ref}">{$btr->np_update|escape}{$w_type->DescriptionRu}</option>
+                                    {/foreach}
+                                </select>
+                            </div>
+                            <div class="flex_np_update__btn">
+                                <button type="submit" name="update_cache" value="1" class="btn btn_small btn-warning ">
+                                    <span>{$btr->np_update_cache_now|escape}</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="alert alert--icon alert--error">

@@ -1109,8 +1109,17 @@
         font-size: 14px;
         max-height: 60px;
     }
-
-
+    .flex_np_update__btn,
+    .flex_np_update__select{
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 0 100%;
+    -ms-flex: 0 0 100%;
+    flex: 0 0 100%;
+    max-width: 100%;
+    }
+    .flex_np_update__btn button{
+        justify-content: center;
+    }
 }
 
 /* Custom, iPhone Retina */
