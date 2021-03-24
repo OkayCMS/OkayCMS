@@ -201,7 +201,9 @@
                                 <select class="selectpicker form-control mb-1" name="warehouse_update_type">
                                     <option value="">{$btr->np_update_all|escape}</option>
                                     {foreach $warehouses_types_data as $w_type}
-                                        <option value="{$w_type->Ref}">{$btr->np_update|escape}{$w_type->DescriptionRu}</option>
+                                        {if in_array($w_type->Ref, $settings->np_warehouses_types)}
+                                            <option value="{$w_type->Ref}">{$btr->np_update|escape}{$w_type->DescriptionRu}</option>
+                                        {/if}
                                     {/foreach}
                                 </select>
                             </div>
