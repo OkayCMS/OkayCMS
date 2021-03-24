@@ -239,6 +239,46 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="col-lg-4 col-md-6 mt-2">
+                            <div class="fn_step-10">
+                                <div class="heading_label boxes_inline">
+                                    {$btr->settings_hide_equal_compare_price|escape}
+                                    <i class="fn_tooltips" title="{$btr->settings_hide_equal_compare_price_notice|escape}"> 
+                                        {include file='svg_icon.tpl' svgId='icon_tooltips'}
+                                    </i>
+                                </div>
+                                <div class="boxes_inline">
+                                    <div class="okay_switch clearfix">
+                                        <label class="switch switch-default">
+                                            <input class="switch-input" name="hide_equal_compare_price" value='1' type="checkbox" {if $settings->hide_equal_compare_price}checked=""{/if}/>
+                                            <span class="switch-label"></span>
+                                            <span class="switch-handle"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-4 col-md-6 mt-2">
+                            <div class="fn_step-10">
+                                <div class="heading_label boxes_inline">
+                                    {$btr->settings_increased_image_size|escape}
+                                    <i class="fn_tooltips" title="{$btr->settings_increased_image_size_notice|escape}"> 
+                                        {include file='svg_icon.tpl' svgId='icon_tooltips'}
+                                    </i>
+                                </div>
+                                <div class="boxes_inline">
+                                    <div class="okay_switch clearfix">
+                                        <label class="switch switch-default">
+                                            <input class="switch-input" name="increased_image_size" value='1' type="checkbox" {if $settings->increased_image_size}checked=""{/if}/>
+                                            <span class="switch-label"></span>
+                                            <span class="switch-handle"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         {get_design_block block="settings_catalog_general_row_2"}
                     </div>

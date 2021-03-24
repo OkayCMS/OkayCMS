@@ -602,7 +602,8 @@
         height: 150px;
         margin-bottom: 10px;
     }
-    .product_preview__image a {
+    .product_preview__image a,
+    .product_preview__image picture {
         height: 150px;
     }
     .product_preview__name {

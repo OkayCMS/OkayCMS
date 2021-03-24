@@ -461,6 +461,7 @@ return [
         'class' => MoneyHelper::class,
         'arguments' => [
             new SR(EntityFactory::class),
+            new SR(Settings::class),
         ],
     ],
     CouponHelper::class => [

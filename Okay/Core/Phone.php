@@ -99,10 +99,13 @@ class Phone
         $settings = $SL->getService(Settings::class);
 
         $defaultRegion = $settings->get('phone_default_region');
-        
-        $phoneUtil = PhoneNumberUtil::getInstance();
-        $phoneObject = $phoneUtil->parse($phoneNumber, $defaultRegion);
-        return $phoneUtil->isValidNumber($phoneObject);
+        try {
+            $phoneUtil = PhoneNumberUtil::getInstance();
+            $phoneObject = $phoneUtil->parse($phoneNumber, $defaultRegion);
+            return $phoneUtil->isValidNumber($phoneObject);
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**

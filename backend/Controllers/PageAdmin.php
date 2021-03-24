@@ -51,12 +51,7 @@ class PageAdmin extends IndexAdmin
             }
         } else {
             $id = $pagesRequest->getId();
-            if (!empty($id)) {
-                $page = $backendPagesHelper->getPage((int) $id);
-            } else {
-                $page = new \stdClass;
-                $page->visible = 1;
-            }
+            $page = $backendPagesHelper->getPage((int)$id);
         }
         
         $this->design->assign('page', $page);

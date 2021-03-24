@@ -178,8 +178,8 @@
 
                     <div class="alert alert--icon alert--info">
                         <div class="alert__content">
-                            <div class="alert__title">Инструкция</div>
-                            <p>{$btr->np_warehouses_data_description|escape}</p>
+                            <div class="alert__title">{$btr->alert_info}</div>
+                            <p>{$btr->np_warehouses_data_description}</p>
                         </div>
                     </div>
 
@@ -201,7 +201,9 @@
                                 <select class="selectpicker form-control mb-1" name="warehouse_update_type">
                                     <option value="">{$btr->np_update_all|escape}</option>
                                     {foreach $warehouses_types_data as $w_type}
-                                        <option value="{$w_type->Ref}">{$btr->np_update|escape}{$w_type->DescriptionRu}</option>
+                                        {if in_array($w_type->Ref, $settings->np_warehouses_types)}
+                                            <option value="{$w_type->Ref}">{$btr->np_update|escape}{$w_type->DescriptionRu}</option>
+                                        {/if}
                                     {/foreach}
                                 </select>
                             </div>

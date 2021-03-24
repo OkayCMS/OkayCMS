@@ -70,7 +70,7 @@ class HotlineHelper
         $currenciesEntity = $entityFactory->get(CurrenciesEntity::class);
         
         $this->mainCurrency = $currenciesEntity->getMainCurrency();
-        foreach ($currenciesEntity->find() as $c) {
+        foreach ($currenciesEntity->find(['enabled' => true]) as $c) {
             $this->allCurrencies[$c->id] = $c;
             if ($c->code === "UAH") {
                 $this->UAH_currency = $c;

@@ -11,6 +11,7 @@ use Okay\Core\QueryFactory;
 use Okay\Core\Router;
 use Okay\Core\Routes\ProductRoute;
 use Okay\Entities\CategoriesEntity;
+use Okay\Entities\CurrenciesEntity;
 use Okay\Helpers\XmlFeedHelper;
 use Okay\Modules\OkayCMS\Rozetka\Entities\RozetkaFeedsEntity;
 use Okay\Modules\OkayCMS\Rozetka\Entities\RozetkaRelationsEntity;
@@ -26,18 +27,19 @@ class RozetkaController extends AbstractController
         RozetkaHelper      $rozetkaHelper,
         XmlFeedHelper      $feedHelper,
         RozetkaFeedsEntity $feedsEntity,
-        Money                $money,
+        Money              $money,
+        CurrenciesEntity   $currenciesEntity,
         $url
     ) {
         if (!($feed = $feedsEntity->findOne(['url' => $url])) || !$feed->enabled) {
             return false;
         }
 
-        if (!empty($this->currencies)) {
-            $this->design->assign('main_currency', reset($this->currencies));
+        if ($currencies = $currenciesEntity->find()) {
+            $this->design->assign('main_currency', reset($currencies));
 
             // Передаем валюты, чтобы класс потом не лез в базу за валютами, т.к. мы работаем с небуферизированными запросами
-            foreach ($this->currencies as $c) {
+            foreach ($currencies as $c) {
                 $money->setCurrency($c);
             }
         }

@@ -78,6 +78,16 @@ class Request
     {
         return self::getDomainWithProtocol() . rtrim(str_replace($_SERVER['QUERY_STRING'], '', $_SERVER['REQUEST_URI']), '?');
     }
+
+    /**
+     * Return current QUERY_STRING
+     * 
+     * @return string
+     */
+    public static function getCurrentQueryString() : string
+    {
+        return (!empty($_SERVER['QUERY_STRING']) ? '?' : '') . $_SERVER['QUERY_STRING'];
+    }
     
     public function getStartTime()
     {
@@ -382,7 +392,6 @@ class Request
         foreach($params as $name=>$value) {
             $query[$name] = $value;
         }
-
         
         $queryIsEmpty = true;
         foreach ($query as $name=>$value) {

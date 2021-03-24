@@ -46,14 +46,20 @@ class ImagesEntity extends Entity
                     $ext = pathinfo($filename, PATHINFO_EXTENSION);
 
                     // Удалить все ресайзы
-                    $rezisedImages = glob($this->config->root_dir.$this->config->resized_images_dir.$file.".*x*.".$ext);
-                    if(is_array($rezisedImages)) {
-                        foreach ($rezisedImages as $f) {
+                    $resizedImages = glob($this->config->root_dir . $this->config->resized_images_dir . $file . '.*x*.' . $ext);
+                    if(is_array($resizedImages)) {
+                        foreach ($resizedImages as $f) {
+                            @unlink($f);
+                        }
+                    }
+                    $resizedImagesWebp = glob($this->config->root_dir . $this->config->resized_images_dir . $file . '.*x*.' . $ext . '.webp');
+                    if(is_array($resizedImagesWebp)) {
+                        foreach ($resizedImagesWebp as $f) {
                             @unlink($f);
                         }
                     }
 
-                    @unlink($this->config->root_dir.$this->config->original_images_dir.$filename);
+                    @unlink($this->config->root_dir . $this->config->original_images_dir . $filename);
                 }
             }
         }
