@@ -9,7 +9,7 @@ use Okay\Core\Modules\Module;
 
 class ManagerMenu
 {
-    
+
     /**
      * Массив системных контроллеров, которые в меню не выводятся, но на них отдельные разрешения
      *
@@ -19,7 +19,7 @@ class ManagerMenu
         'left_support'       => ['SupportAdmin', 'TopicAdmin'],
         'left_license_title' => ['LicenseAdmin'],
     ];
-    
+
     /**
      * Массив с меню админ. части (из него автоматически формируется главное меню админки)
      *
@@ -103,8 +103,8 @@ class ManagerMenu
 
     /**
      * Полный список элементов меню быстрого редактирования
-     * 
-     * @var array 
+     *
+     * @var array
      */
     private $fastMenu = [
         'feature' => [
@@ -233,7 +233,7 @@ class ManagerMenu
             ],
         ],
     ];
-    
+
     /**
      * Ссылки на изображения для дополнительных секцый меню. Представляют из себя ассоциативный массив с именем
      * секции в качестве ключа и путем к картинке относительно корня проекта
@@ -251,14 +251,14 @@ class ManagerMenu
 
     private $managers;
     private $module;
-    
+
     private $menuCounters = [];
-    
+
     public function __construct(Managers $managers, Module $module, $devMode = false)
     {
         $this->managers = $managers;
         $this->module   = $module;
-        
+
         if ((bool)$devMode === true) {
             $this->leftMenu['left_design']['left_email_templates_debug'] = ['EmailTemplatesAdmin'];
         }
@@ -313,10 +313,10 @@ class ManagerMenu
             }
             $validatedMenuItems[] = $validatedMenuItem;
         }
-        
+
         $this->fastMenu[$dataProperty] = $validatedMenuItems;
     }
-    
+
     /**
      * Добавить новый контроллера в меню. Чтобы зайдя на этот модуль "Модули" отображался как активный пункт меню
      *
@@ -339,7 +339,7 @@ class ManagerMenu
     {
         $this->menuCounters[$menuItemTitle] = $counter;
     }
-    
+
     public function getCounters()
     {
         foreach ($this->leftMenu as $section=>$menu) {
@@ -355,7 +355,7 @@ class ManagerMenu
         }
         return $this->menuCounters;
     }
-    
+
     /**
      * Получить основное меню админ панели с учетом индивидуальной сортировки менеждера и прав доступа вышеупомянутого менеджера
      *
@@ -374,11 +374,11 @@ class ManagerMenu
             foreach ($items as $title => $controllers) {
                 $mainController = reset($controllers);
                 $controllerMethod = null;
-                
+
                 if (strpos($mainController, '@') !== false) {
                     list($mainController, $controllerMethod) = explode('@', $mainController, 2);
                 }
-                
+
                 /*if (!isset($manager->menu[$section][$title])) {
                     $manager->menu[$section][$title] = $mainController;
                 }*/
@@ -490,7 +490,7 @@ class ManagerMenu
     {
         return $this->additionalSectionIcons;
     }
-    
+
     public function getActiveControllerName($manager, $controller)
     {
         $activeControllerName = null;
@@ -526,15 +526,15 @@ class ManagerMenu
         foreach($menu as $blockName => $items) {
             $permissionMenu[$blockName] = $this->groupPermissionByBlockMenu($items);
         }
-        
+
         $permissionMenu['left_system_controllers'] = $this->groupPermissionByBlockMenu($this->systemControllers);
-        
+
         if (is_null($btr)) {
             return $permissionMenu;
         }
 
         $permissionMenu = $this->replaceTranslations($btr, $permissionMenu);
-        
+
         // Разрешения для модулей добавляем без переводов, в качестве имени идёт Vendor/Module
         foreach ($this->managers->getModulesPermissions() as $permission=>$vendorModuleName) {
             $permissionMenu['left_modules'][$permission] = $vendorModuleName;
