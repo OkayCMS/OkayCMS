@@ -54,7 +54,11 @@ body {
     max-width: 100%;
     min-height: 100%;
     /*overflow: hidden;*/
-    padding: 55px 0 0 !important;
+    margin: 0;
+    padding: 0;
+}
+body.navbar-fixed {
+    padding-top: 55px !important;
 }
 .design_block_parent_element {
     position: relative;
