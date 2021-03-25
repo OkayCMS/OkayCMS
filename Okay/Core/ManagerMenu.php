@@ -50,6 +50,11 @@ class ManagerMenu
             'left_products_stat_title'   => ['ReportStatsAdmin'],
             'left_categories_stat_title' => ['CategoryStatsAdmin'],
         ],
+        'left_comments' => [
+            'left_comments_title'        => ['CommentsAdmin'],
+            'left_feedbacks_title'       => ['FeedbacksAdmin'],
+            'left_callbacks_title'       => ['CallbacksAdmin'],
+        ],
         'left_pages' => [
             'left_pages_title'           => ['PagesAdmin', 'PageAdmin'],
             'left_menus_title'           => ['MenusAdmin', 'MenuAdmin'],
@@ -58,11 +63,6 @@ class ManagerMenu
             'left_blog_title'            => ['BlogAdmin', 'PostAdmin'],
             'left_blog_categories_title' => ['BlogCategoriesAdmin', 'BlogCategoryAdmin'],
             'left_authors_title'         => ['AuthorsAdmin', 'AuthorAdmin'],
-        ],
-        'left_comments' => [
-            'left_comments_title'        => ['CommentsAdmin'],
-            'left_feedbacks_title'       => ['FeedbacksAdmin'],
-            'left_callbacks_title'       => ['CallbacksAdmin'],
         ],
         'left_seo' => [
             'left_robots_title'          => ['RobotsAdmin'],
