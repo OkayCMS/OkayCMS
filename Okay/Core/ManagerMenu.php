@@ -31,6 +31,9 @@ class ManagerMenu
             'left_categories_title'      => ['CategoriesAdmin', 'CategoryAdmin'],
             'left_brands_title'          => ['BrandsAdmin', 'BrandAdmin'],
             'left_features_title'        => ['FeaturesAdmin', 'FeatureAdmin'],
+            'left_import_title'          => ['ImportAdmin'],
+            'left_export_title'          => ['ExportAdmin'],
+            'left_log_title'             => ['ImportLogAdmin'],
         ],
         'left_orders' => [
             'left_orders_title'                    => ['OrdersAdmin', 'OrderAdmin'],
@@ -55,11 +58,6 @@ class ManagerMenu
             'left_comments_title'        => ['CommentsAdmin'],
             'left_feedbacks_title'       => ['FeedbacksAdmin'],
             'left_callbacks_title'       => ['CallbacksAdmin'],
-        ],
-        'left_auto' => [
-            'left_import_title'          => ['ImportAdmin'],
-            'left_export_title'          => ['ExportAdmin'],
-            'left_log_title'             => ['ImportLogAdmin'],
         ],
         'left_stats' => [
             'left_stats_title'           => ['StatsAdmin'],
