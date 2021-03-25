@@ -45,6 +45,11 @@ class ManagerMenu
             'left_coupons_title'         => ['CouponsAdmin'],
             'left_subscribe_title'       => ['SubscribeMailingAdmin'],
         ],
+        'left_stats' => [
+            'left_stats_title'           => ['StatsAdmin'],
+            'left_products_stat_title'   => ['ReportStatsAdmin'],
+            'left_categories_stat_title' => ['CategoryStatsAdmin'],
+        ],
         'left_pages' => [
             'left_pages_title'           => ['PagesAdmin', 'PageAdmin'],
             'left_menus_title'           => ['MenusAdmin', 'MenuAdmin'],
@@ -58,11 +63,6 @@ class ManagerMenu
             'left_comments_title'        => ['CommentsAdmin'],
             'left_feedbacks_title'       => ['FeedbacksAdmin'],
             'left_callbacks_title'       => ['CallbacksAdmin'],
-        ],
-        'left_stats' => [
-            'left_stats_title'           => ['StatsAdmin'],
-            'left_products_stat_title'   => ['ReportStatsAdmin'],
-            'left_categories_stat_title' => ['CategoryStatsAdmin'],
         ],
         'left_seo' => [
             'left_robots_title'          => ['RobotsAdmin'],
