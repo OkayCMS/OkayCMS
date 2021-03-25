@@ -55,14 +55,14 @@ class ManagerMenu
             'left_feedbacks_title'       => ['FeedbacksAdmin'],
             'left_callbacks_title'       => ['CallbacksAdmin'],
         ],
-        'left_pages' => [
-            'left_pages_title'           => ['PagesAdmin', 'PageAdmin'],
-            'left_menus_title'           => ['MenusAdmin', 'MenuAdmin'],
-        ],
         'left_blog' => [
             'left_blog_title'            => ['BlogAdmin', 'PostAdmin'],
             'left_blog_categories_title' => ['BlogCategoriesAdmin', 'BlogCategoryAdmin'],
             'left_authors_title'         => ['AuthorsAdmin', 'AuthorAdmin'],
+        ],
+        'left_pages' => [
+            'left_pages_title'           => ['PagesAdmin', 'PageAdmin'],
+            'left_menus_title'           => ['MenusAdmin', 'MenuAdmin'],
         ],
         'left_seo' => [
             'left_robots_title'          => ['RobotsAdmin'],
