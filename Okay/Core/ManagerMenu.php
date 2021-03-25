@@ -74,13 +74,12 @@ class ManagerMenu
             'left_robots_title'          => ['RobotsAdmin'],
         ],
         'left_design' => [
+            'left_settings_theme_title'  => ['SettingsThemeAdmin'],
             'left_theme_title'           => ['ThemeAdmin'],
+            'left_images_title'          => ['ImagesAdmin'],
             'left_template_title'        => ['TemplatesAdmin'],
             'left_style_title'           => ['StylesAdmin'],
             'left_script_title'          => ['ScriptsAdmin'],
-            'left_images_title'          => ['ImagesAdmin'],
-            'left_translations_title'    => ['TranslationsAdmin', 'TranslationAdmin'],
-            'left_settings_theme_title'  => ['SettingsThemeAdmin'],
         ],
         'left_settings' => [
             'left_setting_general_title' => ['SettingsGeneralAdmin'],
@@ -91,6 +90,7 @@ class ManagerMenu
             'left_payment_title'         => ['PaymentMethodsAdmin', 'PaymentMethodAdmin'],
             'left_managers_title'        => ['ManagersAdmin', 'ManagerAdmin'],
             'left_languages_title'       => ['LanguagesAdmin', 'LanguageAdmin'],
+            'left_translations_title'    => ['TranslationsAdmin', 'TranslationAdmin'],
             'learning_title'             => ['LearningAdmin'],
             'left_system_title'          => ['SystemAdmin'],
             'left_orders_discounts_settings_title' => ['DiscountsSettingsAdmin'],
