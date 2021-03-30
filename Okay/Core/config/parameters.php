@@ -42,6 +42,7 @@ return [
     'config' => [
         'config_file' => __DIR__ . '/../../../config/config.php',
         'config_local_file' => __DIR__ . '/../../../config/config.local.php',
+        'deprecated_methods' => include(__DIR__ . '/deprecated_methods.php'),
         'version' => '{$version}',
     ],
     'manager_menu' => [
