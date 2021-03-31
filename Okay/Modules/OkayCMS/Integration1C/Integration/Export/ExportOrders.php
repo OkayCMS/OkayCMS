@@ -38,7 +38,7 @@ class ExportOrders extends AbstractExport
         $xml = new \SimpleXMLElement($no_spaces);
 
         $orders = $ordersEntity->mappedBy('id')->find(['modified_since'=>$this->integration1C->settings->last_1c_orders_export_date]);
-        
+
         $purchases = [];
         if (!empty($orders)) {
             foreach ($purchasesEntity->find(['order_id' => array_keys($orders)]) as $purchase) {
@@ -61,10 +61,21 @@ class ExportOrders extends AbstractExport
             $doc->addChild ( "Время",  $date->format('H:i:s'));
             $doc->addChild ( "Комментарий", $order->comment. 'Адрес доставки: '.$order->address);
 
-            if ($order->total_price != $order->undiscounted_total_price) {
+            if ($this->integration1C->exportPurchasesDiscountsSeparate) {
+                $startingPrice = $order->undiscounted_total_price;
+            } else {
+                $startingPrice = 0;
+                if (isset($purchases[$order->id])) {
+                    foreach ($purchases[$order->id] as $purchase) {
+                        $startingPrice += $purchase->undiscounted_price * $purchase->amount;
+                    }
+                }
+            }
+
+            if ($order->total_price != $startingPrice) {
                 $t1_2 = $doc->addChild("Скидки");
                 $t1_3 = $t1_2->addChild("Скидка");
-                $t1_4 = $t1_3->addChild("Сумма", ($order->undiscounted_total_price - $order->total_price));
+                $t1_4 = $t1_3->addChild("Сумма", ($startingPrice - $order->total_price));
                 $t1_4 = $t1_3->addChild("УчтеноВСумме", "true");
             }
 
@@ -156,13 +167,12 @@ class ExportOrders extends AbstractExport
                         $t1_2 = $t1_1->addChild("Сумма", ($purchase->price * $purchase->amount));
 
 
-                        if ($purchase->price != $purchase->undiscounted_price) {
+                        if ($this->integration1C->exportPurchasesDiscountsSeparate && $purchase->price != $purchase->undiscounted_price) {
                             $t1_2 = $t1_1->addChild("Скидки");
                             $t1_3 = $t1_2->addChild("Скидка");
-                            $t1_4 = $t1_3->addChild("Сумма", (($purchase->undiscounted_price - $purchase->price) * $purchase->amount));
+                            $t1_4 = $t1_3->addChild("Сумма", ($purchase->undiscounted_price - $purchase->price));
                             $t1_4 = $t1_3->addChild("УчтеноВСумме", "true");
                         }
-
 
                         $t1_2 = $t1_1->addChild("ЗначенияРеквизитов");
                         $t1_3 = $t1_2->addChild("ЗначениеРеквизита");
