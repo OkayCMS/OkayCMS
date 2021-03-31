@@ -35,11 +35,13 @@
                         {if $features_aliases}
                             {foreach $features_aliases as $fa}
                                 <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{$f_alias_{/literal}{$fa->variable|escape}{literal}}{/literal}</a> - {$btr->seo_patterns_ajax_feature_name|escape} ({$fa->name|escape})</li>
+                                <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{$f_alias_{/literal}{$fa->variable|escape}{literal}_2}{/literal}</a> - {$btr->seo_patterns_ajax_feature_name|escape} ({$fa->name|escape}) 2</li>
                             {/foreach}
                         {/if}
                         {if $features_aliases}
                             {foreach $features_aliases as $fa}
                                 <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{$o_alias_{/literal}{$fa->variable|escape}{literal}}{/literal}</a> - {$btr->seo_patterns_ajax_feature_val|escape} ({$fa->name|escape})</li>
+                                <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{$o_alias_{/literal}{$fa->variable|escape}{literal}_2}{/literal}</a> - {$btr->seo_patterns_ajax_feature_val|escape} ({$fa->name|escape}) 2</li>
                             {/foreach}
                         {/if}
 

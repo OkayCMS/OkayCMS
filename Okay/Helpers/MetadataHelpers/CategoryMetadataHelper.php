@@ -292,7 +292,11 @@ class CategoryMetadataHelper extends CommonMetadataHelper
             $featuresIds = array_keys($selectedFilters);
             
             foreach ($featuresAliasesValuesEntity->find(array('feature_id'=>$featuresIds)) as $fv) {
-                $this->parts['{$f_alias_'.$fv->variable.'}'] = $fv->value;
+                if(!isset($this->parts['{$f_alias_'.$fv->variable.'}'])){
+                    $this->parts['{$f_alias_'.$fv->variable.'}'] = $fv->value;
+                } else {
+                    $this->parts['{$f_alias_'.$fv->variable.'_2}'] = $fv->value;
+                }
             }
 
             $aliasesValuesFilter['feature_id'] = $featuresIds;
@@ -301,7 +305,11 @@ class CategoryMetadataHelper extends CommonMetadataHelper
                 $aliasesValuesFilter['translit'] = reset($translits);
             }
             foreach ($featuresValuesAliasesValuesEntity->find($aliasesValuesFilter) as $ov) {
-                $this->parts['{$o_alias_'.$ov->variable.'}'] = $ov->value;
+                if(!isset($this->parts['{$o_alias_'.$ov->variable.'}'])){
+                    $this->parts['{$o_alias_'.$ov->variable.'}'] = $ov->value;
+                } else {
+                    $this->parts['{$o_alias_'.$ov->variable.'_2}'] = $ov->value;
+                }
             }
         }
 
