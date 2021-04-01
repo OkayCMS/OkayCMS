@@ -300,10 +300,18 @@ class CategoryMetadataHelper extends CommonMetadataHelper
             }
 
             $aliasesValuesFilter['feature_id'] = $featuresIds;
-            // Если только одно значение одного свойства, получим для него все алиасы значения
-            if (count($featuresIds) == 1 && (count($translits = reset($selectedFilters))) == 1) {
-                $aliasesValuesFilter['translit'] = reset($translits);
+            // Если только одно значение одного свойства, или два свойства по одному значению получим для них все алиасы значения
+            if (in_array(count($featuresIds), [1, 2])) {
+                foreach ($selectedFilters as $sf) {
+                    if(count($sf) == 1){
+                        $aliasesValuesFilter['translit'][] = reset($sf);
+                    } else {
+                        unset($aliasesValuesFilter['translit']);
+                        break;
+                    }
+                }
             }
+            
             foreach ($featuresValuesAliasesValuesEntity->find($aliasesValuesFilter) as $ov) {
                 if(!isset($this->parts['{$o_alias_'.$ov->variable.'}'])){
                     $this->parts['{$o_alias_'.$ov->variable.'}'] = $ov->value;
@@ -312,7 +320,6 @@ class CategoryMetadataHelper extends CommonMetadataHelper
                 }
             }
         }
-
         $metaArray = $this->getMetaArray();
 
         if (!empty($metaArray['brand']) && count($metaArray['brand']) == 1) {
