@@ -126,7 +126,7 @@
                                             </div>
 
                                             <div class="okay_list_boding okay_list_topic_message">
-                                                {$comment->text|escape}
+                                                {$comment->text}
                                             </div>
 
                                             <div class="okay_list_boding okay_list_topic_time {if $comment->spent_time < 0}text-success{/if}">
