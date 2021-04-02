@@ -12,3 +12,5 @@ $lang['okaycms__integration_ic__settings_fullUpdate'] = "Обновлять вс
 $lang['okaycms__integration_ic__settings_onlyEnabledCurrencies'] = "Учитывать только включенные валюты";
 $lang['okaycms__integration_ic__settings_stockFrom1c'] = "Учитывать количество товара из 1с";
 $lang['okaycms__integration_ic__settings_importProductsOnly'] = "Импортировать только товары, без услуг и прочего (ВидНоменклатуры == Товар)";
+$lang['okaycms__integration_1c__settings_exportPurchasesDiscountsSeparate'] = "Экспортировать скидки товаров в заказе отдельно";
+$lang['okaycms__integration_1c__settings_exportPurchasesDiscountsSeparate_tooltip'] = "Если настройка включена, то при наличии у товара в заказе скидок (скидки распространяются только на этот товар), к товару будет прилагаться скидка являющейся суммой всех скидок товара, а скидка прилагающаяся к заказу будет суммой только общих скидок заказа.";
