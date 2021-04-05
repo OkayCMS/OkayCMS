@@ -32,6 +32,8 @@ class Integration1C
     public $importProductsOnly = false;   // TRUE Импортировать только товары, без услуг и прочего (ВидНоменклатуры == Товар)
 
     public $exportPurchasesDiscountsSeparate = false;   // TRUE Экспортировать скидки товаров в заказе отдельно
+    
+    public $eraseComparePrice = false;   // TRUE сбрасывать старую цену, если она не пришла с 1С
 
     public $guidPriceFrom1C = '';  // ID типа цены в 1С, который нужно загрузить в товар, если не указать, будет браться первая
 
@@ -147,6 +149,10 @@ class Integration1C
         
         if ($this->settings->has('integration1cGuidComparePriceFrom1C')) {
             $this->guidComparePriceFrom1C = $this->settings->get('integration1cGuidComparePriceFrom1C');
+        }
+        
+        if ($this->settings->has('integration1cEraseComparePrice')) {
+            $this->eraseComparePrice = (bool)$this->settings->get('integration1cEraseComparePrice');
         }
     }
 

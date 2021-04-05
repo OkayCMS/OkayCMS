@@ -14,3 +14,4 @@ $lang['okaycms__integration_ic__settings_stockFrom1c'] = "Враховувати
 $lang['okaycms__integration_ic__settings_importProductsOnly'] = "Імпортувати тільки товари, без послуг та іншого (ВидНоменклатуры == Товар)";
 $lang['okaycms__integration_1c__settings_exportPurchasesDiscountsSeparate'] = "Експортувати знижки товарів в замовленні окремо";
 $lang['okaycms__integration_1c__settings_exportPurchasesDiscountsSeparate_tooltip'] = "Якщо налаштування увімкненно, то при наявності у товару в замовленні знижок (знижки поширюються тільки на цей товар), до товару буде додаватися знижка яка є сумою усіх знижок товару, а знижка що додається до замовлення буде сумою тільки загальних знижок замовлення.";
+$lang['okaycms__integration_ic__settings_eraseComparePrice'] = "Скидати стару ціну варіантів, якщо вона не прийшла з 1С";

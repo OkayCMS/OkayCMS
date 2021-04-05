@@ -215,6 +215,16 @@
                                             </div>
                                             <div class="col-xl-12 col-lg-12 col-md-12">
                                                 <div class="permission_box permission_box--long">
+                                                    <span>{$btr->okaycms__integration_ic__settings_eraseComparePrice|escape}</span>
+                                                    <label class="switch switch-default">
+                                                        <input class="switch-input" name="integration1cEraseComparePrice" value='1' type="checkbox" {if $settings->integration1cEraseComparePrice}checked=""{/if}/>
+                                                        <span class="switch-label"></span>
+                                                        <span class="switch-handle"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-12 col-lg-12 col-md-12">
+                                                <div class="permission_box permission_box--long">
                                                     <span>
                                                         {$btr->okaycms__integration_1c__settings_exportPurchasesDiscountsSeparate|escape}
                                                         <i class="fn_tooltips" title="{$btr->okaycms__integration_1c__settings_exportPurchasesDiscountsSeparate_tooltip|escape}">

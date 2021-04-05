@@ -28,6 +28,7 @@ class Description1CAdmin extends IndexAdmin
             $this->settings->set('integration1cOnlyEnabledCurrencies', $this->request->post('integration1cOnlyEnabledCurrencies', 'int'));
             $this->settings->set('integration1cStockFrom1c', $this->request->post('integration1cStockFrom1c', 'int'));
             $this->settings->set('integration1cImportProductsOnly', $this->request->post('integration1cImportProductsOnly', 'int'));
+            $this->settings->set('integration1cEraseComparePrice', $this->request->post('integration1cEraseComparePrice', 'int'));
             $this->settings->set('integration1cExportPurchasesDiscountsSeparate', $this->request->post('integration1cExportPurchasesDiscountsSeparate', 'int'));
         }
 

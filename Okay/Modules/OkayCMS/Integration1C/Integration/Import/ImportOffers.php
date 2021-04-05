@@ -130,6 +130,10 @@ class ImportOffers extends AbstractImport
             return false;
         }
 
+        if ($this->integration1C->eraseComparePrice) {
+            $variant->compare_price = 0;
+        }
+        
         if ($this->integration1C->guidComparePriceFrom1C) {
             foreach ($xmlVariant->Цены->Цена as $priceElement) {
                 if ($this->integration1C->guidComparePriceFrom1C == (string)$priceElement->ИдТипаЦены) {
