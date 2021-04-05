@@ -192,7 +192,7 @@ class DiscountsHelper
     private function getTranslations($discount)
     {
         $languages = $this->languagesCore->getAllLanguages();
-        $mainLanguage = $this->languagesCore->getMainLanguage();
+        $currentLangId = $this->languagesCore->getLangId();
         $langFields = $this->discountsEntity->getLangFields();
         $substitutes = $this->buildReplacements($discount->langParts);
         $langDiscount = [];
@@ -206,7 +206,7 @@ class DiscountsHelper
                 }
             }
         }
-        $this->languagesCore->setLangId($mainLanguage->id);
+        $this->languagesCore->setLangId($currentLangId);
         $this->frontTranslations->init();
 
         return ExtenderFacade::execute(__METHOD__, $langDiscount, func_get_args());

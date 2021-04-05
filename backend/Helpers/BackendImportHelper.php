@@ -106,10 +106,10 @@ class BackendImportHelper
         // Если же товар не был найден модулями, ищем по стандартной логике. Так же этот метод можно расширить экстендером
         $importItemData = $this->searchImportProductData($product, $variant, $importItemData);
 
-        if ($importItemData['productId']) {
+        if (!empty($importItemData['productId'])) {
             $productId = (int)$importItemData['productId'];
         }
-        if ($importItemData['variantId']) {
+        if (!empty($importItemData['variantId'])) {
             $variantId = (int)$importItemData['variantId'];
         }
 

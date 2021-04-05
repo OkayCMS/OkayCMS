@@ -77,7 +77,7 @@ class NoPrefixAndPathStrategy extends AbstractRouteStrategy
             $this->logger->warning('Missing "main_category_id" for product "'.$url.'"');
         } else {
             $category = $this->categoriesEntity->get((int) $product->main_category_id);
-            $slug = substr($category->path_url, 1).'/'.$product->url;
+            $slug = $category->path_url.'/'.$product->url;
         }
 
         // Запоминаем в оперативке slug для этого урла

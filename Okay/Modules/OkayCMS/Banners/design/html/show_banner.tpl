@@ -32,7 +32,7 @@
                         {/if}
 
                         {if $bi->description}
-                            <div class="banner_group__description">{$bi->description|escape}</div>
+                            <div class="banner_group__description">{$bi->description}</div>
                         {/if}
                     </div>
                 </div>

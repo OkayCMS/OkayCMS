@@ -290,21 +290,64 @@ class CategoryMetadataHelper extends CommonMetadataHelper
             $featuresValuesAliasesValuesEntity = $entityFactory->get(FeaturesValuesAliasesValuesEntity::class);
             
             $featuresIds = array_keys($selectedFilters);
-            
-            foreach ($featuresAliasesValuesEntity->find(array('feature_id'=>$featuresIds)) as $fv) {
-                $this->parts['{$f_alias_'.$fv->variable.'}'] = $fv->value;
-            }
 
             $aliasesValuesFilter['feature_id'] = $featuresIds;
-            // Если только одно значение одного свойства, получим для него все алиасы значения
-            if (count($featuresIds) == 1 && (count($translits = reset($selectedFilters))) == 1) {
-                $aliasesValuesFilter['translit'] = reset($translits);
+            
+            if (in_array(count($featuresIds), [1, 2])) {
+                foreach ($selectedFilters as $sf) {
+                    if(count($sf) == 1){
+                        $aliasesValuesFilter['translit'][] = reset($sf);
+                    } else {
+                        unset($aliasesValuesFilter['translit']);
+                        break;
+                    }
+                }
             }
-            foreach ($featuresValuesAliasesValuesEntity->find($aliasesValuesFilter) as $ov) {
-                $this->parts['{$o_alias_'.$ov->variable.'}'] = $ov->value;
+
+            //Если паттерн свойство+свойство
+            if (count($aliasesValuesFilter['translit']) == 2) {
+                //достаем порядок свойств в шаблонах в админке
+                $seoFilterPattern = $this->getSeoFilterPattern();
+                $featureIdsInPatternSettingsOrder[] = $seoFilterPattern->feature_id;
+                $featureIdsInPatternSettingsOrder[] = $seoFilterPattern->second_feature_id;
+
+                foreach ($featuresAliasesValuesEntity->find(array('feature_id'=>$featuresIds)) as $fv) {
+                    $featuresAliasesForSelected[$fv->feature_id][$fv->variable] = $fv->value;
+                }
+
+                //получим для них все алиасы значения
+                $aliasesValuesForSelected = [];
+                foreach ($featuresValuesAliasesValuesEntity->find($aliasesValuesFilter) as $ov) {
+                    $aliasesValuesForSelected[$ov->variable][$ov->feature_id] = $ov->value;
+                }
+
+                //необходимо заполнить алиасы свойств и их значений в правильном порядке
+                if ($aliasesValuesForSelected) {
+                    $counter = '';
+                    foreach ($featureIdsInPatternSettingsOrder as $featureId) {
+                        //заполняем алиасы свойств
+                        foreach ($featuresAliasesForSelected[$featureId] as $type => $value) {
+                            $this->parts['{$f_alias_'.$type.$counter.'}'] = $value ?? '';
+                        }
+                        //заполняем алиасы значений
+                        foreach ($aliasesValuesForSelected as $type => $values) {
+                            $this->parts['{$o_alias_'.$type.$counter.'}'] = $values[$featureId] ?? '';
+                        }
+                        $counter = '_2';
+                    }
+                }
+            } else {
+                //Если только одно значение одного свойства
+                foreach ($featuresAliasesValuesEntity->find(array('feature_id'=>$featuresIds)) as $fv) {
+                    $this->parts['{$f_alias_'.$fv->variable.'}'] = $fv->value;
+                }
+
+                //получим для него все алиасы значения
+                foreach ($featuresValuesAliasesValuesEntity->find($aliasesValuesFilter) as $ov) {
+                    $this->parts['{$o_alias_'.$ov->variable.'}'] = $ov->value;
+                }
             }
         }
-
         $metaArray = $this->getMetaArray();
 
         if (!empty($metaArray['brand']) && count($metaArray['brand']) == 1) {

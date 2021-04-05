@@ -200,10 +200,8 @@ class CategoryController extends AbstractController
         //lastModify END
         
         $filterFeatures = [];
-        foreach ($currentFeatures as $featureId => $values) {
-            if (isset($categoryFeatures[$featureId])) {
-                $filterFeatures[$categoryFeatures[$featureId]->url] = $values;
-            }
+        if (!empty($metaArray['features_values'])) {
+            $filterFeatures = $metaArray['features_values'];
         }
         switch ($metaRobotsHelper->getCategoryRobots($currentPage, $currentOtherFilters, $filterFeatures, $currentBrandsIds)) {
             case ROBOTS_NOINDEX_FOLLOW:

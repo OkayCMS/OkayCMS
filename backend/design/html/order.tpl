@@ -514,10 +514,12 @@
                 </div>
                 <div class="toggle_body_wrap on fn_card">
                     <div class="box_border_buyer fn_contact_info">
-                        <div class="mb-1">
-                            <div class="heading_label boxes_inline">{$btr->order_date|escape}</div>
-                            <div class="boxes_inline text_dark text_600">{$order->date|date} {$order->date|time}</div>
-                        </div>
+                        {if $order->date}
+                            <div class="mb-1">
+                                <div class="heading_label boxes_inline">{$btr->order_date|escape}</div>
+                                <div class="boxes_inline text_dark text_600">{$order->date|date} {$order->date|time}</div>
+                            </div>
+                        {/if}
                         <div class="mb-1">
                             <div class="heading_label">{$btr->index_name|escape}</div>
                             <input name="name" class="form-control" type="text" value="{$order->name|escape}" />
