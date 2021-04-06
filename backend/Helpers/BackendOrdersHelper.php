@@ -76,9 +76,9 @@ class BackendOrdersHelper
     private $backendDiscountsHelper;
     
     public function __construct(
-        EntityFactory   $entityFactory,
-        Request         $request,
-        Settings        $settings,
+        EntityFactory          $entityFactory,
+        Request                $request,
+        Settings               $settings,
         BackendPurchasesHelper $backendPurchasesHelper,
         BackendDiscountsHelper $backendDiscountsHelper
     ) {
