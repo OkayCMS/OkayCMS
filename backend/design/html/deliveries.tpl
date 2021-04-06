@@ -49,7 +49,7 @@
                     {foreach $deliveries as $delivery}
                         <div class="fn_step-1 fn_row okay_list_body_item fn_sort_item">
                             <div class="okay_list_row">
-                               <input type="hidden" name="positions[{$delivery->id}]" value="{$delivery->position}">
+                               <input type="hidden" name="positions[{$delivery->id}]" value="{$delivery->position|escape}">
 
                                 <div class="okay_list_boding okay_list_drag move_zone">
                                     {include file='svg_icon.tpl' svgId='drag_vertical'}
@@ -80,12 +80,12 @@
                                             <div><span class="tag tag-primary">{$btr->general_paid_separately|escape}</span></div>
                                         {/if}
                                         {if $delivery->price > 0}
-                                            <div><span class="tag tag-warning">{$btr->general_price|escape} {$delivery->price} {$currency->sign|escape}</span></div>
+                                            <div><span class="tag tag-warning">{$btr->general_price|escape} {$delivery->price|escape} {$currency->sign|escape}</span></div>
                                         {else}
                                             <div><span class="tag tag-info">{$btr->deliveries_free|escape}</span></div>
                                         {/if}
                                         {if $delivery->free_from > 0}
-                                            <div><span class="tag tag-success">{$btr->deliveries_free_from|escape} {$delivery->free_from} {$currency->sign|escape}</span></div>
+                                            <div><span class="tag tag-success">{$btr->deliveries_free_from|escape} {$delivery->free_from|escape} {$currency->sign|escape}</span></div>
                                         {/if}
                                         {get_design_block block="deliveries_list_additional_blok" vars=['delivery' => $delivery]}
                                     </div>
@@ -96,12 +96,12 @@
                                         <div><span class="tag tag-primary">{$btr->general_paid_separately|escape}</span></div>
                                     {/if}
                                     {if $delivery->price > 0}
-                                        <div><span class="tag tag-warning">{$btr->general_price|escape} {$delivery->price} {$currency->sign|escape}</span></div>
+                                        <div><span class="tag tag-warning">{$btr->general_price|escape} {$delivery->price|escape} {$currency->sign|escape}</span></div>
                                     {else}
                                         <div><span class="tag tag-info">{$btr->deliveries_free|escape}</span></div>
                                     {/if}
                                     {if $delivery->free_from > 0}
-                                        <div><span class="tag tag-success">{$btr->deliveries_free_from|escape} {$delivery->free_from} {$currency->sign|escape}</span></div>
+                                        <div><span class="tag tag-success">{$btr->deliveries_free_from|escape} {$delivery->free_from|escape} {$currency->sign|escape}</span></div>
                                     {/if}
                                     {get_design_block block="deliveries_list_additional_blok" vars=['delivery' => $delivery]}
                                 </div>

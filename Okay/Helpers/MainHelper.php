@@ -105,6 +105,8 @@ class MainHelper
             if (!empty($user)) {
                 $this->currentUser = $user;
                 $this->currentUserGroup = $userGroupsEntity->get($this->currentUser->group_id);
+            } else {
+                unset($_SESSION['user_id']);
             }
         }
 
@@ -288,7 +290,6 @@ class MainHelper
 
         // Передаем текущий контроллер
         if ($route = $router->getRouteByName($router->getCurrentRouteName())) {
-            //$reflector = new \ReflectionClass($route['params']['controller']);
             $design->assign('controller', $route['params']['controller']);
         }
 
@@ -315,7 +316,9 @@ class MainHelper
     public function getAllLanguages()
     {
         foreach ($this->allLanguages as $l) {
-            $l->url = $this->getLangUrl($l->id);
+            if ($url = $this->getLangUrl($l->id)) {
+                $l->url = $url;
+            }
         }
         return ExtenderFacade::execute(__METHOD__, $this->allLanguages, func_get_args());
     }
@@ -328,7 +331,9 @@ class MainHelper
      */
     public function getCurrentLanguage()
     {
-        $this->currentLanguage->url = $this->getLangUrl($this->currentLanguage->id);
+        if ($url = $this->getLangUrl($this->currentLanguage->id)) {
+            $this->currentLanguage->url = $url;
+        }
         return ExtenderFacade::execute(__METHOD__, $this->currentLanguage, func_get_args());
     }
 
@@ -393,7 +398,10 @@ class MainHelper
     {
         /** @var Router $router */
         $router = $this->SL->getService(Router::class);
-        $routeParams = $router->getCurrentRouteParams();
+        if (empty($router->getCurrentRouteName())) {
+            return false;
+        }
+        $routeParams = $router->getCurrentRouteRequiredParams();
         $route = $router->generateUrl($router->getCurrentRouteName(), $routeParams, true, $langId);
         return ExtenderFacade::execute(__METHOD__, $route, func_get_args());
     }

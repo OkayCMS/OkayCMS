@@ -97,7 +97,7 @@
                                         <div class="image_wrapper fn_image_wrapper fn_new_image text-xs-center">
                                             <a href="javascript:;" class="fn_delete_item delete_image remove_image"></a>
                                             <input type="hidden" name="site_logo" value="{$settings->site_logo|escape}">
-                                            <img class="watermark_image" src="{$rootUrl}/{$config->design_images}{$settings->site_logo}?v={$settings->site_logo_version}" alt="" />
+                                            <img class="watermark_image" src="{$rootUrl}/{$config->design_images|escape}{$settings->site_logo|escape}?v={$settings->site_logo_version|escape}" alt="" />
                                         </div>
                                     </div>
                                 {else}
@@ -154,7 +154,7 @@
                                         <div class="image_wrapper fn_image_wrapper fn_new_image text-xs-center">
                                             <a href="javascript:;" class="fn_delete_item delete_image remove_image"></a>
                                             <input type="hidden" name="site_favicon" value="{$settings->site_favicon|escape}">
-                                            <img class="watermark_image" src="{$rootUrl}/{$config->design_images}{$settings->site_favicon}?v={$settings->site_favicon_version}" alt="" />
+                                            <img class="watermark_image" src="{$rootUrl}/{$config->design_images|escape}{$settings->site_favicon|escape}?v={$settings->site_favicon_version|escape}" alt="" />
                                         </div>
                                     </div>
                                 {else}
@@ -362,7 +362,7 @@
                         {foreach $advantages as $advantage}
                             <div class="fn_step-1 fn_row okay_list_body_item fn_sort_item">
                                 <div class="okay_list_row">
-                                    <input type="hidden" name="positions[{$advantage->id}]" value="{$advantage->position}">
+                                    <input type="hidden" name="positions[{$advantage->id}]" value="{$advantage->position|escape}">
 
                                     <div class="okay_list_boding okay_list_drag move_zone">
                                         {include file='svg_icon.tpl' svgId='drag_vertical'}

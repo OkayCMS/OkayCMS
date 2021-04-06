@@ -306,11 +306,11 @@
                 <div class="toggle_body_wrap on fn_card">
                     <div class="heading_label">
                         {$btr->product_rating_value|escape}
-                        <span class="font-weight-bold fn_show_rating">{$post->rating}</span>
+                        <span class="font-weight-bold fn_show_rating">{$post->rating|escape}</span>
                     </div>
                     <div class="raiting_boxed">
-                        <input class="fn_rating_value" type="hidden" value="{$post->rating}" name="rating" />
-                        <input class="fn_rating range_input" type="range" min="1" max="5" step="0.1" value="{$post->rating}" />
+                        <input class="fn_rating_value" type="hidden" value="{$post->rating|escape}" name="rating" />
+                        <input class="fn_rating range_input" type="range" min="1" max="5" step="0.1" value="{$post->rating|escape}" />
 
                         <div class="raiting_range_number">
                             <span class="float-xs-left">1</span>
@@ -319,7 +319,7 @@
                     </div>
                     <div class="heading_label">
                         {$btr->product_rating_number|escape}
-                        <input type="text" class="form-control" name="votes" value="{$post->votes}">
+                        <input type="text" class="form-control" name="votes" value="{$post->votes|escape}">
                     </div>
                 </div>
                 {get_design_block block="post_rationg"}

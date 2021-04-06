@@ -61,7 +61,7 @@
                                 {foreach $orders_statuses as $order_status}
                                     <div class="fn_row okay_list_body_item">
                                         <div class="okay_list_row fn_sort_item">
-                                            <input type="hidden" name="positions[{$order_status->id}]" value="{$order_status->position}">
+                                            <input type="hidden" name="positions[{$order_status->id}]" value="{$order_status->position|escape}">
                                             <input type="hidden" name="statuses[id][]" value="{$order_status->id}">
 
                                             <div class="okay_list_boding okay_list_drag move_zone">
@@ -92,8 +92,8 @@
                                             </div>
                                             {/if}
                                             <div class="okay_list_boding okay_list_order_stg_sts_label">
-                                                <input  name="statuses[color][]" value="{$order_status->color}" class="hidden">
-                                                <span data-hint="#{$order_status->color}" class="fn_color label_color_item hint-bottom-middle-t-info-s-small-mobile  hint-anim" style="background-color:#{$order_status->color};"></span>
+                                                <input  name="statuses[color][]" value="{$order_status->color|escape}" class="hidden">
+                                                <span data-hint="#{$order_status->color|escape}" class="fn_color label_color_item hint-bottom-middle-t-info-s-small-mobile  hint-anim" style="background-color:#{$order_status->color|escape};"></span>
                                             </div>
                                             <div class="okay_list_boding okay_list_close">
                                                 {if count($orders_statuses) > 1}
@@ -202,7 +202,7 @@
                             {foreach $labels as $label}
                                 <div class="fn_row okay_list_body_item">
                                     <div class="okay_list_row fn_sort_item">
-                                        <input type="hidden" name="positions[{$label->id}]" value="{$label->position}">
+                                        <input type="hidden" name="positions[{$label->id}]" value="{$label->position|escape}">
                                         <input type="hidden" name="labels[id][]" value="{$label->id}">
 
                                         <div class="cokay_list_boding okay_list_check hidden">
@@ -215,8 +215,8 @@
                                         </div>
 
                                         <div class="okay_list_boding okay_list_order_stg_sts_label">
-                                            <input  name="labels[color][]" value="{$label->color}" class="hidden">
-                                            <span data-hint="#{$label->color}" class="fn_color label_color_item hint-bottom-middle-t-info-s-small-mobile  hint-anim" style="background-color:#{$label->color};"></span>
+                                            <input  name="labels[color][]" value="{$label->color|escape}" class="hidden">
+                                            <span data-hint="#{$label->color|escape}" class="fn_color label_color_item hint-bottom-middle-t-info-s-small-mobile  hint-anim" style="background-color:#{$label->color|escape};"></span>
                                         </div>
 
                                         <div class="okay_list_boding okay_list_close">

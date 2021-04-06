@@ -68,7 +68,7 @@
             },
             yAxis: {
                 title: {
-                    text: '{/literal}{$currency->name}{literal}'
+                    text: '{/literal}{$currency->name|escape}{literal}'
                 }
             },
 
@@ -107,7 +107,7 @@
                 newDates.push((d.getMonth() + 1) + '/' + d.getDate() + '/' + d.getFullYear());
                 currentDate += (24 * 60 * 60 * 1000); // add one day
             }
-            series.name = stats_orders_amount + '{/literal}{$currency->sign}{literal}';
+            series.name = stats_orders_amount + '{/literal}{$currency->sign|escape}{literal}';
 
             // Iterate over the lines and add categories or series
             $.each(data, function(lineNo, line) {

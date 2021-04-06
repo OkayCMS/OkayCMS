@@ -199,16 +199,25 @@ class NovaposhtaCost
         }
     }
 
-    public function parseWarehousesToCache()
+    public function parseWarehousesToCache($warehousesTypes = [])
     {
-        $request = array(
-            "apiKey" => $this->settings->get('newpost_key'),
-            "modelName" => "Address",
-            "calledMethod" => "getWarehouses",
-            "methodProperties" => array(
-                "Page" => 1
-            )
-        );
+        if(empty($warehousesTypes)){
+            $warehousesTypes = $this->settings->get('np_warehouses_types');
+        }
+        
+        $requests = [];
+        
+        foreach ($warehousesTypes as $type){
+            $requests[$type] = array(
+                "apiKey" => $this->settings->get('newpost_key'),
+                "modelName" => "Address",
+                "calledMethod" => "getWarehouses",
+                "methodProperties" => array(
+                    "TypeOfWarehouseRef" => $type,
+                    "Page" => 1
+                )
+            );
+        }
 
         $currentLangId = $this->languages->getLangId();
 
@@ -217,66 +226,76 @@ class NovaposhtaCost
 
         $ruLanguage = $languagesEntity->findOne(['label' => 'ru']);
         $languages = $languagesEntity->find();
+        $result = [];
+        /** @var NPWarehousesEntity $warehousesEntity */
+        $warehousesEntity = $this->entityFactory->get(NPWarehousesEntity::class);
+        foreach ($requests as $type =>$request) {
+            $response = $this->npRequest(json_encode($request));
+            if ($response->success) {
+                $warehouses = $warehousesEntity->mappedBy('ref')->noLimit()->find(['type' => $type]);
+                $currentWarehousesIds = [];
+                foreach ($warehouses as $c) {
+                    $currentWarehousesIds[$c->ref] = $c->id;
+                }
+                foreach ($response->data as $warehouseData) {
+                    //Проверяем тип, так как НП может вернуть отделения не того типа и они задублируются на сайте
+                    if ($warehouseData->TypeOfWarehouse === $type) {
+                        unset($currentWarehousesIds[$warehouseData->Ref]);
+                        if (!isset($warehouses[$warehouseData->Ref])) {
+                            $warehouse = (object)[
+                                'name' => htmlspecialchars($warehouseData->Description),
+                                'ref' => $warehouseData->Ref,
+                                'city_ref' => $warehouseData->CityRef,
+                                'type' => $warehouseData->TypeOfWarehouse
+                            ];
+                            $warehouse->id = $warehousesEntity->add($warehouse);
+                            $warehouses[$warehouse->ref] = $warehouse;
 
-        $response = $this->npRequest(json_encode($request));
-        if ($response->success) {
-
-            /** @var NPWarehousesEntity $warehousesEntity */
-            $warehousesEntity = $this->entityFactory->get(NPWarehousesEntity::class);
-            $warehouses = $warehousesEntity->mappedBy('ref')->noLimit()->find();
-            $currentWarehousesIds = [];
-            foreach ($warehouses as $c) {
-                $currentWarehousesIds[$c->ref] = $c->id;
-            }
-            foreach ($response->data as $warehouseData) {
-                unset($currentWarehousesIds[$warehouseData->Ref]);
-                if (!isset($warehouses[$warehouseData->Ref])) {
-                    $warehouse = (object)[
-                        'name' => htmlspecialchars($warehouseData->Description),
-                        'ref' => $warehouseData->Ref,
-                        'city_ref' => $warehouseData->CityRef,
-                    ];
-                    $warehouse->id = $warehousesEntity->add($warehouse);
-                    $warehouses[$warehouse->ref] = $warehouse;
-
-                    if (!empty($ruLanguage)) {
-                        $this->languages->setLangId($ruLanguage->id);
-                        $warehouse->name = htmlspecialchars($warehouseData->DescriptionRu);
-                        if (empty($warehouse->name)) {
-                            $warehouse->name = htmlspecialchars($warehouseData->Description);
-                        }
-                        $warehousesEntity->update($warehouse->id, $warehouse);
-                    }
-                } else {
-                    
-                    foreach ($languages as $l) {
-                        $this->languages->setLangId($l->id);
-                        $warehouse = $warehouses[$warehouseData->Ref];
-                        
-                        if ($l->label == 'ru') {
-                            $warehouse->name = htmlspecialchars($warehouseData->DescriptionRu);
-                            if (empty($warehouse->name)) {
-                                $warehouse->name = htmlspecialchars($warehouseData->Description);
+                            if (!empty($ruLanguage)) {
+                                $this->languages->setLangId($ruLanguage->id);
+                                $warehouse->name = htmlspecialchars($warehouseData->DescriptionRu);
+                                if (empty($warehouse->name)) {
+                                    $warehouse->name = htmlspecialchars($warehouseData->Description);
+                                }
+                                $warehousesEntity->update($warehouse->id, $warehouse);
                             }
                         } else {
-                            $warehouse->name = htmlspecialchars($warehouseData->Description);
+                            foreach ($languages as $l) {
+                                $this->languages->setLangId($l->id);
+                                $warehouse = $warehouses[$warehouseData->Ref];
+                                $warehouse->type = $warehouseData->TypeOfWarehouse;
+
+                                if ($l->label == 'ru') {
+                                    $warehouse->name = htmlspecialchars($warehouseData->DescriptionRu);
+                                    if (empty($warehouse->name)) {
+                                        $warehouse->name = htmlspecialchars($warehouseData->Description);
+                                    }
+                                } else {
+                                    $warehouse->name = htmlspecialchars($warehouseData->Description);
+                                }
+                                $warehousesEntity->update($warehouse->id, $warehouse);
+                            }
                         }
-                        $warehousesEntity->update($warehouse->id, $warehouse);
                     }
                 }
-            }
 
-            // Удаляет пункты которые не пришли
-            if (!empty($currentWarehousesIds)) {
-                $warehousesEntity->delete($currentWarehousesIds);
-            }
+                // Удаляет пункты которые не пришли
+                if (!empty($currentWarehousesIds)) {
+                    $warehousesEntity->delete($currentWarehousesIds);
+                }
 
-            // Возвращаем язык
-            $this->languages->setLangId($currentLangId);
+                // Возвращаем язык
+                $this->languages->setLangId($currentLangId);
 
-            $this->settings->set('np_last_update_warehouses_date', time());
+                $this->settings->set('np_last_update_warehouses_date', time());
 
-            return $warehouses;
+                $result =  $warehouses;
+            } 
+        }
+        
+        if(!empty($result)){
+            $warehousesEntity->removeRedundant();
+            return true;
         } else {
             return false;
         }
@@ -378,6 +397,21 @@ class NovaposhtaCost
 
         return $this->npRequest(json_encode($request));
 
+    }
+
+    /**
+     * Метод достает типы отделений из API Новой Почты
+     * @return bool|mixed
+     */
+    public function getWarehouseTypes() {
+
+        $request = array(
+            "apiKey" => $this->settings->get('newpost_key'),
+            "modelName" => "Address",
+            "calledMethod" => "getWarehouseTypes",
+        );
+
+        return $this->npRequest(json_encode($request));
     }
 
     /**

@@ -13,7 +13,7 @@
         {foreach $discounts as $discount}
             <div class="fn_row okay_list_body_item fn_sort_item">
                 <div class="okay_list_row">
-                    <input type="hidden" name="discount_positions[{$discount->id}]" value="{$discount->position}" />
+                    <input type="hidden" name="discount_positions[{$discount->id}]" value="{$discount->position|escape}" />
                     <input type="hidden" name="order_discounts[id][]" value="{$discount->id}" />
 
                     <div class="okay_list_boding okay_list_drag move_zone">
@@ -46,7 +46,7 @@
 
                     <div class="okay_list_boding okay_list_price">
                         <div class="input-group">
-                            <input type="text" class="form-control" name="order_discounts[value][]" value="{$discount->value}" />
+                            <input type="text" class="form-control" name="order_discounts[value][]" value="{$discount->value|escape}" />
                             <input class="fn_discount_type_input {if $discount->type == "percent"} active {/if}" type="hidden" name="order_discounts[type][]" value="percent" {if $discount->type == "absolute"}disabled{/if}/>
                             <input class="fn_discount_type_input {if $discount->type == "absolute"} active {/if}" type="hidden" name="order_discounts[type][]" value="absolute" {if $discount->type == "percent"}disabled{/if} />
                             <span class="fn_discount_change_type discount_change_type input-group-addon p-0">

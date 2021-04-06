@@ -3,7 +3,7 @@
     {foreach $categories as $category}
         <div class="{if $level == 1}fn_step-1 fn_sort_item {/if}fn_row okay_list_body_item">
             <div class="okay_list_row">
-                <input type="hidden" name="positions[{$category->id}]" value="{$category->position}" />
+                <input type="hidden" name="positions[{$category->id}]" value="{$category->position|escape}" />
 
                 {if $category->subcategories}
                     <div class="okay_list_heading okay_list_subicon">

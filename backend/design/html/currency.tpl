@@ -142,7 +142,7 @@
                                                         <div class="input-group-qw cur_input_exchange">
                                                             <div class="input-group">
                                                                 <input class="form-control"  name="currency[rate_from][{$c->id}]" type="text" value="{$c->rate_from|escape}"/>
-                                                                <span class="input-group-addon">{$c->sign}</span>
+                                                                <span class="input-group-addon">{$c->sign|escape}</span>
                                                             </div>
                                                         </div>
 
@@ -151,7 +151,7 @@
                                                         <div class="input-group-qw cur_input_exchange">
                                                             <div class="input-group">
                                                                <input class="form-control"  name="currency[rate_to][{$c->id}]" type="text" value="{$c->rate_to|escape}"/>
-                                                               <span class="input-group-addon">{$currency->sign}</span>
+                                                               <span class="input-group-addon">{$currency->sign|escape}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -219,7 +219,7 @@
                                                     <div class="input-group-qw cur_input_exchange">
                                                         <div class="input-group">
                                                             <input class="form-control"  name="currency[rate_to][]" type="text" value=""/>
-                                                            <span class="input-group-addon">{$currency->sign}</span>
+                                                            <span class="input-group-addon">{$currency->sign|escape}</span>
                                                         </div>
                                                     </div>
                                                 </div>

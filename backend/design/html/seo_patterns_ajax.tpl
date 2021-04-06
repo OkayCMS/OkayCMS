@@ -29,9 +29,9 @@
                         {foreach $features as $feature}
                             {if $feature->auto_name_id && $feature->auto_value_id}
                                 <li>
-                                    <span>"{$feature->name}": </span>
-                                    <span>{$btr->general_name|escape} - {literal}{${/literal}{$feature->auto_name_id}{literal}}{/literal};</span>
-                                    <span>{$btr->seo_patterns_ajax_value|escape} - {literal}{${/literal}{$feature->auto_value_id}{literal}}{/literal}</span>
+                                    <span>"{$feature->name|escape}": </span>
+                                    <span>{$btr->general_name|escape} - {literal}{${/literal}{$feature->auto_name_id|escape}{literal}}{/literal};</span>
+                                    <span>{$btr->seo_patterns_ajax_value|escape} - {literal}{${/literal}{$feature->auto_value_id|escape}{literal}}{/literal}</span>
                                 </li>
                             {/if}
                         {/foreach}

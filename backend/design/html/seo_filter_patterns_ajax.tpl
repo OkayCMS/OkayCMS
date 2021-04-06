@@ -34,12 +34,14 @@
 
                         {if $features_aliases}
                             {foreach $features_aliases as $fa}
-                                <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{$f_alias_{/literal}{$fa->variable}{literal}}{/literal}</a> - {$btr->seo_patterns_ajax_feature_name|escape} ({$fa->name|escape})</li>
+                                <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{$f_alias_{/literal}{$fa->variable|escape}{literal}}{/literal}</a> - {$btr->seo_patterns_ajax_feature_name|escape} ({$fa->name|escape})</li>
+                                <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{$f_alias_{/literal}{$fa->variable|escape}{literal}_2}{/literal}</a> - {$btr->seo_patterns_ajax_feature_name|escape} ({$fa->name|escape}) 2</li>
                             {/foreach}
                         {/if}
                         {if $features_aliases}
                             {foreach $features_aliases as $fa}
-                                <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{$o_alias_{/literal}{$fa->variable}{literal}}{/literal}</a> - {$btr->seo_patterns_ajax_feature_val|escape} ({$fa->name|escape})</li>
+                                <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{$o_alias_{/literal}{$fa->variable|escape}{literal}}{/literal}</a> - {$btr->seo_patterns_ajax_feature_val|escape} ({$fa->name|escape})</li>
+                                <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{$o_alias_{/literal}{$fa->variable|escape}{literal}_2}{/literal}</a> - {$btr->seo_patterns_ajax_feature_val|escape} ({$fa->name|escape}) 2</li>
                             {/foreach}
                         {/if}
 
@@ -61,7 +63,7 @@
                         <option value='0'>{$btr->category_select|escape}</option>
                         {function name=category_select level=0}
                             {foreach $cats as $cat}
-                                <option value='{$cat->id}'  {if $category->id == $cat->id}disabled{/if}>{section name=sp loop=$level}--{/section}{$cat->name}</option>
+                                <option value='{$cat->id}'  {if $category->id == $cat->id}disabled{/if}>{section name=sp loop=$level}--{/section}{$cat->name|escape}</option>
                                 {category_select cats=$cat->subcategories level=$level+1}
                             {/foreach}
                         {/function}
@@ -113,7 +115,7 @@
 <div class="fn_templates">
     {if $patterns}
         {foreach $patterns as $p}
-            <div class="fn_{$p->type}{if $p->feature_id}_{$p->feature_id}{/if}{if $p->second_feature_id}_{$p->second_feature_id}{/if} fn_template_block">
+            <div class="fn_{$p->type|escape}{if $p->feature_id}_{$p->feature_id|escape}{/if}{if $p->second_feature_id}_{$p->second_feature_id|escape}{/if} fn_template_block">
                 <div class="boxed">
                 <div class="row">
                     <div class="col-md-12">
@@ -196,9 +198,9 @@
                         </div>
                     </div>
                 </div>
-                <input name="seo_filter_patterns[type][]" class="form-control" value="{$p->type}" type="hidden" />
-                <input name="seo_filter_patterns[feature_id][]" class="form-control" value="{$p->feature_id}" type="hidden" />
-                <input name="seo_filter_patterns[second_feature_id][]" class="form-control" value="{$p->second_feature_id}" type="hidden" />
+                <input name="seo_filter_patterns[type][]" class="form-control" value="{$p->type|escape}" type="hidden" />
+                <input name="seo_filter_patterns[feature_id][]" class="form-control" value="{$p->feature_id|escape}" type="hidden" />
+                <input name="seo_filter_patterns[second_feature_id][]" class="form-control" value="{$p->second_feature_id|escape}" type="hidden" />
                 <input name="seo_filter_patterns[id][]" class="form-control" value="{$p->id}" type="hidden" />
                 </div>
             </div>

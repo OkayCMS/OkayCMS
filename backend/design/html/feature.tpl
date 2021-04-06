@@ -221,7 +221,7 @@
                     <select class="selectpicker form-control fn_select_all_categories col-xs-12 px-0" multiple name="feature_categories[]" size="10" data-selected-text-format="count" >
                         {function name=category_select selected_id=$product_category level=0}
                             {foreach $categories as $category}
-                                <option value='{$category->id}' {if in_array($category->id, $feature_categories)}selected{/if} category_name='{$category->single_name}'>{section name=sp loop=$level}&nbsp;&nbsp;&nbsp;&nbsp;{/section}{$category->name}</option>
+                                <option value='{$category->id}' {if in_array($category->id, $feature_categories)}selected{/if} category_name='{$category->single_name|escape}'>{section name=sp loop=$level}&nbsp;&nbsp;&nbsp;&nbsp;{/section}{$category->name|escape}</option>
                                 {category_select categories=$category->subcategories selected_id=$selected_id  level=$level+1}
                             {/foreach}
                         {/function}
@@ -258,7 +258,7 @@
                     <input name="auto_value_id" class="form-control mb-t" type="text" value="{$feature->auto_value_id|escape}"/>
 
                     <div class="heading_label" >{$btr->feature_description|escape}</div>
-                    <textarea class="form-control okay_textarea" name="description">{$feature->description}</textarea>
+                    <textarea class="form-control okay_textarea" name="description">{$feature->description|escape}</textarea>
                 </div>
                 {get_design_block block="feature_meta_data"}
             </div>

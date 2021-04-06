@@ -4,7 +4,7 @@
     {if $settings->okaycms__hotline__company}
         <firmName>{$settings->okaycms__hotline__company|escape}</firmName>
     {else}
-        <firmName>{$settings->site_name}</firmName>
+        <firmName>{$settings->site_name|escape}</firmName>
     {/if}
 
     <categories>
@@ -14,7 +14,7 @@
                     <category>
                         <id>{$c->id}</id>
                         {if $c->parent_id}
-                            <parentId>{$c->parent_id}</parentId>
+                            <parentId>{$c->parent_id|escape}</parentId>
                         {/if}
                         <name>{$c->name|escape}</name>
                     </category>

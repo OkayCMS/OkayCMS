@@ -285,7 +285,7 @@ class CssConfig
         }
 
         // Вычисляем директорию, для подключения ресурсов из css файла (background-image: url() etc.)
-        $subDir = trim(substr(pathinfo($file, PATHINFO_DIRNAME), strlen($this->rootDir)), "/\\");
+        $subDir = trim(str_replace($this->rootDir, '', pathinfo($file, PATHINFO_DIRNAME)), "/\\");
         $subDir = dirname($subDir);
 
         // Переназначаем переменные из файла настроек шаблона
@@ -299,6 +299,10 @@ class CssConfig
         if (strpos($cssLine, 'url') !== false && strpos($cssLine, '..') !== false) {
             $cssLine = strtr($cssLine, ['../' => '../../' . $subDir . '/']);
         }
+//        if (strpos($cssLine, 'url') !== false) {
+//            //$cssLine = preg_replace('~url\s*\(\s*(\'|")(?!data)~', 'url($1../../' . $subDir . '/', $cssLine);
+//            $cssLine = preg_replace('~url\s*\(\s*(\'|")?(?!data)(.*?)\1?\)~', 'url($1../../' . $subDir . '/$2$1)', $cssLine);
+//        }
 
         return $cssLine;
     }

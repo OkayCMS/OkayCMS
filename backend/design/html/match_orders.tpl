@@ -23,25 +23,25 @@
                 <a class="text_600 mb-h" href="{url controller=OrderAdmin id=$match_order->id}">{$btr->orders_order|escape} #{$match_order->id}</a>
                 <div class="hidden-md-up">
                     {if $match_order->match_by_email && $match_order->match_by_phone}
-                    <div class="tag tag-ind_email">{$btr->order_match_by_email}</div>
-                    <div class="tag tag-ind_phone">{$btr->order_match_by_phone}</div>
+                        <div class="tag tag-ind_email">{$btr->order_match_by_email|escape}</div>
+                        <div class="tag tag-ind_phone">{$btr->order_match_by_phone|escape}</div>
                     {elseif $match_order->match_by_email}
-                    <div class="tag tag-ind_email">{$btr->order_match_by_email}</div>
+                        <div class="tag tag-ind_email">{$btr->order_match_by_email|escape}</div>
                     {elseif $match_order->match_by_phone}
-                    <div class="tag tag-ind_phone">{$btr->order_match_by_phone}</div>
+                        <div class="tag tag-ind_phone">{$btr->order_match_by_phone|escape}</div>
                     {else}
-                    <div class="tag tag-ind_unknown">{$btr->order_match_by_unknown}</div>
+                        <div class="tag tag-ind_unknown">{$btr->order_match_by_unknown|escape}</div>
                     {/if}
                 </div>
             </div>
             <div class="match_order__cell match_order__cell--name">
-                <div class="text_400 mb-h">{$match_order->name}</div>
+                <div class="text_400 mb-h">{$match_order->name|escape}</div>
                 <div class="font_12 text_600 text_grey mb-h">{$match_order->date|date}|{$match_order->date|time}</div>
-                <div class="hidden-sm-up"><div class="tag tag--np text_700 mb-h" style="color: #{$order->status_color};">{$order->status_id}</div></div>
+                <div class="hidden-sm-up"><div class="tag tag--np text_700 mb-h" style="color: #{$order->status_color|escape};">{$order->status_id|escape}</div></div>
 
                 <div class="input-group input-group--small hidden-sm-up">
                     <span class="form-control">
-                        {$match_order->total_price}
+                        {$match_order->total_price|escape}
                     </span>
                     <span class="input-group-addon">
                         {$currency->sign|escape}
@@ -50,23 +50,23 @@
             </div>
             <div class="match_order__cell match_order__cell--identify match_order__cell--center hidden-sm-down">
                 {if $match_order->match_by_email && $match_order->match_by_phone}
-                    <div class="tag tag-ind_email">{$btr->order_match_by_email}</div>
-                    <div class="tag tag-ind_phone">{$btr->order_match_by_phone}</div>
+                    <div class="tag tag-ind_email">{$btr->order_match_by_email|escape}</div>
+                    <div class="tag tag-ind_phone">{$btr->order_match_by_phone|escape}</div>
                 {elseif $match_order->match_by_email}
-                    <div class="tag tag-ind_email">{$btr->order_match_by_email}</div>
+                    <div class="tag tag-ind_email">{$btr->order_match_by_email|escape}</div>
                 {elseif $match_order->match_by_phone}
-                    <div class="tag tag-ind_phone">{$btr->order_match_by_phone}</div>
+                    <div class="tag tag-ind_phone">{$btr->order_match_by_phone|escape}</div>
                 {else}
-                    <div class="tag tag-ind_unknown">{$btr->order_match_by_unknown}</div>
+                    <div class="tag tag-ind_unknown">{$btr->order_match_by_unknown|escape}</div>
                 {/if}
             </div>
             <div class="match_order__cell  match_order__cell--status match_order__cell--center hidden-sm-down">
-                <div class="tag--np tag text_700" style="color: #{$order->status_color};">{$match_order->status_name}</div>
+                <div class="tag--np tag text_700" style="color: #{$order->status_color|escape};">{$match_order->status_name|escape}</div>
             </div>
             <div class="match_order__cell match_order__cell--prices match_order__cell--center hidden-xs-down">
                 <div class="input-group input-group--small">
                     <span class="form-control">
-                        {$match_order->total_price}
+                        {$match_order->total_price|escape}
                     </span>
                     <span class="input-group-addon">
                         {$currency->code|escape}

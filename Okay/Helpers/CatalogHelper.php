@@ -51,6 +51,9 @@ class CatalogHelper
         /** @var FilterHelper $filterHelper */
         $filterHelper = $SL->getService(FilterHelper::class);
 
+        /** @var MetaRobotsHelper $metaRobotsHelper */
+        $metaRobotsHelper = $SL->getService(MetaRobotsHelper::class);
+
         /** @var Design $design */
         $design = $SL->getService(Design::class);
         
@@ -120,6 +123,10 @@ class CatalogHelper
                 }
             }
         }
+
+        // Установим возможные значения свойств
+        $metaRobotsHelper->setAvailableFeatures($categoryFeatures);
+        
         $design->assign('features', $categoryFeatures);
 
         $otherFiltersFilter = $this->getOtherFiltersFilter($filter);

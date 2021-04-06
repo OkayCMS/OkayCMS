@@ -6,14 +6,22 @@
                 <a class="d-flex align-items-center justify-content-center" aria-label="{$product->name|escape}" href="{if $controller=='Comparison'}{$product->image->filename|resize:800:600:w}{else}{url_generator route='product' url=$product->url}{/if}" {if $controller=='Comparison'}data-fancybox="group" data-caption="{$product->name|escape}"{/if}>
                     {if $product->image->filename}
                         <picture>
-                            {if $settings->support_webp}
-                                <source type="image/webp" data-srcset="{$product->image->filename|resize:180:150}.webp" media="(max-width: 440px)" > 
-                                <source type="image/webp" data-srcset="{$product->image->filename|resize:300:150}.webp" >
+                            {if $settings->increased_image_size}
+                                {if $settings->support_webp}
+                                    <source type="image/webp" data-srcset="{$product->image->filename|resize:600:800}.webp" >
+                                {/if}
+                                <source data-srcset="{$product->image->filename|resize:600:800}">
+                                <img class="fn_img preview_img lazy" data-src="{$product->image->filename|resize:600:800}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$product->name|escape}" title="{$product->name|escape}"/>
+                            {else}
+                                {if $settings->support_webp}
+                                    <source type="image/webp" data-srcset="{$product->image->filename|resize:180:150}.webp" media="(max-width: 440px)" > 
+                                    <source type="image/webp" data-srcset="{$product->image->filename|resize:300:150}.webp" >
+                                {/if}
+                                <source data-srcset="{$product->image->filename|resize:180:150}" media="(max-width: 440px)">
+                                <source data-srcset="{$product->image->filename|resize:300:150}">
+                                    
+                                <img class="fn_img preview_img lazy" data-src="{$product->image->filename|resize:300:150}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$product->name|escape}" title="{$product->name|escape}"/>
                             {/if}
-                            <source data-srcset="{$product->image->filename|resize:180:150}" media="(max-width: 440px)">
-                            <source data-srcset="{$product->image->filename|resize:300:150}">
-                                
-                            <img class="fn_img preview_img lazy" data-src="{$product->image->filename|resize:300:150}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$product->name|escape}" title="{$product->name|escape}"/>
                         </picture>
                     {else}
                         <div class="fn_img product_preview__no_image d-flex align-items-center justify-content-center" title="{$product->name|escape}">

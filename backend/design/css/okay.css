@@ -54,7 +54,11 @@ body {
     max-width: 100%;
     min-height: 100%;
     /*overflow: hidden;*/
-    padding: 55px 0 0 !important;
+    margin: 0;
+    padding: 0;
+}
+body.navbar-fixed {
+    padding-top: 55px !important;
 }
 .design_block_parent_element {
     position: relative;
@@ -8700,4 +8704,33 @@ input.error {
 }
 .discount_change_type {
     cursor: pointer;
+}
+.flex_np_update{
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-right: -5px;
+    margin-left: -5px;
+}
+.flex_np_update__select{
+    padding-right: 5px;
+    padding-left: 5px;
+        -webkit-box-flex: 0;
+    -webkit-flex: 0 0 calc(100% - 105px);
+    -ms-flex: 0 0 calc(100% - 105px);
+    flex: 0 0 calc(100% - 105px);
+    max-width: calc(100% - 105px);
+}
+.flex_np_update__btn{
+    padding-right: 5px;
+    padding-left: 5px;
+        -webkit-box-flex: 0;
+    -webkit-flex: 0 0 105px;
+    -ms-flex: 0 0 105px;
+    flex: 0 0 105px;
+    max-width: 105px;
 }

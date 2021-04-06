@@ -202,14 +202,22 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         $filenameWithoutExt = implode($parts, '.');
 
         $pattern = $this->config->root_dir . $this->config->resized_images_dir . $filenameWithoutExt . ".*x*." . $ext;
-        $rezisedImages = glob($pattern);
+        $resizedImages = glob($pattern);
 
-        if (!is_array($rezisedImages)) {
+        if (!is_array($resizedImages)) {
             return;
         }
 
-        foreach ($rezisedImages as $rezisedImage) {
-            @unlink($rezisedImage);
+        foreach ($resizedImages as $resizedImage) {
+            @unlink($resizedImage);
+        }
+
+        $webpPattern = $this->config->root_dir . $this->config->resized_images_dir . $filenameWithoutExt . '.*x*.' . $ext . '.webp';
+        $resizedImagesWebp = glob($webpPattern);
+        if (is_array($resizedImagesWebp)) {
+            foreach ($resizedImagesWebp as $f) {
+                @unlink($f);
+            }
         }
     }
 
@@ -662,10 +670,14 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         return ExtenderFacade::execute([static::class, __FUNCTION__], $orderFields, func_get_args());
     }
 
-    protected function filter__has_price($state)
+    protected function filter__has_price($state, $filter)
     {
         if ($state == true) {
-            $this->select->join('INNER', '__variants AS pv', 'pv.product_id = p.id AND v.price > 0');
+            if (isset($filter['price'])) {
+                $this->select->where('pv.price > 0');
+            } else {
+                $this->select->join('INNER', '__variants AS pv', 'pv.product_id = p.id AND pv.price > 0');
+            }
         }
     }
     

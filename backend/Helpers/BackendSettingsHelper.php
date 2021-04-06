@@ -129,6 +129,8 @@ class BackendSettingsHelper
         $this->settings->set('missing_products', $this->request->post('missing_products', null, 'default'));
         $this->settings->set('hide_single_filters', $this->request->post('hide_single_filters', 'int'));
         $this->settings->set('support_webp', $this->request->post('support_webp', 'int'));
+        $this->settings->set('hide_equal_compare_price', $this->request->post('hide_equal_compare_price', 'int'));
+        $this->settings->set('increased_image_size', $this->request->post('increased_image_size', 'int'));
         $this->settings->set('features_cache_ttl', $this->request->post('features_cache_ttl', 'int'));
         $this->settings->set('deferred_load_features', $this->request->post('deferred_load_features', 'int'));
         $this->settings->update('units', $this->request->post('units'));

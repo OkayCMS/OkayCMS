@@ -96,7 +96,7 @@
                     {foreach $brands as $brand}
                         <div class="fn_step-1 fn_row okay_list_body_item fn_sort_item">
                             <div class="okay_list_row ">
-                                <input type="hidden" name="positions[{$brand->id}]" value="{$brand->position}" />
+                                <input type="hidden" name="positions[{$brand->id}]" value="{$brand->position|escape}" />
 
                                 <div class="okay_list_boding okay_list_drag move_zone">
                                     {include file='svg_icon.tpl' svgId='drag_vertical'}

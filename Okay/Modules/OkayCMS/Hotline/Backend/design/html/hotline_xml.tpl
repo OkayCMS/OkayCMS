@@ -128,7 +128,7 @@
                                 <strong>{$btr->okaycms__hotline__company}</strong>
                             </div>
                             <div class="mb-1">
-                                <input class="form-control" type="text" name="okaycms__hotline__company" value="{$settings->okaycms__hotline__company}" />
+                                <input class="form-control" type="text" name="okaycms__hotline__company" value="{$settings->okaycms__hotline__company|escape}" />
                             </div>
                         </div>
                         <div class="col-md-6 mb-1">
@@ -139,7 +139,7 @@
                                 <select name="okaycms__hotline__guarantee_manufacturer" class="selectpicker">
                                     <option {if $settings->okaycms__hotline__guarantee_manufacturer == 0}selected=""{/if} value=""></option>
                                     {foreach $features as $feature}
-                                        <option {if $settings->okaycms__hotline__guarantee_manufacturer == $feature->id}selected=""{/if} value="{$feature->id}">{$feature->name}</option>
+                                        <option {if $settings->okaycms__hotline__guarantee_manufacturer == $feature->id}selected=""{/if} value="{$feature->id}">{$feature->name|escape}</option>
                                     {/foreach}
                                 </select>
                             </div>
@@ -152,7 +152,7 @@
                                 <select name="okaycms__hotline__guarantee_shop" class="selectpicker">
                                     <option {if $settings->okaycms__hotline__guarantee_shop == 0}selected=""{/if} value=""></option>
                                     {foreach $features as $feature}
-                                        <option {if $settings->okaycms__hotline__guarantee_shop == $feature->id}selected=""{/if} value="{$feature->id}">{$feature->name}</option>
+                                        <option {if $settings->okaycms__hotline__guarantee_shop == $feature->id}selected=""{/if} value="{$feature->id}">{$feature->name|escape}</option>
                                     {/foreach}
                                 </select>
                             </div>
@@ -165,7 +165,7 @@
                                 <select name="okaycms__hotline__country_of_origin" class="selectpicker">
                                     <option {if $settings->okaycms__hotline__country_of_origin == 0}selected=""{/if} value=""></option>
                                     {foreach $features as $feature}
-                                        <option {if $settings->okaycms__hotline__country_of_origin == $feature->id}selected=""{/if} value="{$feature->id}">{$feature->name}</option>
+                                        <option {if $settings->okaycms__hotline__country_of_origin == $feature->id}selected=""{/if} value="{$feature->id}">{$feature->name|escape}</option>
                                     {/foreach}
                                 </select>
                             </div>
@@ -248,7 +248,7 @@
                                                             <div class="heading_label">
                                                                 <span>Name</span>
                                                             </div>
-                                                            <input class="form-control" type="text" placeholder="Feed name" name="feeds[{$feed->id}][name]" value="{$feed->name}">
+                                                            <input class="form-control" type="text" placeholder="Feed name" name="feeds[{$feed->id}][name]" value="{$feed->name|escape}">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
@@ -277,7 +277,7 @@
                                                             </div>
                                                             <div class="input-group input-group--dabbl">
                                                                 <span class="input-group-addon input-group-addon--left">URL</span>
-                                                                <input class="form-control fn_url fn_disabled" type="text" name=feeds[{$feed->id}][url] value="{$feed->url}" readonly="readonly">
+                                                                <input class="form-control fn_url fn_disabled" type="text" name=feeds[{$feed->id}][url] value="{$feed->url|escape}" readonly="readonly">
                                                                 <span class="input-group-addon fn_disable_url"><i class="fa fa-lock"></i></span>
                                                             </div>
                                                         </div>
@@ -307,7 +307,7 @@
                                                                 <select style="opacity: 0;" class="selectpicker_categories col-xs-12 px-0" multiple name="related_categories[{$feed->id}][]" size="10" data-selected-text-format="count" >
                                                                     {function name=category_select selected_id=$product_category level=0}
                                                                         {foreach $categories as $category}
-                                                                            <option value='{$category->id}' class="category_to_xml" {if (isset($allRelatedCategoriesIds[$feed->id]) && in_array($category->id, $allRelatedCategoriesIds[$feed->id]))}selected{/if}>{section name=sp loop=$level}&nbsp;&nbsp;&nbsp;&nbsp;{/section}{$category->name}</option>
+                                                                            <option value='{$category->id}' class="category_to_xml" {if (isset($allRelatedCategoriesIds[$feed->id]) && in_array($category->id, $allRelatedCategoriesIds[$feed->id]))}selected{/if}>{section name=sp loop=$level}&nbsp;&nbsp;&nbsp;&nbsp;{/section}{$category->name|escape}</option>
                                                                             {category_select categories=$category->subcategories selected_id=$selected_id  level=$level+1}
                                                                         {/foreach}
                                                                     {/function}

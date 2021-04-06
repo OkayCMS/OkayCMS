@@ -100,7 +100,7 @@
                 $("[type='submit']").trigger("click");
                 {literal}}{/literal},
 
-            language : "{$manager->lang}",
+            language : "{$manager->lang|escape}",
             /* Замена тега P на BR при разбивке на абзацы
              force_br_newlines : true,
              force_p_newlines : false,

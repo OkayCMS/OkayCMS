@@ -273,15 +273,15 @@
                                                                                                 <a href="{url_generator route='product' url=$purchase->product->url absolute=1}" style="font-family: 'Trebuchet MS';font-size: 16px;color: #222;text-decoration: none;line-height: normal;">{$purchase->product_name|escape}</a><br />
                                                                                                 <span class="es-p5t"><em><span style="color: rgb(128, 128, 128); font-size: 12px;">{$purchase->variant_name|escape}</span></em></span>
                                                                                                 {if $purchase->variant->stock == 0}
-                                                                                                <div class="es-p5t" style="color: #000; font-size: 12px;font-weight: 600">{$lang->product_pre_order}</div>
+                                                                                                <div class="es-p5t" style="color: #000; font-size: 12px;font-weight: 600">{$lang->product_pre_order|escape}</div>
                                                                                                 {/if}
                                                                                                 {get_design_block block="email_order_admin_purchase_name" vars=['purchase' => $purchase]}
                                                                                             </td>
                                                                                             <td style="text-align: center;" width="60">
-                                                                                                {$purchase->amount} {if $purchase->units}{$purchase->units|escape}{else}{$settings->units}{/if}
+                                                                                                {$purchase->amount|escape} {if $purchase->units}{$purchase->units|escape}{else}{$settings->units|escape}{/if}
                                                                                             </td>
                                                                                             <td style="text-align: right;" width="100">
-                                                                                                <b>{$purchase->price|convert:$currency->id}&nbsp;{$currency->sign}</b>
+                                                                                                <b>{$purchase->price|convert:$currency->id}&nbsp;{$currency->sign|escape}</b>
                                                                                             </td>
                                                                                         </tr>
                                                                                         </tbody>
@@ -342,14 +342,14 @@
                                                                                         {if $order->discount}
                                                                                         <tr>
                                                                                             <td style="text-align: right; font-size: 18px; line-height: 150%;">{$btr->email_order_discount}:</td>
-                                                                                            <td style="text-align: right; font-size: 18px; line-height: 150%; color: #000;">{$order->discount}&nbsp;%</td>
+                                                                                            <td style="text-align: right; font-size: 18px; line-height: 150%; color: #000;">{$order->discount|escape}&nbsp;%</td>
                                                                                         </tr>
                                                                                         {/if}
 
                                                                                         {if $order->coupon_discount>0}
                                                                                         <tr>
-                                                                                            <td style="text-align: right; font-size: 18px; line-height: 150%;">{$btr->email_order_coupon} {$order->coupon_code}:</td>
-                                                                                            <td style="text-align: right; font-size: 18px; line-height: 150%; color: #000;">&minus;{$order->coupon_discount}&nbsp;{$currency->sign}</td>
+                                                                                            <td style="text-align: right; font-size: 18px; line-height: 150%;">{$btr->email_order_coupon} {$order->coupon_code|escape}:</td>
+                                                                                            <td style="text-align: right; font-size: 18px; line-height: 150%; color: #000;">&minus;{$order->coupon_discount|escape}&nbsp;{$currency->sign|escape}</td>
                                                                                         </tr>
                                                                                         {/if}
 
@@ -357,14 +357,14 @@
                                                                                         <tr>
                                                                                             <td style="text-align: right; font-size: 18px; line-height: 150%;">{$delivery->name|escape}:</td>
                                                                                             <td style="text-align: right; font-size: 18px; line-height: 150%; color: #000;">
-                                                                                                {if !$order->separate_delivery}{$order->delivery_price|convert:$currency->id}&nbsp;{$currency->sign} {else}{/if}
+                                                                                                {if !$order->separate_delivery}{$order->delivery_price|convert:$currency->id}&nbsp;{$currency->sign|escape} {else}{/if}
                                                                                             </td>
                                                                                         </tr>
                                                                                         {/if}
 
                                                                                         <tr class="es-p5t">
                                                                                             <td style="text-align: right; font-size: 20px; line-height: 150%;"><strong>{$btr->email_order_total}:</strong></td>
-                                                                                            <td style="text-align: right; font-size: 20px; line-height: 150%; color: #F36D17;"><strong>{$order->total_price|convert:$currency->id}&nbsp;{$currency->sign}</strong></td>
+                                                                                            <td style="text-align: right; font-size: 20px; line-height: 150%; color: #F36D17;"><strong>{$order->total_price|convert:$currency->id}&nbsp;{$currency->sign|escape}</strong></td>
                                                                                         </tr>
                                                                                         {get_design_block block="email_order_admin_total"}
                                                                                         </tbody>
