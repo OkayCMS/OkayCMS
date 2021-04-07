@@ -3280,6 +3280,7 @@ footer {
     -o-transform: rotate(90deg);
     transform: rotate(90deg);
 }
+.footer__title_arrow.down svg,
 .footer__title.active .footer__title_arrow svg{
     -webkit-transform: rotate(-90deg);
     -moz-transform: rotate(-90deg);
@@ -3369,7 +3370,8 @@ footer {
     -webkit-user-select: no-select;
     -moz-user-select: no-select;
     -ms-user-select: no-select;
-    user-select: no-select background: transparent;
+    user-select: no-select;
+    background: transparent;
     color: var(--okay-second-company-text);
     font-weight: 400;
     text-decoration: none;
