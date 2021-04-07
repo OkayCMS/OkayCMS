@@ -4,6 +4,7 @@
 namespace Okay\Modules\OkayCMS\Banners\Helpers;
 
 
+use Okay\Core\Config;
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\Extender\ExtenderFacade;
@@ -32,6 +33,8 @@ class BannersHelper
      */
     private $design;
 
+    private $config;
+
     /**
      * @var EntityFactory
      */
@@ -40,11 +43,13 @@ class BannersHelper
     public function __construct(
         EntityFactory $entityFactory,
         Request       $request,
-        Design        $design
+        Design        $design,
+        Config        $config
     ) {
         $this->bannersEntity = $entityFactory->get(BannersEntity::class);
         $this->request       = $request;
         $this->design        = $design;
+        $this->config        = $config;
         $this->entityFactory = $entityFactory;
     }
 
@@ -148,6 +153,17 @@ class BannersHelper
                         }
                         if (empty($bannersImage->settings['variant_show'])) {
                             $bannersImage->settings['variant_show'] = BannersImagesEntity::SHOW_DEFAULT;
+                        }
+
+                        // Убираем урл у баннеров на странице, на которой они выведены
+                        if ($this->config->get('banners_hide_self_url')) {
+                        
+                            // Делаем путь относительным, если он указан абсолютно на этот домен
+                            $bannersImage->url = ltrim(str_replace(Request::getRootUrl(), '', $bannersImage->url), '/');
+                            $requestUrl = explode('?', Request::getRequestUri())[0];
+                            if ($bannersImage->url == $requestUrl) {
+                                $bannersImage->url = '';
+                            }
                         }
 
                         $banners[$bannersImage->banner_id]->items[] = $bannersImage;
