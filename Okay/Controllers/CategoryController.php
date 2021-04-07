@@ -154,6 +154,17 @@ class CategoryController extends AbstractController
                 $isFilterPage,
                 $this->catalogType
             );
+        } else {
+            // если включена отложенная загрузка фильтров, установим отдельно возможные значения свойств
+            $baseFeaturesValues = $filterHelper->getCategoryBaseFeaturesValues($category, $this->settings->get('missing_products'));
+            if (!empty($baseFeaturesValues)) {
+                foreach ($baseFeaturesValues as $values) {
+                    foreach ($values as $value) {
+                        $categoryFeatures[$value->feature_id]->features_values[$value->id] = $value;
+                    }
+                }
+            }
+            $metaRobotsHelper->setAvailableFeatures($categoryFeatures);
         }
         
         $this->design->assign('selected_filters', $currentFeatures);

@@ -305,7 +305,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
             }
 
             //Если паттерн свойство+свойство
-            if (count($aliasesValuesFilter['translit']) == 2) {
+            if (!empty($aliasesValuesFilter['translit']) && count($aliasesValuesFilter['translit']) == 2) {
                 //достаем порядок свойств в шаблонах в админке
                 $seoFilterPattern = $this->getSeoFilterPattern();
                 $featureIdsInPatternSettingsOrder[] = $seoFilterPattern->feature_id;

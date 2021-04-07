@@ -113,7 +113,7 @@
                     {* Display all brands *}
                     <div class="filter__item">
                         <form method="post">
-                            {$furl = {furl params=[filter=>null, page=>null]}}
+                            {$furl = {furl params=[filter=>null, page=>null, route=>$furlRoute]}}
                             <button type="submit" name="prg_seo_hide" class="filter__link {if !$selected_other_filters} checked{/if}" value="{$furl|escape}">
                                 <span class="filter__checkbox">
                                     <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
