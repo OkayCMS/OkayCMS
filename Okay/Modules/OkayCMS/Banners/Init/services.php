@@ -61,6 +61,7 @@ return [
             new SR(EntityFactory::class),
             new SR(Request::class),
             new SR(Design::class),
+            new SR(Config::class),
         ],
     ],
 ];

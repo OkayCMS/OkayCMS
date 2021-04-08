@@ -90,22 +90,22 @@ class MetaRobotsHelper
         if (!empty($features)) {
             $firstItem = reset($features);
             if (is_object($firstItem)) {
-                if (!property_exists($firstItem, 'id')) {
-                    throw new Exception('Param $features must have id property');
-                }
-                if (!property_exists($firstItem, 'features_values')) {
-                    throw new Exception('Param $features must have features_values property');
-                }
-                $firstFeatureValue = reset($firstItem->features_values);
-
-                if (!property_exists($firstFeatureValue, 'value')) {
-                    throw new Exception('Param $features[]->features_values must have value property');
-                }
-                if (!property_exists($firstFeatureValue, 'to_index')) {
-                    throw new Exception('Param $features[]->features_values must have to_index property');
-                }
                 foreach ($features as $feature) {
+                    if (!property_exists($feature, 'id')) {
+                        throw new Exception('Param $features must have id property');
+                    }
+                    if (!property_exists($feature, 'features_values')) {
+                        throw new Exception('Param $features must have features_values property');
+                    }
                     foreach ($feature->features_values as $value) {
+
+                        if (!property_exists($value, 'value')) {
+                            throw new Exception('Param $features[]->features_values must have value property');
+                        }
+                        if (!property_exists($value, 'to_index')) {
+                            throw new Exception('Param $features[]->features_values must have to_index property');
+                        }
+                        
                         $this->features[$feature->id][$value->value] = $value;
                     }
                 }

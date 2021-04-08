@@ -220,14 +220,14 @@ class GoogleMerchantHelper
                 }
             }
         }
-        $price = $this->money->convert($price, $this->mainCurrency->id);
-        $comparePrice = $this->money->convert($comparePrice, $this->mainCurrency->id);
+        $price = $this->money->convert($price, $this->mainCurrency->id, false);
+        $comparePrice = $this->money->convert($comparePrice, $this->mainCurrency->id, false);
 
         if ($product->compare_price > $product->price) {
-            $result['g:price']['data'] = $this->feedHelper->escape($comparePrice . ' ' . $this->mainCurrency->sign);
-            $result['g:sale_price']['data'] = $this->feedHelper->escape($price . ' ' . $this->mainCurrency->sign);
+            $result['g:price']['data'] = $this->feedHelper->escape($comparePrice . ' ' . $this->mainCurrency->code);
+            $result['g:sale_price']['data'] = $this->feedHelper->escape($price . ' ' . $this->mainCurrency->code);
         } else {
-            $result['g:price']['data'] = $this->feedHelper->escape($price . ' ' . $this->mainCurrency->sign);
+            $result['g:price']['data'] = $this->feedHelper->escape($price . ' ' . $this->mainCurrency->code);
         }
 
         $result['g:availability']['data'] = (!in_array($product->stock, [0, '0'], true) ? 'in_stock' : 'out_of_stock');

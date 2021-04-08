@@ -347,7 +347,7 @@ class ImportProducts extends AbstractImport
             $url = str_replace('.', '', $url);
 
             // Делаем урлы уникальными
-            while ($url = $productsEntity->col('url')->findOne(['url' => $url])) {
+            while ($productsEntity->col('url')->findOne(['url' => $url])) {
                 if (preg_match('/(.+)?_([0-9]+)$/', $url, $parts)) {
                     $url = $parts[1].'_'.($parts[2]+1);
                 } else {
@@ -453,7 +453,7 @@ class ImportProducts extends AbstractImport
                 $url = str_replace('.', '', $url);
 
                 // Делаем урлы уникальными
-                while ($url = $brandsEntity->col('url')->findOne(['url' => $url])) {
+                while ($brandsEntity->col('url')->findOne(['url' => $url])) {
                     if (preg_match('/(.+)?_([0-9]+)$/', $url, $parts)) {
                         $url = $parts[1].'_'.($parts[2]+1);
                     } else {
@@ -555,7 +555,7 @@ class ImportProducts extends AbstractImport
                         $url = str_replace('.', '', $url);
 
                         // Делаем урлы уникальными
-                        while ($url = $brandsEntity->col('url')->findOne(['url' => $url])) {
+                        while ($brandsEntity->col('url')->findOne(['url' => $url])) {
                             if (preg_match('/(.+)?_([0-9]+)$/', $url, $parts)) {
                                 $url = $parts[1].'_'.($parts[2]+1);
                             } else {

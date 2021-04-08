@@ -12,6 +12,7 @@ use Okay\Core\QueryFactory;
 use Okay\Core\Request;
 use Okay\Entities\BrandsEntity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
+use Okay\Entities\CategoriesEntity;
 
 class BackendBrandsHelper
 {
@@ -19,6 +20,11 @@ class BackendBrandsHelper
      * @var BrandsEntity
      */
     private $brandsEntity;
+    
+    /**
+     * @var CategoriesEntity
+     */
+    private $categoriesEntity;
 
     /**
      * @var Image
@@ -54,6 +60,7 @@ class BackendBrandsHelper
         Request       $request
     ){
         $this->brandsEntity = $entityFactory->get(BrandsEntity::class);
+        $this->categoriesEntity = $entityFactory->get(CategoriesEntity::class);
         $this->config       = $config;
         $this->imageCore    = $imageCore;
         $this->queryFactory = $queryFactory;
@@ -76,9 +83,10 @@ class BackendBrandsHelper
 
     public function prepareFilterForProductsAdmin($categoryId)
     {
+        $category = $this->categoriesEntity->get((int)$categoryId);
         $brandsFilter = [];
-        if (!empty($categoryId)) {
-            $brandsFilter['category_id'] = ['category_id' => $categoryId];
+        if (!empty($category)) {
+            $brandsFilter['category_id'] = $category->children;
         }
 
         $brandsCount = $this->brandsEntity->count($brandsFilter);

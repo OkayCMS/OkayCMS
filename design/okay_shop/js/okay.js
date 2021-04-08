@@ -632,13 +632,7 @@ $(function(){
     //Фильтры мобильные, каталог мобильные
     $('.fn_switch_parent').click(function(){
         $(this).parent().next().slideToggle(500);
-
-        if ($(this).hasClass('down')) {
-            $(this).removeClass('down');
-        }
-        else {
-            $(this).addClass('down');
-        }
+        $(this).toggleClass('down');
     });
     $('.blog_catalog .selected').parents('.parent').addClass('opened').find('> .switch').addClass('active');
 

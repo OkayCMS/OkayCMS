@@ -107,6 +107,7 @@ class Design
         'array_keys',
         'pathinfo',
         'strtolower',
+        'strpos',
     ];
 
 

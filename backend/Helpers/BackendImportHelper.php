@@ -247,12 +247,18 @@ class BackendImportHelper
             $variant['name'] = trim($itemFromCsv['variant']);
         }
 
-        if (isset($itemFromCsv['price']) && !empty($itemFromCsv['price'])) {
-            $variant['price'] = str_replace(',', '.', str_replace(' ', '', trim($itemFromCsv['price'])));
+        if (isset($itemFromCsv['price'])) {
+            $price = str_replace(',', '.', str_replace(' ', '', trim($itemFromCsv['price'])));
+            if (!empty($price) || $price === '0.00' || $price === '0.0' || $price === '0') {
+                $variant['price'] = $price;
+            }
         }
 
-        if (isset($itemFromCsv['compare_price']) && !empty($itemFromCsv['compare_price'])) {
-            $variant['compare_price'] = str_replace(',', '.', str_replace(' ', '', trim($itemFromCsv['compare_price'])));
+        if (isset($itemFromCsv['compare_price'])) {
+            $comparePrice = str_replace(',', '.', str_replace(' ', '', trim($itemFromCsv['compare_price'])));
+            if (!empty($comparePrice) || $comparePrice === '0.00' || $comparePrice === '0.0' || $comparePrice === '0') {
+                $variant['compare_price'] = $comparePrice;
+            }
         }
 
         if (isset($itemFromCsv['stock'])) {
