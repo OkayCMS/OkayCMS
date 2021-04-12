@@ -164,6 +164,12 @@ class CategoryController extends AbstractController
                     }
                 }
             }
+            foreach ($categoryFeatures as $k => $feature) {
+                if (!property_exists($feature, 'features_values') || empty($feature->features_values)) {
+                    unset($categoryFeatures[$k]);
+                }
+            }
+            
             $metaRobotsHelper->setAvailableFeatures($categoryFeatures);
         }
         
