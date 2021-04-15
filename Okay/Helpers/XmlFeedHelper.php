@@ -128,7 +128,7 @@ class XmlFeedHelper
     {
         $select->cols([
             'GROUP_CONCAT(DISTINCT lf.feature_id, "!-", lf.name SEPARATOR "@|@") AS features_string',
-            'GROUP_CONCAT(DISTINCT fv.feature_id, "!-", fv.value SEPARATOR "@|@") AS values_string',
+            'GROUP_CONCAT(DISTINCT fv.feature_id, "!-", lfv.value SEPARATOR "@|@") AS values_string',
             'GROUP_CONCAT(DISTINCT f.id, "!-", f.auto_name_id SEPARATOR "@|@") AS auto_name_id_string',
             'GROUP_CONCAT(DISTINCT f.id, "!-", f.auto_value_id SEPARATOR "@|@") AS auto_value_id_string',
         ])
