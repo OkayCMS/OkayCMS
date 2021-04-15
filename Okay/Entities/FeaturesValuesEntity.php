@@ -17,6 +17,7 @@ class FeaturesValuesEntity extends Entity
         'feature_id',
         'position',
         'to_index',
+        'external_id',
     ];
 
     protected static $langFields = [

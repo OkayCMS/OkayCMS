@@ -254,7 +254,7 @@ class Integration1C
     
     public function getFromStorage($param)
     {
-        return (isset($_SESSION["integration_1c"][$param]) ? $_SESSION["integration_1c"][$param] : null);
+        return $_SESSION["integration_1c"][$param] ?? null;
     }
     
     public function clearStorage()
