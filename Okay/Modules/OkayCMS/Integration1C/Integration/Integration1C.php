@@ -156,6 +156,10 @@ class Integration1C
         if ($this->settings->has('integration1cEraseComparePrice')) {
             $this->eraseComparePrice = (bool)$this->settings->get('integration1cEraseComparePrice');
         }
+        
+        if ($this->settings->has('integration1cEraseComparePriceEqual')) {
+            $this->eraseComparePriceEqual = (bool)$this->settings->get('integration1cEraseComparePriceEqual');
+        }
     }
 
     public function getTmpDir()
