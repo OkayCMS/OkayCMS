@@ -421,10 +421,26 @@ $services = [
         'class' => UpdateObject::class,
     ],
     QueueExtender::class => [
-        'class' => QueueExtender::class
+        'class' => QueueExtender::class,
+        'calls' => [
+            [
+                'method' => 'setDeprecated',
+                'arguments' => [
+                    new PR('config.deprecated_methods'),
+                ]
+            ],
+        ],
     ],
     ChainExtender::class => [
-        'class' => ChainExtender::class
+        'class' => ChainExtender::class,
+        'calls' => [
+            [
+                'method' => 'setDeprecated',
+                'arguments' => [
+                    new PR('config.deprecated_methods'),
+                ]
+            ],
+        ],
     ],
     ExtenderFacade::class => [
         'class' => ExtenderFacade::class,
