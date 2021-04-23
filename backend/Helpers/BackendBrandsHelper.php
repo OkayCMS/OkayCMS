@@ -167,8 +167,8 @@ class BackendBrandsHelper
 
     public function delete($ids)
     {
-        $this->brandsEntity->delete($ids);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        $this->brandsEntity->delete($ids);
     }
 
     public function moveToPage($ids, $targetPage, $filter)
