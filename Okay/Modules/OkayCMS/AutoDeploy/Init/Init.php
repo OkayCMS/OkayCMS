@@ -40,15 +40,30 @@ class Init extends AbstractInit
             [TranslationsEntity::class, 'getWriteLangFile'],
             [BackendExtender::class, 'getWriteLangFile']
         );
-        
+
         $this->registerChainExtension(
-            [TranslationsEntity::class, 'writeTranslations'],
-            [BackendExtender::class, 'writeTranslations']
+            [TranslationsEntity::class, 'getWriteModuleLangFile'],
+            [BackendExtender::class, 'getWriteLangFile']
+        );
+
+        $this->registerQueueExtension(
+            [TranslationsEntity::class, 'writeThemeTranslations'],
+            [BackendExtender::class, 'writeThemeTranslations']
+        );
+
+        $this->registerQueueExtension(
+            [TranslationsEntity::class, 'writeModuleTranslation'],
+            [BackendExtender::class, 'writeModuleTranslation']
         );
         
         $this->registerChainExtension(
             [TranslationsEntity::class, 'initOneTranslation'],
             [BackendExtender::class, 'initOneTranslation']
+        );
+
+        $this->registerChainExtension(
+            [TranslationsEntity::class, 'get'],
+            [BackendExtender::class, 'get']
         );
         
         $this->addBackendBlock('translation_custom_block', 'translation_custom_block.tpl');

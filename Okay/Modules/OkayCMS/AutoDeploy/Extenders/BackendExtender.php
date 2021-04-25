@@ -13,13 +13,6 @@ use Okay\Modules\OkayCMS\AutoDeploy\Helpers\TranslationsHelper;
 
 class BackendExtender implements ExtensionInterface
 {
-    
-    /** @var TranslationsEntity */
-    private $translationsEntity;
-    
-    /** @var TemplateConfig */
-    private $templateConfig;
-    
     /** @var TranslationsHelper */
     private $translationsHelper;
     
@@ -27,15 +20,16 @@ class BackendExtender implements ExtensionInterface
     private $settings;
     
     public function __construct(
-        EntityFactory $entityFactory,
-        TemplateConfig $templateConfig,
         TranslationsHelper $translationsHelper,
         Settings $settings
     ) {
-        $this->translationsEntity = $entityFactory->get(TranslationsEntity::class);
-        $this->templateConfig = $templateConfig;
         $this->translationsHelper = $translationsHelper;
         $this->settings = $settings;
+    }
+
+    public function initOneTranslation($translations, $langLabel)
+    {
+        return $this->translationsHelper->addLocalTranslations($translations, $langLabel);
     }
 
     public function getWriteLangFile($realFile, $langLabel, $theme)
@@ -46,15 +40,21 @@ class BackendExtender implements ExtensionInterface
         return  __DIR__ . '/../tmp/' . $langLabel . '.php';
     }
 
-    public function initOneTranslation($translations, $langLabel)
+    public function writeThemeTranslations($null, ...$args)
     {
-        return $this->translationsHelper->addLocalTranslations($translations, $langLabel);
+        $this->translationsHelper->writeThemeTranslations(...$args);
     }
 
-    public function writeTranslations($result, $langLabel, $translations)
+    public function writeModuleTranslation($null, ...$args)
     {
-        $this->translationsHelper->writeTranslations($langLabel, $translations);
+        $this->translationsHelper->writeModuleTranslation(...$args);
     }
 
-    
+    public function get($result, $id)
+    {
+        if ($newResult = $this->translationsHelper->getLocalVar($id, $result)) {
+            $result = $newResult;
+        }
+        return $result;
+    }
 }

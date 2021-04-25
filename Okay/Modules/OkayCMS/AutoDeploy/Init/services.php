@@ -1,16 +1,17 @@
 <?php
 
 
-namespace Okay\Modules\OkayCMS\Banners;
+namespace Okay\Modules\OkayCMS\AutoDeploy;
 
 
 use Okay\Core\Database;
 use Okay\Core\EntityFactory;
+use Okay\Core\Modules\Modules;
 use Okay\Core\OkayContainer\Reference\ParameterReference as PR;
 use Okay\Core\OkayContainer\Reference\ServiceReference as SR;
 use Okay\Core\Request;
 use Okay\Core\Settings;
-use Okay\Core\TemplateConfig;
+use Okay\Core\TemplateConfig\FrontTemplateConfig;
 use Okay\Modules\OkayCMS\AutoDeploy\Extenders\BackendExtender;
 use Okay\Modules\OkayCMS\AutoDeploy\Helpers\DeployHelper;
 use Okay\Modules\OkayCMS\AutoDeploy\Helpers\TranslationsHelper;
@@ -28,8 +29,6 @@ return [
     BackendExtender::class => [
         'class' => BackendExtender::class,
         'arguments' => [
-            new SR(EntityFactory::class),
-            new SR(TemplateConfig::class),
             new SR(TranslationsHelper::class),
             new SR(Settings::class),
         ],
@@ -37,8 +36,10 @@ return [
     TranslationsHelper::class => [
         'class' => TranslationsHelper::class,
         'arguments' => [
-            new SR(TemplateConfig::class),
+            new SR(FrontTemplateConfig::class),
             new SR(Settings::class),
+            new SR(EntityFactory::class),
+            new SR(Modules::class),
         ],
     ],
 ];
