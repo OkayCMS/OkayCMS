@@ -186,6 +186,8 @@ class ProductsHelper implements GetListInterface
         } else {
             $featuresFilter['id'] = $featuresIds;
         }
+
+        $featuresFilter['visible'] = true;
         
         foreach ($featuresEntity->find($featuresFilter) as $f) {
             $features[$f->id] = $f;
