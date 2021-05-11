@@ -349,9 +349,8 @@ $services = [
         'class' => WishList::class,
         'arguments' => [
             new SR(EntityFactory::class),
-            new SR(Settings::class),
-            new SR(MoneyHelper::class),
             new SR(MainHelper::class),
+            new SR(ProductsHelper::class),
         ],
     ],
     BrowsedProducts::class => [
