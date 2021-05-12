@@ -234,6 +234,8 @@ class Cart
         } else {
             $this->addItem($variantId, $amount);
         }
+
+        ExtenderFacade::execute(__METHOD__, $this, func_get_args());
     }
 
     /**
