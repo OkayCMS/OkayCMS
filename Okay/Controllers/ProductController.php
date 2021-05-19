@@ -41,8 +41,9 @@ class ProductController extends AbstractController
         
         // Выбираем товар из базы
         $product = $productsEntity->get((string)$url);
-        if (empty($product) || (!$product->visible && empty($_SESSION['admin']))) {
-            return false;
+        //метод можно расширять и отменить либо переопределить дальнейшую логику работы контроллера
+        if (($setProduct = $productsHelper->setProduct($product)) !== null) {
+            return $setProduct;
         }
         
         $this->setMetadataHelper($productMetadataHelper);

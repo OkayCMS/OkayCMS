@@ -8,6 +8,7 @@ use Okay\Core\Router;
 use Okay\Entities\BrandsEntity;
 use Okay\Entities\ProductsEntity;
 use Okay\Entities\CategoriesEntity;
+use Okay\Helpers\BrandsHelper;
 use Okay\Helpers\CanonicalHelper;
 use Okay\Helpers\CatalogHelper;
 use Okay\Helpers\FilterHelper;
@@ -31,6 +32,7 @@ class BrandController extends AbstractController
         BrandMetadataHelper $brandMetadataHelper,
         CanonicalHelper $canonicalHelper,
         MetaRobotsHelper $metaRobotsHelper,
+        BrandsHelper $brandsHelper,
         $url,
         $filtersUrl = ''
     ) {
@@ -44,8 +46,10 @@ class BrandController extends AbstractController
         $filter['visible'] = 1;
 
         $brand = $brandsEntity->get((string)$url);
-        if (empty($brand) || (!$brand->visible && empty($_SESSION['admin']))) {
-            return false;
+
+        //метод можно расширять и отменить либо переопределить дальнейшую логику работы контроллера
+        if (($setBrand = $brandsHelper->setBrand($brand)) !== null) {
+            return $setBrand;
         }
 
         // Если нашли фильтр по бренду, кидаем 404

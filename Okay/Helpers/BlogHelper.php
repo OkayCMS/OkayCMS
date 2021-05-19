@@ -269,5 +269,39 @@ class BlogHelper implements GetListInterface
         $orderAdditionalData = [];
         return ExtenderFacade::execute(__METHOD__, $orderAdditionalData, func_get_args());
     }
+
+    /**
+     * Метод проверяет доступность поста для показа в контроллере
+     * можно переопределить логику работы контроллера и отменить дальнейшие действия
+     * для этого после реализации другой логики необходимо вернуть true из экстендера
+     *
+     * @param object $post
+     * @return object
+     */
+    public function setPost($post)
+    {
+        if (empty($post) || (!$post->visible && empty($_SESSION['admin']))) {
+            return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+        }
+
+        return ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    /**
+     * Метод проверяет доступность категории блога для показа в контроллере
+     * можно переопределить логику работы контроллера и отменить дальнейшие действия
+     * для этого после реализации другой логики необходимо вернуть true из экстендера
+     *
+     * @param object $category
+     * @return object
+     */
+    public function setBlogCategory($category)
+    {
+        if (empty($category) || (!$category->visible && empty($_SESSION['admin']))) {
+            return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+        }
+
+        return ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
     
 }
