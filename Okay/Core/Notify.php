@@ -14,6 +14,7 @@ use Okay\Entities\DeliveriesEntity;
 use Okay\Entities\FeedbacksEntity;
 use Okay\Entities\OrdersEntity;
 use Okay\Entities\OrderStatusEntity;
+use Okay\Entities\PaymentsEntity;
 use Okay\Entities\ProductsEntity;
 use Okay\Entities\UsersEntity;
 use Okay\Helpers\NotifyHelper;
@@ -171,6 +172,9 @@ class Notify
         /** @var DeliveriesEntity $deliveriesEntity */
         $deliveriesEntity = $this->entityFactory->get(DeliveriesEntity::class);
         
+        /** @var PaymentsEntity $paymentsEntity */
+        $paymentsEntity = $this->entityFactory->get(PaymentsEntity::class);
+        
         /** @var OrderStatusEntity $ordersStatusEntity */
         $ordersStatusEntity = $this->entityFactory->get(OrderStatusEntity::class);
         
@@ -217,8 +221,12 @@ class Notify
         $this->design->assign('discounts', $discounts);
         
         // Способ доставки
-        $delivery = $deliveriesEntity->get($order->delivery_id);
+        $delivery = $deliveriesEntity->findOne(['id' => $order->delivery_id]);
         $this->design->assign('delivery', $delivery);
+        
+        // Способ оплаты
+        $paymentMethod = $paymentsEntity->findOne(['id' => $order->payment_method_id]);
+        $this->design->assign('payment_method', $paymentMethod);
         
         $this->design->assign('order', $order);
         if (!empty($order->status_id)) {
@@ -280,6 +288,9 @@ class Notify
 
         /** @var DeliveriesEntity $deliveriesEntity */
         $deliveriesEntity = $this->entityFactory->get(DeliveriesEntity::class);
+
+        /** @var PaymentsEntity $paymentsEntity */
+        $paymentsEntity = $this->entityFactory->get(PaymentsEntity::class);
         
         /** @var UsersEntity $usersEntity */
         $usersEntity = $this->entityFactory->get(UsersEntity::class);
@@ -307,8 +318,12 @@ class Notify
         $this->design->assign('discounts', $discounts);
         
         // Способ доставки
-        $delivery = $deliveriesEntity->get($order->delivery_id);
+        $delivery = $deliveriesEntity->findOne(['id' => $order->delivery_id]);
         $this->design->assign('delivery', $delivery);
+
+        // Способ оплаты
+        $paymentMethod = $paymentsEntity->findOne(['id' => $order->payment_method_id]);
+        $this->design->assign('payment_method', $paymentMethod);
         
         // Пользователь
         $user = $usersEntity->get(intval($order->user_id));
