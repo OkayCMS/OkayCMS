@@ -74,6 +74,7 @@ use Okay\Helpers\ResizeHelper;
 use Okay\Helpers\SiteMapHelper;
 use Okay\Helpers\UserHelper;
 use Okay\Helpers\ValidateHelper;
+use Okay\Helpers\WishListHelper;
 use Okay\Helpers\XmlFeedHelper;
 use Okay\Requests\CommonRequest;
 use Psr\Log\LoggerInterface;
@@ -368,6 +369,15 @@ return [
     ],
     MainHelper::class => [
         'class' => MainHelper::class,
+    ],
+    WishListHelper::class => [
+        'class' => WishListHelper::class,
+        'arguments' => [
+            new SR(Design::class),
+            new SR(WishList::class),
+            new SR(FrontTemplateConfig::class),
+            new SR(LoggerInterface::class),
+        ]
     ],
     DeliveriesHelper::class => [
         'class' => DeliveriesHelper::class,

@@ -6,6 +6,7 @@ namespace Okay\Controllers;
 
 use Okay\Core\Router;
 use Okay\Core\WishList;
+use Okay\Helpers\WishListHelper;
 
 class WishListController extends AbstractController
 {
@@ -15,9 +16,15 @@ class WishListController extends AbstractController
         $this->design->assign('canonical', Router::generateUrl('wishlist', [], true));
         $this->response->setContent('wishlist.tpl');
     }
-    
-    public function ajaxUpdate(WishList $wishList)
-    {
+
+    /**
+     * @param WishList $wishList
+     * @param WishListHelper $wishListHelper
+     */
+    public function ajaxUpdate(
+        WishList $wishList,
+        WishListHelper $wishListHelper
+    ) {
 
         $productId = $this->request->get('id', 'integer');
         $action = $this->request->get('action');
@@ -27,9 +34,8 @@ class WishListController extends AbstractController
             $wishList->addItem($productId);
         }
 
-        $this->design->assign('wishlist', $wishList->get());
-
-        $result = $this->design->fetch('wishlist_informer.tpl');        
+        $result = $wishListHelper->getAjaxWishListResult();
+        
         $this->response->setContent(json_encode($result), RESPONSE_JSON);
     }
     
