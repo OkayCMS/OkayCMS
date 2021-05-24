@@ -47,18 +47,19 @@ class Module
 
         if (file_exists($moduleJsonFileFile)) {
             $moduleParams = json_decode(file_get_contents($moduleJsonFileFile));
-            
-            if (empty($moduleParams->version)) {
-                $moduleParams->version = '1.0.0';
-            }
-            
-            if ($mathVersion = $this->getMathVersion($moduleParams->version)) {
-                $moduleParams->math_version = $mathVersion;
-            }
-            
-            return $moduleParams;
+        } else {
+            $moduleParams = new \stdClass();
         }
-        return null;
+
+        if (empty($moduleParams->version)) {
+            $moduleParams->version = '1.0.0';
+        }
+
+        if ($mathVersion = $this->getMathVersion($moduleParams->version)) {
+            $moduleParams->math_version = $mathVersion;
+        }
+
+        return $moduleParams;
     }
     
     /**

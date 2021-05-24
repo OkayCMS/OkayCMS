@@ -306,11 +306,15 @@ class CategoryMetadataHelper extends CommonMetadataHelper
 
             //Если паттерн свойство+свойство
             if (!empty($aliasesValuesFilter['translit']) && count($aliasesValuesFilter['translit']) == 2) {
+                
+                $featureIdsInPatternSettingsOrder = [];
                 //достаем порядок свойств в шаблонах в админке
-                $seoFilterPattern = $this->getSeoFilterPattern();
-                $featureIdsInPatternSettingsOrder[] = $seoFilterPattern->feature_id;
-                $featureIdsInPatternSettingsOrder[] = $seoFilterPattern->second_feature_id;
+                if ($seoFilterPattern = $this->getSeoFilterPattern()) {
+                    $featureIdsInPatternSettingsOrder[] = $seoFilterPattern->feature_id;
+                    $featureIdsInPatternSettingsOrder[] = $seoFilterPattern->second_feature_id;
+                }
 
+                $featuresAliasesForSelected = [];
                 foreach ($featuresAliasesValuesEntity->find(array('feature_id'=>$featuresIds)) as $fv) {
                     $featuresAliasesForSelected[$fv->feature_id][$fv->variable] = $fv->value;
                 }
@@ -393,10 +397,10 @@ class CategoryMetadataHelper extends CommonMetadataHelper
 
             $metaArray = $this->getMetaArray();
 
-            $currentPage = isset($metaArray['page']) ? $metaArray['page'] : null;
-            $currentBrands = isset($metaArray['brand']) ? $metaArray['brand'] : [];
-            $currentOtherFilters = isset($metaArray['filter']) ? $metaArray['filter'] : [];
-            $filterFeatures = isset($metaArray['features_values']) ? $metaArray['features_values'] : [];
+            $currentPage = $metaArray['page'] ?? null;
+            $currentBrands = $metaArray['brand'] ?? [];
+            $currentOtherFilters = $metaArray['filter'] ?? [];
+            $filterFeatures = $metaArray['features_values'] ?? [];
 
             $this->metaRobots = $metaRobotsHelper->getCategoryRobots($currentPage, $currentOtherFilters, $filterFeatures, $currentBrands);
         }
@@ -549,6 +553,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
                 }
             }
         }
+        
         return $this->seoFilterPattern;
     }
 

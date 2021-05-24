@@ -499,10 +499,10 @@ class MainHelper
      * Подсчет количества видимых дочерних элементов
      * 
      * @param array $items
-     * @param $allItems
-     * @param string $subItemsName
+     * @param array $allItems
+     * @param string [$subItemsName = subcategories]
      */
-    private function countVisible(array $items, $allItems, $subItemsName = 'subcategories')
+    public function countVisible(array $items, array $allItems, $subItemsName = 'subcategories')
     {
         foreach ($items as $item) {
             if (isset($allItems[$item->parent_id]) && !isset($allItems[$item->parent_id]->count_children_visible)) {

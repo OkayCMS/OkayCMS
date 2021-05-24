@@ -4,7 +4,9 @@
 namespace Okay\Controllers;
 
 
+use Okay\Core\Request;
 use Okay\Core\Router;
+use Okay\Core\Routes\RouteFactory;
 use Okay\Entities\BrandsEntity;
 use Okay\Entities\ProductsEntity;
 use Okay\Entities\CategoriesEntity;
@@ -31,14 +33,15 @@ class CategoryController extends AbstractController
         CategoryMetadataHelper $categoryMetadataHelper,
         CanonicalHelper $canonicalHelper,
         MetaRobotsHelper $metaRobotsHelper,
+        RouteFactory $routeFactory,
         $url,
         $filtersUrl = ''
     ) {
         $isFilterPage = false;
         $filter['visible'] = 1;
-        $sortProducts = null;
 
-        $this->design->assign('url', $url, true);
+        $categoryRoute = $routeFactory->create('category');
+        $this->design->assign('url', $categoryRoute->generateSlugUrl($url), true);
         $this->design->assign('filtersUrl', !empty($filtersUrl) ? '/'.$filtersUrl : '', true);
 
         $filterHelper->setFiltersUrl($filtersUrl);
@@ -160,7 +163,9 @@ class CategoryController extends AbstractController
             if (!empty($baseFeaturesValues)) {
                 foreach ($baseFeaturesValues as $values) {
                     foreach ($values as $value) {
-                        $categoryFeatures[$value->feature_id]->features_values[$value->id] = $value;
+                        if (isset($categoryFeatures[$value->feature_id])) {
+                            $categoryFeatures[$value->feature_id]->features_values[$value->id] = $value;
+                        }
                     }
                 }
             }

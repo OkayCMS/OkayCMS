@@ -323,7 +323,7 @@ class Request
 
     public static function setSubDir($subDir)
     {
-        self::$subDir = $subDir;
+        self::$subDir = '/' . trim($subDir, '/');
     }
     
     public static function getDomain()
