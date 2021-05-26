@@ -590,7 +590,7 @@
 "@type": "Product",
 "name": "{/literal}{$product->name|escape}{literal}",
 "image": "{/literal}{$product->image->filename|resize:330:300}{literal}",
-"description": "{/literal}{str_replace(array("\r", "\n"), "", $product->annotation|strip_tags|escape)}{literal}",
+"description": "{/literal}{str_replace(array("\r", "\n"), "", $annotation|strip_tags|escape)}{literal}",
 "mpn": "{/literal}{if $product->variant->sku}{$product->variant->sku|escape}{else}Не указано{/if}{literal}",
 {/literal}
 {if $brand->name}

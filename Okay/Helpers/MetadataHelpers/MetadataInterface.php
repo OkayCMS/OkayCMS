@@ -6,36 +6,42 @@ namespace Okay\Helpers\MetadataHelpers;
 
 interface MetadataInterface
 {
-    /** @return string */
-    public function setUp();
+    /** @return void */
+    public function setUp() : void;
     
     /** @return string */
-    public function getH1();
+    public function getH1() : string;
 
     /** @return string */
-    public function getDescription();
+    public function getAnnotation() : string;
 
     /** @return string */
-    public function getMetaTitle();
+    public function getDescription() : string;
 
     /** @return string */
-    public function getMetaKeywords();
+    public function getMetaTitle() : string;
 
     /** @return string */
-    public function getMetaDescription();
+    public function getMetaKeywords() : string;
+
+    /** @return string */
+    public function getMetaDescription() : string;
     
     /** @return string */
-    public function getH1Template();
+    public function getH1Template() : string;
 
     /** @return string */
-    public function getDescriptionTemplate();
+    public function getAnnotationTemplate() : string;
 
     /** @return string */
-    public function getMetaTitleTemplate();
+    public function getDescriptionTemplate() : string;
 
     /** @return string */
-    public function getMetaKeywordsTemplate();
+    public function getMetaTitleTemplate() : string;
 
     /** @return string */
-    public function getMetaDescriptionTemplate();
+    public function getMetaKeywordsTemplate() : string;
+
+    /** @return string */
+    public function getMetaDescriptionTemplate() : string;
 }

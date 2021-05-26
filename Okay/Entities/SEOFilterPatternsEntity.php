@@ -22,6 +22,7 @@ class SEOFilterPatternsEntity extends Entity
         'meta_title',
         'meta_keywords',
         'meta_description',
+        'annotation',
         'description',
     ];
 

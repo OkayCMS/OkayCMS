@@ -58,20 +58,12 @@
         <div class="products_container__boxed">
             <h1 class="h1"{if $category} data-category="{$category->id}"{/if}{if $brand} data-brand="{$brand->id}"{/if}>{$h1|escape}</h1>
 
-            {if $current_page_num == 1 && (!empty($category->annotation) || !empty($brand->annotation)) && !$is_filter_page && !$smarty.get.page && !$smarty.get.sort}
+            {if !empty($annotation)}
                 <div class="boxed boxed--big">
                     <div class="">
                         <div class="fn_readmore">
                             <div class="block__description">
-                                {* Краткое описание категории *}
-                                {if !empty($category->annotation)}
-                                {$category->annotation}
-                                {/if}
-
-                                {* Краткое описание бренда *}
-                                {if !empty($brand->annotation)}
-                                {$brand->annotation}
-                                {/if}
+                                {$annotation}
                             </div>
                         </div>
                     </div>

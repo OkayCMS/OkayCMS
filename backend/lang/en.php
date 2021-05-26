@@ -1571,3 +1571,5 @@ $lang['settings_hide_equal_compare_price_notice'] = 'Hide old price if it is les
 $lang['order_history_value'] = 'at the rate of';
 $lang['settings_increased_image_size'] = 'Increased size of images';
 $lang['settings_increased_image_size_notice'] = 'This parameter enables the display of images in the product list in increased resolution. This affects the quality of the image display on high-resolution displays, but can negatively affect the speed of the site (Pagespeed) ';
+$lang['seo_patterns_ajax_products_annotation'] = 'Products annotation template';
+$lang['seo_filter_patterns_ajax_annotation'] = 'Annotation template';

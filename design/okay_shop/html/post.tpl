@@ -411,7 +411,7 @@
         {/literal}
         {/if}
         {literal}
-        "description": "{/literal}{$post->annotation|strip_tags|escape}{literal}",
+        "description": "{/literal}{$annotation|strip_tags|escape}{literal}",
         "articleBody": "{/literal}{$description|strip_tags|escape}{literal}"
     }
 

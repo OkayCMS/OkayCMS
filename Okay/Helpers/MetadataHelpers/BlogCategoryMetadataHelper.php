@@ -13,7 +13,7 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getH1Template()
+    public function getH1Template() : string
     {
         $category = $this->design->getVar('category');
 
@@ -30,7 +30,27 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getDescriptionTemplate()
+    public function getAnnotationTemplate() : string
+    {
+        $category = $this->design->getVar('category');
+        $isAllPages = $this->design->getVar('is_all_pages');
+        $currentPageNum = $this->design->getVar('current_page_num');
+
+        if ((int)$currentPageNum > 1 || $isAllPages === true) {
+            $annotation = '';
+        } elseif ($pageAnnotation = parent::getAnnotationTemplate()) {
+            $annotation = $pageAnnotation;
+        } else {
+            $annotation = $category->annotation;
+        }
+
+        return ExtenderFacade::execute(__METHOD__, $annotation, func_get_args());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getDescriptionTemplate() : string
     {
         $category = $this->design->getVar('category');
         $isAllPages = $this->design->getVar('is_all_pages');
@@ -47,7 +67,7 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
         return ExtenderFacade::execute(__METHOD__, $description, func_get_args());
     }
     
-    public function getMetaTitleTemplate()
+    public function getMetaTitleTemplate() : string
     {
         $category = $this->design->getVar('category');
         $isAllPages = $this->design->getVar('is_all_pages');
@@ -69,7 +89,7 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
         return ExtenderFacade::execute(__METHOD__, $metaTitle, func_get_args());
     }
     
-    public function getMetaKeywordsTemplate()
+    public function getMetaKeywordsTemplate() : string
     {
         $category = $this->design->getVar('category');
         
@@ -82,7 +102,7 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
         return ExtenderFacade::execute(__METHOD__, $metaKeywords, func_get_args());
     }
     
-    public function getMetaDescriptionTemplate()
+    public function getMetaDescriptionTemplate() : string
     {
         $category = $this->design->getVar('category');
         
@@ -98,7 +118,7 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    protected function getParts()
+    protected function getParts() : array
     {
 
         if (!empty($this->parts)) {
