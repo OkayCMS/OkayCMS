@@ -383,7 +383,7 @@ class FilterHelper
             if ($paramName == 'sort') {
                 $currentSort = (string)$paramValues;
                 if (!in_array($currentSort, ['position', 'price', 'price_desc', 'name', 'name_desc', 'rating', 'rating_desc'])) {
-                    return false;
+                    return ExtenderFacade::execute(__METHOD__, false, func_get_args());;
                 }
             }
         }
