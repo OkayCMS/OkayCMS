@@ -70,7 +70,7 @@
                                 </i>
                             </div>
                             <div class="mb-1">
-                                <input type="text" name="newpost_key" value="{$settings->newpost_key|escape}" class="form-control">
+                                <input type="text" name="newpost_key" value="{$settings->newpost_key}" class="form-control">
                             </div>
                         </div>
                         <div class="col-xxl-6 col-lg-6 col-md-12">
@@ -82,7 +82,7 @@
                             </div>
                             <div class="mb-1">
                                 <input type="text" class="fn_newpost_city_name form-control" name="newpost_city_name" value="{$settings->newpost_city|newpost_city}">
-                                <input type="hidden" name="newpost_city" value="{$settings->newpost_city|escape}">
+                                <input type="hidden" name="newpost_city" value="{$settings->newpost_city}">
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-12">
@@ -93,7 +93,7 @@
                                 </i>
                             </div>
                             <div class="mb-1">
-                                <input type="text" name="newpost_weight" value="{$settings->newpost_weight|escape}" class="form-control">
+                                <input type="text" name="newpost_weight" value="{$settings->newpost_weight}" class="form-control">
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-12">
@@ -103,17 +103,47 @@
                                 </i>
                             </div>
                             <div class="mb-1">
-                                <input type="text" name="newpost_volume" value="{$settings->newpost_volume|escape}" class="form-control">
+                                <input type="text" name="newpost_volume" value="{$settings->newpost_volume}" class="form-control">
                             </div>
                         </div>
 
+                        <div class="fn_np_cities" style="width: 400px">
+                                    <span>{$btr->np_changes_city}</span>
+                            {foreach $settings->np_cities_btn as $cities}
+                                {if !empty($cities)}
+                                    <div style="display: flex; align-items: center;">
+                                        <input class="cities form-control" readonly name="cities_btn[]"
+                                               value="{$cities}">
+                                        <svg class="fn_delete" width="15px" height="15px" viewBox="0 0 512 512">
+                                            <polygon
+                                                    points="353.574,176.526 313.496,175.056 304.807,412.34 344.885,413.804"
+                                                    fill="currentColor"></polygon>
+                                            <rect x="235.948" y="175.791" width="40.104" height="237.285"
+                                                  fill="currentColor"></rect>
+                                            <polygon
+                                                    points="207.186,412.334 198.497,175.049 158.419,176.52 167.109,413.804"
+                                                    fill="currentColor"></polygon>
+                                            <path d="M17.379,76.867v40.104h41.789L92.32,493.706C93.229,504.059,101.899,512,112.292,512h286.74c10.394,0,19.07-7.947,19.972-18.301l33.153-376.728h42.464V76.867H17.379z M380.665,471.896H130.654L99.426,116.971h312.474L380.665,471.896z"
+                                                  fill="currentColor"></path>
+                                            <path d="M321.504,0H190.496c-18.428,0-33.42,14.992-33.42,33.42v63.499h40.104V40.104h117.64v56.815h40.104V33.42C354.924,14.992,339.932,0,321.504,0z"
+                                                  fill="currentColor"></path>
+                                        </svg>
+                                    </div>
+                                    <br>
+                                {/if}
+                            {/foreach}
+                        </div>
+                        <div class="fn_cities_btn mb-1">{$btr->np_city_on_btn}
+                            <input type="text" class="fn_newpost_city_name_btn fn_cities form-control" name="cities_btn[]" value="">
+
+                        </div>
                         <!--TODO "Переделать валюты на автоопределение-->
                         {*<div class="col-lg-12 col-md-12">
                             <div class="heading_label">{$btr->settings_np_currency}*</div>
                             <div class="mb-1">
                                 <select name="currency_id" class="selectpicker form-control" data-live-search="false">
                                     {foreach $all_currencies as $c}
-                                    <option value="{$c->id}"{if $c->id == $settings->newpost_currency_id} selected{/if}>{$c->name|escape} ({$c->code|escape})</option>
+                                    <option value="{$c->id}"{if $c->id == $settings->newpost_currency_id} selected{/if}>{$c->name} ({$c->code})</option>
                                     {/foreach}
                                 </select>
                             </div>
@@ -158,7 +188,7 @@
         <div class="col-lg-6 col-md-12">
             <div class="boxed">
                 <div class="heading_box">
-                    {$btr->np_warehouses_data_info}
+                    {$btr->settings_np_options_updating}
                 </div>
                 <div class="">
                     <!--TODO "Этот блок возможно не нужен"-->
@@ -176,50 +206,11 @@
                     </div>
                     {/if}
 
-                    <div class="alert alert--icon alert--info">
-                        <div class="alert__content">
-                            <div class="alert__title">{$btr->alert_info}</div>
-                            <p>{$btr->np_warehouses_data_description}</p>
-                        </div>
-                    </div>
-
-                    {if $warehouses_types_data}
-                        <div class="mb-2 mt-2 row">
-                            {foreach $warehouses_types_data as $w_type}
-                                <div class="col-md-6">
-                                    <input name="np_warehouses_types[]" id="type_{$w_type@iteration}" value="{$w_type->Ref}"  type="checkbox" {if in_array($w_type->Ref,$settings->np_warehouses_types)}checked=""{/if} />
-                                    <label for="type_{$w_type@iteration}">{$w_type->DescriptionRu}</label>
-                                </div>
-                            {/foreach}
-                        </div>
-                    {/if}
-
-                    <div class="mt-2 mb-2">
-                        <p class="mt-2 mb-2">{$btr->settings_np_update_label}</p>
-                        <div class="flex_np_update">
-                            <div class="flex_np_update__select">
-                                <select class="selectpicker form-control mb-1" name="warehouse_update_type">
-                                    <option value="">{$btr->np_update_all|escape}</option>
-                                    {foreach $warehouses_types_data as $w_type}
-                                        {if in_array($w_type->Ref, $settings->np_warehouses_types)}
-                                            <option value="{$w_type->Ref}">{$btr->np_update|escape}{$w_type->DescriptionRu}</option>
-                                        {/if}
-                                    {/foreach}
-                                </select>
-                            </div>
-                            <div class="flex_np_update__btn">
-                                <button type="submit" name="update_cache" value="1" class="btn btn_small btn-warning ">
-                                    <span>{$btr->np_update_cache_now|escape}</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="alert alert--icon alert--error">
-                        <div class="alert__content">
-                            <div class="alert__title">Важно!</div>
-                            <p>{$btr->np_warehouses_data_update_warning|escape}</p>
-                        </div>
+                    <div class="mb-2">
+                        <p>{$btr->settings_np_update_label}</p>
+                        <button type="submit" name="update_cache" value="1" class="btn btn_small btn-warning ">
+                            <span>{$btr->np_update_cache_now|escape}</span>
+                        </button>
                     </div>
 
                     <div class="alert alert--icon alert--warning mt-2 mb-0">
@@ -247,7 +238,7 @@
                         <div class="col-lg-6 col-md-6">
                             <div class="heading_label">{$btr->settings_np_cache_lifetime}</div>
                             <div class="mb-1">
-                                <input type="text" name="np_cache_lifetime" value="{$settings->np_cache_lifetime|escape}" placeholder="86400" class="form-control">
+                                <input type="text" name="np_cache_lifetime" value="{$settings->np_cache_lifetime}" placeholder="86400" class="form-control">
                             </div>
                         </div>
                     </div>*}
@@ -325,5 +316,23 @@
             return "<span>" + suggestion.value.replace( new RegExp( pattern, 'gi' ), '<strong>$1<\/strong>' ) + "<\/span>";
         }
     } );
+
+    $( ".fn_newpost_city_name_btn" ).devbridgeAutocomplete( {
+        serviceUrl: okay.router['OkayCMS_NovaposhtaCost_find_city'],
+        minChars: 1,
+        maxHeight: 320,
+        noCache: true,
+        onSelect: function() {
+        let valcity =  $(this).val();
+            let field =  $(this).clone(true).val(valcity);
+            // let field =  <input class="cities" type="" name="cities_btn[]" value="valcity">
+            $('.fn_np_cities').append(valcity);
+        }
+        }) ;
+
+    $('.fn_delete').on('click',function (){
+        $(this).closest('div').remove();
+
+    });
 </script>
 {/literal}

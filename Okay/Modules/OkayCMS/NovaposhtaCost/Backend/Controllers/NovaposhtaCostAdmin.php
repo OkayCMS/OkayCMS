@@ -23,28 +23,21 @@ class NovaposhtaCostAdmin extends IndexAdmin
             $this->settings->set('newpost_use_assessed_value', $this->request->post('newpost_use_assessed_value'));
             $this->settings->set('np_auto_update_data', $this->request->post('np_auto_update_data'));
             $this->settings->set('np_cache_lifetime', $this->request->post('np_cache_lifetime'));
-            $this->settings->set('np_warehouses_types', $this->request->post('np_warehouses_types'));
+
+                $this->settings->set('np_cities_btn', $this->request->post('cities_btn'));
+
+//            var_dump($_POST);die();
             $this->design->assign('message_success', 'saved');
             
             // Обновляем кеш в мануальном режиме
             if ($this->request->post('update_cache')) {
-                $typeRef = [];
-                if($this->request->post('warehouse_update_type')){
-                    $typeRef[] = $this->request->post('warehouse_update_type');
-                }
                 $novaposhtaCost->parseCitiesToCache();
-                $novaposhtaCost->parseWarehousesToCache($typeRef);
+                $novaposhtaCost->parseWarehousesToCache();
             }
         }
 
         $paymentMethods = $paymentsEntity->find();
         $this->design->assign('payment_methods', $paymentMethods);
-
-        $warehousesTypes = $novaposhtaCost->getWarehouseTypes();
-
-        if($warehousesTypes->data){
-            $this->design->assign('warehouses_types_data', $warehousesTypes->data);
-        }
 
         $this->response->setContent($this->design->fetch('novaposhta_cost.tpl'));
     }

@@ -40,7 +40,12 @@
                 <input class="city_novaposhta form__input form__placeholder--focus" name="novaposhta_city" autocomplete="on" type="text" value="{$request_data.novaposhta_city|escape}" >
                 <span class="form__placeholder">{$lang->np_cart_city}*</span>
             </div>
-            
+            <div class="fn_fast_np_cities_btn">
+                {foreach $cities as $city}
+                    <input class="fn_city_js" id="{$city->id}" data-selectable="{$city->ref}" type="button" value="{$city->name}">
+                {/foreach}
+            </div>
+            <br/>
             <div class="warehouses_novaposhta form__group">
                 <select name="novaposhta_warehouses" tabindex="1" class="fn_select_warehouses_novaposhta" style="width: 100%;"></select>
             </div>
