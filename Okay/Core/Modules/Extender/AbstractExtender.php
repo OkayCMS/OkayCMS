@@ -17,7 +17,7 @@ abstract class AbstractExtender
         }
         
         if (! is_callable([$classExtender, $methodExtender])) {
-            throw new \Exception("Class {$classExtender}::{$methodExtender} is not callable");
+            throw new \Exception("Method {$classExtender}::{$methodExtender} is not callable");
         }
 
         if (! is_subclass_of($classExtender, ExtensionInterface::class)) {

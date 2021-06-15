@@ -73,7 +73,7 @@ $filter['limit'] = $ordersCount;
 
 $statusId = $request->get('status', 'integer');
 if (!empty($statusId)) {
-    $filter['status'] = $statusId;
+    $filter['status_id'] = $statusId;
 }
 
 $labelId = $request->get('label', 'integer');
