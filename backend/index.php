@@ -205,13 +205,14 @@ function getMethodParams($controllerName, $methodName)
     $reflectionMethod = new \ReflectionMethod($controllerName, $methodName);
     foreach ($reflectionMethod->getParameters() as $parameter) {
 
-        if ($parameter->getClass() !== null) {
+        if (($parameterType = $parameter->getType()) !== null) {
             
+            $parameterName = $parameterType->getName();
             // Определяем это Entity или сервис из DI
-            if (is_subclass_of($parameter->getClass()->name, Entity::class)) {
-                $methodParams[] = $entityFactory->get($parameter->getClass()->name);
+            if (is_subclass_of($parameterName, Entity::class)) {
+                $methodParams[] = $entityFactory->get($parameterName);
             } else {
-                $methodParams[] = $serviceLocator->getService($parameter->getClass()->name);
+                $methodParams[] = $serviceLocator->getService($parameterName);
             }
         }
     }

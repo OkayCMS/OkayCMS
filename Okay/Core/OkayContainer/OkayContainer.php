@@ -36,7 +36,7 @@ class OkayContainer implements ContainerInterface
      */
     private $serviceStore;
 
-    public static function getInstance($services = [], $parameters = [])
+    public static function getInstance($services = [], $parameters = []): self
     {
         
         if (empty(self::$instance)) {
@@ -57,23 +57,23 @@ class OkayContainer implements ContainerInterface
     /**
      * {@inheritDoc}
      */
-    public function get($name)
+    public function get(string $id)
     {
         
-        if (!$this->has($name)) {
-            throw new ServiceNotFoundException('Service not found: '.$name);
+        if (!$this->has($id)) {
+            throw new ServiceNotFoundException('Service not found: '.$id);
         }
 
         // If we haven't created it, create it and save to store
-        if (!isset($this->serviceStore[$name])) {
-            $this->serviceStore[$name] = $this->createService($name);
-            if (isset($this->services[$name]['calls'])) {
-                $this->initializeService($this->serviceStore[$name], $name, $this->services[$name]['calls']);
+        if (!isset($this->serviceStore[$id])) {
+            $this->serviceStore[$id] = $this->createService($id);
+            if (isset($this->services[$id]['calls'])) {
+                $this->initializeService($this->serviceStore[$id], $id, $this->services[$id]['calls']);
             }
         }
 
         // Return service from store
-        return $this->serviceStore[$name];
+        return $this->serviceStore[$id];
     }
 
     public function bindService($name, $service)
@@ -90,15 +90,15 @@ class OkayContainer implements ContainerInterface
     /**
      * {@inheritDoc}
      */
-    public function has($name)
+    public function has(string $id): bool
     {
-        return isset($this->services[$name]);
+        return isset($this->services[$id]);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getParameter($name)
+    public function getParameter(string $name)
     {
         $tokens  = explode('.', $name);
         $context = $this->parameters;
@@ -117,7 +117,7 @@ class OkayContainer implements ContainerInterface
     /**
      * {@inheritDoc}
      */
-    public function hasParameter($name)
+    public function hasParameter(string $name): bool
     {
         try {
             $this->getParameter($name);
@@ -198,7 +198,7 @@ class OkayContainer implements ContainerInterface
         foreach ($callDefinitions as $callDefinition) {
             if (!is_array($callDefinition) || !isset($callDefinition['method'])) {
                 throw new ContainerException($name.' service calls must be arrays containing a \'method\' key');
-            } elseif (!is_callable([$service, $callDefinition['method']])) {
+            } elseif (!is_callable([$service, $callDefinition['method']], true)) {
                 throw new ContainerException($name.' service asks for call to uncallable method: '.$callDefinition['method']);
             }
 
