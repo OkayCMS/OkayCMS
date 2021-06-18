@@ -17,7 +17,7 @@ class PostMetadataHelper extends CommonMetadataHelper
 {
  
 
-    public function getH1Template()
+    public function getH1Template() : string
     {
         $post = $this->design->getVar('post');
 
@@ -30,7 +30,20 @@ class PostMetadataHelper extends CommonMetadataHelper
         return ExtenderFacade::execute(__METHOD__, $h1, func_get_args());
     }
     
-    public function getDescriptionTemplate()
+    public function getAnnotationTemplate() : string
+    {
+        $post = $this->design->getVar('post');
+        
+        if ($pageAnnotation = parent::getAnnotationTemplate()) {
+            $annotation = $pageAnnotation;
+        } else {
+            $annotation = $post->annotation;
+        }
+
+        return ExtenderFacade::execute(__METHOD__, $annotation, func_get_args());
+    }
+    
+    public function getDescriptionTemplate() : string
     {
         $post = $this->design->getVar('post');
         
@@ -43,7 +56,7 @@ class PostMetadataHelper extends CommonMetadataHelper
         return ExtenderFacade::execute(__METHOD__, $description, func_get_args());
     }
     
-    public function getMetaTitleTemplate()
+    public function getMetaTitleTemplate() : string
     {
         $post = $this->design->getVar('post');
         if ($pageTitle = parent::getMetaTitleTemplate()) {
@@ -55,7 +68,7 @@ class PostMetadataHelper extends CommonMetadataHelper
         return ExtenderFacade::execute(__METHOD__, $metaTitle, func_get_args());
     }
     
-    public function getMetaKeywordsTemplate()
+    public function getMetaKeywordsTemplate() : string
     {
         $post = $this->design->getVar('post');
         
@@ -68,7 +81,7 @@ class PostMetadataHelper extends CommonMetadataHelper
         return ExtenderFacade::execute(__METHOD__, $metaKeywords, func_get_args());
     }
     
-    public function getMetaDescriptionTemplate()
+    public function getMetaDescriptionTemplate() : string
     {
         $post = $this->design->getVar('post');
         

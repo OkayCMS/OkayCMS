@@ -28,7 +28,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getH1Template()
+    public function getH1Template() : string
     {
         $category = $this->design->getVar('category');
         $seoFilterPattern = $this->getSeoFilterPattern();
@@ -62,7 +62,27 @@ class CategoryMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getDescriptionTemplate()
+    public function getAnnotationTemplate() : string
+    {
+        $category = $this->design->getVar('category');
+        $isFilterPage = $this->design->getVar('is_filter_page');
+        $isAllPages = $this->design->getVar('is_all_pages');
+        $currentPageNum = $this->design->getVar('current_page_num');
+        $seoFilterPattern = $this->getSeoFilterPattern();
+        $filterAutoMeta = $this->getFilterAutoMeta();
+
+        $seoFilterPatternAnnotation = $seoFilterPattern->annotation ?? null;
+        $filterAutoMetaAnnotation = $filterAutoMeta->annotation ?? null;
+
+        $annotation = $this->matchPriorityDescription($currentPageNum, $isAllPages, '', $seoFilterPatternAnnotation, $filterAutoMetaAnnotation, $isFilterPage, $category->annotation);
+
+        return ExtenderFacade::execute(__METHOD__, $annotation, func_get_args());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getDescriptionTemplate() : string
     {
         $category = $this->design->getVar('category');
         $isFilterPage = $this->design->getVar('is_filter_page');
@@ -99,7 +119,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         return ExtenderFacade::execute(__METHOD__, $description, func_get_args());
     }
     
-    public function getMetaTitleTemplate() // todo проверить как отработают экстендеры если их навесить на этот метод (где юзается parent::getMetaTitle())
+    public function getMetaTitleTemplate() : string // todo проверить как отработают экстендеры если их навесить на этот метод (где юзается parent::getMetaTitle())
     {
         $category = $this->design->getVar('category');
         $seoFilterPattern = $this->getSeoFilterPattern();
@@ -138,7 +158,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         return ExtenderFacade::execute(__METHOD__, $metaTitle, func_get_args());
     }
 
-    public function getMetaKeywordsTemplate()
+    public function getMetaKeywordsTemplate() : string
     {
         $category = $this->design->getVar('category');
         $seoFilterPattern = $this->getSeoFilterPattern();
@@ -168,7 +188,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         return ExtenderFacade::execute(__METHOD__, $metaKeywords, func_get_args());
     }
     
-    public function getMetaDescriptionTemplate()
+    public function getMetaDescriptionTemplate() : string
     {
         $category = $this->design->getVar('category');
         $seoFilterPattern = $this->getSeoFilterPattern();
@@ -207,10 +227,10 @@ class CategoryMetadataHelper extends CommonMetadataHelper
 
             $metaArray = $this->getMetaArray();
 
-            $currentPage = isset($metaArray['page']) ? $metaArray['page'] : null;
-            $currentBrands = isset($metaArray['brand']) ? $metaArray['brand'] : [];
-            $currentOtherFilters = isset($metaArray['filter']) ? $metaArray['filter'] : [];
-            $filterFeatures = isset($metaArray['features_values']) ? $metaArray['features_values'] : [];
+            $currentPage = $metaArray['page'] ?? null;
+            $currentBrands =  $metaArray['brand'] ?? [];
+            $currentOtherFilters = $metaArray['filter'] ?? [];
+            $filterFeatures = $metaArray['features_values'] ?? [];
 
             $this->metaRobots = $metaRobotsHelper->getCategoryRobots($currentPage, $currentOtherFilters, $filterFeatures, $currentBrands);
         }
@@ -226,6 +246,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
                 'meta_title' => '',
                 'meta_keywords' => '',
                 'meta_description' => '',
+                'annotation' => '',
                 'description' => '',
             ];
 
@@ -236,7 +257,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
                         case 'brand': // no break
                         case 'filter':
                         {
-                            $autoMeta['h1'] = $autoMeta['meta_title'] = $autoMeta['meta_keywords'] = $autoMeta['meta_description'] = $autoMeta['description'] = implode($this->metaDelimiter, $_meta_array);
+                            $autoMeta['h1'] = $autoMeta['meta_title'] = $autoMeta['meta_keywords'] = $autoMeta['meta_description'] = $autoMeta['annotation'] = $autoMeta['description'] = implode($this->metaDelimiter, $_meta_array);
                             break;
                         }
                         case 'features_values':
@@ -246,6 +267,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
                                 $autoMeta['meta_title'] .= (!empty($autoMeta['meta_title']) ? $this->metaDelimiter : '') . implode($this->metaDelimiter, $f_array);
                                 $autoMeta['meta_keywords'] .= (!empty($autoMeta['meta_keywords']) ? $this->metaDelimiter : '') . implode($this->metaDelimiter, $f_array);
                                 $autoMeta['meta_description'] .= (!empty($autoMeta['meta_description']) ? $this->metaDelimiter : '') . implode($this->metaDelimiter, $f_array);
+                                $autoMeta['annotation'] .= (!empty($autoMeta['annotation']) ? $this->metaDelimiter : '') . implode($this->metaDelimiter, $f_array);
                                 $autoMeta['description'] .= (!empty($autoMeta['description']) ? $this->metaDelimiter : '') . implode($this->metaDelimiter, $f_array);
                             }
                             break;
@@ -262,7 +284,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    protected function getParts()
+    protected function getParts() : array
     {
 
         if (!empty($this->parts)) {

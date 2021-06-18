@@ -12,7 +12,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
     private $categoryPath;
     private $product;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         $this->category = $this->design->getVar('category');
@@ -23,7 +23,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getH1Template()
+    public function getH1Template() : string
     {
         $defaultProductsSeoPattern = (object)$this->settings->get('default_products_seo_pattern');
 
@@ -43,7 +43,25 @@ class ProductMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getDescriptionTemplate()
+    public function getAnnotationTemplate() : string
+    {
+        $defaultProductsSeoPattern = (object)$this->settings->get('default_products_seo_pattern');
+        $annotation = $this->product->annotation;
+        if (empty($annotation)) {
+            if ($data = $this->getCategoryField('auto_annotation')) {
+                $annotation = $data;
+            } elseif (!empty($defaultProductsSeoPattern->auto_annotation)) {
+                $annotation = $defaultProductsSeoPattern->auto_annotation;
+            }
+        }
+        
+        return ExtenderFacade::execute(__METHOD__, $annotation, func_get_args());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getDescriptionTemplate() : string
     {
         $defaultProductsSeoPattern = (object)$this->settings->get('default_products_seo_pattern');
         $description = $this->product->description;
@@ -61,7 +79,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaTitleTemplate()
+    public function getMetaTitleTemplate() : string
     {
         $defaultProductsSeoPattern = (object)$this->settings->get('default_products_seo_pattern');
 
@@ -79,7 +97,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaKeywordsTemplate()
+    public function getMetaKeywordsTemplate() : string
     {
         $defaultProductsSeoPattern = (object)$this->settings->get('default_products_seo_pattern');
 
@@ -97,7 +115,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaDescriptionTemplate()
+    public function getMetaDescriptionTemplate() : string
     {
         $defaultProductsSeoPattern = (object)$this->settings->get('default_products_seo_pattern');
 
@@ -116,7 +134,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
      * Метод возвращает массив переменных и их значений, который учавствуют в формировании метаданных
      * @return array
      */
-    protected function getParts()
+    protected function getParts() : array
     {
         if (!empty($this->parts)) {
             return $this->parts; // no ExtenderFacade

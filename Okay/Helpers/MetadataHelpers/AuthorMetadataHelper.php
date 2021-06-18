@@ -13,7 +13,7 @@ class AuthorMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getH1Template()
+    public function getH1Template() : string
     {
         $author = $this->design->getVar('author');
 
@@ -29,7 +29,7 @@ class AuthorMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getDescriptionTemplate()
+    public function getDescriptionTemplate() : string
     {
         $author = $this->design->getVar('author');
         $isAllPages = $this->design->getVar('is_all_pages');
@@ -49,7 +49,7 @@ class AuthorMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaTitleTemplate()
+    public function getMetaTitleTemplate() : string
     {
         $author = $this->design->getVar('author');
         $isAllPages = $this->design->getVar('is_all_pages');
@@ -74,7 +74,7 @@ class AuthorMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaKeywordsTemplate()
+    public function getMetaKeywordsTemplate() : string
     {
         $author = $this->design->getVar('author');
 
@@ -90,7 +90,7 @@ class AuthorMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaDescriptionTemplate()
+    public function getMetaDescriptionTemplate() : string
     {
         $author = $this->design->getVar('author');
 
@@ -106,7 +106,7 @@ class AuthorMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    protected function getParts()
+    protected function getParts() : array
     {
         if (!empty($this->parts)) {
             return $this->parts; // no ExtenderFacade

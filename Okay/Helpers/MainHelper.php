@@ -153,6 +153,10 @@ class MainHelper
             $design->assign('meta_description', $metadataHelper->getMetaDescription());
         }
         
+        if ($design->getVar('annotation') === null) {
+            $design->assign('annotation', $metadataHelper->getAnnotation());
+        }
+        
         if ($design->getVar('description') === null) {
             $design->assign('description', $metadataHelper->getDescription());
         }

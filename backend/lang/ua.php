@@ -1571,3 +1571,5 @@ $lang['settings_hide_equal_compare_price_notice'] = 'Приховувати ст
 $lang['order_history_value'] = 'в размірі';
 $lang['settings_increased_image_size'] = 'Підвищений розмір зображень';
 $lang['settings_increased_image_size_notice'] = 'Це налаштування висновок зображень в списку товарів в підвищеному дозволі. Це впливає на якість відображення зображення на дисплеях з високою роздільною здатністю, але може негативно позначитися на швидкості роботи сайту (Pagespeed)';
+$lang['seo_patterns_ajax_products_annotation'] = 'Шаблон короткого опису товарів';
+$lang['seo_filter_patterns_ajax_annotation'] = 'Шаблон короткого опису';
