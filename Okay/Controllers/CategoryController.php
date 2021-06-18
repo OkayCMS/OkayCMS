@@ -50,7 +50,7 @@ class CategoryController extends AbstractController
         
         $category = $categoriesEntity->get((string)$url);
         //метод можно расширять и отменить дальнейшую логику работы контроллера
-        if(($setCategory = $catalogHelper->setCatalogCategory($category)) !== null) {
+        if (($setCategory = $catalogHelper->setCatalogCategory($category)) !== null) {
             return $setCategory;
         }
         $this->design->assign('category', $category);
