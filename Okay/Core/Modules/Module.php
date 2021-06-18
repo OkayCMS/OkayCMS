@@ -183,6 +183,24 @@ class Module
     }
 
     /**
+     * Получить список параметров модуля
+     * @param string $vendor
+     * @param string $moduleName
+     * @throws \Exception
+     * @return array
+     */
+    public function getParameters($vendor, $moduleName)
+    {
+        $file = $this->getModuleDirectory($vendor, $moduleName) . '/Init/parameters.php';
+
+        if (!file_exists($file)) {
+            return [];
+        }
+
+        return include($file);
+    }
+
+    /**
      * Получить список сервисов модуля
      * @param string $vendor
      * @param string $moduleName

@@ -547,6 +547,9 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
             }
         }
 
+        $parameters = $this->module->getParameters($vendor, $moduleName);
+        $container->bindParameters($parameters);
+
         $services = $this->module->getServices($vendor, $moduleName);
         $container->bindServices($services);
 
