@@ -204,10 +204,11 @@ class ImportProducts extends AbstractImport
                 $this->integration1C->setToStorage($param, $featureId);
                 
                 // Разбираем значения свойств
-                if ($xmlFeature->ТипЗначений == 'Справочник') {
+                if ($xmlFeature->ТипЗначений == 'Справочник' && !empty($xmlFeature->ВариантыЗначений->Справочник)) {
                     foreach ($xmlFeature->ВариантыЗначений->Справочник as $val) {
                         $value = (string)$val->Значение;
-                        $valueId = $this->getFeatureValueId($featureId, $value);
+                        $valueGuid = (string)$val->ИдЗначения;
+                        $valueId = $this->getFeatureValueId($featureId, $value, $valueGuid);
                         
                         $param = "features_values_".$featureId."_".strval($val->ИдЗначения);
                         $this->integration1C->setToStorage($param, $valueId);
@@ -375,7 +376,6 @@ class ImportProducts extends AbstractImport
             }
 
             // Импортируем изображения
-            $this->importImages($xmlProduct, $productId);
 
         } else {
 
@@ -404,10 +404,10 @@ class ImportProducts extends AbstractImport
                     }
                 }
             }
-
-            // Импортируем изображения
-            $this->importImages($xmlProduct, $productId);
         }
+        
+        // Импортируем изображения
+        $this->importImages($xmlProduct, $productId);
 
         // Определяем откуда читать единицы измерения
         if (!$variant->units = (string)$xmlProduct->БазоваяЕдиница) {
@@ -503,31 +503,22 @@ class ImportProducts extends AbstractImport
         $productsEntity = $this->integration1C->entityFactory->get(ProductsEntity::class);
         
         foreach ($xmlFeatures as $xml_option) {
-            $param = "features_" . strval($xml_option->Ид);
+            $featureId = null;
+            $featureGuid = strval($xml_option->Ид);
+            $param = "features_" . $featureGuid;
             if ($this->integration1C->getFromStorage($param) !== null) {
                 $featureId = $this->integration1C->getFromStorage($param);
 
                 if (isset($mainCategoryId) && !empty($featureId)) {
                     $featuresEntity->addFeatureCategory($featureId, $mainCategoryId);
 
-                    $insert = $this->integration1C->queryFactory->newInsert();
-                    $insert->into('__products_features_values')
-                        ->ignore(true);
-                    
-                    foreach ($xml_option->Значение as $xml_value) {
-                        $param = "features_values_".$featureId."_".strval($xml_value);
-                        if ($this->integration1C->getFromStorage($param) !== null) {
-                            $valueId = $this->integration1C->getFromStorage($param);
-                            $insert->addRow(['product_id' => $productId, 'value_id' => $valueId]);
-                        } else {
-                            $valueId = $this->getFeatureValueId($featureId, strval($xml_value));
-                            $insert->addRow(['product_id' => $productId, 'value_id' => $valueId]);
-                        }
-                    }
+                    $this->importProductFeatureValues($xml_option, $featureId, $productId);
+                }
+            } elseif (!empty($featureGuid) && ($featureId = $featuresEntity->col('id')->findOne(['external_id' => $featureGuid]))) {
+                if (isset($mainCategoryId) && !empty($featureId)) {
+                    $featuresEntity->addFeatureCategory($featureId, $mainCategoryId);
 
-                    if (!empty($insert->getBindValues())) {
-                        $this->integration1C->db->query($insert);
-                    }
+                    $this->importProductFeatureValues($xml_option, $featureId, $productId);
                 }
             }
             // Если свойство оказалось названием бренда
@@ -584,13 +575,39 @@ class ImportProducts extends AbstractImport
         }
     }
     
+    protected function importProductFeatureValues($xml_option, $featureId, $productId)
+    {
+        $insert = $this->integration1C->queryFactory->newInsert();
+        $insert->into('__products_features_values')
+            ->ignore(true);
+
+        foreach ($xml_option->Значение as $xmlValue) {
+            if (($xmlValue = strval($xmlValue)) === '') {
+                continue;
+            }
+            $param = "features_values_".$featureId."_".$xmlValue;
+            if ($this->integration1C->getFromStorage($param) !== null) {
+                $valueId = $this->integration1C->getFromStorage($param);
+            } else {
+                $valueId = $this->getFeatureValueId($featureId, $xmlValue);
+            }
+            $insert->addRow(['product_id' => $productId, 'value_id' => $valueId]);
+        }
+
+        if (!empty($insert->getBindValues())) {
+            $this->integration1C->db->query($insert);
+        }
+    }
+    
     /**
-     * @param $featureId int
-     * @param $value string
+     * @param int $featureId
+     * @param string $value
+     * @param string $valueGuid
      * @return int|null
+     * @throws \Exception
      * Метод проверяет существование значения свойства, и возвращает его id или создает новое значение
      */
-    protected function getFeatureValueId($featureId, $value)
+    private function getFeatureValueId($featureId, $value, $valueGuid = null)
     {
         /** @var FeaturesEntity $featuresEntity */
         $featuresEntity = $this->integration1C->entityFactory->get(FeaturesEntity::class);
@@ -601,14 +618,20 @@ class ImportProducts extends AbstractImport
         if (empty($featureId) || empty($value)) {
             return null;
         }
+        $value = trim($value);
+
+        if (!empty($valueGuid) && ($valueId = $featuresValuesEntity->col('id')->findOne(['feature_id' => $featureId, 'external_id' => $valueGuid]))) {
+            return $valueId;
+        } elseif ($valueId = $featuresValuesEntity->col('id')->findOne(['feature_id' => $featureId, 'external_id' => $value])) {
+            return $valueId;
+        }
         
         $valueId = null;
         $translit = $this->integration1C->translit->translitAlpha($value);
 
         // Ищем значение с таким транслитом
-        if ($fv = $featuresValuesEntity->find(['feature_id'=>$featureId, 'translit'=>$translit])) {
-            $fv = reset($fv);
-            $valueId = $fv->id;
+        if ($fvId = $featuresValuesEntity->col('id')->findOne(['feature_id'=>$featureId, 'translit' => $translit])) {
+            $valueId = $fvId;
         }
 
         // Если нет, тогда добавим значение
@@ -621,6 +644,9 @@ class ImportProducts extends AbstractImport
             $featureValue->value = trim($value);
             $featureValue->feature_id = $featureId;
             $featureValue->to_index = $toIndex;
+            if (!empty($valueGuid)) {
+                $featureValue->external_id = $valueGuid;
+            }
             $valueId = $featuresValuesEntity->add($featureValue);
         }
         return $valueId;
