@@ -411,8 +411,8 @@
         {/literal}
         {/if}
         {literal}
-        "description": "{/literal}{$annotation|strip_tags|escape}{literal}",
-        "articleBody": "{/literal}{$description|strip_tags|escape}{literal}"
+        "description": "{/literal}{$annotation|json_ld_text}{literal}",
+        "articleBody": "{/literal}{$description|json_ld_text}{literal}"
     }
 
 </script>

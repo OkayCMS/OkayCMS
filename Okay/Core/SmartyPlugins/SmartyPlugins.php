@@ -204,6 +204,10 @@ $plugins = [
             new SR(Config::class),
         ],
     ],
+    Plugins\JsonLdText::class => [
+        'class' => Plugins\JsonLdText::class,
+        'arguments' => [],
+    ],
 ];
 
 $DI->bindServices($plugins);
