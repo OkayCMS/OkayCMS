@@ -263,6 +263,8 @@ class BackendFeaturesHelper
 
     public function delete($ids)
     {
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        
         $currentCategoryId = $this->request->get('category_id', 'integer');
         foreach ($ids as $id) {
             // текущие категории
@@ -276,8 +278,6 @@ class BackendFeaturesHelper
                 $this->featuresEntity->delete($id);
             }
         }
-
-        ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
     public function unsetInFilter($ids)

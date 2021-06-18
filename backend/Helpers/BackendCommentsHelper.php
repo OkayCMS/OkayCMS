@@ -141,8 +141,8 @@ class BackendCommentsHelper
 
     public function delete($ids)
     {
-        $this->commentsEntity->delete($ids);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        $this->commentsEntity->delete($ids);
     }
 
     public function approve($ids)

@@ -43,8 +43,8 @@ class BackendCouponsHelper
 
     public function delete($ids)
     {
-        $this->couponsEntity->delete($ids);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        $this->couponsEntity->delete($ids);
     }
 
     public function findCoupons($filter)

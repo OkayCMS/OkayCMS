@@ -55,8 +55,8 @@ class BackendMenuHelper
 
     public function delete($ids)
     {
-        $this->menuEntity->delete($ids);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        $this->menuEntity->delete($ids);
     }
 
     public function defaultAction($action, $ids)
