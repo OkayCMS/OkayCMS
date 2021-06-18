@@ -220,7 +220,13 @@ class FilterHelper
         $featuresEntity = $this->entityFactory->get(FeaturesEntity::class);
 
         if (!empty($this->category) && empty($this->categoryFeatures)) {
-            foreach ($featuresEntity->find(['category_id' => $this->category->id, 'in_filter' => 1]) as $feature) {
+            $featuresFilter = [
+                'category_id' => $this->category->id,
+                'in_filter' => 1,
+                'visible' => 1,
+            ];
+            
+            foreach ($featuresEntity->find($featuresFilter) as $feature) {
                 $this->categoryFeatures[$feature->id] = $feature;
                 $this->categoryFeaturesByUrl[$feature->url] = $feature;
                 $this->featuresUrls[$feature->id] = $feature->url;

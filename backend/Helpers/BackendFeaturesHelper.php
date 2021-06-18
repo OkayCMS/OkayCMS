@@ -204,7 +204,14 @@ class BackendFeaturesHelper
 
     public function getFeature($id)
     {
-        $feature = $this->featuresEntity->get((int) $id);
+        $feature = $this->featuresEntity->findOne(['id' => $id]);
+
+        if (empty($feature->id)) {
+            // Сразу активен
+            $feature = new \stdClass();
+            $feature->visible = 1;
+        }
+        
         return ExtenderFacade::execute(__METHOD__, $feature, func_get_args());
     }
 
@@ -217,7 +224,7 @@ class BackendFeaturesHelper
     public function getFeatureCategories($feature)
     {
         $featureCategories = [];
-        if (!empty($feature)) {
+        if (!empty($feature->id)) {
             $featureCategories = $this->featuresEntity->getFeatureCategories($feature->id);
         } elseif ($category_id = $this->request->get('category_id')) {
             $featureCategories[] = $category_id;
@@ -282,13 +289,25 @@ class BackendFeaturesHelper
 
     public function unsetInFilter($ids)
     {
-        $this->featuresEntity->update($ids, ['in_filter'=>0]);
+        $this->featuresEntity->update($ids, ['in_filter' => 0]);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
     public function setInFilter($ids)
     {
-        $this->featuresEntity->update($ids, ['in_filter'=>1]);
+        $this->featuresEntity->update($ids, ['in_filter' => 1]);
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    public function enable($ids)
+    {
+        $this->featuresEntity->update($ids, ['visible' => 1]);
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    public function disable($ids)
+    {
+        $this->featuresEntity->update($ids, ['visible' => 0]);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 

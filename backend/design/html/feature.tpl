@@ -139,6 +139,16 @@
                         <div class="activity_of_switch">
                             <div class="activity_of_switch_item"> {* row block *}
                                 <div class="fn_step-4 okay_switch clearfix">
+                                    <label class="switch_label">{$btr->general_enable|escape}</label>
+                                    <label class="switch switch-default">
+                                        <input class="switch-input" name="visible" value='1' type="checkbox" {if $feature->visible}checked=""{/if}/>
+                                        <span class="switch-label"></span>
+                                        <span class="switch-handle"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="activity_of_switch_item"> {* row block *}
+                                <div class="fn_step-4 okay_switch clearfix">
                                     <label class="switch_label">{$btr->feature_filter|escape}
                                         <i class="fn_tooltips" title="{$btr->tooltip_feature_url_in_product|escape}">
                                             {include file='svg_icon.tpl' svgId='icon_tooltips'}

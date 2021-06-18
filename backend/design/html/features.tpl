@@ -96,6 +96,7 @@
                     <div class="okay_list_heading okay_list_features_name">{$btr->general_name|escape}</div>
                     <div class="okay_list_heading okay_list_features_tag">{$btr->general_categories|escape}</div>
                     <div class="okay_list_heading okay_list_setting okay_list_features_setting"></div>
+                    <div class="okay_list_heading okay_list_status">{$btr->general_enable|escape}</div>
                     <div class="okay_list_heading okay_list_url_status">{$btr->feature_url_in_product_short|escape}</div>
                     <div class="okay_list_heading okay_list_status">{$btr->features_in_filter|escape}</div>
                     <div class="okay_list_heading okay_list_close"></div>
@@ -136,6 +137,14 @@
                                 </div>
                             </div>
                             <div class="okay_list_boding okay_list_setting okay_list_features_setting"></div>
+                            <div class="okay_list_boding okay_list_status">
+                                {*url_in_product*}
+                                <label class="switch switch-default">
+                                    <input class="switch-input fn_ajax_action {if $feature->visible}fn_active_class{/if}" data-controller="feature" data-action="visible" data-id="{$feature->id}" name="visible" value="1" type="checkbox"  {if $feature->visible}checked=""{/if}/>
+                                    <span class="switch-label"></span>
+                                    <span class="switch-handle"></span>
+                                </label>
+                            </div>
                             <div class="okay_list_boding okay_list_url_status">
                                 {*url_in_product*}
                                 <label class="switch switch-default">
@@ -173,6 +182,8 @@
                         </div>
                         <div class="okay_list_option">
                             <select name="action" class="selectpicker features_action">
+                                <option value="enable">{$btr->general_do_enable|escape}</option>
+                                <option value="disable">{$btr->general_do_disable|escape}</option>
                                 <option value="set_in_filter">{$btr->features_in_filter|escape}</option>
                                 <option value="unset_in_filter">{$btr->features_not_in_filter|escape}</option>
                                 <option value="delete">{$btr->general_delete|escape}</option>
