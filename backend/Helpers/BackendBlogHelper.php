@@ -93,11 +93,11 @@ class BackendBlogHelper
 
     public function delete($ids)
     {
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+       
         if (is_array($ids)) {
             $this->blogEntity->delete($ids);
         }
-
-        ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
     public function buildPostsFilter()
