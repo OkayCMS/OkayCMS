@@ -80,53 +80,6 @@
                                     </div>
                                 {/foreach}
                             {/if}
-
-                            <div class="fn_row fn_new_status fn_sort_item okay_list_body">
-                                <div class="fn_row okay_list_body_item">
-                                    <div class="okay_list_row fn_sort_item">
-                                        <div class="okay_list_boding okay_list_drag"></div>
-                                        <div class="okay_list_boding okay_list_order_stg_sts_name_1c">
-                                            <input type="text" class="form-control" name="new_name[]" value="">
-                                            {if $is_mobile == true}
-                                                <div class="hidden-sm-up mt-q">
-                                                    <select name="new_is_close[]" class="selectpicker form-control">
-                                                        <option value="1">{$btr->order_settings_reduse_products|escape}</option>
-                                                        <option value="0">{$btr->order_settings_not_reduse_products|escape}</option>
-                                                    </select>
-                                                </div>
-                                                <div class="hidden-sm-up mt-q">
-                                                    <select name="new_status_1c[]" class="selectpicker form-control">
-                                                        <option value="not_use">{$btr->order_settings_1c_not_use|escape}</option>
-                                                        <option value="new">{$btr->order_settings_1c_new|escape}</option>
-                                                        <option value="accepted">{$btr->order_settings_1c_accepted|escape}</option>
-                                                        <option value="to_delete">{$btr->order_settings_1c_to_delete|escape}</option>
-                                                    </select>
-                                                </div>
-                                            {/if}
-                                        </div>
-                                        {if $is_mobile == false}
-                                            <div class="okay_list_boding okay_list_order_stg_sts_status">
-                                                <select name="new_is_close[]" class="selectpicker form-control">
-                                                    <option value="1">{$btr->order_settings_reduse_products|escape}</option>
-                                                    <option value="0">{$btr->order_settings_not_reduse_products|escape}</option>
-                                                </select>
-                                            </div>
-                                            <div class="okay_list_boding okay_list_order_stg_sts_status2">
-                                                <select name="new_status_1c[]" class="selectpicker form-control">
-                                                    <option value="not_use">{$btr->order_settings_1c_not_use|escape}</option>
-                                                    <option value="new">{$btr->order_settings_1c_new|escape}</option>
-                                                    <option value="accepted">{$btr->order_settings_1c_accepted|escape}</option>
-                                                    <option value="to_delete">{$btr->order_settings_1c_to_delete|escape}</option>
-                                                </select>
-                                            </div>
-                                        {/if}
-                                        <div class="okay_list_boding okay_list_order_stg_sts_label">
-                                            <input name="new_color[]" value="" class="hidden">
-                                            <span data-hint="{$btr->order_settings_select_colour|escape}" class="fn_color label_color_item hint-bottom-middle-t-info-s-small-mobile  hint-anim"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         {*Блок массовых действий*}
@@ -270,41 +223,3 @@
         </div>
     </div>
 </div>
-
-{* On document load *}
-{literal}
-    <link rel="stylesheet" media="screen" type="text/css" href="design/js/colorpicker/css/colorpicker.css" />
-    <script type="text/javascript" src="design/js/colorpicker/js/colorpicker.js"></script>
-    <script>
-        $(function() {
-            var new_label = $(".fn_new_label").clone(true);
-            $(".fn_new_label").remove();
-
-            var new_status = $(".fn_new_status").clone(true);
-            $(".fn_new_status").remove();
-
-            $(document).on("click", ".fn_add_Label", function () {
-                clone_label = new_label.clone(true);
-                $(".fn_labels_list").append(clone_label);
-            });
-
-            $(document).on("click", ".fn_add_status", function () {
-                clone_status = new_status.clone(true);
-                clone_status.find("select").selectpicker();
-                $(".fn_status_list").append(clone_status);
-            });
-
-            $(document).on("mouseenter click", ".fn_color", function () {
-                var elem = $(this);
-                elem.ColorPicker({
-                    onChange: function (hsb, hex, rgb) {
-                        elem.css('backgroundColor', '#' + hex);
-                        elem.prev().val(hex);
-                    }
-                });
-            });
-
-        });
-    </script>
-{/literal}
-
