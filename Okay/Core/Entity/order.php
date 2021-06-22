@@ -70,12 +70,13 @@ trait order
         $fields = $this->getFields();
         $allFields = array_merge($langFields, $fields);
 
-        // todo иногда $order это массив, разобраться
-        if (preg_match('~^([\w\.\-]+)(:?_(asc|desc))?$~iU', $order, $matches)
-            && in_array(strtolower($matches[1]), $allFields)) {
-            $field = $matches[1];
-            $rotation = !empty($matches[3]) ? strtoupper($matches[3]) : 'ASC';
-            $orderFields = [$field . ' ' . $rotation];
+        foreach ((array) $order as $orderFiled) {
+            if (preg_match('~^([\w\.\-]+)(:?_(asc|desc))?$~iU', $orderFiled, $matches)
+                && in_array(strtolower($matches[1]), $allFields)) {
+                $field = $matches[1];
+                $rotation = !empty($matches[3]) ? strtoupper($matches[3]) : 'ASC';
+                $orderFields[] = $field . ' ' . $rotation;
+            }
         }
         
         return $orderFields;
