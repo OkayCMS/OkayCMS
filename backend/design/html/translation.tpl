@@ -112,9 +112,14 @@
                                 </div>
                                 {/if}
                                 {$lang->name|escape}
+                                {if isset($translation->values[{$lang->id}]->module)}
+                                    <i class="translation_module_hint">
+                                        {$translation->values[{$lang->id}]->module->vendor}/{$translation->values[{$lang->id}]->module->name}
+                                    </i>
+                                {/if}
                             </div>
                             <div class="">
-                                <textarea name="lang_{$lang->label|escape}" class="form-control okay_textarea" {if $locked_theme}readonly=""{/if}>{$translation->values[{$lang->id}]}</textarea>
+                                <textarea name="lang_{$lang->label|escape}" class="form-control okay_textarea" {if $locked_theme}readonly=""{/if}>{$translation->values[{$lang->id}]->value}</textarea>
                             </div>
                         </div>
                     {/foreach}

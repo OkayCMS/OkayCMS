@@ -31,15 +31,8 @@ class FrontTranslations
 
         /** @var TranslationsEntity $translations */
         $translations = $this->_entityFactory->get(TranslationsEntity::class);
-        foreach ($translations->find(['lang' => $langLabel]) as $var=>$value) {
-            $this->$var = $value;
-        }
-
-        // Дополняем переводы из активных модулей 
-        foreach ($this->_modules->getRunningModules() as $runningModule) {
-            foreach ($this->_modules->getModuleFrontTranslations($runningModule['vendor'], $runningModule['module_name'], $langLabel) as $var=>$value) {
-                $this->$var = $value;
-            }
+        foreach ($translations->find(['lang' => $langLabel]) as $var => $translation) {
+            $this->$var = $translation->value;
         }
     }
     
@@ -52,13 +45,13 @@ class FrontTranslations
         $res = $translations->get($var);
         if (isset($res->{'lang_' . $mainLanguage->label}) || isset($res->lang_en)) {
             if (isset($res->{'lang_' . $mainLanguage->label})) {
-                $translation = $res->{'lang_' . $mainLanguage->label};
+                $translation = $res->{'lang_' . $mainLanguage->label}->value;
             } else {
-                $translation = $res->lang_en;
+                $translation = $res->lang_en->value;
             }
-            
+
             $this->$var = $translation;
-            
+
             // Если включили дебаг переводов, выведим соответствующее сообщение на неизвестный перевод
             if ($this->_debugTranslation === true) {
                 $translation .= '<b style="color: red!important;">$lang->' . $var . ' from other language</b>';
