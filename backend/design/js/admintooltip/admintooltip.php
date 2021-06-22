@@ -24,6 +24,14 @@ $DI = include 'Okay/Core/config/container.php';
 /** @var Config $config */
 $config = $DI->get(Config::class);
 
+if ($config->get('debug_mode') == true) {
+    ini_set('display_errors', 'on');
+    error_reporting(E_ALL);
+} else {
+    ini_set('display_errors', 'off');
+    error_reporting(0);
+}
+
 /** @var ManagerMenu $managerMenu */
 $managerMenu = $DI->get(ManagerMenu::class);
 
