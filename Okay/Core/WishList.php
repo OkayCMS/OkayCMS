@@ -11,40 +11,27 @@ use Okay\Entities\ImagesEntity;
 use Okay\Helpers\MainHelper;
 use Okay\Helpers\MoneyHelper;
 use Okay\Core\Modules\Extender\ExtenderFacade;
+use Okay\Helpers\ProductsHelper;
 
 class WishList
 {
-    /** @var ProductsEntity */
-    private $productsEntity;
-
-    /** @var VariantsEntity */
-    private $variantsEntity;
-
-    /** @var ImagesEntity */
-    private $imagesEntity;
-
-    /** @var MoneyHelper */
-    private $moneyHelper;
-
+    /** @var EntityFactory */
     private $entityFactory;
 
-    private $settings;
-    
+    /** @var MainHelper */
     private $mainHelper;
 
+    /** @var ProductsHelper */
+    private $productsHelper;
+
     public function __construct(
-        EntityFactory $entityFactory,
-        Settings $settings,
-        MoneyHelper $moneyHelper,
-        MainHelper $mainHelper
+        EntityFactory  $entityFactory,
+        MainHelper     $mainHelper,
+        ProductsHelper $productsHelper
     ) {
-        $this->productsEntity = $entityFactory->get(ProductsEntity::class);
-        $this->variantsEntity = $entityFactory->get(VariantsEntity::class);
-        $this->imagesEntity   = $entityFactory->get(ImagesEntity::class);
         $this->entityFactory  = $entityFactory;
-        $this->settings       = $settings;
-        $this->moneyHelper    = $moneyHelper;
         $this->mainHelper     = $mainHelper;
+        $this->productsHelper = $productsHelper;
     }
 
     public function get()
@@ -58,44 +45,13 @@ class WishList
             return ExtenderFacade::execute(__METHOD__, $wishList, func_get_args());
         }
 
-        $products = [];
-        $images_ids = [];
-        foreach ($this->productsEntity->find(['id'=>$items, 'visible'=>1]) as $p) {
-            $products[$p->id] = $p;
-            $images_ids[] = $p->main_image_id;
-        }
-
-        if (empty($products)) {
-            return ExtenderFacade::execute(__METHOD__, $wishList, func_get_args());
-        }
+        $products = $this->productsHelper->getList(['id'=>$items, 'visible'=>1]);
 
         $products_ids = array_keys($products);
+
         $wishList->ids = $products_ids;
-        foreach($products as $product) {
-            $product->variants = [];
-        }
-
-        $variants = $this->variantsEntity->find(['product_id'=>$products_ids]);
-        foreach($variants as $variant) {
-            $products[$variant->product_id]->variants[] = $this->moneyHelper->convertVariantPriceToMainCurrency($variant);;
-        }
-
-        if (!empty($images_ids)) {
-            $images = $this->imagesEntity->find(['id'=>$images_ids]);
-            foreach ($images as $image) {
-                if (isset($products[$image->product_id])) {
-                    $products[$image->product_id]->image = $image;
-                }
-            }
-        }
-
-        foreach($products as $product) {
-            if(isset($product->variants[0])) {
-                $product->variant = $product->variants[0];
-            }
-        }
-
         $wishList->products = $products;
+
         return ExtenderFacade::execute(__METHOD__, $wishList, func_get_args());
     }
 

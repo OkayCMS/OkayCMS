@@ -1,4 +1,9 @@
 <?php
+
+use Okay\Core\Request;
+
+require_once(dirname(__DIR__, 5) . '/vendor/autoload.php');
+
 $version = "9.14.0";
 if (session_status() === PHP_SESSION_NONE) {
     if (!empty($_SERVER['HTTP_USER_AGENT'])) {
@@ -78,7 +83,7 @@ $config = array(
     | with start and final /
     |
     */
-    'upload_dir' => '/files/uploads/',
+    'upload_dir' => Request::getSubDir() . '/files/uploads/',
     /*
     |--------------------------------------------------------------------------
     | relative path from filemanager folder to upload folder

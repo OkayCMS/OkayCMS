@@ -31,8 +31,8 @@ class BackendCallbacksHelper
 
     public function delete($ids)
     {
-        $this->callbacksEntity->delete($ids);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        $this->callbacksEntity->delete($ids);
     }
 
     public function processed($ids)

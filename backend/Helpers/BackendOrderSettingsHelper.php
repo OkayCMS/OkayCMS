@@ -69,8 +69,8 @@ class BackendOrderSettingsHelper
 
     public function deleteStatuses($ids)
     {
-        $result = $this->orderStatusEntity->delete($ids);
-        return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        $this->orderStatusEntity->delete($ids);
     }
 
     public function statusCanBeDeleted(array $idsToDelete)

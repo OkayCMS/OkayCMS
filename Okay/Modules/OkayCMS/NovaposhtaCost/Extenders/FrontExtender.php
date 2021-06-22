@@ -124,7 +124,7 @@ class FrontExtender implements ExtensionInterface
      */
     public function setCartDeliveryPrice($result, $delivery, $order)
     {
-        if ($this->request->post('is_novaposhta_delivery', 'boolean')) {
+        if ($this->request->post('is_novaposhta_delivery', 'boolean') && $delivery->paid) {
             $result['delivery_price'] = $this->request->post('novaposhta_delivery_price');
         }
         return $result;

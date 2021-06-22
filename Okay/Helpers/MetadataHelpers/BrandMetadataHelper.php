@@ -25,7 +25,7 @@ class BrandMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getH1Template()
+    public function getH1Template() : string
     {
         $brand = $this->design->getVar('brand');
         $filterAutoMeta = $this->getFilterAutoMeta();
@@ -44,7 +44,33 @@ class BrandMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getDescriptionTemplate()
+    public function getAnnotationTemplate() : string
+    {
+        $brand = $this->design->getVar('brand');
+        $isFilterPage = $this->design->getVar('is_filter_page');
+        $isAllPages = $this->design->getVar('is_all_pages');
+        $currentPageNum = $this->design->getVar('current_page_num');
+        $filterAutoMeta = $this->getFilterAutoMeta();
+
+        if ((int)$currentPageNum > 1 || $isAllPages === true) {
+            $annotation = '';
+        } elseif ($pageAnnotation = parent::getAnnotationTemplate()) {
+            $annotation = $pageAnnotation;
+        /*} elseif (!empty($filterAutoMeta->annotation)) {
+            $description = $filterAutoMeta->annotation;*/
+        } elseif ($isFilterPage === false) {
+            $annotation = $brand->annotation;
+        } else {
+            $annotation = '';
+        }
+
+        return ExtenderFacade::execute(__METHOD__, $annotation, func_get_args());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getDescriptionTemplate() : string
     {
         $brand = $this->design->getVar('brand');
         $isFilterPage = $this->design->getVar('is_filter_page');
@@ -70,7 +96,7 @@ class BrandMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaTitleTemplate()
+    public function getMetaTitleTemplate() : string
     {
         $brand = $this->design->getVar('brand');
         $filterAutoMeta = $this->getFilterAutoMeta();
@@ -98,7 +124,7 @@ class BrandMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaKeywordsTemplate()
+    public function getMetaKeywordsTemplate() : string
     {
         $brand = $this->design->getVar('brand');
         $filterAutoMeta = $this->getFilterAutoMeta();
@@ -117,7 +143,7 @@ class BrandMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaDescriptionTemplate()
+    public function getMetaDescriptionTemplate() : string
     {
         $brand = $this->design->getVar('brand');
         $filterAutoMeta = $this->getFilterAutoMeta();
@@ -184,7 +210,7 @@ class BrandMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    protected function getParts()
+    protected function getParts() : array
     {
         if (!empty($this->parts)) {
             return $this->parts; // no ExtenderFacade

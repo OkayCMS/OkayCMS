@@ -154,7 +154,7 @@
         <meta property="og:url" content="{$canonical}">
         <meta property="og:type" content="website">
         <meta property="og:title" content="{$h1|escape}">
-        <meta property="og:description" content='{$product->annotation|strip_tags|escape}'>
+        <meta property="og:description" content='{$annotation|strip_tags|escape}'>
         <meta property="og:image" content="{$product->image->filename|resize:330:300}">
         <link rel="image_src" href="{$product->image->filename|resize:330:300}">
         {*twitter*}
@@ -162,7 +162,7 @@
         <meta name="twitter:url" content="{$canonical}">
         <meta name="twitter:site" content="{$settings->site_name|escape}">
         <meta name="twitter:title" content="{$h1|escape}">
-        <meta name="twitter:description" content="{$product->annotation|strip_tags|escape}">
+        <meta name="twitter:description" content="{$annotation|strip_tags|escape}">
         <meta name="twitter:image" content="{$product->image->filename|resize:330:300}">
         <meta name="twitter:data1" content="{$lang->cart_head_price}">
         <meta name="twitter:label1" content="{$product->variant->price|convert:null:false} {$currency->code|escape}">
@@ -193,11 +193,11 @@
             <meta property="og:image" content="{$rootUrl}/{$config->design_images}{$settings->site_logo}">
             <meta name="twitter:image" content="{$rootUrl}/{$config->design_images}{$settings->site_logo}">
         {/if}
-        <meta property="og:description" content='{$post->annotation|strip_tags|escape}'>
+        <meta property="og:description" content='{$annotation|strip_tags|escape}'>
         {*twitter*}
         <meta name="twitter:card" content="summary">
         <meta name="twitter:title" content="{$post->name|escape}">
-        <meta name="twitter:description" content="{$post->annotation|strip_tags|escape}">
+        <meta name="twitter:description" content="{$annotation|strip_tags|escape}">
         <meta name="twitter:image" content="{$post->image|resize:400:300:false:$config->resized_blog_dir}">
     {else}
         <meta property="og:title" content="{$meta_title|escape}">

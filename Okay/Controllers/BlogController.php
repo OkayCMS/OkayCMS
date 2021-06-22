@@ -26,10 +26,10 @@ class BlogController extends AbstractController
         $url
     ) {
         $post = $blogEntity->findOne(['url' => $url]);
-        
-        // Если не найден - ошибка
-        if (empty($post) || (!$post->visible && empty($_SESSION['admin']))) {
-            return false;
+
+        //метод можно расширять и отменить либо переопределить дальнейшую логику работы контроллера
+        if (($setPost = $blogHelper->setPost($post)) !== null) {
+            return $setPost;
         }
 
         $this->setMetadataHelper($postMetadataHelper);
@@ -91,10 +91,12 @@ class BlogController extends AbstractController
 
         $category = null;
         if (!empty($url)) {
-            if (!($category = $blogCategoriesEntity->findOne(['url' => $url])) || (!$category->visible && empty($_SESSION['admin']))) {
-                return false;
+            $category = $blogCategoriesEntity->findOne(['url' => $url]);
+            if (($setCategory = $blogHelper->setBlogCategory($category)) !== null) {
+                return $setCategory;
             }
         }
+
         if (!empty($category)) {
             $filter['category_id'] = $category->children;
             $this->setMetadataHelper($categoryMetadataHelper);

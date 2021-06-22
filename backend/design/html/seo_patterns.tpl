@@ -140,6 +140,7 @@
             var auto_meta_title,
                 auto_meta_keywords,
                 auto_meta_desc,
+                auto_annotation,
                 auto_description,
                 auto_h1;
 
@@ -147,6 +148,7 @@
             auto_meta_keywords = $("input[name=auto_meta_keywords]").val();
             auto_h1            = $("input[name=auto_h1]").val();
             auto_meta_desc     = $("textarea[name=auto_meta_desc]").val();
+            auto_annotation   = $("textarea[name=auto_annotation]").val();
             auto_description   = $("textarea[name=auto_description]").val();
 
             $.ajax({
@@ -161,6 +163,7 @@
                     auto_meta_title:    auto_meta_title,
                     auto_meta_keywords: auto_meta_keywords,
                     auto_meta_desc:     auto_meta_desc,
+                    auto_annotation:    auto_annotation,
                     auto_description:   auto_description,
                     auto_h1:            auto_h1,
                 },

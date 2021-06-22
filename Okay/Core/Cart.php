@@ -22,7 +22,6 @@ class Cart
 {
     /** @var Settings */
     private $settings;
-
     /** @var ProductsHelper */
     private $productsHelper;
 
@@ -108,6 +107,12 @@ class Cart
      * Whether the cart is currently empty
      */
     public $isEmpty = true;
+
+    /**
+     * @var array
+     * Total sum for all applied discounts for purchases
+     */
+    public $total_purchases_discounts = [];
 
     public function __construct(
         EntityFactory   $entityFactory,
@@ -234,6 +239,8 @@ class Cart
         } else {
             $this->addItem($variantId, $amount);
         }
+
+        ExtenderFacade::execute(__METHOD__, $this, func_get_args());
     }
 
     /**
@@ -429,6 +436,7 @@ class Cart
     private function applyDiscounts()
     {
         if (!$this->isEmpty) {
+            $this->total_purchases_discounts = [];
             $this->applyPurchasesDiscounts();
             $this->discounts = [];
             $this->total_price = $this->undiscounted_total_price;
@@ -436,15 +444,23 @@ class Cart
             if (!empty($this->availableDiscounts) && !empty($sets)) {
                 foreach ($sets as $set) {
                     if ($signs = $this->discountsHelper->parseSet($set)) {
-                        if (empty($signs) || !isset($signs['cart']) || (isset($signs['cart']) && !$this->checkAvailableDiscounts($signs['cart']))) {
-                            continue;
-                        }
-                        foreach ($this->purchases as $purchase) {
-                            /** @var $purchase Purchase */
-                            if (isset($signs['purchase']) && !$purchase->checkAvailableDiscounts($signs['purchase'])) {
-                                continue 2;
+                        if (isset($signs['purchase'])) {
+                            foreach ($this->purchases as $purchase) {
+                                /** @var $purchase Purchase */
+                                if ($purchase->checkAvailableDiscounts($signs['purchase'])) {
+                                    break 2;
+                                }
                             }
                         }
+
+                        if (
+                            empty($signs) ||
+                            !isset($signs['cart']) ||
+                            (isset($signs['cart']) && !$this->checkAvailableDiscounts($signs['cart']))
+                        ) {
+                            continue;
+                        }
+
                         $discounts = $this->discountsHelper->prepareDiscounts($signs['cart'], $this->availableDiscounts);
                         list($this->discounts, $this->total_price) = $this->discountsHelper->calculateDiscounts($discounts, $this->undiscounted_total_price);
                         break;

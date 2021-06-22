@@ -98,8 +98,8 @@ class BackendUsersHelper
 
     public function delete($ids)
     {
-        $this->usersEntity->delete($ids);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        $this->usersEntity->delete($ids);
     }
 
     public function moveToGroup($ids, $targetGroupId)

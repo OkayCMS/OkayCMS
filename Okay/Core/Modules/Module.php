@@ -47,18 +47,19 @@ class Module
 
         if (file_exists($moduleJsonFileFile)) {
             $moduleParams = json_decode(file_get_contents($moduleJsonFileFile));
-            
-            if (empty($moduleParams->version)) {
-                $moduleParams->version = '1.0.0';
-            }
-            
-            if ($mathVersion = $this->getMathVersion($moduleParams->version)) {
-                $moduleParams->math_version = $mathVersion;
-            }
-            
-            return $moduleParams;
+        } else {
+            $moduleParams = new \stdClass();
         }
-        return null;
+
+        if (empty($moduleParams->version)) {
+            $moduleParams->version = '1.0.0';
+        }
+
+        if ($mathVersion = $this->getMathVersion($moduleParams->version)) {
+            $moduleParams->math_version = $mathVersion;
+        }
+
+        return $moduleParams;
     }
     
     /**
@@ -174,6 +175,24 @@ class Module
     public function getServices($vendor, $moduleName)
     {
         $file = $this->getModuleDirectory($vendor, $moduleName) . '/Init/services.php';
+
+        if (!file_exists($file)) {
+            return [];
+        }
+
+        return include($file);
+    }
+
+    /**
+     * Получить список параметров модуля
+     * @param string $vendor
+     * @param string $moduleName
+     * @throws \Exception
+     * @return array
+     */
+    public function getParameters($vendor, $moduleName)
+    {
+        $file = $this->getModuleDirectory($vendor, $moduleName) . '/Init/parameters.php';
 
         if (!file_exists($file)) {
             return [];

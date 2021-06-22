@@ -79,8 +79,8 @@ class BackendPagesHelper
 
     public function delete($ids)
     {
-        $result = $this->pagesEntity->delete($ids);
-        return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        return $this->pagesEntity->delete($ids); // no ExtenderFacade
     }
 
     public function findPages($filter = [])

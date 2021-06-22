@@ -186,6 +186,8 @@ class ProductsHelper implements GetListInterface
         } else {
             $featuresFilter['id'] = $featuresIds;
         }
+
+        $featuresFilter['visible'] = true;
         
         foreach ($featuresEntity->find($featuresFilter) as $f) {
             $features[$f->id] = $f;
@@ -276,6 +278,23 @@ class ProductsHelper implements GetListInterface
             }
         }
         return ExtenderFacade::execute(__METHOD__, $copyProducts, func_get_args());
+    }
+
+    /**
+     * Метод проверяет доступность товара для показа в контроллере
+     * можно переопределить логику работы контроллера и отменить дальнейшие действия
+     * для этого после реализации другой логики необходимо вернуть true из экстендера
+     *
+     * @param object $product
+     * @return object
+     */
+    public function setProduct($product)
+    {
+        if (empty($product) || (!$product->visible && empty($_SESSION['admin']))) {
+            return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+        }
+
+        return ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
 }

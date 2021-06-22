@@ -228,7 +228,7 @@
                                                         <div class="boxes_inline mt-h">
                                                             <select name="purchases[variant_id][{$purchase->id|escape}]" class="selectpicker form-control {if $purchase->product->variants|count == 1}hidden{/if} fn_purchase_variant">
                                                                 {foreach $purchase->product->variants as $v}
-                                                                    <option data-price="{$v->price|escape}" data-units="{if $v->units}{$v->units|escape}{else}{$settings->units|escape}{/if}" data-amount="{$v->stock|escape}" value="{$v->id|escape}" {if $v->id == $purchase->variant_id}selected{/if} >
+                                                                    <option {get_design_block block="order_purchase_variants_option_block" vars=['v'=>$v]} data-price="{$v->price|escape}" data-units="{if $v->units}{$v->units|escape}{else}{$settings->units|escape}{/if}" data-amount="{$v->stock|escape}" value="{$v->id|escape}" {if $v->id == $purchase->variant_id}selected{/if} >
                                                                         {if $v->name}
                                                                             {$v->name|escape}
                                                                         {else}

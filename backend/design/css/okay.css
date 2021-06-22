@@ -483,6 +483,9 @@ body:not(.top-nav) header.navbar {
     border: 1px solid #ccc9;
     border-radius: 3px;
 }
+.translation_module_hint{
+    color: #48b0f7;
+}
 .translation_icon img {
     margin-top: -5px;
 }

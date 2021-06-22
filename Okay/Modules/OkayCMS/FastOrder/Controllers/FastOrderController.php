@@ -12,6 +12,7 @@ use Okay\Core\Router;
 use Okay\Core\Languages;
 use Okay\Core\EntityFactory;
 use Okay\Core\Validator;
+use Okay\Entities\VariantsEntity;
 use Okay\Helpers\CartHelper;
 use Okay\Helpers\OrdersHelper;
 use Okay\Entities\OrdersEntity;
@@ -28,6 +29,7 @@ class FastOrderController extends AbstractController
         Validator         $validator,
         FrontTranslations $frontTranslations,
         CartHelper        $cartHelper,
+        VariantsEntity    $variantsEntity,
         Cart              $cart
     ) {
         if (!$this->request->method('post')) {
@@ -43,6 +45,7 @@ class FastOrderController extends AbstractController
         $order->comment = 'Быстрый заказ';
         $order->lang_id = $languages->getLangId();
         $order->ip      = $_SERVER['REMOTE_ADDR'];
+        $variantId = $this->request->post('variant_id');
 
         $order = $ordersHelper->attachUserIfLogin($order, $this->user);
 
@@ -53,6 +56,10 @@ class FastOrderController extends AbstractController
         
         if (!$validator->isPhone($order->phone, true)) {
             $errors[] = $frontTranslations->getTranslation('okay_cms__fast_order__form_phone_error');
+        }
+        
+        if (empty($variantId) || !$variantsEntity->findOne(['id' => $variantId])) {
+            $errors[] = $frontTranslations->getTranslation('okay_cms__fast_order__wrong_variant');
         }
 
         $captchaCode =  $this->request->post('captcha_code', 'string');
@@ -72,7 +79,6 @@ class FastOrderController extends AbstractController
         if ($amount <= 0) {
             $amount = 1;
         }
-        $variantId = $this->request->post('variant_id');
 
         if ($variantId && $amount) {
             $cart->addItem($variantId, $amount);

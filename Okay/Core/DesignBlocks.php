@@ -89,12 +89,14 @@ class DesignBlocks
                         $methodParams = [];
                         foreach ($reflectionMethod->getParameters() as $parameter) {
 
-                            if ($parameter->getClass() !== null) { // Если для аргумента указан type hint, передадим экземляр соответствующего класса
+                            if (($parameterType = $parameter->getType()) !== null) { // Если для аргумента указан type hint, передадим экземляр соответствующего класса
+
+                                $parameterName = $parameterType->getName();
                                 // Определяем это Entity или сервис из DI
-                                if (is_subclass_of($parameter->getClass()->name, Entity::class)) {
-                                    $methodParams[$parameter->getClass()->name] = $this->entityFactory->get($parameter->getClass()->name);
+                                if (is_subclass_of($parameterName, Entity::class)) {
+                                    $methodParams[$parameter->name] = $this->entityFactory->get($parameterName);
                                 } else {
-                                    $methodParams[$parameter->getClass()->name] = $this->SL->getService($parameter->getClass()->name);
+                                    $methodParams[$parameter->name] = $this->SL->getService($parameterName);
                                 }
                             } else { // Если не нашли значения аргументу, и он не имеет значения по умолчанию в ф-ции - ошибка
                                

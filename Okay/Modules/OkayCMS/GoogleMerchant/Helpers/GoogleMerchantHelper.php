@@ -230,7 +230,7 @@ class GoogleMerchantHelper
             $result['g:price']['data'] = $this->feedHelper->escape($price . ' ' . $this->mainCurrency->code);
         }
 
-        $result['g:availability']['data'] = (!in_array($product->stock, [0, '0'], true) ? 'in_stock' : 'out_of_stock');
+        $result['g:availability']['data'] = (!in_array($product->stock, [0, '0'], true) ? 'in stock' : 'out of stock');
 
         if (!empty($product->vendor)) {
             $result['g:brand']['data'] = $this->feedHelper->escape($product->vendor);

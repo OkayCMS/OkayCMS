@@ -639,8 +639,8 @@ class BackendProductsHelper
 
     public function delete($ids)
     {
-        $this->productsEntity->delete($ids);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        $this->productsEntity->delete($ids);
     }
 
 }

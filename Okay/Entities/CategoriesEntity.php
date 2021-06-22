@@ -25,7 +25,7 @@ class CategoriesEntity extends Entity
         'external_id',
         'level_depth',
         'last_modify',
-        'created'
+        'created',
     ];
 
     protected static $langFields = [
@@ -40,7 +40,8 @@ class CategoriesEntity extends Entity
         'auto_meta_title',
         'auto_meta_keywords',
         'auto_meta_desc',
-        'auto_description'
+        'auto_description',
+        'auto_annotation',
     ];
 
     protected static $additionalFields = [

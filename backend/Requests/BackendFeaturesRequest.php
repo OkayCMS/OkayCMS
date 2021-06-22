@@ -38,6 +38,7 @@ class BackendFeaturesRequest
         $feature->auto_value_id      = $this->request->post('auto_value_id');
         $feature->url                = $this->request->post('url', 'string');
         $feature->url_in_product     = $this->request->post('url_in_product');
+        $feature->visible            = $this->request->post('visible', 'int');
         $feature->to_index_new_value = $this->request->post('to_index_new_value');
         $feature->description        = $this->request->post('description');
 

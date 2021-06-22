@@ -77,8 +77,8 @@ class BackendUserGroupsHelper
 
     public function delete($ids)
     {
-        $this->userGroupsEntity->delete($ids);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        $this->userGroupsEntity->delete($ids);
     }
 
     public function buildFilter()

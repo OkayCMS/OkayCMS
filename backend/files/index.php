@@ -1,6 +1,5 @@
 <?php
 
-use Okay\Core\Request;
 use Okay\Core\Response;
 use Okay\Core\EntityFactory;
 use Okay\Entities\ManagersEntity;
@@ -23,14 +22,8 @@ $modules->startEnabledModules();
 
 $modules->registerSmartyPlugins();
 
-/** @var Request $request */
-$request = $DI->get(Request::class);
-
 /** @var Response $response */
 $response = $DI->get(Response::class);
-
-/** @var EntityFactory $entityFactory */
-$entityFactory = $DI->get(EntityFactory::class);
 
 /** @var EntityFactory $entityFactory */
 $entityFactory = $DI->get(EntityFactory::class);
@@ -68,7 +61,7 @@ if ($ext == 'csv') {
     $response->sendHeaders();
     readfile($file);
     exit();
-} elseif ($ext == 'png' || $ext == 'jpg' || $ext == 'jpeg' || $ext == 'gif' || $ext == 'tif' || $ext == 'bmp' || $ext == 'bmp') {
+} elseif ($ext == 'png' || $ext == 'jpg' || $ext == 'jpeg' || $ext == 'gif' || $ext == 'tif' || $ext == 'bmp') {
     $response->setContent(file_get_contents($file), RESPONSE_IMAGE);
     $response->sendContent();
 }

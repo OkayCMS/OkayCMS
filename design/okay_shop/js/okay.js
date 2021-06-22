@@ -208,7 +208,7 @@ $(document).on('click', '.fn_wishlist', function(e){
         data: { id: $( this ).data( 'id' ), action: action },
         dataType: 'json',
         success: function(data) {
-            $( '#wishlist' ).html( data );
+            $( '#wishlist' ).html( data.wishlist_informer );
             /* Смена класса кнопки */
             if (action == '') {
                 button.addClass( 'selected' );

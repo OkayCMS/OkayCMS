@@ -16,11 +16,11 @@ abstract class AbstractExtender
             throw new \Exception("Expandable \"{$classExpandable}::{$methodExpandable}()\" is not a method");
         }
         
-        if (! is_callable([$classExtender, $methodExtender])) {
-            throw new \Exception("Class {$classExtender}::{$methodExtender} is not callable");
+        if (!is_callable([$classExtender, $methodExtender], true)) {
+            throw new \Exception("Method {$classExtender}::{$methodExtender} is not callable");
         }
 
-        if (! is_subclass_of($classExtender, ExtensionInterface::class)) {
+        if (!is_subclass_of($classExtender, ExtensionInterface::class)) {
             throw new \Exception("Class {$classExtender}::class must implements " . ExtensionInterface::class . " interface");
         }
 
