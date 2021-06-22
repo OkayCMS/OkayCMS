@@ -31,7 +31,7 @@ class DeployHelper
         $this->migrationDir = dirname(__DIR__) . '/migrations/';
     }
 
-    public function executeHook($channel)
+    public function executeHook($channel): bool
     {
         $requestBody = $this->request->post();
         $requestBody = json_decode($requestBody);
@@ -40,19 +40,17 @@ class DeployHelper
 
         $currentChannel = $this->settings->get('deploy_build_channel');
         if ($channel != $currentChannel) {
-            $this->settings->set('deploy_last_status_text', "Wrong channel \"{$channel}\" on this server");
             return false;
         }
         
         // В случае удаления ветки, new будет равен null
         if ($requestBody === null || $requestBody->push->changes[0]->new === null) {
-            $this->settings->set('deploy_last_status_text', "Empty request from bitbucket");
+            $this->settings->set('deploy_last_status_text', date("d.m.Y H:i:s") . PHP_EOL . 'Empty request from bitbucket');
             return false;
         }
 
-        // Если прилител хук, но пушили не в ветку которую мы "слушаем", phing запускать не нужно
+        // Если прилетел хук, но пушили не в ветку которую мы "слушаем", phing запускать не нужно
         if ($requestBody->push->changes[0]->new->name != $branch) {
-            $this->settings->set('deploy_last_status_text', "Other channel");
             return false;
         }
         
@@ -62,16 +60,19 @@ class DeployHelper
     
     public function updateProject($branch)
     {
-        $constants = get_defined_constants();
-        $pathToPhp = null;
-
-        if (isset($constants['PHP_BINDIR'])) {
-            $pathToPhp = rtrim($constants['PHP_BINDIR'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        if (!$pathToPhp = $this->settings->get('path_to_php')) {
+            $constants = get_defined_constants();
+            if (isset($constants['PHP_BINDIR'])) {
+                $pathToPhp = rtrim($constants['PHP_BINDIR'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+            }
         }
         
         $dir = dirname(__DIR__);
         exec("{$pathToPhp}php {$dir}/bin/phing.phar -f {$dir}/build.xml -Dbranch=\"{$branch}\" -Dphp_path=\"{$pathToPhp}\"", $output);
-        $this->settings->set('deploy_last_status_text', implode(PHP_EOL, $output));
+        $deployLog = date("d.m.Y H:i:s")
+            . PHP_EOL
+            . implode(PHP_EOL, $output);
+        $this->settings->set('deploy_last_status_text', $deployLog);
     }
 
     /**
