@@ -25,7 +25,7 @@ class BrandMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getH1Template() : string
+    public function getH1Template(): string
     {
         $brand = $this->design->getVar('brand');
         $filterAutoMeta = $this->getFilterAutoMeta();
@@ -35,7 +35,7 @@ class BrandMetadataHelper extends CommonMetadataHelper
         } elseif (!empty($filterAutoMeta->h1)) {
             $h1 = $brand->name . ' ' . $filterAutoMeta->h1;
         } else {
-            $h1 = $brand->name;
+            $h1 = (string)$brand->name;
         }
 
         return ExtenderFacade::execute(__METHOD__, $h1, func_get_args());
@@ -44,13 +44,13 @@ class BrandMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getAnnotationTemplate() : string
+    public function getAnnotationTemplate(): string
     {
         $brand = $this->design->getVar('brand');
         $isFilterPage = $this->design->getVar('is_filter_page');
         $isAllPages = $this->design->getVar('is_all_pages');
         $currentPageNum = $this->design->getVar('current_page_num');
-        $filterAutoMeta = $this->getFilterAutoMeta();
+//        $filterAutoMeta = $this->getFilterAutoMeta();
 
         if ((int)$currentPageNum > 1 || $isAllPages === true) {
             $annotation = '';
@@ -59,7 +59,7 @@ class BrandMetadataHelper extends CommonMetadataHelper
         /*} elseif (!empty($filterAutoMeta->annotation)) {
             $description = $filterAutoMeta->annotation;*/
         } elseif ($isFilterPage === false) {
-            $annotation = $brand->annotation;
+            $annotation = (string)$brand->annotation;
         } else {
             $annotation = '';
         }
@@ -70,13 +70,13 @@ class BrandMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getDescriptionTemplate() : string
+    public function getDescriptionTemplate(): string
     {
         $brand = $this->design->getVar('brand');
         $isFilterPage = $this->design->getVar('is_filter_page');
         $isAllPages = $this->design->getVar('is_all_pages');
         $currentPageNum = $this->design->getVar('current_page_num');
-        $filterAutoMeta = $this->getFilterAutoMeta();
+//        $filterAutoMeta = $this->getFilterAutoMeta();
 
         if ((int)$currentPageNum > 1 || $isAllPages === true) {
             $description = '';
@@ -85,7 +85,7 @@ class BrandMetadataHelper extends CommonMetadataHelper
         /*} elseif (!empty($filterAutoMeta->description)) {
             $description = $filterAutoMeta->description;*/
         } elseif ($isFilterPage === false) {
-            $description = $brand->description;
+            $description = (string)$brand->description;
         } else {
             $description = '';
         }
@@ -96,7 +96,7 @@ class BrandMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaTitleTemplate() : string
+    public function getMetaTitleTemplate(): string
     {
         $brand = $this->design->getVar('brand');
         $filterAutoMeta = $this->getFilterAutoMeta();
@@ -108,7 +108,7 @@ class BrandMetadataHelper extends CommonMetadataHelper
         } elseif (!empty($filterAutoMeta->meta_title)) {
             $metaTitle = $brand->meta_title . ' ' . $filterAutoMeta->meta_title;
         } else {
-            $metaTitle = $brand->meta_title;
+            $metaTitle = (string)$brand->meta_title;
         }
 
         // Добавим номер страницы к тайтлу
@@ -124,7 +124,7 @@ class BrandMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaKeywordsTemplate() : string
+    public function getMetaKeywordsTemplate(): string
     {
         $brand = $this->design->getVar('brand');
         $filterAutoMeta = $this->getFilterAutoMeta();
@@ -134,7 +134,7 @@ class BrandMetadataHelper extends CommonMetadataHelper
         } elseif (!empty($filterAutoMeta->meta_keywords)) {
             $metaKeywords = $brand->meta_keywords . ' ' . $filterAutoMeta->meta_keywords;
         } else {
-            $metaKeywords = $brand->meta_keywords;
+            $metaKeywords = (string)$brand->meta_keywords;
         }
 
         return ExtenderFacade::execute(__METHOD__, $metaKeywords, func_get_args());
@@ -143,7 +143,7 @@ class BrandMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaDescriptionTemplate() : string
+    public function getMetaDescriptionTemplate(): string
     {
         $brand = $this->design->getVar('brand');
         $filterAutoMeta = $this->getFilterAutoMeta();
@@ -153,7 +153,7 @@ class BrandMetadataHelper extends CommonMetadataHelper
         } elseif (!empty($filterAutoMeta->meta_description)) {
             $metaDescription = $brand->meta_description . ' ' . $filterAutoMeta->meta_description;
         } else {
-            $metaDescription = $brand->meta_description;
+            $metaDescription = (string)$brand->meta_description;
         }
         
         return ExtenderFacade::execute(__METHOD__, $metaDescription, func_get_args());
@@ -168,8 +168,8 @@ class BrandMetadataHelper extends CommonMetadataHelper
 
             $metaArray = $this->getMetaArray();
 
-            $currentPage = isset($metaArray['page']) ? $metaArray['page'] : null;
-            $currentOtherFilters = isset($metaArray['filter']) ? $metaArray['filter'] : [];
+            $currentPage = $metaArray['page'] ?? null;
+            $currentOtherFilters = $metaArray['filter'] ?? [];
 
             $this->metaRobots = $metaRobotsHelper->getCatalogRobots($currentPage, $currentOtherFilters);
         }
@@ -210,7 +210,7 @@ class BrandMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    protected function getParts() : array
+    protected function getParts(): array
     {
         if (!empty($this->parts)) {
             return $this->parts; // no ExtenderFacade
