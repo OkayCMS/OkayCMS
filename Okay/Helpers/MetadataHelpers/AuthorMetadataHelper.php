@@ -13,14 +13,14 @@ class AuthorMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getH1Template() : string
+    public function getH1Template(): string
     {
         $author = $this->design->getVar('author');
 
         if ($pageH1 = parent::getH1Template()) {
             $h1 = $pageH1;
         } else {
-            $h1 = $author->name;
+            $h1 = (string)$author->name;
         }
 
         return ExtenderFacade::execute(__METHOD__, $h1, func_get_args());
@@ -29,7 +29,7 @@ class AuthorMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getDescriptionTemplate() : string
+    public function getDescriptionTemplate(): string
     {
         $author = $this->design->getVar('author');
         $isAllPages = $this->design->getVar('is_all_pages');
@@ -40,7 +40,7 @@ class AuthorMetadataHelper extends CommonMetadataHelper
         } elseif ($pageDescription = parent::getDescriptionTemplate()) {
             $description = $pageDescription;
         } else {
-            $description = $author->description;
+            $description = (string)$author->description;
         }
 
         return ExtenderFacade::execute(__METHOD__, $description, func_get_args());
@@ -49,7 +49,7 @@ class AuthorMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaTitleTemplate() : string
+    public function getMetaTitleTemplate(): string
     {
         $author = $this->design->getVar('author');
         $isAllPages = $this->design->getVar('is_all_pages');
@@ -58,7 +58,7 @@ class AuthorMetadataHelper extends CommonMetadataHelper
         if ($pageTitle = parent::getMetaTitleTemplate()) {
             $metaTitle = $pageTitle;
         } else {
-            $metaTitle = $author->meta_title;
+            $metaTitle = (string)$author->meta_title;
         }
 
         // Добавим номер страницы к тайтлу
@@ -74,14 +74,14 @@ class AuthorMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaKeywordsTemplate() : string
+    public function getMetaKeywordsTemplate(): string
     {
         $author = $this->design->getVar('author');
 
         if ($pageKeywords = parent::getMetaKeywordsTemplate()) {
             $metaKeywords = $pageKeywords;
         } else {
-            $metaKeywords = $author->meta_keywords;
+            $metaKeywords = (string)$author->meta_keywords;
         }
 
         return ExtenderFacade::execute(__METHOD__, $metaKeywords, func_get_args());
@@ -90,14 +90,14 @@ class AuthorMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaDescriptionTemplate() : string
+    public function getMetaDescriptionTemplate(): string
     {
         $author = $this->design->getVar('author');
 
         if ($pageMetaDescription = parent::getMetaDescriptionTemplate()) {
             $metaDescription = $pageMetaDescription;
         } else {
-            $metaDescription = $author->meta_description;
+            $metaDescription = (string)$author->meta_description;
         }
         
         return ExtenderFacade::execute(__METHOD__, $metaDescription, func_get_args());
@@ -106,7 +106,7 @@ class AuthorMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    protected function getParts() : array
+    protected function getParts(): array
     {
         if (!empty($this->parts)) {
             return $this->parts; // no ExtenderFacade
