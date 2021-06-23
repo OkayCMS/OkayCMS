@@ -27,8 +27,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
     {
         $defaultProductsSeoPattern = (object)$this->settings->get('default_products_seo_pattern');
 
-        $h1 = $this->product->name;
-
+        $h1 = (string)$this->product->name;
         if ($data = $this->getCategoryField('auto_h1')) {
             $h1 = $data;
         } elseif(!empty($defaultProductsSeoPattern->auto_h1)) {
@@ -46,7 +45,8 @@ class ProductMetadataHelper extends CommonMetadataHelper
     public function getAnnotationTemplate(): string
     {
         $defaultProductsSeoPattern = (object)$this->settings->get('default_products_seo_pattern');
-        $annotation = $this->product->annotation;
+
+        $annotation = (string)$this->product->annotation;
         if (empty($annotation)) {
             if ($data = $this->getCategoryField('auto_annotation')) {
                 $annotation = $data;
@@ -64,7 +64,8 @@ class ProductMetadataHelper extends CommonMetadataHelper
     public function getDescriptionTemplate(): string
     {
         $defaultProductsSeoPattern = (object)$this->settings->get('default_products_seo_pattern');
-        $description = $this->product->description;
+
+        $description = (string)$this->product->description;
         if (empty($description)) {
             if ($data = $this->getCategoryField('auto_description')) {
                 $description = $data;
@@ -88,7 +89,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
         } elseif (!empty($defaultProductsSeoPattern->auto_meta_title)) {
             $metaTitle = $defaultProductsSeoPattern->auto_meta_title;
         } else {
-            $metaTitle = $this->product->meta_title;
+            $metaTitle = (string)$this->product->meta_title;
         }
         
         return ExtenderFacade::execute(__METHOD__, $metaTitle, func_get_args());
@@ -106,7 +107,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
         } elseif (!empty($defaultProductsSeoPattern->auto_meta_keywords)) {
             $metaKeywords = $defaultProductsSeoPattern->auto_meta_keywords;
         } else {
-            $metaKeywords = $this->product->meta_keywords;
+            $metaKeywords = (string)$this->product->meta_keywords;
         }
         
         return ExtenderFacade::execute(__METHOD__, $metaKeywords, func_get_args());
@@ -124,7 +125,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
         } elseif (!empty($defaultProductsSeoPattern->auto_meta_desc)) {
             $metaDescription = $defaultProductsSeoPattern->auto_meta_desc;
         } else {
-            $metaDescription = $this->product->meta_description;
+            $metaDescription = (string)$this->product->meta_description;
         }
         
         return ExtenderFacade::execute(__METHOD__, $metaDescription, func_get_args());
@@ -182,6 +183,4 @@ class ProductMetadataHelper extends CommonMetadataHelper
         }
         return false;
     }
-
-
 }
