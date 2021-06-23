@@ -4,10 +4,7 @@ namespace Okay\Core\OkayContainer;
 
 use Psr\Container\ContainerInterface as PsrContainerInterface;
 
-/**
- * The container interface. This extends the interface defined by
- * `container-interop` to include methods for retrieving parameters.
- */
+
 interface ContainerInterface extends PsrContainerInterface
 {
     /**
