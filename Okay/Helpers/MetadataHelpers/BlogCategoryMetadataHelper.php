@@ -13,7 +13,7 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getH1Template() : string
+    public function getH1Template(): string
     {
         $category = $this->design->getVar('category');
 
@@ -21,7 +21,7 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
         if ($pageH1 = parent::getH1Template()) {
             $h1 = $pageH1;
         } else {
-            $h1 = $categoryH1;
+            $h1 = (string)$categoryH1;
         }
 
         return ExtenderFacade::execute(__METHOD__, $h1, func_get_args());
@@ -30,7 +30,7 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getAnnotationTemplate() : string
+    public function getAnnotationTemplate(): string
     {
         $category = $this->design->getVar('category');
         $isAllPages = $this->design->getVar('is_all_pages');
@@ -41,7 +41,7 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
         } elseif ($pageAnnotation = parent::getAnnotationTemplate()) {
             $annotation = $pageAnnotation;
         } else {
-            $annotation = $category->annotation;
+            $annotation = (string)$category->annotation;
         }
 
         return ExtenderFacade::execute(__METHOD__, $annotation, func_get_args());
@@ -50,7 +50,7 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getDescriptionTemplate() : string
+    public function getDescriptionTemplate(): string
     {
         $category = $this->design->getVar('category');
         $isAllPages = $this->design->getVar('is_all_pages');
@@ -61,13 +61,13 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
         } elseif ($pageDescription = parent::getDescriptionTemplate()) {
             $description = $pageDescription;
         } else {
-            $description = $category->description;
+            $description = (string)$category->description;
         }
 
         return ExtenderFacade::execute(__METHOD__, $description, func_get_args());
     }
     
-    public function getMetaTitleTemplate() : string
+    public function getMetaTitleTemplate(): string
     {
         $category = $this->design->getVar('category');
         $isAllPages = $this->design->getVar('is_all_pages');
@@ -76,7 +76,7 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
         if ($pageTitle = parent::getMetaTitleTemplate()) {
             $metaTitle = $pageTitle;
         } else {
-            $metaTitle = $category->meta_title;
+            $metaTitle = (string)$category->meta_title;
         }
 
         // Добавим номер страницы к тайтлу
@@ -89,27 +89,27 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
         return ExtenderFacade::execute(__METHOD__, $metaTitle, func_get_args());
     }
     
-    public function getMetaKeywordsTemplate() : string
+    public function getMetaKeywordsTemplate(): string
     {
         $category = $this->design->getVar('category');
         
         if ($pageKeywords = parent::getMetaKeywordsTemplate()) {
             $metaKeywords = $pageKeywords;
         } else {
-            $metaKeywords = $category->meta_keywords;
+            $metaKeywords = (string)$category->meta_keywords;
         }
 
         return ExtenderFacade::execute(__METHOD__, $metaKeywords, func_get_args());
     }
     
-    public function getMetaDescriptionTemplate() : string
+    public function getMetaDescriptionTemplate(): string
     {
         $category = $this->design->getVar('category');
         
         if ($pageMetaDescription = parent::getMetaDescriptionTemplate()) {
             $metaDescription = $pageMetaDescription;
         } else {
-            $metaDescription = $category->meta_description;
+            $metaDescription = (string)$category->meta_description;
         }
 
         return ExtenderFacade::execute(__METHOD__, $metaDescription, func_get_args());
@@ -118,7 +118,7 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    protected function getParts() : array
+    protected function getParts(): array
     {
 
         if (!empty($this->parts)) {

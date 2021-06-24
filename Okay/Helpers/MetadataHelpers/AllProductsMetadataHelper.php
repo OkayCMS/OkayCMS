@@ -27,7 +27,7 @@ class AllProductsMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getH1Template() : string
+    public function getH1Template(): string
     {
         if ($keyword = $this->design->getVar('keyword')) {
             /** @var FrontTranslations $translations */
@@ -43,7 +43,7 @@ class AllProductsMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getDescriptionTemplate() : string
+    public function getDescriptionTemplate(): string
     {
         if ($keyword = $this->design->getVar('keyword')) {
             /** @var FrontTranslations $translations */
@@ -59,7 +59,7 @@ class AllProductsMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaTitleTemplate() : string
+    public function getMetaTitleTemplate(): string
     {
         if ($keyword = $this->design->getVar('keyword')) {
             /** @var FrontTranslations $translations */
@@ -84,7 +84,7 @@ class AllProductsMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaKeywordsTemplate() : string
+    public function getMetaKeywordsTemplate(): string
     {
         if ($keyword = $this->design->getVar('keyword')) {
             /** @var FrontTranslations $translations */
@@ -100,7 +100,7 @@ class AllProductsMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaDescriptionTemplate() : string
+    public function getMetaDescriptionTemplate(): string
     {
         if ($keyword = $this->design->getVar('keyword')) {
             /** @var FrontTranslations $translations */

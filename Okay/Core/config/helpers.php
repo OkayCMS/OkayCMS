@@ -67,6 +67,7 @@ use Okay\Helpers\MetadataHelpers\ProductMetadataHelper;
 use Okay\Helpers\MetadataHelpers\AuthorMetadataHelper;
 use Okay\Helpers\MetaRobotsHelper;
 use Okay\Helpers\NotifyHelper;
+use Okay\Helpers\PagesHelper;
 use Okay\Helpers\PaymentsHelper;
 use Okay\Helpers\RelatedProductsHelper;
 use Okay\Helpers\CommonHelper;
@@ -651,6 +652,9 @@ return [
                 ]
             ],
         ]
+    ],
+    PagesHelper::class => [
+        'class' => PagesHelper::class,
     ],
 ];
 

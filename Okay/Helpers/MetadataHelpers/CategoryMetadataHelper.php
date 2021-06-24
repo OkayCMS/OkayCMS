@@ -28,7 +28,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getH1Template() : string
+    public function getH1Template(): string
     {
         $category = $this->design->getVar('category');
         $seoFilterPattern = $this->getSeoFilterPattern();
@@ -44,7 +44,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         return ExtenderFacade::execute(__METHOD__, $h1, func_get_args());
     }
 
-    public function matchPriorityH1($pageH1, $seoFilterPatternH1, $filterAutoMetaH1, $categoryH1)
+    public function matchPriorityH1($pageH1, $seoFilterPatternH1, $filterAutoMetaH1, $categoryH1): string
     {
         if ($pageH1) {
             $h1 = $pageH1;
@@ -62,7 +62,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getAnnotationTemplate() : string
+    public function getAnnotationTemplate(): string
     {
         $category = $this->design->getVar('category');
         $isFilterPage = $this->design->getVar('is_filter_page');
@@ -82,7 +82,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getDescriptionTemplate() : string
+    public function getDescriptionTemplate(): string
     {
         $category = $this->design->getVar('category');
         $isFilterPage = $this->design->getVar('is_filter_page');
@@ -100,7 +100,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         return ExtenderFacade::execute(__METHOD__, $description, func_get_args());
     }
 
-    public function matchPriorityDescription($currentPageNum, $isAllPages, $pageDescription, $seoFilterPatternDescription, $filterAutoMetaDescription, $isFilterPage, $categoryDescription)
+    public function matchPriorityDescription($currentPageNum, $isAllPages, $pageDescription, $seoFilterPatternDescription, $filterAutoMetaDescription, $isFilterPage, $categoryDescription): string
     {
         if ((int)$currentPageNum > 1 || $isAllPages === true) {
             $description = '';
@@ -111,7 +111,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         /*} elseif (!empty($filterAutoMetaDescription)) {
             $description = $filterAutoMetaDescription;*/
         } elseif ($isFilterPage === false) {
-            $description = $categoryDescription;
+            $description = (string)$categoryDescription;
         } else {
             $description = '';
         }
@@ -119,7 +119,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         return ExtenderFacade::execute(__METHOD__, $description, func_get_args());
     }
     
-    public function getMetaTitleTemplate() : string // todo проверить как отработают экстендеры если их навесить на этот метод (где юзается parent::getMetaTitle())
+    public function getMetaTitleTemplate(): string // todo проверить как отработают экстендеры если их навесить на этот метод (где юзается parent::getMetaTitle())
     {
         $category = $this->design->getVar('category');
         $seoFilterPattern = $this->getSeoFilterPattern();
@@ -143,7 +143,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         return ExtenderFacade::execute(__METHOD__, $metaTitle, func_get_args());
     }
 
-    public function matchPriorityMetaTitle($pageTitle, $seoFilterPatternMetaTitle, $filterAutoMetaTitle, $categoryMetaTitle)
+    public function matchPriorityMetaTitle($pageTitle, $seoFilterPatternMetaTitle, $filterAutoMetaTitle, $categoryMetaTitle): string
     {
         if ($pageTitle) {
             $metaTitle = $pageTitle;
@@ -152,13 +152,13 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         } elseif (!empty($filterAutoMetaTitle)) {
             $metaTitle = $categoryMetaTitle . ' ' . $filterAutoMetaTitle;
         } else {
-            $metaTitle = $categoryMetaTitle;
+            $metaTitle = (string)$categoryMetaTitle;
         }
 
         return ExtenderFacade::execute(__METHOD__, $metaTitle, func_get_args());
     }
 
-    public function getMetaKeywordsTemplate() : string
+    public function getMetaKeywordsTemplate(): string
     {
         $category = $this->design->getVar('category');
         $seoFilterPattern = $this->getSeoFilterPattern();
@@ -173,7 +173,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         return ExtenderFacade::execute(__METHOD__, $metaKeywords, func_get_args());
     }
 
-    public function matchPriorityMetaKeywords($pageKeywords, $seoFilterPatternMetaKeywords, $filterAutoMetaMetaKeywords, $categoryMetaKeywords)
+    public function matchPriorityMetaKeywords($pageKeywords, $seoFilterPatternMetaKeywords, $filterAutoMetaMetaKeywords, $categoryMetaKeywords): string
     {
         if ($pageKeywords) {
             $metaKeywords = $pageKeywords;
@@ -182,13 +182,13 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         } elseif (!empty($filterAutoMetaMetaKeywords)) {
             $metaKeywords = $categoryMetaKeywords . ' ' . $filterAutoMetaMetaKeywords;
         } else {
-            $metaKeywords = $categoryMetaKeywords;
+            $metaKeywords = (string)$categoryMetaKeywords;
         }
 
         return ExtenderFacade::execute(__METHOD__, $metaKeywords, func_get_args());
     }
     
-    public function getMetaDescriptionTemplate() : string
+    public function getMetaDescriptionTemplate(): string
     {
         $category = $this->design->getVar('category');
         $seoFilterPattern = $this->getSeoFilterPattern();
@@ -203,7 +203,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         return ExtenderFacade::execute(__METHOD__, $metaDescription, func_get_args());
     }
 
-    public function matchPriorityMetaDescription($pageMetaDescription, $seoFilterPatternMetaDescription, $filterAutoMetaMetaDescription, $categoryMetaDescription)
+    public function matchPriorityMetaDescription($pageMetaDescription, $seoFilterPatternMetaDescription, $filterAutoMetaMetaDescription, $categoryMetaDescription): string
     {
         if ($pageMetaDescription) {
             $metaDescription = $pageMetaDescription;
@@ -212,7 +212,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         } elseif (!empty($filterAutoMetaMetaDescription)) {
             $metaDescription = $categoryMetaDescription . ' ' . $filterAutoMetaMetaDescription;
         } else {
-            $metaDescription = $categoryMetaDescription;
+            $metaDescription = (string)$categoryMetaDescription;
         }
 
         return ExtenderFacade::execute(__METHOD__, $metaDescription, func_get_args());
@@ -284,7 +284,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    protected function getParts() : array
+    protected function getParts(): array
     {
 
         if (!empty($this->parts)) {
