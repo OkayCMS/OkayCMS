@@ -8,11 +8,8 @@ use Okay\Admin\Helpers\BackendExportHelper;
 use Okay\Admin\Helpers\BackendImportHelper;
 use Okay\Admin\Helpers\BackendOrdersHelper;
 use Okay\Admin\Requests\BackendProductsRequest;
-use Okay\Core\EntityFactory;
 use Okay\Core\Modules\AbstractInit;
 use Okay\Core\Modules\EntityField;
-use Okay\Core\ServiceLocator;
-use Okay\Core\Settings;
 use Okay\Entities\PaymentsEntity;
 use Okay\Entities\VariantsEntity;
 use Okay\Helpers\CartHelper;
@@ -71,7 +68,6 @@ class Init extends AbstractInit
 
         $this->registerEntityField(VariantsEntity::class, self::VOLUME_FIELD);
         $this->registerEntityField(PaymentsEntity::class, self::CASH_ON_DELIVERY);
-        $this->registerEntityField(NPWarehousesEntity::class, 'type');
         
         $this->addPermission('okaycms__novaposhta_cost');
 
@@ -136,34 +132,5 @@ class Init extends AbstractInit
         
         $this->registerBackendController('NovaposhtaCostAdmin');
         $this->addBackendControllerPermission('NovaposhtaCostAdmin', 'okaycms__novaposhta_cost');
-    }
-
-    public function update_1_1_0()
-    {
-        $this->migrateEntityField(NPWarehousesEntity::class, (new EntityField('type'))->setTypeVarchar(100, true)->setDefault(''));
-        
-        $defaultWarehouseTypes = [
-            '841339c7-591a-42e2-8233-7a0a00f0ed6f',
-            '9a68df70-0267-42a8-bb5c-37f427e36ee4'
-        ];
-
-        $SL = ServiceLocator::getInstance();
-        $settings = $SL->getService(Settings::class);
-        $entityFactory = $SL->getService(EntityFactory::class);
-        
-        $settings->set('np_warehouses_types', $defaultWarehouseTypes);
-        
-        $warehousesTypesData = (array)json_decode(file_get_contents(dirname(__FILE__,2).'/tempData/typeData.json'));
-        
-        /** @var NPWarehousesEntity $warehousesEntity */
-        $warehousesEntity = $entityFactory->get(NPWarehousesEntity::class);
-
-        $warehouses = $warehousesEntity->mappedBy('ref')->noLimit()->find();
-        foreach ($warehouses as $ref => $warehouse) {
-            if(isset($warehousesTypesData[$ref])){
-                $warehousesEntity->update((int)$warehouse->id,['type' => $warehousesTypesData[$ref]]); 
-            } 
-        }
-        $warehousesEntity->removeRedundant();
     }
 }

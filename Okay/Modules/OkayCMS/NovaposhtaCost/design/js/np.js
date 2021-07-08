@@ -14,6 +14,80 @@ const configParamsObj = {
     }
 };
 
+
+
+$('.fn_fast_np_cities_btn input').on('click', function () {
+    let name = $(this).val();
+    let ref = $(this).data('selectable')
+
+
+    let active_delivery = $('input[name="delivery_id"]:checked')
+    let delivery_block = active_delivery.closest('.delivery__item');
+    let warehouse_ref = delivery_block.find('input[name="novaposhta_delivery_warehouse_id"]').val();
+    let price_elem = delivery_block.find('.fn_delivery_price');
+    let term_elem = delivery_block.find('.term_novaposhta span');
+    let warehouses_block = delivery_block.find('.warehouses_novaposhta');
+
+    let redelivery = 0;
+
+    if (delivery_block.find('input[name="novaposhta_redelivery"]').is(':checked')) {
+        redelivery = delivery_block.find('input[name="novaposhta_redelivery"]').val();
+    }
+
+    delivery_block.find('input[name="novaposhta_delivery_price"]').val('');
+    delivery_block.find('input[name="novaposhta_delivery_term"]').val('');
+
+
+    let delivery_id = active_delivery.val();
+
+
+    $('.city_novaposhta').val(name);
+    $('.form__placeholder').html('');
+    $.ajax({
+        url: okay.router['OkayCMS_NovaposhtaCost_calc'],
+        data: {city: ref, redelivery: redelivery, warehouse: warehouse_ref, delivery_id: delivery_id},
+        dataType: 'json',
+        success: function (data) {
+            if (data.price_response.success) {
+                price_elem.text(data.price_response.price_formatted);
+                delivery_block.find('input[name="novaposhta_delivery_price"]').val(data.price_response.price);
+                delivery_block.find('input[name="delivery_id"]').data('total_price', data.price_response.cart_total_price)
+                    .data('delivery_price', data.price_response.price);
+
+                okay.change_payment_method();
+            }
+
+            if (data.term_response.success) {
+                delivery_block.find('input[name="novaposhta_delivery_term"]').val(data.term_response.term);
+                term_elem.text(data.term_response.term);
+                term_elem.parent().show();
+            } else {
+                term_elem.parent().hide();
+            }
+            if (data.warehouses_response.success) {
+                warehouses_block.show();
+                selected_whref = $('.fn_select_warehouses_novaposhta').find(':selected').attr('data-warehouse_ref');
+                if (!$('.fn_select_warehouses_novaposhta').find(':selected').val() || data.warehouses_response.warehouses.indexOf(selected_whref) == -1) {
+                    warehouses_block.find('.fn_select_warehouses_novaposhta')
+                        .html(data.warehouses_response.warehouses)
+                        .attr('disabled', false)
+                        .select2(whsParams);
+                }
+            } else {
+                warehouses_block.hide();
+                warehouses_block.find('.fn_select_warehouses_novaposhta')
+                    .html('')
+                    .attr('disabled', true);
+            }
+
+            update_np_payments();
+        }
+
+
+    })
+});
+
+
 const whsParams = {
     matcher: function (params, data) {
         if ($.trim(params.term) === '') {
@@ -87,8 +161,7 @@ $( ".fn_delivery_novaposhta input.city_novaposhta_for_door" ).devbridgeAutocompl
         delivery_block.find('input[name=novaposhta_area_name]').val(suggestion.area);
         delivery_block.find('input[name=novaposhta_region_name]').val(suggestion.region);
         setDoorAddress();
-       // if (suggestion.streets_availability) { Новая Почта перестала присылать корректный параметр у некоторых городов
-        if (true) {
+        if (suggestion.streets_availability) {
             $(".fn_delivery_novaposhta input.fn_street").devbridgeAutocomplete({
                 serviceUrl: okay.router['OkayCMS_NovaposhtaCost_find_street'] + "?city_ref=" + suggestion.ref,
                 minChars:1,

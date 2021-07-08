@@ -1,10 +1,5 @@
 <?php
 
-$lang['np_update_all'] = 'Update all cache now';
-$lang['np_update'] = 'Update ';
-$lang['np_warehouses_data_info'] = 'Warehouses data';
-$lang['np_warehouses_data_description'] = 'Select which points of delivery will be available to the customer when choosing a delivery method. </br> The types of points that are not selected will be removed from the site with further updates.';
-$lang['np_warehouses_data_update_warning'] = 'Updating all points of issue at the same time can cause a heavy load on the server, which may prevent the data from being updated. If this happens to you, update the data on points of issue in parts, choosing specific categories of points of issue';
 $lang['left_setting_np_title'] = 'New Mail';
 $lang['settings_np'] = 'New Mail Settings';
 $lang['settings_np_key'] = 'New Mail API Key';
@@ -35,7 +30,7 @@ $lang['settings_np_np_auto_update_data_title'] = 'The cache is updated at the mo
 $lang['settings_np_cache_lifetime'] = 'Auto cache lifetime (s)';
 $lang['settings_np_last_update_cities'] = 'Date of update of the cache of cities';
 $lang['settings_np_last_update_warehouses'] = 'Date of update of the cache of points of issue';
-$lang['np_update_cache_now'] = 'Refresh';
+$lang['np_update_cache_now'] = 'Refresh cache now';
 $lang['settings_np__description'] = 'The New Mail module allows you to select a city and branch in the basket and show the cost';
 $lang['settings_np_options'] = 'Parameters';
 $lang['tooltip_settings_np_api'] = 'You can get the API key in your account on the New Mail website';
@@ -49,3 +44,5 @@ $lang['np_cron_update_cache_1'] = 'In order for the data to be updated automatic
 $lang['np_cron_update_cache_2'] = 'and the data will be updated automatically. We recommend setting up data updates once a day.';
 $lang['settings_np_include_volume'] = 'Include in the calculation of the cost of delivery the volume of cargo.';
 $lang['settings_np_include_assessed'] = 'Include estimated cost in shipping costs';
+$lang['np_changes_city'] = 'Selected cities';
+$lang['np_city_on_btn'] = 'Cities by buttons';

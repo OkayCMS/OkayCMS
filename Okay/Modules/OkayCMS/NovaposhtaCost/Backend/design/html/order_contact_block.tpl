@@ -4,25 +4,25 @@
     {if $delivery->settings['service_type'] == 'DoorsDoors' || $delivery->settings['service_type'] == 'WarehouseDoors'}
         <div class="mb-1">
             <div class="heading_label">{$btr->order_np_city}</div>
-            <input type="text" name="novaposhta_city" class="fn_newpost_city_name form-control" autocomplete="off" value="{$novaposhta_delivery_data->city_name|escape}">
+            <input type="text" name="novaposhta_city" class="fn_newpost_city_name form-control" autocomplete="off" value="{$novaposhta_delivery_data->city_name}">
         </div>
         <div class="mb-1">
             <div class="heading_label">{$btr->order_np_street}</div>
-            <input type="text" name="novaposhta_street" class="fn_newpost_street form-control" autocomplete="off" value="{$novaposhta_delivery_data->street|escape}">
+            <input type="text" name="novaposhta_street" class="fn_newpost_street form-control" autocomplete="off" value="{$novaposhta_delivery_data->street}">
         </div>
         <div class="mb-1">
             <div class="heading_label">{$btr->order_np_house}</div>
-            <input type="text" name="novaposhta_house" class="form-control" autocomplete="off" value="{$novaposhta_delivery_data->house|escape}">
+            <input type="text" name="novaposhta_house" class="form-control" autocomplete="off" value="{$novaposhta_delivery_data->house}">
         </div>
         <div class="mb-1">
             <div class="heading_label">{$btr->order_np_apartment}</div>
-            <input type="text" name="novaposhta_apartment" class="form-control" autocomplete="off" value="{$novaposhta_delivery_data->apartment|escape}">
+            <input type="text" name="novaposhta_apartment" class="form-control" autocomplete="off" value="{$novaposhta_delivery_data->apartment}">
         </div>
 
-        <input name="novaposhta_city_name" class="fn_np_clear" type="hidden" value="{$novaposhta_delivery_data->city_name|escape}"/>
-        <input name="novaposhta_area_name" class="fn_np_clear" type="hidden" value="{$novaposhta_delivery_data->area_name|escape}"/>
-        <input name="novaposhta_region_name" class="fn_np_clear" type="hidden" value="{$novaposhta_delivery_data->region_name|escape}"/>
-        <input name="novaposhta_street_name" class="fn_np_clear" type="hidden" value="{$novaposhta_delivery_data->street|escape}"/>
+        <input name="novaposhta_city_name" class="fn_np_clear" type="hidden" value="{$novaposhta_delivery_data->city_name}"/>
+        <input name="novaposhta_area_name" class="fn_np_clear" type="hidden" value="{$novaposhta_delivery_data->area_name}"/>
+        <input name="novaposhta_region_name" class="fn_np_clear" type="hidden" value="{$novaposhta_delivery_data->region_name}"/>
+        <input name="novaposhta_street_name" class="fn_np_clear" type="hidden" value="{$novaposhta_delivery_data->street}"/>
 
         <input name="novaposhta_door_delivery" type="hidden" value="1"/>
         
@@ -49,7 +49,7 @@
     </div>
     <div class="mb-1">
         <div class="heading_label">
-            <span class="fn_np_term"{if !$novaposhta_delivery_data->delivery_term} style="display: none;"{/if}>{$btr->order_np_term}: <span>{$novaposhta_delivery_data->delivery_term|escape}</span></span>
+            <span class="fn_np_term"{if !$novaposhta_delivery_data->delivery_term} style="display: none;"{/if}>{$btr->order_np_term}: <span>{$novaposhta_delivery_data->delivery_term}</span></span>
             <a href="#" class="fn_np_recalc_price">{$btr->order_np_calc}</a>
         </div>
     </div>
@@ -218,7 +218,7 @@
     
     {/literal}
     {if !empty($novaposhta_delivery_data->city_id)}
-    showWarehouses('{$novaposhta_delivery_data->city_id|escape}');
+    showWarehouses('{$novaposhta_delivery_data->city_id}');
     {/if}
     {literal}
     

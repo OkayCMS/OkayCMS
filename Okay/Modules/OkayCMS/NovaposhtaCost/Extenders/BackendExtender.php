@@ -75,9 +75,7 @@ class BackendExtender implements ExtensionInterface
             
             /** @var NPCostDeliveryDataEntity $npDdEntity */
             $npDdEntity = $this->entityFactory->get(NPCostDeliveryDataEntity::class);
-            if (!$npDeliveryData = $npDdEntity->getByOrderId($order->id)) {
-                $npDeliveryData = new \stdClass();
-            }
+            $npDeliveryData = $npDdEntity->getByOrderId($order->id);
             
             if (!empty($order->delivery_id)) {
                 /** @var DeliveriesEntity $deliveryEntity */
