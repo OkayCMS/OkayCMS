@@ -360,7 +360,7 @@
                                         </div>
                                         <div class="okay_list_boding variants_item_amount">
                                             <div class="heading_label">{$btr->general_qty|escape}</div>
-                                            <input class="variant_input" name="variants[stock][]" type="text" value="{if $variant->infinity || $variant->stock == ''}∞{else}{$variant->stock|escape}{/if}"/>
+                                            <input class="variant_input" name="variants[stock][]" type="text" value="{if $variant->infinity}∞{else}{$variant->stock|escape}{/if}"/>
                                         </div>
                                         <div class="okay_list_boding variants_item_units">
                                             <div class="heading_label">{$btr->products_variant_units|escape}</div>
