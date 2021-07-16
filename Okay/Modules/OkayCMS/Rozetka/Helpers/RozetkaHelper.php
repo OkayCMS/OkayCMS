@@ -236,15 +236,13 @@ class RozetkaHelper
 
         if (!empty($product->features)) {
             foreach ($product->features as $feature) {
-                foreach ($feature['values'] as $value) {
-                    $result[] = [
-                        'data' => $this->feedHelper->escape($value),
-                        'tag' => 'param',
-                        'attributes' => [
-                            'name' => $this->feedHelper->escape($feature['name']),
-                        ],
-                    ];
-                }
+                $result[] = [
+                    'data' => $this->feedHelper->escape($feature['values_string']),
+                    'tag' => 'param',
+                    'attributes' => [
+                        'name' => $this->feedHelper->escape($feature['name']),
+                    ],
+                ];
             }
         }
 
