@@ -269,7 +269,7 @@
                                                                                     <td>
                                                                                         <a href="{url_generator route='product' url=$purchase->product->url absolute=1}" style="font-family: 'Trebuchet MS';font-size: 16px;color: #222;text-decoration: none;line-height: normal;">{$purchase->product_name|escape}</a><br />
                                                                                         <span class="es-p5t"><em><span style="color: rgb(128, 128, 128); font-size: 12px;">{$purchase->variant_name|escape}</span></em></span>
-                                                                                        {if $purchase->variant->stock == 0}
+                                                                                        {if !$order->closed && $purchase->variant->stock == 0}
                                                                                         <div class="es-p5t" style="color: #000; font-size: 12px;font-weight: 600">{$lang->product_pre_order}</div>
                                                                                         {/if}
                                                                                         {get_design_block block="front_email_order_user_purchase_name" vars=['purchase' => $purchase]}
