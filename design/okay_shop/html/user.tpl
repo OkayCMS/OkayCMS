@@ -249,7 +249,7 @@
                                                             <div class="purchase__name">
                                                                 <a class="purchase__name_link" href="{url_generator route="product" url=$purchase->product->url}">{$purchase->product_name|escape}</a>
                                                                 <i>{$purchase->variant_name|escape}</i>
-                                                                {if $purchase->variant->stock == 0}<span class="preorder_label">{$lang->product_pre_order}</span>{/if}
+                                                                {if !$order->closed && $purchase->variant->stock == 0}<span class="preorder_label">{$lang->product_pre_order}</span>{/if}
                     
                                                             </div>
                                                             <div class="purchase__group">
