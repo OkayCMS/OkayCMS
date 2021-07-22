@@ -508,7 +508,6 @@ class ImportProducts extends AbstractImport
             $param = "features_" . $featureGuid;
             if ($this->integration1C->getFromStorage($param) !== null) {
                 $featureId = $this->integration1C->getFromStorage($param);
-
                 if (isset($mainCategoryId) && !empty($featureId)) {
                     $featuresEntity->addFeatureCategory($featureId, $mainCategoryId);
 
@@ -517,7 +516,6 @@ class ImportProducts extends AbstractImport
             } elseif (!empty($featureGuid) && ($featureId = $featuresEntity->col('id')->findOne(['external_id' => $featureGuid]))) {
                 if (isset($mainCategoryId) && !empty($featureId)) {
                     $featuresEntity->addFeatureCategory($featureId, $mainCategoryId);
-
                     $this->importProductFeatureValues($xml_option, $featureId, $productId);
                 }
             }
@@ -580,18 +578,39 @@ class ImportProducts extends AbstractImport
         $insert = $this->integration1C->queryFactory->newInsert();
         $insert->into('__products_features_values')
             ->ignore(true);
-
         foreach ($xml_option->Значение as $xmlValue) {
             if (($xmlValue = strval($xmlValue)) === '') {
                 continue;
             }
-            $param = "features_values_".$featureId."_".$xmlValue;
-            if ($this->integration1C->getFromStorage($param) !== null) {
-                $valueId = $this->integration1C->getFromStorage($param);
+
+            if(stripos(strval($xmlValue), ',,') !== false) {
+                $feature_values = explode(',,', $xmlValue);
+                foreach ($feature_values as $value){
+                    $param_v = "features_values_".$featureId."_".$value;
+                    if ($this->integration1C->getFromStorage($param_v) !== null) {
+                        $valueId = $this->integration1C->getFromStorage($param_v);
+                        $rows[] = [
+                            'product_id'     => $productId,
+                            'value_id'   => $valueId
+                        ];
+                    } else {
+                        $valueId = $this->getFeatureValueId($featureId, $value);
+                        $rows[] = [
+                            'product_id'     => $productId,
+                            'value_id'   => $valueId
+                        ];
+                    }
+                }
+                $insert->addRows($rows);
             } else {
-                $valueId = $this->getFeatureValueId($featureId, $xmlValue);
+                $param = "features_values_" . $featureId . "_" . $xmlValue;
+                if ($this->integration1C->getFromStorage($param) !== null) {
+                    $valueId = $this->integration1C->getFromStorage($param);
+                } else {
+                    $valueId = $this->getFeatureValueId($featureId, $xmlValue);
+                }
+                $insert->addRow(['product_id' => $productId, 'value_id' => $valueId]);
             }
-            $insert->addRow(['product_id' => $productId, 'value_id' => $valueId]);
         }
 
         if (!empty($insert->getBindValues())) {
