@@ -707,6 +707,11 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
             ]);
         }
 
+        $c = 0;
+        foreach ($filter['features'] as $f) {
+            $c += count($f);
+        }
+
         if (!empty($featuresValues)) {
 
             if (!empty($filter['visible'])) {
@@ -718,7 +723,7 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
                 ->cols(['DISTINCT(pf.product_id)'])
                 ->where('(' . implode(' OR ', $featuresValues) . ')')
                 ->join('LEFT', '__features_values AS fv', 'fv.id=pf.value_id')
-                ->having('COUNT(*) >=' . count($features))
+                ->having('COUNT(*) >=' . $c)
                 ->groupBy(['product_id']);
 
             $this->select->joinSubSelect(
