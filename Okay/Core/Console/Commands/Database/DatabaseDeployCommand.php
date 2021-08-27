@@ -69,7 +69,7 @@ class DatabaseDeployCommand extends Command
 
             $config->set('db_server', $server);
             $config->set('db_user', $user);
-            $config->set('db_password', $password);
+            $config->set('db_password', "\"{$password}\"");
             $config->set('db_name', $name);
         } else {
             $server = $config->get('db_server');
