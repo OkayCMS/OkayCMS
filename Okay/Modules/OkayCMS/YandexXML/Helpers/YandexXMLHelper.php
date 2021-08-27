@@ -277,4 +277,14 @@ class YandexXMLHelper
 
         return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
     }
+
+    /**
+     * Method allow to do something after print offers to stream
+     * For example you can to assign to design new variables (gifts/promos) and print it in footer
+     * @param object $feed
+     */
+    public function afterOffersMethod($feed)
+    {
+       ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
 }

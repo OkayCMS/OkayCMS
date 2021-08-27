@@ -96,7 +96,8 @@ class YandexXMLController extends AbstractController
             ]);
             $this->response->sendStream($xmlProduct);
         }
-
+        $yandexXMLHelper->afterOffersMethod($feed);
+        
         $this->response->sendStream($this->design->fetch('feed_footer.xml.tpl'));
     }
 }
