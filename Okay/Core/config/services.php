@@ -6,6 +6,7 @@ namespace Okay\Core;
 
 use Monolog\Handler\ChromePHPHandler;
 use Monolog\Handler\RotatingFileHandler;
+use Okay\Core\Console\Application AS ConsoleApplication;
 use Okay\Core\Entity\UrlUniqueValidator;
 use Okay\Core\Modules\ModuleDesign;
 use Okay\Core\Modules\ModulesEntitiesFilters;
@@ -494,6 +495,11 @@ $services = [
         'class' => Discounts::class,
         'arguments' => [
             new SR(EntityFactory::class),
+        ]
+    ],
+    ConsoleApplication::class => [
+        'class' => ConsoleApplication::class,
+        'arguments' => [
         ]
     ],
 ];
