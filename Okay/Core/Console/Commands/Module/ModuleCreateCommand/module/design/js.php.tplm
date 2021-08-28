@@ -1,0 +1,6 @@
+<?php
+
+use Okay\Core\TemplateConfig\Js;
+
+return [
+];

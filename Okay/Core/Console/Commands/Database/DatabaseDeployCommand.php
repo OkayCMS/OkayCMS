@@ -17,8 +17,7 @@ use Symfony\Component\Console\Question\Question;
 class DatabaseDeployCommand extends Command
 {
     protected static $defaultName = 'database:deploy';
-
-    protected static $defaultDescription = 'Deploying a clean database.';
+    protected static $defaultDescription = 'Deploys a clean database.';
 
     protected function configure(): void
     {
@@ -33,7 +32,7 @@ class DatabaseDeployCommand extends Command
             );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $serviceLocator = ServiceLocator::getInstance();
 
@@ -98,7 +97,7 @@ class DatabaseDeployCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function restore($pdo, $filename)
+    private function restore(ExtendedPdo $pdo, string $filename): void
     {
         $migration = fopen($filename, 'r');
         if(empty($migration)) {
@@ -129,12 +128,12 @@ class DatabaseDeployCommand extends Command
         fclose($migration);
     }
 
-    private function isComment($line)
+    private function isComment(string $line): string
     {
         return substr($line, 0, 2) == '--';
     }
 
-    private function isQueryEnd($line)
+    private function isQueryEnd(string $line): string
     {
         return substr(trim($line), -1, 1) == ';';
     }
