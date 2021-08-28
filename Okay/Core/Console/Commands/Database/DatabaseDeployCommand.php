@@ -56,13 +56,18 @@ class DatabaseDeployCommand extends Command
             return Command::FAILURE;
         }
 
+        $server = $config->get('db_server');
+        $user = $config->get('db_user');
+        $password = $config->get('db_password');
+        $name = $config->get('db_name');
+        $driver = $config->get('db_driver');
+        $charset = $config->get('db_charset');
+
         if ($questionHelper->ask($input, $output, new ConfirmationQuestion('Set new credentials for database? ', false))) {
-            $server = $questionHelper->ask($input, $output, new Question('Enter database SERVER: ', false));
-            $user = $questionHelper->ask($input, $output, new Question('Enter database USER: ', false));
-            $password = $questionHelper->ask($input, $output, new Question('Enter database PASSWORD: ', false));
-            $name = $questionHelper->ask($input, $output, new Question('Enter database NAME: ', false));
-            $driver = $config->get('db_driver');
-            $charset = $config->get('db_charset');
+            $server = $questionHelper->ask($input, $output, new Question("Enter database SERVER({$server}): ", $server));
+            $user = $questionHelper->ask($input, $output, new Question("Enter database USER({$user}): ", $user));
+            $password = $questionHelper->ask($input, $output, new Question("Enter database PASSWORD({$password}): ", $password));
+            $name = $questionHelper->ask($input, $output, new Question("Enter database NAME({$name}): ", $name));
 
             $pdo = new ExtendedPdo("{$driver}:host={$server};dbname={$name};charset={$charset}", $user, $password);
             $pdo->connect();
@@ -72,13 +77,6 @@ class DatabaseDeployCommand extends Command
             $config->set('db_password', "\"{$password}\"");
             $config->set('db_name', $name);
         } else {
-            $server = $config->get('db_server');
-            $user = $config->get('db_user');
-            $password = $config->get('db_password');
-            $name = $config->get('db_name');
-            $driver = $config->get('db_driver');
-            $charset = $config->get('db_charset');
-
             $pdo = new ExtendedPdo("{$driver}:host={$server};dbname={$name};charset={$charset}", $user, $password);
             $pdo->connect();
         }

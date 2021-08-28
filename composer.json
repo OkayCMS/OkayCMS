@@ -62,7 +62,7 @@
     "scripts": {
         "post-create-project-cmd": [
             "@php -r \"file_exists('./config/config.local.php') || copy('./config/config.php', './config/config.local.php');\"",
-            "@php okay database:deploy"
+            "@php ok database:deploy"
         ]
     },
     "minimum-stability": "dev",
