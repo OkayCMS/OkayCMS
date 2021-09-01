@@ -3,25 +3,11 @@
 namespace Okay\Core\Console\Commands\Module;
 
 use Okay\Core\Console\Command;
-use Symfony\Component\Console\Helper\QuestionHelper;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ChoiceQuestion;
-use Symfony\Component\Console\Question\Question;
 
 class ModuleCreateCommand extends Command
 {
     protected static $defaultName = 'module:create';
     protected static $defaultDescription = 'Creates a file structure for a new module.';
-
-    /** @var QuestionHelper */
-    private $questionHelper;
-
-    /** @var InputInterface */
-    private $input;
-
-    /** @var OutputInterface */
-    private $output;
 
     private $modulesDirectory;
 
@@ -32,12 +18,8 @@ class ModuleCreateCommand extends Command
         $this->modulesDirectory = dirname(__DIR__, 4).'/Modules';
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    protected function handle(): int
     {
-        $this->questionHelper = $this->getHelper('question');
-        $this->input = $input;
-        $this->output = $output;
-
         $vendor = $this->getVendorName();
         $module = $this->getModuleName($vendor);
 
@@ -54,11 +36,11 @@ class ModuleCreateCommand extends Command
         array_unshift($selectOptions, '');
         unset($selectOptions[0]);
 
-        $vendor = $this->questionHelper->ask($this->input, $this->output, new ChoiceQuestion('Select vendor:', $selectOptions));
+        $vendor = $this->askChoice('Select vendor:', $selectOptions);
 
         if ($vendor === '[Create new]') {
             do {
-                $vendor = $this->questionHelper->ask($this->input, $this->output, new Question('Enter vendor name: ', false));
+                $vendor = $this->ask('Enter vendor name: ', false);
                 if (!$vendor) {
                     $this->output->writeln('<error>Please enter module name<error>');
                 }
@@ -88,7 +70,7 @@ class ModuleCreateCommand extends Command
         }
 
         do {
-            $module = $this->questionHelper->ask($this->input, $this->output, new Question('Enter module name: ', false));
+            $module = $this->ask('Enter module name: ', false);
             if (!$module) {
                 $this->output->writeln('<error>Please enter module name<error>');
             }
