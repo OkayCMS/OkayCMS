@@ -5,12 +5,14 @@ namespace Okay\Core\Console;
 
 
 use Okay\Core\Console\Commands\Database\DatabaseDeployCommand;
+use Okay\Core\Console\Commands\Module\ModuleCreateCommand;
 use Symfony\Component\Console\Application AS SymfonyApplication;
 
 class Application extends SymfonyApplication
 {
     private $commands = [
         DatabaseDeployCommand::class,
+        ModuleCreateCommand::class,
     ];
 
     public function __construct()

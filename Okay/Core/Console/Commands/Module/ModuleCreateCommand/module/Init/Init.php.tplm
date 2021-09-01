@@ -1,0 +1,24 @@
+<?php
+
+
+namespace Okay\Modules\%namespace_vendor%\%namespace_module%\Init;
+
+
+use Okay\Core\Modules\AbstractInit;
+
+class Init extends AbstractInit
+{
+    const PERMISSION = '%permission%';
+
+    public function install()
+    {
+        $this->setBackendMainController('ModuleAdmin');
+    }
+
+    public function init()
+    {
+        $this->addPermission(self::PERMISSION);
+        $this->registerBackendController('ModuleAdmin');
+        $this->addBackendControllerPermission('ModuleAdmin', self::PERMISSION);
+    }
+}
