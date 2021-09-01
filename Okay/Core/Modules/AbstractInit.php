@@ -29,89 +29,40 @@ abstract class AbstractInit
         MODULE_TYPE_XML,
     ];
 
-    /**
-     * @var EntityFactory
-     */
+    /** @var EntityFactory */
     private $entityFactory;
 
-    /**
-     * @var Module
-     */
+    /** @var Module */
     private $module;
     
-    /**
-     * @var Modules
-     */
-    private $modules;
-    
-    /**
-     * @var Managers
-     */
+    /** @var Managers */
     private $managers;
     
-    /**
-     * @var Database
-     */
-    private $db;
-
-    /**
-     * @var QueryFactory
-     */
-    private $queryFactory;
-    
-    /**
-     * @var ModulesEntitiesFilters
-     */
+    /** @var ModulesEntitiesFilters */
     private $entitiesFilters;
 
-    /**
-     * @var EntityMigrator
-     */
+    /** @var EntityMigrator */
     private $entityMigrator;
 
-    /**
-     * @var UpdateObject
-     */
+    /** @var UpdateObject */
     private $updateObject;
 
-    /**
-     * @var ExtenderFacade
-     */
+    /** @var ExtenderFacade */
     private $extenderFacade;
 
-    /**
-     * @var ManagerMenu
-     */
+    /** @var ManagerMenu */
     private $managerMenu;
 
-    /**
-     * @var Image
-     */
+    /** @var Image */
     private $image;
 
-    /**
-     * @var FrontTemplateConfig
-     */
+    /** @var FrontTemplateConfig */
     private $frontTemplateConfig;
 
-    /**
-     * @var Design
-     */
-    private $design;
-
-    /**
-     * @var Config
-     */
-    private $config;
-
-    /**
-     * @var Discounts
-     */
+    /** @var Discounts */
     private $discounts;
 
-    /**
-     * @var int id модуля в базе
-     */
+    /** @var int id модуля в базе */
     private $moduleId;
     private $vendor;
     private $moduleName;
@@ -125,26 +76,21 @@ abstract class AbstractInit
             throw new \Exception('"$moduleId" must be integer');
         }
         
-        $serviceLocator        = ServiceLocator::getInstance();
-        $this->entityFactory   = $serviceLocator->getService(EntityFactory::class);
-        $this->queryFactory    = $serviceLocator->getService(QueryFactory::class);
-        $this->entityMigrator  = $serviceLocator->getService(EntityMigrator::class);
-        $this->module          = $serviceLocator->getService(Module::class);
-        $this->modules         = $serviceLocator->getService(Modules::class);
-        $this->managers        = $serviceLocator->getService(Managers::class);
-        $this->db              = $serviceLocator->getService(Database::class);
-        $this->entitiesFilters = $serviceLocator->getService(ModulesEntitiesFilters::class);
-        $this->updateObject    = $serviceLocator->getService(UpdateObject::class);
-        $this->extenderFacade  = $serviceLocator->getService(ExtenderFacade::class);
-        $this->managerMenu     = $serviceLocator->getService(ManagerMenu::class);
-        $this->image           = $serviceLocator->getService(Image::class);
+        $serviceLocator            = ServiceLocator::getInstance();
+        $this->entityFactory       = $serviceLocator->getService(EntityFactory::class);
+        $this->entityMigrator      = $serviceLocator->getService(EntityMigrator::class);
+        $this->module              = $serviceLocator->getService(Module::class);
+        $this->managers            = $serviceLocator->getService(Managers::class);
+        $this->entitiesFilters     = $serviceLocator->getService(ModulesEntitiesFilters::class);
+        $this->updateObject        = $serviceLocator->getService(UpdateObject::class);
+        $this->extenderFacade      = $serviceLocator->getService(ExtenderFacade::class);
+        $this->managerMenu         = $serviceLocator->getService(ManagerMenu::class);
+        $this->image               = $serviceLocator->getService(Image::class);
         $this->frontTemplateConfig = $serviceLocator->getService(FrontTemplateConfig::class);
-        $this->design          = $serviceLocator->getService(Design::class);
-        $this->config          = $serviceLocator->getService(Config::class);
-        $this->discounts       = $serviceLocator->getService(Discounts::class);
-        $this->moduleId        = $moduleId;
-        $this->vendor          = $vendor;
-        $this->moduleName      = $moduleName;
+        $this->discounts           = $serviceLocator->getService(Discounts::class);
+        $this->moduleId            = $moduleId;
+        $this->vendor              = $vendor;
+        $this->moduleName          = $moduleName;
     }
 
     /**
@@ -594,11 +540,27 @@ abstract class AbstractInit
         $designBlocks->registerBlock($blockName, $blockTplFile, $callback);
     }
 
+    /**
+     * Регистрация скидки для товара в заказе
+     *
+     * @param string $sign
+     * @param string $name
+     * @param string $description
+     * @throws \Exception
+     */
     public function registerPurchaseDiscountSign($sign, $name, $description)
     {
         $this->discounts->registerPurchaseSign($sign, $name, $description);
     }
 
+    /**
+     * Регистрация скидки для всего заказа
+     *
+     * @param string $sign
+     * @param string $name
+     * @param string $description
+     * @throws \Exception
+     */
     public function registerCartDiscountSign($sign, $name, $description)
     {
         $this->discounts->registerCartSign($sign, $name, $description);
