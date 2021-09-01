@@ -65,9 +65,9 @@ class ModuleCreateCommand extends Command
 
                 $vendor = $this->formatCamelCase($vendor);
 
-                $valid = preg_match('/^[a-zA-Z0-9]*$/', $vendor);
+                $valid = preg_match('/^[A-Z][a-zA-Z0-9]*$/', $vendor);
                 if (!$valid) {
-                    $this->output->writeln('<error>The name is invalid. Please use only (a-Z, 0-9)<error>');
+                    $this->output->writeln('<error>The name is invalid. Please use only [a-Z, 0-9], first character must be letter.<error>');
                 }
 
                 $exist = array_search(strtolower($vendor), array_map('strtolower', $vendors));
@@ -95,9 +95,9 @@ class ModuleCreateCommand extends Command
 
             $module = $this->formatCamelCase($module, 'camel');
 
-            $valid = preg_match('/^[a-zA-Z0-9]*$/', $module);
+            $valid = preg_match('/^[A-Z][a-zA-Z0-9]*$/', $module);
             if (!$valid) {
-                $this->output->writeln('<error>The name is invalid. Please use only (a-Z, 0-9)<error>');
+                $this->output->writeln('<error>The name is invalid. Please use only [a-Z, 0-9], first character must be letter.<error>');
             }
 
             $exist = array_search(strtolower($module), array_map('strtolower', $modules));
