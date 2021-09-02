@@ -5,21 +5,19 @@ namespace Okay\Core\Modules;
 
 
 use Okay\Admin\Controllers\IndexAdmin;
-use Okay\Core\Config;
-use Okay\Core\Design;
 use Okay\Core\DesignBlocks;
-use Okay\Core\Database;
 use Okay\Core\Discounts;
 use Okay\Core\Entity\Entity;
 use Okay\Core\EntityFactory;
 use Okay\Core\Image;
 use Okay\Core\Managers;
-use Okay\Core\QueryFactory;
+use Okay\Core\Scheduler\Scheduler;
 use Okay\Core\ServiceLocator;
 use Okay\Core\TemplateConfig\FrontTemplateConfig;
 use Okay\Entities\ModulesEntity;
 use Okay\Core\ManagerMenu;
 use Okay\Core\Modules\Extender\ExtenderFacade;
+use Psr\Log\LoggerInterface;
 
 abstract class AbstractInit
 {
@@ -62,6 +60,9 @@ abstract class AbstractInit
     /** @var Discounts */
     private $discounts;
 
+    /** @var Scheduler */
+    private $scheduler;
+
     /** @var int id модуля в базе */
     private $moduleId;
     private $vendor;
@@ -88,6 +89,7 @@ abstract class AbstractInit
         $this->image               = $serviceLocator->getService(Image::class);
         $this->frontTemplateConfig = $serviceLocator->getService(FrontTemplateConfig::class);
         $this->discounts           = $serviceLocator->getService(Discounts::class);
+        $this->scheduler           = $serviceLocator->getService(Scheduler::class);
         $this->moduleId            = $moduleId;
         $this->vendor              = $vendor;
         $this->moduleName          = $moduleName;
@@ -548,7 +550,7 @@ abstract class AbstractInit
      * @param string $description
      * @throws \Exception
      */
-    public function registerPurchaseDiscountSign($sign, $name, $description)
+    public function registerPurchaseDiscountSign(string $sign, string $name, string $description)
     {
         $this->discounts->registerPurchaseSign($sign, $name, $description);
     }
@@ -561,8 +563,20 @@ abstract class AbstractInit
      * @param string $description
      * @throws \Exception
      */
-    public function registerCartDiscountSign($sign, $name, $description)
+    public function registerCartDiscountSign(string $sign, string $name, string $description)
     {
         $this->discounts->registerCartSign($sign, $name, $description);
+    }
+
+    /**
+     * Регистрация задачи для планировщика
+     *
+     * @param string $timePattern
+     * @param callable $callback
+     * @param string $comment
+     */
+    public function registerSchedulerTask(string $name, string $timePattern, $callback, string $comment = '', LoggerInterface $logger = null)
+    {
+        $this->scheduler->addTask($name, $timePattern, $callback, $comment, $logger);
     }
 }

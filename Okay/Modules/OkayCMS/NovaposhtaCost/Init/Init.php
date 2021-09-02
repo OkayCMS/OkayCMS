@@ -136,6 +136,13 @@ class Init extends AbstractInit
         
         $this->registerBackendController('NovaposhtaCostAdmin');
         $this->addBackendControllerPermission('NovaposhtaCostAdmin', 'okaycms__novaposhta_cost');
+
+        $this->registerSchedulerTask(
+            'okaycms__novaposhta_cost__parse_cities_to_cache',
+            '* * * * *',
+            'php '.dirname(__DIR__).'/cron/update_cache.php',
+            'Parses NP cities and warehouses to the db cache'
+        );
     }
 
     public function update_1_1_0()

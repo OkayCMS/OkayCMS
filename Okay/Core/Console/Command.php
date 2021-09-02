@@ -4,6 +4,7 @@
 namespace Okay\Core\Console;
 
 
+use Okay\Core\OkayContainer\MethodDI;
 use Okay\Core\ServiceLocator;
 use \Symfony\Component\Console\Command\Command AS SymfonyCommand;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -15,6 +16,8 @@ use Symfony\Component\Console\Question\Question;
 
 class Command extends SymfonyCommand
 {
+    use MethodDI;
+
     /** @var InputInterface */
     protected $input;
 
@@ -43,27 +46,7 @@ class Command extends SymfonyCommand
         if (!method_exists($this, 'handle')) {
             throw new \Exception("Command must implement method 'handle'.");
         }
-        return call_user_func_array([$this, 'handle'], $this->getHandleArguments());
-    }
-
-    private function getHandleArguments(): array
-    {
-        $reflectionMethod = new \ReflectionMethod($this, 'handle');
-
-        return array_reduce($reflectionMethod->getParameters(), function($arguments, $parameter) {
-            if (($type = $parameter->getType()) !== null) {
-                $typeName = $type->getName();
-                if ($this->serviceLocator->hasService($typeName)) {
-                    $arguments[] = $this->serviceLocator->getService($typeName);
-                } else {
-                    $arguments[] = new $typeName();
-                }
-            } else {
-                $arguments[] = null;
-            }
-
-            return $arguments;
-        }, []);
+        return call_user_func_array([$this, 'handle'], $this->getMethodArguments(new \ReflectionMethod($this, 'handle')));
     }
 
     protected function ask(string $question, $default = null)

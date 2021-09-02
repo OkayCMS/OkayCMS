@@ -12,9 +12,9 @@ use Okay\Core\Modules\ModuleDesign;
 use Okay\Core\Modules\ModulesEntitiesFilters;
 use Okay\Core\OkayContainer\Reference\ParameterReference as PR;
 use Okay\Core\OkayContainer\Reference\ServiceReference as SR;
-
 use Monolog\Logger;
 use Okay\Core\Routes\RouteFactory;
+use Okay\Core\Scheduler\Scheduler;
 use Okay\Core\TemplateConfig\BackendTemplateConfig;
 use Okay\Core\TemplateConfig\FrontTemplateConfig;
 use Okay\Helpers\MainHelper;
@@ -499,6 +499,11 @@ $services = [
     ],
     ConsoleApplication::class => [
         'class' => ConsoleApplication::class,
+        'arguments' => [
+        ]
+    ],
+    Scheduler::class => [
+        'class' => Scheduler::class,
         'arguments' => [
         ]
     ],
