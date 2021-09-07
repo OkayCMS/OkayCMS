@@ -34,6 +34,8 @@ class BrandMetadataHelper extends CommonMetadataHelper
             $h1 = $pageH1;
         } elseif (!empty($filterAutoMeta->h1)) {
             $h1 = $brand->name . ' ' . $filterAutoMeta->h1;
+        } elseif (!empty($brand->name_h1)) {
+            $h1 = (string)$brand->name_h1;
         } else {
             $h1 = (string)$brand->name;
         }
