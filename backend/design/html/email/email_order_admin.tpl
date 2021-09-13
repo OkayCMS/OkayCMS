@@ -132,6 +132,12 @@
                                                                         </span>
                                                                 </td>
                                                             </tr>
+                                                            {if $payment_method}
+                                                                <tr valign="top">
+                                                                    <td class="es-p5t es-p5b" width="180px"><span>{$btr->email_order_payment_method|escape}:</span></td>
+                                                                    <td class="es-p5t es-p5b"><span>{$payment_method->name}</span></td>
+                                                                </tr>
+                                                            {/if}
                                                             <tr valign="top">
                                                                 <td class="es-p5t es-p5b" width="180px"><span>{$btr->email_order_name|escape}:</span></td>
                                                                 <td class="es-p5t es-p5b"><span>{$order->name|escape} {$order->last_name|escape}</span></td>

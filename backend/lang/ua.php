@@ -748,6 +748,7 @@ $lang['email_order_discount'] = 'Знижка';
 $lang['email_order_coupon'] = 'Купон';
 $lang['email_order_total'] = 'Загалом';
 $lang['email_order_info'] = 'Детальніше';
+$lang['email_order_payment_method'] = 'Способ оплати';
 $lang['left_catalog'] = 'Каталог';
 $lang['left_products_title'] = 'Товари';
 $lang['left_categories_title'] = 'Категорії';

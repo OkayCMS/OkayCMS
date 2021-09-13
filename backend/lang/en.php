@@ -749,6 +749,7 @@ $lang['email_order_discount'] = 'Discount';
 $lang['email_order_coupon'] = 'Coupon';
 $lang['email_order_total'] = 'Total';
 $lang['email_order_info'] = 'Learn More';
+$lang['email_order_payment_method'] = 'Payment method';
 $lang['left_catalog'] = 'Catalog';
 $lang['left_products_title'] = 'Products';
 $lang['left_categories_title'] = 'Categories';
