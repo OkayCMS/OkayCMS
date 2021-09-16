@@ -30,11 +30,11 @@
                     </select>
                 </div>
                 {if $order->id && !empty($order->url)}
-                    <a data-hint="{$btr->general_open|escape}" class="hint-bottom-middle-t-info-s-small-mobile  hint-anim ml-h site_block_icon" target="_blank"  href="{url_generator route='order' url=$order->url absolute=1}" >
+                    <a data-hint="{$btr->general_open|escape}" class="hint-bottom-middle-t-info-s-small-mobile  hint-anim ml-h site_block_icon order_toolbar__eye" target="_blank"  href="{url_generator route='order' url=$order->url absolute=1}" >
                         {include file='svg_icon.tpl' svgId='eye'}
                     </a>
                 {/if}
-                <a data-hint="{$btr->order_print|escape}" href="{url view=print id=$order->id return=null}" target="_blank" title="{$btr->order_print|escape}" class="hint-bottom-middle-t-info-s-small-mobile  hint-anim ml-h print_block_icon">
+                <a data-hint="{$btr->order_print|escape}" href="{url view=print id=$order->id return=null}" target="_blank" title="{$btr->order_print|escape}" class="hint-bottom-middle-t-info-s-small-mobile  hint-anim ml-h print_block_icon order_toolbar__print">
                     {include file='svg_icon.tpl' svgId='print'}
                 </a>
                 {*Метки заказа*}
