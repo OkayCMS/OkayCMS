@@ -64,10 +64,6 @@ class ResizeHelper
                 $originalImgDir = $this->config->get('original_payments_dir');
                 $resizedImgDir = $this->config->get('resized_payments_dir');
             }
-            if ($object == 'advantages') {
-                $originalImgDir = $this->config->get('original_advantages_dir');
-                $resizedImgDir = $this->config->get('resized_advantages_dir');
-            }
             if ($object == 'lang') {
                 $originalImgDir = $this->config->get('lang_images_dir');
                 $resizedImgDir = $this->config->get('lang_resized_dir');

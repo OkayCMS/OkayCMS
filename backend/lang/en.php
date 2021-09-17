@@ -1110,7 +1110,6 @@ $lang['allow_to_visible_system_modules'] = 'Allow display of system modules';
 $lang['allow_to_visible_empty_categories'] = 'Show empty categories';
 $lang['allow_to_visible_empty_categories_notice'] = 'If you turn off this setting, categories without products will not be displayed in the catalog, but will remain available by direct link to users and search engines. If the setting is enabled';
 $lang['no_modules'] = 'No modules';
-$lang['settings_advantages'] = 'Advantages';
 $lang['lesson_status_done'] = 'Completed';
 $lang['lesson_status_not_done'] = 'Not completed';
 
@@ -1437,8 +1436,6 @@ $lang['orders_date_filter_list_orders_to'] = 'to';
 $lang['orders_date_filter_list_orders_reset'] = 'Reset filter';
 $lang['orders_unit'] = 'ptc';
 $lang['import_modules_fields'] = 'Fields from modules';
-$lang['advantage_image_title'] = 'Image';
-$lang['advantage_description_title'] = 'Description';
 $lang['alert_description'] = 'Description';
 $lang['alert_error'] = 'Important!';
 $lang['alert_info'] = 'Instruction';
