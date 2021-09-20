@@ -337,11 +337,10 @@
         </div>
     </footer>
 
-    {if $is_mobile === true || $is_tablet === true}
     <div class="fn_mobile_menu hidden">
         {include file="mobile_menu.tpl"}
     </div>
-    {/if}
+
     {* Форма обратного звонка *}
     {include file='callback.tpl'}
     
