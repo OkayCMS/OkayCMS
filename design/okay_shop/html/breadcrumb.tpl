@@ -143,11 +143,31 @@
 
         {* User account page *}
         {elseif $controller == "UserController"}
-            <li itemprop="itemListElement" itemscope
-                itemtype="https://schema.org/ListItem" class="d-inline-flex align-items-center breadcrumbs__item">
-                <span itemprop="name" data-language="breadcrumbs_user">{$lang->breadcrumbs_user}</span>
-                <meta itemprop="position" content="{$level++}" />
-            </li>
+            {if $route_name == 'login'}
+                <li itemprop="itemListElement" itemscope
+                    itemtype="https://schema.org/ListItem" class="d-inline-flex align-items-center breadcrumbs__item">
+                    <span itemprop="name" data-language="breadcrumbs_enter">{$lang->breadcrumbs_enter}</span>
+                    <meta itemprop="position" content="{$level++}" />
+                </li>
+            {elseif $route_name == 'register'}
+                <li itemprop="itemListElement" itemscope
+                    itemtype="https://schema.org/ListItem" class="d-inline-flex align-items-center breadcrumbs__item">
+                    <span itemprop="name" data-language="breadcrumbs_registration">{$lang->breadcrumbs_registration}</span>
+                    <meta itemprop="position" content="{$level++}" />
+                </li>
+            {elseif $route_name == 'password_remind'}
+                <li itemprop="itemListElement" itemscope
+                    itemtype="https://schema.org/ListItem" class="d-inline-flex align-items-center breadcrumbs__item">
+                    <span itemprop="name" data-language="breadcrumbs_password_remind">{$lang->breadcrumbs_password_remind}</span>
+                    <meta itemprop="position" content="{$level++}" />
+                </li>
+            {else}
+                <li itemprop="itemListElement" itemscope
+                     itemtype="https://schema.org/ListItem" class="d-inline-flex align-items-center breadcrumbs__item">
+                    <span itemprop="name" data-language="breadcrumbs_user">{$lang->breadcrumbs_user}</span>
+                    <meta itemprop="position" content="{$level++}" />
+                </li>
+            {/if}
 
         {* Blog page *}
         {elseif $controller == "BlogController"}
