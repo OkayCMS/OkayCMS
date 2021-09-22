@@ -28,6 +28,7 @@
     #Pager
     #Browsed products
     #Comparison page
+    #Cart
     #Purchases
     #Delivery & Payment
     #Profile user
@@ -51,7 +52,8 @@ header{
 }
 .header__bottom,
 .header__center,
-.header__top{position: relative;}
+.header__top,
+.header__short{position: relative;}
 
 .header__top{
     background: var(--okay-second-company);
@@ -70,6 +72,7 @@ header{
     padding: 0;
     height: 60px;
 }
+
 /***** #Account **********************************************************************/
 .account__link{
     color: var(--okay-second-company-text);
@@ -927,7 +930,7 @@ header{
     -webkit-box-flex: 0;
     -webkit-flex: 0 0 26px;
     -ms-flex: 0 0 26px;
-    flex: 0 0 3026;
+    flex: 0 0 26px;
     max-width: 26px;
 }
 .blog_catalog__switch svg{
@@ -3243,6 +3246,9 @@ footer {
     margin-top: 0;
     padding: 30px 0 0;
 }
+.footer--short{
+    padding: 0;
+}
 .footer__title{
     font-size: 16px;
     line-height: 1.2;
@@ -3550,6 +3556,68 @@ footer {
     text-decoration: none;
 }
 
+/***** #Cart *********************************************************************/
+.cart{
+    min-height: 100vh;
+}
+.cart_header{
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 20;
+    background-color: var(--okay-boxed-color);
+    color: var(--okay-body-text);
+    border-bottom: 1px solid #dbdbdb;
+    margin-bottom: 15px;
+    padding: 0;
+    height: 70px;
+}
+.cart_header__inner{
+    position: relative;
+    height: 70px;
+}
+.cart_header__logo{
+    padding-right: 20px;
+}
+.cart_header__logo img{
+    height: 50px;
+    max-width: 100%;
+}
+.cart_header__phone{
+    text-decoration: none;
+    color: #222;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.2;
+    word-break: break-all;
+}
+.cart_body{
+    width: 100%;
+    -webkit-box-flex: 1;
+    -ms-flex: 1 0 auto;
+    flex: 1 0 auto;
+}
+.cart_footer{
+    background-color: var(--okay-boxed-color);
+    color: var(--okay-body-text);
+    border-top: 1px solid #dbdbdb;
+    padding: 0;
+    height: 60px;
+}
+.cart_footer__copyright{
+    position: relative;
+    height: 60px;
+}
+.cart_footer__copyright a {
+    text-decoration: none;
+    color: var(--okay-body-text);
+}
+.cart_footer__copyright svg{
+    height: 24px;
+    width: auto;
+    margin-left: 5px;
+}
+
 /***** #Purchases *********************************************************************/
 .purchase__item{
     margin-bottom: 10px;
@@ -3806,7 +3874,6 @@ footer {
     width: 500px;
     max-width: 100%;
 }
-.purchase_detail,
 .purchases--user{
     padding-left: 40px;
 }
@@ -4203,20 +4270,9 @@ table.order_details {min-width: auto;}
     font-size: 16px;
     font-weight: 500;
 }
-
-
-
-
-
-
-
 .swiper-button-prev.swiper-button-disabled, .swiper-button-next.swiper-button-disabled {
     display: none;
 }
-
-
-
-
 .purchase_discount__item{
     position: relative;
     margin-bottom: 10px;

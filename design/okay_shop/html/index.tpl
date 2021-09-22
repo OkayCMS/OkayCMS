@@ -7,7 +7,7 @@
     {get_design_block block="front_after_head_content"}
 </head>
 
-<body class="d-flex flex-column {if $controller == 'MainController'}main_page{else}other_page{/if}">
+<body class="d-flex flex-column {if $controller == 'MainController'}main_page{elseif $controller == 'CartController'}cart_page{else}other_page{/if}">
     {if !empty($counters['body_top'])}
         {foreach $counters['body_top'] as $counter}
         {$counter->code}
@@ -19,7 +19,7 @@
         {$block}
     </div>
     {/if}
-
+    {if $controller !== 'CartController'}
     <header class="header">
         {if $is_mobile == false || $is_tablet == true}
         <div class="header__top hidden-md-down">
@@ -144,6 +144,7 @@
             </div>
         </div>
     </header>
+    {/if}
 
     {* Тело сайта *}
     <div class="main">
@@ -157,7 +158,7 @@
         {/if}
 
         {* Контент сайта *}
-        {if $controller == "MainController" || (!empty($page) && $page->url == '404')}
+        {if $controller == "MainController" || $controller == "CartController" || (!empty($page) && $page->url == '404')}
             <div class="fn_ajax_content">
                 {$content}
             </div>
@@ -182,6 +183,7 @@
     </div>
 
     {* Footer *}
+    {if $controller != 'CartController'}
     <footer class="footer">
         <div class="container">
             <div class="f_row flex-column flex-md-row justify-content-md-between align-items-start">
@@ -303,7 +305,6 @@
                 </div>
             </div>
         </div>
-
         <div class="footer__copyright">
             <div class="container">
                 <div class="f_row flex-column flex-md-row justify-content-center justify-content-md-between align-items-center">
@@ -336,7 +337,7 @@
             </div>
         </div>
     </footer>
-
+    {/if}
     {if $is_mobile === true || $is_tablet === true}
     <div class="fn_mobile_menu hidden">
         {include file="mobile_menu.tpl"}
