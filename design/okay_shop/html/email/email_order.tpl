@@ -336,24 +336,21 @@
                                                                         <td align="right">
                                                                             <table style="width: 500px;" cellspacing="1" cellpadding="1" border="0" align="right">
                                                                                 <tbody>
-                                                                                {if $order->discount}
-                                                                                <tr>
-                                                                                    <td style="text-align: right; font-size: 18px; line-height: 150%;">{$lang->email_order_discount}:</td>
-                                                                                    <td style="text-align: right; font-size: 18px; line-height: 150%; color: #000;">{$order->discount}&nbsp;%</td>
-                                                                                </tr>
+                                                                                {* Discounts *}
+                                                                                {if $discounts}
+                                                                                    {foreach $discounts as $discount}
+                                                                                        <tr>
+                                                                                            <td style="text-align: right; font-size: 14px;font-weight:600; line-height: 150%;">{$discount->name}:</td>
+                                                                                            <td class="es-discount" style="text-align: right;font-weight:600; font-size: 14px; line-height: 150%; color: #000;"><i>{$discount->percentDiscount|string_format:"%.2f"} %</i>
+                                                                                                &minus; {$discount->absoluteDiscount|convert} <span class="currency">{$currency->sign|escape}</span>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                    {/foreach}
                                                                                 {/if}
-
-                                                                                {if $order->coupon_discount>0}
-                                                                                <tr>
-                                                                                    <td style="text-align: right; font-size: 18px; line-height: 150%;">{$lang->email_order_coupon} {$order->coupon_code}:</td>
-                                                                                    <td style="text-align: right; font-size: 18px; line-height: 150%; color: #000;">&minus;{$order->coupon_discount}&nbsp;{$currency->sign}</td>
-                                                                                </tr>
-                                                                                {/if}
-
                                                                                 {if $order->separate_delivery || !$order->separate_delivery && $order->delivery_price > 0}
                                                                                 <tr>
-                                                                                    <td style="text-align: right; font-size: 18px; line-height: 150%;">{$delivery->name|escape}:</td>
-                                                                                    <td style="text-align: right; font-size: 18px; line-height: 150%; color: #000;">
+                                                                                    <td style="text-align: right; font-size: 14px;font-weight:600; line-height: 150%;">{$delivery->name|escape}:</td>
+                                                                                    <td style="text-align: right; font-size: 14px;font-weight:600; line-height: 150%; color: #000;">
                                                                                         {if !$order->separate_delivery}{$order->delivery_price|convert:$currency->id}&nbsp;{$currency->sign} {else}{/if}
                                                                                     </td>
                                                                                 </tr>
