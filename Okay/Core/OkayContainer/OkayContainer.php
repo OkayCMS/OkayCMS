@@ -78,7 +78,7 @@ class OkayContainer implements ContainerInterface
 
     public function bindParameters(array $parameters)
     {
-        $this->parameters = array_merge($this->parameters, $parameters);
+        $this->parameters = array_merge_recursive($this->parameters, $parameters);
     }
 
     public function bindService($name, $service)
