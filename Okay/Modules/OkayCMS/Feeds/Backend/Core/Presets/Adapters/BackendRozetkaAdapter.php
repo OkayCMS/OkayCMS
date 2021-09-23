@@ -20,6 +20,8 @@ class BackendRozetkaAdapter extends AbstractBackendPresetAdapter
             'upload_only_products_in_stock' => $postSettings['upload_only_products_in_stock'] ?? 0,
             'use_full_description' => $postSettings['use_full_description'] ?? 0,
             'company' => $postSettings['company'],
+            'feed_name' => $postSettings['feed_name'],
+            'price_change' => $postSettings['price_change'],
             'filter_price' => [
                 'operator' => $postSettings['filter_price']['operator'],
                 'value' => $postSettings['filter_price']['value'] === '' ? null : (float) str_replace(',', '.', $postSettings['filter_price']['value']),

@@ -40,6 +40,7 @@ class BackendGoogleMerchantAdapter extends AbstractBackendPresetAdapter
             'upload_without_images' => $postSettings['upload_without_images'] ?? 0,
             'company' => $postSettings['company'],
             'color' => $postSettings['color'],
+            'price_change' => $postSettings['price_change'],
             'filter_price' => [
                 'operator' => $postSettings['filter_price']['operator'],
                 'value' => $postSettings['filter_price']['value'] === '' ? null : (float) str_replace(',', '.', $postSettings['filter_price']['value']),

@@ -28,7 +28,7 @@ return [
                         'backend_adapter' => BackendRozetkaAdapter::class,
                         'frontend_adapter' => RozetkaAdapter::class
                     ],
-                    'Yandex' => [
+                    'YML' => [
                         'backend_adapter' => BackendYandexAdapter::class,
                         'frontend_adapter' => YandexAdapter::class
                     ],

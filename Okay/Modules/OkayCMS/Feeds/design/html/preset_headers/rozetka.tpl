@@ -2,20 +2,19 @@
 <!DOCTYPE yml_catalog SYSTEM 'shops.dtd'>
 <yml_catalog date="{date('Y-m-d H:i')}">
     <shop>
-
-        <name>{$settings->site_name|escape}</name>
+        {if $feed->settings['feed_name']}
+            <name>{$feed->settings['feed_name']|escape}</name>
+        {/if}
 
         {if $feed->settings['company']}
             <company>{$feed->settings['company']|escape}</company>
-        {else}
-            <company>{$settings->site_name|escape}</company>
         {/if}
 
         <url>{$rootUrl}</url>
 
         <platform>OkayCMS</platform>
 
-        <version>{$config->version|escape} {$config->version_type|escape}</version>
+        <version>{$config->version|escape}</version>
 
         <currencies>
             {foreach $currencies as $c}

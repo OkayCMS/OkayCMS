@@ -143,31 +143,36 @@ class HotlineAdapter extends AbstractPresetAdapter
             $result['stock']['data'] = 'Под заказ';
         }
 
-        if (isset($this->allCurrencies[$product->currency_id])) {
+        $price = $product->price;
 
+        if ($this->feed->settings['price_change']) {
+            $price = $price + $price / 100 * $this->feed->settings['price_change'];
+        }
+
+        if (isset($this->allCurrencies[$product->currency_id])) {
             // Переводим в основную валюту сайта
             $variantCurrency = $this->allCurrencies[$product->currency_id];
             if (!empty($product->currency_id) && $variantCurrency->rate_from != $variantCurrency->rate_to) {
-                $product->price = round($product->price * $variantCurrency->rate_to / $variantCurrency->rate_from, 2);
+                $price = round($price * $variantCurrency->rate_to / $variantCurrency->rate_from, 2);
             }
 
             // Приводим цены в гривнах
             if ($this->UAH_currency) {
-                $result['priceRUAH']['data'] = $this->money->convert($product->price, $this->UAH_currency->id, false);
+                $result['priceRUAH']['data'] = $this->money->convert($price, $this->UAH_currency->id, false);
             } else {
-                $result['priceRUAH']['data'] = $this->money->convert($product->price, $this->mainCurrency->id, false);
+                $result['priceRUAH']['data'] = $this->money->convert($price, $this->mainCurrency->id, false);
             }
 
             // Приводим цены в долларах
             if ($this->USD_currency) {
-                $result['priceRUSD']['data'] = $this->money->convert($product->price, $this->USD_currency->id, false);
+                $result['priceRUSD']['data'] = $this->money->convert($price, $this->USD_currency->id, false);
             }
         }
 
         if (!empty($product->images)) {
             foreach ($product->images as $imageFilename) {
                 $i['tag'] = 'image';
-                $i['data'] = $this->image->getResizeModifier($imageFilename, 800, 600);
+                $i['data'] = $this->image->getResizeModifier($imageFilename, 1200, 1200);
                 $result[] = $i;
             }
         }

@@ -65,6 +65,9 @@ $lang['okay_cms__feeds__feed_settings__google_merchant__color_notify'] = "Виб
     $lang['okay_cms__feeds__feed_settings__google_merchant__filter_price_price'] = "Цена товара";
     $lang['okay_cms__feeds__feed_settings__google_merchant__filter_stock'] = "Фильтр по количеству";
     $lang['okay_cms__feeds__feed_settings__google_merchant__filter_stock_stock'] = "Количество товара";
+    $lang['okay_cms__feeds__feed_settings__google_merchant__price_change'] = "Изменить все цены в выгрузке на %";
+    $lang['okay_cms__feeds__feed_settings__google_merchant__price_change_tooltip'] = "Положительное число - увеличивает цену, отрицательное - уменьшает";
+
 
 // Настройки Rozetka
 $lang['okay_cms__feeds__feed_settings__rozetka__upload_without_images'] = "Вивантажувати товари без зображень";
@@ -75,6 +78,9 @@ $lang['okay_cms__feeds__feed_settings__rozetka__company'] = "Повне найм
     $lang['okay_cms__feeds__feed_settings__rozetka__filter_price_price'] = "Цена товара";
     $lang['okay_cms__feeds__feed_settings__rozetka__filter_stock'] = "Фильтр по количеству";
     $lang['okay_cms__feeds__feed_settings__rozetka__filter_stock_stock'] = "Количество товара";
+    $lang['okay_cms__feeds__feed_settings__rozetka__feed_name'] = "Название выгрузки";
+    $lang['okay_cms__feeds__feed_settings__rozetka__price_change'] = "Изменить все цены в выгрузке на %";
+    $lang['okay_cms__feeds__feed_settings__rozetka__price_change_tooltip'] = "Положительное число - увеличивает цену, отрицательное - уменьшает";
 
 // Настройки Hotline
 $lang['okay_cms__feeds__feed_settings__hotline__upload_without_images'] = "Вивантажувати товари без зображень";
@@ -88,6 +94,8 @@ $lang['okay_cms__feeds__feed_settings__hotline__country_of_origin'] = "Краї�
     $lang['okay_cms__feeds__feed_settings__hotline__filter_price_price'] = "Цена товара";
     $lang['okay_cms__feeds__feed_settings__hotline__filter_stock'] = "Фильтр по количеству";
     $lang['okay_cms__feeds__feed_settings__hotline__filter_stock_stock'] = "Количество товара";
+    $lang['okay_cms__feeds__feed_settings__hotline__price_change'] = "Изменить все цены в выгрузке на %";
+    $lang['okay_cms__feeds__feed_settings__hotline__price_change_tooltip'] = "Положительное число - увеличивает цену, отрицательное - уменьшает";
 
 // Настройки Yandex
 $lang['okay_cms__feeds__feed_settings__yandex__upload_without_images'] = "Вивантажувати товари без зображень";
@@ -97,9 +105,8 @@ $lang['okay_cms__feeds__feed_settings__yandex__pickup'] = "Можливість 
 $lang['okay_cms__feeds__feed_settings__yandex__use_full_description'] = "Використовувати повний опис (якщо вимкнено передається короткий опис)";
 $lang['okay_cms__feeds__feed_settings__yandex__has_manufacturer_warranty'] = "У товарів є гарантія виробника";
 $lang['okay_cms__feeds__feed_settings__yandex__no_export_without_price'] = "Не вивантажувати товари з ціною 0";
-$lang['okay_cms__feeds__feed_settings__yandex__delivery_disallow'] = "Можливість кур'єрської доставки";
+$lang['okay_cms__feeds__feed_settings__yandex__delivery'] = "Можливість кур'єрської доставки";
 $lang['okay_cms__feeds__feed_settings__yandex__adult'] = "Товари для дорослих (adult)";
-    $lang['okay_cms__feeds__feed_settings__yandex__vendor_model'] = "Произвольные товары(vendor.model)";
 $lang['okay_cms__feeds__feed_settings__yandex__company'] = "Повне найменування компанії, що володіє магазином";
 $lang['okay_cms__feeds__feed_settings__yandex__sales_max_length'] = "Допустима довжина тексту в елементі - 50 символів";
 $lang['okay_cms__feeds__feed_settings__yandex__country_of_origin'] = "Країна виробник (country_of_origin)";
@@ -107,3 +114,8 @@ $lang['okay_cms__feeds__feed_settings__yandex__country_of_origin'] = "Країн
     $lang['okay_cms__feeds__feed_settings__yandex__filter_price_price'] = "Цена товара";
     $lang['okay_cms__feeds__feed_settings__yandex__filter_stock'] = "Фильтр по количеству";
     $lang['okay_cms__feeds__feed_settings__yandex__filter_stock_stock'] = "Количество товара";
+    $lang['okay_cms__feeds__feed_settings__yandex__feed_name'] = "Название выгрузки";
+    $lang['okay_cms__feeds__feed_settings__yandex__enable_auto_discounts'] = "Включить автоматический расчет и показ скидок (enable_auto_discounts)";
+    $lang['okay_cms__feeds__feed_settings__yandex__count'] = "Передавать общее количество товара, доступное для продажи на Маркете (count)";
+    $lang['okay_cms__feeds__feed_settings__yandex__price_change'] = "Изменить все цены в выгрузке на %";
+    $lang['okay_cms__feeds__feed_settings__yandex__price_change_tooltip'] = "Положительное число - увеличивает цену, отрицательное - уменьшает";

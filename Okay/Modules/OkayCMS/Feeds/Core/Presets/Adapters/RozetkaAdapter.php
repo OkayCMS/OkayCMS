@@ -89,6 +89,10 @@ class RozetkaAdapter extends AbstractPresetAdapter
             }
         }
 
+        if ($this->feed->settings['price_change']) {
+            $price = $price + $price / 100 * $this->feed->settings['price_change'];
+        }
+
         $result['price']['data'] = $this->money->convert($price, $this->mainCurrency->id, false);
         if ($product->compare_price > 0) {
             $comparePrice = $this->money->convert($comparePrice, $this->mainCurrency->id, false);
@@ -102,7 +106,7 @@ class RozetkaAdapter extends AbstractPresetAdapter
             $iNum = 0;
             foreach ($product->images as $imageFilename) {
                 $i['tag'] = 'picture';
-                $i['data'] = $this->image->getResizeModifier($imageFilename, 800, 600);
+                $i['data'] = $this->image->getResizeModifier($imageFilename, 1200, 1200);
                 $result[] = $i;
                 if ($iNum++ == 15) {
                     break;

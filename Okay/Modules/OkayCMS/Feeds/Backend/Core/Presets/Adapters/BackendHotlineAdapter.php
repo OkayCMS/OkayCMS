@@ -39,6 +39,7 @@ class BackendHotlineAdapter extends AbstractBackendPresetAdapter
             'guarantee_manufacturer' => $postSettings['guarantee_manufacturer'],
             'guarantee_shop' => $postSettings['guarantee_shop'],
             'country_of_origin' => $postSettings['country_of_origin'],
+            'price_change' => $postSettings['price_change'],
             'filter_price' => [
                 'operator' => $postSettings['filter_price']['operator'],
                 'value' => $postSettings['filter_price']['value'] === '' ? null : (float) str_replace(',', '.', $postSettings['filter_price']['value']),

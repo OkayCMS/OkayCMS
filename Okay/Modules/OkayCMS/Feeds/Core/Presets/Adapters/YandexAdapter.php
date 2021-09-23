@@ -81,11 +81,7 @@ class YandexAdapter extends AbstractPresetAdapter
             $result['url']['data'] = Router::generateUrl('product', ['url' => $product->url], true);
         }
 
-        if ($this->feed->settings['vendor_model']) {
-            $result['model']['data'] = $this->xmlFeedHelper->escape($product->product_name . (!empty($product->variant_name) ? ' ' . $product->variant_name : ''));
-        } else {
-            $result['name']['data'] = $this->xmlFeedHelper->escape($product->product_name . (!empty($product->variant_name) ? ' ' . $product->variant_name : ''));
-        }
+        $result['name']['data'] = $this->xmlFeedHelper->escape($product->product_name . (!empty($product->variant_name) ? ' ' . $product->variant_name : ''));
 
         $price = $product->price;
         $comparePrice = $product->compare_price;
@@ -100,6 +96,10 @@ class YandexAdapter extends AbstractPresetAdapter
             }
         }
 
+        if ($this->feed->settings['price_change']) {
+            $price = $price + $price / 100 * $this->feed->settings['price_change'];
+        }
+
         $result['price']['data'] = $this->money->convert($price, $this->mainCurrency->id, false);
         if ($product->compare_price > 0) {
             $comparePrice = $this->money->convert($comparePrice, $this->mainCurrency->id, false);
@@ -109,11 +109,15 @@ class YandexAdapter extends AbstractPresetAdapter
         $result['currencyId']['data'] = $this->mainCurrency->code;
         $result['categoryId']['data'] = $product->main_category_id;
 
+        if ($this->feed->settings['count']) {
+            $result['count']['data'] = $product->stock ?? $this->settings->get('max_order_amount');
+        }
+
         if (!empty($product->images)) {
             $iNum = 0;
             foreach ($product->images as $imageFilename) {
                 $i['tag'] = 'picture';
-                $i['data'] = $this->image->getResizeModifier($imageFilename, 800, 600);
+                $i['data'] = $this->image->getResizeModifier($imageFilename, 1200, 1200);
                 $result[] = $i;
                 if ($iNum++ == 10) {
                     break;
@@ -121,10 +125,6 @@ class YandexAdapter extends AbstractPresetAdapter
             }
         }
 
-        $result['store']['data'] = $this->feed->settings['store'] ? 'true' : 'false';
-        $result['delivery']['data'] = $this->feed->settings['delivery_disallow'] ? 'true' : 'false';
-        $result['pickup']['data'] = $this->feed->settings['pickup'] ? 'true' : 'false';
-        $result['adult']['data'] = $this->feed->settings['adult'] ? 'true' : 'false';
         $result['manufacturer_warranty']['data'] = $this->feed->settings['has_manufacturer_warranty'] ? 'true' : 'false';
 
         if (!empty($product->vendor)) {
@@ -141,10 +141,6 @@ class YandexAdapter extends AbstractPresetAdapter
 
         if (!empty($product->description)) {
             $result['description']['data'] = $this->xmlFeedHelper->escape($product->description);
-        }
-
-        if ($this->feed->settings['sales_notes']) {
-            $result['sales_notes']['data'] = $this->xmlFeedHelper->escape($this->feed->settings['sales_notes']);
         }
 
         $countryOfOriginParamId = $this->feed->settings['country_of_origin'];
@@ -177,14 +173,13 @@ class YandexAdapter extends AbstractPresetAdapter
             'tag' => 'offer',
             'attributes' => [
                 'id' => $product->variant_id,
-                'group_id' => $product->product_id,
                 'available' => ($product->stock > 0 || $product->stock === null ? 'true' : 'false'),
             ],
             'data' => $result
         ];
 
-        if ($this->feed->settings['vendor_model']) {
-            $item['attributes']['type'] = 'vendor.model';
+        if ($product->total_variants > 1) {
+            $item['attributes']['group_id'] = $product->product_id;
         }
 
         return ExtenderFacade::execute(__METHOD__, [$item], func_get_args());

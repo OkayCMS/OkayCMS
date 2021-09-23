@@ -308,6 +308,14 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
     {
         $sql = $this->queryFactory->newSelect();
 
+        $variantsCountSubSelect = $this->queryFactory->newSelect()
+            ->from(VariantsEntity::getTable())
+            ->cols([
+                'product_id',
+                'COUNT(*) AS total_variants'
+            ])
+            ->groupBy(['product_id']);
+
         $sql->cols([
                 'v.stock',
                 'v.price',
@@ -319,10 +327,12 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
                 'r.slug_url',
                 'p.main_category_id',
                 'p.brand_id',
+                'vc.total_variants'
             ])
             ->from(VariantsEntity::getTable() . ' AS v')
             ->leftJoin(ProductsEntity::getTable().' AS  p', 'v.product_id=p.id')
             ->leftJoin(RouterCacheEntity::getTable().' AS r', 'r.url = p.url AND r.type="product"')
+            ->joinSubSelect('left', $variantsCountSubSelect, 'vc', 'vc.product_id = p.id')
             ->where('p.visible')
             ->bindValue('feed_id', $feedId)
             ->groupBy(['v.id'])

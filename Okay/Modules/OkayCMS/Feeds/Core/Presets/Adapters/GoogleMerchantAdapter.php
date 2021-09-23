@@ -119,6 +119,11 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
                 }
             }
         }
+
+        if ($this->feed->settings['price_change']) {
+            $price = $price + $price / 100 * $this->feed->settings['price_change'];
+        }
+
         $price = $this->money->convert($price, $this->mainCurrency->id, false);
         $comparePrice = $this->money->convert($comparePrice, $this->mainCurrency->id, false);
 
@@ -164,7 +169,7 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
                 } else {
                     $i['tag'] = 'g:additional_image_link';
                 }
-                $i['data'] = $this->image->getResizeModifier($imageFilename, 800, 600);
+                $i['data'] = $this->image->getResizeModifier($imageFilename, 1200, 1200);
                 $result[] = $i;
                 if ($iNum++ == 10) {
                     break;
