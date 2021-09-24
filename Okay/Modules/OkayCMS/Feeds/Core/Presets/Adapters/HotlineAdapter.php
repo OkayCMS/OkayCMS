@@ -118,15 +118,21 @@ class HotlineAdapter extends AbstractPresetAdapter
     public function getItem(object $product, bool $addVariantUrl = false): array
     {
         $result['id']['data'] = $product->variant_id;
+
         $result['group_id']['data'] = $product->product_id;
+
         $result['categoryId']['data'] = $product->main_category_id;
+
         if (!empty($product->sku)) {
             $result['code']['data'] = $this->xmlFeedHelper->escape($product->sku);
         }
+
         $result['name']['data'] = $this->xmlFeedHelper->escape($product->product_name . (!empty($product->variant_name) ? ' ' . $product->variant_name : ''));
-        if (!empty($product->vendor)) {
-            $result['vendor']['data'] = $this->xmlFeedHelper->escape($product->vendor);
+
+        if (!empty($product->brand_name)) {
+            $result['vendor']['data'] = $this->xmlFeedHelper->escape($product->brand_name);
         }
+
         $result['description']['data'] = $this->xmlFeedHelper->escape($product->description);
 
         // Указываем связку урла товара и его slug

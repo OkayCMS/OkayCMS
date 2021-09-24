@@ -136,8 +136,8 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
 
         $result['g:availability']['data'] = (!in_array($product->stock, [0, '0'], true) ? 'in stock' : 'out of stock');
 
-        if (!empty($product->vendor)) {
-            $result['g:brand']['data'] = $this->xmlFeedHelper->escape($product->vendor);
+        if (!empty($product->brand_name)) {
+            $result['g:brand']['data'] = $this->xmlFeedHelper->escape($product->brand_name);
         }
 
         $result['g:adult']['data'] = $this->feed->settings['adult'] ? 'true' : 'false';

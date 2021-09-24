@@ -9,13 +9,13 @@ use Okay\Core\Routes\ProductRoute;
 use Okay\Entities\CurrenciesEntity;
 use Okay\Modules\OkayCMS\Feeds\Core\Presets\AbstractPresetAdapter;
 
-class YandexAdapter extends AbstractPresetAdapter
+class YmlAdapter extends AbstractPresetAdapter
 {
     /** @var string */
-    static protected $headerTemplate = 'preset_headers/yandex.tpl';
+    static protected $headerTemplate = 'preset_headers/yml.tpl';
 
     /** @var string */
-    static protected $footerTemplate = 'preset_footers/yandex.tpl';
+    static protected $footerTemplate = 'preset_footers/yml.tpl';
 
     public function getQuery($feedId): Select
     {
@@ -127,8 +127,8 @@ class YandexAdapter extends AbstractPresetAdapter
 
         $result['manufacturer_warranty']['data'] = $this->feed->settings['has_manufacturer_warranty'] ? 'true' : 'false';
 
-        if (!empty($product->vendor)) {
-            $result['vendor']['data'] = $this->xmlFeedHelper->escape($product->vendor);
+        if (!empty($product->brand_name)) {
+            $result['vendor']['data'] = $this->xmlFeedHelper->escape($product->brand_name);
         }
 
         if (!empty($product->sku)) {

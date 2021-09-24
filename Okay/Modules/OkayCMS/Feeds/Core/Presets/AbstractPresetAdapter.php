@@ -290,7 +290,7 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
                 't.*',
                 'lp.name as product_name',
                 'lv.name as variant_name',
-                'lb.name as vendor'
+                'lb.name as brand_name'
             ])
             ->fromSubSelect($subSelect, 't')
             ->leftJoin(ProductsEntity::getLangTable().' AS lp', 'lp.product_id = t.product_id and lp.lang_id=' . $this->languages->getLangId())

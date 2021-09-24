@@ -5,11 +5,11 @@ namespace Okay\Modules\OkayCMS\Feeds\Init;
 use Okay\Modules\OkayCMS\Feeds\Backend\Core\Presets\Adapters\BackendGoogleMerchantAdapter;
 use Okay\Modules\OkayCMS\Feeds\Backend\Core\Presets\Adapters\BackendHotlineAdapter;
 use Okay\Modules\OkayCMS\Feeds\Backend\Core\Presets\Adapters\BackendRozetkaAdapter;
-use Okay\Modules\OkayCMS\Feeds\Backend\Core\Presets\Adapters\BackendYandexAdapter;
+use Okay\Modules\OkayCMS\Feeds\Backend\Core\Presets\Adapters\BackendYmlAdapter;
 use Okay\Modules\OkayCMS\Feeds\Core\Presets\Adapters\GoogleMerchantAdapter;
 use Okay\Modules\OkayCMS\Feeds\Core\Presets\Adapters\HotlineAdapter;
 use Okay\Modules\OkayCMS\Feeds\Core\Presets\Adapters\RozetkaAdapter;
-use Okay\Modules\OkayCMS\Feeds\Core\Presets\Adapters\YandexAdapter;
+use Okay\Modules\OkayCMS\Feeds\Core\Presets\Adapters\YmlAdapter;
 
 return [
     'modules' => [
@@ -29,8 +29,8 @@ return [
                         'frontend_adapter' => RozetkaAdapter::class
                     ],
                     'YML' => [
-                        'backend_adapter' => BackendYandexAdapter::class,
-                        'frontend_adapter' => YandexAdapter::class
+                        'backend_adapter' => BackendYmlAdapter::class,
+                        'frontend_adapter' => YmlAdapter::class
                     ],
                 ]
             ]

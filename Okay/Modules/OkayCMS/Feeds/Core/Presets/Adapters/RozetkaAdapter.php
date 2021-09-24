@@ -114,33 +114,59 @@ class RozetkaAdapter extends AbstractPresetAdapter
             }
         }
 
-        $result['stock_quantity']['data'] = $product->stock;
+        $result['stock_quantity']['data'] = $product->stock ?? $this->settings->get('max_order_amount');
         $result['delivery']['data'] = 'true';
 
-        if (!empty($product->vendor)) {
-            $result['vendor']['data'] = $this->xmlFeedHelper->escape($product->vendor);
-        }
-
-        if (!empty($product->sku)) {
-            $result['vendorCode']['data'] = $this->xmlFeedHelper->escape($product->sku);
+        if (!empty($product->brand_name)) {
+            $result['vendor']['data'] = $this->xmlFeedHelper->escape($product->brand_name);
+        } else {
+            $result['vendor']['data'] = 'Без бренда';
         }
 
         if (!empty($product->description)) {
             $result['description']['data'] = $this->xmlFeedHelper->escape($product->description);
         }
 
+        if (!empty($product->sku)) {
+            $result[] = [
+                'data' => $this->xmlFeedHelper->escape($product->sku),
+                'tag' => 'param',
+                'attributes' => [
+                    'name' => 'Артикул'
+                ]
+            ];
+        }
+
+        if (!empty($product->variant_name) && !empty($this->feed->settings['variant_name_param'])) {
+            $result[] = [
+                'data' => $this->xmlFeedHelper->escape($product->variant_name),
+                'tag' => 'param',
+                'attributes' => [
+                    'name' => $this->xmlFeedHelper->escape($this->feed->settings['variant_name_param'])
+                ]
+            ];
+        }
+
         if (!empty($product->features)) {
             foreach ($product->features as $feature) {
                 if ($this->isFeatureToFeed($feature['id'])) {
-                    foreach ($feature['values'] as $value) {
-                        $result[] = [
-                            'data' => $this->xmlFeedHelper->escape($value),
-                            'tag' => 'param',
-                            'attributes' => [
-                                'name' => $this->xmlFeedHelper->escape(($name = $this->getFeatureMappingName($feature['id'])) ? $name : $feature['name']),
-                            ],
-                        ];
+                    if (count($feature['values']) > 1) {
+                        $valuesString = implode(" <br/>\n", array_map(function($value) {
+                            return $this->xmlFeedHelper->escape($value);
+                        }, $feature['values']));
+
+                        $data = '<![CDATA['.$valuesString.']]>';
+                    } else {
+                        $data = $this->xmlFeedHelper->escape(reset($feature['values']));
                     }
+
+                    $result[] = [
+                        'data' => $data,
+                        'tag' => 'param',
+                        'attributes' => [
+                            'name' => $this->xmlFeedHelper->escape(($name = $this->getFeatureMappingName($feature['id'])) ? $name : $feature['name']),
+                        ],
+                    ];
                 }
             }
         }

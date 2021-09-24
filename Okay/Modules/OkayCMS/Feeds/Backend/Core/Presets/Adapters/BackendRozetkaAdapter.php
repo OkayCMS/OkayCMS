@@ -22,6 +22,7 @@ class BackendRozetkaAdapter extends AbstractBackendPresetAdapter
             'company' => $postSettings['company'],
             'feed_name' => $postSettings['feed_name'],
             'price_change' => $postSettings['price_change'],
+            'variant_name_param' => $postSettings['variant_name_param'],
             'filter_price' => [
                 'operator' => $postSettings['filter_price']['operator'],
                 'value' => $postSettings['filter_price']['value'] === '' ? null : (float) str_replace(',', '.', $postSettings['filter_price']['value']),

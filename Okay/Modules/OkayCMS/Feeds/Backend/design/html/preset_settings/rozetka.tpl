@@ -52,6 +52,14 @@
                 <input class="form-control" type="text" name="settings[feed_name]" value="{$feed->settings['feed_name']}" />
             </div>
         </div>
+        <div class="col-md-6 mb-1">
+            <div class="heading_label">
+                <strong>{$btr->okay_cms__feeds__feed_settings__rozetka__variant_name_param}</strong>
+            </div>
+            <div class="mb-1">
+                <input class="form-control" type="text" name="settings[variant_name_param]" value="{$feed->settings['variant_name_param']}" />
+            </div>
+        </div>
         <div class="col-md-12">
             <div class="row">
                 <div class="col-md-6">

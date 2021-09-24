@@ -8,10 +8,10 @@ use Okay\Core\Request;
 use Okay\Entities\FeaturesEntity;
 use Okay\Modules\OkayCMS\Feeds\Backend\Core\Presets\AbstractBackendPresetAdapter;
 
-class BackendYandexAdapter extends AbstractBackendPresetAdapter
+class BackendYmlAdapter extends AbstractBackendPresetAdapter
 {
     /** @var string */
-    protected static $settingsTemplate = 'preset_settings/yandex.tpl';
+    protected static $settingsTemplate = 'preset_settings/yml.tpl';
 
 
     /** @var FeaturesEntity */
