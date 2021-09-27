@@ -147,21 +147,27 @@ class YmlAdapter extends AbstractPresetAdapter
 
         if (isset($product->features[$countryOfOriginParamId])) {
             $result[] = [
-                'data' => $this->xmlFeedHelper->escape($product->features[$countryOfOriginParamId]['values_string']),
                 'tag' => 'country_of_origin',
+                'data' => $this->xmlFeedHelper->escape($product->features[$countryOfOriginParamId]['values_string']),
             ];
             unset($product->features[$countryOfOriginParamId]);
         }
 
         if (!empty($product->features)) {
             foreach ($product->features as $feature) {
-                if ($this->isFeatureToFeed($feature['id'])) {
+                $featureSettings = $this->getFeatureSettings($feature['id']);
+
+                if (!$featureSettings || $featureSettings['to_feed']) {
+                    if (!$featureSettings || !($name = $featureSettings['name_in_feed'])) {
+                        $name = $feature['name'];
+                    }
+
                     foreach ($feature['values'] as $value) {
                         $result[] = [
-                            'data' => $this->xmlFeedHelper->escape($value),
                             'tag' => 'param',
+                            'data' => $this->xmlFeedHelper->escape($value),
                             'attributes' => [
-                                'name' => $this->xmlFeedHelper->escape(($name = $this->getFeatureMappingName($feature['id'])) ? $name : $feature['name']),
+                                'name' => $this->xmlFeedHelper->escape($name),
                             ],
                         ];
                     }

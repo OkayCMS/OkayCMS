@@ -45,11 +45,16 @@
     $lang['okay_cms__feeds__feed_tab_settings'] = "Настройки";
 
     // Страница выгрузки/Сопоставления свойств
-    $lang['okay_cms__feeds__feed_tab_feature_mappings'] = "Сопоставление свойств";
-    $lang['okay_cms__feeds__feed_tab_feature_mappings__upload'] = "Выгружать";
+    $lang['okay_cms__feeds__feed_tab_features_settings'] = "Настройки свойств";
 
     // Страница выгрузки/Сопоставления категорий
-    $lang['okay_cms__feeds__feed_tab_category_mappings'] = "Сопоставление категорий";
+    $lang['okay_cms__feeds__feed_tab_categories_settings'] = "Настройки категорий";
+
+    // Общие элементы выгрузок
+    $lang['okay_cms__feeds__feed__features_settings__common__name_in_feed'] = "Название в выгрузке";
+    $lang['okay_cms__feeds__feed__features_settings__common__to_feed'] = "Выгружать";
+    $lang['okay_cms__feeds__feed__categories_settings__common__name_in_feed'] = "Название в выгрузке";
+
 
 // Настройки GoogleMerchant
 $lang['okay_cms__feeds__feed_settings__google_merchant__upload_without_images'] = "Upload products without images";
@@ -81,6 +86,8 @@ $lang['okay_cms__feeds__feed_settings__rozetka__company'] = "Company";
     $lang['okay_cms__feeds__feed_settings__rozetka__price_change'] = "Изменить все цены в выгрузке на %";
     $lang['okay_cms__feeds__feed_settings__rozetka__price_change_tooltip'] = "Положительное число - увеличивает цену, отрицательное - уменьшает";
     $lang['okay_cms__feeds__feed_settings__rozetka__variant_name_param'] = "Название свойства для названия варианта";
+
+    $lang['okay_cms__feeds__feed__categories_settings__rozetka__external_id'] = "Внешний ID";
 
 // Настройки Hotline
 $lang['okay_cms__feeds__feed_settings__hotline__upload_without_images'] = "Upload products without images";

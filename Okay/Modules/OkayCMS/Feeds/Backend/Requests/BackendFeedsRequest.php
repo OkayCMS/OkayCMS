@@ -29,7 +29,7 @@ class BackendFeedsRequest
             'name'     => $this->request->post('name'),
             'url'      => trim($this->request->post('url')),
             'enabled'  => $this->request->post('enabled', 'boolean'),
-            'preset'   => $this->request->post('preset', 'string'),
+            'preset'   => $this->request->post('preset', 'string')
         ];
 
         $feed->settings = $this->postSettings($feed->preset);
@@ -37,10 +37,30 @@ class BackendFeedsRequest
         return ExtenderFacade::execute(__METHOD__, $feed, func_get_args());
     }
 
-    public function postSettings(string $presetName): string
+    public function postSettings(string $presetName): array
     {
         $adapter = $this->presetAdapterFactory->get($presetName);
         $settings = $adapter->postSettings();
+
+        return ExtenderFacade::execute(__METHOD__, $settings, func_get_args());
+    }
+
+    public function postCategorySettings(): array
+    {
+        $presetName = $this->request->post('preset');
+        $adapter = $this->presetAdapterFactory->get($presetName);
+
+        $settings = $adapter->postCategorySettings();
+
+        return ExtenderFacade::execute(__METHOD__, $settings, func_get_args());
+    }
+
+    public function postFeatureSettings(): array
+    {
+        $presetName = $this->request->post('preset');
+        $adapter = $this->presetAdapterFactory->get($presetName);
+
+        $settings = $adapter->postFeatureSettings();
 
         return ExtenderFacade::execute(__METHOD__, $settings, func_get_args());
     }
@@ -57,20 +77,6 @@ class BackendFeedsRequest
         $newConditions = $this->request->post('new_conditions', null, []);
 
         return ExtenderFacade::execute(__METHOD__, $newConditions, func_get_args());
-    }
-
-    public function postMappings(): array
-    {
-        $mappings = $this->request->post('mappings', null, []);
-
-        return ExtenderFacade::execute(__METHOD__, $mappings, func_get_args());
-    }
-
-    public function postNewMappings(): array
-    {
-        $newMappings = $this->request->post('new_mappings', null, []);
-
-        return ExtenderFacade::execute(__METHOD__, $newMappings, func_get_args());
     }
 
     public function getId()

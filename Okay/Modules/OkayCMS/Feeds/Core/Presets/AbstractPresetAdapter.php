@@ -24,7 +24,6 @@ use Okay\Helpers\XmlFeedHelper;
 use Okay\Modules\OkayCMS\Feeds\Core\InheritedExtenderTrait;
 use Okay\Modules\OkayCMS\Feeds\Entities\ConditionsEntity;
 use Okay\Modules\OkayCMS\Feeds\Entities\FeedsEntity;
-use Okay\Modules\OkayCMS\Feeds\Entities\MappingsEntity;
 use Okay\Modules\OkayCMS\Feeds\Init\Init;
 
 abstract class AbstractPresetAdapter implements PresetAdapterInterface
@@ -78,9 +77,6 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
     /** @var CategoriesEntity */
     protected $categoriesEntity;
 
-    /** @var MappingsEntity */
-    protected $mappingsEntity;
-
 
     /** @var object */
     protected $mainCurrency;
@@ -93,12 +89,6 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
 
     /** @var object */
     protected $feed;
-
-    /** @var array */
-    protected $featureMappings;
-
-    /** @var array */
-    protected $categoryMappings;
 
     public function __construct(
         Money            $money,
@@ -113,8 +103,7 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
         Image            $image,
         CurrenciesEntity $currenciesEntity,
         FeedsEntity      $feedsEntity,
-        CategoriesEntity $categoriesEntity,
-        MappingsEntity   $mappingsEntity
+        CategoriesEntity $categoriesEntity
     ) {
         $this->money         = $money;
         $this->design        = $design;
@@ -130,7 +119,6 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
         $this->currenciesEntity = $currenciesEntity;
         $this->feedsEntity      = $feedsEntity;
         $this->categoriesEntity = $categoriesEntity;
-        $this->mappingsEntity   = $mappingsEntity;
 
         $this->init();
     }
@@ -148,9 +136,6 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
         $this->feed = $feed;
 
         $feed->settings = $this->loadSettings($feed->settings);
-
-        $this->featureMappings = $this->mappingsEntity->mappedBy('entity_id')->find(['feed_id' => $feed->id, 'entity' => 'feature']);
-        $this->categoryMappings = $this->mappingsEntity->mappedBy('entity_id')->find(['feed_id' => $feed->id, 'entity' => 'category']);
 
         if ($currencies = $this->currenciesEntity->find()) {
             $this->design->assign('main_currency', reset($currencies));
@@ -222,13 +207,8 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
         return $this->inheritedExtender(__FUNCTION__, static::$footerTemplate, func_get_args());
     }
 
-    /**
-     * Преобразует настройки выгрузки из базы в удобный формат. Базово, десериализует массив.
-     */
-    protected function loadSettings(string $settings)
+    protected function loadSettings(array $settings): array
     {
-        $settings = unserialize($settings);
-
         return $this->inheritedExtender(__FUNCTION__, $settings, func_get_args());
     }
 
@@ -251,12 +231,18 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
     {
         $result = [];
         foreach ($dbCategories as $dbCategory) {
+            $categorySettings = $this->getCategorySettings($dbCategory->id);
+
+            if (!$categorySettings || !($name = $categorySettings['name_in_feed'])) {
+                $name = $dbCategory->name;
+            }
+
             $xmlCategory = [
                 'tag' => 'category',
+                'data' => $this->xmlFeedHelper->escape($name),
                 'attributes' => [
                     'id' => $dbCategory->id
                 ],
-                'data' => $this->xmlFeedHelper->escape(($name = $this->getCategoryMappingName($dbCategory->id)) ? $name : $dbCategory->name)
             ];
 
             if (!empty($dbCategory->parent_id)) {
@@ -447,33 +433,23 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
     }
 
     /**
-     * Проверяет добавлять ли свойство в выгрузку
+     * Получает название свойства используя таблицу сопоставления свойств
      */
-    protected function isFeatureToFeed($featureId): bool
+    protected function getFeatureSettings($featureId)
     {
-        $result = !isset($this->featureMappings[$featureId]) || $this->featureMappings[$featureId]->to_feed;
+        $settings = $this->feed->features_settings[$featureId] ?? null;
 
-        return $this->inheritedExtender(__FUNCTION__, $result, func_get_args());
+        return $this->inheritedExtender(__FUNCTION__, $settings, func_get_args());
     }
 
     /**
      * Получает название свойства используя таблицу сопоставления свойств
      */
-    protected function getFeatureMappingName($featureId)
+    protected function getCategorySettings($categoryId)
     {
-        $name = isset($this->featureMappings[$featureId]) && $this->featureMappings[$featureId]->value ? $this->featureMappings[$featureId]->value : false;
+        $settings = $this->feed->categories_settings[$categoryId] ?? null;
 
-        return $this->inheritedExtender(__FUNCTION__, $name, func_get_args());
-    }
-
-    /**
-     * Получает название свойства используя таблицу сопоставления свойств
-     */
-    protected function getCategoryMappingName($categoryId)
-    {
-        $name = isset($this->categoryMappings[$categoryId]) && $this->categoryMappings[$categoryId]->value ? $this->categoryMappings[$categoryId]->value : false;
-
-        return $this->inheritedExtender(__FUNCTION__, $name, func_get_args());
+        return $this->inheritedExtender(__FUNCTION__, $settings, func_get_args());
     }
 
     /**

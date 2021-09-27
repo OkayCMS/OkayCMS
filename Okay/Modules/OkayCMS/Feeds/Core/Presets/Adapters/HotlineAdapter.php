@@ -44,6 +44,12 @@ class HotlineAdapter extends AbstractPresetAdapter
         $result = [];
 
         foreach ($dbCategories as $dbCategory) {
+            $categorySettings = $this->getCategorySettings($dbCategory->id);
+
+            if (!$categorySettings || !($name = $categorySettings['name_in_feed'])) {
+                $name = $dbCategory->name;
+            }
+
             $xmlCategory = [
                 'tag' => 'category',
                 'data' => [
@@ -51,7 +57,7 @@ class HotlineAdapter extends AbstractPresetAdapter
                         'data' => $dbCategory->id
                     ],
                     'name' => [
-                        'data' => $dbCategory->name
+                        'data' => $this->xmlFeedHelper->escape($name)
                     ]
                 ]
             ];
@@ -189,8 +195,8 @@ class HotlineAdapter extends AbstractPresetAdapter
 
         if (isset($product->features[$guaranteeId])) {
             $result[] = [
-                'data' => $this->xmlFeedHelper->escape($product->features[$guaranteeId]['values_string']),
                 'tag' => 'guarantee',
+                'data' => $this->xmlFeedHelper->escape($product->features[$guaranteeId]['values_string']),
                 'attributes' => [
                     'type' => 'manufacturer',
                 ],
@@ -200,8 +206,8 @@ class HotlineAdapter extends AbstractPresetAdapter
 
         if (isset($product->features[$guaranteeShopId])) {
             $result[] = [
-                'data' => $this->xmlFeedHelper->escape($product->features[$guaranteeShopId]['values_string']),
                 'tag' => 'guarantee',
+                'data' => $this->xmlFeedHelper->escape($product->features[$guaranteeShopId]['values_string']),
                 'attributes' => [
                     'type' => 'shop',
                 ],
@@ -211,8 +217,8 @@ class HotlineAdapter extends AbstractPresetAdapter
 
         if (isset($product->features[$countryOfOriginParamId])) {
             $result[] = [
-                'data' => $this->xmlFeedHelper->escape($product->features[$countryOfOriginParamId]['values_string']),
                 'tag' => 'param',
+                'data' => $this->xmlFeedHelper->escape($product->features[$countryOfOriginParamId]['values_string']),
                 'attributes' => [
                     'name' => 'Країна виготовлення',
                 ],
@@ -222,13 +228,19 @@ class HotlineAdapter extends AbstractPresetAdapter
 
         if (!empty($product->features)) {
             foreach ($product->features as $feature) {
-                if ($this->isFeatureToFeed($feature['id'])) {
+                $featureSettings = $this->getFeatureSettings($feature['id']);
+
+                if (!$featureSettings || $featureSettings['to_feed']) {
+                    if (!$featureSettings || !($name = $featureSettings['name_in_feed'])) {
+                        $name = $feature['name'];
+                    }
+
                     foreach ($feature['values'] as $value) {
                         $result[] = [
-                            'data' => $this->xmlFeedHelper->escape($value),
                             'tag' => 'param',
+                            'data' => $this->xmlFeedHelper->escape($value),
                             'attributes' => [
-                                'name' => $this->xmlFeedHelper->escape(($name = $this->getFeatureMappingName($feature['id'])) ? $name : $feature['name']),
+                                'name' => $this->xmlFeedHelper->escape($name),
                             ],
                         ];
                     }

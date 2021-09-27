@@ -17,6 +17,43 @@ class RozetkaAdapter extends AbstractPresetAdapter
     /** @var string */
     static protected $footerTemplate = 'preset_footers/rozetka.tpl';
 
+    protected function buildCategories(array $dbCategories): array
+    {
+        $result = [];
+        foreach ($dbCategories as $dbCategory) {
+            $categorySettings = $this->getCategorySettings($dbCategory->id);
+
+            if (!$categorySettings || !($name = $categorySettings['name_in_feed'])) {
+                $name = $dbCategory->name;
+            }
+
+            $xmlCategory = [
+                'tag' => 'category',
+                'data' => $this->xmlFeedHelper->escape($name),
+                'attributes' => [
+                    'id' => $dbCategory->id
+                ],
+            ];
+
+            if (!empty($dbCategory->parent_id)) {
+                $xmlCategory['attributes']['parentId'] = $dbCategory->parent_id;
+            }
+
+            if ($categorySettings && ($rozetkaId = $categorySettings['external_id'])) {
+                $xmlCategory['attributes']['rz_id'] = $rozetkaId;
+            }
+
+            $result[] = $xmlCategory;
+
+            if (!empty($dbCategory->subcategories) && $dbCategory->count_children_visible) {
+                $result = array_merge($result, $this->buildCategories($dbCategory->subcategories));
+            }
+        }
+
+        return $this->inheritedExtender(__FUNCTION__, $result, func_get_args());
+
+    }
+
     public function getQuery($feedId): Select
     {
         $sql = parent::getQuery(...func_get_args());
@@ -129,8 +166,8 @@ class RozetkaAdapter extends AbstractPresetAdapter
 
         if (!empty($product->sku)) {
             $result[] = [
-                'data' => $this->xmlFeedHelper->escape($product->sku),
                 'tag' => 'param',
+                'data' => $this->xmlFeedHelper->escape($product->sku),
                 'attributes' => [
                     'name' => 'Артикул'
                 ]
@@ -139,8 +176,8 @@ class RozetkaAdapter extends AbstractPresetAdapter
 
         if (!empty($product->variant_name) && !empty($this->feed->settings['variant_name_param'])) {
             $result[] = [
-                'data' => $this->xmlFeedHelper->escape($product->variant_name),
                 'tag' => 'param',
+                'data' => $this->xmlFeedHelper->escape($product->variant_name),
                 'attributes' => [
                     'name' => $this->xmlFeedHelper->escape($this->feed->settings['variant_name_param'])
                 ]
@@ -149,7 +186,13 @@ class RozetkaAdapter extends AbstractPresetAdapter
 
         if (!empty($product->features)) {
             foreach ($product->features as $feature) {
-                if ($this->isFeatureToFeed($feature['id'])) {
+                $featureSettings = $this->getFeatureSettings($feature['id']);
+
+                if (!$featureSettings || $featureSettings['to_feed']) {
+                    if (!$featureSettings || !($name = $featureSettings['name_in_feed'])) {
+                        $name = $feature['name'];
+                    }
+
                     if (count($feature['values']) > 1) {
                         $valuesString = implode(" <br/>\n", array_map(function($value) {
                             return $this->xmlFeedHelper->escape($value);
@@ -161,10 +204,10 @@ class RozetkaAdapter extends AbstractPresetAdapter
                     }
 
                     $result[] = [
-                        'data' => $data,
                         'tag' => 'param',
+                        'data' => $data,
                         'attributes' => [
-                            'name' => $this->xmlFeedHelper->escape(($name = $this->getFeatureMappingName($feature['id'])) ? $name : $feature['name']),
+                            'name' => $this->xmlFeedHelper->escape($name),
                         ],
                     ];
                 }

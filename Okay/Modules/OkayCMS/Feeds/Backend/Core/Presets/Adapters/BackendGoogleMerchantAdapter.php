@@ -3,6 +3,7 @@
 namespace Okay\Modules\OkayCMS\Feeds\Backend\Core\Presets\Adapters;
 
 use Okay\Core\Design;
+use Okay\Core\DesignBlocks;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Request;
 use Okay\Entities\FeaturesEntity;
@@ -11,7 +12,7 @@ use Okay\Modules\OkayCMS\Feeds\Backend\Core\Presets\AbstractBackendPresetAdapter
 class BackendGoogleMerchantAdapter extends AbstractBackendPresetAdapter
 {
     /** @var string */
-    protected static $settingsTemplate = 'preset_settings/google_merchant.tpl';
+    protected static $settingsTemplate = 'presets/google_merchant/settings.tpl';
 
 
     /** @var FeaturesEntity */
@@ -20,6 +21,7 @@ class BackendGoogleMerchantAdapter extends AbstractBackendPresetAdapter
     public function __construct(
         Design         $design,
         Request        $request,
+        DesignBlocks   $designBlocks,
         FeaturesEntity $featuresEntity
     ){
         parent::__construct(...func_get_args());
@@ -27,7 +29,7 @@ class BackendGoogleMerchantAdapter extends AbstractBackendPresetAdapter
         $this->featuresEntity = $featuresEntity;
     }
 
-    public function postSettings(): string
+    public function postSettings(): array
     {
         $postSettings = $this->request->post('settings', null, []);
 
@@ -51,8 +53,6 @@ class BackendGoogleMerchantAdapter extends AbstractBackendPresetAdapter
             ],
         ];
 
-        $dbSettings = serialize($settings);
-
-        return ExtenderFacade::execute(__METHOD__, $dbSettings, func_get_args());
+        return ExtenderFacade::execute(__METHOD__, $settings, func_get_args());
     }
 }

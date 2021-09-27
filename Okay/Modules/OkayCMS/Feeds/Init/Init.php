@@ -6,7 +6,6 @@ use Okay\Core\Modules\AbstractInit;
 use Okay\Core\Modules\EntityField;
 use Okay\Modules\OkayCMS\Feeds\Entities\ConditionsEntity;
 use Okay\Modules\OkayCMS\Feeds\Entities\FeedsEntity;
-use Okay\Modules\OkayCMS\Feeds\Entities\MappingsEntity;
 
 class Init extends AbstractInit
 {
@@ -25,7 +24,9 @@ class Init extends AbstractInit
             (new EntityField('url'))->setTypeVarchar(100, false)->setIndexUnique(),
             (new EntityField('enabled'))->setTypeTinyInt(1, false)->setDefault(0),
             (new EntityField('preset'))->setTypeVarchar(255, false),
-            (new EntityField('settings'))->setTypeText(),
+            (new EntityField('settings'))->setTypeMediumText(),
+            (new EntityField('features_settings'))->setTypeMediumText(),
+            (new EntityField('categories_settings'))->setTypeMediumText(),
             (new EntityField('position'))->setTypeInt(11)->setDefault(0)->setIndex()
         ]);
 
@@ -41,15 +42,6 @@ class Init extends AbstractInit
         $this->migrateCustomTable(self::CONDITIONS_ENTITIES_RELATION_TABLE, [
             (new EntityField('condition_id'))->setTypeInt(11, false)->setIndexUnique(null, $entityIdField),
             $entityIdField,
-        ]);
-
-        $this->migrateEntityTable(MappingsEntity::class, [
-            (new EntityField('id'))->setTypeInt(11, false)->setAutoIncrement(),
-            (new EntityField('feed_id'))->setTypeInt(11, false),
-            (new EntityField('entity'))->setTypeVarchar(255, false),
-            (new EntityField('entity_id'))->setTypeInt(11, false),
-            (new EntityField('value'))->setTypeVarchar(255, false)->setIsLang(),
-            (new EntityField('to_feed'))->setTypeTinyInt(1, false)->setDefault(1),
         ]);
     }
 

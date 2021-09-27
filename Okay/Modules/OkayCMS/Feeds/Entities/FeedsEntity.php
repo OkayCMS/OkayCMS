@@ -15,11 +15,52 @@ class FeedsEntity extends Entity
         'enabled',
         'preset',
         'settings',
+        'features_settings',
+        'categories_settings',
         'position'
     ];
 
     protected static $table = 'okay_cms__feeds__feeds';
     protected static $tableAlias = 'oc_ff';
+
+    public function find(array $filter = [])
+    {
+        $resultFields = $this->getAllFieldsWithoutAlias();
+
+        $results = parent::find($filter);
+
+        $field = null;
+
+        if (count($resultFields) == 1) {
+            $field = reset($resultFields);
+        }
+
+        if (!$field) {
+            if (in_array('categories_settings', $resultFields)) {
+                foreach ($results as $result) {
+                    $result->categories_settings = unserialize($result->categories_settings);
+                }
+            }
+
+            if (in_array('features_settings', $resultFields)) {
+                foreach ($results as $result) {
+                    $result->features_settings = unserialize($result->features_settings);
+                }
+            }
+
+            if (in_array('features_settings', $resultFields)) {
+                foreach ($results as $result) {
+                    $result->settings = unserialize($result->settings);
+                }
+            }
+        } elseif ($field === 'categories_settings' || $field === 'features_settings' || $field === 'settings') {
+            foreach ($results as &$result) {
+                $result = unserialize($result);
+            }
+        }
+
+        return $results;
+    }
 
     public function add($feed)
     {
@@ -42,7 +83,41 @@ class FeedsEntity extends Entity
             }
         }
 
+        if (!isset($feed->categories_settings)) {
+            $feed->categories_settings = [];
+        }
+
+        if (!isset($feed->features_settings)) {
+            $feed->features_settings = [];
+        }
+
+        if (!isset($feed->settings)) {
+            $feed->features_settings = [];
+        }
+
+        $feed->categories_settings = serialize((array) $feed->categories_settings);
+        $feed->features_settings = serialize((array) $feed->features_settings);
+
         return parent::add($feed);
+    }
+
+    public function update($ids, $object)
+    {
+        $object = (object)$object;
+
+        if (isset($object->categories_settings)) {
+            $object->categories_settings = serialize((array) $object->categories_settings);
+        }
+
+        if (isset($object->features_settings)) {
+            $object->features_settings = serialize((array) $object->features_settings);
+        }
+
+        if (isset($object->settings)) {
+            $object->settings = serialize((array) $object->settings);
+        }
+
+        return parent::update($ids, $object);
     }
 
     public function delete($ids): bool
@@ -99,7 +174,6 @@ class FeedsEntity extends Entity
 
         $this->multiDuplicateFeed($feedId, $newFeedId);
         $this->duplicateConditions($feedId, $newFeedId);
-        $this->duplicateMappings($feedId, $newFeedId);
 
         return $newFeedId;
     }
@@ -140,15 +214,6 @@ class FeedsEntity extends Entity
         $conditionsEntity = $this->entity->get(ConditionsEntity::class);
         foreach ($conditionsEntity->find(['feed_id' => $feedId]) as $condition) {
             $conditionsEntity->duplicate($condition->id, $newFeedId);
-        }
-    }
-
-    private function duplicateMappings($feedId, $newFeedId): void
-    {
-        /** @var MappingsEntity $mappingsEntity */
-        $mappingsEntity = $this->entity->get(MappingsEntity::class);
-        foreach ($mappingsEntity->find(['feed_id' => $feedId]) as $mapping) {
-            $mappingsEntity->duplicate($mapping->id, $newFeedId);
         }
     }
 }

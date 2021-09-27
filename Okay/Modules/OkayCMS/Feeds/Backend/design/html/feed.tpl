@@ -117,7 +117,7 @@
                                     <div class="heading_label heading_label--required">
                                         <span>{$btr->okay_cms__feeds__feed_preset}</span>
                                     </div>
-                                    <select class="selectpicker form-control mb-1" name="preset">
+                                    <select class="selectpicker form-control mb-1 fn_preset_select" name="preset">
                                         {foreach $presets as $preset_name => $preset}
                                             <option value="{$preset_name}" {if $feed->preset == $preset_name} selected {/if}>{$preset_name}</option>
                                         {/foreach}
@@ -180,8 +180,8 @@
             <div class="tab_navigation">
                 <a href="#tab_entities" class="heading_box tab_navigation_link">{$btr->okay_cms__feeds__feed_tab_entities|escape}</a>
                 <a href="#tab_settings" class="heading_box tab_navigation_link">{$btr->okay_cms__feeds__feed_tab_settings|escape}</a>
-                <a href="#tab_feature_mappings" class="heading_box tab_navigation_link">{$btr->okay_cms__feeds__feed_tab_feature_mappings|escape}</a>
-                <a href="#tab_category_mappings" class="heading_box tab_navigation_link">{$btr->okay_cms__feeds__feed_tab_category_mappings|escape}</a>
+                <a href="#tab_features_settings" class="heading_box tab_navigation_link">{$btr->okay_cms__feeds__feed_tab_features_settings|escape}</a>
+                <a href="#tab_categories_settings" class="heading_box tab_navigation_link">{$btr->okay_cms__feeds__feed_tab_categories_settings|escape}</a>
             </div>
         </div>
         <div class="tab_container">
@@ -191,11 +191,11 @@
             <div id="tab_settings" class="tab fn_settings_container">
                 {include file='./feed_tabs/settings.tpl'}
             </div>
-            <div id="tab_feature_mappings" class="tab">
-                {include file='./feed_tabs/feature_mappings.tpl'}
+            <div id="tab_features_settings" class="tab">
+                {include file='./feed_tabs/features_settings.tpl'}
             </div>
-            <div id="tab_category_mappings" class="tab">
-                {include file='./feed_tabs/category_mappings.tpl'}
+            <div id="tab_categories_settings" class="tab">
+                {include file='./feed_tabs/categories_settings.tpl'}
             </div>
         </div>
     </div>

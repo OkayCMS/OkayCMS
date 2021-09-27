@@ -8,10 +8,18 @@ use Okay\Modules\OkayCMS\Feeds\Backend\Core\Presets\AbstractBackendPresetAdapter
 class BackendRozetkaAdapter extends AbstractBackendPresetAdapter
 {
     /** @var string */
-    protected static $settingsTemplate = 'preset_settings/rozetka.tpl';
+    protected static $settingsTemplate = 'presets/rozetka/settings.tpl';
 
+    public function postCategorySettings(): array
+    {
+        $settings = array_merge_recursive(parent::postCategorySettings(), [
+            'external_id' => $this->request->post('external_id', null, '')
+        ]);
 
-    public function postSettings(): string
+        return ExtenderFacade::execute(__METHOD__, $settings, func_get_args());
+    }
+
+    public function postSettings(): array
     {
         $postSettings = $this->request->post('settings', null, []);
 
@@ -33,8 +41,18 @@ class BackendRozetkaAdapter extends AbstractBackendPresetAdapter
             ],
         ];
 
-        $dbSettings = serialize($settings);
+        return ExtenderFacade::execute(__METHOD__, $settings, func_get_args());
+    }
 
-        return ExtenderFacade::execute(__METHOD__, $dbSettings, func_get_args());
+    public function registerCategorySettingsBlock(): void
+    {
+        $this->designBlocks->registerBlock(
+            'okay_cms__feeds__feed__categories_settings__settings_custom_block',
+            __DIR__.'/../../../design/html/presets/rozetka/category_settings.tpl'
+        );
+
+        parent::registerCategorySettingsBlock();
+
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 }

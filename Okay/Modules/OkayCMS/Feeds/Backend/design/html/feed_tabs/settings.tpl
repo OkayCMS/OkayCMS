@@ -20,7 +20,7 @@
                 newSettings[$(el).data('preset_name')] = el;
             });
 
-            $(document).on('change', 'select[name=preset]', function() {
+            $(document).on('change', 'select.fn_preset_select', function() {
                 let currentEl = $('.fn_settings_container .fn_settings');
                 newSettings[currentEl.data('preset_name')] = currentEl[0];
                 currentEl.appendTo('.fn_new_settings_container');

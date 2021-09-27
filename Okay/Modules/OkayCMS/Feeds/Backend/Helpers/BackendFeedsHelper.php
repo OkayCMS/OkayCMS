@@ -14,7 +14,6 @@ use Okay\Helpers\ProductsHelper;
 use Okay\Modules\OkayCMS\Feeds\Backend\Core\Presets\BackendPresetAdapterFactory;
 use Okay\Modules\OkayCMS\Feeds\Entities\ConditionsEntity;
 use Okay\Modules\OkayCMS\Feeds\Entities\FeedsEntity;
-use Okay\Modules\OkayCMS\Feeds\Entities\MappingsEntity;
 
 class BackendFeedsHelper
 {
@@ -49,9 +48,6 @@ class BackendFeedsHelper
     /** @var FeaturesValuesEntity */
     private $featuresValuesEntity;
 
-    /** @var MappingsEntity */
-    private $mappingsEntity;
-
     public function __construct(
         EntityFactory               $entityFactory,
         ProductsHelper              $productsHelper,
@@ -70,7 +66,6 @@ class BackendFeedsHelper
         $this->brandsEntity          = $entityFactory->get(BrandsEntity::class);
         $this->featuresEntity        = $entityFactory->get(FeaturesEntity::class);
         $this->featuresValuesEntity  = $entityFactory->get(FeaturesValuesEntity::class);
-        $this->mappingsEntity        = $entityFactory->get(MappingsEntity::class);
     }
 
     public function getValidateError(object $feed): string
@@ -154,46 +149,20 @@ class BackendFeedsHelper
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
-    public function addMappings($feedId, array $mappings): void
+    public function updateCategorySettings($feedId, $newSettings): void
     {
-        foreach ($mappings as $entity => $entityMappings) {
-            foreach ($entityMappings as $entityId => $entityMapping) {
-                // Создаём с пустым значением, чтобы потом обновить значение только текущей языковой версии
-                $id = $this->mappingsEntity->add([
-                    'feed_id' => $feedId,
-                    'entity' => $entity,
-                    'entity_id' => $entityId,
-                    'value' => '',
-                    'to_feed' => $entityMapping['to_feed'] ?? 0
-                ]);
-
-                $this->mappingsEntity->update($id, ['value' => $entityMapping['value']]);
-            }
-        }
+        $settings = $this->feedsEntity->cols(['categories_settings'])->findOne(['id' => $feedId]);
+        $settings[$newSettings['entity_id']] = $newSettings;
+        $this->feedsEntity->update($feedId, ['categories_settings' => $settings]);
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
-    public function updateMappings($feedId, array $mappings): void
+    public function updateFeatureSettings($feedId, array $newSettings): void
     {
-        $query = $this->queryFactory->newSelect()
-            ->cols(['id'])
-            ->from(MappingsEntity::getTable())
-            ->where('feed_id = :feed_id')
-            ->bindValues(['feed_id' => $feedId,]);
-
-        if (!empty($mappings)) {
-            $query->where('id NOT IN (:ids)')
-                ->bindValues(['ids' => array_keys($mappings)]);
-        }
-
-        $idsToDelete = $query->results('id');
-
-        $this->mappingsEntity->delete($idsToDelete);
-
-        foreach ($mappings as $mappingId => $mapping) {
-            $this->mappingsEntity->update($mappingId, ['to_feed' => $mapping['to_feed'] ?? 0, 'value' => $mapping['value']]);
-        }
+        $settings = $this->feedsEntity->cols(['features_settings'])->findOne(['id' => $feedId]);
+        $settings[$newSettings['entity_id']] = $newSettings;
+        $this->feedsEntity->update($feedId, ['features_settings' => $settings]);
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
@@ -260,21 +229,6 @@ class BackendFeedsHelper
 
         return ExtenderFacade::execute(__METHOD__, $conditions, func_get_args());
     }
-
-    public function getFeatureMappings($feedId): array
-    {
-        $mappings = $this->mappingsEntity->mappedBy('entity_id')->find(['feed_id' => $feedId, 'entity' => 'feature']);
-
-        return ExtenderFacade::execute(__METHOD__, $mappings, func_get_args());
-    }
-
-    public function getCategoryMappings($feedId): array
-    {
-        $mappings = $this->mappingsEntity->mappedBy('entity_id')->find(['feed_id' => $feedId, 'entity' => 'category']);
-
-        return ExtenderFacade::execute(__METHOD__, $mappings, func_get_args());
-    }
-
 
     public function sortPositions(array $positions): void
     {
@@ -346,10 +300,10 @@ class BackendFeedsHelper
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
-    public function loadSettings(string $presetName, string $dbSettings)
+    public function loadSettings(string $presetName, array $settings)
     {
         $adapter = $this->presetAdapterFactory->get($presetName);
-        $settings = $adapter->loadSettings($dbSettings);
+        $settings = $adapter->loadSettings($settings);
 
         return ExtenderFacade::execute(__METHOD__, $settings, func_get_args());
     }
@@ -378,5 +332,12 @@ class BackendFeedsHelper
         $presets = $this->presetAdapterFactory->getPresets();
 
         return ExtenderFacade::execute(__METHOD__, $presets, func_get_args());
+    }
+
+    public function registerSettingsBlocks(string $presetName): void
+    {
+        $adapter = $this->presetAdapterFactory->get($presetName);
+        $adapter->registerCategorySettingsBlock();
+        $adapter->registerFeatureSettingsBlock();
     }
 }
