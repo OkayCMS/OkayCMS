@@ -22,7 +22,7 @@
     <div class="alert alert--icon alert--warning">
         <div class="alert__content">
             <div class="alert__title">{$btr->alert_warning}</div>
-            <p>{$btr->okay_cms__feeds__feed_tab_categories_settings_save_notify}</p>
+            <p>{$btr->okay_cms__feeds__feed__categories_settings__save_notify}</p>
         </div>
     </div>
 {/if}

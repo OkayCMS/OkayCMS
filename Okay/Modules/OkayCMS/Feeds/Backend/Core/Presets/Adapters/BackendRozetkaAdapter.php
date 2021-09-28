@@ -48,7 +48,7 @@ class BackendRozetkaAdapter extends AbstractBackendPresetAdapter
     {
         $this->designBlocks->registerBlock(
             'okay_cms__feeds__feed__categories_settings__settings_custom_block',
-            __DIR__.'/../../../design/html/presets/rozetka/category_settings.tpl'
+            dirname(__DIR__, 3).'/design/html/presets/rozetka/category_settings.tpl'
         );
 
         parent::registerCategorySettingsBlock();

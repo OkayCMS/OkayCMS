@@ -1,7 +1,7 @@
 {if $feed->id}
     {$meta_title = $feed->name scope=global}
 {else}
-    {$meta_title = $btr->okay_cms__feeds__feed_new scope=global}
+    {$meta_title = $btr->okay_cms__feeds__feed__new scope=global}
 {/if}
 
 {*Название страницы*}
@@ -10,7 +10,7 @@
         <div class="wrap_heading">
             <div class="box_heading heading_page">
                 {if !$feed->id}
-                    {$btr->okay_cms__feeds__feed_add|escape}
+                    {$btr->okay_cms__feeds__feed__add|escape}
                 {else}
                     {$feed->name|escape}
                 {/if}
@@ -35,9 +35,9 @@
                 <div class="alert__content">
                     <div class="alert__title">
                         {if $message_success == 'added'}
-                            {$btr->okay_cms__feeds__feed_added|escape}
+                            {$btr->okay_cms__feeds__feed__added|escape}
                         {elseif $message_success == 'updated'}
-                            {$btr->okay_cms__feeds__feed_updated|escape}
+                            {$btr->okay_cms__feeds__feed__updated|escape}
                         {/if}
                     </div>
                 </div>
@@ -115,7 +115,7 @@
                             <div class="col-lg-6 col-sm-12">
                                 <div class="form-group">
                                     <div class="heading_label heading_label--required">
-                                        <span>{$btr->okay_cms__feeds__feed_preset}</span>
+                                        <span>{$btr->okay_cms__feeds__feed__preset}</span>
                                     </div>
                                     <select class="selectpicker form-control mb-1 fn_preset_select" name="preset">
                                         {foreach $presets as $preset_name => $preset}
@@ -178,10 +178,10 @@
     <div class="tabs mt-1">
         <div class="heading_tabs">
             <div class="tab_navigation">
-                <a href="#tab_entities" class="heading_box tab_navigation_link">{$btr->okay_cms__feeds__feed_tab_entities|escape}</a>
-                <a href="#tab_settings" class="heading_box tab_navigation_link">{$btr->okay_cms__feeds__feed_tab_settings|escape}</a>
-                <a href="#tab_features_settings" class="heading_box tab_navigation_link">{$btr->okay_cms__feeds__feed_tab_features_settings|escape}</a>
-                <a href="#tab_categories_settings" class="heading_box tab_navigation_link">{$btr->okay_cms__feeds__feed_tab_categories_settings|escape}</a>
+                <a href="#tab_entities" class="heading_box tab_navigation_link">{$btr->okay_cms__feeds__feed__entities__tab|escape}</a>
+                <a href="#tab_settings" class="heading_box tab_navigation_link">{$btr->okay_cms__feeds__feed__settings__tab|escape}</a>
+                <a href="#tab_features_settings" class="heading_box tab_navigation_link">{$btr->okay_cms__feeds__feed__features_settings__tab|escape}</a>
+                <a href="#tab_categories_settings" class="heading_box tab_navigation_link">{$btr->okay_cms__feeds__feed__categories_settings__tab|escape}</a>
             </div>
         </div>
         <div class="tab_container">

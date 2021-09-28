@@ -85,7 +85,7 @@
                     </div>
                 </div>
                 <div class="heading_label heading_label--required">
-                    <span>{$btr->okay_cms__feeds__feed_condition_select_products|escape}</span>
+                    <span>{$btr->okay_cms__feeds__feed__entities__select_products|escape}</span>
                 </div>
                 <div class="autocomplete_arrow">
                     <input type=text name=related class="form-control fn_compact_product_list" placeholder='{$btr->general_recommended_add|escape}'>
@@ -99,7 +99,7 @@
     <div class="fn_condition_category row">
         <div class="col-md-12 form_group">
             <div class="heading_label heading_label--required">
-                <span>{$btr->okay_cms__feeds__feed_condition_select_categories|escape}</span>
+                <span>{$btr->okay_cms__feeds__feed__entities__select_categories|escape}</span>
             </div>
             <select class="selectpicker form-control mb-1" name="{if !$condition}new_conditions[condition_type][id][entities][]{else}conditions[{$condition->id}][entities][]{/if}" data-actions-box="true" multiple>
                 {function name=category_select_2 selected_id=$product_category level=0}
@@ -118,7 +118,7 @@
     <div class="fn_condition_feature_value row">
         <div class="fn_features col-md-6 form_group">
             <div class="heading_label heading_label--required">
-                <span>{$btr->okay_cms__feeds__feed_condition_select_feature|escape}</span>
+                <span>{$btr->okay_cms__feeds__feed__entities__select_feature|escape}</span>
             </div>
             <select class="selectpicker form-control mb-1" {if $condition}disabled{/if}>
                 {if !$condition}
@@ -132,7 +132,7 @@
         <div class="fn_feature_values col-md-6 form_group">
             {if $condition}
                 <div class="heading_label heading_label--required">
-                    <span>{$btr->okay_cms__feeds__feed_condition_select_feature_values|escape}</span>
+                    <span>{$btr->okay_cms__feeds__feed__entities__select_feature_values|escape}</span>
                 </div>
                 <select class="selectpicker form-control mb-1" name="conditions[{$condition->id}][entities][]" data-actions-box="true" multiple>
                     {foreach $condition->all_entities as $entity}
@@ -148,7 +148,7 @@
     <div class="fn_condition_brand row">
         <div class="col-md-12 form_group">
             <div class="heading_label heading_label--required">
-                <span>{$btr->okay_cms__feeds__feed_condition_select_brands|escape}</span>
+                <span>{$btr->okay_cms__feeds__feed__entities__select_brands|escape}</span>
             </div>
             <select class="selectpicker form-control mb-1" name="{if !$condition}new_conditions[condition_type][id][entities][]{else}conditions[{$condition->id}][entities][]{/if}" data-actions-box="true" multiple>
                 {foreach $brands as $brand}
@@ -163,13 +163,13 @@
     <div class="fn_condition row mt-1" {if $condition}data-id="{$condition->id}" data-type="$condition->type"{/if}>
         <div class="col-md-3 form_group">
             <div class="heading_label heading_label--required">
-                <span>{$btr->okay_cms__feeds__feed_condition_select_entity|escape}</span>
+                <span>{$btr->okay_cms__feeds__feed__entities__select_entity|escape}</span>
             </div>
             <select class="fn_condition_type selectpicker form-control mb-1" name="{if $condition}conditions[{$condition->id}][entity]{else}new_conditions[condition_type][id][entity]{/if}" {if $condition}disabled{/if}>
-                <option value="product" {if $condition && $condition->entity === 'product'} selected {/if}>{$btr->okay_cms__feeds__feed_condition_product}</option>
-                <option value="category" {if $condition && $condition->entity === 'category'} selected {/if}>{$btr->okay_cms__feeds__feed_condition_category}</option>
-                <option value="feature_value" {if $condition && $condition->entity === 'feature_value'} selected {/if}>{$btr->okay_cms__feeds__feed_condition_feature_value}</option>
-                <option value="brand" {if $condition && $condition->entity === 'brand'} selected {/if}>{$btr->okay_cms__feeds__feed_condition_brand}</option>
+                <option value="product" {if $condition && $condition->entity === 'product'} selected {/if}>{$btr->okay_cms__feeds__feed__entities__product}</option>
+                <option value="category" {if $condition && $condition->entity === 'category'} selected {/if}>{$btr->okay_cms__feeds__feed__entities__category}</option>
+                <option value="feature_value" {if $condition && $condition->entity === 'feature_value'} selected {/if}>{$btr->okay_cms__feeds__feed__entities__feature_value}</option>
+                <option value="brand" {if $condition && $condition->entity === 'brand'} selected {/if}>{$btr->okay_cms__feeds__feed__entities__brand}</option>
             </select>
         </div>
         <div class="fn_condition_container col-md-8">
@@ -187,7 +187,7 @@
         </div>
         <div class="col-md-1">
             <div>
-                <button data-hint="{$btr->okay_cms__feeds__feed_condition_delete|escape}" type="button" class="btn_close fn_delete_condition hint-bottom-right-t-info-s-small-mobile hint-anim">
+                <button data-hint="{$btr->okay_cms__feeds__feed__entities__delete|escape}" type="button" class="btn_close fn_delete_condition hint-bottom-right-t-info-s-small-mobile hint-anim">
                     {include file='svg_icon.tpl' svgId='trash'}
                 </button>
             </div>
@@ -207,14 +207,14 @@
     <div class="col-md-12">
         <div class="boxed">
             <div class="heading_box">
-                {$btr->okay_cms__feeds__feed_condition_inclusions|escape}
+                {$btr->okay_cms__feeds__feed__entities__inclusions|escape}
             </div>
             <div class="content row">
                 <div class="col-md-12">
                     <div class="box_btn_heading">
                         <button class="fn_add_condition btn btn_small btn-info" data-type="inclusion" type="button">
                             {include file='svg_icon.tpl' svgId='plus'}
-                            <span>{$btr->okay_cms__feeds__feed_condition_add|escape}</span>
+                            <span>{$btr->okay_cms__feeds__feed__entities__add|escape}</span>
                         </button>
                     </div>
                 </div>
@@ -232,14 +232,14 @@
     <div class="col-md-12">
         <div class="boxed">
             <div class="heading_box">
-                {$btr->okay_cms__feeds__feed_condition_exclusions|escape}
+                {$btr->okay_cms__feeds__feed__entities__exclusions|escape}
             </div>
             <div class="content row">
                 <div class="col-md-12">
                     <div class="box_btn_heading">
                         <button class="fn_add_condition btn btn_small btn-info" data-type="exclusion" type="button">
                             {include file='svg_icon.tpl' svgId='plus'}
-                            <span>{$btr->okay_cms__feeds__feed_condition_add|escape}</span>
+                            <span>{$btr->okay_cms__feeds__feed__entities__add|escape}</span>
                         </button>
                     </div>
                 </div>
@@ -348,7 +348,7 @@
                     if (featureValues.length > 0) {
                         selectContainer.html(`
                             <div class="heading_label heading_label--required">
-                                <span>{/literal}{$btr->okay_cms__feeds__feed_condition_select_feature_values|escape}{literal}</span>
+                                <span>{/literal}{$btr->okay_cms__feeds__feed__entities__select_feature_values|escape}{literal}</span>
                             </div>
                             <select class="form-control mb-1" name="new_conditions[condition_type][id][entities][]" data-actions-box="true" multiple></select>
                         `);
