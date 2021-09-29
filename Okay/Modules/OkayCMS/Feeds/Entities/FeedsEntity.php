@@ -92,11 +92,12 @@ class FeedsEntity extends Entity
         }
 
         if (!isset($feed->settings)) {
-            $feed->features_settings = [];
+            $feed->settings = [];
         }
 
         $feed->categories_settings = serialize((array) $feed->categories_settings);
         $feed->features_settings = serialize((array) $feed->features_settings);
+        $feed->settings = serialize((array) $feed->settings);
 
         return parent::add($feed);
     }
