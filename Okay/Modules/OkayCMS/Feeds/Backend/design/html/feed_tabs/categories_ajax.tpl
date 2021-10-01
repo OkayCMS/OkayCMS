@@ -31,7 +31,7 @@
                     </a>
                 </div>
 
-                <div class="okay_list_feed_categories_settings_settings">
+                <div class="okay_list_boding okay_list_feed_categories_settings_settings">
                     {get_design_block block="okay_cms__feeds__feed__categories_settings__settings_custom_block" vars=['category' => $category]}
                 </div>
             </div>

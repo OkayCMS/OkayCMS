@@ -24,6 +24,7 @@
     $lang['okay_cms__feeds__feed__added'] = "Выгрузка добавлена";
     $lang['okay_cms__feeds__feed__updated'] = "Выгрузка обновлена";
     $lang['okay_cms__feeds__feed__preset'] = "Предустановка";
+        $lang['okay_cms__feeds__product_add'] = "Добавить товар";
 
 // Страница выгрузки/Выбор сущностей
     $lang['okay_cms__feeds__feed__entities__tab'] = "Товары";

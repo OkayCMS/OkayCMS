@@ -75,7 +75,6 @@
     </div>
 {/if}
 
-{*Главная форма страницы*}
 <form method="post" class="fn_fast_button" enctype="multipart/form-data">
     <input type=hidden name="session_id" value="{$smarty.session.id}">
     <input type="hidden" name="lang_id" value="{$lang_id}" />
@@ -83,12 +82,11 @@
     <div class="row">
         <div class="col-xs-12 ">
             <div class="boxed match_matchHeight_true">
-                {*Название элемента сайта*}
                 <div class="row d_flex">
                     <div class="col-lg-10 col-md-9 col-sm-12">
                         <div class="">
-                            <div class="heading_label">
-                                {$btr->general_name|escape}
+                            <div class="heading_label heading_label--required">
+                                <span>{$btr->general_name|escape}</span>
                             </div>
                             <div class="form-group">
                                 <input class="form-control" name="name" type="text" value="{$feed->name|escape}"/>
@@ -175,16 +173,28 @@
         </div>
     {/if}
 
-    <div class="tabs mt-1">
+    <div class="tabs">
         <div class="heading_tabs">
-            <div class="tab_navigation">
-                <a href="#tab_entities" class="heading_box tab_navigation_link">{$btr->okay_cms__feeds__feed__entities__tab|escape}</a>
-                <a href="#tab_settings" class="heading_box tab_navigation_link">{$btr->okay_cms__feeds__feed__settings__tab|escape}</a>
-                <a href="#tab_features_settings" class="heading_box tab_navigation_link">{$btr->okay_cms__feeds__feed__features_settings__tab|escape}</a>
-                <a href="#tab_categories_settings" class="heading_box tab_navigation_link">{$btr->okay_cms__feeds__feed__categories_settings__tab|escape}</a>
+            <div class="tab_navigation tab_navigation--round">
+                <a href="#tab_entities" class="heading_box tab_navigation_link">
+                    {include file='svg_icon.tpl' svgId='feed_product'}
+                    {$btr->okay_cms__feeds__feed__entities__tab|escape}
+                </a>
+                <a href="#tab_settings" class="heading_box tab_navigation_link">
+                    {include file='svg_icon.tpl' svgId='feed_settings'}
+                    {$btr->okay_cms__feeds__feed__settings__tab|escape}
+                </a>
+                <a href="#tab_features_settings" class="heading_box tab_navigation_link">
+                    {include file='svg_icon.tpl' svgId='feed_features'}
+                    {$btr->okay_cms__feeds__feed__features_settings__tab|escape}
+                </a>
+                <a href="#tab_categories_settings" class="heading_box tab_navigation_link">
+                    {include file='svg_icon.tpl' svgId='feed_category'}
+                    {$btr->okay_cms__feeds__feed__categories_settings__tab|escape}
+                </a>
             </div>
         </div>
-        <div class="tab_container">
+        <div class="tab_container tab_container--h-auto">
             <div id="tab_entities" class="tab">
                 {include file='./feed_tabs/entities.tpl'}
             </div>
@@ -198,14 +208,15 @@
                 {include file='./feed_tabs/categories_settings.tpl'}
             </div>
         </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-12 col-md-12">
-            <button type="submit" class="btn btn_small btn_blue float-md-right mb-1">
-                {include file='svg_icon.tpl' svgId='checked'}
-                <span>{$btr->general_apply|escape}</span>
-            </button>
+        <div class="boxed">
+            <div class="row">
+                <div class="col-lg-12 col-md-12">
+                    <button type="submit" class="btn btn_small btn_blue float-md-right">
+                        {include file='svg_icon.tpl' svgId='checked'}
+                        <span>{$btr->general_apply|escape}</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </form>

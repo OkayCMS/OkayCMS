@@ -919,7 +919,7 @@
     .boxed_search .btn{width: 100%;}
     .box_adswitch .btn{padding: 8px 18px;}
     .wrap_head_mob{padding: 0px 0px 20px ;}
-    .btn_small {padding: 12px 18px;width: 100%;}
+    .btn_small {padding: 12px 18px;width: 100%;display: flex;justify-content: center;}
     .okay_list .okay_list_footer .btn {margin-right: 10px;margin-left: 10px;}
     .box_btn_heading, .box_heading {display: block;}
     .boxes_inline {display: inline-block;}
