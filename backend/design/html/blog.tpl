@@ -91,6 +91,7 @@
                             </div>
                             <div class="okay_list_heading okay_list_photo">{$btr->general_photo|escape}</div>
                             <div class="okay_list_heading okay_list_blog_name">{$btr->blog_name|escape}</div>
+                            <div class="okay_list_heading okay_list_status">{$btr->general_category|escape}</div>
                             <div class="okay_list_heading okay_list_status">{$btr->general_enable|escape}</div>
                             <div class="okay_list_heading okay_list_setting okay_list_blog_setting">{$btr->general_activities|escape}</div>
                             <div class="okay_list_heading okay_list_close"></div>
@@ -121,6 +122,16 @@
                                             <span class="text_grey">{$post->date|date}</span>
 
                                             {get_design_block block="blog_post_name" vars=['post'=>$post]}
+                                        </div>
+
+                                        <div class="okay_list_boding okay_list_status">
+                                            {if $categories[$post->main_category_id]->name}
+                                                <div class="text_600 font_14">{$categories[$post->main_category_id]->name}</div>
+                                            {else}
+                                                {foreach $categories as $c}
+                                                    <div class="text_600 font_14">{$c->subcategories[$post->main_category_id]->name}</div>
+                                                {/foreach}
+                                            {/if}
                                         </div>
 
                                         <div class="okay_list_boding okay_list_status">
