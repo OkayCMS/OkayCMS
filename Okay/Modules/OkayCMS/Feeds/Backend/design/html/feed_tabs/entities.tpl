@@ -8,7 +8,7 @@
                             <span>{$btr->okay_cms__feeds__feed__entities__select_products|escape}</span>
                         </div>
                         <div class="autocomplete_arrow">
-                            <input type=text name=related class="form-control fn_compact_product_list" placeholder='{$btr->okay_cms__feeds__product_add|escape}'>
+                            <input type=text name=related class="form-control fn_compact_product_list" placeholder='{$btr->okay_cms__feeds__feed__entities__product_add|escape}'>
                         </div>
                     </div>
                     <div class="activity_of_switch activity_of_switch--left mt-2 ml-1">

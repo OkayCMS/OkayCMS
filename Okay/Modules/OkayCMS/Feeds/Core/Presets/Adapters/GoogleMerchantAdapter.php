@@ -142,15 +142,28 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
 
         $result['g:adult']['data'] = $this->feed->settings['adult'] ? 'true' : 'false';
 
-        $productColor = $this->feed->settings['color'];
-
-        if (isset($product->features[$productColor])) {
-            $result['g:color']['data'] = $this->xmlFeedHelper->escape($product->features[$productColor]['values_string']);
-            unset($product->features[$productColor]);
+        if (($featureId = $this->feed->settings['color']) && isset($product->features[$featureId])) {
+            $result['g:color']['data'] = $this->xmlFeedHelper->escape($product->features[$featureId]['values_string']);
+            unset($product->features[$featureId]);
         }
 
-        if (!empty($allCategories[$product->main_category_id])) {
-            $categoryPath = $allCategories[$product->main_category_id]->path;
+        if (($featureId = $this->feed->settings['gtin']) && isset($product->features[$featureId])) {
+            $result['g:gtin']['data'] = $this->xmlFeedHelper->escape($product->features[$featureId]['values_string']);
+            unset($product->features[$featureId]);
+        }
+
+        if (($featureId = $this->feed->settings['gender']) && isset($product->features[$featureId])) {
+            $result['g:gender']['data'] = $this->xmlFeedHelper->escape($product->features[$featureId]['values_string']);
+            unset($product->features[$featureId]);
+        }
+
+        if (($featureId = $this->feed->settings['material']) && isset($product->features[$featureId])) {
+            $result['g:material']['data'] = $this->xmlFeedHelper->escape($product->features[$featureId]['values_string']);
+            unset($product->features[$featureId]);
+        }
+
+        if (!empty($this->allCategories[$product->main_category_id])) {
+            $categoryPath = $this->allCategories[$product->main_category_id]->path;
 
             $productType = '';
 

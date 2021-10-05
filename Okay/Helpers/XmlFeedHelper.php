@@ -302,7 +302,7 @@ class XmlFeedHelper
         }
         
         $mataDataParts = [
-            '{$brand}'         => $product->vendor,
+            '{$brand}'         => $product->brand_name,
             '{$product}'       => $product->product_name,
             '{$price}'         => $price . ' ' . $this->mainCurrency->sign,
             '{$compare_price}' => ($comparePrice != null ? $comparePrice . ' ' . $this->mainCurrency->sign : ''),

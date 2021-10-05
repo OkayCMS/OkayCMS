@@ -50,12 +50,13 @@ class FeedAdmin extends IndexAdmin
         $brands            = $backendFeedsHelper->getBrands();
         $features          = $backendFeedsHelper->getFeatures();
         $presets           = $backendFeedsHelper->getPresets();
-        $settingsTemplates = $backendFeedsHelper->fetchSettingsTemplates();
 
         $this->design->assign('categories', $categories);
         $this->design->assign('brands', $brands);
         $this->design->assign('features', $features);
         $this->design->assign('presets', $presets);
+
+        $settingsTemplates = $backendFeedsHelper->fetchSettingsTemplates();
         $this->design->assign('settings_templates', $settingsTemplates);
 
         if ($feed) {

@@ -42,6 +42,9 @@ class BackendGoogleMerchantAdapter extends AbstractBackendPresetAdapter
             'upload_without_images' => $postSettings['upload_without_images'] ?? 0,
             'company' => $postSettings['company'],
             'color' => $postSettings['color'],
+            'gtin' => $postSettings['gtin'],
+            'gender' => $postSettings['gender'],
+            'material' => $postSettings['material'],
             'price_change' => $postSettings['price_change'],
             'filter_price' => [
                 'operator' => $postSettings['filter_price']['operator'],
