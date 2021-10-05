@@ -54,12 +54,13 @@
 // Страница выгрузки/Сопоставления свойств
     $lang['okay_cms__feeds__feed__features_settings__tab'] = "Настройки свойств";
     $lang['okay_cms__feeds__feed__features_settings__title'] = "Настройки свойств";
-    $lang['okay_cms__feeds__feed__features_settings__faq'] = "Изменение названия свойств в товарном фиде";
+    $lang['okay_cms__feeds__feed__features_settings__faq'] = "Изменение настроек свойств";
+    $lang['okay_cms__feeds__feed__features_settings__save_notify'] = "Сохраните фид для работы с этими настройками.";
 
 // Страница выгрузки/Сопоставления категорий
     $lang['okay_cms__feeds__feed__categories_settings__tab'] = "Настройки категорий";
     $lang['okay_cms__feeds__feed__categories_settings__title'] = "Настройки категорий";
-    $lang['okay_cms__feeds__feed__categories_settings__faq'] = "Изменение названия категории в товарном фиде";
+    $lang['okay_cms__feeds__feed__categories_settings__faq'] = "Изменение настроек категорий";
     $lang['okay_cms__feeds__feed__categories_settings__save_notify'] = "Сохраните фид для работы с этими настройками.";
 
 // Общие элементы настроек
@@ -86,7 +87,7 @@ $lang['okay_cms__feeds__feed__settings__google_merchant__upload_only_in_stock_pr
 $lang['okay_cms__feeds__feed__settings__google_merchant__use_full_description'] = "Transfer the full description to the upload (if turned off, the short description is transmitted)";
 $lang['okay_cms__feeds__feed__settings__google_merchant__no_export_without_price'] = "Do not unload goods with a price of 0";
 $lang['okay_cms__feeds__feed__settings__google_merchant__adult'] = "Adult products";
-$lang['okay_cms__feeds__feed__settings__google_merchant__use_variant_name_like_size'] = "Use variant name like a size (for clothes)";
+$lang['okay_cms__feeds__feed__settings__google_merchant__use_variant_name_like_size'] = "Use variant name like a size (size)";
 $lang['okay_cms__feeds__feed__settings__google_merchant__google_merchant__company'] = "Company";
 $lang['okay_cms__feeds__feed__settings__google_merchant__color'] = "Color";
 $lang['okay_cms__feeds__feed__settings__google_merchant__color_notify'] = "Select feature";

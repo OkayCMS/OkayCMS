@@ -98,8 +98,13 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
             $result['link']['data'] = Router::generateUrl('product', ['url' => $product->url], true);
         }
 
+
         $result['description']['data'] = $this->xmlFeedHelper->escape($product->description);
         $result['g:id']['data'] = $this->xmlFeedHelper->escape($product->variant_id);
+
+        if (!empty($product->weight > 0)) {
+            $result['g:product_weight']['data'] = $this->xmlFeedHelper->escape($product->weight);
+        }
 
         if (!empty($product->sku)) {
             $result['g:mpn']['data'] = $this->xmlFeedHelper->escape($product->sku);
@@ -188,6 +193,14 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
                     break;
                 }
             }
+        }
+
+        if (($categorySettings = $this->getCategorySettings($product->main_category_id)) && $categorySettings['name_in_feed']) {
+            $result['g:google_product_category']['data'] = $categorySettings['name_in_feed'];
+        }
+
+        if ($product->total_variants > 1) {
+            $result['g:item_group_id']['data'] = $product->product_id;
         }
 
         $item = [
