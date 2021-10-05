@@ -129,3 +129,17 @@ $lang['okay_cms__feeds__feed__settings__yml__country_of_origin'] = "Країна
     $lang['okay_cms__feeds__feed__settings__yml__feed_name'] = "Название фида";
     $lang['okay_cms__feeds__feed__settings__yml__enable_auto_discounts'] = "Включить автоматический расчет и показ скидок (enable_auto_discounts)";
     $lang['okay_cms__feeds__feed__settings__yml__count'] = "Передавать общее количество товара, доступное для продажи на Маркете (count)";
+
+// Настройки Facebook
+$lang['okay_cms__feeds__feed__settings__google_merchant__upload_without_images'] = "Вивантажувати товари без зображень";
+$lang['okay_cms__feeds__feed__settings__google_merchant__upload_only_in_stock_products'] = "Вивантажувати тільки товари, які є у наявності";
+$lang['okay_cms__feeds__feed__settings__google_merchant__use_full_description'] = "Використовувати повний опис (якщо вимкнено передається короткий опис)";
+$lang['okay_cms__feeds__feed__settings__google_merchant__no_export_without_price'] = "Не вивантажувати товари з ціною 0";
+$lang['okay_cms__feeds__feed__settings__google_merchant__adult'] = "Товари для дорослих (adult)";
+$lang['okay_cms__feeds__feed__settings__google_merchant__use_variant_name_like_size'] = "Використовувати назву варіанта, як розмір (size)";
+$lang['okay_cms__feeds__feed__settings__google_merchant__google_merchant__company'] = "Повне найменування компанії, що володіє магазином";
+$lang['okay_cms__feeds__feed__settings__google_merchant__color'] = "Колір";
+$lang['okay_cms__feeds__feed__settings__google_merchant__color_notify'] = "Виберіть властивість";
+    $lang['okay_cms__feeds__feed__settings__facebook__gtin'] = "Код GTIN (gtin)";
+    $lang['okay_cms__feeds__feed__settings__facebook__gender'] = "Пол (gender)";
+    $lang['okay_cms__feeds__feed__settings__facebook__material'] = "Материал (material)";

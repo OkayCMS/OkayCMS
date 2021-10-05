@@ -56,12 +56,14 @@
     $lang['okay_cms__feeds__feed__features_settings__title'] = "Настройки свойств";
     $lang['okay_cms__feeds__feed__features_settings__faq'] = "Изменение настроек свойств";
     $lang['okay_cms__feeds__feed__features_settings__save_notify'] = "Сохраните фид для работы с этими настройками.";
+    $lang['okay_cms__feeds__feed__features_settings__table_settings'] = "Настройки";
 
 // Страница выгрузки/Сопоставления категорий
     $lang['okay_cms__feeds__feed__categories_settings__tab'] = "Настройки категорий";
     $lang['okay_cms__feeds__feed__categories_settings__title'] = "Настройки категорий";
     $lang['okay_cms__feeds__feed__categories_settings__faq'] = "Изменение настроек категорий";
     $lang['okay_cms__feeds__feed__categories_settings__save_notify'] = "Сохраните фид для работы с этими настройками.";
+    $lang['okay_cms__feeds__feed__categories_settings__table_settings'] = "Настройки";
 
 // Общие элементы настроек
     $lang['okay_cms__feeds__feed__features_settings__common__name_in_feed'] = "Название в товарном фиде";
@@ -129,3 +131,17 @@ $lang['okay_cms__feeds__feed__settings__yml__country_of_origin'] = "Страна
     $lang['okay_cms__feeds__feed__settings__yml__feed_name'] = "Название фида";
     $lang['okay_cms__feeds__feed__settings__yml__enable_auto_discounts'] = "Включить автоматический расчет и показ скидок (enable_auto_discounts)";
     $lang['okay_cms__feeds__feed__settings__yml__count'] = "Передавать общее количество товара, доступное для продажи на Маркете (count)";
+
+// Настройки Facebook
+$lang['okay_cms__feeds__feed__settings__facebook__upload_without_images'] = "Выгружать товары без изображений";
+$lang['okay_cms__feeds__feed__settings__facebook__upload_only_in_stock_products'] = "Выгружать только товары, которые есть в наличии";
+$lang['okay_cms__feeds__feed__settings__facebook__use_full_description'] = "Передавать в фид полное описание (если выключена передается краткое описание)";
+$lang['okay_cms__feeds__feed__settings__facebook__no_export_without_price'] = "Не выгружать товары с ценой 0";
+$lang['okay_cms__feeds__feed__settings__facebook__adult'] = "Товары для взрослых (adult)";
+$lang['okay_cms__feeds__feed__settings__facebook__use_variant_name_like_size'] = "Передавать вариант как размер (size)";
+$lang['okay_cms__feeds__feed__settings__facebook__company'] = "Полное наименование компании, владеющей магазином";
+$lang['okay_cms__feeds__feed__settings__facebook__color'] = "Цвет";
+$lang['okay_cms__feeds__feed__settings__facebook__color_notify'] = "Выберите свойство, которое будет отвечать за данный параметр";
+    $lang['okay_cms__feeds__feed__settings__facebook__gtin'] = "Код GTIN (gtin)";
+    $lang['okay_cms__feeds__feed__settings__facebook__gender'] = "Пол (gender)";
+    $lang['okay_cms__feeds__feed__settings__facebook__material'] = "Материал (material)";

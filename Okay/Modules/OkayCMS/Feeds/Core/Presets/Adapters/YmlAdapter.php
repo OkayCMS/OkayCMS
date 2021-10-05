@@ -12,10 +12,10 @@ use Okay\Modules\OkayCMS\Feeds\Core\Presets\AbstractPresetAdapter;
 class YmlAdapter extends AbstractPresetAdapter
 {
     /** @var string */
-    static protected $headerTemplate = 'preset_headers/yml.tpl';
+    static protected $headerTemplate = 'presets/yml/header.tpl';
 
     /** @var string */
-    static protected $footerTemplate = 'preset_footers/yml.tpl';
+    static protected $footerTemplate = 'presets/yml/footer.tpl';
 
     public function getQuery($feedId): Select
     {

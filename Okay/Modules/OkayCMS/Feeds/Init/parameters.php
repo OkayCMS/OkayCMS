@@ -2,10 +2,12 @@
 
 namespace Okay\Modules\OkayCMS\Feeds\Init;
 
+use Okay\Modules\OkayCMS\Feeds\Backend\Core\Presets\Adapters\BackendFacebookAdapter;
 use Okay\Modules\OkayCMS\Feeds\Backend\Core\Presets\Adapters\BackendGoogleMerchantAdapter;
 use Okay\Modules\OkayCMS\Feeds\Backend\Core\Presets\Adapters\BackendHotlineAdapter;
 use Okay\Modules\OkayCMS\Feeds\Backend\Core\Presets\Adapters\BackendRozetkaAdapter;
 use Okay\Modules\OkayCMS\Feeds\Backend\Core\Presets\Adapters\BackendYmlAdapter;
+use Okay\Modules\OkayCMS\Feeds\Core\Presets\Adapters\FacebookAdapter;
 use Okay\Modules\OkayCMS\Feeds\Core\Presets\Adapters\GoogleMerchantAdapter;
 use Okay\Modules\OkayCMS\Feeds\Core\Presets\Adapters\HotlineAdapter;
 use Okay\Modules\OkayCMS\Feeds\Core\Presets\Adapters\RozetkaAdapter;
@@ -31,6 +33,10 @@ return [
                     'YML' => [
                         'backend_adapter' => BackendYmlAdapter::class,
                         'frontend_adapter' => YmlAdapter::class
+                    ],
+                    'Facebook' => [
+                        'backend_adapter' => BackendFacebookAdapter::class,
+                        'frontend_adapter' => FacebookAdapter::class
                     ],
                 ]
             ]

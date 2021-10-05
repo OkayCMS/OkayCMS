@@ -12,10 +12,10 @@ use Okay\Modules\OkayCMS\Feeds\Core\Presets\AbstractPresetAdapter;
 class RozetkaAdapter extends AbstractPresetAdapter
 {
     /** @var string */
-    static protected $headerTemplate = 'preset_headers/rozetka.tpl';
+    static protected $headerTemplate = 'presets/rozetka/header.tpl';
 
     /** @var string */
-    static protected $footerTemplate = 'preset_footers/rozetka.tpl';
+    static protected $footerTemplate = 'presets/rozetka/footer.tpl';
 
     protected function buildCategories(array $dbCategories): array
     {

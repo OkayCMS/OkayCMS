@@ -129,3 +129,17 @@ $lang['okay_cms__feeds__feed__settings__yml__country_of_origin'] = "Country of o
     $lang['okay_cms__feeds__feed__settings__yml__feed_name'] = "Название фида";
     $lang['okay_cms__feeds__feed__settings__yml__enable_auto_discounts'] = "Включить автоматический расчет и показ скидок (enable_auto_discounts)";
     $lang['okay_cms__feeds__feed__settings__yml__count'] = "Передавать общее количество товара, доступное для продажи на Маркете (count)";
+
+// Настройки Facebook
+$lang['okay_cms__feeds__feed__settings__google_merchant__upload_without_images'] = "Upload products without images";
+$lang['okay_cms__feeds__feed__settings__google_merchant__upload_only_in_stock_products'] = "Upload only products that are in stock";
+$lang['okay_cms__feeds__feed__settings__google_merchant__use_full_description'] = "Transfer the full description to the upload (if turned off, the short description is transmitted)";
+$lang['okay_cms__feeds__feed__settings__google_merchant__no_export_without_price'] = "Do not unload goods with a price of 0";
+$lang['okay_cms__feeds__feed__settings__google_merchant__adult'] = "Adult products";
+$lang['okay_cms__feeds__feed__settings__google_merchant__use_variant_name_like_size'] = "Use variant name like a size (size)";
+$lang['okay_cms__feeds__feed__settings__google_merchant__google_merchant__company'] = "Company";
+$lang['okay_cms__feeds__feed__settings__google_merchant__color'] = "Color";
+$lang['okay_cms__feeds__feed__settings__google_merchant__color_notify'] = "Select feature";
+    $lang['okay_cms__feeds__feed__settings__facebook__gtin'] = "Код GTIN (gtin)";
+    $lang['okay_cms__feeds__feed__settings__facebook__gender'] = "Пол (gender)";
+    $lang['okay_cms__feeds__feed__settings__facebook__material'] = "Материал (material)";

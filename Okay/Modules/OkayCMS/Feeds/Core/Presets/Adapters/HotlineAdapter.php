@@ -12,10 +12,10 @@ use Okay\Modules\OkayCMS\Feeds\Core\Presets\AbstractPresetAdapter;
 class HotlineAdapter extends AbstractPresetAdapter
 {
     /** @var string */
-    static protected $headerTemplate = 'preset_headers/hotline.tpl';
+    static protected $headerTemplate = 'presets/hotline/header.tpl';
 
     /** @var string */
-    static protected $footerTemplate = 'preset_footers/hotline.tpl';
+    static protected $footerTemplate = 'presets/hotline/footer.tpl';
 
 
     /** @var object */

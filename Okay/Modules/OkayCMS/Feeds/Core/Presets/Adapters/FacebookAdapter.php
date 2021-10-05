@@ -9,13 +9,13 @@ use Okay\Core\Routes\ProductRoute;
 use Okay\Entities\CurrenciesEntity;
 use Okay\Modules\OkayCMS\Feeds\Core\Presets\AbstractPresetAdapter;
 
-class GoogleMerchantAdapter extends AbstractPresetAdapter
+class FacebookAdapter extends AbstractPresetAdapter
 {
     /** @var string */
-    static protected $headerTemplate = 'presets/google_merchant/header.tpl';
+    static protected $headerTemplate = 'presets/facebook/header.tpl';
 
     /** @var string */
-    static protected $footerTemplate = 'presets/google_merchant/footer.tpl';
+    static protected $footerTemplate = 'presets/facebook/footer.tpl';
 
     protected function getCategories($feedId): array
     {
@@ -81,7 +81,7 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
         if ($this->feed->settings['use_variant_name_like_size']) {
             $result['title']['data'] = $this->xmlFeedHelper->escape($product->product_name);
             if (!empty($product->variant_name)) {
-                $result['g:size']['data'] = $this->xmlFeedHelper->escape($product->variant_name);
+                $result['size']['data'] = $this->xmlFeedHelper->escape($product->variant_name);
             }
         } else {
             if (!empty($product->variant_name)) {
@@ -100,17 +100,17 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
 
 
         $result['description']['data'] = $this->xmlFeedHelper->escape($product->description);
-        $result['g:id']['data'] = $this->xmlFeedHelper->escape($product->variant_id);
+        $result['id']['data'] = $this->xmlFeedHelper->escape($product->variant_id);
 
         if (!empty($product->weight > 0)) {
-            $result['g:product_weight']['data'] = $this->xmlFeedHelper->escape($product->weight);
+            $result['product_weight']['data'] = $this->xmlFeedHelper->escape($product->weight);
         }
 
         if (!empty($product->sku)) {
-            $result['g:mpn']['data'] = $this->xmlFeedHelper->escape($product->sku);
+            $result['mpn']['data'] = $this->xmlFeedHelper->escape($product->sku);
         }
 
-        $result['g:condition']['data'] = 'new';
+        $result['condition']['data'] = 'new';
 
         $price = round($product->price, 2);
         $comparePrice = round($product->compare_price, 2);
@@ -133,37 +133,37 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
         $comparePrice = $this->money->convert($comparePrice, $this->mainCurrency->id, false);
 
         if ($product->compare_price > $product->price) {
-            $result['g:price']['data'] = $this->xmlFeedHelper->escape($comparePrice . ' ' . $this->mainCurrency->code);
-            $result['g:sale_price']['data'] = $this->xmlFeedHelper->escape($price . ' ' . $this->mainCurrency->code);
+            $result['price']['data'] = $this->xmlFeedHelper->escape($comparePrice . ' ' . $this->mainCurrency->code);
+            $result['sale_price']['data'] = $this->xmlFeedHelper->escape($price . ' ' . $this->mainCurrency->code);
         } else {
-            $result['g:price']['data'] = $this->xmlFeedHelper->escape($price . ' ' . $this->mainCurrency->code);
+            $result['price']['data'] = $this->xmlFeedHelper->escape($price . ' ' . $this->mainCurrency->code);
         }
 
-        $result['g:availability']['data'] = (!in_array($product->stock, [0, '0'], true) ? 'in stock' : 'out of stock');
+        $result['availability']['data'] = (!in_array($product->stock, [0, '0'], true) ? 'in stock' : 'out of stock');
 
         if (!empty($product->brand_name)) {
-            $result['g:brand']['data'] = $this->xmlFeedHelper->escape($product->brand_name);
+            $result['brand']['data'] = $this->xmlFeedHelper->escape($product->brand_name);
         }
 
-        $result['g:adult']['data'] = $this->feed->settings['adult'] ? 'true' : 'false';
+        $result['adult']['data'] = $this->feed->settings['adult'] ? 'true' : 'false';
 
         if (($featureId = $this->feed->settings['color']) && isset($product->features[$featureId])) {
-            $result['g:color']['data'] = $this->xmlFeedHelper->escape($product->features[$featureId]['values_string']);
+            $result['color']['data'] = $this->xmlFeedHelper->escape($product->features[$featureId]['values_string']);
             unset($product->features[$featureId]);
         }
 
         if (($featureId = $this->feed->settings['gtin']) && isset($product->features[$featureId])) {
-            $result['g:gtin']['data'] = $this->xmlFeedHelper->escape($product->features[$featureId]['values_string']);
+            $result['gtin']['data'] = $this->xmlFeedHelper->escape($product->features[$featureId]['values_string']);
             unset($product->features[$featureId]);
         }
 
         if (($featureId = $this->feed->settings['gender']) && isset($product->features[$featureId])) {
-            $result['g:gender']['data'] = $this->xmlFeedHelper->escape($product->features[$featureId]['values_string']);
+            $result['gender']['data'] = $this->xmlFeedHelper->escape($product->features[$featureId]['values_string']);
             unset($product->features[$featureId]);
         }
 
         if (($featureId = $this->feed->settings['material']) && isset($product->features[$featureId])) {
-            $result['g:material']['data'] = $this->xmlFeedHelper->escape($product->features[$featureId]['values_string']);
+            $result['material']['data'] = $this->xmlFeedHelper->escape($product->features[$featureId]['values_string']);
             unset($product->features[$featureId]);
         }
 
@@ -176,16 +176,16 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
                 $productType .= $category->name.' > ';
             }
 
-            $result['g:product_type']['data'] = mb_substr($productType, 0, -3);
+            $result['product_type']['data'] = mb_substr($productType, 0, -3);
         }
 
         if (!empty($product->images)) {
             $iNum = 0;
             foreach ($product->images as $imageFilename) {
                 if ($iNum == 0) {
-                    $i['tag'] = 'g:image_link';
+                    $i['tag'] = 'image_link';
                 } else {
-                    $i['tag'] = 'g:additional_image_link';
+                    $i['tag'] = 'additional_image_link';
                 }
                 $i['data'] = $this->image->getResizeModifier($imageFilename, 1200, 1200);
                 $result[] = $i;
@@ -196,11 +196,11 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
         }
 
         if (($categorySettings = $this->getCategorySettings($product->main_category_id)) && $categorySettings['name_in_feed']) {
-            $result['g:google_product_category']['data'] = $categorySettings['name_in_feed'];
+            $result['fb_product_category']['data'] = $categorySettings['name_in_feed'];
         }
 
         if ($product->total_variants > 1) {
-            $result['g:item_group_id']['data'] = $product->product_id;
+            $result['item_group_id']['data'] = $product->product_id;
         }
 
         $item = [

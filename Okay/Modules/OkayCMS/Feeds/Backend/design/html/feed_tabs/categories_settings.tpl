@@ -18,7 +18,7 @@
                 </div>
                 <div class="okay_list_heading okay_list_photo hidden-sm-down">{$btr->general_photo|escape}</div>
                 <div class="okay_list_heading okay_list_feed_categories_settings_name">{$btr->general_name|escape}</div>
-                <div class="okay_list_heading okay_list_feed_categories_settings_settings">{$btr->okay_cms__feeds__feed__categories_settings__common__name_in_feed}</div>
+                <div class="okay_list_heading okay_list_feed_categories_settings_settings">{$btr->okay_cms__feeds__feed__categories_settings__table_settings}</div>
             </div>
 
             {*Параметры элемента*}

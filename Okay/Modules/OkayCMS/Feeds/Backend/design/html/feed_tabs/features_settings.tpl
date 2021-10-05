@@ -13,7 +13,7 @@
             <div class="okay_list_head">
                 <div class="okay_list_heading okay_list_feed_num">№</div>
                 <div class="okay_list_heading okay_list_feed_features_settings_name">{$btr->general_name|escape}</div>
-                <div class="okay_list_heading okay_list_feed_features_settings_settings">{$btr->okay_cms__feeds__feed__categories_settings__common__name_in_feed}</div>
+                <div class="okay_list_heading okay_list_feed_features_settings_settings">{$btr->okay_cms__feeds__feed__features_settings__common__name_in_feed}</div>
                 <div class="okay_list_heading okay_list_status">{$btr->okay_cms__feeds__feed__features_settings__common__to_feed}</div>
             </div>
             {*Параметры элемента*}
