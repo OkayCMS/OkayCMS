@@ -111,9 +111,9 @@ $lang['okay_cms__feeds__feed__settings__hotline__use_full_description'] = "Trans
 $lang['okay_cms__feeds__feed__settings__hotline__google_merchant__company'] = "Company";
 $lang['okay_cms__feeds__feed__settings__hotline__guarantee_manufacturer'] = "Guarantee manufacturer (months)";
 $lang['okay_cms__feeds__feed__settings__hotline__guarantee_shop'] = "Guarantee shop";
-$lang['okay_cms__feeds__feed__settings__hotline__country_of_origin'] = "Country of origin";
+    $lang['okay_cms__feeds__feed__settings__hotline__firm_id'] = "Уникальный код магазина (firmId)";
 
-// Настройки yml
+// Настройки YML
 $lang['okay_cms__feeds__feed__settings__yml__upload_without_images'] = "Upload products without images";
 $lang['okay_cms__feeds__feed__settings__yml__upload_only_in_stock_products'] = "Upload only products that are in stock";
 $lang['okay_cms__feeds__feed__settings__yml__store'] = "Can be bought at a retail store";

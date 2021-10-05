@@ -11,6 +11,14 @@
                 <input class="form-control" type="text" name="settings[company]" value="{$feed->settings['company']}" />
             </div>
         </div>
+        <div class="col-md-6">
+            <div class="heading_label">
+                <span>{$btr->okay_cms__feeds__feed__settings__hotline__firm_id}</span>
+            </div>
+            <div class="mb-1">
+                <input class="form-control" type="text" name="settings[firm_id]" value="{$feed->settings['firm_id']}" />
+            </div>
+        </div>
     </div>
 </div>
 
@@ -28,19 +36,6 @@
                     <option {if $feed->settings['guarantee_shop'] == 0}selected=""{/if} value=""></option>
                     {foreach $features as $feature}
                         <option {if $feed->settings['guarantee_shop'] == $feature->id}selected=""{/if} value="{$feature->id}">{$feature->name|escape}</option>
-                    {/foreach}
-                </select>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="heading_label">
-                <span>{$btr->okay_cms__feeds__feed__settings__hotline__country_of_origin}</span>
-            </div>
-            <div class="mb-1">
-                <select name="settings[country_of_origin]" class="selectpicker">
-                    <option {if $feed->settings['country_of_origin'] == 0}selected=""{/if} value=""></option>
-                    {foreach $features as $feature}
-                        <option {if $feed->settings['country_of_origin'] == $feature->id}selected=""{/if} value="{$feature->id}">{$feature->name|escape}</option>
                     {/foreach}
                 </select>
             </div>

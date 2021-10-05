@@ -38,9 +38,9 @@ class BackendHotlineAdapter extends AbstractBackendPresetAdapter
             'upload_only_products_in_stock' => $postSettings['upload_only_products_in_stock'] ?? 0,
             'use_full_description' => $postSettings['use_full_description'] ?? 0,
             'company' => $postSettings['company'],
+            'firm_id' => $postSettings['firm_id'],
             'guarantee_manufacturer' => $postSettings['guarantee_manufacturer'],
             'guarantee_shop' => $postSettings['guarantee_shop'],
-            'country_of_origin' => $postSettings['country_of_origin'],
             'price_change' => $postSettings['price_change'],
             'filter_price' => [
                 'operator' => $postSettings['filter_price']['operator'],

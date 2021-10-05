@@ -111,9 +111,9 @@ $lang['okay_cms__feeds__feed__settings__hotline__use_full_description'] = "Ви�
 $lang['okay_cms__feeds__feed__settings__hotline__google_merchant__company'] = "Повне найменування компанії, що володіє магазином";
 $lang['okay_cms__feeds__feed__settings__hotline__guarantee_manufacturer'] = "Гарантія виробника (в месяцях)";
 $lang['okay_cms__feeds__feed__settings__hotline__guarantee_shop'] = "Гарантія продавця";
-$lang['okay_cms__feeds__feed__settings__hotline__country_of_origin'] = "Країна виробник";
+    $lang['okay_cms__feeds__feed__settings__hotline__firm_id'] = "Уникальный код магазина (firmId)";
 
-// Настройки yml
+// Настройки YML
 $lang['okay_cms__feeds__feed__settings__yml__upload_without_images'] = "Вивантажувати товари без зображень";
 $lang['okay_cms__feeds__feed__settings__yml__upload_only_in_stock_products'] = "Вивантажувати тільки товари, які є у наявності";
 $lang['okay_cms__feeds__feed__settings__yml__store'] = "Можна купити в роздрібному магазині";

@@ -191,7 +191,6 @@ class HotlineAdapter extends AbstractPresetAdapter
 
         $guaranteeId = $this->feed->settings['guarantee_manufacturer'];
         $guaranteeShopId = $this->feed->settings['guarantee_shop'];
-        $countryOfOriginParamId = $this->feed->settings['country_of_origin'];
 
         if (isset($product->features[$guaranteeId])) {
             $result[] = [
@@ -213,17 +212,6 @@ class HotlineAdapter extends AbstractPresetAdapter
                 ],
             ];
             unset($product->features[$guaranteeShopId]);
-        }
-
-        if (isset($product->features[$countryOfOriginParamId])) {
-            $result[] = [
-                'tag' => 'param',
-                'data' => $this->xmlFeedHelper->escape($product->features[$countryOfOriginParamId]['values_string']),
-                'attributes' => [
-                    'name' => 'Країна виготовлення',
-                ],
-            ];
-            unset($product->features[$countryOfOriginParamId]);
         }
 
         if (!empty($product->features)) {

@@ -113,7 +113,7 @@ $lang['okay_cms__feeds__feed__settings__hotline__use_full_description'] = "Пе�
 $lang['okay_cms__feeds__feed__settings__hotline__company'] = "Полное наименование компании, владеющей магазином";
 $lang['okay_cms__feeds__feed__settings__hotline__guarantee_manufacturer'] = "Гарантия производителя (в месяцах)";
 $lang['okay_cms__feeds__feed__settings__hotline__guarantee_shop'] = "Гарантия продавца";
-$lang['okay_cms__feeds__feed__settings__hotline__country_of_origin'] = "Страна производитель";
+    $lang['okay_cms__feeds__feed__settings__hotline__firm_id'] = "Уникальный код магазина (firmId)";
 
 // Настройки YML
 $lang['okay_cms__feeds__feed__settings__yml__upload_without_images'] = "Выгружать товары без изображений";
