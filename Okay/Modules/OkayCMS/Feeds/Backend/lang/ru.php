@@ -145,3 +145,15 @@ $lang['okay_cms__feeds__feed__settings__facebook__color_notify'] = "Выбери
     $lang['okay_cms__feeds__feed__settings__facebook__gtin'] = "Код GTIN (gtin)";
     $lang['okay_cms__feeds__feed__settings__facebook__gender'] = "Пол (gender)";
     $lang['okay_cms__feeds__feed__settings__facebook__material'] = "Материал (material)";
+
+// Настройки Price.ua
+$lang['okay_cms__feeds__feed__settings__price_ua__upload_without_images'] = "Выгружать товары без изображений";
+$lang['okay_cms__feeds__feed__settings__price_ua__upload_only_in_stock_products'] = "Выгружать только товары, которые есть в наличии";
+$lang['okay_cms__feeds__feed__settings__price_ua__use_full_description'] = "Передавать в фид полное описание (если выключена передается краткое описание)";
+$lang['okay_cms__feeds__feed__settings__price_ua__no_export_without_price'] = "Не выгружать товары с ценой 0";
+$lang['okay_cms__feeds__feed__settings__price_ua__company'] = "Полное наименование компании, владеющей магазином";
+$lang['okay_cms__feeds__feed__settings__price_ua__sales_max_length'] = "Допустимая длина текста в элементе — 50 символов";
+$lang['okay_cms__feeds__feed__settings__price_ua__country_of_origin'] = "Страна производитель (country_of_origin)";
+    $lang['okay_cms__feeds__feed__settings__price_ua__guarantee_manufacturer'] = "Гарантия производителя (в месяцах)";
+    $lang['okay_cms__feeds__feed__settings__price_ua__guarantee_shop'] = "Гарантия продавца";
+    $lang['okay_cms__feeds__feed__settings__price_ua__feed_name'] = "Название фида";

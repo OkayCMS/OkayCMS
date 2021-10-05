@@ -131,15 +131,27 @@ $lang['okay_cms__feeds__feed__settings__yml__country_of_origin'] = "Country of o
     $lang['okay_cms__feeds__feed__settings__yml__count'] = "Передавать общее количество товара, доступное для продажи на Маркете (count)";
 
 // Настройки Facebook
-$lang['okay_cms__feeds__feed__settings__google_merchant__upload_without_images'] = "Upload products without images";
-$lang['okay_cms__feeds__feed__settings__google_merchant__upload_only_in_stock_products'] = "Upload only products that are in stock";
-$lang['okay_cms__feeds__feed__settings__google_merchant__use_full_description'] = "Transfer the full description to the upload (if turned off, the short description is transmitted)";
-$lang['okay_cms__feeds__feed__settings__google_merchant__no_export_without_price'] = "Do not unload goods with a price of 0";
-$lang['okay_cms__feeds__feed__settings__google_merchant__adult'] = "Adult products";
-$lang['okay_cms__feeds__feed__settings__google_merchant__use_variant_name_like_size'] = "Use variant name like a size (size)";
-$lang['okay_cms__feeds__feed__settings__google_merchant__google_merchant__company'] = "Company";
-$lang['okay_cms__feeds__feed__settings__google_merchant__color'] = "Color";
-$lang['okay_cms__feeds__feed__settings__google_merchant__color_notify'] = "Select feature";
+$lang['okay_cms__feeds__feed__settings__facebook__upload_without_images'] = "Upload products without images";
+$lang['okay_cms__feeds__feed__settings__facebook__upload_only_in_stock_products'] = "Upload only products that are in stock";
+$lang['okay_cms__feeds__feed__settings__facebook__use_full_description'] = "Transfer the full description to the upload (if turned off, the short description is transmitted)";
+$lang['okay_cms__feeds__feed__settings__facebook__no_export_without_price'] = "Do not unload goods with a price of 0";
+$lang['okay_cms__feeds__feed__settings__facebook__adult'] = "Adult products";
+$lang['okay_cms__feeds__feed__settings__facebook__use_variant_name_like_size'] = "Use variant name like a size (size)";
+$lang['okay_cms__feeds__feed__settings__facebook__google_merchant__company'] = "Company";
+$lang['okay_cms__feeds__feed__settings__facebook__color'] = "Color";
+$lang['okay_cms__feeds__feed__settings__facebook__color_notify'] = "Select feature";
     $lang['okay_cms__feeds__feed__settings__facebook__gtin'] = "Код GTIN (gtin)";
     $lang['okay_cms__feeds__feed__settings__facebook__gender'] = "Пол (gender)";
     $lang['okay_cms__feeds__feed__settings__facebook__material'] = "Материал (material)";
+
+// Настройки Price.ua
+$lang['okay_cms__feeds__feed__settings__price_ua__upload_without_images'] = "Upload products without images";
+$lang['okay_cms__feeds__feed__settings__price_ua__upload_only_in_stock_products'] = "Upload only products that are in stock";
+$lang['okay_cms__feeds__feed__settings__price_ua__use_full_description'] = "Transfer the full description to the upload (if turned off, the short description is transmitted)";
+$lang['okay_cms__feeds__feed__settings__price_ua__no_export_without_price'] = "Do not unload goods with a price of 0";
+$lang['okay_cms__feeds__feed__settings__price_ua__company'] = "Company";
+$lang['okay_cms__feeds__feed__settings__price_ua__sales_max_length'] = "Allowed text length in an element is 50 characters";
+$lang['okay_cms__feeds__feed__settings__price_ua__country_of_origin'] = "Country of origin";
+$lang['okay_cms__feeds__feed__settings__price_ua__guarantee_manufacturer'] = "Guarantee manufacturer (months)";
+$lang['okay_cms__feeds__feed__settings__price_ua__guarantee_shop'] = "Guarantee shop";
+    $lang['okay_cms__feeds__feed__settings__price_ua__feed_name'] = "Название фида";
