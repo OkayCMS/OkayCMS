@@ -5,7 +5,7 @@
     <div class="row">
         <div class="col-md-6">
             <div class="heading_label">
-                <span>{$btr->okay_cms__feeds__feed__settings__yml__company}</span>
+                <span>{$btr->okay_cms__feeds__feed__settings__price_ua__company}</span>
             </div>
             <div class="mb-1">
                 <input class="form-control" type="text" name="settings[company]" value="{$feed->settings['company']}" />
@@ -118,7 +118,6 @@
                         </label>
                     </div>
                 </div>
-                {get_design_block block="okay_cms__feeds__feed__settings__price_ua__switch_checkboxes"}
             </div>
         </div>
     </div>
@@ -174,7 +173,6 @@
                 <input class="form-control" type="number" name="settings[price_change]" value="{$feed->settings['price_change']}" />
             </div>
         </div>
-        {get_design_block block="okay_cms__feeds__feed__settings__price_ua__parameters"}
     </div>
 </div>
 

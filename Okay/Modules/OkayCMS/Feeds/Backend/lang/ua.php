@@ -20,7 +20,7 @@
 
 // Страница выгрузки
     $lang['okay_cms__feeds__feed__new'] = "Новый фид";
-    $lang['okay_cms__feeds__feed__add'] = "Добавление фиды";
+    $lang['okay_cms__feeds__feed__add'] = "Добавление фида";
     $lang['okay_cms__feeds__feed__added'] = "Товарный фид добавлен";
     $lang['okay_cms__feeds__feed__updated'] = "Товарный фид обновлен";
     $lang['okay_cms__feeds__feed__preset'] = "Выберите шаблон фида";
@@ -56,12 +56,14 @@
     $lang['okay_cms__feeds__feed__features_settings__title'] = "Настройки свойств";
     $lang['okay_cms__feeds__feed__features_settings__faq'] = "Изменение настроек свойств";
     $lang['okay_cms__feeds__feed__features_settings__save_notify'] = "Сохраните фид для работы с этими настройками.";
+    $lang['okay_cms__feeds__feed__features_settings__table_settings'] = "Настройки";
 
 // Страница выгрузки/Сопоставления категорий
     $lang['okay_cms__feeds__feed__categories_settings__tab'] = "Настройки категорий";
     $lang['okay_cms__feeds__feed__categories_settings__title'] = "Настройки категорий";
     $lang['okay_cms__feeds__feed__categories_settings__faq'] = "Изменение настроек категорий";
     $lang['okay_cms__feeds__feed__categories_settings__save_notify'] = "Сохраните фид для работы с этими настройками.";
+    $lang['okay_cms__feeds__feed__categories_settings__table_settings'] = "Настройки";
 
 // Общие элементы настроек
     $lang['okay_cms__feeds__feed__features_settings__common__name_in_feed'] = "Название в товарном фиде";
@@ -155,3 +157,14 @@ $lang['okay_cms__feeds__feed__settings__price_ua__country_of_origin'] = "Кра�
     $lang['okay_cms__feeds__feed__settings__price_ua__guarantee_manufacturer'] = "Гарантія виробника (в месяцях)";
     $lang['okay_cms__feeds__feed__settings__price_ua__guarantee_shop'] = "Гарантія продавця";
     $lang['okay_cms__feeds__feed__settings__price_ua__feed_name'] = "Название фида";
+
+// Настройки Prom.ua
+$lang['okay_cms__feeds__feed__settings__prom_ua__upload_without_images'] = "Вивантажувати товари без зображень";
+$lang['okay_cms__feeds__feed__settings__prom_ua__upload_only_in_stock_products'] = "Вивантажувати тільки товари, які є у наявності";
+$lang['okay_cms__feeds__feed__settings__prom_ua__use_full_description'] = "Використовувати повний опис (якщо вимкнено передається короткий опис)";
+$lang['okay_cms__feeds__feed__settings__prom_ua__no_export_without_price'] = "Не вивантажувати товари з ціною 0";
+$lang['okay_cms__feeds__feed__settings__prom_ua__company'] = "Повне найменування компанії, що володіє магазином";
+$lang['okay_cms__feeds__feed__settings__prom_ua__sales_max_length'] = "Допустима довжина тексту в елементі - 50 символів";
+$lang['okay_cms__feeds__feed__settings__prom_ua__country_of_origin'] = "Країна виробник (country_of_origin)";
+    $lang['okay_cms__feeds__feed__settings__prom_ua__feed_name'] = "Название фида";
+    $lang['okay_cms__feeds__feed__categories_settings__prom_ua__external_id'] = "Внешний ID";

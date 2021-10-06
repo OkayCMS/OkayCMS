@@ -9,13 +9,21 @@ use Okay\Core\Routes\ProductRoute;
 use Okay\Entities\CurrenciesEntity;
 use Okay\Modules\OkayCMS\Feeds\Core\Presets\AbstractPresetAdapter;
 
-class RozetkaAdapter extends AbstractPresetAdapter
+class PromUaAdapter extends AbstractPresetAdapter
 {
     /** @var string */
-    static protected $headerTemplate = 'presets/rozetka/header.tpl';
+    static protected $headerTemplate = 'presets/prom_ua/header.tpl';
 
     /** @var string */
-    static protected $footerTemplate = 'presets/rozetka/footer.tpl';
+    static protected $footerTemplate = 'presets/prom_ua/footer.tpl';
+
+    protected function getCategories($feedId): array
+    {
+        $result = parent::getCategories($feedId);
+        $result[0]['tag'] = 'catalog';
+
+        return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
+    }
 
     protected function buildCategories(array $dbCategories): array
     {
@@ -40,7 +48,7 @@ class RozetkaAdapter extends AbstractPresetAdapter
             }
 
             if ($categorySettings && ($externalId = $categorySettings['external_id'])) {
-                $xmlCategory['attributes']['rz_id'] = $externalId;
+                $xmlCategory['attributes']['portal_id'] = $externalId;
             }
 
             $result[] = $xmlCategory;
@@ -73,14 +81,21 @@ class RozetkaAdapter extends AbstractPresetAdapter
     {
         $sql = parent::getSubSelect(...func_get_args());
 
-        $sql->cols(['v.compare_price']);
+        $sql->cols([
+            'v.compare_price',
+            'v.weight'
+        ]);
+
+        if ($this->feed->settings['upload_only_products_in_stock']) {
+            $sql->where('(v.stock >0 OR v.stock is NULL)');
+        }
 
         if (!$this->feed->settings['upload_without_images']) {
             $sql->where('p.main_image_id != \'\' AND p.main_image_id IS NOT NULL');
         }
 
-        if ($this->feed->settings['upload_only_products_in_stock']) {
-            $sql->where('(v.stock >0 OR v.stock is NULL)');
+        if ($this->feed->settings['no_export_without_price']) {
+            $sql->where('v.price > 0');
         }
 
         if (($value = $this->feed->settings['filter_price']['value']) !== null) {
@@ -101,7 +116,7 @@ class RozetkaAdapter extends AbstractPresetAdapter
         return ExtenderFacade::execute(__METHOD__, $sql, func_get_args());
     }
 
-    protected function getItem(object $product, bool $addVariantUrl = false): array
+    public function getItem(object $product, bool $addVariantUrl = false): array
     {
         // Указываем связку урла товара и его slug
         ProductRoute::setUrlSlugAlias($product->url, $product->slug_url);
@@ -142,46 +157,39 @@ class RozetkaAdapter extends AbstractPresetAdapter
         if (!empty($product->images)) {
             $iNum = 0;
             foreach ($product->images as $imageFilename) {
-                $i['tag'] = 'picture';
+                $i['tag'] = 'image';
                 $i['data'] = $this->image->getResizeModifier($imageFilename, 1200, 1200);
                 $result[] = $i;
-                if ($iNum++ == 15) {
+                if ($iNum++ == 10) {
                     break;
                 }
             }
         }
 
-        $result['stock_quantity']['data'] = $product->stock ?? $this->settings->get('max_order_amount');
-        $result['delivery']['data'] = 'true';
-
         if (!empty($product->brand_name)) {
             $result['vendor']['data'] = $this->xmlFeedHelper->escape($product->brand_name);
-        } else {
-            $result['vendor']['data'] = 'Без бренда';
+        }
+
+        if (!empty($product->sku)) {
+            $result['vendorCode']['data'] = $this->xmlFeedHelper->escape($product->sku);
+        }
+
+        if (!empty($product->weight > 0)) {
+            $result['weight']['data'] = $this->xmlFeedHelper->escape($product->weight);
         }
 
         if (!empty($product->description)) {
             $result['description']['data'] = $this->xmlFeedHelper->escape($product->description);
         }
 
-        if (!empty($product->sku)) {
-            $result[] = [
-                'tag' => 'param',
-                'data' => $this->xmlFeedHelper->escape($product->sku),
-                'attributes' => [
-                    'name' => 'Артикул'
-                ]
-            ];
-        }
+        $countryOfOriginParamId = $this->feed->settings['country_of_origin'];
 
-        if (!empty($product->variant_name) && !empty($this->feed->settings['variant_name_param'])) {
+        if (isset($product->features[$countryOfOriginParamId])) {
             $result[] = [
-                'tag' => 'param',
-                'data' => $this->xmlFeedHelper->escape($product->variant_name),
-                'attributes' => [
-                    'name' => $this->xmlFeedHelper->escape($this->feed->settings['variant_name_param'])
-                ]
+                'tag' => 'country_of_origin',
+                'data' => $this->xmlFeedHelper->escape($product->features[$countryOfOriginParamId]['values_string']),
             ];
+            unset($product->features[$countryOfOriginParamId]);
         }
 
         if (!empty($product->features)) {
@@ -193,35 +201,31 @@ class RozetkaAdapter extends AbstractPresetAdapter
                         $name = $feature['name'];
                     }
 
-                    if (count($feature['values']) > 1) {
-                        $valuesString = implode(" <br/>\n", array_map(function($value) {
-                            return $this->xmlFeedHelper->escape($value);
-                        }, $feature['values']));
-
-                        $data = '<![CDATA['.$valuesString.']]>';
-                    } else {
-                        $data = $this->xmlFeedHelper->escape(reset($feature['values']));
+                    foreach ($feature['values'] as $value) {
+                        $result[] = [
+                            'tag' => 'param',
+                            'data' => $this->xmlFeedHelper->escape($value),
+                            'attributes' => [
+                                'name' => $this->xmlFeedHelper->escape($name),
+                            ],
+                        ];
                     }
-
-                    $result[] = [
-                        'tag' => 'param',
-                        'data' => $data,
-                        'attributes' => [
-                            'name' => $this->xmlFeedHelper->escape($name),
-                        ],
-                    ];
                 }
             }
         }
 
         $item = [
-            'tag' => 'offer',
+            'tag' => 'item',
             'attributes' => [
                 'id' => $product->variant_id,
                 'available' => ($product->stock > 0 || $product->stock === null ? 'true' : 'false'),
             ],
             'data' => $result
         ];
+
+        if ($product->total_variants > 1) {
+            $item['attributes']['group_id'] = $product->product_id;
+        }
 
         return ExtenderFacade::execute(__METHOD__, [$item], func_get_args());
     }

@@ -20,7 +20,7 @@
 
 // Страница выгрузки
     $lang['okay_cms__feeds__feed__new'] = "Новый фид";
-    $lang['okay_cms__feeds__feed__add'] = "Добавление фиды";
+    $lang['okay_cms__feeds__feed__add'] = "Добавление фида";
     $lang['okay_cms__feeds__feed__added'] = "Товарный фид добавлен";
     $lang['okay_cms__feeds__feed__updated'] = "Товарный фид обновлен";
     $lang['okay_cms__feeds__feed__preset'] = "Выберите шаблон фида";
@@ -157,3 +157,14 @@ $lang['okay_cms__feeds__feed__settings__price_ua__country_of_origin'] = "Стр�
     $lang['okay_cms__feeds__feed__settings__price_ua__guarantee_manufacturer'] = "Гарантия производителя (в месяцах)";
     $lang['okay_cms__feeds__feed__settings__price_ua__guarantee_shop'] = "Гарантия продавца";
     $lang['okay_cms__feeds__feed__settings__price_ua__feed_name'] = "Название фида";
+
+// Настройки Prom.ua
+$lang['okay_cms__feeds__feed__settings__prom_ua__upload_without_images'] = "Выгружать товары без изображений";
+$lang['okay_cms__feeds__feed__settings__prom_ua__upload_only_in_stock_products'] = "Выгружать только товары, которые есть в наличии";
+$lang['okay_cms__feeds__feed__settings__prom_ua__use_full_description'] = "Передавать в фид полное описание (если выключена передается краткое описание)";
+$lang['okay_cms__feeds__feed__settings__prom_ua__no_export_without_price'] = "Не выгружать товары с ценой 0";
+$lang['okay_cms__feeds__feed__settings__prom_ua__company'] = "Полное наименование компании, владеющей магазином";
+$lang['okay_cms__feeds__feed__settings__prom_ua__sales_max_length'] = "Допустимая длина текста в элементе — 50 символов";
+$lang['okay_cms__feeds__feed__settings__prom_ua__country_of_origin'] = "Страна производитель (country_of_origin)";
+    $lang['okay_cms__feeds__feed__settings__prom_ua__feed_name'] = "Название фида";
+    $lang['okay_cms__feeds__feed__categories_settings__prom_ua__external_id'] = "Внешний ID";

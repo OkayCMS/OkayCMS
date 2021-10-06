@@ -183,7 +183,6 @@
                         </label>
                     </div>
                 </div>
-                {get_design_block block="okay_cms__feeds__feed__settings__yml__switch_checkboxes"}
             </div>
         </div>
     </div>
@@ -239,7 +238,6 @@
                 <input class="form-control" type="number" name="settings[price_change]" value="{$feed->settings['price_change']}" />
             </div>
         </div>
-        {get_design_block block="okay_cms__feeds__feed__settings__yml__parameters"}
     </div>
 </div>
 

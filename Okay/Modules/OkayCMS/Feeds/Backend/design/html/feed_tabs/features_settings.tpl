@@ -1,5 +1,5 @@
 {if $feed}
-    <div class="boxed">
+    <div class="boxed fn_features_settings">
         <div class="heading_box">
             {$btr->okay_cms__feeds__feed__features_settings__title|escape}
             <i class="fn_tooltips" title="{$btr->okay_cms__feeds__feed__features_settings__faq|escape}">
@@ -33,14 +33,14 @@
             </div>
         </div>
     </div>
-{else}
-    <div class="alert alert--icon alert--warning">
-        <div class="alert__content">
-            <div class="alert__title">{$btr->alert_warning}</div>
-            <p>{$btr->okay_cms__feeds__feed__features_settings__save_notify}</p>
-        </div>
-    </div>
 {/if}
+
+<div class="alert alert--icon alert--warning fn_features_settings_alert {if $feed}hidden{/if}">
+    <div class="alert__content">
+        <div class="alert__title">{$btr->alert_warning}</div>
+        <p>{$btr->okay_cms__feeds__feed__features_settings__save_notify}</p>
+    </div>
+</div>
 
 {literal}
     <script>
@@ -72,6 +72,11 @@
                     }
                 });
             });
+
+            $(document).on('change', 'select.fn_preset_select', function() {
+                $('.fn_features_settings_alert').removeClass('hidden');
+                $('.fn_features_settings').addClass('hidden');
+            })
         })
     </script>
 {/literal}

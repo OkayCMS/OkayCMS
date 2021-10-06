@@ -1,4 +1,3 @@
-
 <div class="boxed">
     <div class="heading_box">
         {$btr->okay_cms__feeds__feed__settings__title1|escape}
@@ -6,28 +5,18 @@
     <div class="row">
         <div class="col-md-6">
             <div class="heading_label">
-                <span>{$btr->okay_cms__feeds__feed__settings__facebook__company}</span>
+                <span>{$btr->okay_cms__feeds__feed__settings__prom_ua__company}</span>
             </div>
             <div class="mb-1">
                 <input class="form-control" type="text" name="settings[company]" value="{$feed->settings['company']}" />
             </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-12 col-md-12">
-            <div class="activity_of_switch activity_of_switch--box_settings">
-                <div class="activity_of_switch_item">
-                    <div class="okay_switch clearfix">
-                        <label class="switch_label">
-                           <span>{$btr->okay_cms__feeds__feed__settings__facebook__adult|escape}</span>
-                        </label>
-                        <label class="switch switch-default">
-                            <input class="switch-input" name="settings[adult]" value='1' type="checkbox" {if $feed->settings['adult']}checked=""{/if}/>
-                            <span class="switch-label"></span>
-                            <span class="switch-handle"></span>
-                        </label>
-                    </div>
-                </div>
+        <div class="col-md-6">
+            <div class="heading_label">
+                <span>{$btr->okay_cms__feeds__feed__settings__prom_ua__feed_name}</span>
+            </div>
+            <div class="mb-1">
+                <input class="form-control" type="text" name="settings[feed_name]" value="{$feed->settings['feed_name']}" />
             </div>
         </div>
     </div>
@@ -40,52 +29,13 @@
     <div class="row">
         <div class="col-md-6">
             <div class="heading_label">
-                <span>{$btr->okay_cms__feeds__feed__settings__facebook__color}</span> <span>({$btr->okay_cms__feeds__feed__settings__facebook__color_notify})</span>
+                <span>{$btr->okay_cms__feeds__feed__settings__prom_ua__country_of_origin}</span>
             </div>
             <div class="mb-1">
-                <select name="settings[color]" class="selectpicker form-control">
-                    <option {if $feed->settings['color'] == 0}selected=""{/if} value=""></option>
+                <select name="settings[country_of_origin]" class="selectpicker">
+                    <option {if $feed->settings['country_of_origin'] == 0}selected=""{/if} value=""></option>
                     {foreach $features as $feature}
-                        <option {if $feed->settings['color'] == $feature->id}selected=""{/if} value="{$feature->id}">{$feature->name|escape}</option>
-                    {/foreach}
-                </select>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="heading_label">
-                <span>{$btr->okay_cms__feeds__feed__settings__facebook__gtin}</span>
-            </div>
-            <div class="mb-1">
-                <select name="settings[gtin]" class="selectpicker form-control">
-                    <option {if $feed->settings['gtin'] == 0}selected=""{/if} value=""></option>
-                    {foreach $features as $feature}
-                        <option {if $feed->settings['gtin'] == $feature->id}selected=""{/if} value="{$feature->id}">{$feature->name|escape}</option>
-                    {/foreach}
-                </select>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="heading_label">
-                <span>{$btr->okay_cms__feeds__feed__settings__facebook__gender}</span>
-            </div>
-            <div class="mb-1">
-                <select name="settings[gender]" class="selectpicker form-control">
-                    <option {if $feed->settings['gender'] == 0}selected=""{/if} value=""></option>
-                    {foreach $features as $feature}
-                        <option {if $feed->settings['gender'] == $feature->id}selected=""{/if} value="{$feature->id}">{$feature->name|escape}</option>
-                    {/foreach}
-                </select>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="heading_label">
-                <span>{$btr->okay_cms__feeds__feed__settings__facebook__material}</span>
-            </div>
-            <div class="mb-1">
-                <select name="settings[material]" class="selectpicker form-control">
-                    <option {if $feed->settings['material'] == 0}selected=""{/if} value=""></option>
-                    {foreach $features as $feature}
-                        <option {if $feed->settings['material'] == $feature->id}selected=""{/if} value="{$feature->id}">{$feature->name|escape}</option>
+                        <option {if $feed->settings['country_of_origin'] == $feature->id}selected=""{/if} value="{$feature->id}">{$feature->name|escape}</option>
                     {/foreach}
                 </select>
             </div>
@@ -97,7 +47,7 @@
                 <div class="activity_of_switch_item">
                     <div class="okay_switch clearfix">
                         <label class="switch_label">
-                           <span>{$btr->okay_cms__feeds__feed__settings__facebook__upload_without_images|escape}</span>
+                           <span>{$btr->okay_cms__feeds__feed__settings__prom_ua__upload_without_images|escape}</span>
                         </label>
                         <label class="switch switch-default">
                             <input class="switch-input" name="settings[upload_without_images]" value='1' type="checkbox" {if $feed->settings['upload_without_images']}checked=""{/if}/>
@@ -109,7 +59,7 @@
                 <div class="activity_of_switch_item">
                     <div class="okay_switch clearfix">
                         <label class="switch_label">
-                           <span>{$btr->okay_cms__feeds__feed__settings__facebook__upload_only_in_stock_products|escape}</span>
+                           <span>{$btr->okay_cms__feeds__feed__settings__prom_ua__upload_only_in_stock_products|escape}</span>
                         </label>
                         <label class="switch switch-default">
                             <input class="switch-input" name="settings[upload_only_products_in_stock]" value='1' type="checkbox" {if $feed->settings['upload_only_products_in_stock']}checked=""{/if}/>
@@ -121,19 +71,7 @@
                 <div class="activity_of_switch_item">
                     <div class="okay_switch clearfix">
                         <label class="switch_label">
-                           <span>{$btr->okay_cms__feeds__feed__settings__facebook__use_full_description|escape}</span>
-                        </label>
-                        <label class="switch switch-default">
-                            <input class="switch-input" name="settings[use_full_description]" value='1' type="checkbox" {if $feed->settings['use_full_description']}checked=""{/if}/>
-                            <span class="switch-label"></span>
-                            <span class="switch-handle"></span>
-                        </label>
-                    </div>
-                </div>
-                <div class="activity_of_switch_item">
-                    <div class="okay_switch clearfix">
-                        <label class="switch_label">
-                           <span>{$btr->okay_cms__feeds__feed__settings__facebook__no_export_without_price|escape}</span>
+                           <span>{$btr->okay_cms__feeds__feed__settings__prom_ua__no_export_without_price|escape}</span>
                         </label>
                         <label class="switch switch-default">
                             <input class="switch-input" name="settings[no_export_without_price]" value='1' type="checkbox" {if $feed->settings['no_export_without_price']}checked=""{/if}/>
@@ -145,10 +83,10 @@
                 <div class="activity_of_switch_item">
                     <div class="okay_switch clearfix">
                         <label class="switch_label">
-                           <span>{$btr->okay_cms__feeds__feed__settings__facebook__use_variant_name_like_size|escape}</span>
+                            <span>{$btr->okay_cms__feeds__feed__settings__prom_ua__use_full_description|escape}</span>
                         </label>
                         <label class="switch switch-default">
-                            <input class="switch-input" name="settings[use_variant_name_like_size]" value='1' type="checkbox" {if $feed->settings['use_variant_name_like_size']}checked=""{/if}/>
+                            <input class="switch-input" name="settings[use_full_description]" value='1' type="checkbox" {if $feed->settings['use_full_description']}checked=""{/if}/>
                             <span class="switch-label"></span>
                             <span class="switch-handle"></span>
                         </label>
@@ -163,20 +101,20 @@
     <div class="heading_box mb-2">
         {$btr->okay_cms__feeds__feed__settings__title3|escape}
     </div>
-        <div class="row">
+    <div class="row">
         <div class="col-md-12 mb-q">
             <div class="row">
                 <div class="col-md-12">
                     <div class="row">
                         <div class="col-xs-6 col-md-5 col-lg-4 pr-0 pr-0--feed">
                             <select class="selectpicker form-control mb-1" name="settings[filter_price][operator]">
-                                <option value="<" {if $feed->settings['filter_price']['operator'] === '<'} selected {/if}>{$btr->okay_cms__feeds__feed__settings__common__filter_price_price} {$btr->okay_cms__feeds__feed__settings__common__equality_less}</option>
-                                <option value=">" {if $feed->settings['filter_price']['operator'] === '>'} selected {/if}>{$btr->okay_cms__feeds__feed__settings__common__filter_price_price} {$btr->okay_cms__feeds__feed__settings__common__equality_large}</option>
-                                <option value="=" {if $feed->settings['filter_price']['operator'] === '='} selected {/if}>{$btr->okay_cms__feeds__feed__settings__common__filter_price_price} {$btr->okay_cms__feeds__feed__settings__common__equality_equally1}</option>
+                                <option value="<" {if $feed->settings['filter_price']['operator'] === '<'} selected {/if}>{$btr->okay_cms__feeds__feed__settings__prom_ua__filter_price_price} {$btr->okay_cms__feeds__feed__settings__common__equality_less}</option>
+                                <option value=">" {if $feed->settings['filter_price']['operator'] === '>'} selected {/if}>{$btr->okay_cms__feeds__feed__settings__prom_ua__filter_price_price} {$btr->okay_cms__feeds__feed__settings__common__equality_large}</option>
+                                <option value="=" {if $feed->settings['filter_price']['operator'] === '='} selected {/if}>{$btr->okay_cms__feeds__feed__settings__prom_ua__filter_price_price} {$btr->okay_cms__feeds__feed__settings__common__equality_equally1}</option>
                             </select>
                         </div>
                         <div class="col-xs-6 col-md-5 col-lg-4 col-lg-4">
-                            <input class="form-control mb-1" type="text" name="settings[filter_price][value]" value="{$feed->settings['filter_price']['value']}" placeholder="{$btr->okay_cms__feeds__feed__settings__common__equality_place_price}">
+                            <input class="form-control" type="text" name="settings[filter_price][value]" value="{$feed->settings['filter_price']['value']}" placeholder="{$btr->okay_cms__feeds__feed__settings__common__equality_place_price}">
                         </div>
                     </div>
                 </div>
@@ -184,13 +122,13 @@
                     <div class="row">
                         <div class="col-xs-6 col-md-5 col-lg-4 pr-0 pr-0--feed">
                             <select class="selectpicker form-control mb-1" name="settings[filter_stock][operator]">
-                                <option value="<" {if $feed->settings['filter_stock']['operator'] === '<'} selected {/if}>{$btr->okay_cms__feeds__feed__settings__facebook__filter_stock_stock} {$btr->okay_cms__feeds__feed__settings__common__equality_less}</option>
-                                <option value=">" {if $feed->settings['filter_stock']['operator'] === '>'} selected {/if}>{$btr->okay_cms__feeds__feed__settings__facebook__filter_stock_stock} {$btr->okay_cms__feeds__feed__settings__common__equality_large}</option>
-                                <option value="=" {if $feed->settings['filter_stock']['operator'] === '='} selected {/if}>{$btr->okay_cms__feeds__feed__settings__facebook__filter_stock_stock} {$btr->okay_cms__feeds__feed__settings__common__equality_equally2}</option>
+                                <option value="<" {if $feed->settings['filter_stock']['operator'] === '<'} selected {/if}>{$btr->okay_cms__feeds__feed__settings__prom_ua__filter_stock_stock} {$btr->okay_cms__feeds__feed__settings__common__equality_less}</option>
+                                <option value=">" {if $feed->settings['filter_stock']['operator'] === '>'} selected {/if}>{$btr->okay_cms__feeds__feed__settings__prom_ua__filter_stock_stock} {$btr->okay_cms__feeds__feed__settings__common__equality_large}</option>
+                                <option value="=" {if $feed->settings['filter_stock']['operator'] === '='} selected {/if}>{$btr->okay_cms__feeds__feed__settings__prom_ua__filter_stock_stock} {$btr->okay_cms__feeds__feed__settings__common__equality_equally2}</option>
                             </select>
                         </div>
-                        <div class="col-xs-6 col-md-5 col-lg-4 col-lg-4">
-                            <input class="form-control mb-1" type="text" name="settings[filter_stock][value]" value="{$feed->settings['filter_stock']['value']}" placeholder="{$btr->okay_cms__feeds__feed__settings__common__equality_place_count}">
+                        <div class="col-xs-6 col-md-5 col-lg-4">
+                            <input class="form-control" type="text" name="settings[filter_stock][value]" value="{$feed->settings['filter_stock']['value']}" placeholder="{$btr->okay_cms__feeds__feed__settings__common__equality_place_count}">
                         </div>
                     </div>
                 </div>
@@ -205,14 +143,15 @@
                     </svg>
                 </i>
             </div>
-            <div class="mb-1">
+            <div class="">
                 <input class="form-control" type="number" name="settings[price_change]" value="{$feed->settings['price_change']}" />
             </div>
         </div>
     </div>
 </div>
 
-{$block = {get_design_block block="okay_cms__feeds__feed__settings__facebook__custom_block"}}
+
+{$block = {get_design_block block="okay_cms__feeds__feed__settings__prom_ua__custom_block"}}
 {if !empty($block)}
     <div class="boxed">
         <div class="row custom_block">
