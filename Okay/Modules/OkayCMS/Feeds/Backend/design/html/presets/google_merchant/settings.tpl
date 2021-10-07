@@ -175,8 +175,11 @@
                                 <option value="=" {if $feed->settings['filter_price']['operator'] === '='} selected {/if}>{$btr->okay_cms__feeds__feed__settings__common__filter_price_price} {$btr->okay_cms__feeds__feed__settings__common__equality_equally1}</option>
                             </select>
                         </div>
-                        <div class="col-xs-6 col-md-5 col-lg-4 col-lg-4">
-                            <input class="form-control mb-1" type="text" name="settings[filter_price][value]" value="{$feed->settings['filter_price']['value']}" placeholder="{$btr->okay_cms__feeds__feed__settings__common__equality_place_price}">
+                        <div class="col-xs-6 col-md-4 col-lg-3 col-xl-3">
+                            <div class="input-group">
+                                <input class="form-control" type="text" name="settings[filter_price][value]" value="{$feed->settings['filter_price']['value']}" placeholder="{$btr->okay_cms__feeds__feed__settings__common__equality_place_price}">
+                                <span class="input-group-addon">{$currency->code|escape}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -184,19 +187,22 @@
                     <div class="row">
                         <div class="col-xs-6 col-md-5 col-lg-4 pr-0 pr-0--feed">
                             <select class="selectpicker form-control mb-1" name="settings[filter_stock][operator]">
-                                <option value="<" {if $feed->settings['filter_stock']['operator'] === '<'} selected {/if}>{$btr->okay_cms__feeds__feed__settings__google_merchant__filter_stock_stock} {$btr->okay_cms__feeds__feed__settings__common__equality_less}</option>
-                                <option value=">" {if $feed->settings['filter_stock']['operator'] === '>'} selected {/if}>{$btr->okay_cms__feeds__feed__settings__google_merchant__filter_stock_stock} {$btr->okay_cms__feeds__feed__settings__common__equality_large}</option>
-                                <option value="=" {if $feed->settings['filter_stock']['operator'] === '='} selected {/if}>{$btr->okay_cms__feeds__feed__settings__google_merchant__filter_stock_stock} {$btr->okay_cms__feeds__feed__settings__common__equality_equally2}</option>
+                                <option value="<" {if $feed->settings['filter_stock']['operator'] === '<'} selected {/if}>{$btr->okay_cms__feeds__feed__settings__common__filter_stock_stock} {$btr->okay_cms__feeds__feed__settings__common__equality_less}</option>
+                                <option value=">" {if $feed->settings['filter_stock']['operator'] === '>'} selected {/if}>{$btr->okay_cms__feeds__feed__settings__common__filter_stock_stock} {$btr->okay_cms__feeds__feed__settings__common__equality_large}</option>
+                                <option value="=" {if $feed->settings['filter_stock']['operator'] === '='} selected {/if}>{$btr->okay_cms__feeds__feed__settings__common__filter_stock_stock} {$btr->okay_cms__feeds__feed__settings__common__equality_equally2}</option>
                             </select>
                         </div>
-                        <div class="col-xs-6 col-md-5 col-lg-4 col-lg-4">
-                            <input class="form-control mb-1" type="text" name="settings[filter_stock][value]" value="{$feed->settings['filter_stock']['value']}" placeholder="{$btr->okay_cms__feeds__feed__settings__common__equality_place_count}">
+                        <div class="col-xs-6 col-md-4 col-lg-3 col-xl-3">
+                            <div class="input-group">
+                                <input class="form-control" type="text" name="settings[filter_stock][value]" value="{$feed->settings['filter_stock']['value']}" placeholder="{$btr->okay_cms__feeds__feed__settings__common__equality_place_count}">
+                                <span class="input-group-addon">{$btr->orders_unit|escape}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-xs-6 col-md-5 col-lg-4 pr-0 pr-0--feed">
+        <div class="col-xs-12 col-sm-6 col-md-5 col-lg-4 pr-0 pr-0--feed">
             <div class="heading_label">
                 <span>{$btr->okay_cms__feeds__feed__settings__common__price_change}</span>
                 <i class="fn_tooltips" title="{$btr->okay_cms__feeds__feed__settings__common__price_change_tooltip|escape}">

@@ -94,8 +94,8 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-12 col-lg-6 col-md-10">
-                                <div class="mt-h mb-h mt-2">
+                            <div class="col-xs-12 col-lg-6">
+                                <div class="mb-1 mt-2 mt-2-md-down">
                                     <div class="input-group input-group--dabbl">
                                         <span class="input-group-addon input-group-addon--left">URL</span>
                                         <input name="url" class="form-control fn_url {if $feed->id}fn_disabled{/if}" {if $feed->id}readonly=""{/if} type="text" value="{$feed->url|escape}" />
@@ -127,7 +127,7 @@
                     </div>
                     <div class="col-lg-2 col-md-3 col-sm-12">
                         <div class="activity_of_switch">
-                            <div class="activity_of_switch_item"> {* row block *}
+                            <div class="activity_of_switch_item">
                                 <div class="okay_switch clearfix">
                                     <label class="switch_label">{$btr->general_enable|escape}</label>
                                     <label class="switch switch-default">
@@ -184,11 +184,11 @@
                     {include file='svg_icon.tpl' svgId='feed_settings'}
                     {$btr->okay_cms__feeds__feed__settings__tab|escape}
                 </a>
-                <a href="#tab_features_settings" class="heading_box tab_navigation_link">
+                <a href="#tab_features_settings" class="heading_box tab_navigation_link hidden-xs-down">
                     {include file='svg_icon.tpl' svgId='feed_features'}
                     {$btr->okay_cms__feeds__feed__features_settings__tab|escape}
                 </a>
-                <a href="#tab_categories_settings" class="heading_box tab_navigation_link">
+                <a href="#tab_categories_settings" class="heading_box tab_navigation_link hidden-xs-down">
                     {include file='svg_icon.tpl' svgId='feed_category'}
                     {$btr->okay_cms__feeds__feed__categories_settings__tab|escape}
                 </a>
@@ -228,3 +228,122 @@
         </div>
     {/foreach}
 </div>
+
+
+{* styling module feeds *}
+<style>
+.feed_select_type{
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 0 220px;
+    -ms-flex: 0 0 220px;
+    flex: 0 0 220px;
+    max-width: 220px;
+}
+.feed_condition_item{
+    border: 1px solid rgb(238, 238, 238);
+    padding-top: 1rem;
+    margin: 0;
+    margin-top: 1rem;
+}
+.feed_condition_delete{
+    position: absolute;
+    top: -10px;
+    right: 5px;
+    padding: 5px;
+    color: #8c8c8c !important;
+}
+.feed_condition_delete svg{
+    height: 14px;
+    width: 14px;
+}
+.ok_feed_condition_list { 
+    margin-top: 15px;
+    border: none;
+}
+.ok_feed_condition_list .okay_list_body_item {
+    border-top: 1px solid #f2f2f2;
+    border-bottom: none;
+    min-height: 80px;
+}
+.f_col-lg {
+    -webkit-flex-basis: 0;
+    -ms-flex-preferred-size: 0;
+    flex-basis: 0;
+    -webkit-box-flex: 1;
+    -webkit-flex-grow: 1;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+    max-width: 100%;
+}
+.okay_list .okay_list_feed_categories_settings_name{
+    width: calc(100% - 500px);
+    position: relative;
+    text-align: left;
+}
+.okay_list .subcategories_level_1 .okay_list_feed_categories_settings_name{
+    width: calc(100% - 530px);
+}
+.okay_list .subcategories_level_2 .okay_list_feed_categories_settings_name{
+    width: calc(100% - 560px);
+}
+.okay_list_feed_features_settings_settings,
+.okay_list_feed_categories_settings_settings {
+    width: 350px;
+    text-align: left;
+}
+.okay_list_feed_num{
+    width: 60px;
+}
+.okay_list .okay_list_feed_features_settings_name{
+    width: calc(100% - 430px);
+    position: relative;
+    text-align: left;
+}
+.pr-0.pr-0--feed{
+    padding-right: 0 !important;
+}
+.settings_added_design_elements{
+    text-align: left;
+}
+@media (max-width: 991px) {
+    .mt-2-md-down{
+        margin-top: 0rem !important;
+    }
+}
+@media (max-width: 767px) {
+    .feed_condition_delete{
+        top: -15px;
+        right: 5px;
+    }
+    #tab_entities .box_btn_heading{
+        display:block;
+        margin: 10px 0 0!important;
+    }
+    .tab_navigation--round .tab_navigation_link {
+        margin-right: 0px;
+    }
+    .feed_select_type {
+        -webkit-box-flex: 0;
+        -webkit-flex: 0 0 100%;
+        -ms-flex: 0 0 100%;
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    .okay_list_feed_features_settings_settings,
+    .okay_list_feed_categories_settings_settings {
+        width: 250px;
+    }
+    .okay_list .okay_list_feed_features_settings_name{
+        width: calc(100% - 310px);
+    }
+    .okay_list .okay_list_feed_categories_settings_name{
+        width: calc(100% - 300px);
+    }
+    .okay_list .subcategories_level_1 .okay_list_feed_categories_settings_name{
+        width: calc(100% - 330px);
+    }
+    .okay_list .subcategories_level_2 .okay_list_feed_categories_settings_name{
+        width: calc(100% - 360px);
+    }
+}
+</style>

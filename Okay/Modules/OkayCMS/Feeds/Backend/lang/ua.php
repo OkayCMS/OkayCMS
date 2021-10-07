@@ -1,87 +1,86 @@
 <?php
 // Страница модуля
-    $lang['okay_cms__feeds__module__title'] = "Товарные фиды";
-    $lang['okay_cms__feeds__module__description_title'] = "Описание модуля";
-    $lang['okay_cms__feeds__module__description_content'] = "Модуль добавляет возможность создавать товарные фиды используя одну из нескольких предустановок.";
-    $lang['okay_cms__feeds__module__instruction_title'] = "Инструкция";
-    $lang['okay_cms__feeds__module__instruction_content'] = "Зайти на страницу выгрузок и создать.";
+    $lang['okay_cms__feeds__module__title'] = "Товарні фіди";
+    $lang['okay_cms__feeds__module__description_title'] = "пис модуля";
+    $lang['okay_cms__feeds__module__description_content'] = "Модуль додає можливість створювати товарні фіди використовуючи одну з декількох попередніх.";
+    $lang['okay_cms__feeds__module__instruction_title'] = "Інструкція";
+    $lang['okay_cms__feeds__module__instruction_content'] = "Зайти на сторінку вивантажень і створити.";
 
 // Боковое меню
-    $lang['okay_cms__feeds__menu'] = "Товарные фиды";
+    $lang['okay_cms__feeds__menu'] = "Товарні фіди";
 
 // Страница выгрузок
-    $lang['okay_cms__feeds__feeds'] = "Товарные фиды";
-    $lang['okay_cms__feeds__feeds__add'] = "Добавить фид";
-    $lang['okay_cms__feeds__feeds__name'] = "Название фида";
-    $lang['okay_cms__feeds__feeds__no'] = "Нет товарного фида";
-    $lang['okay_cms__feeds__feeds__all_presets'] = "Все шаблоны";
-    $lang['okay_cms__feeds__feeds__duplicate'] = "Дублировать фид";
-    $lang['okay_cms__feeds__feeds__delete'] = "Удалить фид";
+    $lang['okay_cms__feeds__feeds'] = "Товарні фіди";
+    $lang['okay_cms__feeds__feeds__add'] = "Додати фид";
+    $lang['okay_cms__feeds__feeds__name'] = "Назва фида";
+    $lang['okay_cms__feeds__feeds__no'] = "Немає товарного фида";
+    $lang['okay_cms__feeds__feeds__all_presets'] = "Всі шаблони";
+    $lang['okay_cms__feeds__feeds__duplicate'] = "Дублювати фид";
+    $lang['okay_cms__feeds__feeds__delete'] = "Видалити фид";
 
 // Страница выгрузки
-    $lang['okay_cms__feeds__feed__new'] = "Новый фид";
-    $lang['okay_cms__feeds__feed__add'] = "Добавление фида";
-    $lang['okay_cms__feeds__feed__added'] = "Товарный фид добавлен";
-    $lang['okay_cms__feeds__feed__updated'] = "Товарный фид обновлен";
-    $lang['okay_cms__feeds__feed__preset'] = "Выберите шаблон фида";
+    $lang['okay_cms__feeds__feed__new'] = "Новий фид";
+    $lang['okay_cms__feeds__feed__add'] = "Додавання фида";
+    $lang['okay_cms__feeds__feed__added'] = "Товарний фид доданий";
+    $lang['okay_cms__feeds__feed__updated'] = "Товарний фид оновлений";
+    $lang['okay_cms__feeds__feed__preset'] = "Виберіть шаблон фида";
 
 // Страница выгрузки/Выбор сущностей
-    $lang['okay_cms__feeds__feed__entities__tab'] = "Товары";
-    $lang['okay_cms__feeds__feed__entities__add'] = "Добавить";
-    $lang['okay_cms__feeds__feed__entities__select_products'] = "Выберите товары";
-    $lang['okay_cms__feeds__feed__entities__select_categories'] = "Выберите категории";
-    $lang['okay_cms__feeds__feed__entities__select_feature'] = "Выберите свойство";
-    $lang['okay_cms__feeds__feed__entities__select_feature_values'] = "Выберите значения свойства";
-    $lang['okay_cms__feeds__feed__entities__select_brands'] = "Выберите бренды";
-    $lang['okay_cms__feeds__feed__entities__select_entity'] = "Выберите тип";
+    $lang['okay_cms__feeds__feed__entities__tab'] = "Товари";
+    $lang['okay_cms__feeds__feed__entities__add'] = "Додати";
+    $lang['okay_cms__feeds__feed__entities__select_products'] = "Виберіть товари";
+    $lang['okay_cms__feeds__feed__entities__select_categories'] = "Виберіть категорії";
+    $lang['okay_cms__feeds__feed__entities__select_feature'] = "Виберіть властивість";
+    $lang['okay_cms__feeds__feed__entities__select_feature_values'] = "Виберіть значення";
+    $lang['okay_cms__feeds__feed__entities__select_brands'] = "Виберіть бренди";
+    $lang['okay_cms__feeds__feed__entities__select_entity'] = "Виберіть тип";
     $lang['okay_cms__feeds__feed__entities__product'] = "Товар";
-    $lang['okay_cms__feeds__feed__entities__category'] = "Категория";
-    $lang['okay_cms__feeds__feed__entities__feature_value'] = "Значение свойства";
+    $lang['okay_cms__feeds__feed__entities__category'] = "Категорія";
+    $lang['okay_cms__feeds__feed__entities__feature_value'] = "Значення властивості";
     $lang['okay_cms__feeds__feed__entities__brand'] = "Бренд";
-    $lang['okay_cms__feeds__feed__entities__delete'] = "Удалить";
-    $lang['okay_cms__feeds__feed__entities__inclusions'] = "Товары для выгрузки";
-    $lang['okay_cms__feeds__feed__entities__exclusions'] = "Исключения для выгрузки";
+    $lang['okay_cms__feeds__feed__entities__delete'] = "Видалити";
+    $lang['okay_cms__feeds__feed__entities__inclusions'] = "Товари для вивантаження";
+    $lang['okay_cms__feeds__feed__entities__exclusions'] = "Винятки для вивантаження";
     $lang['okay_cms__feeds__feed__entities__inclusions_faq'] = "Подсказка для блока";
     $lang['okay_cms__feeds__feed__entities__exclusions_faq'] = "Подсказка для блока";
-    $lang['okay_cms__feeds__feed__entities__product_add'] = "Добавить товар";
+    $lang['okay_cms__feeds__feed__entities__product_add'] = "Додати товар";
 
 // Страница выгрузки/Настройки
-    $lang['okay_cms__feeds__feed__settings__tab'] = "Настройка фида";
-    $lang['okay_cms__feeds__feed__settings__title1'] = "Настройки фида";
-    $lang['okay_cms__feeds__feed__settings__title2'] = "Настройки выгрузки в фид";
-    $lang['okay_cms__feeds__feed__settings__title3'] = "Настройка ограничений товаров в фиде";
+    $lang['okay_cms__feeds__feed__settings__tab'] = "Налаштування фида";
+    $lang['okay_cms__feeds__feed__settings__title1'] = "Налаштування фида";
+    $lang['okay_cms__feeds__feed__settings__title2'] = "Налаштування вивантаження в фід";
+    $lang['okay_cms__feeds__feed__settings__title3'] = "Налаштування обмежень товарів в фіде";
 
 // Страница выгрузки/Сопоставления свойств
-    $lang['okay_cms__feeds__feed__features_settings__tab'] = "Настройки свойств";
-    $lang['okay_cms__feeds__feed__features_settings__title'] = "Настройки свойств";
-    $lang['okay_cms__feeds__feed__features_settings__faq'] = "Изменение настроек свойств";
-    $lang['okay_cms__feeds__feed__features_settings__save_notify'] = "Сохраните фид для работы с этими настройками.";
-    $lang['okay_cms__feeds__feed__features_settings__table_settings'] = "Настройки";
+    $lang['okay_cms__feeds__feed__features_settings__tab'] = "Налаштування властивостей";
+    $lang['okay_cms__feeds__feed__features_settings__title'] = "Налаштування властивостей";
+    $lang['okay_cms__feeds__feed__features_settings__faq'] = "Зміна налаштувань властивостей";
+    $lang['okay_cms__feeds__feed__features_settings__save_notify'] = "Збережіть фид для роботи з цими настройками.";
+    $lang['okay_cms__feeds__feed__features_settings__table_settings'] = "алаштування";
 
 // Страница выгрузки/Сопоставления категорий
-    $lang['okay_cms__feeds__feed__categories_settings__tab'] = "Настройки категорий";
-    $lang['okay_cms__feeds__feed__categories_settings__title'] = "Настройки категорий";
-    $lang['okay_cms__feeds__feed__categories_settings__faq'] = "Изменение настроек категорий";
-    $lang['okay_cms__feeds__feed__categories_settings__save_notify'] = "Сохраните фид для работы с этими настройками.";
-    $lang['okay_cms__feeds__feed__categories_settings__table_settings'] = "Настройки";
+    $lang['okay_cms__feeds__feed__categories_settings__tab'] = "Налаштування категорій";
+    $lang['okay_cms__feeds__feed__categories_settings__title'] = "Налаштування категорій";
+    $lang['okay_cms__feeds__feed__categories_settings__faq'] = "Зміна налаштувань категорій";
+    $lang['okay_cms__feeds__feed__categories_settings__save_notify'] = "Збережіть фид для роботи з цими настройками.";
+    $lang['okay_cms__feeds__feed__categories_settings__table_settings'] = "алаштування";
 
 // Общие элементы настроек
-    $lang['okay_cms__feeds__feed__features_settings__common__name_in_feed'] = "Название в товарном фиде";
-    $lang['okay_cms__feeds__feed__features_settings__common__to_feed'] = "Выгружать";
-
-    $lang['okay_cms__feeds__feed__categories_settings__common__name_in_feed'] = "Название в товарном фиде";
-
-    $lang['okay_cms__feeds__feed__settings__common__price_change'] = "Изменить все цены в фиде на %";
-    $lang['okay_cms__feeds__feed__settings__common__price_change_tooltip'] = "Положительное число - увеличивает цену, отрицательное - уменьшает";
-    $lang['okay_cms__feeds__feed__settings__common__filter_price_price'] = "Цена товара";
-    $lang['okay_cms__feeds__feed__settings__common__filter_stock'] = "Фильтр по количеству";
-    $lang['okay_cms__feeds__feed__settings__common__filter_stock_stock'] = "Количество товара";
-    $lang['okay_cms__feeds__feed__settings__common__equality_less'] = "меньше";
-    $lang['okay_cms__feeds__feed__settings__common__equality_large'] = "больше";
-    $lang['okay_cms__feeds__feed__settings__common__equality_equally1'] = "равная";
-    $lang['okay_cms__feeds__feed__settings__common__equality_equally2'] = "равное";
-    $lang['okay_cms__feeds__feed__settings__common__equality_place_price'] = "укажите цену";
-    $lang['okay_cms__feeds__feed__settings__common__equality_place_count'] = "укажите кол-во";
+    $lang['okay_cms__feeds__feed__features_settings__common__name_in_feed'] = "Назва в товарному фіде";
+    $lang['okay_cms__feeds__feed__features_settings__common__to_feed'] = "Вивантажувати в фід";
+    $lang['okay_cms__feeds__feed__categories_settings__common__name_in_feed'] = "Назва в товарному фіде";
+    $lang['okay_cms__feeds__feed__categories_settings__not_mobile'] = "Функціонал не працює на телефоні!";
+    $lang['okay_cms__feeds__feed__settings__common__price_change'] = "Змінити все ціни в фіде на%";
+    $lang['okay_cms__feeds__feed__settings__common__price_change_tooltip'] = "Позитивне число - збільшує ціну, негативне - зменшує";
+    $lang['okay_cms__feeds__feed__settings__common__filter_price_price'] = "Ціна товару";
+    $lang['okay_cms__feeds__feed__settings__common__filter_stock'] = "Фільтр за кількістю";
+    $lang['okay_cms__feeds__feed__settings__common__filter_stock_stock'] = "Кількість товару";
+    $lang['okay_cms__feeds__feed__settings__common__equality_less'] = "менше";
+    $lang['okay_cms__feeds__feed__settings__common__equality_large'] = "більше";
+    $lang['okay_cms__feeds__feed__settings__common__equality_equally1'] = "рівна";
+    $lang['okay_cms__feeds__feed__settings__common__equality_equally2'] = "рівне";
+    $lang['okay_cms__feeds__feed__settings__common__equality_place_price'] = "вкажіть ціну";
+    $lang['okay_cms__feeds__feed__settings__common__equality_place_count'] = "вкажіть к-ть";
 
 // Настройки GoogleMerchant
 $lang['okay_cms__feeds__feed__settings__google_merchant__upload_without_images'] = "Вивантажувати товари без зображень";
@@ -156,7 +155,7 @@ $lang['okay_cms__feeds__feed__settings__price_ua__sales_max_length'] = "Допу
 $lang['okay_cms__feeds__feed__settings__price_ua__country_of_origin'] = "Країна виробник (country_of_origin)";
     $lang['okay_cms__feeds__feed__settings__price_ua__guarantee_manufacturer'] = "Гарантія виробника (в месяцях)";
     $lang['okay_cms__feeds__feed__settings__price_ua__guarantee_shop'] = "Гарантія продавця";
-    $lang['okay_cms__feeds__feed__settings__price_ua__feed_name'] = "Название фида";
+    $lang['okay_cms__feeds__feed__settings__price_ua__feed_name'] = "Назва фида";
 
 // Настройки Prom.ua
 $lang['okay_cms__feeds__feed__settings__prom_ua__upload_without_images'] = "Вивантажувати товари без зображень";
@@ -166,5 +165,5 @@ $lang['okay_cms__feeds__feed__settings__prom_ua__no_export_without_price'] = "Н
 $lang['okay_cms__feeds__feed__settings__prom_ua__company'] = "Повне найменування компанії, що володіє магазином";
 $lang['okay_cms__feeds__feed__settings__prom_ua__sales_max_length'] = "Допустима довжина тексту в елементі - 50 символів";
 $lang['okay_cms__feeds__feed__settings__prom_ua__country_of_origin'] = "Країна виробник (country_of_origin)";
-    $lang['okay_cms__feeds__feed__settings__prom_ua__feed_name'] = "Название фида";
-    $lang['okay_cms__feeds__feed__categories_settings__prom_ua__external_id'] = "Внешний ID";
+    $lang['okay_cms__feeds__feed__settings__prom_ua__feed_name'] = "Назва фида";
+    $lang['okay_cms__feeds__feed__categories_settings__prom_ua__external_id'] = "Зовнішній ID";

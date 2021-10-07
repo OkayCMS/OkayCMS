@@ -31,7 +31,7 @@
     $lang['okay_cms__feeds__feed__entities__select_products'] = "Выберите товары";
     $lang['okay_cms__feeds__feed__entities__select_categories'] = "Выберите категории";
     $lang['okay_cms__feeds__feed__entities__select_feature'] = "Выберите свойство";
-    $lang['okay_cms__feeds__feed__entities__select_feature_values'] = "Выберите значения свойства";
+    $lang['okay_cms__feeds__feed__entities__select_feature_values'] = "Выберите значение";
     $lang['okay_cms__feeds__feed__entities__select_brands'] = "Выберите бренды";
     $lang['okay_cms__feeds__feed__entities__select_entity'] = "Выберите тип";
     $lang['okay_cms__feeds__feed__entities__product'] = "Товар";
@@ -67,10 +67,9 @@
 
 // Общие элементы настроек
     $lang['okay_cms__feeds__feed__features_settings__common__name_in_feed'] = "Название в товарном фиде";
-    $lang['okay_cms__feeds__feed__features_settings__common__to_feed'] = "Выгружать";
-
+    $lang['okay_cms__feeds__feed__features_settings__common__to_feed'] = "Выгружать в фид";
     $lang['okay_cms__feeds__feed__categories_settings__common__name_in_feed'] = "Название в товарном фиде";
-
+    $lang['okay_cms__feeds__feed__categories_settings__not_mobile'] = "Функционал не работает на телефоне!";
     $lang['okay_cms__feeds__feed__settings__common__price_change'] = "Изменить все цены в фиде на %";
     $lang['okay_cms__feeds__feed__settings__common__price_change_tooltip'] = "Положительное число - увеличивает цену, отрицательное - уменьшает";
     $lang['okay_cms__feeds__feed__settings__common__filter_price_price'] = "Цена товара";
