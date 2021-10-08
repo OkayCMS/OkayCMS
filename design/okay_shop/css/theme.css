@@ -2607,7 +2607,14 @@ b.filter__catalog_link.selected{
     max-width: calc(100% - 85px);
     text-align: center;
 }
-.product-page__img{padding: 0 20px;width: 100%;}
+.product-page__image--full{
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 0 100%;
+    -ms-flex: 0 0 100%;
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+.product-page__img{padding: 0;width: 100%;}
 .gallery_image a{
     min-height: 400px;
     display: -webkit-box;
@@ -2622,6 +2629,7 @@ b.filter__catalog_link.selected{
     -webkit-justify-content: center;
     -ms-flex-pack: center;
     justify-content: center;
+    width: 100%!important;
 }
 .product-page__no_image{
     width: 100%;
