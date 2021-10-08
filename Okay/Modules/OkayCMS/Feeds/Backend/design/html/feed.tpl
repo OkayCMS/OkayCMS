@@ -305,6 +305,29 @@
 .settings_added_design_elements{
     text-align: left;
 }
+.bs-actionsbox .btn-group button {
+    width: calc(50% - 6px);
+}
+.bs-deselect-all,
+.bs-select-all{
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    margin: 0 3px;
+}
+.bs-select-all{
+    background: rgb(172, 208, 255);
+}
+.bs-deselect-all{
+    background: rgb(255, 172, 172);
+}
+.bs-select-all:hover{
+    background: rgb(143, 192, 255);
+}
+.bs-deselect-all:hover{
+    background: rgb(255, 136, 136);
+}
+
 @media (max-width: 991px) {
     .mt-2-md-down{
         margin-top: 0rem !important;
