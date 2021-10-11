@@ -90,6 +90,21 @@
                 </select>
             </div>
         </div>
+        {for $i = 0; $i <= 4; $i++}
+            <div class="col-md-6">
+                <div class="heading_label">
+                    <span>{$btr->okay_cms__feeds__feed__settings__facebook__custom_label} {$i}</span>
+                </div>
+                <div class="mb-1">
+                    <select name="settings[custom_labels][{$i}]" class="selectpicker form-control">
+                        <option {if !$feed->settings['custom_labels'][$i]}selected=""{/if} value=""></option>
+                        {foreach $features as $feature}
+                            <option {if $feed->settings['custom_labels'][$i] == $feature->id}selected=""{/if} value="{$feature->id}">{$feature->name|escape}</option>
+                        {/foreach}
+                    </select>
+                </div>
+            </div>
+        {/for}
     </div>
     <div class="row">
         <div class="col-lg-12 col-md-12">

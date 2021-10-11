@@ -54,6 +54,7 @@ class BackendGoogleMerchantAdapter extends AbstractBackendPresetAdapter
                 'operator' => $postSettings['filter_stock']['operator'],
                 'value' => $postSettings['filter_stock']['value'] === '' ? null : (float) str_replace(',', '.', $postSettings['filter_stock']['value']),
             ],
+            'custom_labels' => $postSettings['custom_labels']
         ];
 
         return ExtenderFacade::execute(__METHOD__, $settings, func_get_args());

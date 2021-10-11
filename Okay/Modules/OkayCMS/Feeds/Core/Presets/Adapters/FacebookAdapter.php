@@ -167,6 +167,13 @@ class FacebookAdapter extends AbstractPresetAdapter
             unset($product->features[$featureId]);
         }
 
+        foreach ($this->feed->settings['custom_labels'] as $key => $featureId) {
+            if ($featureId && isset($product->features[$featureId])) {
+                $result["custom_label_$key"]['data'] = $this->xmlFeedHelper->escape($product->features[$featureId]['values_string']);
+                unset($product->features[$featureId]);
+            }
+        }
+
         if (!empty($this->allCategories[$product->main_category_id])) {
             $categoryPath = $this->allCategories[$product->main_category_id]->path;
 
