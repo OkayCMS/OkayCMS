@@ -93,7 +93,7 @@
         {for $i = 0; $i <= 4; $i++}
             <div class="col-md-6">
                 <div class="heading_label">
-                    <span>{$btr->okay_cms__feeds__feed__settings__google_merchant__custom_label} {$i}</span>
+                    <span>custom_label_{$i}</span>
                 </div>
                 <div class="mb-1">
                     <select name="settings[custom_labels][{$i}]" class="selectpicker form-control">

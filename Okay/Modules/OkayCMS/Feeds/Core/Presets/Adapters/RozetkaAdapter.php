@@ -59,12 +59,10 @@ class RozetkaAdapter extends AbstractPresetAdapter
         $sql = parent::getQuery(...func_get_args());
 
         if ($this->feed->settings['use_full_description']) {
-            $descriptionField = 'lp.description';
+            $sql->cols(['lp.description AS description']);
         } else {
-            $descriptionField = 'lp.annotation';
+            $sql->cols(['lp.annotation AS annotation']);
         }
-
-        $sql->cols([$descriptionField . ' AS description']);
 
         return ExtenderFacade::execute(__METHOD__, $sql, func_get_args());
     }
@@ -133,7 +131,7 @@ class RozetkaAdapter extends AbstractPresetAdapter
         $result['price']['data'] = $this->money->convert($price, $this->mainCurrency->id, false);
         if ($product->compare_price > 0) {
             $comparePrice = $this->money->convert($comparePrice, $this->mainCurrency->id, false);
-            $result['oldprice']['data'] = $comparePrice;
+            $result['old_price']['data'] = $comparePrice;
         }
 
         $result['currencyId']['data'] = $this->mainCurrency->code;
@@ -162,6 +160,8 @@ class RozetkaAdapter extends AbstractPresetAdapter
 
         if (!empty($product->description)) {
             $result['description']['data'] = $this->xmlFeedHelper->escape($product->description);
+        } else if (!empty($product->annotation)) {
+            $result['description']['data'] = $this->xmlFeedHelper->escape($product->annotation);
         }
 
         if (!empty($product->sku)) {

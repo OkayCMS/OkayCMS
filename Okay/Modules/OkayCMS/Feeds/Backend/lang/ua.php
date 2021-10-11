@@ -95,7 +95,6 @@ $lang['okay_cms__feeds__feed__settings__google_merchant__color_notify'] = "Ви�
 $lang['okay_cms__feeds__feed__settings__google_merchant__gtin'] = "Код GTIN (gtin)";
 $lang['okay_cms__feeds__feed__settings__google_merchant__gender'] = "Пол (gender)";
 $lang['okay_cms__feeds__feed__settings__google_merchant__material'] = "Матеріал (material)";
-    $lang['okay_cms__feeds__feed__settings__google_merchant__custom_label'] = "Настраиваемый ярлык";
 
 // Настройки Rozetka
 $lang['okay_cms__feeds__feed__settings__rozetka__upload_without_images'] = "Вивантажувати товари без зображень";
@@ -145,7 +144,6 @@ $lang['okay_cms__feeds__feed__settings__facebook__color_notify'] = "Вибері
 $lang['okay_cms__feeds__feed__settings__facebook__gtin'] = "Код GTIN (gtin)";
 $lang['okay_cms__feeds__feed__settings__facebook__gender'] = "Пол (gender)";
 $lang['okay_cms__feeds__feed__settings__facebook__material'] = "Матеріал (material)";
-    $lang['okay_cms__feeds__feed__settings__facebook__custom_label'] = "Настраиваемый ярлык";
 
 // Настройки Price.ua
 $lang['okay_cms__feeds__feed__settings__price_ua__upload_without_images'] = "Вивантажувати товари без зображень";

@@ -81,12 +81,10 @@ class HotlineAdapter extends AbstractPresetAdapter
         $sql = parent::getQuery(...func_get_args());
 
         if ($this->feed->settings['use_full_description']) {
-            $descriptionField = 'lp.description';
+            $sql->cols(['lp.description AS description']);
         } else {
-            $descriptionField = 'lp.annotation';
+            $sql->cols(['lp.annotation AS annotation']);
         }
-
-        $sql->cols([$descriptionField . ' AS description']);
 
         return ExtenderFacade::execute(__METHOD__, $sql, func_get_args());
     }
@@ -139,7 +137,7 @@ class HotlineAdapter extends AbstractPresetAdapter
             $result['vendor']['data'] = $this->xmlFeedHelper->escape($product->brand_name);
         }
 
-        $result['description']['data'] = $this->xmlFeedHelper->escape($product->description);
+        $result['description']['data'] = $this->xmlFeedHelper->escape($product->description ?? $product->annotation);
 
         // Указываем связку урла товара и его slug
         ProductRoute::setUrlSlugAlias($product->url, $product->slug_url);

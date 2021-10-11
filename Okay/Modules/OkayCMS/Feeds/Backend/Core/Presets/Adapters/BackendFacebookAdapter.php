@@ -29,6 +29,16 @@ class BackendFacebookAdapter extends AbstractBackendPresetAdapter
         $this->featuresEntity = $featuresEntity;
     }
 
+    public function postCategorySettings(): array
+    {
+        $settings = [
+            'fb_product_category' => $this->request->post('fb_product_category', null, ''),
+            'google_product_category' => $this->request->post('google_product_category', null, '')
+        ];
+
+        return ExtenderFacade::execute(__METHOD__, $settings, func_get_args());
+    }
+
     public function postSettings(): array
     {
         $postSettings = $this->request->post('settings', null, []);
@@ -58,5 +68,15 @@ class BackendFacebookAdapter extends AbstractBackendPresetAdapter
         ];
 
         return ExtenderFacade::execute(__METHOD__, $settings, func_get_args());
+    }
+
+    public function registerCategorySettingsBlock(): void
+    {
+        $this->designBlocks->registerBlock(
+            'okay_cms__feeds__feed__categories_settings__settings_custom_block',
+            dirname(__DIR__, 3).'/design/html/presets/facebook/category_settings.tpl'
+        );
+
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 }

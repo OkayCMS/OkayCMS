@@ -262,13 +262,10 @@ class XmlFeedHelper
 
     public function attachDescriptionByTemplate($product)
     {
-        
-        if (empty($product->description)) {
-            
-            if (!empty($product->main_category_id)) {
+        if (!empty($product->main_category_id)) {
+            $category = $this->allCategories[$product->main_category_id];
 
-                $category = $this->allCategories[$product->main_category_id];
-                
+            if (isset($product->description) && empty($product->description)) {
                 if ($data = $this->getCategoryField($category, 'auto_description')) {
                     $descriptionTemplate = $data;
                 } elseif (!empty($this->defaultProductsSeoPattern->auto_description)) {
@@ -278,6 +275,19 @@ class XmlFeedHelper
                 if (!empty($descriptionTemplate)) {
                     $metaData = strtr($descriptionTemplate, $this->getMetadataParts($product));
                     $product->description = trim(preg_replace('/{\$[^$]*}/', '', $metaData));
+                }
+            }
+
+            if (isset($product->annotation) && empty($product->annotation)) {
+                if ($data = $this->getCategoryField($category, 'auto_annotation')) {
+                    $annotationTemplate = $data;
+                } elseif (!empty($this->defaultProductsSeoPattern->auto_annotation)) {
+                    $annotationTemplate = $this->defaultProductsSeoPattern->auto_annotation;
+                }
+
+                if (!empty($annotationTemplate)) {
+                    $metaData = strtr($annotationTemplate, $this->getMetadataParts($product));
+                    $product->annotation = trim(preg_replace('/{\$[^$]*}/', '', $metaData));
                 }
             }
         }

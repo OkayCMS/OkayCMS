@@ -27,12 +27,10 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
         $sql = parent::getQuery(...func_get_args());
 
         if ($this->feed->settings['use_full_description']) {
-            $descriptionField = 'lp.description';
+            $sql->cols(['lp.description AS description']);
         } else {
-            $descriptionField = 'lp.annotation';
+            $sql->cols(['lp.annotation AS annotation']);
         }
-
-        $sql->cols([$descriptionField . ' AS description']);
 
         return ExtenderFacade::execute(__METHOD__, $sql, func_get_args());
     }
@@ -98,8 +96,7 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
             $result['link']['data'] = Router::generateUrl('product', ['url' => $product->url], true);
         }
 
-
-        $result['description']['data'] = $this->xmlFeedHelper->escape($product->description);
+        $result['description']['data'] = $this->xmlFeedHelper->escape($product->description ?? $product->annotation);
         $result['g:id']['data'] = $this->xmlFeedHelper->escape($product->variant_id);
 
         if (!empty($product->weight > 0)) {

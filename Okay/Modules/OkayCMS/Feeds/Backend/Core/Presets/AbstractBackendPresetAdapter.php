@@ -42,7 +42,6 @@ abstract class AbstractBackendPresetAdapter implements BackendPresetAdapterInter
     public function postCategorySettings(): array
     {
         $settings = [
-            'entity_id' => $this->request->post('entity_id'),
             'name_in_feed' => $this->request->post('name_in_feed', null, '')
         ];
 

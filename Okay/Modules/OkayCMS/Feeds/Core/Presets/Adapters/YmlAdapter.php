@@ -22,12 +22,10 @@ class YmlAdapter extends AbstractPresetAdapter
         $sql = parent::getQuery(...func_get_args());
 
         if ($this->feed->settings['use_full_description']) {
-            $descriptionField = 'lp.description';
+            $sql->cols(['lp.description AS description']);
         } else {
-            $descriptionField = 'lp.annotation';
+            $sql->cols(['lp.annotation AS annotation']);
         }
-
-        $sql->cols([$descriptionField . ' AS description']);
 
         return ExtenderFacade::execute(__METHOD__, $sql, func_get_args());
     }
@@ -141,6 +139,8 @@ class YmlAdapter extends AbstractPresetAdapter
 
         if (!empty($product->description)) {
             $result['description']['data'] = $this->xmlFeedHelper->escape($product->description);
+        } else if (!empty($product->annotation)) {
+            $result['description']['data'] = $this->xmlFeedHelper->escape($product->annotation);
         }
 
         $countryOfOriginParamId = $this->feed->settings['country_of_origin'];

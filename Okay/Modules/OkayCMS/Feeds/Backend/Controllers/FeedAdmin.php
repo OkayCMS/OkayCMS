@@ -147,12 +147,12 @@ class FeedAdmin extends IndexAdmin
         switch($this->request->post('entity')) {
             case 'category':
                 $settings = $feedsRequest->postCategorySettings();
-                $backendFeedsHelper->updateCategorySettings($this->request->post('feed_id'), $settings);
+                $backendFeedsHelper->updateCategorySettings($this->request->post('feed_id'), $this->request->post('entity_id'), $settings);
                 break;
 
             case 'feature':
                 $settings = $feedsRequest->postFeatureSettings();
-                $backendFeedsHelper->updateFeatureSettings($this->request->post('feed_id'), $settings);
+                $backendFeedsHelper->updateFeatureSettings($this->request->post('feed_id'), $this->request->post('entity_id'), $settings);
                 break;
         }
 

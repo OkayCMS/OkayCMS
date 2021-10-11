@@ -27,12 +27,10 @@ class FacebookAdapter extends AbstractPresetAdapter
         $sql = parent::getQuery(...func_get_args());
 
         if ($this->feed->settings['use_full_description']) {
-            $descriptionField = 'lp.description';
+            $sql->cols(['lp.description AS description']);
         } else {
-            $descriptionField = 'lp.annotation';
+            $sql->cols(['lp.annotation AS annotation']);
         }
-
-        $sql->cols([$descriptionField . ' AS description']);
 
         return ExtenderFacade::execute(__METHOD__, $sql, func_get_args());
     }
@@ -98,8 +96,7 @@ class FacebookAdapter extends AbstractPresetAdapter
             $result['link']['data'] = Router::generateUrl('product', ['url' => $product->url], true);
         }
 
-
-        $result['description']['data'] = $this->xmlFeedHelper->escape($product->description);
+        $result['description']['data'] = $this->xmlFeedHelper->escape($product->description ?? $product->annotation);
         $result['id']['data'] = $this->xmlFeedHelper->escape($product->variant_id);
 
         if (!empty($product->weight > 0)) {
@@ -202,8 +199,14 @@ class FacebookAdapter extends AbstractPresetAdapter
             }
         }
 
-        if (($categorySettings = $this->getCategorySettings($product->main_category_id)) && $categorySettings['name_in_feed']) {
-            $result['fb_product_category']['data'] = $categorySettings['name_in_feed'];
+        if ($categorySettings = $this->getCategorySettings($product->main_category_id)) {
+            if ($categorySettings['fb_product_category']) {
+                $result['fb_product_category']['data'] = $categorySettings['name_in_feed'];
+            }
+
+            if ($categorySettings['google_product_category']) {
+                $result['google_product_category']['data'] = $categorySettings['name_in_feed'];
+            }
         }
 
         if ($product->total_variants > 1) {

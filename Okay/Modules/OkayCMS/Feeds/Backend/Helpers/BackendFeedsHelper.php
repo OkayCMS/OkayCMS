@@ -149,19 +149,19 @@ class BackendFeedsHelper
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
-    public function updateCategorySettings($feedId, $newSettings): void
+    public function updateCategorySettings($feedId, $entityId, $newSettings): void
     {
         $settings = $this->feedsEntity->cols(['categories_settings'])->findOne(['id' => $feedId]);
-        $settings[$newSettings['entity_id']] = $newSettings;
+        $settings[$entityId] = $newSettings;
         $this->feedsEntity->update($feedId, ['categories_settings' => $settings]);
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
-    public function updateFeatureSettings($feedId, array $newSettings): void
+    public function updateFeatureSettings($feedId, $entityId, array $newSettings): void
     {
         $settings = $this->feedsEntity->cols(['features_settings'])->findOne(['id' => $feedId]);
-        $settings[$newSettings['entity_id']] = $newSettings;
+        $settings[$entityId] = $newSettings;
         $this->feedsEntity->update($feedId, ['features_settings' => $settings]);
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
