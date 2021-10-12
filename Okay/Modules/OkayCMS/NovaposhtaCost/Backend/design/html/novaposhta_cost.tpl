@@ -226,7 +226,7 @@
                         <div class="alert__content" style="line-height: 1.4">
                             <div class="alert__title">Совет</div>
                             {$btr->np_cron_update_cache_1}
-                            "<a href=""  class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">php ok scheduler:run</a>"
+                            "<a href=""  class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">php {$config->root_dir}ok scheduler:run</a>"
                             {$btr->np_cron_update_cache_2}
                         </div>
                     </div>

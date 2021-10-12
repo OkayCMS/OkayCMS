@@ -5,98 +5,129 @@ namespace Okay\Core\Scheduler;
 use Cron\CronExpression;
 use Okay\Core\OkayContainer\MethodDI;
 use Okay\Core\ServiceLocator;
-use Psr\Log\LoggerInterface;
+use Symfony\Component\Lock\LockInterface;
 
 class Task
 {
     use MethodDI;
 
+    /** @var int */
+    private static $tasksCounter = 1;
+
+
+    /** @var int */
+    private $id;
+
+    /** @var string|array */
+    private $command;
+
     /** @var CronExpression */
     private $schedule;
 
-    /** @var callable */
-    private $callback;
+    /** @var int */
+    private $timeout;
 
     /** @var string */
     private $name;
 
-    /** @var string */
-    private $comment;
+    /** @var bool */
+    private $overlap;
 
-    private $output;
+    /** @var LockInterface */
+    private $lock;
 
-    /** @var LoggerInterface[] */
-    private $loggers;
-
-    public function __construct(string $name, string $timePattern, $callback, string $comment = '', LoggerInterface $logger = null)
+    public function __construct(
+        $command,
+        string $time,
+        int $timout,
+        ?string $name,
+        bool $overlap,
+        LockInterface $lock)
     {
-        $this->name = $name;
-        $this->schedule = new CronExpression($timePattern);
-        $this->callback = $callback;
-        $this->comment = $comment;
-        if (!empty($logger)) {
-            $this->pushLogger($logger);
-        }
+        $this->id       = self::$tasksCounter++;
+        $this->command  = $command;
+        $this->schedule = new CronExpression($time);
+        $this->timeout  = $timout;
+        $this->name     = $name ?? "Task {$this->id}";
+        $this->overlap  = $overlap;
+        $this->lock     = $lock;
     }
 
-    public function run($force = false)
+    public function run(): void
     {
-        if ($this->isDue() || $force) {
-            $serviceLocator = ServiceLocator::getInstance();
+        $this->lock->acquire();
 
-            $this->info("(".(new \DateTime())->format('Y-m-d H:i:s').") (Started) Task \"{$this->name}\" ({$this->comment}).");
+        $serviceLocator = ServiceLocator::getInstance();
 
-            if (is_string($this->callback)) {
-                exec($this->callback.' > /dev/null &');
-                $this->info("(".(new \DateTime())->format('Y-m-d H:i:s').") (Background) Task \"{$this->name}\".");
+        if (is_string($this->command)) {
+            exec($this->command);
+        } elseif (is_array($this->command)) {
+            $reflection = new \ReflectionMethod($this->command[0], $this->command[1]);
+
+            if ($reflection->isStatic() || is_object($this->command[0])) {
+                $command = $this->command;
+            } elseif ($serviceLocator->hasService($this->command[0])) {
+                $command = [
+                    $serviceLocator->getService($this->command[0]),
+                    $this->command[1]
+                ];
             } else {
-                if (is_array($this->callback)) {
-                    $reflection = new \ReflectionMethod($this->callback[0], $this->callback[1]);
-                    if ($reflection->isStatic() || is_object($this->callback[0])) {
-                        $callback = $this->callback;
-                    } elseif ($serviceLocator->hasService($this->callback[0])) {
-                        $callback = [
-                            $serviceLocator->getService($this->callback[0]),
-                            $this->callback[1]
-                        ];
-                    } else {
-                        $callback = [
-                            new $this->callback[0](),
-                            $this->callback[1]
-                        ];
-                    }
-                } else {
-                    $reflection = new \ReflectionFunction($this->callback);
-                    $callback = $this->callback;
-                }
-
-                $result = call_user_func_array($callback, $this->getMethodArguments($reflection));
-                $this->info("(".(new \DateTime())->format('Y-m-d H:i:s').") (Finished) Task \"{$this->name}\".");
-                if (!empty($result)) {
-                    $this->info("Result: {$result}");
-                }
+                $command = [
+                    new $this->command[0](),
+                    $this->command[1]
+                ];
             }
+
+            call_user_func_array($command, $this->getMethodArguments($reflection));
+        } elseif ($this->command instanceof \Closure) {
+            $reflection = new \ReflectionFunction($this->command);
+
+            call_user_func_array($this->command, $this->getMethodArguments($reflection));
         } else {
-            $this->info("(".(new \DateTime())->format('Y-m-d H:i:s').") (Skipped) Task \"{$this->name}\" ({$this->comment}).");
+            throw new \Exception('The command is not callable');
+        }
+
+        if ($this->lock->isAcquired()) {
+            $this->lock->release();
         }
     }
 
-    public function isDue()
+    public function isDue(): bool
     {
-        return $this->schedule->isDue();
+        return ($this->schedule->isDue() && ($this->overlap || !$this->isAcquired()));
     }
 
-    public function pushLogger(LoggerInterface $logger)
+    private function isAcquired(): bool
     {
-        $this->loggers[] = $logger;
-    }
-
-    private function info($message, array $context = [])
-    {
-        if (!empty($this->loggers)) {
-            foreach ($this->loggers as $logger) {
-                $logger->info($message, $context);
-            }
+        if ($result = $this->lock->acquire()) {
+            $this->lock->release();
         }
+
+        return !$result;
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    public function getCommand()
+    {
+        return $this->command;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getTimeout(): int
+    {
+        return $this->timeout;
+    }
+
+    public function getSchedule(): CronExpression
+    {
+        return $this->schedule;
     }
 }

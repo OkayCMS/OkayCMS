@@ -11,6 +11,7 @@ use Okay\Admin\Requests\BackendProductsRequest;
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\AbstractInit;
 use Okay\Core\Modules\EntityField;
+use Okay\Core\Scheduler\Schedule;
 use Okay\Core\ServiceLocator;
 use Okay\Core\Settings;
 use Okay\Entities\PaymentsEntity;
@@ -23,6 +24,7 @@ use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCostDeliveryDataEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPWarehousesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Extenders\BackendExtender;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Extenders\FrontExtender;
+use Okay\Modules\OkayCMS\NovaposhtaCost\NovaposhtaCost;
 
 class Init extends AbstractInit
 {
@@ -137,11 +139,20 @@ class Init extends AbstractInit
         $this->registerBackendController('NovaposhtaCostAdmin');
         $this->addBackendControllerPermission('NovaposhtaCostAdmin', 'okaycms__novaposhta_cost');
 
-        $this->registerSchedulerTask(
-            'okaycms__novaposhta_cost__parse_cities_to_cache',
-            '* * * * *',
-            'php '.dirname(__DIR__).'/cron/update_cache.php',
-            'Parses NP cities and warehouses to the db cache'
+        $this->registerSchedule(
+            (new Schedule([NovaposhtaCost::class, 'parseCitiesToCache']))
+                ->name('Parses NP cities to the db cache')
+                ->time('0 0 * * *')
+                ->overlap(false)
+                ->timeout(3600)
+        );
+
+        $this->registerSchedule(
+            (new Schedule([NovaposhtaCost::class, 'parseWarehousesToCache']))
+                ->name('Parses NP warehouses to the db cache')
+                ->time('0 0 * * *')
+                ->overlap(false)
+                ->timeout(3600)
         );
     }
 

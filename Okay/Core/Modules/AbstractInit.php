@@ -11,6 +11,7 @@ use Okay\Core\Entity\Entity;
 use Okay\Core\EntityFactory;
 use Okay\Core\Image;
 use Okay\Core\Managers;
+use Okay\Core\Scheduler\Schedule;
 use Okay\Core\Scheduler\Scheduler;
 use Okay\Core\ServiceLocator;
 use Okay\Core\TemplateConfig\FrontTemplateConfig;
@@ -568,15 +569,8 @@ abstract class AbstractInit
         $this->discounts->registerCartSign($sign, $name, $description);
     }
 
-    /**
-     * Регистрация задачи для планировщика
-     *
-     * @param string $timePattern
-     * @param callable $callback
-     * @param string $comment
-     */
-    public function registerSchedulerTask(string $name, string $timePattern, $callback, string $comment = '', LoggerInterface $logger = null)
+    public function registerSchedule(Schedule $schedule): void
     {
-        $this->scheduler->addTask($name, $timePattern, $callback, $comment, $logger);
+        $this->scheduler->registerSchedule($schedule);
     }
 }

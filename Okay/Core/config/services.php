@@ -505,6 +505,7 @@ $services = [
     Scheduler::class => [
         'class' => Scheduler::class,
         'arguments' => [
+            new PR('logger.dir'),
         ]
     ],
 ];
