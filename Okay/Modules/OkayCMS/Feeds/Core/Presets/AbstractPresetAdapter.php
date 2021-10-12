@@ -163,6 +163,9 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
         $sql->setStatement('SET SQL_BIG_SELECTS=1');
         $this->database->query($sql);
 
+        // Делаем это, чтобы не обновлять настройки, если такого ресайза нет
+        $this->image->addImagesSize('1200x1200', 'product');
+
         // На всякий случай наполним кеш роутов
         Router::generateRouterCache();
 
