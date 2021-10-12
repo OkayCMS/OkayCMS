@@ -201,11 +201,11 @@ class FacebookAdapter extends AbstractPresetAdapter
 
         if ($categorySettings = $this->getCategorySettings($product->main_category_id)) {
             if ($categorySettings['fb_product_category']) {
-                $result['fb_product_category']['data'] = $categorySettings['name_in_feed'];
+                $result['fb_product_category']['data'] = $categorySettings['fb_product_category'];
             }
 
             if ($categorySettings['google_product_category']) {
-                $result['google_product_category']['data'] = $categorySettings['name_in_feed'];
+                $result['google_product_category']['data'] = $categorySettings['google_product_category'];
             }
         }
 
