@@ -196,6 +196,7 @@ class CategoryController extends AbstractController
 
         // Товары
         $products = $productsHelper->getList($filter, $sortProducts);
+        $products = $productsHelper->attachDescriptionByTemplate($products);
         $this->design->assign('products', $products);
         
         if ($this->request->get('ajax','boolean')) {
