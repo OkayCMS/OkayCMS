@@ -39,8 +39,6 @@ class BrandController extends AbstractController
 
         $isFilterPage = false;
         $filterHelper->setFiltersUrl($filtersUrl);
-
-        $this->setMetadataHelper($brandMetadataHelper);
         
         $sortProducts = null;
         $filter['visible'] = 1;
@@ -170,6 +168,14 @@ class BrandController extends AbstractController
 
         $relPrevNext = $this->design->fetch('products_rel_prev_next.tpl');
         $this->design->assign('rel_prev_next', $relPrevNext);
+
+        $brandMetadataHelper->setUp(
+            $brand,
+            $isFilterPage,
+            $this->design->getVar('is_all_pages'),
+            $this->design->getVar('current_page_num')
+        );
+        $this->setMetadataHelper($brandMetadataHelper);
         
         $this->response->setContent('products.tpl');
     }

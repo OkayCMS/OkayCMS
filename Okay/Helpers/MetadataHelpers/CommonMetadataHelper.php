@@ -44,8 +44,6 @@ class CommonMetadataHelper implements MetadataInterface
         $this->mainHelper = $SL->getService(MainHelper::class);
         $this->page = $this->design->getVar('page');
     }
-
-    public function setUp(): void {}
     
     /**
      * @inheritDoc
