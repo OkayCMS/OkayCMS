@@ -477,8 +477,14 @@ class CategoriesEntity extends Entity
         unset($ids);
 
         $categoriesIdsWithProducts = [];
-        $select = $this->queryFactory->newSelect();
-        $select->cols(['category_id'])->from('__products_categories')->groupBy(['category_id']);
+
+        $select = $this->queryFactory->newSelect()
+            ->cols(['category_id'])
+            ->from('__products_categories pc')
+            ->innerJoin(CategoriesEntity::getTable() . ' AS c', 'c.id=pc.category_id AND c.visible=1')
+            ->leftJoin(ProductsEntity::getTable() . ' AS p', 'p.id = pc.product_id')
+            ->where('p.visible = 1')
+            ->groupBy(['pc.category_id']);
         
         foreach ($select->results('category_id') as $result) {
             $categoriesIdsWithProducts[$result] = $result;

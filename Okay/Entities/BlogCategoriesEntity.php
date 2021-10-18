@@ -422,10 +422,12 @@ class BlogCategoriesEntity extends Entity
         unset($ids);
 
         $categoriesIdsWithPosts = [];
-        $select = $this->queryFactory->newSelect();
-        $select->cols(['category_id'])
+        $select = $this->queryFactory->newSelect()
+            ->cols(['category_id'])
             ->from('__blog_categories_relation bc')
             ->innerJoin(BlogCategoriesEntity::getTable() . ' AS c', 'c.id=bc.category_id AND c.visible=1')
+            ->leftJoin(BlogEntity::getTable() . ' AS b', 'b.id = bc.post_id')
+            ->where('b.visible = 1')
             ->groupBy(['bc.category_id']);
         
         foreach ($select->results('category_id') as $result) {
