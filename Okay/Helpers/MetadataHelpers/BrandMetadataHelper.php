@@ -4,13 +4,8 @@
 namespace Okay\Helpers\MetadataHelpers;
 
 
-use Okay\Core\EntityFactory;
 use Okay\Core\FrontTranslations;
 use Okay\Core\Modules\Extender\ExtenderFacade;
-use Okay\Entities\FeaturesAliasesValuesEntity;
-use Okay\Entities\FeaturesEntity;
-use Okay\Entities\FeaturesValuesAliasesValuesEntity;
-use Okay\Entities\SEOFilterPatternsEntity;
 use Okay\Helpers\FilterHelper;
 use Okay\Helpers\MetaRobotsHelper;
 

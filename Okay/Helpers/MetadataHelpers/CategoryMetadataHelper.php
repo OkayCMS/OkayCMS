@@ -318,16 +318,16 @@ class CategoryMetadataHelper extends CommonMetadataHelper
             if (in_array(count($featuresIds), [1, 2])) {
                 foreach ($selectedFilters as $sf) {
                     if(count($sf) == 1){
-                        $aliasesValuesFilter['translit'][] = reset($sf);
+                        $aliasesValuesFilter['feature_value_id'][] = key($sf);
                     } else {
-                        unset($aliasesValuesFilter['translit']);
+                        unset($aliasesValuesFilter['feature_value_id']);
                         break;
                     }
                 }
             }
 
             //Если паттерн свойство+свойство
-            if (!empty($aliasesValuesFilter['translit']) && count($aliasesValuesFilter['translit']) == 2) {
+            if (!empty($aliasesValuesFilter['feature_value_id']) && count($aliasesValuesFilter['feature_value_id']) == 2) {
                 
                 $featureIdsInPatternSettingsOrder = [];
                 //достаем порядок свойств в шаблонах в админке
