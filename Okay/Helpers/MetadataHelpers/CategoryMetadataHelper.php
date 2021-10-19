@@ -6,6 +6,7 @@ namespace Okay\Helpers\MetadataHelpers;
 
 use Okay\Core\EntityFactory;
 use Okay\Core\FrontTranslations;
+use Okay\Core\Languages;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Entities\FeaturesAliasesValuesEntity;
 use Okay\Entities\FeaturesEntity;
@@ -305,6 +306,9 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         $entityFactory = $this->SL->getService(EntityFactory::class);
         
         if (!empty($selectedFilters)) {
+            /** @var Languages $languages */
+            $languages = $this->SL->getService(Languages::class);
+
             /** @var FeaturesAliasesValuesEntity $featuresAliasesValuesEntity */
             $featuresAliasesValuesEntity = $entityFactory->get(FeaturesAliasesValuesEntity::class);
 
@@ -313,7 +317,10 @@ class CategoryMetadataHelper extends CommonMetadataHelper
             
             $featuresIds = array_keys($selectedFilters);
 
-            $aliasesValuesFilter['feature_id'] = $featuresIds;
+            $aliasesValuesFilter = [
+                'lang_id' => $languages->getLangId(),
+                'feature_id' => $featuresIds
+            ];
             
             if (in_array(count($featuresIds), [1, 2])) {
                 foreach ($selectedFilters as $sf) {
