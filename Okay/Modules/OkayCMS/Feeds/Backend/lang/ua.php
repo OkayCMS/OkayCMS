@@ -1,6 +1,7 @@
 <?php
 // Страница модуля
 $lang['okay_cms__feeds__module__title'] = "Товарні фіди";
+$lang['okay_cms__feeds__feed_open'] = "Відкрити фід";
 $lang['okay_cms__feeds__module__description_title'] = "Опис модуля";
 $lang['okay_cms__feeds__module__description_content'] = "Модуль додає можливість створювати товарні фіди використовуючи одну з декількох попередніх.";
 $lang['okay_cms__feeds__module__instruction_title'] = "Інструкція";
@@ -41,15 +42,16 @@ $lang['okay_cms__feeds__feed__entities__brand'] = "Бренд";
 $lang['okay_cms__feeds__feed__entities__delete'] = "Видалити";
 $lang['okay_cms__feeds__feed__entities__inclusions'] = "Товари для вивантаження";
 $lang['okay_cms__feeds__feed__entities__exclusions'] = "Винятки для вивантаження";
-    $lang['okay_cms__feeds__feed__entities__inclusions_faq'] = "Подсказка для блока";
-    $lang['okay_cms__feeds__feed__entities__exclusions_faq'] = "Подсказка для блока";
+$lang['okay_cms__feeds__feed__entities__inclusions_faq'] = "Виберіть товари, категорії, бренди або властивості які повинні потрапити в фід";
+$lang['okay_cms__feeds__feed__entities__exclusions_faq'] = "Виберіть товари, категорії, бренди або властивості які не повинні потрапити в фід";
 $lang['okay_cms__feeds__feed__entities__product_add'] = "Додати товар";
 
 // Страница выгрузки/Настройки
 $lang['okay_cms__feeds__feed__settings__tab'] = "Налаштування фіда";
 $lang['okay_cms__feeds__feed__settings__title1'] = "Налаштування фіда";
 $lang['okay_cms__feeds__feed__settings__title2'] = "Налаштування вивантаження в фід";
-$lang['okay_cms__feeds__feed__settings__title3'] = "Налаштування обмежень товарів в фіде";
+$lang['okay_cms__feeds__feed__settings__title3'] = "Налаштування умов для товарів в фіде";
+$lang['okay_cms__feeds__feed__settings__title3_tooltip'] = "наприклад: Ціна товару менше - 1000 і Кількість менше - 3 (в фіде будуть виключені)";
 
 // Страница выгрузки/Сопоставления свойств
 $lang['okay_cms__feeds__feed__features_settings__tab'] = "Налаштування властивостей";
@@ -57,6 +59,7 @@ $lang['okay_cms__feeds__feed__features_settings__title'] = "Налаштуван
 $lang['okay_cms__feeds__feed__features_settings__faq'] = "Зміна налаштувань властивостей";
 $lang['okay_cms__feeds__feed__features_settings__save_notify'] = "Збережіть фід для роботи з цими настройками.";
 $lang['okay_cms__feeds__feed__features_settings__table_settings'] = "Налаштування";
+$lang['okay_cms__feeds__feed__features_settings__documentation'] = "В даній вкладці ви можете вкл. або вик. передачу опредленних свойст в фід. Використовуйте документацію потрібного вам фида для коректного назви властивостей.​";
 
 // Страница выгрузки/Сопоставления категорий
 $lang['okay_cms__feeds__feed__categories_settings__tab'] = "Налаштування категорій";
@@ -64,6 +67,7 @@ $lang['okay_cms__feeds__feed__categories_settings__title'] = "Налаштува
 $lang['okay_cms__feeds__feed__categories_settings__faq'] = "Зміна налаштувань категорій";
 $lang['okay_cms__feeds__feed__categories_settings__save_notify'] = "Збережіть фід для роботи з цими настройками.";
 $lang['okay_cms__feeds__feed__categories_settings__table_settings'] = "Налаштування";
+$lang['okay_cms__feeds__feed__categories_settings__documentation'] = "Товари в категоріях вашого прайс-листа повинні відповідати товарам в категоріях сайту. Якщо в прайс-листі необхідний атрибут id передати можна id категорії зі довідника фіда.В такому випадку категорія буде пов'язана автоматично. У різних фідах можуть бути відсутні ті чи інші вимоги до настроках категорій.";
 
 // Общие элементы настроек
 $lang['okay_cms__feeds__feed__features_settings__common__name_in_feed'] = "Назва в товарному фіде";
@@ -102,8 +106,11 @@ $lang['okay_cms__feeds__feed__settings__rozetka__upload_only_in_stock_products']
 $lang['okay_cms__feeds__feed__settings__rozetka__use_full_description'] = "Використовувати повний опис (якщо вимкнено передається короткий опис)";
 $lang['okay_cms__feeds__feed__settings__rozetka__company'] = "Повне найменування компанії, що володіє магазином";
 $lang['okay_cms__feeds__feed__settings__rozetka__feed_name'] = "Назва фіда";
-    $lang['okay_cms__feeds__feed__settings__rozetka__variant_name_param'] = "Название свойства для названия варианта";
-    $lang['okay_cms__feeds__feed__categories_settings__rozetka__external_id'] = "Внешний ID";
+$lang['okay_cms__feeds__feed__settings__rozetka__variant_name_param'] = "Назва варіанту яке використовується в товарі";
+$lang['okay_cms__feeds__feed__categories_settings__rozetka__external_id'] = "Зовнішній ID";
+$lang['okay_cms__feeds__feed__settings__rozetka__feed_name_tooltip'] = "наприклад: Для партнера ТОВ Бубка";
+$lang['okay_cms__feeds__feed__settings__rozetka__variant_name_param_tooltip'] = "наприклад: Розмір або Колір";
+$lang['okay_cms__feeds__feed__settings__title2_rosetka_documentation'] = "Вкажіть відповідність властивостей які відповідають за дані параметри. У деяких випадках варто створювати кілька фідів, для товара де використовується в варіантах розмір і окремий фид де варіантом є колір. <br> Детальніше про мітки продавця можна ознайомитись в <a href='https://support.google.com/merchants/answer/6324473?hl=ru' target='_blank'>документації</a>";
 
 // Настройки Hotline
 $lang['okay_cms__feeds__feed__settings__hotline__upload_without_images'] = "Вивантажувати товари без зображень";
@@ -112,7 +119,8 @@ $lang['okay_cms__feeds__feed__settings__hotline__use_full_description'] = "Ви�
 $lang['okay_cms__feeds__feed__settings__hotline__google_merchant__company'] = "Повне найменування компанії, що володіє магазином";
 $lang['okay_cms__feeds__feed__settings__hotline__guarantee_manufacturer'] = "Гарантія виробника (в месяцях)";
 $lang['okay_cms__feeds__feed__settings__hotline__guarantee_shop'] = "Гарантія продавця";
-    $lang['okay_cms__feeds__feed__settings__hotline__firm_id'] = "Уникальный код магазина (firmId)";
+$lang['okay_cms__feeds__feed__settings__hotline__firm_id'] = "Уникальный код магазина (firmId)";
+$lang['okay_cms__feeds__feed__settings__hotline__firm_id_faq'] = "Код магазину знаходиться в особистому аккаунте Hotline";
 
 // Настройки YML
 $lang['okay_cms__feeds__feed__settings__yml__upload_without_images'] = "Вивантажувати товари без зображень";
@@ -156,6 +164,7 @@ $lang['okay_cms__feeds__feed__settings__price_ua__country_of_origin'] = "Кра�
 $lang['okay_cms__feeds__feed__settings__price_ua__guarantee_manufacturer'] = "Гарантія виробника (в месяцях)";
 $lang['okay_cms__feeds__feed__settings__price_ua__guarantee_shop'] = "Гарантія продавця";
 $lang['okay_cms__feeds__feed__settings__price_ua__feed_name'] = "Назва фіда";
+$lang['okay_cms__feeds__feed__settings__price_ua__country_of_origin_tooltip'] = "Виберіть властивість відповідає за даний параметр";
 
 // Настройки Prom.ua
 $lang['okay_cms__feeds__feed__settings__prom_ua__upload_without_images'] = "Вивантажувати товари без зображень";

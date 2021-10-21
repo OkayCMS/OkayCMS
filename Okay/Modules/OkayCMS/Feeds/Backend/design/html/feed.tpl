@@ -19,7 +19,7 @@
                 <div class="box_btn_heading">
                     <a class="btn btn_small btn-info add" target="_blank" href="{url_generator route="OkayCMS.Feeds.Feed" url=$feed->url absolute=1}">
                         {include file='svg_icon.tpl' svgId='icon_desktop'}
-                        <span>{$btr->general_open|escape}</span>
+                        <span>{$btr->okay_cms__feeds__feed_open|escape}</span>
                     </a>
                 </div>
             {/if}

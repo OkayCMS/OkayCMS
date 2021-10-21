@@ -1,4 +1,10 @@
 {if $feed}
+    <div class="alert alert--icon alert--info fn_features_settings_alert">
+        <div class="alert__content">
+            <div class="alert__title">{$btr->alert_info}</div>
+            <p>{$btr->okay_cms__feeds__feed__features_settings__documentation}</p>
+        </div>
+    </div>
     <div class="boxed fn_features_settings hidden-xs-down">
         <div class="heading_box">
             {$btr->okay_cms__feeds__feed__features_settings__title|escape}
