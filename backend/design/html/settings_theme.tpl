@@ -468,35 +468,6 @@
                                     <option value="delete">{$btr->general_delete|escape}</option>
                                 </select>
                             </div>
-
-                            <div class="fn_additional_params">
-                                <div class="fn_move_to_page col-lg-12 col-md-12 col-sm-12 hidden fn_hide_block">
-                                    <select name="target_page" class="selectpicker form-control dropup">
-                                        {section target_page $pages_count}
-                                            <option value="{$smarty.section.target_page.index+1}">{$smarty.section.target_page.index+1}</option>
-                                        {/section}
-                                    </select>
-                                </div>
-                                <div class="fn_move_to_category col-lg-12 col-md-12 col-sm-12 hidden fn_hide_block">
-                                    <select name="target_category" class="selectpicker form-control dropup" data-live-search="true" data-size="10">
-                                        {function name=category_select_btn level=0}
-                                            {foreach $categories as $category}
-                                                <option value='{$category->id}'>{section sp $level}&nbsp;&nbsp;&nbsp;&nbsp;{/section}{$category->name|escape}</option>
-                                                {category_select_btn categories=$category->subcategories selected_id=$selected_id level=$level+1}
-                                            {/foreach}
-                                        {/function}
-                                        {category_select_btn categories=$categories}
-                                    </select>
-                                </div>
-                                <div class="fn_move_to_brand col-lg-12 col-md-12 col-sm-12 hidden fn_hide_block">
-                                    <select name="target_brand" class="selectpicker form-control dropup" data-live-search="true" data-size="{if $brands|count<10}{$brands|count}{else}10{/if}">
-                                        <option value="0">{$btr->general_not_set|escape}</option>
-                                        {foreach $all_brands as $b}
-                                            <option value="{$b->id}">{$b->name|escape}</option>
-                                        {/foreach}
-                                    </select>
-                                </div>
-                            </div>
                         </div>
                         <button type="submit" class="btn btn_small btn_blue">
                             {include file='svg_icon.tpl' svgId='checked'}
