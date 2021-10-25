@@ -32,7 +32,6 @@
     #Purchases
     #Delivery & Payment
     #Profile user
-    #Advantages
     #Page 404
   #Footer
   #Mobile navigation
@@ -4225,51 +4224,6 @@ table.order_details {min-width: auto;}
 }
 .to_top:hover {opacity: 1;}
 
-/***** #Advantages *****/
-.advantages__item{
-    -webkit-align-content: stretch;
-    -ms-flex-line-pack: stretch;
-    align-content: stretch;
-}
-.advantages__item:last-child{margin-bottom: 0;}
-.advantages__preview{
-    text-align: center;
-    height: 100%;
-    color: rgb(58, 58, 58);
-    background: rgb(255, 255, 255);
-    border-right: 1px solid;
-    border-color:  #dbdbdb;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -webkit-flex-direction: column;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    -webkit-box-pack: center;
-    -webkit-justify-content: center;
-    -ms-flex-pack: center;
-    justify-content: center;
-}
-.advantages__item:last-child .advantages__preview{border: none;}
-.advantages__icon{
-    max-width: 65px;
-    text-align: center;
-    margin-bottom: 5px;
-}
-.advantages__icon svg{
-    width: 55px;
-    height: 55px;
-    color: var(--okay-basic-company);
-}
-.advantages__title{
-    display: block;
-    margin-top: 5px;
-    font-size: 14px;
-    font-weight: 500;
-    padding-left: 0;
-    max-width: 150px;
-    line-height: 1.2;
-    min-height: 36px;
-}
 /***** #Page 404 ********************************************************/
 .not_found{
     width: 900px;

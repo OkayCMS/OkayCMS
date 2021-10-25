@@ -1111,7 +1111,6 @@ $lang['allow_to_visible_system_modules'] = 'Дозволити показ сис
 $lang['allow_to_visible_empty_categories'] = 'Відображати порожні категорії';
 $lang['allow_to_visible_empty_categories_notice'] = 'Якщо вимкнути цей параметр, то категорії без товарів не будуть відображаються в каталозі, але залишаться доступними за прямим посиланням для користувачів і пошукових систем. Якщо увімкнено';
 $lang['no_modules'] = 'Немає модулів';
-$lang['settings_advantages'] = 'Переваги';
 $lang['lesson_status_done'] = 'Завершено';
 $lang['lesson_status_not_done'] = 'Не завершено';
 
@@ -1441,8 +1440,6 @@ $lang['orders_date_filter_list_orders_to'] = 'до';
 $lang['orders_date_filter_list_orders_reset'] = 'Скинути фільтр';
 $lang['import_modules_fields'] = 'Поля з модулів';
 $lang['orders_unit'] = 'шт';
-$lang['advantage_image_title'] = 'Зображення';
-$lang['advantage_description_title'] = 'Опис';
 $lang['alert_description'] = 'Опис';
 $lang['alert_error'] = 'Важливо!';
 $lang['alert_info'] = 'Інструкція';

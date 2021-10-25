@@ -155,6 +155,91 @@
     -ms-flex-direction: row-reverse;
     flex-direction: row-reverse;
 }
+.banner_advantages{
+    margin-bottom: -15px;
+}
+.banner_advantages__item{
+    -webkit-align-content: stretch;
+    -ms-flex-line-pack: stretch;
+    align-content: stretch;
+    margin-bottom: 15px;
+}
+.banner_advantages__preview{
+    text-align: center;
+    min-height: 120px;
+    height: 100%;
+    border: 1px solid #dbdbdb;
+    box-shadow: 0 0 0 #0000001a,0 0 0 #0000001a,0 0 0 #0000001a;
+    padding: 10px;
+    position: relative;
+    transition: .3s;
+    width: 100%;
+    background: #fff;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+}
+.banner_advantages__item:hover .banner_advantages__preview {
+    background: #fff;
+    border-color: transparent;
+    border-radius: 4px;
+    -webkit-box-shadow: 0 5px 15px #00000059;
+    -moz-box-shadow: 0 5px 15px rgba(0,0,0,0.35);
+    box-shadow: 0 5px 15px #00000059;
+    z-index: 3;
+}
+.banner_advantages__link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    z-index: 9999;
+    filter: alpha(opacity=0);
+    opacity: 0;
+}
+.banner_advantages__icon{
+    max-width: 65px;
+    min-height: 55px;
+    text-align: center;
+    margin-bottom: 5px;
+}
+.banner_advantages__icon svg{
+    width: 55px;
+    height: 55px;
+    color: var(--okay-basic-company);
+}
+.banner_advantages__title,
+.banner_advantages__description{
+    display: block;
+    margin-top: 5px;
+    padding: 0 10px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.2;
+    max-width: 100%;
+    color: #222; 
+}
+.banner_advantages__title{
+    font-size: 14px;
+    font-weight: 500;
+    max-width: 150px;
+    min-height: 36px;
+}
+.banner_advantages__description{
+    font-size: 13px;
+    line-height: 1.4;
+    opacity: 0.8;
+}
 
 @media only screen and (max-width : 991px) {
     .banner_group.no_js .banner_group__item{
@@ -162,7 +247,6 @@
         margin-bottom: 10px;
     }
 }
-
 @media only screen and (max-width : 767px) {
     .banner_group__image img{
         width: 100% !important;
@@ -186,5 +270,17 @@
     .banner_group__description {
         font-size: 12px;
         font-weight: 400;
+    }
+    .banner_advantages__title,
+    .banner_advantages__description{
+        padding: 0;
+    }
+    .banner_advantages__title{
+        font-size: 13px;
+        max-width: 100%;
+        min-height: auto;
+    }
+    .banner_advantages__description{
+        font-size: 12px;
     }
 }

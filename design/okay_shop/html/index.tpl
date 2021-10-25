@@ -167,10 +167,14 @@
                 {include file='breadcrumb.tpl'}
                 <div class="fn_ajax_content">
                     {$content}
-
-                    {* Преимущества магазина *}
-                    {include file='advantages.tpl'}
                 </div>
+            </div>
+        {/if}
+
+        {* Преимущества магазина *}
+        {if !empty($banner_shortcode_advantage)}
+            <div class="container">
+                {$banner_shortcode_advantage}
             </div>
         {/if}
     </div>
