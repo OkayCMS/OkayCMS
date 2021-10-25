@@ -583,23 +583,16 @@ class ImportProducts extends AbstractImport
                 continue;
             }
 
-            if(stripos(strval($xmlValue), ',,') !== false) {
-                $feature_values = explode(',,', $xmlValue);
-                foreach ($feature_values as $value){
+            if(stripos($xmlValue, ',,') !== false) {
+                foreach (explode(',,', $xmlValue) as $value){
                     $param_v = "features_values_".$featureId."_".$value;
-                    if ($this->integration1C->getFromStorage($param_v) !== null) {
-                        $valueId = $this->integration1C->getFromStorage($param_v);
-                        $rows[] = [
-                            'product_id'     => $productId,
-                            'value_id'   => $valueId
-                        ];
-                    } else {
+                    if (($valueId = $this->integration1C->getFromStorage($param_v)) === null) {
                         $valueId = $this->getFeatureValueId($featureId, $value);
-                        $rows[] = [
-                            'product_id'     => $productId,
-                            'value_id'   => $valueId
-                        ];
                     }
+                    $rows[] = [
+                        'product_id'     => $productId,
+                        'value_id'   => $valueId
+                    ];
                 }
                 $insert->addRows($rows);
             } else {
