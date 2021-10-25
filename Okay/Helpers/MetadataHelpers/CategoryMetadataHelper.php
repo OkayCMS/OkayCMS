@@ -6,6 +6,7 @@ namespace Okay\Helpers\MetadataHelpers;
 
 use Okay\Core\EntityFactory;
 use Okay\Core\FrontTranslations;
+use Okay\Core\Languages;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Entities\FeaturesAliasesValuesEntity;
 use Okay\Entities\FeaturesEntity;
@@ -338,7 +339,10 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         /** @var EntityFactory $entityFactory */
         $entityFactory = $this->SL->getService(EntityFactory::class);
         
-        if (!empty($this->selectedFilters)) {
+        if (!empty($selectedFilters)) {
+            /** @var Languages $languages */
+            $languages = $this->SL->getService(Languages::class);
+          
             /** @var FeaturesAliasesValuesEntity $featuresAliasesValuesEntity */
             $featuresAliasesValuesEntity = $entityFactory->get(FeaturesAliasesValuesEntity::class);
 
@@ -347,21 +351,24 @@ class CategoryMetadataHelper extends CommonMetadataHelper
             
             $featuresIds = array_keys($this->selectedFilters);
 
-            $aliasesValuesFilter['feature_id'] = $featuresIds;
+            $aliasesValuesFilter = [
+                'lang_id' => $languages->getLangId(),
+                'feature_id' => $featuresIds
+            ];
             
             if (in_array(count($featuresIds), [1, 2])) {
                 foreach ($this->selectedFilters as $sf) {
                     if(count($sf) == 1){
-                        $aliasesValuesFilter['translit'][] = reset($sf);
+                        $aliasesValuesFilter['feature_value_id'][] = key($sf);
                     } else {
-                        unset($aliasesValuesFilter['translit']);
+                        unset($aliasesValuesFilter['feature_value_id']);
                         break;
                     }
                 }
             }
 
             //Если паттерн свойство+свойство
-            if (!empty($aliasesValuesFilter['translit']) && count($aliasesValuesFilter['translit']) == 2) {
+            if (!empty($aliasesValuesFilter['feature_value_id']) && count($aliasesValuesFilter['feature_value_id']) == 2) {
                 
                 $featureIdsInPatternSettingsOrder = [];
                 //достаем порядок свойств в шаблонах в админке
