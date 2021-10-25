@@ -1575,5 +1575,7 @@ $lang['settings_increased_image_size'] = 'Повышенный размер из
 $lang['settings_increased_image_size_notice'] = 'Данный параметр включает вывод изображений в списке товаров в повышенном разрешении. Это влияет на качество отображения изображения на дисплеях с высоким разрешением, но может негативно сказаться на скорости работы сайта (Pagespeed)';
 $lang['seo_patterns_ajax_products_annotation'] = 'Шаблон краткого описания товаров';
 $lang['seo_filter_patterns_ajax_annotation'] = 'Шаблон краткого описания';
+$lang['brand_h1'] = 'Заголовок H1';
+$lang['tooltip_brand_h1'] = 'Если вам требуется задать заголовок Н1 отличающийся от названия бренда - впишите его сюда';
 $lang['general_sort_brands_alphabet'] = 'Cортировка по алфавиту';
 $lang['general_sort_brands_alphabet_hint'] = 'Отсортировать бренды по алфавиту';

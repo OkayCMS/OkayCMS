@@ -1575,5 +1575,7 @@ $lang['settings_increased_image_size'] = 'Підвищений розмір зо
 $lang['settings_increased_image_size_notice'] = 'Це налаштування висновок зображень в списку товарів в підвищеному дозволі. Це впливає на якість відображення зображення на дисплеях з високою роздільною здатністю, але може негативно позначитися на швидкості роботи сайту (Pagespeed)';
 $lang['seo_patterns_ajax_products_annotation'] = 'Шаблон короткого опису товарів';
 $lang['seo_filter_patterns_ajax_annotation'] = 'Шаблон короткого опису';
+$lang['brand_h1'] = 'Заголовок H1';
+$lang['tooltip_brand_h1'] = 'Якщо вам потрібно задати заголовок Н1, який буде відрізнятися від назви бренду - впишіть його сюди';
 $lang['general_sort_brands_alphabet'] = 'Cортування за алфавітом';
 $lang['general_sort_brands_alphabet_hint'] = 'Відсортувати бренди за алфавітом';
