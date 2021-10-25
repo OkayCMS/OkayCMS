@@ -306,4 +306,23 @@ class BackendBrandsHelper
         }
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
+
+    public function sortBrandsPositionsAlphabet()
+    {
+        $brands = [];
+        foreach($this->brandsEntity->cols(['id', 'name'])->find() as $b) {
+            $brands[$b->id] = $b->name;
+        }
+
+        asort($brands, SORT_NATURAL);
+
+        $i = 0;
+        $brandIds = array_keys($brands);
+
+        foreach($brandIds as $brandId) {
+            $this->brandsEntity->update($brandId, ['position'=>$i++]);
+        }
+
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
 }
