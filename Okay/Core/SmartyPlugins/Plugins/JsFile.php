@@ -45,6 +45,6 @@ class JsFile extends Func
             return $this->backendTemplateConfig->compileIndividualJs($filename, $dir, $defer);
         }
         
-        return $this->frontTemplateConfig->compileIndividualJs($filename, $dir, $defer);
+        return $this->frontTemplateConfig->compilePluginIndividualJs($filename, $dir, $defer);
     }
 }
