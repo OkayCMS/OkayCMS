@@ -13,6 +13,7 @@ class JsConfig
     private $individualJs = [];
     private $deferJsFiles = [];
     private $preloadFiles = [];
+    private $filesAttributes = [];
 
     /**
      * @param Js $js
@@ -25,10 +26,14 @@ class JsConfig
             if ($js->getDefer() === true) {
                 $this->deferJsFiles[$fullPath] = $fullPath;
             }
+
             if ($js->getPreload() === true) {
                 $this->preloadFiles[$fullPath] = $fullPath;
             }
+
             $this->individualJs[$js->getPosition()][$fileId] = $fullPath;
+
+            $this->filesAttributes[$fullPath] = $js->getAttributes();
         } else {
             $this->templateJs[$js->getPosition()][$fileId] = $fullPath;
         }
@@ -42,6 +47,11 @@ class JsConfig
     public function isPreload($filename)
     {
         return isset($this->preloadFiles[$filename]);
+    }
+
+    public function getAttributes($filename)
+    {
+        return $this->filesAttributes[$filename] ?? null;
     }
     
     /**
@@ -112,6 +122,11 @@ class JsConfig
                 if (isset($this->deferJsFiles[$fullFilePath])) {
                     $this->deferJsFiles[$compiledFilename] = $compiledFilename;
                     unset($this->deferJsFiles[$fullFilePath]);
+                }
+
+                if (isset($this->filesAttributes[$fullFilePath])) {
+                    $this->filesAttributes[$compiledFilename] = $this->filesAttributes[$fullFilePath];
+                    unset($this->filesAttributes[$fullFilePath]);
                 }
 
                 if (file_exists($compiledFilename)) {

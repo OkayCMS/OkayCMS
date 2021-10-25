@@ -40,6 +40,6 @@ class CssFile extends Func
             return $this->backendTemplateConfig->compileIndividualCss($filename, $dir);
         }
         
-        return $this->frontTemplateConfig->compileIndividualCss($filename, $dir);
+        return $this->frontTemplateConfig->compilePluginIndividualCss($filename, $dir);
     }
 }

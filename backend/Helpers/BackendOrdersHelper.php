@@ -131,8 +131,7 @@ class BackendOrdersHelper
 
         $productsFilter = [
             'keyword' => $keyword,
-            'limit' => 10,
-            'in_stock' => !$this->settings->get('is_preorder'),
+            'limit' => 30,
         ];
 
         $imagesIds = [];

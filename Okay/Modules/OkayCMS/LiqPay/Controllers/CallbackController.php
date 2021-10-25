@@ -95,7 +95,7 @@ class CallbackController extends AbstractController
             exit;
         }
 
-        if ($amount != round($money->convert($order->total_price, $method->currency_id, false), 2) || $amount<=0) {
+        if ($amount != $money->convert($order->total_price, $method->currency_id, false, false, 2) || $amount<=0) {
             $logger->warning("LiqPay notice: 'incorrect price'. Order №{$orderId}");
             $this->response->setContent("incorrect price")->setStatusCode(400);
             $this->response->sendContent();
