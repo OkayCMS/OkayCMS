@@ -78,33 +78,33 @@ class Init extends AbstractInit
         $this->addBackendControllerPermission('BannersImagesAdmin', self::PERMISSION);
         
         $this->registerQueueExtension(
-            ['class' => MainHelper::class, 'method' => 'commonAfterControllerProcedure'],
-            ['class' => FrontExtender::class, 'method' => 'assignCurrentBanners']
+            [MainHelper::class, 'commonAfterControllerProcedure'],
+            [FrontExtender::class, 'assignCurrentBanners']
         );
         
         $this->registerChainExtension(
-            ['class' => CategoryMetadataHelper::class, 'method' => 'getParts'],
-            ['class' => FrontExtender::class, 'method' => 'metadataGetParts']
+            [CategoryMetadataHelper::class, 'getParts'],
+            [FrontExtender::class, 'metadataGetParts']
         );
         
         $this->registerChainExtension(
-            ['class' => BrandMetadataHelper::class, 'method' => 'getParts'],
-            ['class' => FrontExtender::class, 'method' => 'metadataGetParts']
+            [BrandMetadataHelper::class, 'getParts'],
+            [FrontExtender::class, 'metadataGetParts']
         );
         
         $this->registerChainExtension(
-            ['class' => ProductMetadataHelper::class, 'method' => 'getParts'],
-            ['class' => FrontExtender::class, 'method' => 'metadataGetParts']
+            [ProductMetadataHelper::class, 'getParts'],
+            [FrontExtender::class, 'metadataGetParts']
         );
         
         $this->registerChainExtension(
-            ['class' => PostMetadataHelper::class, 'method' => 'getParts'],
-            ['class' => FrontExtender::class, 'method' => 'metadataGetParts']
+            [PostMetadataHelper::class, 'getParts'],
+            [FrontExtender::class, 'metadataGetParts']
         );
         
         $this->registerChainExtension(
-            ['class' => CommonMetadataHelper::class, 'method' => 'getParts'],
-            ['class' => FrontExtender::class, 'method' => 'metadataGetParts']
+            [CommonMetadataHelper::class, 'getParts'],
+            [FrontExtender::class, 'metadataGetParts']
         );
         
         $this->extendBackendMenu('left_banners', [
