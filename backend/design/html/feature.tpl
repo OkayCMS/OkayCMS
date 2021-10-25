@@ -294,7 +294,7 @@
                                 {include file='svg_icon.tpl' svgId='icon_tooltips'}
                             </i>
                         </span>
-                        <button type="button" class="btn btn_small btn-secondary fn_add_value mb-1">
+                        <button type="button" class="fn_step-7 btn btn_small btn-secondary fn_add_value mb-1">
                             {include file='svg_icon.tpl' svgId='plus'}
                             <span>{$btr->feature_add_value|escape}</span>
                         </button>
@@ -305,7 +305,7 @@
                 </div>
                 <div class="toggle_body_wrap on fn_card fn_sort_list">
 
-                    <div class="fn_step-7 row mb-1">
+                    <div class="fn_step-8 row mb-1">
                         <div class="col-lg-9 col-md-9 col-sm 12">
                             <div class="float-lg-left">
                                 {*<input type="submit" name="alphabet_sort_values" value="{$btr->general_sort_feature_values_alphabet|escape}">*}
@@ -512,7 +512,7 @@
 
     <div class="row">
         <div class="col-lg-12 col-md-12 mb-2">
-            <button type="submit" class="fn_step-9 btn btn_small btn_blue float-md-right">
+            <button type="submit" class="fn_step-10 btn btn_small btn_blue float-md-right">
                 {include file='svg_icon.tpl' svgId='checked'}
                 <span>{$btr->general_apply|escape}</span>
             </button>

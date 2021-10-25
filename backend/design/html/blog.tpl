@@ -48,7 +48,7 @@
                 </div>
                 <div class="boxed_sorting toggle_body_wrap off fn_card">
                 <div class="row">
-                    <div class="col-md-3 col-lg-3 col-sm-12">
+                    <div class="fn_step-0 col-md-3 col-lg-3 col-sm-12">
                         <select id="id_categories" name="categories_filter" title="{$btr->general_category_filter|escape}" class="selectpicker form-control" data-live-search="true" data-size="10" onchange="location = this.value;">
                             <option value="{url keyword=null brand_id=null page=null limit=null category_id=null}" {if !$category_id}selected{/if}>{$btr->general_all_categories|escape}</option>
                             <option value="{url keyword=null brand_id=null page=null limit=null category_id=-1}" {if $category_id==-1}selected{/if}>{$btr->products_without_category|escape}</option>
@@ -91,6 +91,7 @@
                             </div>
                             <div class="okay_list_heading okay_list_photo">{$btr->general_photo|escape}</div>
                             <div class="okay_list_heading okay_list_blog_name">{$btr->blog_name|escape}</div>
+                            <div class="okay_list_heading okay_list_status">{$btr->general_category|escape}</div>
                             <div class="okay_list_heading okay_list_status">{$btr->general_enable|escape}</div>
                             <div class="okay_list_heading okay_list_setting okay_list_blog_setting">{$btr->general_activities|escape}</div>
                             <div class="okay_list_heading okay_list_close"></div>
@@ -121,6 +122,16 @@
                                             <span class="text_grey">{$post->date|date}</span>
 
                                             {get_design_block block="blog_post_name" vars=['post'=>$post]}
+                                        </div>
+
+                                        <div class="okay_list_boding okay_list_status">
+                                            {if $categories[$post->main_category_id]->name}
+                                                <div class="text_600 font_14">{$categories[$post->main_category_id]->name}</div>
+                                            {else}
+                                                {foreach $categories as $c}
+                                                    <div class="text_600 font_14">{$c->subcategories[$post->main_category_id]->name}</div>
+                                                {/foreach}
+                                            {/if}
                                         </div>
 
                                         <div class="okay_list_boding okay_list_status">

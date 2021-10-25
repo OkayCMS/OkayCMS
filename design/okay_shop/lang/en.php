@@ -30,6 +30,7 @@ $lang['email_order_title'] = 'Your Order No.';
 $lang['email_order_on_total'] = 'for the amount';
 $lang['email_order_paid'] = 'Paid';
 $lang['email_order_not_paid'] = 'not paid';
+$lang['email_order_payment_method'] = 'Payment method';
 $lang['email_order_status'] = 'Status';
 $lang['email_order_payment'] = 'Payment';
 $lang['email_order_name'] = 'Name, surname';

@@ -30,6 +30,7 @@ $lang['email_order_title'] = 'Ваше замовлення №';
 $lang['email_order_on_total'] = 'на суму';
 $lang['email_order_paid'] = 'Оплачено';
 $lang['email_order_not_paid'] = 'не сплачено';
+$lang['email_order_payment_method'] = 'Способ оплати';
 $lang['email_order_status'] = 'Статус';
 $lang['email_order_payment'] = 'Оплата';
 $lang['email_order_name'] = 'Ім\'я, прізвище';

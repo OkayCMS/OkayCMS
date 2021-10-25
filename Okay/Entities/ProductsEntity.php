@@ -791,7 +791,7 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
 
     protected function filter__discounted($state)
     {
-        $this->select->where('(SELECT 1 FROM __variants pv WHERE pv.product_id=p.id AND pv.compare_price>0 LIMIT 1) = :discounted')
+        $this->select->where('(SELECT 1 FROM __variants pv WHERE pv.product_id=p.id AND pv.compare_price>pv.price LIMIT 1) = :discounted')
             ->bindValue('discounted', (int)$state);
     }
     
@@ -814,7 +814,7 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         }
 
         if (in_array("discounted", $filters)) {
-            $otherFilter[] = "(SELECT 1 FROM __variants pv WHERE pv.product_id=p.id AND pv.compare_price>0 LIMIT 1) = 1";
+            $otherFilter[] = "(SELECT 1 FROM __variants pv WHERE pv.product_id=p.id AND pv.compare_price>pv.price LIMIT 1) = 1";
         }
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], $otherFilter, func_get_args());

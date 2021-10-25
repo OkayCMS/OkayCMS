@@ -51,7 +51,7 @@ class CommonMetadataHelper implements MetadataInterface
     public function getH1Template(): string
     {
         if (empty($this->h1) && $this->page) {
-            $this->h1 = $this->page->name_h1 ?? $this->page->name;
+            $this->h1 = empty($this->page->name_h1) ? $this->page->name : $this->page->name_h1;
         }
         
         return ExtenderFacade::execute([static::class, __FUNCTION__], $this->h1, func_get_args());

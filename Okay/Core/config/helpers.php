@@ -467,6 +467,7 @@ return [
             new SR(Router::class),
             new SR(Design::class),
             new SR(Money::class),
+            new SR(FrontTranslations::class),
         ],
     ],
     MoneyHelper::class => [

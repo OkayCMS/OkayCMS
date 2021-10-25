@@ -56,8 +56,13 @@
                         position: 'left',
                     },
                     {
-                        element: '.fn_step-1:first-child .okay_list_setting',
+                        element: '.fn_step-1:first-child .okay_list_setting a',
                         intro: '{$btr->learning_hint_categories_setting}',
+                        position: 'left',
+                    },
+                    {
+                        element: '.fn_step-1:first-child .okay_list_setting button',
+                        intro: '{$btr->learning_hint_categories_setting_duplicate}',
                         position: 'left',
                     },
                     {
@@ -343,15 +348,19 @@
                         intro: '{$btr->learning_hint_features_category}',
                         position: 'top',
                     },
-
+                    {
+                        element: '.fn_step-2:first-child .okay_list_status',
+                        intro: '{$btr->learning_hint_features_setting}',
+                        position: 'left',
+                    },
                     {
                         element: '.fn_step-2:first-child .okay_list_url_status',
                         intro: '{$btr->learning_hint_features_status}',
                         position: 'left',
                     },
                     {
-                        element: '.fn_step-2:first-child .okay_list_status',
-                        intro: '{$btr->learning_hint_features_setting}',
+                        element: '.fn_step-2:first-child .okay_list_boding:nth-last-child(2)',
+                        intro: '{$btr->learning_hint_features_status_2}',
                         position: 'left',
                     },
                     {
@@ -413,7 +422,7 @@
                 },
                 {
                     element: '.fn_step-6',
-                    intro: '{$btr->learning_hint_meta_data}',
+                    intro: '{$btr->learning_hint_features_meta_data}',
                     position: 'left',
                 },
                 {
@@ -421,39 +430,43 @@
                 },
                 {
                     element: '.fn_step-7',
+                    intro: '{$btr->learning_hint_feature_list_add}',
+                },
+                {
+                    element: '.fn_step-8',
                     intro: '{$btr->learning_hint_feature_list_sorting}',
                 },
                 {
-                    element: '.fn_step-8:first-child',
+                    element: '.fn_step-9:first-child',
                     intro: '{$btr->learning_hint_feature_item}',
                 },
                 {
-                    element: '.fn_step-8:first-child .move_zone',
+                    element: '.fn_step-9:first-child .move_zone',
                     intro: '{$btr->learning_hint_feature_move_zone}',
                     position: 'top',
                 },
                 {
-                    element: '.fn_step-8:first-child .feature_value_name',
+                    element: '.fn_step-9:first-child .feature_value_name',
                     intro: '{$btr->learning_hint_feature_list_name}',
                     position: 'top',
                 },
                 {
-                    element: '.fn_step-8:first-child .feature_value_translit',
+                    element: '.fn_step-9:first-child .feature_value_translit',
                     intro: '{$btr->learning_hint_feature_value_translit}',
                     position: 'top',
                 },
                 {
-                    element: '.fn_step-8:first-child .feature_value_products_num',
+                    element: '.fn_step-9:first-child .feature_value_products_num',
                     intro: '{$btr->learning_hint_feature_value_products_num}',
                     position: 'top',
                 },
                 {
-                    element: '.fn_step-8:first-child .feature_value_index',
+                    element: '.fn_step-9:first-child .feature_value_index',
                     intro: '{$btr->learning_hint_feature_value_index}',
                     position: 'top',
                 },
                 {
-                    element: '.fn_step-9',
+                    element: '.fn_step-10',
                     intro: '{$btr->learning_hint_feature_union}',
                 },
                 {
@@ -1289,7 +1302,7 @@
                 prevLabel: '« {$btr->learning_hint_prev}',
                 nextLabel: '{$btr->learning_hint_next} »',
                 skipLabel: '×',
-                doneLabel: '{$btr->learning_hint_done}',
+                doneLabel: '{$btr->learning_hint_next_done}',
                 steps: [
                     {
                         intro: '{$btr->learning_hint_orders_intro}',
@@ -1391,6 +1404,11 @@
                         position: 'right',
                     },
                     {
+                        element: '.fn_step-1 .order_toolbar__eye',
+                        intro: '{$btr->learning_hint_order_toolbar__button}',
+                        position: 'bottom',
+                    },
+                    {
                         element: '.fn_step-1 .order_toolbar__print',
                         intro: '{$btr->learning_hint_order_toolbar__print}',
                         position: 'right',
@@ -1399,11 +1417,6 @@
                         element: '.fn_step-1 .order_toolbar__markers',
                         intro: '{$btr->learning_hint_order_toolbar__markers}',
                         position: 'left',
-                    },
-                    {
-                        element: '.fn_step-1 .order_toolbar__button',
-                        intro: '{$btr->learning_hint_order_toolbar__button}',
-                        position: 'bottom',
                     },
                     {
                         element: '.fn_step-2',
@@ -1494,11 +1507,6 @@
                         element: '.fn_step-1:first-child .okay_list_blog_name',
                         intro: '{$btr->learning_hint_blog_name}',
                         position: 'top',
-                    },
-                    {
-                        element: '.fn_step-1:first-child .okay_list_blog_type',
-                        intro: '{$btr->learning_hint_blog_type}',
-                        position: 'left',
                     },
                     {
                         element: '.fn_step-1:first-child .okay_list_status',
