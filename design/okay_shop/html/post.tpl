@@ -55,7 +55,7 @@
                         {if $post->date}
                             <div class="post_information__item" title="{$lang->blog_date_public}">
                                 {include file="svg.tpl" svgId="calendar_icon"}
-                                <span>{$post->date|date:"d cFR Y, cD"}</span>
+                                <span>{$post->date|date:"d m Y, H:i"}</span>
                             </div>
                         {/if}
                         {* Reading time *}
@@ -75,7 +75,7 @@
                     {if $post->updated_date > 0}
                         <div class="post__update_date">
                             {include file="svg.tpl" svgId="update_date_icon"}
-                            <span class="post__update_date_text">{$lang->blog_update_date} {$post->updated_date|date:"d cFR Y, cD"}</span>
+                            <span class="post__update_date_text">{$lang->blog_update_date} {$post->updated_date|date:"d m Y"}</span>
                         </div>
                     {/if}
                     {* Table contents *}

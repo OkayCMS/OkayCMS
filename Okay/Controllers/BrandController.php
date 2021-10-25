@@ -39,8 +39,6 @@ class BrandController extends AbstractController
 
         $isFilterPage = false;
         $filterHelper->setFiltersUrl($filtersUrl);
-
-        $this->setMetadataHelper($brandMetadataHelper);
         
         $sortProducts = null;
         $filter['visible'] = 1;
@@ -98,6 +96,8 @@ class BrandController extends AbstractController
         
         $this->design->assign('other_filters', $catalogHelper->getOtherFilters($filter));
 
+        $filter = $filterHelper->getBrandProductsFilter($filter);
+
         if ((!empty($filter['price']) && $filter['price']['min'] !== '' && $filter['price']['max'] !== '' && $filter['price']['min'] !== null) || !empty($filter['other_filter'])) {
             $isFilterPage = true;
         }
@@ -105,8 +105,6 @@ class BrandController extends AbstractController
         
         $prices = $catalogHelper->getPrices($filter, $this->catalogType, $brand->id);
         $this->design->assign('prices', $prices);
-
-        $filter = $filterHelper->getBrandProductsFilter($filter);
 
         if ($filter === false) {
             return false;
@@ -170,6 +168,14 @@ class BrandController extends AbstractController
 
         $relPrevNext = $this->design->fetch('products_rel_prev_next.tpl');
         $this->design->assign('rel_prev_next', $relPrevNext);
+
+        $brandMetadataHelper->setUp(
+            $brand,
+            $isFilterPage,
+            $this->design->getVar('is_all_pages'),
+            $this->design->getVar('current_page_num')
+        );
+        $this->setMetadataHelper($brandMetadataHelper);
         
         $this->response->setContent('products.tpl');
     }

@@ -6,6 +6,7 @@ namespace Okay\Helpers;
 
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
+use Okay\Core\FrontTranslations;
 use Okay\Core\Languages;
 use Okay\Core\Money;
 use Okay\Core\Request;
@@ -27,6 +28,7 @@ class FilterHelper
     private $design;
     private $settings;
     private $money;
+    private $frontTranslations;
     
     private $categoryFeatures = [];
     private $categoryFeaturesByUrl;
@@ -57,7 +59,8 @@ class FilterHelper
         Request $request,
         Router $router,
         Design $design,
-        Money $money
+        Money $money,
+        FrontTranslations $frontTranslations
     ) {
         $this->entityFactory = $entityFactory;
         $this->request = $request;
@@ -65,6 +68,7 @@ class FilterHelper
         $this->design = $design;
         $this->settings = $settings;
         $this->money = $money;
+        $this->frontTranslations = $frontTranslations;
 
         /** @var LanguagesEntity $languagesEntity */
         $languagesEntity = $entityFactory->get(LanguagesEntity::class);
@@ -526,10 +530,6 @@ class FilterHelper
     
     public function getMetaArray()
     {
-        /** @var TranslationsEntity $translationsEntity */
-        $translationsEntity = $this->entityFactory->get(TranslationsEntity::class);
-        $translations = $translationsEntity->find(['lang' => $this->language->label]); // todo здесь должен быть FrontTranslations
-        
         if ($this->categoryFeatures === null) {
             $this->getCategoryFeatures();
         }
@@ -562,7 +562,7 @@ class FilterHelper
                     {
                         foreach (explode('_', $paramValues) as $f) {
                             if (empty($metaArray['filter'][$f])) {
-                                $metaArray['filter'][$f] = $translations->{"features_filter_" . $f};
+                                $metaArray['filter'][$f] = $this->frontTranslations->getTranslation("features_filter_" . $f);
                             }
                         }
                         break;

@@ -8,16 +8,20 @@ use Okay\Core\Modules\Extender\ExtenderFacade;
 
 class ProductMetadataHelper extends CommonMetadataHelper
 {
-    private $category;
-    private $categoryPath;
+    /** @var object */
     private $product;
 
-    public function setUp(): void
+    /** @var object|null */
+    private $category;
+
+    /** @var object|null */
+    private $brand;
+
+    public function setUp(object $product, ?object $category = null, ?object $brand = null): void
     {
-        parent::setUp();
-        $this->category = $this->design->getVar('category');
-        $this->product  = $this->design->getVar('product');
-        $this->categoryPath = array_reverse($this->category->path);
+        $this->product  = $product;
+        $this->category = $category;
+        $this->brand    = $brand;
     }
 
     /**
@@ -144,15 +148,15 @@ class ProductMetadataHelper extends CommonMetadataHelper
         $currency = $this->mainHelper->getCurrentCurrency();
 
         $this->parts = [
-            '{$brand}'         => ($this->design->getVar('brand') ? $this->design->getVar('brand')->name : ''),
-            '{$product}'       => ($this->design->getVar('product') ? $this->design->getVar('product')->name : ''),
+            '{$brand}'         => ($this->brand ? $this->brand->name : ''),
+            '{$product}'       => ($this->product ? $this->product->name : ''),
             '{$price}'         => ($this->product->variant->price != null ? $this->money->convert($this->product->variant->price, $currency->id, false) . ' ' . $currency->sign : ''),
             '{$compare_price}' => ($this->product->variant->compare_price != null ? $this->money->convert($this->product->variant->compare_price, $currency->id, false) . ' ' . $currency->sign : ''),
             '{$sku}'           => ($this->product->variant->sku != null ? $this->product->variant->sku : ''),
             '{$sitename}'      => ($this->settings->get('site_name') ? $this->settings->get('site_name') : '')
         ];
 
-        if ($this->category = $this->design->getVar('category')) {
+        if ($this->category) {
             $this->parts['{$category}'] = ($this->category->name ? $this->category->name : '');
             $this->parts['{$category_h1}'] = ($this->category->name_h1 ? $this->category->name_h1 : '');
 
@@ -172,13 +176,11 @@ class ProductMetadataHelper extends CommonMetadataHelper
 
     private function getCategoryField($fieldName)
     {
-        if (empty($this->categoryPath)) {
-            return false;
-        }
-        
-        foreach ($this->categoryPath as $c) {
-            if (!empty($c->{$fieldName})) {
-                return $c->{$fieldName};
+        if (!empty($this->category)) {
+            foreach (array_reverse($this->category->path) as $c) {
+                if (!empty($c->{$fieldName})) {
+                    return $c->{$fieldName};
+                }
             }
         }
         return false;

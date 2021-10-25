@@ -31,8 +31,6 @@ class BlogController extends AbstractController
         if (($setPost = $blogHelper->setPost($post)) !== null) {
             return $setPost;
         }
-
-        $this->setMetadataHelper($postMetadataHelper);
         
         $this->response->setHeaderLastModify($post->last_modify);
 
@@ -75,7 +73,10 @@ class BlogController extends AbstractController
         }
 
         $this->design->assign('canonical', Router::generateUrl('post', ['url' => $post->url], true));
-        
+
+        $postMetadataHelper->setUp($post);
+        $this->setMetadataHelper($postMetadataHelper);
+
         $this->response->setContent('post.tpl');
     }
     
@@ -99,7 +100,6 @@ class BlogController extends AbstractController
 
         if (!empty($category)) {
             $filter['category_id'] = $category->children;
-            $this->setMetadataHelper($categoryMetadataHelper);
             $this->design->assign('category', $category);
         }
         
@@ -142,6 +142,11 @@ class BlogController extends AbstractController
         }
 
         $this->design->assign('canonical', $canonical);
+
+        if (!empty($category)) {
+            $categoryMetadataHelper->setUp($category, $this->design->getVar('is_all_pages'), $this->design->getVar('current_page_num'));
+            $this->setMetadataHelper($categoryMetadataHelper);
+        }
         
         $this->response->setContent('blog.tpl');
     }

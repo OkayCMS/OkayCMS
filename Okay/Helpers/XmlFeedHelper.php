@@ -135,9 +135,8 @@ class XmlFeedHelper
             ->leftJoin('__products_features_values pv', 'pv.product_id = p.id')
             ->leftJoin(FeaturesValuesEntity::getTable().' AS  fv', 'pv.value_id = fv.id')
             ->leftJoin(FeaturesValuesEntity::getLangTable().' AS  lfv', 'fv.id = lfv.feature_value_id and lfv.lang_id=' . $this->languages->getLangId())
-            ->leftJoin(FeaturesEntity::getTable().' AS  f', 'fv.feature_id = f.id')
-            ->leftJoin(FeaturesEntity::getLangTable().' AS  lf', 'fv.feature_id = lf.feature_id and lf.lang_id=' . $this->languages->getLangId())
-            ->where('f.visible');
+            ->leftJoin(FeaturesEntity::getTable().' AS  f', 'fv.feature_id = f.id AND f.visible')
+            ->leftJoin(FeaturesEntity::getLangTable().' AS  lf', 'f.id = lf.feature_id and lf.lang_id=' . $this->languages->getLangId());
         
         return $select;// No ExtenderFacade
     }

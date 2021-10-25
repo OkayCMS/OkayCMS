@@ -246,7 +246,7 @@
                                         </div>
                                         <div class="okay_list_boding okay_list_price">
                                             <div class="input-group">
-                                                <input class="form-control {if $product->variants[0]->compare_price > 0}text_warning{/if}" type="text" name="price[{$product->variants[0]->id}]" value="{$product->variants[0]->price}">
+                                                <input class="form-control {if $product->variants[0]->compare_price > $product->variants[0]->price}text_warning{/if}" type="text" name="price[{$product->variants[0]->id}]" value="{$product->variants[0]->price}">
                                                 <span class="input-group-addon">
                                                       {if isset($currencies[$product->variants[0]->currency_id])}
                                                           {$currencies[$product->variants[0]->currency_id]->code|escape}

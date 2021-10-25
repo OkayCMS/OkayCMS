@@ -41,7 +41,7 @@
                                                 </picture>
                                                 {/if}
                                             {else}
-                                                <div class="categories__no_image d-flex align-items-center justify-content-center" title="{$c->name|escape}">
+                                                <div class="categories__no_image d-flex align-items-top justify-content-center" title="{$c->name|escape}">
                                                     {include file="svg.tpl" svgId="no_image"}
                                                 </div>
                                             {/if}

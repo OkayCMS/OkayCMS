@@ -389,7 +389,7 @@ class FrontTemplateConfig
      * @param string $dir
      * @return string
      */
-    public function compileIndividualCss($filename, $dir = null)
+    public function compilePluginIndividualCss($filename, $dir = null)
     {
         if ($filename != $this->themeSettingsFileName && $this->checkFile($filename, self::TYPE_CSS, $dir) === true) {
             $fullFilePath = $this->getFullPath($filename, self::TYPE_CSS, $dir);
@@ -406,7 +406,7 @@ class FrontTemplateConfig
      * @param bool $defer
      * @return string
      */
-    public function compileIndividualJs($filename, $dir = null, $defer = false)
+    public function compilePluginIndividualJs($filename, $dir = null, $defer = false)
     {
         if ($this->checkFile($filename, self::TYPE_JS, $dir) === true) {
             $fullFilePath = $this->getFullPath($filename, self::TYPE_JS, $dir);
@@ -466,7 +466,7 @@ class FrontTemplateConfig
             // Подключаем дополнительные индивидуальные файлы стилей
             if ($this->headIndividualCssFilenames !== []) {
                 foreach ($this->headIndividualCssFilenames as $filename) {
-                    $includeHtml .= "<link href=\"{$filename}\" type=\"text/css\" rel=\"stylesheet\">" . PHP_EOL;
+                    $includeHtml .= $this->compileIndividualCss($filename);
                 }
             }
 
@@ -478,7 +478,7 @@ class FrontTemplateConfig
             // Подключаем дополнительные индивидуальные JS файлы
             if ($this->headIndividualJsFilenames !== []) {
                 foreach ($this->headIndividualJsFilenames as $filename) {
-                    $includeHtml .= "<script src=\"{$filename}\"" . ($this->jsConfig->hasDefer($filename) ? " defer" : '') . "></script>" . PHP_EOL;
+                    $includeHtml .= $this->compileIndividualJs($filename);
                 }
             }
         } else {
@@ -490,7 +490,7 @@ class FrontTemplateConfig
             // Подключаем дополнительные индивидуальные файлы стилей
             if ($this->footerIndividualCssFilenames !== []) {
                 foreach ($this->footerIndividualCssFilenames as $filename) {
-                    $includeHtml .= "<link href=\"{$filename}\" type=\"text/css\" rel=\"stylesheet\">" . PHP_EOL;
+                    $includeHtml .= $this->compileIndividualCss($filename);
                 }
             }
 
@@ -502,12 +502,38 @@ class FrontTemplateConfig
             // Подключаем дополнительные индивидуальные JS файлы
             if ($this->footerIndividualJsFilenames !== []) {
                 foreach ($this->footerIndividualJsFilenames as $filename) {
-                    $includeHtml .= "<script src=\"{$filename}\"" . ($this->jsConfig->hasDefer($filename) ? " defer" : '') . "></script>" . PHP_EOL;
+                    $includeHtml .= $this->compileIndividualJs($filename);
                 }
             }
         }
 
         return $includeHtml;
+    }
+
+    private function compileIndividualCss($filename): string
+    {
+        return "<link href=\"{$filename}\" type=\"text/css\" rel=\"stylesheet\"" .
+            $this->compileElementAttributes($this->cssConfig->getAttributes($filename)) .
+            ">" . PHP_EOL;
+    }
+
+    private function compileIndividualJs(string $filename): string
+    {
+        return "<script src=\"{$filename}\"" .
+            ($this->jsConfig->hasDefer($filename) ? " defer" : '') .
+            $this->compileElementAttributes($this->jsConfig->getAttributes($filename)) .
+            "></script>".PHP_EOL;
+    }
+
+    private function compileElementAttributes($attributes): string
+    {
+        if ($attributes) {
+            return ' '.implode(' ', array_map(function($attribute, $value) {
+                    return "$attribute=\"$value\"";
+                }, array_keys($attributes), $attributes));
+        } else {
+            return '';
+        }
     }
     
     private function checkFile($filename, $type, $dir = null)

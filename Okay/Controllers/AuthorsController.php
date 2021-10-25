@@ -30,8 +30,6 @@ class AuthorsController extends AbstractController
         if (empty($author) || (!$author->visible && empty($_SESSION['admin']))) {
             return false;
         }
-
-        $this->setMetadataHelper($authorMetadataHelper);
         
         $filter['author_id'] = $author->id;
 
@@ -65,6 +63,9 @@ class AuthorsController extends AbstractController
         $this->design->assign('author', $author);
 
         $this->design->assign('canonical', Router::generateUrl('author', ['url' => $author->url], true));
+
+        $authorMetadataHelper->setUp($author, $this->design->getVar('is_all_pages'), $this->design->getVar('current_page_num'));
+        $this->setMetadataHelper($authorMetadataHelper);
 
         $this->response->setContent('author.tpl');
     }

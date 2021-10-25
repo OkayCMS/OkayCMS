@@ -134,8 +134,6 @@ class MainHelper
             /** @var MetadataInterface $metadataHelper */
             $metadataHelper = $this->SL->getService(CommonMetadataHelper::class);
         }
-
-        $metadataHelper->setUp();
         
         if ($design->getVar('h1') === null) {
             $design->assign('h1', $metadataHelper->getH1());
