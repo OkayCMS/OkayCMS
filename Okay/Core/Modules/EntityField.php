@@ -291,6 +291,12 @@ class EntityField
         ];
         return $this;
     }
+
+    public function unsetIndexUnique()
+    {
+        unset($this->indexes[self::INDEX_UNIQUE]);
+        return $this;
+    }
     
     public function getIndexes()
     {

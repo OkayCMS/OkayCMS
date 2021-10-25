@@ -198,7 +198,7 @@
                                                 <div class="okay_list_boding okay_list_order_name">
                                                     <div class="boxes_inline">
                                                         {if $purchase->product}
-                                                            <a class="text_600 {if $purchase->variant->stock == 0}hint-bottom-middle-t-info-s-small-mobile  hint-anim text_500 text_warning{/if}" {if $purchase->variant->stock == 0}data-hint="{$btr->product_out_stock|escape}"{/if} href="{url controller=ProductAdmin id=$purchase->product->id}">{$purchase->product_name|escape}</a>
+                                                            <a class="text_600 {if !$order->closed && $purchase->variant->stock == 0}hint-bottom-middle-t-info-s-small-mobile  hint-anim text_500 text_warning{/if}" {if !$order->closed && $purchase->variant->stock == 0}data-hint="{$btr->product_out_stock|escape}"{/if} href="{url controller=ProductAdmin id=$purchase->product->id}">{$purchase->product_name|escape}</a>
                                                             {if $purchase->variant_name}
                                                                 <div class="mt-q font_12"><span class="text_grey">{$btr->order_option|escape}</span> {$purchase->variant_name|escape}</div>
                                                             {/if}
