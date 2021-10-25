@@ -149,7 +149,7 @@
     {* rel prev next для каталога товаров *}
     {$rel_prev_next}
 
-    {* Product image/Post image for social networks *}
+    {* Images for social networks *}
     {if $controller == 'ProductController'}
         <meta property="og:url" content="{$canonical}">
         <meta property="og:type" content="website">
@@ -157,7 +157,6 @@
         <meta property="og:description" content='{$annotation|strip_tags|escape}'>
         <meta property="og:image" content="{$product->image->filename|resize:330:300}">
         <link rel="image_src" href="{$product->image->filename|resize:330:300}">
-        {*twitter*}
         <meta name="twitter:card" content="product"/>
         <meta name="twitter:url" content="{$canonical}">
         <meta name="twitter:site" content="{$settings->site_name|escape}">
@@ -172,16 +171,40 @@
         <meta property="og:title" content="{$h1|escape}">
         <meta property="og:type" content="website">
         <meta property="og:url" content="{$canonical}">
-        <meta property="og:image" content="{$category->image|resize:330:300:false:$config->resized_categories_dir}">
         <meta property="og:site_name" content="{$settings->site_name|escape}">
         <meta property="og:description" content="{$description|strip_tags|escape}">
-        <link rel="image_src" href="{$category->image|resize:330:300:false:$config->resized_categories_dir}">
-        {*twitter*}
+        {if $category->image}
+            <meta property="og:image" content="{$category->image|resize:330:300:false:$config->resized_categories_dir}">
+            <link rel="image_src" href="{$category->image|resize:330:300:false:$config->resized_categories_dir}">
+            <meta name="twitter:image" content="{$category->image|resize:330:300:false:$config->resized_categories_dir}">
+        {else}
+            <meta property="og:image" content="{$rootUrl}/{$config->design_images}{$settings->site_logo}">
+            <link rel="image_src" href="{$rootUrl}/{$config->design_images}{$settings->site_logo}">
+            <meta name="twitter:image" content="{$rootUrl}/{$config->design_images}{$settings->site_logo}">
+        {/if}
         <meta name="twitter:url" content="{$canonical}">
         <meta name="twitter:site" content="{$settings->site_name|escape}">
         <meta name="twitter:title" content="{$h1|escape}">
         <meta name="twitter:description" content="{$description|strip_tags|escape}">
-        <meta name="twitter:image" content="{$category->image|resize:330:300:false:$config->resized_categories_dir}">
+    {elseif $controller == "BrandController"} 
+        <meta property="og:title" content="{$h1|escape}">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{$canonical}">
+        <meta property="og:site_name" content="{$settings->site_name|escape}">
+        <meta property="og:description" content="{$description|strip_tags|escape}">
+        {if $brand->image}
+            <meta property="og:image" content="{$brand->image|resize:330:330:false:$config->resized_brands_dir}">
+            <link rel="image_src" href="{$brand->image|resize:330:330:false:$config->resized_brands_dir}">
+            <meta name="twitter:image" content="{$brand->image|resize:330:330:false:$config->resized_brands_dir}">
+        {else}
+            <meta property="og:image" content="{$rootUrl}/{$config->design_images}{$settings->site_logo}">
+            <link rel="image_src" href="{$rootUrl}/{$config->design_images}{$settings->site_logo}">
+            <meta name="twitter:image" content="{$rootUrl}/{$config->design_images}{$settings->site_logo}">
+        {/if}
+        <meta name="twitter:url" content="{$canonical}">
+        <meta name="twitter:site" content="{$settings->site_name|escape}">
+        <meta name="twitter:title" content="{$h1|escape}">
+        <meta name="twitter:description" content="{$description|strip_tags|escape}">
     {elseif $controller == 'BlogController' && $post}
         <meta property="og:url" content="{$canonical}">
         <meta property="og:type" content="article">
@@ -189,16 +212,16 @@
         {if $post->image}
             <meta property="og:image" content="{$post->image|resize:400:300:false:$config->resized_blog_dir}">
             <link rel="image_src" href="{$post->image|resize:400:300:false:$config->resized_blog_dir}">
+            <meta name="twitter:image" content="{$post->image|resize:400:300:false:$config->resized_blog_dir}">
         {else}
             <meta property="og:image" content="{$rootUrl}/{$config->design_images}{$settings->site_logo}">
+            <link rel="image_src" href="{$rootUrl}/{$config->design_images}{$settings->site_logo}">
             <meta name="twitter:image" content="{$rootUrl}/{$config->design_images}{$settings->site_logo}">
         {/if}
         <meta property="og:description" content='{$annotation|strip_tags|escape}'>
-        {*twitter*}
         <meta name="twitter:card" content="summary">
         <meta name="twitter:title" content="{$post->name|escape}">
         <meta name="twitter:description" content="{$annotation|strip_tags|escape}">
-        <meta name="twitter:image" content="{$post->image|resize:400:300:false:$config->resized_blog_dir}">
     {else}
         <meta property="og:title" content="{$meta_title|escape}">
         <meta property="og:type" content="website">
@@ -207,7 +230,6 @@
         <meta property="og:site_name" content="{$settings->site_name|escape}">
         <meta property="og:description" content="{$meta_description|escape}">
         <link rel="image_src" href="{$rootUrl}/{$config->design_images}{$settings->site_logo}">
-        {*twitter*}
         <meta name="twitter:card" content="summary">
         <meta name="twitter:title" content="{$meta_title|escape}">
         <meta name="twitter:description" content="{$meta_description|escape}">
