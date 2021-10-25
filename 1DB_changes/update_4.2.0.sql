@@ -1,3 +1,11 @@
+UPDATE ok_pages AS p
+    LEFT JOIN ok_lang_pages AS lp ON lp.page_id = p.id
+    SET p.description       = '',
+        p.meta_description  = '',
+        lp.description      = '',
+        lp.meta_description = ''
+WHERE url = 'user/register';
+
 DELETE FROM `ok_pages` WHERE `id` = '5';
 INSERT INTO `ok_pages` (`id`, `url`, `name`, `name_h1`, `meta_title`, `meta_description`, `meta_keywords`, `description`, `position`, `visible`, `last_modify`)
 VALUES

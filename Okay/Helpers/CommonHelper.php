@@ -59,45 +59,6 @@ class CommonHelper
             }
         }
 
-        // Если прилетел токен, вероятно входят через соц. сеть
-        if (($token = $this->commonRequest->uLoginToken()) !== null) {
-            /** @var UsersEntity $usersEntity */
-            $usersEntity = $this->entityFactory->get(UsersEntity::class);
-
-            $uLoginData = $usersEntity->getULoginUser($token);
-            if (!empty($uLoginData)) {
-                $user = new \stdClass();
-                $user->last_ip = $_SERVER['REMOTE_ADDR'];
-                $user->name    = $uLoginData['first_name'];
-                $user->last_name = $uLoginData['last_name'];
-                $user->email   = $uLoginData['email'];
-                
-                // Проверим, может такой пользователь уже существует
-                if ($tmpUser = $usersEntity->get((string)$user->email)) {
-                    $_SESSION['user_id'] = $tmpUser->id;
-                    
-                    $this->userHelper->mergeCart();
-                    $this->userHelper->mergeWishlist();
-                    $this->userHelper->mergeComparison();
-                    $this->userHelper->mergeBrowsedProducts();
-                    
-                    Response::redirectTo(Router::generateUrl('user', [], true));
-                } elseif (empty($usersEntity->count(['email' => (string)$user->email]))) {
-                    $user->password = $usersEntity->generatePass(6);
-                    $userId = $usersEntity->add($user);
-                    $_SESSION['user_id'] = $userId;
-                    
-                    $this->userHelper->mergeCart();
-                    $this->userHelper->mergeWishlist();
-                    $this->userHelper->mergeComparison();
-                    $this->userHelper->mergeBrowsedProducts();
-                    
-                    // Перенаправляем пользователя в личный кабинет
-                    Response::redirectTo(Router::generateUrl('user', [], true));
-                }
-            }
-        }
-
         if (($subscribe = $this->commonRequest->postSubscribe()) !== null) {
 
             /** @var SubscribesEntity $subscribesEntity */

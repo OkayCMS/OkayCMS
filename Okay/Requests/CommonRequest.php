@@ -70,13 +70,4 @@ class CommonRequest
 
         return ExtenderFacade::execute(__METHOD__, $subscribe, func_get_args());
     }
-
-    public function uLoginToken()
-    {
-        if (!$token = $this->request->post('token')) {
-            $token = null;
-        }
-
-        return ExtenderFacade::execute(__METHOD__, $token, func_get_args());
-    }
 }

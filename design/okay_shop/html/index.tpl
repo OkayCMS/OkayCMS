@@ -393,9 +393,6 @@
         <script>ut_tracker.end('parsing:body_bottom:counters');</script>
     {/if}
 
-    {if $controller == 'UserController'}
-        <script src="//ulogin.ru/js/ulogin.js"></script>
-    {/if}
     <script>ut_tracker.end('parsing:page');</script>
 
     <div>
