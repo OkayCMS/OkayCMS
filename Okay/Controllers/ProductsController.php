@@ -38,18 +38,6 @@ class ProductsController extends AbstractController
         
         $catalogType = $router->getCurrentRouteName();
         
-        switch ($catalogType) {
-            case 'bestsellers':
-                $this->setMetadataHelper($bestsellersMetadataHelper);
-                break;
-            case 'discounted':
-                $this->setMetadataHelper($discountedMetadataHelper);
-                break;
-            case 'search':
-                $this->setMetadataHelper($allProductsMetadataHelper);
-                break;
-        }
-        
         $filterHelper->setFiltersUrl($filtersUrl);
 
         $sortProducts = null;
@@ -201,6 +189,19 @@ class ProductsController extends AbstractController
             }
 
             $this->design->assign('canonical', $canonical);
+        }
+
+        switch ($catalogType) {
+            case 'bestsellers':
+                $this->setMetadataHelper($bestsellersMetadataHelper);
+                break;
+            case 'discounted':
+                $this->setMetadataHelper($discountedMetadataHelper);
+                break;
+            case 'search':
+                $allProductsMetadataHelper->setUp($keyword, $this->design->getVar('is_all_pages'), $this->design->getVar('current_page_num'));
+                $this->setMetadataHelper($allProductsMetadataHelper);
+                break;
         }
         
         $this->response->setContent('products.tpl');

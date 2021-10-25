@@ -6,9 +6,6 @@ namespace Okay\Helpers\MetadataHelpers;
 
 interface MetadataInterface
 {
-    /** @return void */
-    public function setUp(): void;
-    
     /** @return string */
     public function getH1(): string;
 

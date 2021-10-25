@@ -436,6 +436,7 @@ return [
             new SR(MoneyHelper::class),
             new SR(Settings::class),
             new SR(MainHelper::class),
+            new SR(ProductMetadataHelper::class),
         ],
     ],
     CatalogHelper::class => [

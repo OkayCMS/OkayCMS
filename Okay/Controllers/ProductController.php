@@ -46,8 +46,6 @@ class ProductController extends AbstractController
             return $setProduct;
         }
         
-        $this->setMetadataHelper($productMetadataHelper);
-        
         //lastModify
         $this->response->setHeaderLastModify($product->last_modify);
 
@@ -109,6 +107,9 @@ class ProductController extends AbstractController
         $browsedProducts->addItem($product->id);
 
         $this->design->assign('canonical', Router::generateUrl('product', ['url' => $product->url], true));
+
+        $productMetadataHelper->setUp($product, $category, $brand);
+        $this->setMetadataHelper($productMetadataHelper);
 
         $this->response->setContent('product.tpl');
     }
