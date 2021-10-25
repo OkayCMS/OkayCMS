@@ -67,6 +67,7 @@ $backendTranslations->initTranslations($manager->lang);
 $design->assign('btr', $backendTranslations);
 $language = $manager = $DI->get(EntityFactory::class)->get(LanguagesEntity::class)->get((string)$manager->lang);
 $design->assign('language', $language);
+$design->assign('front_lang_id', $_SESSION['lang_id'] ?? (string)$manager->lang->id);
 
 $menuSelector = [];
 $fastMenu = $managerMenu->getFastMenu();

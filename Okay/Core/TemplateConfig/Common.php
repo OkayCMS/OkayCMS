@@ -12,6 +12,7 @@ class Common
     protected $dir;
     protected $individual = false;
     protected $preload = false;
+    protected $attributes = [];
 
     /**
      * Т.к. параметр $filename является единственным обязательным, мы его принимаем в конструктор,
@@ -120,5 +121,33 @@ class Common
     {
         return $this->individual;
     }
-    
+
+    public function setAttribute(string $attribute, $value): Common
+    {
+        $this->attributes[$attribute] = (string) $value;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getAttribute(string $attribute)
+    {
+        return $this->attributes[$attribute] ?? null;
+    }
+
+    public function setAttributes(array $attributes): Common
+    {
+        foreach ($attributes as $attribute => $value) {
+            $this->setAttribute($attribute, $value);
+        }
+
+        return $this;
+    }
+
+    public function getAttributes(): array
+    {
+        return $this->attributes;
+    }
 }

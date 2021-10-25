@@ -31,6 +31,7 @@ class BackendBrandsRequest
         $brand = new \stdClass();
         $brand->id               = $this->request->post('id', 'integer');
         $brand->name             = $this->request->post('name');
+        $brand->name_h1          = $this->request->post('name_h1');
         $brand->annotation       = $this->request->post('annotation');
         $brand->description      = $this->request->post('description');
         $brand->visible          = $this->request->post('visible', 'boolean');

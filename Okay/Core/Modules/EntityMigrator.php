@@ -68,6 +68,7 @@ class EntityMigrator
         $langEntityFields[] = (new EntityField($langObjectField))->setTypeInt(11);
         foreach ($entityFields as $entityField) {
             if ($entityField->isLangField()) {
+                $entityField->unsetIndexUnique();
                 $langEntityFields[] = $entityField;
             }
         }

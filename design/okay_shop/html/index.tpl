@@ -245,8 +245,8 @@
                     <div class="fn_view_content footer__content footer__menu footer__hidden">
                         {$c_count = 0}
                         {foreach $categories as $c}
-                            {$c_count = $c_count+1}
                             {if $c->visible && ($c->has_products || $settings->show_empty_categories)}
+                                {$c_count = $c_count+1}
                                 <div class="footer__menu_item {if $c_count > 5}closed{else}opened{/if}">
                                     <a class="footer__menu_link" href="{url_generator route='category' url=$c->url}">{$c->name|escape}</a>
                                 </div>
@@ -337,11 +337,10 @@
         </div>
     </footer>
 
-    {if $is_mobile === true || $is_tablet === true}
     <div class="fn_mobile_menu hidden">
         {include file="mobile_menu.tpl"}
     </div>
-    {/if}
+
     {* Форма обратного звонка *}
     {include file='callback.tpl'}
     

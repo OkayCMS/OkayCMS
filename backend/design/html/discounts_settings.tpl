@@ -43,7 +43,7 @@
                             {foreach $registered_signs['purchase'] as $discount}
                                 <div>
                                     <span>
-                                        <a href="test" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{$discount->sign|escape}</a>
+                                        <a href="test" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">${$discount->sign|escape}</a>
                                     </span>:
                                     <span>{$discount->name|escape}</span> :
                                     <span>{$discount->description}</span>
@@ -137,7 +137,7 @@
                             {foreach $registered_signs['cart'] as $discount}
                                 <div>
                                     <span>
-                                        <a href="test" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{$discount->sign|escape}</a>
+                                        <a href="test" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">${$discount->sign|escape}</a>
                                     </span>:
                                     <span>{$discount->name|escape}</span> :
                                     <span>{$discount->description}</span>
