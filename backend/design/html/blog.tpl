@@ -48,7 +48,7 @@
                 </div>
                 <div class="boxed_sorting toggle_body_wrap off fn_card">
                 <div class="row">
-                    <div class="col-md-3 col-lg-3 col-sm-12">
+                    <div class="fn_step-0 col-md-3 col-lg-3 col-sm-12">
                         <select id="id_categories" name="categories_filter" title="{$btr->general_category_filter|escape}" class="selectpicker form-control" data-live-search="true" data-size="10" onchange="location = this.value;">
                             <option value="{url keyword=null brand_id=null page=null limit=null category_id=null}" {if !$category_id}selected{/if}>{$btr->general_all_categories|escape}</option>
                             <option value="{url keyword=null brand_id=null page=null limit=null category_id=-1}" {if $category_id==-1}selected{/if}>{$btr->products_without_category|escape}</option>

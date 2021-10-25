@@ -24,6 +24,7 @@ class BrandsEntity extends Entity
 
     protected static $langFields = [
         'name',
+        'name_h1',
         'meta_title',
         'meta_keywords',
         'meta_description',

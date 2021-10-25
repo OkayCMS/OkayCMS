@@ -10,3 +10,8 @@ VALUES
 (2,	5,	'Page not found',	'',	'Page not found',	'Page not found',	'Page not found',	'<p><span data-language=\"page404_text\">The page you are requesting does not exist or has been deleted. You may have typed the wrong address. Try entering again.</span></p>'),
 (3,	5,	'Сторінку не знайдено',	'',	'Сторінку не знайдено',	'Сторінку не знайдено',	'Сторінку не знайдено',	'<p><span data-language=\"page404_text\">Сторінка, яку ви запитуєте, не існує, або вона видалена. Можливо, ви набрали неправильний адресу. Спробуйте ввести ще раз.</span></p>');
 
+ALTER TABLE `ok_brands`
+    ADD `name_h1` varchar(255) DEFAULT '';
+
+ALTER TABLE `ok_lang_brands`
+    ADD `name_h1` varchar(255) DEFAULT '';

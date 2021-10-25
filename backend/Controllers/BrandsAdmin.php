@@ -23,6 +23,10 @@ class BrandsAdmin extends IndexAdmin
             $positions = $brandsRequest->postPositions();
             $backendBrandsHelper->sortPositions($positions);
 
+            if ($this->request->post('alphabet_sort_brands')) {
+                $backendBrandsHelper->sortBrandsPositionsAlphabet();
+            }
+
             // Действия с выбранными
             $ids = $brandsRequest->postCheck();
             switch ($brandsRequest->postAction()) {

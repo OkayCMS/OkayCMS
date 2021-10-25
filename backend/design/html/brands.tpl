@@ -54,6 +54,13 @@
                                     <option value="{url limit=100}" {if $current_limit == 100}selected=""{/if}>{$btr->general_show_by|escape} 100</option>
                                 </select>
                             </div>
+                            <div class="col-lg-3 col-md-3 col-sm 12">
+                                <form method="post">
+                                    <button data-hint="{$btr->general_sort_brands_alphabet_hint|escape}" class="btn btn_mini btn_border_light text_400 hint-right-middle-t-info-s-small-mobile hint-anim" type="submit" name="alphabet_sort_brands" value="{$btr->general_sort_brands_alphabet|escape}">
+                                        {$btr->general_sort_brands_alphabet|escape}
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>

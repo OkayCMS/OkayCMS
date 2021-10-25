@@ -63,28 +63,28 @@ class Init extends AbstractInit
         );
 
         $this->registerQueueExtension(
-            ['class' => BackendImportHelper::class, 'method' => 'importItem'],
-            ['class' => BackendExtender::class, 'method' => 'importItem']
+            [BackendImportHelper::class, 'importItem'],
+            [BackendExtender::class, 'importItem']
         );
 
         $this->registerQueueExtension(
-            ['class' => BackendImportHelper::class, 'method' => 'parseProductData'],
-            ['class' => BackendExtender::class, 'method' => 'parseProductData']
+            [BackendImportHelper::class, 'parseProductData'],
+            [BackendExtender::class, 'parseProductData']
         );
 
         $this->registerChainExtension(
-            ['class' => BackendExportHelper::class, 'method' => 'getColumnsNames'],
-            ['class' => BackendExtender::class, 'method' => 'extendExportColumnsNames']
+            [BackendExportHelper::class, 'getColumnsNames'],
+            [BackendExtender::class, 'extendExportColumnsNames']
         );
 
         $this->registerChainExtension(
-            ['class' => BackendExportHelper::class, 'method' => 'setUp'],
-            ['class' => BackendExtender::class, 'method' => 'extendFilter']
+            [BackendExportHelper::class, 'setUp'],
+            [BackendExtender::class, 'extendFilter']
         );
 
         $this->registerChainExtension(
-            ['class' => BackendImportHelper::class, 'method' => 'getModulesColumnsNames'],
-            ['class' => BackendExtender::class, 'method' => 'getModulesColumnsNames']
+            [BackendImportHelper::class, 'getModulesColumnsNames'],
+            [BackendExtender::class, 'getModulesColumnsNames']
         );
 
         $this->registerEntityFilter(
