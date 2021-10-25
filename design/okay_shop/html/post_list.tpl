@@ -35,7 +35,7 @@
         <div class="article__info">
             <div class="article__info_item">
                 {include file="svg.tpl" svgId="calendar_icon"}
-                <span>{$post->date|date:"d cFR Y"}</span>
+                <span>{$post->date|date:"d m Y"}</span>
             </div>
             <div class="article__info_item " title="{$lang->blog_count_comments}">
                 {include file="svg.tpl" svgId="chat_icon"}

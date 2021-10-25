@@ -55,7 +55,7 @@ class PaymentForm extends AbstractModule
         $order            = $this->ordersEntity->get((int) $orderId);
         $paymentMethod    = $this->paymentsEntity->get((int) $order->payment_method_id);
         $paymentSettings  = (object) $this->paymentsEntity->getPaymentSettings($paymentMethod->id);
-        $amount           = round($this->money->convert($order->total_price, $paymentMethod->currency_id, false), 2);
+        $amount           = $this->money->convert($order->total_price, $paymentMethod->currency_id, false, false, 2);
         $paymentType      = ($paymentSettings->yandex_api_paymode == 'site') ? $paymentSettings->yandex_api_paymenttype : '';
 
         $this->design->assign('button_text',      'Перейти к оплате');

@@ -38,18 +38,6 @@ class ProductsController extends AbstractController
         
         $catalogType = $router->getCurrentRouteName();
         
-        switch ($catalogType) {
-            case 'bestsellers':
-                $this->setMetadataHelper($bestsellersMetadataHelper);
-                break;
-            case 'discounted':
-                $this->setMetadataHelper($discountedMetadataHelper);
-                break;
-            case 'search':
-                $this->setMetadataHelper($allProductsMetadataHelper);
-                break;
-        }
-        
         $filterHelper->setFiltersUrl($filtersUrl);
 
         $sortProducts = null;
@@ -100,13 +88,6 @@ class ProductsController extends AbstractController
         if ($catalogType == 'search') {
             $this->design->assign('other_filters', $catalogHelper->getOtherFilters($filter));
         }
-
-        if ((!empty($filter['price']) && $filter['price']['min'] !== '' && $filter['price']['max'] !== '' && $filter['price']['min'] !== null) || !empty($filter['other_filter'])) {
-            $this->design->assign('is_filter_page', true);
-        }
-        
-        $prices = $catalogHelper->getPrices($filter, $catalogType);
-        $this->design->assign('prices', $prices);
         
         switch ($catalogType) {
             case 'bestsellers':
@@ -125,6 +106,13 @@ class ProductsController extends AbstractController
                 }
                 break;
         }
+
+        if ((!empty($filter['price']) && $filter['price']['min'] !== '' && $filter['price']['max'] !== '' && $filter['price']['min'] !== null) || !empty($filter['other_filter'])) {
+            $this->design->assign('is_filter_page', true);
+        }
+
+        $prices = $catalogHelper->getPrices($filter, $catalogType);
+        $this->design->assign('prices', $prices);
 
         if ($filter === false) {
             return false;
@@ -201,6 +189,19 @@ class ProductsController extends AbstractController
             }
 
             $this->design->assign('canonical', $canonical);
+        }
+
+        switch ($catalogType) {
+            case 'bestsellers':
+                $this->setMetadataHelper($bestsellersMetadataHelper);
+                break;
+            case 'discounted':
+                $this->setMetadataHelper($discountedMetadataHelper);
+                break;
+            case 'search':
+                $allProductsMetadataHelper->setUp($keyword, $this->design->getVar('is_all_pages'), $this->design->getVar('current_page_num'));
+                $this->setMetadataHelper($allProductsMetadataHelper);
+                break;
         }
         
         $this->response->setContent('products.tpl');

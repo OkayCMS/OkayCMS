@@ -51,6 +51,8 @@ class OrderController extends AbstractController
         }
 
         $this->design->assign('order', $order);
+
+        $orderMetadataHelper->setUp($order);
         $this->setMetadataHelper($orderMetadataHelper);
         
         /*Выбор другого способа оплаты*/

@@ -42,13 +42,10 @@ class FeaturesAliasesAdmin extends IndexAdmin
 
                 if (!empty($feature) && !empty($feature->id)) {
 
-                    $featuresValues = [];
-                    foreach ($featuresValuesEntity->find(['feature_id'=>$feature->id]) as $fv) {
-                        $featuresValues[$fv->translit] = $fv;
-                    }
+                    $featuresValues = $featuresValuesEntity->mappedBy('id')->find(['feature_id'=>$feature->id]);
 
                     foreach ($featuresValuesAliasesValuesEntity->find(['feature_id'=>$feature->id]) as $oa) {
-                        $featuresValues[$oa->translit]->aliases[$oa->feature_alias_id] = $oa;
+                        $featuresValues[$oa->feature_value_id]->aliases[$oa->feature_alias_id] = $oa;
                     }
                     $this->design->assign('features_values', $featuresValues);
 
@@ -173,24 +170,22 @@ class FeaturesAliasesAdmin extends IndexAdmin
                         $this->db->query($delete);
                     }
 
-                    $featuresValues = [];
-                    foreach ($featuresValuesEntity->find(['feature_id'=>$feature->id]) as $fv) {
-                        $featuresValues[$fv->translit] = $fv;
-                    }
+                    $featuresValues = $featuresValuesEntity->mappedBy('id')->find(['feature_id'=>$feature->id]);
+
                     $this->design->assign('features_values', $featuresValues);
 
                     if ($feature->id && $this->request->post('options_aliases')) {
-                        foreach ($this->request->post('options_aliases') as $o_translit=>$values) {
+                        foreach ($this->request->post('options_aliases') as $featureValueId=>$values) {
                             foreach ($values as $feature_alias_id=>$value) {
-                                if (!empty($value) && isset($featuresAliases[$feature_alias_id]) && isset($featuresValues[$o_translit])) {
+                                if (!empty($value) && isset($featuresAliases[$feature_alias_id]) && isset($featuresValues[$featureValueId])) {
                                     $optionAlias = new \stdClass;
-                                    $optionAlias->translit = $o_translit;
+                                    $optionAlias->feature_value_id = $featureValueId;
                                     $optionAlias->value    = $value;
                                     $optionAlias->lang_id  = $languagesCore->getLangId();
                                     $optionAlias->feature_id       = $feature->id;
                                     $optionAlias->feature_alias_id = $feature_alias_id;
                                     $featuresValuesAliasesValuesEntity->add($optionAlias);
-                                    $featuresValues[$o_translit]->aliases[$feature_alias_id] = $optionAlias;
+                                    $featuresValues[$featureValueId]->aliases[$feature_alias_id] = $optionAlias;
                                 }
                             }
                         }

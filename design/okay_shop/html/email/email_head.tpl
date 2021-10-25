@@ -269,8 +269,18 @@
         margin: 0px 3px;
         vertical-align: middle;
     }
-
-
+    .es-discount i {
+        background: rgb(246, 80, 80);
+        padding: 3px 5px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #fff;
+        border-radius: 4px;
+        line-height: 1;
+        display: inline-block;
+        position: relative;
+        top: -2px;
+    }
     .mobile_link a[href^="tel"],
     .mobile_link a[href^="sms"] {
         text-decoration: default;
@@ -303,6 +313,12 @@
             width: 100% !important;
             max-width: 600px !important;
         }
-    }
+        .es-p20l {padding-left: 10px;}
+        .es-p20r {padding-right: 10px;}
+        }
+        .es-discount i {
+            font-size: 10px;
+            font-weight: 600;
+        }
 </style>
 {/literal}

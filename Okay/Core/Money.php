@@ -54,7 +54,7 @@ class Money
         return ExtenderFacade::execute(__METHOD__, $coef, func_get_args());
     }
     
-    public function convert($price, $currencyId = null, $format = true, $revers = false) : string
+    public function convert($price, $currencyId = null, $format = true, $revers = false, int $precision = null) : string
     {
         if ($currencyId !== null && !is_numeric($currencyId)) {
             trigger_error('$currencyId must be is integer', E_USER_WARNING);
@@ -80,7 +80,7 @@ class Money
         }
         
         $result = $this->priceConvert($price, $currency, $revers);
-        $result = $this->formatPrice($result, $currency, $format);
+        $result = $this->formatPrice($result, $currency, $format, $precision);
         
         return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
     }
@@ -107,12 +107,15 @@ class Money
         return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
     }
     
-    private function formatPrice($price, $currency, $format = true) : string
+    private function formatPrice($price, $currency, $format = true, int $precision = null) : string
     {
         // Точность отображения, знаков после запятой
-        $precision = 0;
-        if (!empty($currency)) {
-            $precision = isset($currency->cents) ? $currency->cents : 2;
+        if (is_null($precision)) {
+            if (!empty($currency)) {
+                $precision = isset($currency->cents) ? $currency->cents : 2;
+            } else {
+                $precision = 0;
+            }
         }
         
         // Форматирование цены
