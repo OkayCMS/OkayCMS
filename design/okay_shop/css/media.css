@@ -39,7 +39,7 @@
     }
     .position_sticky{
         position: sticky;
-        top: 70px;
+        top: 15px;
     }
     /* Hover style elemets */
     .block__header_button:hover{
@@ -391,6 +391,9 @@
     }
     .main{
         padding-top: 60px;
+    }
+    .cart_page .main{
+        padding-top: 0px;
     }
     .product-page__images{
         max-height: 320px;
@@ -1434,6 +1437,15 @@
     }
     .header_informers__link i.fa-balance-scale:before{
         font-size: 24px;
+    }
+    .cart_header__logo img{
+        height: auto;
+        max-height: 50px;
+    }
+    .cart_header__phone{
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
     }
 }
 
