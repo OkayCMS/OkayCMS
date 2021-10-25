@@ -100,13 +100,6 @@ class ProductsController extends AbstractController
         if ($catalogType == 'search') {
             $this->design->assign('other_filters', $catalogHelper->getOtherFilters($filter));
         }
-
-        if ((!empty($filter['price']) && $filter['price']['min'] !== '' && $filter['price']['max'] !== '' && $filter['price']['min'] !== null) || !empty($filter['other_filter'])) {
-            $this->design->assign('is_filter_page', true);
-        }
-        
-        $prices = $catalogHelper->getPrices($filter, $catalogType);
-        $this->design->assign('prices', $prices);
         
         switch ($catalogType) {
             case 'bestsellers':
@@ -125,6 +118,13 @@ class ProductsController extends AbstractController
                 }
                 break;
         }
+
+        if ((!empty($filter['price']) && $filter['price']['min'] !== '' && $filter['price']['max'] !== '' && $filter['price']['min'] !== null) || !empty($filter['other_filter'])) {
+            $this->design->assign('is_filter_page', true);
+        }
+
+        $prices = $catalogHelper->getPrices($filter, $catalogType);
+        $this->design->assign('prices', $prices);
 
         if ($filter === false) {
             return false;
