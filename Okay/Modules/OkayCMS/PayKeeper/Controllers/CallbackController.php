@@ -52,7 +52,7 @@ class CallbackController extends AbstractController
             die("Unknown payment method");
         }
 
-        $ourPrice = $money->convert($theOrder->total_price, $method->currency_id, false);
+        $ourPrice = $money->convert($theOrder->total_price, $method->currency_id, false, false, 2);
         $ourPrice = number_format($ourPrice, 2, '.', '');
 
         $settings = unserialize($method->settings);
