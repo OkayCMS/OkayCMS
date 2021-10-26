@@ -4,6 +4,8 @@
 namespace Okay\Core\Adapters\Response;
 
 
+use Okay\Core\DebugBar\DebugBar;
+
 class Xml extends AbstractResponse
 {
 
@@ -16,6 +18,7 @@ class Xml extends AbstractResponse
     
     public function send($content)
     {
+        DebugBar::stackData();
         print implode('', $content);
     }
 }

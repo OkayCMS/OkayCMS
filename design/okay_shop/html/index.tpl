@@ -402,5 +402,9 @@
     <div>
         {get_design_block block="front_after_footer_content"}
     </div>
+
+    {if $debug_bar_renderer}
+        {$debug_bar_renderer->render()}
+    {/if}
 </body>
 </html>
