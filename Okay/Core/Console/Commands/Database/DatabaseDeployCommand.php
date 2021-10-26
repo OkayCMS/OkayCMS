@@ -6,13 +6,7 @@ use Aura\Sql\ExtendedPdo;
 use Okay\Core\Config;
 use Okay\Core\Console\Command;
 use Okay\Core\DataCleaner;
-use Okay\Core\ServiceLocator;
-use Symfony\Component\Console\Helper\QuestionHelper;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Symfony\Component\Console\Question\Question;
 
 class DatabaseDeployCommand extends Command
 {
@@ -32,26 +26,18 @@ class DatabaseDeployCommand extends Command
             );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    protected function handle(Config $config): int
     {
-        $serviceLocator = ServiceLocator::getInstance();
+        $this->output->writeln("\n***************************");
 
-        /** @var QuestionHelper $questionHelper */
-        $questionHelper = $this->getHelper('question');
-
-        /** @var Config $config */
-        $config = $serviceLocator->getService(Config::class);
-
-        $output->writeln("\n***************************");
-
-        if (!$questionHelper->ask($input, $output, new ConfirmationQuestion('Deploy clean database? ', false))) {
+        if (!$this->askConfirmation('Deploy clean database? ', false)) {
             return Command::FAILURE;
         }
 
-        $filename = $input->getOption('file_path');
+        $filename = $this->input->getOption('file_path');
 
         if (!file_exists($filename)) {
-            $output->writeln("Database file does not exist ({$filename})");
+            $this->output->writeln("Database file does not exist ({$filename})");
             return Command::FAILURE;
         }
 
@@ -62,11 +48,11 @@ class DatabaseDeployCommand extends Command
         $driver = $config->get('db_driver');
         $charset = $config->get('db_charset');
 
-        if ($questionHelper->ask($input, $output, new ConfirmationQuestion('Set new credentials for database? ', false))) {
-            $server = $questionHelper->ask($input, $output, new Question("Enter database SERVER({$server}): ", $server));
-            $user = $questionHelper->ask($input, $output, new Question("Enter database USER({$user}): ", $user));
-            $password = $questionHelper->ask($input, $output, new Question("Enter database PASSWORD({$password}): ", $password));
-            $name = $questionHelper->ask($input, $output, new Question("Enter database NAME({$name}): ", $name));
+        if ($this->askConfirmation('Set new credentials for database? ', false)) {
+            $server = $this->ask("Enter database SERVER({$server}): ", $server);
+            $user = $this->ask("Enter database USER({$user}): ", $user);
+            $password = $this->ask("Enter database PASSWORD({$password}): ", $password);
+            $name = $this->ask("Enter database NAME({$name}): ", $name);
 
             $pdo = new ExtendedPdo("{$driver}:host={$server};dbname={$name};charset={$charset}", $user, $password);
             $pdo->connect();
@@ -82,16 +68,16 @@ class DatabaseDeployCommand extends Command
 
         $this->restore($pdo, $filename);
 
-        if ($questionHelper->ask($input, $output, new ConfirmationQuestion('Delete demo content? ', false))) {
+        if ($this->askConfirmation('Delete demo content? ', false)) {
             /** @var DataCleaner $dataCleaner */
-            $dataCleaner = $serviceLocator->getService(DataCleaner::class);
+            $dataCleaner = $this->serviceLocator->getService(DataCleaner::class);
 
             $dataCleaner->clearAllCatalogImages();
             $dataCleaner->clearCatalogData();
         }
 
-        $output->writeln("\nDatabase deployed successfully!");
-        $output->writeln("***************************");
+        $this->output->writeln("\nDatabase deployed successfully!");
+        $this->output->writeln("***************************");
 
 
         return Command::SUCCESS;

@@ -86,6 +86,7 @@ use Okay\Helpers\FilterHelper;
 use Okay\Helpers\MoneyHelper;
 use Okay\Core\Entity\UrlUniqueValidator;
 use Okay\Admin\Helpers\BackendExportHelper;
+use Symfony\Component\Console\Helper\QuestionHelper as ConsoleQuestionHelper;
 
 return [
     BackendMainHelper::class => [
@@ -657,6 +658,11 @@ return [
     ],
     PagesHelper::class => [
         'class' => PagesHelper::class,
+    ],
+    ConsoleQuestionHelper::class => [
+        'class' => ConsoleQuestionHelper::class,
+        'arguments' => [
+        ]
     ],
 ];
 

@@ -26,6 +26,7 @@
 return [
     'root_dir' => '{$root_dir}',
     'logger' => [
+        'dir' => __DIR__ . '/../../log',
         'file' => __DIR__ . '/../../log/app.log',
         'max_files_rotation' => 10,
     ],

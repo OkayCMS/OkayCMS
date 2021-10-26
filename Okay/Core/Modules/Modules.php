@@ -537,20 +537,6 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
 
         $container = OkayContainer::getInstance();
 
-        $backendControllersList = [];
-        $initClassName = $this->module->getInitClassName($vendor, $moduleName);
-        if (!empty($initClassName)) {
-            /** @var AbstractInit $initObject */
-            $initObject = new $initClassName((int)$moduleId, $vendor, $moduleName);
-            $initObject->init();
-            foreach ($initObject->getBackendControllers() as $controllerName) {
-                $controllerName = $vendor . '.' . $moduleName . '.' . $controllerName;
-                if (!in_array($controllerName, $backendControllersList)) {
-                    $backendControllersList[] = $controllerName;
-                }
-            }
-        }
-
         $routes = $this->module->getRoutes($vendor, $moduleName);
         if (self::isActiveModule($vendor, $moduleName) === false) {
             foreach ($routes as &$route) {
@@ -572,6 +558,20 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
         }
 
         Router::bindRoutes($routes);
+
+        $backendControllersList = [];
+        $initClassName = $this->module->getInitClassName($vendor, $moduleName);
+        if (!empty($initClassName)) {
+            /** @var AbstractInit $initObject */
+            $initObject = new $initClassName((int)$moduleId, $vendor, $moduleName);
+            $initObject->init();
+            foreach ($initObject->getBackendControllers() as $controllerName) {
+                $controllerName = $vendor . '.' . $moduleName . '.' . $controllerName;
+                if (!in_array($controllerName, $backendControllersList)) {
+                    $backendControllersList[] = $controllerName;
+                }
+            }
+        }
 
         return $backendControllersList;
     }
