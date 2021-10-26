@@ -22,6 +22,7 @@ return [
         'arguments' => [
             new SR(Request::class),
             new SR(EntityFactory::class),
+            new SR(Settings::class),
         ],
     ],
     BackendExtender::class => [

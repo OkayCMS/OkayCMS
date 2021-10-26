@@ -15,17 +15,20 @@ use Okay\Entities\OrdersEntity;
 use Okay\Entities\PaymentsEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCitiesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCostDeliveryDataEntity;
+use Okay\Core\Settings;
 
 class FrontExtender implements ExtensionInterface
 {
-    
+
     private $request;
     private $entityFactory;
-    
-    public function __construct(Request $request, EntityFactory $entityFactory)
+    private $settings;
+
+    public function __construct(Request $request, EntityFactory $entityFactory, Settings $settings)
     {
         $this->request = $request;
         $this->entityFactory = $entityFactory;
+        $this->settings = $settings;
     }
 
     /**
@@ -33,9 +36,9 @@ class FrontExtender implements ExtensionInterface
      * @param $cart
      * @return array
      * @throws \Exception
-     * 
+     *
      * Метод проходится по способам доставки, и подменяет текст стоимости доставки.
-     * 
+     *
      */
     public function getCartDeliveriesList($deliveries, $cart)
     {
@@ -43,27 +46,35 @@ class FrontExtender implements ExtensionInterface
 
         /** @var FrontTranslations $frontTranslations */
         $frontTranslations = $SL->getService(FrontTranslations::class);
-        
+
         /** @var Module $module */
         $module = $SL->getService(Module::class);
-        
+
         /** @var Design $design */
         $design = $SL->getService(Design::class);
-        
+
         /** @var PaymentsEntity $paymentsEntity */
         $paymentsEntity = $this->entityFactory->get(PaymentsEntity::class);
-        
+
         $redeliveryPaymentsIds = $paymentsEntity->cols(['id'])->find(['novaposhta_cost__cash_on_delivery' => 1]);
-        foreach ($redeliveryPaymentsIds as $k=>$id) {
+        foreach ($redeliveryPaymentsIds as $k => $id) {
             $redeliveryPaymentsIds[$k] = (int)$id;
         }
         $design->assignJsVar('np_redelivery_payments_ids', $redeliveryPaymentsIds);
         $design->assign('np_redelivery_payments_ids', $redeliveryPaymentsIds);
-        
+
+        /** @var NPCitiesEntity $npCitiesEntity */
+        $npCitiesEntity = $this->entityFactory->get(NPCitiesEntity::class);
+        $citiesArr = $npCitiesEntity->find(['name'=>$this->settings->np_cities_btn]);
+        foreach ($citiesArr as $city) {
+            $cities[] = (object)$city;
+        }
+
         $npModuleId = $module->getModuleIdByNamespace(__CLASS__);
         $design->assignJsVar('np_delivery_module_id', $npModuleId);
         $design->assign('np_delivery_module_id', $npModuleId);
-        
+        $design->assign('cities', $cities);
+
         foreach ($deliveries as $delivery) {
             if ($delivery->module_id == $npModuleId) {
                 $delivery->delivery_price_text = $frontTranslations->getTranslation('np_need_select_city');
@@ -77,12 +88,12 @@ class FrontExtender implements ExtensionInterface
      * @param $user
      * @return array
      * @throws \Exception
-     * 
+     *
      * Если у пользователя был ранее заказ, и он был на Новую почту, заполним данными
      */
     public function getDefaultCartData($defaultData, $user)
     {
-        
+
         if (!empty($user->id)) {
             /** @var OrdersEntity $ordersEntity */
             $ordersEntity = $this->entityFactory->get(OrdersEntity::class);
@@ -93,14 +104,14 @@ class FrontExtender implements ExtensionInterface
             /** @var NPCitiesEntity $npCitiesEntity */
             $npCitiesEntity = $this->entityFactory->get(NPCitiesEntity::class);
 
-            if (($lastOrder = $ordersEntity->findOne(['user_id'=>$user->id])) && ($npDeliveryData = $npDeliveryDataEntity->getByOrderId($lastOrder->id))) {
+            if (($lastOrder = $ordersEntity->findOne(['user_id' => $user->id])) && ($npDeliveryData = $npDeliveryDataEntity->getByOrderId($lastOrder->id))) {
                 $defaultData['novaposhta_delivery_city_id'] = $npDeliveryData->city_id;
                 $defaultData['novaposhta_delivery_warehouse_id'] = $npDeliveryData->warehouse_id;
-                
+
                 if (!empty($npDeliveryData->city_id) && empty($npDeliveryData->city_name)) {
                     $npDeliveryData->city_name = $npCitiesEntity->col('name')->findOne(['ref' => $npDeliveryData->city_id]);
                 }
-                
+
                 $defaultData['novaposhta_city'] = $defaultData['novaposhta_city_name'] = $npDeliveryData->city_name;
                 $defaultData['novaposhta_area_name'] = $npDeliveryData->area_name;
                 $defaultData['novaposhta_region_name'] = $npDeliveryData->region_name;
@@ -109,16 +120,16 @@ class FrontExtender implements ExtensionInterface
                 $defaultData['novaposhta_apartment'] = $npDeliveryData->apartment;
             }
         }
-        
+
         return $defaultData;
     }
-    
+
     /**
      * @param $result
      * @param $delivery
      * @param $order
      * @return mixed
-     * 
+     *
      * Обновляем стоимость доставки, которая пришла из API.
      * Важно не забывать что экстендеры работают всегда, и важно проверить что выбран именно наш способ доставки
      */
@@ -134,7 +145,7 @@ class FrontExtender implements ExtensionInterface
 
         return $result;
     }
-    
+
     /**
      * @param $in
      * @param $order
@@ -167,7 +178,7 @@ class FrontExtender implements ExtensionInterface
             } else {
                 $deliveryData->warehouse_id = $this->request->post('novaposhta_delivery_warehouse_id');
             }
-            
+
             $npDeliveryDataEntity->add($deliveryData);
         }
     }
