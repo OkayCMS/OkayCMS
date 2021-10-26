@@ -4,6 +4,7 @@
 namespace Okay\Core;
 
 
+use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\OkayContainer\MethodDI;
 
 /**
@@ -83,7 +84,7 @@ class DesignBlocks
             // порядку в админ панели
             $reversedBlocks = array_reverse($this->registeredBlocks[$blockName]);
             foreach ($reversedBlocks as $blockTplFile) {
-
+                DebugBar::startDesignBlockFetch($blockTplFile);
                 // Если с блоком регистрировали калбеки, запускаем их в порядке регистрации
                 if (!empty($this->callbacks[$blockName][$blockTplFile])) {
                     foreach ($this->callbacks[$blockName][$blockTplFile] as $callback) {
@@ -92,6 +93,7 @@ class DesignBlocks
                 }
                 
                 $blockHtml .= $this->design->fetch($blockTplFile);
+                DebugBar::finishDesignBlockFetch($blockName, $blockTplFile);
             }
         }
         return $blockHtml;

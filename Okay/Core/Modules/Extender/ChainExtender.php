@@ -4,6 +4,7 @@
 namespace Okay\Core\Modules\Extender;
 
 
+use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\ServiceLocator;
 
 class ChainExtender extends AbstractExtender
@@ -33,13 +34,14 @@ class ChainExtender extends AbstractExtender
             } else {
                 throw new \Exception("Class \"{$classExtender}\" not found");
             }
-            
+
+            DebugBar::startExtensionExecution($trigger, $currentExtensions);
             if (static::isFirstExtension($i, $extensions)) {
                 $extendedOutput = call_user_func_array([$classExtender, $currentExtensions->method], array_merge([$output], $input));
             } else {
                 $extendedOutput = call_user_func_array([$classExtender, $currentExtensions->method], array_merge([$extendedOutput], $input));
             }
-            
+            DebugBar::finishExtensionExecution($trigger, $currentExtensions);
         }
 
         return $extendedOutput;

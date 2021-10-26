@@ -4,6 +4,7 @@
 namespace Okay\Core\Modules;
 
 
+use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\OkayContainer\OkayContainer;
 use Okay\Core\Router;
 use Smarty;
@@ -106,7 +107,9 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
      */
     public function startEnabledModules()
     {
+        DebugBar::startMeasure("start_modules", "Start modules");
         $this->startModules(true);
+        DebugBar::stopMeasure("start_modules");
     }
 
     private function startModules($activeOnly = true)
@@ -132,9 +135,10 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
         $SL = ServiceLocator::getInstance();
         /** @var Design $design */
         $design = $SL->getService(Design::class);
-
         foreach ($modules as $module) {
+            DebugBar::startMeasure("$module->vendor/$module->module_name", "Module $module->vendor/$module->module_name");
             if ($this->module->moduleDirectoryNotExists($module->vendor, $module->module_name)) {
+                DebugBar::stopMeasure("$module->vendor/$module->module_name", ['init' => '']);
                 continue;
             }
 
@@ -163,7 +167,7 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
                         $design->registerPlugin('modifier', $tag, $mock);
                     }
                 }
-
+                DebugBar::stopMeasure("$module->vendor/$module->module_name", ['init' => '']);
                 continue;
             }
 
@@ -177,6 +181,7 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
             }
 
             $this->backendControllersList = array_merge($this->backendControllersList, $this->startModule($module->id, $module->vendor, $module->module_name));
+            DebugBar::stopMeasure("$module->vendor/$module->module_name", ['init' => '']);
         }
     }
 

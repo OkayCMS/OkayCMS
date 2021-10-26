@@ -4,6 +4,8 @@
 namespace Okay\Core\Adapters\Response;
 
 
+use Okay\Core\DebugBar\DebugBar;
+
 class Json extends AbstractResponse
 {
 
@@ -19,6 +21,7 @@ class Json extends AbstractResponse
     
     public function send($content)
     {
+        DebugBar::stackData();
         // todo добавить json_encode()
         print implode('', $content);
     }

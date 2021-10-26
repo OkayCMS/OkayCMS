@@ -7,6 +7,7 @@ namespace Okay\Helpers;
 use Okay\Core\Cart;
 use Okay\Core\Comparison;
 use Okay\Core\Config;
+use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
 use Okay\Core\FrontTranslations;
@@ -193,7 +194,10 @@ class MainHelper
 
         $pages = $pagesEntity->find(['visible'=>1]);
         $design->assign('pages', $pages);
-        
+
+        // Передаём в дизайн DebugBarRenderer
+        $design->assign('debug_bar_renderer', DebugBar::getRenderer());
+
         // Передаем стили и скрипты в шаблон
         /** @var FrontTemplateConfig $frontTemplateConfig */
         $frontTemplateConfig = $this->SL->getService(FrontTemplateConfig::class);

@@ -4,8 +4,10 @@
 namespace Okay\Core\TemplateConfig;
 
 
+use DebugBar\JavascriptRenderer;
 use Okay\Core\BackendTranslations;
 use Okay\Core\Config;
+use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\Module;
@@ -420,6 +422,7 @@ class FrontTemplateConfig
     public function compileFiles()
     {
         $this->registerTemplateFiles();
+        $this->registerDebugBarFiles();
 
         // Подключаем основной файл стилей
         $this->headCssFilename = $this->cssConfig->compileRegistered(TC_POSITION_HEAD, $this->compileCssDir, $this->getTheme());
@@ -614,7 +617,45 @@ class FrontTemplateConfig
                 }
             }
         }
+
         $this->registeredTemplateFiles = true;
+    }
+
+    /**
+     * Метод регистрирует асеты для панели отладки
+     */
+    private function registerDebugBarFiles()
+    {
+        /** @var JavascriptRenderer $debugBarRenderer */
+        if ($debugBarRenderer = DebugBar::getRenderer()) {
+            // Регистрируем css файлы из библиотеки
+            foreach ($debugBarRenderer->getAssets('css', $debugBarRenderer::RELATIVE_PATH) as $cssFilePath) {
+                $this->cssConfig->register(
+                    (new Css('debug_bar_'.pathinfo($cssFilePath, PATHINFO_BASENAME)))
+                        ->setPosition('footer')
+                        ->setIndividual(true),
+                    $cssFilePath
+                );
+            }
+
+            // Регистрируем js файлы из библиотеки
+            foreach ($debugBarRenderer->getAssets('js', $debugBarRenderer::RELATIVE_PATH) as $jsFilePath) {
+                $this->jsConfig->register(
+                    (new Js('debug_bar_'.pathinfo($jsFilePath, PATHINFO_BASENAME)))
+                        ->setPosition('footer')
+                        ->setIndividual(true),
+                    $jsFilePath
+                );
+            }
+
+            // Регистрируем js файлы из ядра
+            $this->jsConfig->register(
+                (new Js('debug_bar_core_widgets.js'))
+                    ->setPosition('footer')
+                    ->setIndividual(true),
+                'Okay/Core/DebugBar/Resources/js/widgets.js'
+            );
+        }
     }
 
     /**
