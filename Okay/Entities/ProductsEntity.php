@@ -718,7 +718,7 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
                 ->cols(['DISTINCT(pf.product_id)'])
                 ->where('(' . implode(' OR ', $featuresValues) . ')')
                 ->join('LEFT', '__features_values AS fv', 'fv.id=pf.value_id')
-                ->having('COUNT(*) >=' . count($features))
+                ->having('COUNT(DISTINCT fv.feature_id) >=' . count($features))
                 ->groupBy(['product_id']);
 
             $this->select->joinSubSelect(
