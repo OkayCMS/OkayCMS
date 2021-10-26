@@ -39,7 +39,7 @@ class PaymentForm extends AbstractModule implements PaymentFormInterface
         $paymentMethod    = $paymentsEntity->get($order->payment_method_id);
         $payment_settings = $paymentsEntity->getPaymentSettings($paymentMethod->id);
 
-        $price = $this->money->convert($order->total_price, $paymentMethod->currency_id, false);
+        $price = $this->money->convert($order->total_price, $paymentMethod->currency_id, false, false, 2);
         
         $phone = preg_replace('/[^\d]/', '', $order->phone);
         $phone = substr($phone, -min(10, strlen($phone)), 10);

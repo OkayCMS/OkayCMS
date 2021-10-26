@@ -59,7 +59,7 @@ class CallbackController extends AbstractController
 
         $amount = !empty($data->amount) ? $data->amount : null;
         $w4pAmount = round($amount, 2);
-        $orderAmount = round($money->convert($order->total_price, $method->currency_id, false), 2);
+        $orderAmount = $money->convert($order->total_price, $method->currency_id, false, false, 2);
         if ($orderAmount != $w4pAmount) {
             $logger->warning("WayForPay notice: 'Invalid total order price'. Order №{$orderId}");
             $this->response->setContent("Invalid total order price")->setStatusCode(400);

@@ -17,7 +17,7 @@ abstract class AbstractExtender
             $this->deprecatedMethods["{$association[0][0]}::{$association[0][1]}"] = $association;
         }
     }
-    
+
     public function newExtension($classExpandable, $methodExpandable, $classExtender, $methodExtender)
     {
         $trigger = self::compileTrigger($classExpandable, $methodExpandable);
@@ -66,8 +66,8 @@ abstract class AbstractExtender
             throw new \Exception("Expandable \"{$classExpandable}::{$methodExpandable}()\" is not a method");
         }
 
-        if (!is_callable([$classExtender, $methodExtender])) {
-            throw new \Exception("Class {$classExtender}::{$methodExtender} is not callable");
+        if (!is_callable([$classExtender, $methodExtender], true)) {
+            throw new \Exception("Method {$classExtender}::{$methodExtender} is not callable");
         }
 
         if (!is_subclass_of($classExtender, ExtensionInterface::class)) {

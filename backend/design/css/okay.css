@@ -54,7 +54,11 @@ body {
     max-width: 100%;
     min-height: 100%;
     /*overflow: hidden;*/
-    padding: 55px 0 0 !important;
+    margin: 0;
+    padding: 0;
+}
+body.navbar-fixed {
+    padding-top: 55px !important;
 }
 .design_block_parent_element {
     position: relative;
@@ -478,6 +482,9 @@ body:not(.top-nav) header.navbar {
     height: 24px;
     border: 1px solid #ccc9;
     border-radius: 3px;
+}
+.translation_module_hint{
+    color: #48b0f7;
 }
 .translation_icon img {
     margin-top: -5px;
@@ -7690,10 +7697,6 @@ div.tox-fullscreen {
     border-left: 5px solid #C0392B;
     background-color: #F2D7D5;
     color: #C0392B;
-}
-.jssocials-share-odnoklassniki,
-.jssocials-share-vkontakte{
-    display: none!important;
 }
 /******************** Learning style */
 

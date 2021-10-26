@@ -4,6 +4,8 @@
 namespace Okay\Helpers;
 
 
+use Exception;
+
 class MetaRobotsHelper
 {
     private $catalogPagination;
@@ -18,6 +20,8 @@ class MetaRobotsHelper
     private $maxFeaturesFilterDepth;
     private $maxFeaturesValuesFilterDepth;
     private $maxFilterDepth;
+    
+    private $features = [];
 
     public function setParams(
         $catalogPagination,
@@ -48,17 +52,101 @@ class MetaRobotsHelper
     }
 
     /**
+     * @param object[] $features Массив доступных свойств для этой страницы.
+     * В качестве свойства должен быть объект свойства содержащий в свойстве features_values массив объектов значений.
+     * В качестве значения свойства должен быть объект значения содержащий (свойства объекта) value и to_index
+     *
+     * Пример данных:
+     * [
+     *  (object)[
+     *      'id' => 1,
+     *      'features_values' => [
+     *          (object)[
+     *              'value' => 'red',
+     *              'to_index' => 1,
+     *          ],
+     *          (object)[
+     *              'value' => 'blue',
+     *              'to_index' => 0,
+     *          ],
+     *      ],
+     *  ],
+     *  (object)[
+     *      'id' => 2,
+     *      'features_values' => [
+     *          (object)[
+     *              'value' => 'small',
+     *              'to_index' => 1,
+     *          ],
+     *      ],
+     *  ],
+     * ]
+     *
+     * @return $this
+     * @throws Exception
+     */
+    public function setAvailableFeatures(array $features) : self
+    {
+        if (!empty($features)) {
+            $firstItem = reset($features);
+            if (is_object($firstItem)) {
+                foreach ($features as $feature) {
+                    if (!property_exists($feature, 'id')) {
+                        throw new Exception('Param $features must have id property');
+                    }
+                    if (!property_exists($feature, 'features_values')) {
+                        throw new Exception('Param $features must have features_values property');
+                    }
+                    foreach ($feature->features_values as $value) {
+
+                        if (!property_exists($value, 'value')) {
+                            throw new Exception('Param $features[]->features_values must have value property');
+                        }
+                        if (!property_exists($value, 'to_index')) {
+                            throw new Exception('Param $features[]->features_values must have to_index property');
+                        }
+                        
+                        $this->features[$feature->id][$value->value] = $value;
+                    }
+                }
+            }
+        }
+
+        return $this;
+    }
+    
+    /**
      * @param string|int $page текущая страница, может быть all
      * @param array $otherFilter одномерный массив, содержащий значения ['discounted', 'featured'...]
      * @param array $featuresFilter
      * @param array $brandsFilter
      * @return int
+     * @throws Exception
      *
      * Определение meta robots для категории
      */
     public function getCategoryRobots($page, array $otherFilter, array $featuresFilter, array $brandsFilter) : int
     {
-
+        // Если хоть одно значение свойства отмечено как не идексировать - страница не индексируется
+        if (!empty($featuresFilter)) {
+            foreach ($featuresFilter as $featureId=>$values) {
+                foreach ($values as $value) {
+                    if (!isset($this->features[$featureId])) {
+                        throw new Exception('Wrong feature id "'.$featureId.'". Need set available features ids via '
+                            . self::class
+                            . '::setAvailableFeatures() method');
+                    } elseif (!isset($this->features[$featureId][$value])) {
+                        throw new Exception('Wrong feature value "'.$value.'" for feature id "'.$featureId.'". Need set available feature value via '
+                            . self::class
+                            . '::setAvailableFeatures() method');
+                    }
+                    if ($this->features[$featureId][$value]->to_index == false) {
+                        return ROBOTS_NOINDEX_NOFOLLOW; // no ExtenderFacade
+                    }
+                }
+            }
+        }
+        
         // Подсчитываем общую глубину фильтра
         $filterDepth = 0;
         if (!empty($otherFilter)) {

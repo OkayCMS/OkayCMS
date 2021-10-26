@@ -472,7 +472,7 @@ class Router {
         // Перебираем переменные роута, чтобы заполнить их дефолтными значениями
         if (!empty($routeVars)) {
             foreach ($routeVars as $key => $routeVar) {
-                $param = isset($routeParams[$key]) ? $routeParams[$key] : null;
+                $param = $routeParams[$key] ?? null;
                 $param = strip_tags(htmlspecialchars($param));
                 
                 $allParams[$routeVar] = (empty($param) && !empty($defaults['{$' . $routeVar . '}']) ? $defaults['{$' . $routeVar . '}'] : $param);
@@ -484,13 +484,14 @@ class Router {
         $reflectionMethod = new \ReflectionMethod($controller, $methodName);
         foreach ($reflectionMethod->getParameters() as $parameter) {
             
-            if ($parameter->getClass() !== null) { // если для аргумента указан type hint, передадим экземляр соответствующего класса
+            if (($parameterType = $parameter->getType()) !== null) { // если для аргумента указан type hint, передадим экземляр соответствующего класса
                 if ($stringOnly === false) {
+                    $parameterName = $parameterType->getName();
                     // Определяем это Entity или сервис из DI
-                    if (is_subclass_of($parameter->getClass()->name, Entity::class)) {
-                        $methodParams[$parameter->getClass()->name] = self::$entityFactory->get($parameter->getClass()->name);
+                    if (is_subclass_of($parameterName, Entity::class)) {
+                        $methodParams[$parameter->name] = self::$entityFactory->get($parameterName);
                     } else {
-                        $methodParams[$parameter->getClass()->name] = $this->serviceLocator->getService($parameter->getClass()->name);
+                        $methodParams[$parameter->name] = $this->serviceLocator->getService($parameterName);
                     }
                 }
             } elseif (!empty($allParams[$parameter->name]) || array_key_exists($parameter->name, $allParams)) { // если тип не указан, передаем строковую переменную как значение из поля slug (то, что попало под регулярку)

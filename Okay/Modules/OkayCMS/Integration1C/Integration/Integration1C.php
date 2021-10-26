@@ -31,6 +31,12 @@ class Integration1C
     
     public $importProductsOnly = false;   // TRUE Импортировать только товары, без услуг и прочего (ВидНоменклатуры == Товар)
 
+    public $exportPurchasesDiscountsSeparate = false;   // TRUE Экспортировать скидки товаров в заказе отдельно
+    
+    public $eraseComparePrice = false;   // TRUE сбрасывать старую цену, если она не пришла с 1С
+    
+    public $eraseComparePriceEqual = false;   // TRUE сбрасывать старую цену, если равна либо меньше основной цены
+
     public $guidPriceFrom1C = '';  // ID типа цены в 1С, который нужно загрузить в товар, если не указать, будет браться первая
 
     public $guidComparePriceFrom1C = ''; // ID типа цены в 1С, который нужно загрузить в товар как старую цену
@@ -134,6 +140,10 @@ class Integration1C
         if ($this->settings->has('integration1cImportProductsOnly')) {
             $this->importProductsOnly = (bool)$this->settings->get('integration1cImportProductsOnly');
         }
+
+        if ($this->settings->has('integration1cExportPurchasesDiscountsSeparate')) {
+            $this->exportPurchasesDiscountsSeparate = (bool)$this->settings->get('integration1cExportPurchasesDiscountsSeparate');
+        }
         
         if ($this->settings->has('integration1cGuidPriceFrom1C')) {
             $this->guidPriceFrom1C = $this->settings->get('integration1cGuidPriceFrom1C');
@@ -141,6 +151,14 @@ class Integration1C
         
         if ($this->settings->has('integration1cGuidComparePriceFrom1C')) {
             $this->guidComparePriceFrom1C = $this->settings->get('integration1cGuidComparePriceFrom1C');
+        }
+        
+        if ($this->settings->has('integration1cEraseComparePrice')) {
+            $this->eraseComparePrice = (bool)$this->settings->get('integration1cEraseComparePrice');
+        }
+        
+        if ($this->settings->has('integration1cEraseComparePriceEqual')) {
+            $this->eraseComparePriceEqual = (bool)$this->settings->get('integration1cEraseComparePriceEqual');
         }
     }
 
@@ -242,7 +260,7 @@ class Integration1C
     
     public function getFromStorage($param)
     {
-        return (isset($_SESSION["integration_1c"][$param]) ? $_SESSION["integration_1c"][$param] : null);
+        return $_SESSION["integration_1c"][$param] ?? null;
     }
     
     public function clearStorage()

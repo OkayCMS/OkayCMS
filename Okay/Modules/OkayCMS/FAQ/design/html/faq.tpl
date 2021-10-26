@@ -19,7 +19,7 @@
                     </div>
                     <div class="faq__content" {if $faq@first} style="display: block;"{/if}>
                         <div class="faq__answer">
-                            <div>{$faq->answer|escape}</div>
+                            <div>{$faq->answer}</div>
                         </div>
                     </div>
                 </li>
@@ -30,7 +30,7 @@
 
         {* The page body *}
         {if $page->description}
-            <div class="page-description__text boxed__description">{$page->description|escape}</div>
+            <div class="page-description__text boxed__description">{$page->description}</div>
         {/if}
     </div>
 </div>

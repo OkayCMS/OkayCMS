@@ -17,6 +17,7 @@ class FeaturesValuesEntity extends Entity
         'feature_id',
         'position',
         'to_index',
+        'external_id',
     ];
 
     protected static $langFields = [
@@ -111,13 +112,16 @@ class FeaturesValuesEntity extends Entity
     }
     
     /*Удаление значения свойства*/
-    public function delete($valuesIds = null)
+    public function delete($ids = null)
     {
+        if (parent::delete($ids)) {
+            $ids = (array)$ids;
 
-        // TODO удалять с алиасов
-        $this->deleteProductValue(null, $valuesIds);
+            $this->deleteProductValue(null, $ids);
+            $this->deleteAliases($ids);
+        }
 
-        return parent::delete($valuesIds);
+        return parent::delete($ids);
     }
 
     public function countProductsByValueId(array $valuesIds)
@@ -388,4 +392,18 @@ class FeaturesValuesEntity extends Entity
         return ExtenderFacade::execute([static::class, __FUNCTION__], true, func_get_args());
     }
 
+    /**
+     * @param array $ids
+     * @throws \Exception
+     */
+    public function deleteAliases(array $ids): void
+    {
+        if (!empty($ids)) {
+            $this->queryFactory->newDelete()
+                ->from(FeaturesValuesAliasesValuesEntity::getTable())
+                ->where('feature_value_id IN (:ids)')
+                ->bindValues(['ids' => $ids])
+                ->execute();
+        }
+    }
 }

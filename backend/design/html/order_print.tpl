@@ -249,7 +249,7 @@
                     {if $purchase->variant->name}
                         {$purchase->variant->name|escape}
                     {else}
-                        {$purchase->product_name|escape}
+                        {$purchase->variant_name|escape}
                     {/if}
                     {if $purchase->sku} 
                         ({$btr->general_sku|escape} 

@@ -12,7 +12,7 @@ class Config
 {
 
     /*Версия системы*/
-    public $version = '4.0.3';
+    public $version = '4.1.1';
     /*Тип системы*/
     public $version_type = 'pro';
     
@@ -125,9 +125,9 @@ class Config
         }
 
         // Вычисляем DOCUMENT_ROOT вручную, так как иногда в нем находится что-то левое
-        $localPath = getenv("SCRIPT_NAME");
-        $absolutePath = getenv("SCRIPT_FILENAME");
-        $_SERVER['DOCUMENT_ROOT'] = substr($absolutePath,0, strpos($absolutePath, $localPath));
+        if (($localPath = getenv("SCRIPT_NAME")) && ($absolutePath = getenv("SCRIPT_FILENAME"))) {
+            $_SERVER['DOCUMENT_ROOT'] = substr($absolutePath,0, strpos($absolutePath, $localPath));
+        }
 
         // Определяем корневую директорию сайта
         $this->vars['root_dir'] =  dirname(dirname(__DIR__)).DIRECTORY_SEPARATOR;

@@ -65,11 +65,10 @@ class BackendDeliveriesHelper
 
     public function delete(array $ids)
     {
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
         if (is_array($ids)) {
             $this->deliveriesEntity->delete($ids);
         }
-
-        ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
     public function sortPositions(array $positions)

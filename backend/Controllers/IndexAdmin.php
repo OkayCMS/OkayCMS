@@ -151,7 +151,18 @@ class IndexAdmin
                 'domain' => Request::getDomain(),
                 'version' => $config->version,
             ]);
-            if ($versionData = @file_get_contents('https://okay-cms.com/last_version.json?' . $query)) {
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'https://okay-cms.com/last_version.json?' . $query);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+            $versionData = curl_exec($ch);
+            curl_close($ch);
+            
+            if ($versionData) {
                 $versionData = json_decode($versionData, true);
                 $_SESSION['last_version_data'] = $versionData;
             } else {

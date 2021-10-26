@@ -208,7 +208,7 @@ $(document).on('click', '.fn_wishlist', function(e){
         data: { id: $( this ).data( 'id' ), action: action },
         dataType: 'json',
         success: function(data) {
-            $( '#wishlist' ).html( data );
+            $( '#wishlist' ).html( data.wishlist_informer );
             /* Смена класса кнопки */
             if (action == '') {
                 button.addClass( 'selected' );
@@ -632,13 +632,7 @@ $(function(){
     //Фильтры мобильные, каталог мобильные
     $('.fn_switch_parent').click(function(){
         $(this).parent().next().slideToggle(500);
-
-        if ($(this).hasClass('down')) {
-            $(this).removeClass('down');
-        }
-        else {
-            $(this).addClass('down');
-        }
+        $(this).toggleClass('down');
     });
     $('.blog_catalog .selected').parents('.parent').addClass('opened').find('> .switch').addClass('active');
 

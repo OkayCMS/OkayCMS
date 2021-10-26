@@ -35,11 +35,13 @@
                         {if $features_aliases}
                             {foreach $features_aliases as $fa}
                                 <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{$f_alias_{/literal}{$fa->variable|escape}{literal}}{/literal}</a> - {$btr->seo_patterns_ajax_feature_name|escape} ({$fa->name|escape})</li>
+                                <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{$f_alias_{/literal}{$fa->variable|escape}{literal}_2}{/literal}</a> - {$btr->seo_patterns_ajax_feature_name|escape} ({$fa->name|escape}) 2</li>
                             {/foreach}
                         {/if}
                         {if $features_aliases}
                             {foreach $features_aliases as $fa}
                                 <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{$o_alias_{/literal}{$fa->variable|escape}{literal}}{/literal}</a> - {$btr->seo_patterns_ajax_feature_val|escape} ({$fa->name|escape})</li>
+                                <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{$o_alias_{/literal}{$fa->variable|escape}{literal}_2}{/literal}</a> - {$btr->seo_patterns_ajax_feature_val|escape} ({$fa->name|escape}) 2</li>
                             {/foreach}
                         {/if}
 
@@ -180,9 +182,17 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-12 col-md-12">
+                        <div class="heading_label">{$btr->seo_filter_patterns_ajax_annotation|escape}</div>
+                        <div class="mb-1">
+                            <textarea name="seo_filter_patterns[annotation][]" class="form-control fn_ajax_area okay_textarea">{$p->annotation|escape}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 col-md-12">
                         <div class="heading_label">{$btr->seo_filter_patterns_ajax_description|escape}</div>
                         <div class="mb-1">
-                            <textarea name="seo_filter_patterns[description][]" class="form-control fn_ajax_area">{$p->description|escape}</textarea>
+                            <textarea name="seo_filter_patterns[description][]" class="form-control fn_ajax_area okay_textarea">{$p->description|escape}</textarea>
                         </div>
                     </div>
                 </div>

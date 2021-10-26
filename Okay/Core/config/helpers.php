@@ -67,6 +67,7 @@ use Okay\Helpers\MetadataHelpers\ProductMetadataHelper;
 use Okay\Helpers\MetadataHelpers\AuthorMetadataHelper;
 use Okay\Helpers\MetaRobotsHelper;
 use Okay\Helpers\NotifyHelper;
+use Okay\Helpers\PagesHelper;
 use Okay\Helpers\PaymentsHelper;
 use Okay\Helpers\RelatedProductsHelper;
 use Okay\Helpers\CommonHelper;
@@ -74,6 +75,7 @@ use Okay\Helpers\ResizeHelper;
 use Okay\Helpers\SiteMapHelper;
 use Okay\Helpers\UserHelper;
 use Okay\Helpers\ValidateHelper;
+use Okay\Helpers\WishListHelper;
 use Okay\Helpers\XmlFeedHelper;
 use Okay\Requests\CommonRequest;
 use Psr\Log\LoggerInterface;
@@ -369,6 +371,15 @@ return [
     MainHelper::class => [
         'class' => MainHelper::class,
     ],
+    WishListHelper::class => [
+        'class' => WishListHelper::class,
+        'arguments' => [
+            new SR(Design::class),
+            new SR(WishList::class),
+            new SR(FrontTemplateConfig::class),
+            new SR(LoggerInterface::class),
+        ]
+    ],
     DeliveriesHelper::class => [
         'class' => DeliveriesHelper::class,
         'arguments' => [
@@ -425,6 +436,7 @@ return [
             new SR(MoneyHelper::class),
             new SR(Settings::class),
             new SR(MainHelper::class),
+            new SR(ProductMetadataHelper::class),
         ],
     ],
     CatalogHelper::class => [
@@ -455,6 +467,7 @@ return [
             new SR(Router::class),
             new SR(Design::class),
             new SR(Money::class),
+            new SR(FrontTranslations::class),
         ],
     ],
     MoneyHelper::class => [
@@ -641,6 +654,9 @@ return [
                 ]
             ],
         ]
+    ],
+    PagesHelper::class => [
+        'class' => PagesHelper::class,
     ],
 ];
 

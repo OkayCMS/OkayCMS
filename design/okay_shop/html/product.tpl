@@ -24,10 +24,10 @@
                                     <a href="{$image->filename|resize:1800:1800:w}" data-fancybox="we2" class="swiper-slide">
                                         <picture>
                                             {if $settings->support_webp}
-                                                <source type="image/webp" srcset="{$image->filename|resize:600:800}.webp">
+                                                <source type="image/webp" srcset="{$image->filename|resize:700:800}.webp">
                                             {/if}
-                                                <source srcset="{$image->filename|resize:600:800}">
-                                                <img {if $image@first} itemprop="image" {/if} src="{$image->filename|resize:600:800}" alt="{$product->name|escape}" title="{$product->name|escape}"/>
+                                                <source srcset="{$image->filename|resize:700:800}">
+                                                <img {if $image@first} itemprop="image" {/if} src="{$image->filename|resize:700:800}" alt="{$product->name|escape}" title="{$product->name|escape}"/>
                                         </picture>
                                     </a>
                                 {/foreach}
@@ -590,7 +590,7 @@
 "@type": "Product",
 "name": "{/literal}{$product->name|escape}{literal}",
 "image": "{/literal}{$product->image->filename|resize:330:300}{literal}",
-"description": "{/literal}{str_replace(array("\r", "\n"), "", $product->annotation|strip_tags|escape)}{literal}",
+"description": "{/literal}{str_replace(array("\r", "\n"), "", $annotation|strip_tags|escape)}{literal}",
 "mpn": "{/literal}{if $product->variant->sku}{$product->variant->sku|escape}{else}Не указано{/if}{literal}",
 {/literal}
 {if $brand->name}

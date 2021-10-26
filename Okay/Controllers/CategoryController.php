@@ -4,7 +4,9 @@
 namespace Okay\Controllers;
 
 
+use Okay\Core\Request;
 use Okay\Core\Router;
+use Okay\Core\Routes\RouteFactory;
 use Okay\Entities\BrandsEntity;
 use Okay\Entities\ProductsEntity;
 use Okay\Entities\CategoriesEntity;
@@ -31,23 +33,22 @@ class CategoryController extends AbstractController
         CategoryMetadataHelper $categoryMetadataHelper,
         CanonicalHelper $canonicalHelper,
         MetaRobotsHelper $metaRobotsHelper,
+        RouteFactory $routeFactory,
         $url,
         $filtersUrl = ''
     ) {
         $isFilterPage = false;
         $filter['visible'] = 1;
-        $sortProducts = null;
 
-        $this->design->assign('url', $url, true);
+        $categoryRoute = $routeFactory->create('category');
+        $this->design->assign('url', $categoryRoute->generateSlugUrl($url), true);
         $this->design->assign('filtersUrl', !empty($filtersUrl) ? '/'.$filtersUrl : '', true);
 
         $filterHelper->setFiltersUrl($filtersUrl);
         
-        $this->setMetadataHelper($categoryMetadataHelper);
-        
         $category = $categoriesEntity->get((string)$url);
         //метод можно расширять и отменить дальнейшую логику работы контроллера
-        if(($setCategory = $catalogHelper->setCatalogCategory($category)) !== null) {
+        if (($setCategory = $catalogHelper->setCatalogCategory($category)) !== null) {
             return $setCategory;
         }
         $this->design->assign('category', $category);
@@ -154,6 +155,25 @@ class CategoryController extends AbstractController
                 $isFilterPage,
                 $this->catalogType
             );
+        } else {
+            // если включена отложенная загрузка фильтров, установим отдельно возможные значения свойств
+            $baseFeaturesValues = $filterHelper->getCategoryBaseFeaturesValues($category, $this->settings->get('missing_products'));
+            if (!empty($baseFeaturesValues)) {
+                foreach ($baseFeaturesValues as $values) {
+                    foreach ($values as $value) {
+                        if (isset($categoryFeatures[$value->feature_id])) {
+                            $categoryFeatures[$value->feature_id]->features_values[$value->id] = $value;
+                        }
+                    }
+                }
+            }
+            foreach ($categoryFeatures as $k => $feature) {
+                if (!property_exists($feature, 'features_values') || empty($feature->features_values)) {
+                    unset($categoryFeatures[$k]);
+                }
+            }
+            
+            $metaRobotsHelper->setAvailableFeatures($categoryFeatures);
         }
         
         $this->design->assign('selected_filters', $currentFeatures);
@@ -176,6 +196,7 @@ class CategoryController extends AbstractController
 
         // Товары
         $products = $productsHelper->getList($filter, $sortProducts);
+        $products = $productsHelper->attachDescriptionByTemplate($products);
         $this->design->assign('products', $products);
         
         if ($this->request->get('ajax','boolean')) {
@@ -200,10 +221,8 @@ class CategoryController extends AbstractController
         //lastModify END
         
         $filterFeatures = [];
-        foreach ($currentFeatures as $featureId => $values) {
-            if (isset($categoryFeatures[$featureId])) {
-                $filterFeatures[$categoryFeatures[$featureId]->url] = $values;
-            }
+        if (!empty($metaArray['features_values'])) {
+            $filterFeatures = $metaArray['features_values'];
         }
         switch ($metaRobotsHelper->getCategoryRobots($currentPage, $currentOtherFilters, $filterFeatures, $currentBrandsIds)) {
             case ROBOTS_NOINDEX_FOLLOW:
@@ -227,6 +246,15 @@ class CategoryController extends AbstractController
         
         $relPrevNext = $this->design->fetch('products_rel_prev_next.tpl');
         $this->design->assign('rel_prev_next', $relPrevNext);
+
+        $categoryMetadataHelper->setUp(
+            $category,
+            $isFilterPage,
+            $this->design->getVar('is_all_pages'),
+            $this->design->getVar('current_page_num'),
+            $currentBrandsIds
+        );
+        $this->setMetadataHelper($categoryMetadataHelper);
 
         $this->response->setContent('products.tpl');
     }

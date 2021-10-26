@@ -169,6 +169,7 @@ class Purchase
         $this->price = $this->undiscounted_price;
         $this->meta->total_price = $this->meta->undiscounted_total_price;
         $sets = $this->discountsHelper->getPurchaseSets();
+        $this->discounts = [];
         if (!empty($this->availableDiscounts) && !empty($sets)) {
             foreach ($sets as $set) {
                 if ($signs = $this->discountsHelper->parseSet($set)) {
@@ -184,7 +185,28 @@ class Purchase
                 }
             }
         }
+        
+        $this->collectAppliedTotalDiscount($cart);
+
         ExtenderFacade::execute(__METHOD__, $this, func_get_args());
+    }
+
+    /**
+     * Сollects all discounts applied to purchases to the cart
+     * @param Cart $cart
+     * @return null
+     */
+    public function collectAppliedTotalDiscount($cart)
+    {
+        foreach ($this->discounts as $discount){
+            if (!isset($cart->total_purchases_discounts[$discount->sign])) {
+                $discountForTotal = (object)(array)$discount;
+                $cart->total_purchases_discounts[$discount->sign] = $discountForTotal;
+            } else {
+                $cart->total_purchases_discounts[$discount->sign]->absoluteDiscount += $discount->absoluteDiscount;
+            }
+        }
+        return ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
     /**

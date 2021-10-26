@@ -130,6 +130,10 @@ class ImportOffers extends AbstractImport
             return false;
         }
 
+        if ($this->integration1C->eraseComparePrice) {
+            $variant->compare_price = 0;
+        }
+        
         if ($this->integration1C->guidComparePriceFrom1C) {
             foreach ($xmlVariant->Цены->Цена as $priceElement) {
                 if ($this->integration1C->guidComparePriceFrom1C == (string)$priceElement->ИдТипаЦены) {
@@ -152,6 +156,11 @@ class ImportOffers extends AbstractImport
             $variant->price = (float)$xmlVariantPrice->ЦенаЗаЕдиницу;
         }
 
+        // убираем старую цену для вариантов, в которых она равна обычной цене
+        if ($this->integration1C->eraseComparePriceEqual && $variant->price >= $variant->compare_price) {
+            $variant->compare_price = 0;
+        }
+        
         if (isset($xmlVariant->ХарактеристикиТовара->ХарактеристикаТовара)) {
             foreach ($xmlVariant->ХарактеристикиТовара->ХарактеристикаТовара as $xmlProperty) {
                 $values[] = $xmlProperty->Значение;

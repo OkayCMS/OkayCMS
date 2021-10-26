@@ -28,6 +28,7 @@ class CommonMetadataHelper implements MetadataInterface
     protected $SL;
     
     protected $h1 = '';
+    protected $annotation = '';
     protected $description = '';
     protected $metaTitle = '';
     protected $metaKeywords = '';
@@ -43,16 +44,14 @@ class CommonMetadataHelper implements MetadataInterface
         $this->mainHelper = $SL->getService(MainHelper::class);
         $this->page = $this->design->getVar('page');
     }
-
-    public function setUp() {}
     
     /**
      * @inheritDoc
      */
-    public function getH1Template()
+    public function getH1Template(): string
     {
         if (empty($this->h1) && $this->page) {
-            $this->h1 = $this->page->name_h1 ? $this->page->name_h1 : $this->page->name;
+            $this->h1 = empty($this->page->name_h1) ? $this->page->name : $this->page->name_h1;
         }
         
         return ExtenderFacade::execute([static::class, __FUNCTION__], $this->h1, func_get_args());
@@ -61,7 +60,15 @@ class CommonMetadataHelper implements MetadataInterface
     /**
      * @inheritDoc
      */
-    public function getDescriptionTemplate()
+    public function getAnnotationTemplate(): string
+    {
+        return ExtenderFacade::execute([static::class, __FUNCTION__], $this->annotation, func_get_args());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getDescriptionTemplate(): string
     {
         if (empty($this->description) && $this->page) {
             $this->description = $this->page->description;
@@ -73,7 +80,7 @@ class CommonMetadataHelper implements MetadataInterface
     /**
      * @inheritDoc
      */
-    public function getMetaTitleTemplate()
+    public function getMetaTitleTemplate(): string
     {
         if (empty($this->metaTitle) && $this->page) {
             $this->metaTitle = $this->page->meta_title;
@@ -85,7 +92,7 @@ class CommonMetadataHelper implements MetadataInterface
     /**
      * @inheritDoc
      */
-    public function getMetaKeywordsTemplate()
+    public function getMetaKeywordsTemplate(): string
     {
         if (empty($this->metaKeywords) && $this->page) {
             $this->metaKeywords = $this->page->meta_keywords;
@@ -97,7 +104,7 @@ class CommonMetadataHelper implements MetadataInterface
     /**
      * @inheritDoc
      */
-    public function getMetaDescriptionTemplate()
+    public function getMetaDescriptionTemplate(): string
     {
         if (empty($this->metaDescription) && $this->page) {
             $this->metaDescription = $this->page->meta_description;
@@ -106,37 +113,46 @@ class CommonMetadataHelper implements MetadataInterface
         return ExtenderFacade::execute([static::class, __FUNCTION__], $this->metaDescription, func_get_args());
     }
     
-    public function getH1()
+    public function getH1(): string
     {
         $h1 = $this->compileMetadata($this->getH1Template());
         return ExtenderFacade::execute([static::class, __FUNCTION__], $h1, func_get_args());
     }
 
-    public function getDescription()
+    public function getAnnotation(): string
+    {
+        $annotation = $this->compileMetadata($this->getAnnotationTemplate());
+        return ExtenderFacade::execute([static::class, __FUNCTION__], $annotation, func_get_args());
+    }
+
+    public function getDescription(): string
     {
         $description = $this->compileMetadata($this->getDescriptionTemplate());
         return ExtenderFacade::execute([static::class, __FUNCTION__], $description, func_get_args());
     }
 
-    public function getMetaTitle()
+    public function getMetaTitle(): string
     {
         $title = $this->compileMetadata($this->getMetaTitleTemplate());
         return ExtenderFacade::execute([static::class, __FUNCTION__], $title, func_get_args());
     }
 
-    public function getMetaKeywords()
+    public function getMetaKeywords(): string
     {
         $keywords = $this->compileMetadata($this->getMetaKeywordsTemplate());
         return ExtenderFacade::execute([static::class, __FUNCTION__], $keywords, func_get_args());
     }
 
-    public function getMetaDescription()
+    public function getMetaDescription(): string
     {
         $description = $this->compileMetadata($this->getMetaDescriptionTemplate());
         return ExtenderFacade::execute([static::class, __FUNCTION__], $description, func_get_args());
     }
-    
-    protected function getParts()
+
+    /**
+     * @return array
+     */
+    protected function getParts(): array
     {
         if (!empty($this->parts)) {
             return $this->parts; // no ExtenderFacade

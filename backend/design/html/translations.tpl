@@ -79,22 +79,29 @@
 
             {*Параметры элемента*}
             <div class="okay_list_body">
-                {foreach $translations as $label=>$value}
-                    <div class="fn_row okay_list_body_item fn_sort_item"{if !$translations_template[$label]} title="{$btr->translations_system_translation}"{/if}>
+                {foreach $current_translations as $label => $translation}
+                    <div class="fn_row okay_list_body_item fn_sort_item"{if $translation->type === 'general'} title="{$btr->translations_system_translation}"{/if}>
                         <div class="okay_list_row ">
                             <div class="okay_list_boding okay_list_check">
                                 <input class="hidden_check" type="checkbox" id="{$label}" name="check[]" value="{$label}" />
                                 <label class="okay_ckeckbox" for="{$label}"></label>
                             </div>
-                            <div class="okay_list_heading okay_list_translations_num">№ {$value@iteration}</div>
+                            <div class="okay_list_heading okay_list_translations_num">№ {$translation@iteration}</div>
                             <div class="okay_list_boding okay_list_translations_name">
-                                <a href="{url controller=TranslationAdmin id=$label return=$smarty.server.REQUEST_URI}">{$value|escape}</a>
+                                <a href="{url controller=TranslationAdmin id=$label return=$smarty.server.REQUEST_URI}">{$translation->value|escape}</a>
                             </div>
                             <div class="okay_list_boding  okay_list_translations_variable">
-                                 <a href="{url controller=TranslationAdmin id=$label return=$smarty.server.REQUEST_URI}">{$label|escape}</a>
+                                 <a href="{url controller=TranslationAdmin id=$label return=$smarty.server.REQUEST_URI}">
+                                     {$label|escape}
+                                     {if $translation->has_module_translations}
+                                         <i class="translation_module_hint" title="{$btr->tooltip_translation_module|escape}">
+                                             ({$btr->translations_module})
+                                         </i>
+                                     {/if}
+                                 </a>
                             </div>
                             <div class="okay_list_boding okay_list_close">
-                                {if !$locked_theme && $translations_template[$label]}
+                                {if !$locked_theme && $translation->type === 'theme'}
                                     <button data-hint="{$btr->general_delete|escape}" type="button" class="btn_close fn_remove hint-bottom-right-t-info-s-small-mobile  hint-anim" data-toggle="modal" data-target="#fn_action_modal" onclick="success_action($(this));">
                                         {include file='svg_icon.tpl' svgId='trash'}
                                     </button>

@@ -25,7 +25,7 @@ class CategoriesEntity extends Entity
         'external_id',
         'level_depth',
         'last_modify',
-        'created'
+        'created',
     ];
 
     protected static $langFields = [
@@ -40,7 +40,8 @@ class CategoriesEntity extends Entity
         'auto_meta_title',
         'auto_meta_keywords',
         'auto_meta_desc',
-        'auto_description'
+        'auto_description',
+        'auto_annotation',
     ];
 
     protected static $additionalFields = [
@@ -442,11 +443,11 @@ class CategoriesEntity extends Entity
                     $pointers[$category->id]->path = array_merge((array)$pointers[$category->parent_id]->path, array($curr));
 
                     // Путь к текущей категории в виде строки
-                    $pathUrl = '';
+                    $pathUrl = [];
                     foreach((array) $pointers[$category->id]->path as $singleCategoryInPath) {
-                        $pathUrl .= '/'.$singleCategoryInPath->url;
+                        $pathUrl[] = $singleCategoryInPath->url;
                     }
-                    $pointers[$category->id]->path_url = $pathUrl;
+                    $pointers[$category->id]->path_url = implode('/', $pathUrl);
 
                     // Уровень вложенности категории
                     $pointers[$category->id]->level = 1+$pointers[$category->parent_id]->level;
@@ -476,8 +477,14 @@ class CategoriesEntity extends Entity
         unset($ids);
 
         $categoriesIdsWithProducts = [];
-        $select = $this->queryFactory->newSelect();
-        $select->cols(['category_id'])->from('__products_categories')->groupBy(['category_id']);
+
+        $select = $this->queryFactory->newSelect()
+            ->cols(['category_id'])
+            ->from('__products_categories pc')
+            ->innerJoin(CategoriesEntity::getTable() . ' AS c', 'c.id=pc.category_id AND c.visible=1')
+            ->leftJoin(ProductsEntity::getTable() . ' AS p', 'p.id = pc.product_id')
+            ->where('p.visible = 1')
+            ->groupBy(['pc.category_id']);
         
         foreach ($select->results('category_id') as $result) {
             $categoriesIdsWithProducts[$result] = $result;

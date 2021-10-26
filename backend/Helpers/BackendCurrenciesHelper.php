@@ -227,8 +227,8 @@ class BackendCurrenciesHelper
 
     public function delete($id)
     {
-        $this->currenciesEntity->delete($id);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        $this->currenciesEntity->delete($id);
     }
 
     public function getMainCurrency()

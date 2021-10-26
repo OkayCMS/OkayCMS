@@ -15,7 +15,7 @@ class FeaturesValuesAliasesValuesEntity extends Entity
 {
     protected static $fields = [
         'feature_alias_id',
-        'translit',
+        'feature_value_id',
         'value',
         'lang_id',
         'feature_id'

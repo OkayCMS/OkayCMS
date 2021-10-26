@@ -18,6 +18,7 @@ class CssConfig
     private $individualCss = [];
     private $cssVariables = [];
     private $preloadFiles = [];
+    private $filesAttributes = [];
 
     private $rootDir;
     private $settingsFile;
@@ -41,7 +42,8 @@ class CssConfig
             if ($css->getPreload() === true) {
                 $this->preloadFiles[$fullPath] = $fullPath;
             }
-            
+
+            $this->filesAttributes[$fullPath] = $css->getAttributes();
         } else {
             $this->templateCss[$css->getPosition()][$fileId] = $fullPath;
         }
@@ -50,6 +52,11 @@ class CssConfig
     public function isPreload($filename)
     {
         return isset($this->preloadFiles[$filename]);
+    }
+
+    public function getAttributes($filename)
+    {
+        return $this->filesAttributes[$filename] ?? null;
     }
     
     public function getCssVariables()
@@ -174,7 +181,12 @@ class CssConfig
             foreach ($this->individualCss[$position] as $k=>$fullFilePath) {
                 $hash = md5(md5_file($fullFilePath) . (file_exists($this->settingsFile) ? md5_file($this->settingsFile) : ''));
                 $compiledFilename = $compileCssDir . (!empty($compiledFilenamePrefix) ? $compiledFilenamePrefix . '.' : '') . pathinfo($fullFilePath, PATHINFO_BASENAME) . '.' . $hash . '.css';
-                
+
+                if (isset($this->filesAttributes[$fullFilePath])) {
+                    $this->filesAttributes[$compiledFilename] = $this->filesAttributes[$fullFilePath];
+                    unset($this->filesAttributes[$fullFilePath]);
+                }
+
                 $result[$fullFilePath] = $compiledFilename;
 
                 if (file_exists($compiledFilename)) {
@@ -285,7 +297,7 @@ class CssConfig
         }
 
         // Вычисляем директорию, для подключения ресурсов из css файла (background-image: url() etc.)
-        $subDir = trim(substr(pathinfo($file, PATHINFO_DIRNAME), strlen($this->rootDir)), "/\\");
+        $subDir = trim(str_replace($this->rootDir, '', pathinfo($file, PATHINFO_DIRNAME)), "/\\");
         $subDir = dirname($subDir);
 
         // Переназначаем переменные из файла настроек шаблона

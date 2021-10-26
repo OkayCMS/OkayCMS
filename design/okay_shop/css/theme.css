@@ -28,10 +28,10 @@
     #Pager
     #Browsed products
     #Comparison page
+    #Cart
     #Purchases
     #Delivery & Payment
     #Profile user
-    #Advantages
     #Page 404
   #Footer
   #Mobile navigation
@@ -51,7 +51,8 @@ header{
 }
 .header__bottom,
 .header__center,
-.header__top{position: relative;}
+.header__top,
+.header__short{position: relative;}
 
 .header__top{
     background: var(--okay-second-company);
@@ -70,6 +71,7 @@ header{
     padding: 0;
     height: 60px;
 }
+
 /***** #Account **********************************************************************/
 .account__link{
     color: var(--okay-second-company-text);
@@ -562,6 +564,10 @@ header{
     display: -webkit-flex;
     display: -ms-flexbox;
     display: flex;
+    -webkit-box-align: start;
+    -webkit-align-items: flex-start;
+    -ms-flex-align: start;
+    align-items: flex-start;
     -webkit-flex-wrap: wrap;
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
@@ -587,7 +593,7 @@ header{
     -ms-flex-align: center;
     align-items: center;
     background: #fff;
-    height: 120px;
+    min-height: 130px;
     margin-bottom: 10px;
     text-align: center;
 }
@@ -597,7 +603,7 @@ header{
     -webkit-flex-direction: column;
     -ms-flex-direction: column;
     flex-direction: column;
-    height: 130px;
+    min-height: 130px;
     background: #fff;
     width: 100%;
 }
@@ -608,12 +614,15 @@ header{
     max-height: 65px;
     max-width: 100%;
 }
-.categories_nav .level_3 .subcategory .categories_menu__item .category_name{
+.categories_nav__subcategory.level_3 .categories_menu__link .categories_menu__name{
     -webkit-box-pack: center;
     -webkit-justify-content: center;
     -ms-flex-pack: center;
     justify-content: center;
     height: 100px;
+    white-space: inherit;
+    overflow: inherit;
+    text-overflow: inherit;
 }
 .categories_nav ul::-webkit-scrollbar {
     width: 0;
@@ -927,7 +936,7 @@ header{
     -webkit-box-flex: 0;
     -webkit-flex: 0 0 26px;
     -ms-flex: 0 0 26px;
-    flex: 0 0 3026;
+    flex: 0 0 26px;
     max-width: 26px;
 }
 .blog_catalog__switch svg{
@@ -2607,7 +2616,14 @@ b.filter__catalog_link.selected{
     max-width: calc(100% - 85px);
     text-align: center;
 }
-.product-page__img{padding: 0 20px;width: 100%;}
+.product-page__image--full{
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 0 100%;
+    -ms-flex: 0 0 100%;
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+.product-page__img{padding: 0;width: 100%;}
 .gallery_image a{
     min-height: 400px;
     display: -webkit-box;
@@ -2622,6 +2638,7 @@ b.filter__catalog_link.selected{
     -webkit-justify-content: center;
     -ms-flex-pack: center;
     justify-content: center;
+    width: 100%!important;
 }
 .product-page__no_image{
     width: 100%;
@@ -3243,6 +3260,9 @@ footer {
     margin-top: 0;
     padding: 30px 0 0;
 }
+.footer--short{
+    padding: 0;
+}
 .footer__title{
     font-size: 16px;
     line-height: 1.2;
@@ -3280,6 +3300,7 @@ footer {
     -o-transform: rotate(90deg);
     transform: rotate(90deg);
 }
+.footer__title_arrow.down svg,
 .footer__title.active .footer__title_arrow svg{
     -webkit-transform: rotate(-90deg);
     -moz-transform: rotate(-90deg);
@@ -3369,7 +3390,8 @@ footer {
     -webkit-user-select: no-select;
     -moz-user-select: no-select;
     -ms-user-select: no-select;
-    user-select: no-select background: transparent;
+    user-select: no-select;
+    background: transparent;
     color: var(--okay-second-company-text);
     font-weight: 400;
     text-decoration: none;
@@ -3546,6 +3568,68 @@ footer {
     background: var(--okay-basic-company);
     color: var(--okay-second-company-text);
     text-decoration: none;
+}
+
+/***** #Cart *********************************************************************/
+.cart{
+    min-height: 100vh;
+}
+.cart_header{
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 20;
+    background-color: var(--okay-boxed-color);
+    color: var(--okay-body-text);
+    border-bottom: 1px solid #dbdbdb;
+    margin-bottom: 15px;
+    padding: 0;
+    height: 70px;
+}
+.cart_header__inner{
+    position: relative;
+    height: 70px;
+}
+.cart_header__logo{
+    padding-right: 20px;
+}
+.cart_header__logo img{
+    height: 50px;
+    max-width: 100%;
+}
+.cart_header__phone{
+    text-decoration: none;
+    color: #222;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.2;
+    word-break: break-all;
+}
+.cart_body{
+    width: 100%;
+    -webkit-box-flex: 1;
+    -ms-flex: 1 0 auto;
+    flex: 1 0 auto;
+}
+.cart_footer{
+    background-color: var(--okay-boxed-color);
+    color: var(--okay-body-text);
+    border-top: 1px solid #dbdbdb;
+    padding: 0;
+    height: 60px;
+}
+.cart_footer__copyright{
+    position: relative;
+    height: 60px;
+}
+.cart_footer__copyright a {
+    text-decoration: none;
+    color: var(--okay-body-text);
+}
+.cart_footer__copyright svg{
+    height: 24px;
+    width: auto;
+    margin-left: 5px;
 }
 
 /***** #Purchases *********************************************************************/
@@ -3804,7 +3888,6 @@ footer {
     width: 500px;
     max-width: 100%;
 }
-.purchase_detail,
 .purchases--user{
     padding-left: 40px;
 }
@@ -4141,51 +4224,6 @@ table.order_details {min-width: auto;}
 }
 .to_top:hover {opacity: 1;}
 
-/***** #Advantages *****/
-.advantages__item{
-    -webkit-align-content: stretch;
-    -ms-flex-line-pack: stretch;
-    align-content: stretch;
-}
-.advantages__item:last-child{margin-bottom: 0;}
-.advantages__preview{
-    text-align: center;
-    height: 100%;
-    color: rgb(58, 58, 58);
-    background: rgb(255, 255, 255);
-    border-right: 1px solid;
-    border-color:  #dbdbdb;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -webkit-flex-direction: column;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    -webkit-box-pack: center;
-    -webkit-justify-content: center;
-    -ms-flex-pack: center;
-    justify-content: center;
-}
-.advantages__item:last-child .advantages__preview{border: none;}
-.advantages__icon{
-    max-width: 65px;
-    text-align: center;
-    margin-bottom: 5px;
-}
-.advantages__icon svg{
-    width: 55px;
-    height: 55px;
-    color: var(--okay-basic-company);
-}
-.advantages__title{
-    display: block;
-    margin-top: 5px;
-    font-size: 14px;
-    font-weight: 500;
-    padding-left: 0;
-    max-width: 150px;
-    line-height: 1.2;
-    min-height: 36px;
-}
 /***** #Page 404 ********************************************************/
 .not_found{
     width: 900px;
@@ -4201,20 +4239,9 @@ table.order_details {min-width: auto;}
     font-size: 16px;
     font-weight: 500;
 }
-
-
-
-
-
-
-
 .swiper-button-prev.swiper-button-disabled, .swiper-button-next.swiper-button-disabled {
     display: none;
 }
-
-
-
-
 .purchase_discount__item{
     position: relative;
     margin-bottom: 10px;

@@ -2,10 +2,10 @@
 
 namespace Okay\Core\OkayContainer\Exception;
 
-use Interop\Container\Exception\ContainerException as InteropContainerException;
+use Psr\Container\ContainerExceptionInterface;
 
 /**
  * Container exceptions are thrown by the container when it cannot behave as it
  * has been requested to.
  */
-class ContainerException extends \Exception implements InteropContainerException {}
+class ContainerException extends \Exception implements ContainerExceptionInterface {}

@@ -198,9 +198,9 @@ class RozetkaHelper
             }
         }
         
-        $result['price']['data'] = $this->money->convert($price, $this->mainCurrency->id);;
+        $result['price']['data'] = $this->money->convert($price, $this->mainCurrency->id, false);
         if ($product->compare_price > 0) {
-            $comparePrice = $this->money->convert($comparePrice, $this->mainCurrency->id);
+            $comparePrice = $this->money->convert($comparePrice, $this->mainCurrency->id, false);
             $result['oldprice']['data'] = $comparePrice;
         }
 

@@ -251,6 +251,23 @@ class Languages
                 }
             }
         }
+
+        foreach (glob('Okay/Modules/*/*/Entities/*.php') as $file) {
+            $file = preg_replace('~^(.*)\.php$~', '$1', $file);
+            
+            $class = str_replace('/', '\\', $file);
+            if (class_exists($class) && is_subclass_of($class, 'Okay\Core\Entity\Entity')) {
+                if ($class::getLangTable()) {
+                    $result = new \stdClass();
+                    $result->langTable = $class::getLangTable();
+                    $result->table = $class::getTable();
+                    $result->object = $class::getLangObject();
+                    $result->fields = $class::getLangFields();
+                    $results[] = $result;
+                }
+            }
+        }
+        
         
         return $results;
     }

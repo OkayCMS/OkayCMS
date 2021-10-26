@@ -131,8 +131,7 @@ class BackendOrdersHelper
 
         $productsFilter = [
             'keyword' => $keyword,
-            'limit' => 10,
-            'in_stock' => !$this->settings->get('is_preorder'),
+            'limit' => 30,
         ];
 
         $imagesIds = [];
@@ -259,12 +258,13 @@ class BackendOrdersHelper
     
     public function deletePurchases($order, array $postedPurchasesIds)
     {
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        
         foreach ($this->purchasesEntity->find(['order_id' => $order->id]) as $p) {
             if (!in_array($p->id, $postedPurchasesIds)) {
                 $this->purchasesEntity->delete($p->id);
             }
         }
-        ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
     
     public function updateOrderStatus($order, $newStatusId)
@@ -473,8 +473,8 @@ class BackendOrdersHelper
 
     public function delete($ids)
     {
-        $this->ordersEntity->delete($ids);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        $this->ordersEntity->delete($ids);
     }
 
     public function changeStatus($ids)

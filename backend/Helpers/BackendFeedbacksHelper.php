@@ -130,8 +130,8 @@ class BackendFeedbacksHelper
 
     public function delete($ids)
     {
-        $result = $this->feedbacksEntity->delete($ids);
-        return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        $this->feedbacksEntity->delete($ids);
     }
 
     public function prepareAddAnswer($feedback)

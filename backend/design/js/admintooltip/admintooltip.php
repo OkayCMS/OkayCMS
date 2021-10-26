@@ -24,6 +24,14 @@ $DI = include 'Okay/Core/config/container.php';
 /** @var Config $config */
 $config = $DI->get(Config::class);
 
+if ($config->get('debug_mode') == true) {
+    ini_set('display_errors', 'on');
+    error_reporting(E_ALL);
+} else {
+    ini_set('display_errors', 'off');
+    error_reporting(0);
+}
+
 /** @var ManagerMenu $managerMenu */
 $managerMenu = $DI->get(ManagerMenu::class);
 
@@ -59,6 +67,7 @@ $backendTranslations->initTranslations($manager->lang);
 $design->assign('btr', $backendTranslations);
 $language = $manager = $DI->get(EntityFactory::class)->get(LanguagesEntity::class)->get((string)$manager->lang);
 $design->assign('language', $language);
+$design->assign('front_lang_id', $_SESSION['lang_id'] ?? (string)$manager->lang->id);
 
 $menuSelector = [];
 $fastMenu = $managerMenu->getFastMenu();

@@ -23,7 +23,6 @@ use Okay\Core\Settings;
 use Okay\Core\TemplateConfig\FrontTemplateConfig;
 use Okay\Core\UserReferer\UserReferer;
 use Okay\Core\WishList;
-use Okay\Entities\AdvantagesEntity;
 use Okay\Entities\BlogCategoriesEntity;
 use Okay\Entities\CategoriesEntity;
 use Okay\Entities\CurrenciesEntity;
@@ -105,6 +104,8 @@ class MainHelper
             if (!empty($user)) {
                 $this->currentUser = $user;
                 $this->currentUserGroup = $userGroupsEntity->get($this->currentUser->group_id);
+            } else {
+                unset($_SESSION['user_id']);
             }
         }
 
@@ -132,8 +133,6 @@ class MainHelper
             /** @var MetadataInterface $metadataHelper */
             $metadataHelper = $this->SL->getService(CommonMetadataHelper::class);
         }
-
-        $metadataHelper->setUp();
         
         if ($design->getVar('h1') === null) {
             $design->assign('h1', $metadataHelper->getH1());
@@ -149,6 +148,10 @@ class MainHelper
         
         if ($design->getVar('meta_description') === null) {
             $design->assign('meta_description', $metadataHelper->getMetaDescription());
+        }
+        
+        if ($design->getVar('annotation') === null) {
+            $design->assign('annotation', $metadataHelper->getAnnotation());
         }
         
         if ($design->getVar('description') === null) {
@@ -282,10 +285,6 @@ class MainHelper
             }
         }
 
-        /** @var AdvantagesEntity $advantagesEntity */
-        $advantagesEntity = $entityFactory->get(AdvantagesEntity::class);
-        $design->assign('advantages', $advantagesEntity->find());
-
         // Передаем текущий контроллер
         if ($route = $router->getRouteByName($router->getCurrentRouteName())) {
             $design->assign('controller', $route['params']['controller']);
@@ -314,7 +313,9 @@ class MainHelper
     public function getAllLanguages()
     {
         foreach ($this->allLanguages as $l) {
-            $l->url = $this->getLangUrl($l->id);
+            if ($url = $this->getLangUrl($l->id)) {
+                $l->url = $url;
+            }
         }
         return ExtenderFacade::execute(__METHOD__, $this->allLanguages, func_get_args());
     }
@@ -327,7 +328,9 @@ class MainHelper
      */
     public function getCurrentLanguage()
     {
-        $this->currentLanguage->url = $this->getLangUrl($this->currentLanguage->id);
+        if ($url = $this->getLangUrl($this->currentLanguage->id)) {
+            $this->currentLanguage->url = $url;
+        }
         return ExtenderFacade::execute(__METHOD__, $this->currentLanguage, func_get_args());
     }
 
@@ -392,7 +395,10 @@ class MainHelper
     {
         /** @var Router $router */
         $router = $this->SL->getService(Router::class);
-        $routeParams = $router->getCurrentRouteParams();
+        if (empty($router->getCurrentRouteName())) {
+            return false;
+        }
+        $routeParams = $router->getCurrentRouteRequiredParams();
         $route = $router->generateUrl($router->getCurrentRouteName(), $routeParams, true, $langId);
         return ExtenderFacade::execute(__METHOD__, $route, func_get_args());
     }
@@ -490,10 +496,10 @@ class MainHelper
      * Подсчет количества видимых дочерних элементов
      * 
      * @param array $items
-     * @param $allItems
-     * @param string $subItemsName
+     * @param array $allItems
+     * @param string [$subItemsName = subcategories]
      */
-    private function countVisible(array $items, $allItems, $subItemsName = 'subcategories')
+    public function countVisible(array $items, array $allItems, $subItemsName = 'subcategories')
     {
         foreach ($items as $item) {
             if (isset($allItems[$item->parent_id]) && !isset($allItems[$item->parent_id]->count_children_visible)) {

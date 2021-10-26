@@ -2,28 +2,24 @@
 
 namespace Okay\Core\OkayContainer;
 
-use Interop\Container\ContainerInterface as InteropContainerInterface;
+use Psr\Container\ContainerInterface as PsrContainerInterface;
 
-/**
- * The container interface. This extends the interface defined by
- * `container-interop` to include methods for retrieving parameters.
- */
-interface ContainerInterface extends InteropContainerInterface
+
+interface ContainerInterface extends PsrContainerInterface
 {
     /**
      * Retrieve a parameter from the container.
      * @param string $name The parameter name.
      * @return mixed The parameter.
-     * @throws ContainerException On failure.
      */
-    public function getParameter($name);
+    public function getParameter(string $name);
 
     /**
      * Check to see if the container has a parameter.
      * @param string $name The parameter name.
      * @return bool True if the container has the parameter, false otherwise.
      */
-    public function hasParameter($name);
+    public function hasParameter(string $name): bool;
     
     
     public function bindService($name, $service);

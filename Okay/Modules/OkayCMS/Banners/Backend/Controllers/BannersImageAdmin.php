@@ -25,7 +25,8 @@ class BannersImageAdmin extends IndexAdmin
             if (empty($bannersImage->id)) {
                 $preparedBannersImage = $bannersImagesHelper->prepareAdd($bannersImage);
                 $bannersImage->id     = $bannersImagesHelper->add($preparedBannersImage);
-                $this->design->assign('message_success', 'added');
+                $this->postRedirectGet->storeMessageSuccess('added');
+                $this->postRedirectGet->storeNewEntityId($bannersImage->id);
                 $isNewBannersImage = true;
             } else {
                 
@@ -48,7 +49,7 @@ class BannersImageAdmin extends IndexAdmin
                 
                 $preparedBannersImage = $bannersImagesHelper->prepareUpdate($bannersImage);
                 $bannersImagesHelper->update($preparedBannersImage->id, $preparedBannersImage);
-                $this->design->assign('message_success', 'updated');
+                $this->postRedirectGet->storeMessageSuccess('updated');
                 $isNewBannersImage = false;
             }
 
@@ -61,7 +62,8 @@ class BannersImageAdmin extends IndexAdmin
                 $bannersImagesHelper->uploadImage($image, $bannersImage, $isNewBannersImage);
             }
 
-            $bannersImage = $bannersImagesHelper->getBannerImage((int)$bannersImage->id);
+            $this->postRedirectGet->redirect();
+
         } else {
             $bannersImageId = $this->request->get('id', 'integer');
 

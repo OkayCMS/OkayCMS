@@ -39,20 +39,30 @@ class TranslationsAdmin extends IndexAdmin
         $language = $languagesEntity->get($languagesCore->getLangId());
 
         $filter = [];
-        $filter['lang'] = $language->label;
         $filter['sort'] = $this->request->get('sort', 'string');
         if (empty($filter['sort'])) {
             $filter['sort'] = 'label';
         }
+
         $this->design->assign('sort', $filter['sort']);
-        $template_filter = $filter;
-        $translations = $translationsEntity->find($filter);
-        $template_filter['template_only'] = $template_filter['force'] = true;
-        // Нам нужно будет использовать их как массив
-        $translations_template = (array)$translationsEntity->find($template_filter);
+
+        $allTranslations = $translationsEntity->find($filter);
+
+        $filter['lang'] = $language->label;
+        $currentTranslations = $translationsEntity->find($filter);
+
+        foreach ($currentTranslations as $id => $cTranslation) {
+            $cTranslation->has_module_translations = false;
+            foreach ($allTranslations as $aTranslation) {
+                if (isset($aTranslation[$id]) && isset($aTranslation[$id]->module)) {
+                    $cTranslation->has_module_translations = true;
+                    continue 2;
+                }
+            }
+        }
         
-        $this->design->assign('translations', $translations);
-        $this->design->assign('translations_template', $translations_template);
+        $this->design->assign('current_translations',  $currentTranslations);
+        $this->design->assign('all_translations',      $allTranslations);
 
         $this->response->setContent($this->design->fetch('translations.tpl'));
     }

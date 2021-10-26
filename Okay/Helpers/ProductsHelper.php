@@ -7,6 +7,8 @@ namespace Okay\Helpers;
 use Okay\Core\EntityFactory;
 use Okay\Core\Routes\ProductRoute;
 use Okay\Core\Settings;
+use Okay\Entities\BrandsEntity;
+use Okay\Entities\CategoriesEntity;
 use Okay\Entities\ProductsEntity;
 use Okay\Entities\UserBrowsedProductsEntity;
 use Okay\Entities\VariantsEntity;
@@ -14,6 +16,7 @@ use Okay\Entities\ImagesEntity;
 use Okay\Entities\FeaturesValuesEntity;
 use Okay\Entities\FeaturesEntity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
+use Okay\Helpers\MetadataHelpers\ProductMetadataHelper;
 
 class ProductsHelper implements GetListInterface
 {
@@ -22,16 +25,21 @@ class ProductsHelper implements GetListInterface
     private $settings;
     private $mainHelper;
 
+    /** @var ProductMetadataHelper */
+    private $productMetadataHelper;
+
     public function __construct(
         EntityFactory $entityFactory,
         MoneyHelper $moneyHelper,
         Settings $settings,
-        MainHelper $mainHelper
+        MainHelper $mainHelper,
+        ProductMetadataHelper $productMetadataHelper
     ) {
         $this->entityFactory = $entityFactory;
         $this->moneyHelper = $moneyHelper;
         $this->settings = $settings;
         $this->mainHelper = $mainHelper;
+        $this->productMetadataHelper = $productMetadataHelper;
     }
 
     public function attachProductData($product)
@@ -186,6 +194,8 @@ class ProductsHelper implements GetListInterface
         } else {
             $featuresFilter['id'] = $featuresIds;
         }
+
+        $featuresFilter['visible'] = true;
         
         foreach ($featuresEntity->find($featuresFilter) as $f) {
             $features[$f->id] = $f;
@@ -278,4 +288,64 @@ class ProductsHelper implements GetListInterface
         return ExtenderFacade::execute(__METHOD__, $copyProducts, func_get_args());
     }
 
+    /**
+     * @param array $products
+     * @return array
+     * @throws \Exception
+     */
+    public function attachDescriptionByTemplate(array $products): array
+    {
+        if (!empty($products)) {
+            /** @var CategoriesEntity $categoriesEntity */
+            $categoriesEntity = $this->entityFactory->get(CategoriesEntity::class);
+
+            $brandIds = array_reduce($products, function ($carry, $product) {
+                if ($product->brand_id) {
+                    $carry[] = $product->brand_id;
+                }
+                return $carry;
+            }, []);
+
+            if (!empty($brandIds)) {
+                $brandsEntity = $this->entityFactory->get(BrandsEntity::class);
+                $brands = $brandsEntity->find(['id' => $brandIds]);
+            } else {
+                $brands = [];
+            }
+
+            foreach ($products as $product) {
+                $this->productMetadataHelper->setUp(
+                    $product,
+                    $categoriesEntity->findOne(['id' => $product->main_category_id]),
+                    $brands[$product->brand_id] ?? null
+                );
+
+                if (isset($product->annotation)) {
+                    $product->annotation = $this->productMetadataHelper->getAnnotation();
+                }
+                if (isset($product->description)) {
+                    $product->description = $this->productMetadataHelper->getDescription();;
+                }
+            }
+        }
+
+        return ExtenderFacade::execute(__METHOD__, $products, func_get_args());
+    }
+
+    /**
+     * Метод проверяет доступность товара для показа в контроллере
+     * можно переопределить логику работы контроллера и отменить дальнейшие действия
+     * для этого после реализации другой логики необходимо вернуть true из экстендера
+     *
+     * @param object $product
+     * @return object
+     */
+    public function setProduct($product)
+    {
+        if (empty($product) || (!$product->visible && empty($_SESSION['admin']))) {
+            return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+        }
+
+        return ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
 }

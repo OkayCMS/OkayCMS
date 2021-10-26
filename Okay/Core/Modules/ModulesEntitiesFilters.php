@@ -19,7 +19,7 @@ class ModulesEntitiesFilters
             throw new \Exception("Class \"$filterClassName\" must be subclass of " . AbstractModuleEntityFilter::class);
         }
         
-        if (!is_callable([$filterClassName, $filterMethod])) {
+        if (!is_callable([$filterClassName, $filterMethod], true)) {
             throw new \Exception("Method \"$filterMethod->$filterMethod()\" must be callable");
         }
         

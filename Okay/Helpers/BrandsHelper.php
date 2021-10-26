@@ -77,4 +77,21 @@ class BrandsHelper implements GetListInterface
         $orderAdditionalData = [];
         return ExtenderFacade::execute(__METHOD__, $orderAdditionalData, func_get_args());
     }
+
+    /**
+     * Метод проверяет доступность бренда для показа в контроллере
+     * можно переопределить логику работы контроллера и отменить дальнейшие действия
+     * для этого после реализации другой логики необходимо вернуть true из экстендера
+     *
+     * @param object $brand
+     * @return object
+     */
+    public function setBrand($brand)
+    {
+        if (empty($brand) || (!$brand->visible && empty($_SESSION['admin']))) {
+            return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+        }
+
+        return ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
 }

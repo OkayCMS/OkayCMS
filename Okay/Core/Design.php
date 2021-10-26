@@ -107,6 +107,7 @@ class Design
         'array_keys',
         'pathinfo',
         'strtolower',
+        'strpos',
     ];
 
 
@@ -138,7 +139,7 @@ class Design
         $this->smarty->caching         = $smartyCaching;
         $this->smarty->cache_lifetime  = $smartyCacheLifetime;
         $this->smarty->debugging       = $smartyDebugging;
-        $this->smarty->error_reporting = E_ALL & ~E_NOTICE;
+        $this->smarty->error_reporting = E_ALL & ~E_NOTICE & ~E_WARNING;
 
         $theme = $this->frontTemplateConfig->getTheme();
 

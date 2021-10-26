@@ -31,6 +31,14 @@ class FeaturesAdmin extends IndexAdmin
             $action = $featuresRequest->postAction();
             if (is_array($ids)) {
                 switch($action) {
+                    case 'enable': {
+                        $backendFeaturesHelper->enable($ids);
+                        break;
+                    }
+                    case 'disable': {
+                        $backendFeaturesHelper->disable($ids);
+                        break;
+                    }
                     case 'set_in_filter': {
                         $backendFeaturesHelper->setInFilter($ids);
                         break;
