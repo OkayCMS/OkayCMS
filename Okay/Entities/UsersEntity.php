@@ -150,13 +150,6 @@ class UsersEntity extends Entity
         return ExtenderFacade::execute([static::class, __FUNCTION__], $pass, func_get_args());
     }
 
-    public function getULoginUser($token)
-    {
-        $s = file_get_contents('https://ulogin.ru/token.php?token=' . $token . '&host=' . $_SERVER['HTTP_HOST']);
-        $result = json_decode($s, true);
-        return ExtenderFacade::execute([static::class, __FUNCTION__], $result, func_get_args());
-    }
-
     protected function customOrder($order = null, array $orderFields = [], array $additionalData = [])
     {
         switch ($order) {

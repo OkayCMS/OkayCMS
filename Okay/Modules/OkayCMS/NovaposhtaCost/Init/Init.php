@@ -11,6 +11,7 @@ use Okay\Admin\Requests\BackendProductsRequest;
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\AbstractInit;
 use Okay\Core\Modules\EntityField;
+use Okay\Core\Scheduler\Schedule;
 use Okay\Core\ServiceLocator;
 use Okay\Core\Settings;
 use Okay\Entities\PaymentsEntity;
@@ -23,6 +24,7 @@ use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCostDeliveryDataEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPWarehousesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Extenders\BackendExtender;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Extenders\FrontExtender;
+use Okay\Modules\OkayCMS\NovaposhtaCost\NovaposhtaCost;
 
 class Init extends AbstractInit
 {
@@ -80,62 +82,78 @@ class Init extends AbstractInit
         $this->addFrontBlock('front_cart_delivery', 'front_cart_delivery_block.tpl');
         
         $this->registerChainExtension(
-            ['class' => DeliveriesHelper::class, 'method' => 'prepareDeliveryPriceInfo'],
-            ['class' => FrontExtender::class, 'method' => 'setCartDeliveryPrice']
+            [DeliveriesHelper::class, 'prepareDeliveryPriceInfo'],
+            [FrontExtender::class, 'setCartDeliveryPrice']
         );
         
         $this->registerChainExtension(
-            ['class' => CartHelper::class, 'method' => 'getDefaultCartData'],
-            ['class' => FrontExtender::class, 'method' => 'getDefaultCartData']
+            [CartHelper::class, 'getDefaultCartData'],
+            [FrontExtender::class, 'getDefaultCartData']
         );
         
         $this->registerChainExtension(
-            ['class' => DeliveriesHelper::class, 'method' => 'getCartDeliveriesList'],
-            ['class' => FrontExtender::class, 'method' => 'getCartDeliveriesList']
+            [DeliveriesHelper::class, 'getCartDeliveriesList'],
+            [FrontExtender::class, 'getCartDeliveriesList']
         );
         
         $this->registerQueueExtension(
-            ['class' => OrdersHelper::class, 'method' => 'finalCreateOrderProcedure'],
-            ['class' => FrontExtender::class, 'method' => 'setCartDeliveryDataProcedure']
+            [OrdersHelper::class, 'finalCreateOrderProcedure'],
+            [FrontExtender::class, 'setCartDeliveryDataProcedure']
         );
 
         $this->registerChainExtension(
-            ['class' => BackendProductsRequest::class, 'method' => 'postVariants'],
-            ['class' => BackendExtender::class, 'method' => 'correctVariantsVolume']
+            [BackendProductsRequest::class, 'postVariants'],
+            [BackendExtender::class, 'correctVariantsVolume']
         );
         
         // В админке в заказе достаём данные по доставке
         $this->registerQueueExtension(
-            ['class' => BackendOrdersHelper::class, 'method' => 'findOrderDelivery'],
-            ['class' => BackendExtender::class, 'method' => 'getDeliveryDataProcedure']
+            [BackendOrdersHelper::class, 'findOrderDelivery'],
+            [BackendExtender::class, 'getDeliveryDataProcedure']
         );
 
         // В админке в заказе обновляем данные по доставке
         $this->registerQueueExtension(
-            ['class' => BackendOrdersHelper::class, 'method' => 'executeCustomPost'],
-            ['class' => BackendExtender::class, 'method' => 'updateDeliveryDataProcedure']
+            [BackendOrdersHelper::class, 'executeCustomPost'],
+            [BackendExtender::class, 'updateDeliveryDataProcedure']
         );
 
         // Добавляемся в импорт
         $this->addBackendBlock('import_fields_association', 'import_fields_association.tpl');
 
         $this->registerChainExtension(
-            ['class' => BackendImportHelper::class, 'method' => 'parseVariantData'],
-            ['class' => BackendExtender::class, 'method' => 'parseVariantData']
+            [BackendImportHelper::class, 'parseVariantData'],
+            [BackendExtender::class, 'parseVariantData']
         );
 
         $this->registerChainExtension(
-            ['class' => BackendExportHelper::class, 'method' => 'getColumnsNames'],
-            ['class' => BackendExtender::class, 'method' => 'extendExportColumnsNames']
+            [BackendExportHelper::class, 'getColumnsNames'],
+            [BackendExtender::class, 'extendExportColumnsNames']
         );
 
         $this->registerChainExtension(
-            ['class' => BackendExportHelper::class, 'method' => 'prepareVariantsData'],
-            ['class' => BackendExtender::class, 'method' => 'extendExportPrepareVariantData']
+            [BackendExportHelper::class, 'prepareVariantsData'],
+            [BackendExtender::class, 'extendExportPrepareVariantData']
         );
         
         $this->registerBackendController('NovaposhtaCostAdmin');
         $this->addBackendControllerPermission('NovaposhtaCostAdmin', 'okaycms__novaposhta_cost');
+
+        $this->registerSchedule(
+            (new Schedule([NovaposhtaCost::class, 'parseCitiesToCache']))
+                ->name('Parses NP cities to the db cache')
+                ->time('0 0 * * *')
+                ->overlap(false)
+                ->timeout(3600)
+        );
+
+        $this->registerSchedule(
+            (new Schedule([NovaposhtaCost::class, 'parseWarehousesToCache']))
+                ->name('Parses NP warehouses to the db cache')
+                ->time('0 0 * * *')
+                ->overlap(false)
+                ->timeout(3600)
+        );
     }
 
     public function update_1_1_0()

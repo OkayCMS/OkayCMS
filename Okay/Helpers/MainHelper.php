@@ -24,7 +24,6 @@ use Okay\Core\Settings;
 use Okay\Core\TemplateConfig\FrontTemplateConfig;
 use Okay\Core\UserReferer\UserReferer;
 use Okay\Core\WishList;
-use Okay\Entities\AdvantagesEntity;
 use Okay\Entities\BlogCategoriesEntity;
 use Okay\Entities\CategoriesEntity;
 use Okay\Entities\CurrenciesEntity;
@@ -135,8 +134,6 @@ class MainHelper
             /** @var MetadataInterface $metadataHelper */
             $metadataHelper = $this->SL->getService(CommonMetadataHelper::class);
         }
-
-        $metadataHelper->setUp();
         
         if ($design->getVar('h1') === null) {
             $design->assign('h1', $metadataHelper->getH1());
@@ -291,10 +288,6 @@ class MainHelper
                 $design->assign(MenuEntity::MENU_VAR_PREFIX . $menu->group_id, $design->fetch("menu.tpl"));
             }
         }
-
-        /** @var AdvantagesEntity $advantagesEntity */
-        $advantagesEntity = $entityFactory->get(AdvantagesEntity::class);
-        $design->assign('advantages', $advantagesEntity->find());
 
         // Передаем текущий контроллер
         if ($route = $router->getRouteByName($router->getCurrentRouteName())) {

@@ -241,6 +241,16 @@
                         </div>
                         <textarea name="meta_description" class="form-control okay_textarea fn_meta_field">{$brand->meta_description|escape}</textarea>
                     </div>
+                    <div class="col-lg-12 col-md-12">
+                        <div class="heading_label">{$btr->brand_h1|escape}
+                            <i class="fn_tooltips" title="{$btr->tooltip_brand_h1|escape}">
+                                {include file='svg_icon.tpl' svgId='icon_tooltips'}
+                            </i>
+                        </div>
+                        <div>
+                            <input name="name_h1" class="form-control" type="text" value="{$brand->name_h1|escape}"/>
+                        </div>
+                    </div>
                 </div>
                 {get_design_block block="brand_meta"}
             </div>

@@ -1,0 +1,11 @@
+<?php
+
+
+namespace Okay\Modules\%namespace_vendor%\%namespace_module%\Init;
+
+
+use Okay\Core\OkayContainer\Reference\ParameterReference AS PR;
+use Okay\Core\OkayContainer\Reference\ServiceReference AS SR;
+
+return [
+];

@@ -54,7 +54,7 @@ function show_tooltip()
 
     from = encodeURIComponent(window.location);
     tooltipcontent = '';
-    var lang = '&lang_id={$language->id}';
+    var lang = '&lang_id={$front_lang_id}';
     if(typeof  lang_id != 'undefined') {
         lang = '&lang_id=' + lang_id;
     }

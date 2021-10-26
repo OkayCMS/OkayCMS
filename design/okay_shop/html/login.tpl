@@ -54,8 +54,6 @@
                         <button type="submit" class="form__button button--blick" name="login" value="{$lang->login_sign_in}">
                             <span data-language="login_sign_in">{$lang->login_sign_in}</span>
                         </button>
-
-                        <div id="uLogin" data-ulogin="display=panel;theme=flat;fields=first_name,last_name,email;providers=facebook,google;"></div>
                     </div>
                 </form>
             </div>

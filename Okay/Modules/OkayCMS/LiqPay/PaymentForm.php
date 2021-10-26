@@ -46,7 +46,7 @@ class PaymentForm extends AbstractModule implements PaymentFormInterface
         $paymentCurrency = $currenciesEntity->get(intval($paymentMethod->currency_id));
         $settings = $paymentsEntity->getPaymentSettings($paymentMethod->id);
 
-        $price = round($this->money->convert($order->total_price, $paymentMethod->currency_id, false), 2);
+        $price = $this->money->convert($order->total_price, $paymentMethod->currency_id, false, false, 2);
 
         // описание заказа
         // order description

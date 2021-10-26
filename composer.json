@@ -1,5 +1,5 @@
 {
-    "name": "okaycms/okay",
+    "name": "okaycms/okaycms",
     "description": "OkayCMS",
     "homepage": "https://okay-cms.com",
     "license": "LGPL-3.0-or-later",
@@ -47,7 +47,15 @@
         "snowplow/referer-parser": "^0.2.0",
         "giggsey/libphonenumber-for-php": "^8.12",
         "rosell-dk/webp-convert": "^2.3",
-        "psr/container": "^2.0"
+        "psr/container": "^2.0",
+        "symfony/console": "^5.3",
+        "dragonmantank/cron-expression": "^3.1",
+        "symfony/process": "^5.3",
+        "symfony/lock": "^5.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5",
+        "maximebf/debugbar": "^1.16"
     },
     "autoload": {
         "psr-4": {
@@ -55,8 +63,12 @@
             "Okay\\Admin\\": "backend/"
         }
     },
-    "require-dev": {
-        "phpunit/phpunit": "^9.5",
-        "maximebf/debugbar": "^1.16"
-    }
+    "scripts": {
+        "post-create-project-cmd": [
+            "@php -r \"file_exists('./config/config.local.php') || copy('./config/config.php', './config/config.local.php');\"",
+            "@php ok database:deploy"
+        ]
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

@@ -39,7 +39,7 @@
     }
     .position_sticky{
         position: sticky;
-        top: 70px;
+        top: 15px;
     }
     /* Hover style elemets */
     .block__header_button:hover{
@@ -264,7 +264,7 @@
         border-color: #7f7f7f;
         color: #fff;
     }
-    .product_preview__button:not('.button--blick'):hover{
+    .product_preview__button:not(.button--blick):hover{
         opacity: 0.8;
     }
     .product_item:hover .product_preview__button .product_preview__button_text{
@@ -391,6 +391,9 @@
     }
     .main{
         padding-top: 60px;
+    }
+    .cart_page .main{
+        padding-top: 0px;
     }
     .product-page__images{
         max-height: 320px;
@@ -847,36 +850,7 @@
         margin: 0;
         border: none;
     }
-    .advantages {
-        border-top: 1px solid;
-        border-left: 1px solid;
-        border-color: #dbdbdb;
-    }
-
-    .advantages__item:last-child .advantages__preview {
-        border-right: 1px solid;
-        border-bottom: 1px solid;
-        border-color: #dbdbdb;
-    }
-
-    .advantages__item .advantages__preview {
-        border-bottom: 1px solid;
-        border-color: #dbdbdb;
-    }
-    .advantages__preview {
-        padding: 20px 5px;
-    }
-    .advantages__icon svg {
-        width: 60px;
-        height: 60px;
-        color: #00afee;
-    }
-    .advantages__title {
-        font-size: 14px;
-        line-height: 1.2;
-        height: 35px;
-        overflow: hidden;
-    }
+    
     .article_list:not(.fn_articles_slide){
         margin-bottom: -10px;
     }
@@ -1221,19 +1195,6 @@
         font-size: 13px;
         line-height: 1.3;
     }
-    .advantages__preview {
-        padding: 10px 5px;
-    }
-    .advantages__title {
-        font-size: 12px;
-        line-height: 1.2;
-        height: 30px;
-        min-height: 30px;
-    }
-    .advantages__icon svg {
-        width: 50px;
-        height: 50px;
-    }
     .xzoom-thumbs {
         text-align: center;
         margin-bottom: 0px;
@@ -1434,6 +1395,15 @@
     }
     .header_informers__link i.fa-balance-scale:before{
         font-size: 24px;
+    }
+    .cart_header__logo img{
+        height: auto;
+        max-height: 50px;
+    }
+    .cart_header__phone{
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
     }
 }
 
