@@ -256,7 +256,7 @@ class AbstractExtenderTest extends TestCase
                 },
                 'Expandable "Okay\ClassExpandable::methodExpandable()" is not a method', // Сообщение exception
             ],
-            'Wrong extender method' => [
+            'Extender method has not callable structure' => [
                 new class {
                     public function methodExpandable() {}
                     public function __toString()
@@ -264,31 +264,8 @@ class AbstractExtenderTest extends TestCase
                         return 'Okay\ClassExpandable';
                     }
                 },
-                new class implements ExtensionInterface {
-                    public function methodExtenderWrong() {}
-                    public function __toString()
-                    {
-                        return 'Okay\ClassExtender';
-                    }
-                },
-                "Class Okay\ClassExtender::methodExtender is not callable",
-            ],
-            'Not callable extender method' => [
-                new class {
-                    public function methodExpandable() {}
-                    public function __toString()
-                    {
-                        return 'Okay\ClassExpandable';
-                    }
-                },
-                new class implements ExtensionInterface {
-                    private function methodExtender() {}
-                    public function __toString()
-                    {
-                        return 'Okay\ClassExtender';
-                    }
-                },
-                "Class Okay\ClassExtender::methodExtender is not callable",
+                null,
+                "Method ::methodExtender is not callable",
             ],
             'ClassExtender without ExtensionInterface' => [
                 new class {
