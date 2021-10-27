@@ -7,6 +7,7 @@ namespace Okay\Helpers;
 use Okay\Core\Cart;
 use Okay\Core\Comparison;
 use Okay\Core\Config;
+use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
 use Okay\Core\FrontTranslations;
@@ -23,7 +24,6 @@ use Okay\Core\Settings;
 use Okay\Core\TemplateConfig\FrontTemplateConfig;
 use Okay\Core\UserReferer\UserReferer;
 use Okay\Core\WishList;
-use Okay\Entities\AdvantagesEntity;
 use Okay\Entities\BlogCategoriesEntity;
 use Okay\Entities\CategoriesEntity;
 use Okay\Entities\CurrenciesEntity;
@@ -134,8 +134,6 @@ class MainHelper
             /** @var MetadataInterface $metadataHelper */
             $metadataHelper = $this->SL->getService(CommonMetadataHelper::class);
         }
-
-        $metadataHelper->setUp();
         
         if ($design->getVar('h1') === null) {
             $design->assign('h1', $metadataHelper->getH1());
@@ -196,7 +194,10 @@ class MainHelper
 
         $pages = $pagesEntity->find(['visible'=>1]);
         $design->assign('pages', $pages);
-        
+
+        // Передаём в дизайн DebugBarRenderer
+        $design->assign('debug_bar_renderer', DebugBar::getRenderer());
+
         // Передаем стили и скрипты в шаблон
         /** @var FrontTemplateConfig $frontTemplateConfig */
         $frontTemplateConfig = $this->SL->getService(FrontTemplateConfig::class);
@@ -287,10 +288,6 @@ class MainHelper
                 $design->assign(MenuEntity::MENU_VAR_PREFIX . $menu->group_id, $design->fetch("menu.tpl"));
             }
         }
-
-        /** @var AdvantagesEntity $advantagesEntity */
-        $advantagesEntity = $entityFactory->get(AdvantagesEntity::class);
-        $design->assign('advantages', $advantagesEntity->find());
 
         // Передаем текущий контроллер
         if ($route = $router->getRouteByName($router->getCurrentRouteName())) {

@@ -24,8 +24,6 @@ class TplModParserTest extends \PHPUnit\Framework\TestCase
     
     public function parseStringDataProvider()
     {
-        require_once(__DIR__.'/../../vendor/autoload.php');
-        
         return [
             [// Smarty комменты
                 '{*Smarty comment*}<div class="test">...</div>', 

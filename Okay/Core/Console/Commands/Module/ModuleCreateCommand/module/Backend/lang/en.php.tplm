@@ -1,0 +1,6 @@
+<?php
+$lang['%lang%__module_title'] = "Module name";
+$lang['%lang%__module_description_title'] = "Description";
+$lang['%lang%__module_description_content'] = "Description text";
+$lang['%lang%__module_instruction_title'] = "Instruction";
+$lang['%lang%__module_instruction_content'] = "Instruction text";

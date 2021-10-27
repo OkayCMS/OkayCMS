@@ -26,10 +26,11 @@ files/**/*.*
 files/thumbs/*
 cache/
 
-/Okay/log/*.log
+/Okay/log/*
 config/config.local.php
 design/*/lang/local.*.php
 
 !*.keep_folder
 !*.htaccess
+.phpunit.result.cache
 robots.txt

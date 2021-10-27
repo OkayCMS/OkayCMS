@@ -18,7 +18,6 @@ use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\TemplateConfig\FrontTemplateConfig;
 use Okay\Entities\LanguagesEntity;
 use Okay\Entities\ManagersEntity;
-use Okay\Entities\AdvantagesEntity;
 
 class BackendSettingsHelper
 {
@@ -47,10 +46,6 @@ class BackendSettingsHelper
      */
     private $languagesEntity;
 
-    /**
-     * @var AdvantagesEntity
-     */
-    private $advantagesEntity;
 
     /**
      * @var DataCleaner
@@ -105,7 +100,6 @@ class BackendSettingsHelper
     {
         $this->managersEntity = $entityFactory->get(ManagersEntity::class);
         $this->languagesEntity = $entityFactory->get(LanguagesEntity::class);
-        $this->advantagesEntity = $entityFactory->get(AdvantagesEntity::class);
         $this->settings = $settings;
         $this->request = $request;
         $this->config = $config;
@@ -556,87 +550,5 @@ class BackendSettingsHelper
     {
         $this->settings->initSettings();
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
-    }
-
-    public function findAdvantages($filter = [])
-    {
-        $advantages = $this->advantagesEntity->find($filter);
-        return ExtenderFacade::execute(__METHOD__, $advantages, func_get_args());
-    }
-
-    public function updateAdvantage(
-        $advantageId,
-        $updates,
-        $advantageImagesToUpload,
-        $advantageImagesToDelete
-    ){
-        if (in_array($advantageId, $advantageImagesToDelete)) {
-            $this->deleteAdvantageImage($advantageId);
-        }
-
-        if (in_array($advantageId, array_keys($advantageImagesToUpload))) {
-            $this->uploadAdvantageImage($advantageId, $advantageImagesToUpload[$advantageId]);
-        }
-
-        $this->advantagesEntity->update($advantageId, $updates);
-        ExtenderFacade::execute(__METHOD__, null, func_get_args());
-    }
-
-    public function deleteAdvantage($ids)
-    {
-        $result = $this->advantagesEntity->delete($ids);
-        return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
-    }
-
-    public function sortPositionAdvantage($positions)
-    {
-        $positions = (array) $positions;
-        $ids       = array_keys($positions);
-        sort($positions);
-        return ExtenderFacade::execute(__METHOD__, [$ids, $positions], func_get_args());
-    }
-
-    public function updatePositionAdvantage($ids, $positions)
-    {
-        foreach ($positions as $i => $position) {
-            $this->advantagesEntity->update($ids[$i], ['position' => (int)$position]);
-        }
-
-        ExtenderFacade::execute(__METHOD__, null, func_get_args());
-    }
-
-    public function uploadAdvantageImage($advantageId, $fileImage)
-    {
-        if (!empty($fileImage['name']) &&
-            ($filename = $this->imageCore->uploadImage(
-                $fileImage['tmp_name'],
-                $fileImage['name'],
-                $this->config->original_advantages_dir))
-        ) {
-            $this->imageCore->deleteImage(
-                $advantageId,
-                'filename',
-                AdvantagesEntity::class,
-                $this->config->original_advantages_dir,
-                $this->config->resized_advantages_dir
-            );
-
-            $this->advantagesEntity->update($advantageId, ['filename' => $filename]);
-        }
-
-        ExtenderFacade::execute(__METHOD__, null, func_get_args());
-    }
-
-    private function deleteAdvantageImage($advantageId)
-    {
-        $this->imageCore->deleteImage(
-            $advantageId,
-            'filename',
-            AdvantagesEntity::class,
-            $this->config->original_advantages_dir,
-            $this->config->resized_advantages_dir
-        );
-
-        $this->advantagesEntity->update($advantageId, ['filename' => '']);
     }
 }

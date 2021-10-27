@@ -26,6 +26,7 @@
 return [
     'root_dir' => '{$root_dir}',
     'logger' => [
+        'dir' => __DIR__ . '/../../log',
         'file' => __DIR__ . '/../../log/app.log',
         'max_files_rotation' => 10,
     ],
@@ -42,6 +43,7 @@ return [
     'config' => [
         'config_file' => __DIR__ . '/../../../config/config.php',
         'config_local_file' => __DIR__ . '/../../../config/config.local.php',
+        'deprecated_methods' => include(__DIR__ . '/deprecated_methods.php'),
         'version' => '{$version}',
     ],
     'manager_menu' => [

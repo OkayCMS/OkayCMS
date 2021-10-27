@@ -9,15 +9,28 @@ use Okay\Core\Modules\Extender\ExtenderFacade;
 
 class BlogCategoryMetadataHelper extends CommonMetadataHelper
 {
- 
+    /** @var object */
+    private $category;
+
+    /** @var bool */
+    private $isAllPages;
+
+    /** @var int */
+    private $currentPageNum;
+
+    public function setUp($category, bool $isAllPages = false, int $currentPageNum = 1): void
+    {
+        $this->category       = $category;
+        $this->isAllPages     = $isAllPages;
+        $this->currentPageNum = $currentPageNum;
+    }
+
     /**
      * @inheritDoc
      */
     public function getH1Template(): string
     {
-        $category = $this->design->getVar('category');
-
-        $categoryH1 = !empty($category->name_h1) ? $category->name_h1 : $category->name;
+        $categoryH1 = !empty($this->category->name_h1) ? $this->category->name_h1 : $this->category->name;
         if ($pageH1 = parent::getH1Template()) {
             $h1 = $pageH1;
         } else {
@@ -32,16 +45,12 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
      */
     public function getAnnotationTemplate(): string
     {
-        $category = $this->design->getVar('category');
-        $isAllPages = $this->design->getVar('is_all_pages');
-        $currentPageNum = $this->design->getVar('current_page_num');
-
-        if ((int)$currentPageNum > 1 || $isAllPages === true) {
+        if ((int)$this->currentPageNum > 1 || $this->isAllPages === true) {
             $annotation = '';
         } elseif ($pageAnnotation = parent::getAnnotationTemplate()) {
             $annotation = $pageAnnotation;
         } else {
-            $annotation = (string)$category->annotation;
+            $annotation = (string)$this->category->annotation;
         }
 
         return ExtenderFacade::execute(__METHOD__, $annotation, func_get_args());
@@ -52,16 +61,12 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
      */
     public function getDescriptionTemplate(): string
     {
-        $category = $this->design->getVar('category');
-        $isAllPages = $this->design->getVar('is_all_pages');
-        $currentPageNum = $this->design->getVar('current_page_num');
-
-        if ((int)$currentPageNum > 1 || $isAllPages === true) {
+        if ((int)$this->currentPageNum > 1 || $this->isAllPages === true) {
             $description = '';
         } elseif ($pageDescription = parent::getDescriptionTemplate()) {
             $description = $pageDescription;
         } else {
-            $description = (string)$category->description;
+            $description = (string)$this->category->description;
         }
 
         return ExtenderFacade::execute(__METHOD__, $description, func_get_args());
@@ -69,21 +74,17 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
     
     public function getMetaTitleTemplate(): string
     {
-        $category = $this->design->getVar('category');
-        $isAllPages = $this->design->getVar('is_all_pages');
-        $currentPageNum = $this->design->getVar('current_page_num');
-        
         if ($pageTitle = parent::getMetaTitleTemplate()) {
             $metaTitle = $pageTitle;
         } else {
-            $metaTitle = (string)$category->meta_title;
+            $metaTitle = (string)$this->category->meta_title;
         }
 
         // Добавим номер страницы к тайтлу
-        if ((int)$currentPageNum > 1 && $isAllPages !== true) {
+        if ((int)$this->currentPageNum > 1 && $this->isAllPages !== true) {
             /** @var FrontTranslations $translations */
             $translations = $this->SL->getService(FrontTranslations::class);
-            $metaTitle .= $translations->getTranslation('meta_page') . ' ' . $currentPageNum;
+            $metaTitle .= $translations->getTranslation('meta_page') . ' ' . $this->currentPageNum;
         }
         
         return ExtenderFacade::execute(__METHOD__, $metaTitle, func_get_args());
@@ -91,12 +92,10 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
     
     public function getMetaKeywordsTemplate(): string
     {
-        $category = $this->design->getVar('category');
-        
         if ($pageKeywords = parent::getMetaKeywordsTemplate()) {
             $metaKeywords = $pageKeywords;
         } else {
-            $metaKeywords = (string)$category->meta_keywords;
+            $metaKeywords = (string)$this->category->meta_keywords;
         }
 
         return ExtenderFacade::execute(__METHOD__, $metaKeywords, func_get_args());
@@ -104,12 +103,10 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
     
     public function getMetaDescriptionTemplate(): string
     {
-        $category = $this->design->getVar('category');
-        
         if ($pageMetaDescription = parent::getMetaDescriptionTemplate()) {
             $metaDescription = $pageMetaDescription;
         } else {
-            $metaDescription = (string)$category->meta_description;
+            $metaDescription = (string)$this->category->meta_description;
         }
 
         return ExtenderFacade::execute(__METHOD__, $metaDescription, func_get_args());
@@ -124,12 +121,10 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
         if (!empty($this->parts)) {
             return $this->parts; // no ExtenderFacade
         }
-        
-        $category = $this->design->getVar('category');
-        
+
         $this->parts = [
-            '{$category}' => ($category->name ? $category->name : ''),
-            '{$category_h1}' => ($category->name_h1 ? $category->name_h1 : ''),
+            '{$category}' => ($this->category->name ? $this->category->name : ''),
+            '{$category_h1}' => ($this->category->name_h1 ? $this->category->name_h1 : ''),
             '{$sitename}' => ($this->settings->get('site_name') ? $this->settings->get('site_name') : ''),
         ];
 

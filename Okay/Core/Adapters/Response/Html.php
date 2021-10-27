@@ -4,6 +4,7 @@
 namespace Okay\Core\Adapters\Response;
 
 
+use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\Design;
 use Okay\Core\ServiceLocator;
 
@@ -28,6 +29,7 @@ class Html extends AbstractResponse
     
     public function send($contents)
     {
+        DebugBar::startMeasure('page_render', 'Page render');
         $resultContent = '';
         if (is_array($contents)) {
             foreach ($contents as $content) {

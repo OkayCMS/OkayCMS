@@ -1,0 +1,19 @@
+#!/usr/bin/env php
+<?php
+
+use Okay\Core\Console\Application;
+use Okay\Core\ServiceLocator;
+
+ini_set('display_errors', false);
+error_reporting(false);
+
+chdir(__DIR__);
+
+require __DIR__.'/vendor/autoload.php';
+
+$serviceLocator = ServiceLocator::getInstance();
+
+/** @var Application $app */
+$app = $serviceLocator->getService(Application::class);
+
+$app->run();

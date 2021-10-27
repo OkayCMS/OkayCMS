@@ -5,21 +5,20 @@ namespace Okay\Core\Modules;
 
 
 use Okay\Admin\Controllers\IndexAdmin;
-use Okay\Core\Config;
-use Okay\Core\Design;
 use Okay\Core\DesignBlocks;
-use Okay\Core\Database;
 use Okay\Core\Discounts;
 use Okay\Core\Entity\Entity;
 use Okay\Core\EntityFactory;
 use Okay\Core\Image;
 use Okay\Core\Managers;
-use Okay\Core\QueryFactory;
+use Okay\Core\Scheduler\Schedule;
+use Okay\Core\Scheduler\Scheduler;
 use Okay\Core\ServiceLocator;
 use Okay\Core\TemplateConfig\FrontTemplateConfig;
 use Okay\Entities\ModulesEntity;
 use Okay\Core\ManagerMenu;
 use Okay\Core\Modules\Extender\ExtenderFacade;
+use Psr\Log\LoggerInterface;
 
 abstract class AbstractInit
 {
@@ -29,89 +28,43 @@ abstract class AbstractInit
         MODULE_TYPE_XML,
     ];
 
-    /**
-     * @var EntityFactory
-     */
+    /** @var EntityFactory */
     private $entityFactory;
 
-    /**
-     * @var Module
-     */
+    /** @var Module */
     private $module;
     
-    /**
-     * @var Modules
-     */
-    private $modules;
-    
-    /**
-     * @var Managers
-     */
+    /** @var Managers */
     private $managers;
     
-    /**
-     * @var Database
-     */
-    private $db;
-
-    /**
-     * @var QueryFactory
-     */
-    private $queryFactory;
-    
-    /**
-     * @var ModulesEntitiesFilters
-     */
+    /** @var ModulesEntitiesFilters */
     private $entitiesFilters;
 
-    /**
-     * @var EntityMigrator
-     */
+    /** @var EntityMigrator */
     private $entityMigrator;
 
-    /**
-     * @var UpdateObject
-     */
+    /** @var UpdateObject */
     private $updateObject;
 
-    /**
-     * @var ExtenderFacade
-     */
+    /** @var ExtenderFacade */
     private $extenderFacade;
 
-    /**
-     * @var ManagerMenu
-     */
+    /** @var ManagerMenu */
     private $managerMenu;
 
-    /**
-     * @var Image
-     */
+    /** @var Image */
     private $image;
 
-    /**
-     * @var FrontTemplateConfig
-     */
+    /** @var FrontTemplateConfig */
     private $frontTemplateConfig;
 
-    /**
-     * @var Design
-     */
-    private $design;
-
-    /**
-     * @var Config
-     */
-    private $config;
-
-    /**
-     * @var Discounts
-     */
+    /** @var Discounts */
     private $discounts;
 
-    /**
-     * @var int id модуля в базе
-     */
+    /** @var Scheduler */
+    private $scheduler;
+
+    /** @var int id модуля в базе */
     private $moduleId;
     private $vendor;
     private $moduleName;
@@ -125,26 +78,22 @@ abstract class AbstractInit
             throw new \Exception('"$moduleId" must be integer');
         }
         
-        $serviceLocator        = ServiceLocator::getInstance();
-        $this->entityFactory   = $serviceLocator->getService(EntityFactory::class);
-        $this->queryFactory    = $serviceLocator->getService(QueryFactory::class);
-        $this->entityMigrator  = $serviceLocator->getService(EntityMigrator::class);
-        $this->module          = $serviceLocator->getService(Module::class);
-        $this->modules         = $serviceLocator->getService(Modules::class);
-        $this->managers        = $serviceLocator->getService(Managers::class);
-        $this->db              = $serviceLocator->getService(Database::class);
-        $this->entitiesFilters = $serviceLocator->getService(ModulesEntitiesFilters::class);
-        $this->updateObject    = $serviceLocator->getService(UpdateObject::class);
-        $this->extenderFacade  = $serviceLocator->getService(ExtenderFacade::class);
-        $this->managerMenu     = $serviceLocator->getService(ManagerMenu::class);
-        $this->image           = $serviceLocator->getService(Image::class);
+        $serviceLocator            = ServiceLocator::getInstance();
+        $this->entityFactory       = $serviceLocator->getService(EntityFactory::class);
+        $this->entityMigrator      = $serviceLocator->getService(EntityMigrator::class);
+        $this->module              = $serviceLocator->getService(Module::class);
+        $this->managers            = $serviceLocator->getService(Managers::class);
+        $this->entitiesFilters     = $serviceLocator->getService(ModulesEntitiesFilters::class);
+        $this->updateObject        = $serviceLocator->getService(UpdateObject::class);
+        $this->extenderFacade      = $serviceLocator->getService(ExtenderFacade::class);
+        $this->managerMenu         = $serviceLocator->getService(ManagerMenu::class);
+        $this->image               = $serviceLocator->getService(Image::class);
         $this->frontTemplateConfig = $serviceLocator->getService(FrontTemplateConfig::class);
-        $this->design          = $serviceLocator->getService(Design::class);
-        $this->config          = $serviceLocator->getService(Config::class);
-        $this->discounts       = $serviceLocator->getService(Discounts::class);
-        $this->moduleId        = $moduleId;
-        $this->vendor          = $vendor;
-        $this->moduleName      = $moduleName;
+        $this->discounts           = $serviceLocator->getService(Discounts::class);
+        $this->scheduler           = $serviceLocator->getService(Scheduler::class);
+        $this->moduleId            = $moduleId;
+        $this->vendor              = $vendor;
+        $this->moduleName          = $moduleName;
     }
 
     /**
@@ -594,13 +543,34 @@ abstract class AbstractInit
         $designBlocks->registerBlock($blockName, $blockTplFile, $callback);
     }
 
-    public function registerPurchaseDiscountSign($sign, $name, $description)
+    /**
+     * Регистрация скидки для товара в заказе
+     *
+     * @param string $sign
+     * @param string $name
+     * @param string $description
+     * @throws \Exception
+     */
+    public function registerPurchaseDiscountSign(string $sign, string $name, string $description)
     {
         $this->discounts->registerPurchaseSign($sign, $name, $description);
     }
 
-    public function registerCartDiscountSign($sign, $name, $description)
+    /**
+     * Регистрация скидки для всего заказа
+     *
+     * @param string $sign
+     * @param string $name
+     * @param string $description
+     * @throws \Exception
+     */
+    public function registerCartDiscountSign(string $sign, string $name, string $description)
     {
         $this->discounts->registerCartSign($sign, $name, $description);
+    }
+
+    public function registerSchedule(Schedule $schedule): void
+    {
+        $this->scheduler->registerSchedule($schedule);
     }
 }

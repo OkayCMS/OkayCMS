@@ -3,6 +3,7 @@
 
 namespace Okay\Core;
 
+use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\Entity\Entity;
 use Bramus\Router\Router as BRouter;
 use Okay\Core\Modules\Extender\ExtenderFacade;
@@ -110,6 +111,7 @@ class Router {
      */
     public function run()
     {
+        DebugBar::startMeasure('router', 'Router');
         self::initializeRoutes();
         $router = $this->router;
         $routes = self::$routes;
@@ -172,7 +174,7 @@ class Router {
                     $router->getCurrentUri(),
                     $baseRoute
                 ));
-                
+
                 $routeVars = [];
                 $controllerName = $route['params']['controller'];
 
@@ -197,7 +199,7 @@ class Router {
                     $controllerName = self::DEFAULT_CONTROLLER_NAMESPACE . 'ErrorController';
                     $method = 'pageNotFound';
                 }
-                
+
                 $defaults = isset($route['defaults']) ? $route['defaults'] : [];
 
                 preg_match_all('~{\$(.+?)}~', $route['slug'], $matches);
@@ -208,9 +210,10 @@ class Router {
                     $controllerName = self::DEFAULT_CONTROLLER_NAMESPACE . 'ErrorController';
                     $method = 'siteDisabled';
                 }
-                
+
                 include_once 'Okay/Core/SmartyPlugins/SmartyPlugins.php';
 
+                DebugBar::stopMeasure('router');
                 // Если контроллер вернул false, кидаем 404
                 if ($this->createControllerInstance($controllerName, $method, $params, $routeVars, $defaults) === false) {
                     $this->createControllerInstance(self::DEFAULT_CONTROLLER_NAMESPACE . 'ErrorController', 'pageNotFound', $params, $routeVars, $defaults);
@@ -219,7 +222,7 @@ class Router {
         }
 
         $response = $this->response;
-        
+
         $router->run(function() use ($response) {
             $response->sendContent();
         });
@@ -265,7 +268,6 @@ class Router {
 
     private function createControllerInstance($controllerName, $methodName, $params = [], $routeVars = [], $defaults = [])
     {
-        
         $controller = new $controllerName();
 
         $requiredParametersNames = [];
@@ -285,12 +287,21 @@ class Router {
 
         // Передаем контроллеру, все, что запросили
         if ($this->methodExists($controller, 'onInit')) {
+            DebugBar::startMeasure("$controllerName::onInit", "$controllerName::onInit");
             call_user_func_array([$controller, 'onInit'], $this->getMethodParams($controller, 'onInit', $params, $routeVars, $defaults));
+            DebugBar::stopMeasure("$controllerName::onInit");
         }
+
+        DebugBar::startMeasure("$controllerName::$methodName", "$controllerName::$methodName");
+        $controllerResult = call_user_func_array([$controller, $methodName], $this->getMethodParams($controller, $methodName, $params, $routeVars, $defaults));
+        DebugBar::stopMeasure("$controllerName::$methodName");
+
         // На 404 не вызываем afterController
-        if (($controllerResult = call_user_func_array([$controller, $methodName], $this->getMethodParams($controller, $methodName, $params, $routeVars, $defaults))) !== false){
+        if ($controllerResult !== false){
             if ($this->methodExists($controller, 'afterController')) {
+                DebugBar::startMeasure("$controllerName::afterController", "$controllerName::afterController");
                 call_user_func_array([$controller, 'afterController'], $this->getMethodParams($controller, 'afterController', $params, $routeVars, $defaults));
+                DebugBar::stopMeasure("$controllerName::afterController");
             }
         }
         return $controllerResult;

@@ -4,6 +4,7 @@
 namespace Okay\Core\Modules\Extender;
 
 
+use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\ServiceLocator;
 
 class QueueExtender extends AbstractExtender
@@ -27,7 +28,9 @@ class QueueExtender extends AbstractExtender
             } else {
                 throw new \Exception("Class \"{$classExtender}\" not found");
             }
+            DebugBar::startExtensionExecution($trigger, $extension);
             call_user_func_array([$classExtender, $extension->method], array_merge([$output], $input));
+            DebugBar::finishExtensionExecution($trigger, $extension);
         }
     }
 

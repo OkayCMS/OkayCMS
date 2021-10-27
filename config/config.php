@@ -109,10 +109,6 @@ resized_authors_dir = files/resized/authors/
 original_deliveries_dir = files/originals/deliveries/
 resized_deliveries_dir = files/resized/deliveries/
 
-; Папка изображений преимуществ
-original_advantages_dir = files/originals/advantages/
-resized_advantages_dir = files/resized/advantages/
-
 ;Изображения оригиналов и нарезок фоток способов оплаты
 original_payments_dir = files/originals/payments/
 resized_payments_dir = files/resized/payments/

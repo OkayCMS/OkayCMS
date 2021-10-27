@@ -46,8 +46,6 @@ class CategoryController extends AbstractController
 
         $filterHelper->setFiltersUrl($filtersUrl);
         
-        $this->setMetadataHelper($categoryMetadataHelper);
-        
         $category = $categoriesEntity->get((string)$url);
         //метод можно расширять и отменить дальнейшую логику работы контроллера
         if (($setCategory = $catalogHelper->setCatalogCategory($category)) !== null) {
@@ -198,6 +196,7 @@ class CategoryController extends AbstractController
 
         // Товары
         $products = $productsHelper->getList($filter, $sortProducts);
+        $products = $productsHelper->attachDescriptionByTemplate($products);
         $this->design->assign('products', $products);
         
         if ($this->request->get('ajax','boolean')) {
@@ -247,6 +246,15 @@ class CategoryController extends AbstractController
         
         $relPrevNext = $this->design->fetch('products_rel_prev_next.tpl');
         $this->design->assign('rel_prev_next', $relPrevNext);
+
+        $categoryMetadataHelper->setUp(
+            $category,
+            $isFilterPage,
+            $this->design->getVar('is_all_pages'),
+            $this->design->getVar('current_page_num'),
+            $currentBrandsIds
+        );
+        $this->setMetadataHelper($categoryMetadataHelper);
 
         $this->response->setContent('products.tpl');
     }

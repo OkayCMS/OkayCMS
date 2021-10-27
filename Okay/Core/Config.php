@@ -4,6 +4,8 @@
 namespace Okay\Core;
 
 
+use Okay\Core\DebugBar\DebugBar;
+
 /**
  * Класс-обертка для конфигурационного файла с настройками магазина
  * В отличие от класса Settings, Config оперирует низкоуровневыми настройками, например найстройками базы данных.
@@ -12,7 +14,7 @@ class Config
 {
 
     /*Версия системы*/
-    public $version = '4.1.1';
+    public $version = '4.2.0';
     /*Тип системы*/
     public $version_type = 'pro';
     
@@ -114,6 +116,7 @@ class Config
         foreach ($ini as $var=>$value) {
             $this->masterVars[$var] = $value;
             $this->vars[$var] = $value;
+            DebugBar::setConfigValue($var, $value, 'core');
         }
 
         /*Заменяем настройки, если есть локальный конфиг*/
@@ -121,6 +124,7 @@ class Config
             $ini = parse_ini_file($this->configLocalFile);
             foreach ($ini as $var => $value) {
                 $this->localVars[$var] = $this->vars[$var] = $value;
+                DebugBar::setConfigValue($var, $value, 'local');
             }
         }
 
@@ -162,6 +166,7 @@ class Config
 
             if (!isset($this->localVars[$var])) {
                 $this->vars[$var] = $value;
+                DebugBar::setConfigValue($var, $value, $filename);
             }
         }
     }
