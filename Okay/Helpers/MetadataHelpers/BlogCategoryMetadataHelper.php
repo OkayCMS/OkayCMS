@@ -30,7 +30,7 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
      */
     public function getH1Template(): string
     {
-        $categoryH1 = !empty($category->name_h1) ? $category->name_h1 : $this->category->name;
+        $categoryH1 = !empty($this->category->name_h1) ? $this->category->name_h1 : $this->category->name;
         if ($pageH1 = parent::getH1Template()) {
             $h1 = $pageH1;
         } else {

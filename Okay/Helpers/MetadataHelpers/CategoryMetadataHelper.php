@@ -65,7 +65,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         $pageH1 = parent::getH1Template();
         $seoFilterPatternH1 = !empty($seoFilterPattern->h1) ? $seoFilterPattern->h1 : null;
         $filterAutoMetaH1 = !empty($filterAutoMeta->h1) ? $filterAutoMeta->h1 : null;
-        $categoryH1 = !empty($category->name_h1) ? $category->name_h1 : $this->category->name;
+        $categoryH1 = !empty($this->category->name_h1) ? $this->category->name_h1 : $this->category->name;
 
         $h1 = $this->matchPriorityH1($pageH1, $seoFilterPatternH1, $filterAutoMetaH1, $categoryH1);
 
@@ -504,7 +504,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
 
             } elseif (!empty($metaArray['brand']) && count($metaArray['brand']) == 1 && empty($metaArray['features_values'])) {
                 $seoFilterPatterns = $SEOFilterPatternsEntity->mappedBy('category_id')->find(['category_id' => $categoriesIdsForPattern, 'type' => 'brand']);
-                if (!empty($seoFilterPatterns[$category->id])) {
+                if (!empty($seoFilterPatterns[$this->category->id])) {
                     $this->seoFilterPattern = $seoFilterPatterns[$this->category->id];
                 } else {
                     $this->seoFilterPattern = reset($seoFilterPatterns);
