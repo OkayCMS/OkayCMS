@@ -15,14 +15,15 @@ $exportFilesDir  = 'backend/files/export_users/';
 $filename        = 'users.csv';
 
 $columnsNames = [
-    'name'       => '���',
+    'name'       => 'Name',
+    'last_name'  => 'Last name',
     'email'      => 'Email',
-    'phone'      => '�������',
-    'address'    => '�����',
-    'group_name' => '������',
-    'discount'   => '������',
-    'created'    => '����',
-    'last_ip'    => '��������� IP'
+    'phone'      => 'Phone',
+    'address'    => 'Address',
+    'group_name' => 'Group name',
+    'discount'   => 'Discount',
+    'created'    => 'Created',
+    'last_ip'    => 'Last IP'
 ];
 
 /** @var Database $db */
