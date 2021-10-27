@@ -32,4 +32,5 @@ design/*/lang/local.*.php
 
 !*.keep_folder
 !*.htaccess
+.phpunit.result.cache
 robots.txt
