@@ -15,6 +15,7 @@ $columnsNames = [
     'id'=>           'Order ID',
     'date'=>         'Order date',
     'name'=>         'User name',
+    'last_name'=>    'User last name',
     'phone'=>        'User phone',
     'email'=>        'User email',
     'address'=>      'User address',
