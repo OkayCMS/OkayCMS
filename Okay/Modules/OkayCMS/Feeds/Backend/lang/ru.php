@@ -1,12 +1,4 @@
 <?php
-// Страница модуля
-$lang['okay_cms__feeds__module__title'] = "Товарные фиды";
-$lang['okay_cms__feeds__feed_open'] = "Открыть фид";
-$lang['okay_cms__feeds__module__description_title'] = "Описание модуля";
-$lang['okay_cms__feeds__module__description_content'] = "Модуль добавляет возможность создавать товарные фиды используя одну из нескольких предустановок.";
-$lang['okay_cms__feeds__module__instruction_title'] = "Инструкция";
-$lang['okay_cms__feeds__module__instruction_content'] = "Зайти на страницу выгрузок и создать.";
-
 // Боковое меню
 $lang['okay_cms__feeds__menu'] = "Товарные фиды";
 
@@ -18,6 +10,7 @@ $lang['okay_cms__feeds__feeds__no'] = "Нет товарного фида";
 $lang['okay_cms__feeds__feeds__all_presets'] = "Все шаблоны";
 $lang['okay_cms__feeds__feeds__duplicate'] = "Дублировать фид";
 $lang['okay_cms__feeds__feeds__delete'] = "Удалить фид";
+$lang['okay_cms__feeds__feeds__open'] = "Открыть фид";
 
 // Страница выгрузки
 $lang['okay_cms__feeds__feed__new'] = "Новый фид";

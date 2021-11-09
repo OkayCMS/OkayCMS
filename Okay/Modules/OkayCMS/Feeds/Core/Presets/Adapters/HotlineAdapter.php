@@ -39,41 +39,31 @@ class HotlineAdapter extends AbstractPresetAdapter
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
-    protected function buildCategories(array $dbCategories): array
+    protected function buildCategory(object $dbCategory): array
     {
-        $result = [];
+        $categorySettings = $this->getCategorySettings($dbCategory->id);
 
-        foreach ($dbCategories as $dbCategory) {
-            $categorySettings = $this->getCategorySettings($dbCategory->id);
-
-            if (!$categorySettings || !($name = $categorySettings['name_in_feed'])) {
-                $name = $dbCategory->name;
-            }
-
-            $xmlCategory = [
-                'tag' => 'category',
-                'data' => [
-                    'id' => [
-                        'data' => $dbCategory->id
-                    ],
-                    'name' => [
-                        'data' => $this->xmlFeedHelper->escape($name)
-                    ]
-                ]
-            ];
-
-            if (!empty($dbCategory->parent_id)) {
-                $xmlCategory['data']['parentId'] = ['data' => $dbCategory->parent_id];
-            }
-
-            $result[] = $xmlCategory;
-
-            if (!empty($dbCategory->subcategories) && $dbCategory->count_children_visible) {
-                $result = array_merge($result, $this->buildCategories($dbCategory->subcategories));
-            }
+        if (!$categorySettings || !($name = $categorySettings['name_in_feed'])) {
+            $name = $dbCategory->name;
         }
 
-        return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
+        $xmlCategory = [
+            'tag' => 'category',
+            'data' => [
+                'id' => [
+                    'data' => $dbCategory->id
+                ],
+                'name' => [
+                    'data' => $this->xmlFeedHelper->escape($name)
+                ]
+            ]
+        ];
+
+        if (!empty($dbCategory->parent_id)) {
+            $xmlCategory['data']['parentId'] = ['data' => $dbCategory->parent_id];
+        }
+
+        return ExtenderFacade::execute(__METHOD__, $xmlCategory, func_get_args());
     }
 
     public function getQuery($feedId): Select

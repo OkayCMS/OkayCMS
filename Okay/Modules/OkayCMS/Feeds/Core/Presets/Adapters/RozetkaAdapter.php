@@ -17,41 +17,31 @@ class RozetkaAdapter extends AbstractPresetAdapter
     /** @var string */
     static protected $footerTemplate = 'presets/rozetka/footer.tpl';
 
-    protected function buildCategories(array $dbCategories): array
+    protected function buildCategory(object $dbCategory): array
     {
-        $result = [];
-        foreach ($dbCategories as $dbCategory) {
-            $categorySettings = $this->getCategorySettings($dbCategory->id);
+        $categorySettings = $this->getCategorySettings($dbCategory->id);
 
-            if (!$categorySettings || !($name = $categorySettings['name_in_feed'])) {
-                $name = $dbCategory->name;
-            }
-
-            $xmlCategory = [
-                'tag' => 'category',
-                'data' => $this->xmlFeedHelper->escape($name),
-                'attributes' => [
-                    'id' => $dbCategory->id
-                ],
-            ];
-
-            if (!empty($dbCategory->parent_id)) {
-                $xmlCategory['attributes']['parentId'] = $dbCategory->parent_id;
-            }
-
-            if ($categorySettings && ($externalId = $categorySettings['external_id'])) {
-                $xmlCategory['attributes']['rz_id'] = $externalId;
-            }
-
-            $result[] = $xmlCategory;
-
-            if (!empty($dbCategory->subcategories) && $dbCategory->count_children_visible) {
-                $result = array_merge($result, $this->buildCategories($dbCategory->subcategories));
-            }
+        if (!$categorySettings || !($name = $categorySettings['name_in_feed'])) {
+            $name = $dbCategory->name;
         }
 
-        return $this->inheritedExtender(__FUNCTION__, $result, func_get_args());
+        $xmlCategory = [
+            'tag' => 'category',
+            'data' => $this->xmlFeedHelper->escape($name),
+            'attributes' => [
+                'id' => $dbCategory->id
+            ],
+        ];
 
+        if (!empty($dbCategory->parent_id)) {
+            $xmlCategory['attributes']['parentId'] = $dbCategory->parent_id;
+        }
+
+        if ($categorySettings && ($externalId = $categorySettings['external_id'])) {
+            $xmlCategory['attributes']['rz_id'] = $externalId;
+        }
+
+        return ExtenderFacade::execute(__METHOD__, $xmlCategory, func_get_args());
     }
 
     public function getQuery($feedId): Select
@@ -126,6 +116,7 @@ class RozetkaAdapter extends AbstractPresetAdapter
 
         if ($this->feed->settings['price_change']) {
             $price = $price + $price / 100 * $this->feed->settings['price_change'];
+            $comparePrice = $comparePrice + $comparePrice / 100 * $this->feed->settings['price_change'];
         }
 
         $result['price']['data'] = $this->money->convert($price, $this->mainCurrency->id, false);

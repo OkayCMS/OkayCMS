@@ -17,7 +17,7 @@ class FacebookAdapter extends AbstractPresetAdapter
     /** @var string */
     static protected $footerTemplate = 'presets/facebook/footer.tpl';
 
-    protected function getCategories($feedId): array
+    protected function buildCategories($feedId): array
     {
         return ExtenderFacade::execute(__METHOD__, [], func_get_args());
     }
@@ -124,6 +124,7 @@ class FacebookAdapter extends AbstractPresetAdapter
 
         if ($this->feed->settings['price_change']) {
             $price = $price + $price / 100 * $this->feed->settings['price_change'];
+            $comparePrice = $comparePrice + $comparePrice / 100 * $this->feed->settings['price_change'];
         }
 
         $price = $this->money->convert($price, $this->mainCurrency->id, false);

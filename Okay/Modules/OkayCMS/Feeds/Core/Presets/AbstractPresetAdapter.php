@@ -126,7 +126,7 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
     protected function init(): void
     {
         $this->mainCurrency  = $this->currenciesEntity->getMainCurrency();
-        $this->allCurrencies = $this->currenciesEntity->mappedBy('id')->find(['enabled' => true]);
+        $this->allCurrencies = $this->currenciesEntity->mappedBy('id')->find();
 
         $this->inheritedExtender(__FUNCTION__, null, func_get_args());
     }
@@ -145,7 +145,7 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
             }
         }
 
-        $categories = $this->getCategories($feed->id);
+        $categories = $this->buildCategories($feed->id);
         $xmlCategories = $this->xmlFeedHelper->compileItems($categories);
 
         $this->design->assign('feed', $feed);
@@ -215,10 +215,9 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
         return $this->inheritedExtender(__FUNCTION__, $settings, func_get_args());
     }
 
-    protected function getCategories($feedId): array
+    protected function buildCategories($feedId): array
     {
-        $allCategories = $this->categoriesEntity->mappedBy('id')->find();
-        $categories = $this->buildCategories($allCategories);
+        $categories = array_map([$this, 'buildCategory'], $this->categoriesEntity->find());
 
         $result = [
             [
@@ -230,37 +229,27 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
         return $this->inheritedExtender(__FUNCTION__, $result, func_get_args());
     }
 
-    protected function buildCategories(array $dbCategories): array
+    protected function buildCategory(object $dbCategory): array
     {
-        $result = [];
-        foreach ($dbCategories as $dbCategory) {
-            $categorySettings = $this->getCategorySettings($dbCategory->id);
+        $categorySettings = $this->getCategorySettings($dbCategory->id);
 
-            if (!$categorySettings || !($name = $categorySettings['name_in_feed'])) {
-                $name = $dbCategory->name;
-            }
-
-            $xmlCategory = [
-                'tag' => 'category',
-                'data' => $this->xmlFeedHelper->escape($name),
-                'attributes' => [
-                    'id' => $dbCategory->id
-                ],
-            ];
-
-            if (!empty($dbCategory->parent_id)) {
-                $xmlCategory['attributes']['parentId'] = $dbCategory->parent_id;
-            }
-
-            $result[] = $xmlCategory;
-
-            if (!empty($dbCategory->subcategories) && $dbCategory->count_children_visible) {
-                $result = array_merge($result, $this->buildCategories($dbCategory->subcategories));
-            }
+        if (!$categorySettings || !($name = $categorySettings['name_in_feed'])) {
+            $name = $dbCategory->name;
         }
 
-        return $this->inheritedExtender(__FUNCTION__, $result, func_get_args());
+        $xmlCategory = [
+            'tag' => 'category',
+            'data' => $this->xmlFeedHelper->escape($name),
+            'attributes' => [
+                'id' => $dbCategory->id
+            ],
+        ];
 
+        if (!empty($dbCategory->parent_id)) {
+            $xmlCategory['attributes']['parentId'] = $dbCategory->parent_id;
+        }
+
+        return $this->inheritedExtender(__FUNCTION__, $xmlCategory, func_get_args());
     }
 
     /**
