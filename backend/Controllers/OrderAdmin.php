@@ -79,40 +79,24 @@ class OrderAdmin extends IndexAdmin
                 $orderLabelsEntity->updateOrderLabels($order->id, $orderLabels);
 
                 if ($order->id) {
+                    $orderDiscounts = $ordersRequest->postOrderDiscounts();
+                    $purchasesDiscounts = $ordersRequest->postPurchasesDiscounts();
+
                     /*Работа с покупками заказа*/
-                    $postedPurchasesIds = [];
-                    foreach ($purchases as $purchase) {
+                    foreach ($purchases as $i => $purchase) {
+                        $purchaseDiscounts = $purchasesDiscounts[$i] ?? [];
                         if (!empty($purchase->id)) {
-                            $preparedPurchase = $backendOrdersHelper->prepareUpdatePurchase($order, $purchase);
+                            $preparedPurchase = $backendOrdersHelper->prepareUpdatePurchase($order, $purchase, $purchaseDiscounts);
                             $backendOrdersHelper->updatePurchase($preparedPurchase);
                         } else {
-                            $preparedPurchase = $backendOrdersHelper->prepareAddPurchase($order, $purchase);
+                            $preparedPurchase = $backendOrdersHelper->prepareAddPurchase($order, $purchase, $purchaseDiscounts);
                             if (!$purchase->id = $backendOrdersHelper->addPurchase($preparedPurchase)) {
                                 $this->design->assign('message_error', 'error_closing');
                             }
                         }
                         $postedPurchasesIds[] = $purchase->id;
-                    }
 
-                    $postedDiscountIds = [];
-                    // Обновляем скидки заказа
-                    $discounts = $ordersRequest->postOrderDiscounts();
-                    foreach ($discounts as $discount) {
-                        if (!empty($discount->id)) {
-                            $preparedDiscount = $backendOrdersHelper->prepareUpdateOrderDiscount($discount, $order);
-                            $backendOrdersHelper->updateDiscount($preparedDiscount);
-                        } else {
-                            $preparedDiscount = $backendOrdersHelper->prepareAddOrderDiscount($discount, $order);
-                            $discount->id = $backendOrdersHelper->addDiscount($preparedDiscount);
-                        }
-                        $postedDiscountIds[] = $discount->id;
-                    }
-
-                    // Обновляем скидки товаров
-                    $discounts = $ordersRequest->postPurchasesDiscounts();
-                    $i = 0;
-                    foreach ($purchases as $purchase) {
-                        $purchaseDiscounts = $discounts[$i++];
+                        // Обновляем скидки товаров
                         if ($purchase->id && !empty($purchaseDiscounts)) {
                             foreach ($purchaseDiscounts as $discount) {
                                 if (!empty($discount->id)) {
@@ -127,16 +111,28 @@ class OrderAdmin extends IndexAdmin
                         }
                     }
 
+                    // Удаляем непереданные скидки
+                    $backendOrdersHelper->deleteDiscounts($postedDiscountIds ?? [], $order->id);
+
+                    // Удалить непереданные товары
+                    $backendOrdersHelper->deletePurchases($order, $postedPurchasesIds ?? []);
+
+                    // Обновляем скидки заказа
+                    foreach ($orderDiscounts as $discount) {
+                        if (!empty($discount->id)) {
+                            $preparedDiscount = $backendOrdersHelper->prepareUpdateOrderDiscount($discount, $order);
+                            $backendOrdersHelper->updateDiscount($preparedDiscount);
+                        } else {
+                            $preparedDiscount = $backendOrdersHelper->prepareAddOrderDiscount($discount, $order);
+                            $discount->id = $backendOrdersHelper->addDiscount($preparedDiscount);
+                        }
+                        $postedDiscountIds[] = $discount->id;
+                    }
+
                     // Обновим позиции скидок
                     $positions = $ordersRequest->postDiscountPositions();
                     list($ids, $positions) = $backendOrdersHelper->sortDiscountPositions($positions);
                     $backendOrdersHelper->updateDiscountPositions($ids, $positions);
-
-                    // Удаляем скидки
-                    $backendOrdersHelper->deleteDiscounts($postedDiscountIds, $order->id);
-
-                    // Удалить непереданные товары
-                    $backendOrdersHelper->deletePurchases($order, $postedPurchasesIds);
 
                     // Обновим статус заказа
                     $newStatusId = $this->request->post('status_id', 'integer');
