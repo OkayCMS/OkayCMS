@@ -255,8 +255,6 @@ class FilterHelper
 
         /** @var FeaturesValuesEntity $featuresValuesEntity */
         $featuresValuesEntity = $this->entityFactory->get(FeaturesValuesEntity::class);
-        
-        $featuresValuesFilter['visible'] = 1;
 
         // Если скрываем из каталога товары не в наличии, значит и в фильтре их значения тоже не нужны будут
         if ($missingProducts === MISSING_PRODUCTS_HIDE) {
