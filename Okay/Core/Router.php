@@ -12,6 +12,7 @@ use Okay\Core\Routes\RouteFactory;
 use Okay\Entities\LanguagesEntity;
 use Okay\Entities\RouterCacheEntity;
 use Okay\Entities\PagesEntity;
+use Psr\Log\LoggerInterface;
 
 class Router {
 
@@ -42,6 +43,12 @@ class Router {
     /** @var Modules */
     private $modules;
 
+    /** @var LoggerInterface */
+    private $logger;
+
+    /** @var Config */
+    private $config;
+
     /** @var Languages */
     private static $languages;
 
@@ -49,13 +56,15 @@ class Router {
     private static $routeFactory;
 
     public function __construct(
-        BRouter $router,
-        Request $request,
-        Response $response,
-        EntityFactory $entityFactory,
-        Languages $languages,
-        RouteFactory $routeFactory,
-        Modules $modules
+        BRouter         $router,
+        Request         $request,
+        Response        $response,
+        EntityFactory   $entityFactory,
+        Languages       $languages,
+        RouteFactory    $routeFactory,
+        Modules         $modules,
+        LoggerInterface $logger,
+        Config          $config
     ) {
         
         // SL будем использовать только для получения сервисов, которые запросили для контроллера
@@ -68,6 +77,8 @@ class Router {
         $this->modules       = $modules;
         self::$routeFactory  = $routeFactory;
         self::$languages     = $languages;
+        $this->logger        = $logger;
+        $this->config        = $config;
     }
 
     public static function getFrontRoutes()
@@ -215,7 +226,19 @@ class Router {
 
                 DebugBar::stopMeasure('router');
                 // Если контроллер вернул false, кидаем 404
-                if ($this->createControllerInstance($controllerName, $method, $params, $routeVars, $defaults) === false) {
+
+                if ($this->config->get('debug_mode')) {
+                    $result = $this->createControllerInstance($controllerName, $method, $params, $routeVars, $defaults);
+                } else {
+                    try {
+                        $result = $this->createControllerInstance($controllerName, $method, $params, $routeVars, $defaults);
+                    } catch (\Exception $exception) {
+                        $this->logger->critical($exception->getMessage());
+                        $result = false;
+                    }
+                }
+
+                if ($result === false) {
                     $this->createControllerInstance(self::DEFAULT_CONTROLLER_NAMESPACE . 'ErrorController', 'pageNotFound', $params, $routeVars, $defaults);
                 }
             });
