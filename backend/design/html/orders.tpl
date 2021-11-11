@@ -491,76 +491,76 @@ $(function() {
         return `${day}-${month}-${year}`;
     }
 
-    if($(window).width() >= 1199 ){
-        $('.fn_last_week').on('click', function() {
-            const date   = new Date();
-            const dateTo = compileDateString(date);
-            $('.fn_to_date').val(dateTo);
+    $('.fn_last_week').on('click', function() {
+        const date   = new Date();
+        const day = date.getDay();
+        const dateTo = compileDateString(date);
+        $('.fn_to_date').val(dateTo);
 
-            date.setDate(date.getDate() - date.getDay() + 1);
-            const dateFrom = compileDateString(date);
-            $('.fn_from_date').val(dateFrom);
+        date.setDate(date.getDate() - (day ? day : 7) + 1);
+        const dateFrom = compileDateString(date);
+        $('.fn_from_date').val(dateFrom);
 
-            $('.fn_date_filter').submit();
-        });
+        $('.fn_date_filter').submit();
+    });
 
-        $('.fn_30_days').on('click', function() {
-            const date   = new Date();
-            const dateTo = compileDateString(date);
-            $('.fn_to_date').val(dateTo);
+    $('.fn_30_days').on('click', function() {
+        const date   = new Date();
+        const dateTo = compileDateString(date);
+        $('.fn_to_date').val(dateTo);
 
-            date.setDate(date.getDate() - 30);
-            const dateFrom = compileDateString(date);
-            $('.fn_from_date').val(dateFrom);
+        date.setDate(date.getDate() + 1);
+        date.setMonth(date.getMonth() - 1);
+        const dateFrom = compileDateString(date);
+        $('.fn_from_date').val(dateFrom);
 
-            $('.fn_date_filter').submit();
-        });
+        $('.fn_date_filter').submit();
+    });
 
-        $('.fn_7_days').on('click', function() {
-            const date   = new Date();
-            const dateTo = compileDateString(date);
-            $('.fn_to_date').val(dateTo);
+    $('.fn_7_days').on('click', function() {
+        const date   = new Date();
+        const dateTo = compileDateString(date);
+        $('.fn_to_date').val(dateTo);
 
-            date.setDate(date.getDate() - 7);
-            const dateFrom = compileDateString(date);
-            $('.fn_from_date').val(dateFrom);
+        date.setDate(date.getDate() - 6);
+        const dateFrom = compileDateString(date);
+        $('.fn_from_date').val(dateFrom);
 
-            $('.fn_date_filter').submit();
-        });
+        $('.fn_date_filter').submit();
+    });
 
-        $('.fn_yesterday').on('click', function() {
-            const date   = new Date();
-            date.setDate(date.getDate() - 1);
+    $('.fn_yesterday').on('click', function() {
+        const date   = new Date();
+        date.setDate(date.getDate() - 1);
 
-            const dateTo = compileDateString(date);
-            $('.fn_to_date').val(dateTo);
+        const dateTo = compileDateString(date);
+        $('.fn_to_date').val(dateTo);
 
-            const dateFrom = compileDateString(date);
-            $('.fn_from_date').val(dateFrom);
+        const dateFrom = compileDateString(date);
+        $('.fn_from_date').val(dateFrom);
 
-            $('.fn_date_filter').submit();
-        });
+        $('.fn_date_filter').submit();
+    });
 
-        $('.fn_calendar').on('click', function() {
-            $(".fn_calendar_pixel").focus();
-        });
+    $('.fn_calendar').on('click', function() {
+        $(".fn_calendar_pixel").focus();
+    });
 
-        $(".fn_calendar_pixel").datepicker({
-            dateFormat: 'dd-mm-yy',
-            range_multiple_max: 2,
-            range: 'period',
-            onSelect: function(_, __, range){
-                $('.fn_from_date').val(range.startDateText);
-                $('.fn_to_date').val(range.endDateText);
-            }
-        });
+    $(".fn_calendar_pixel").datepicker({
+        dateFormat: 'dd-mm-yy',
+        range_multiple_max: 2,
+        range: 'period',
+        onSelect: function(_, __, range){
+            $('.fn_from_date').val(range.startDateText);
+            $('.fn_to_date').val(range.endDateText);
+        }
+    });
 
-        $('.fn_reset_date_filter').on('click', function() {
-            $('.fn_to_date').val('');
-            $('.fn_from_date').val('');
-            $('.fn_date_filter').submit();
-        });
-    }
+    $('.fn_reset_date_filter').on('click', function() {
+        $('.fn_to_date').val('');
+        $('.fn_from_date').val('');
+        $('.fn_date_filter').submit();
+    });
 
 
     $(document).on("change", ".fn_change_orders", function () {
