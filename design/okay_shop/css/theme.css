@@ -3592,10 +3592,16 @@ footer {
 }
 .cart_header__logo{
     padding-right: 20px;
-}
-.cart_header__logo img{
-    height: 50px;
+    width: 285px;
     max-width: 100%;
+    max-height: 50px;
+    display: block;
+    line-height: 0;
+}
+.cart_header__logo img,
+.cart_header__logo svg{
+    max-width: 100%;
+    max-height: 50px;
 }
 .cart_header__phone{
     text-decoration: none;

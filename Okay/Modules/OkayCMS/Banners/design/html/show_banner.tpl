@@ -36,13 +36,13 @@
         {if $banner_data->settings.as_slider}<div class="swiper-wrapper">{/if}
             {foreach $banner_data->items as $bi}
                 {if $bi->settings.variant_show == Okay\Modules\OkayCMS\Banners\Entities\BannersImagesEntity::SHOW_DEFAULT}
-                <div class="banner_group__item swiper-slide block--border banner_group__variant1" data-slide="{$banner_data->id}:{$bi->id}">
+                <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant1" data-slide="{$banner_data->id}:{$bi->id}">
                 {elseif $bi->settings.variant_show == Okay\Modules\OkayCMS\Banners\Entities\BannersImagesEntity::SHOW_DARK}
-                <div class="banner_group__item swiper-slide block--border banner_group__variant2" data-slide="{$banner_data->id}:{$bi->id}">
+                <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant2" data-slide="{$banner_data->id}:{$bi->id}">
                 {elseif $bi->settings.variant_show == Okay\Modules\OkayCMS\Banners\Entities\BannersImagesEntity::SHOW_IMAGE_LEFT}
-                <div class="banner_group__item swiper-slide block--border banner_group__variant3" data-slide="{$banner_data->id}:{$bi->id}">
+                <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant3" data-slide="{$banner_data->id}:{$bi->id}">
                 {elseif $bi->settings.variant_show == Okay\Modules\OkayCMS\Banners\Entities\BannersImagesEntity::SHOW_IMAGE_RIGHT}
-                <div class="banner_group__item swiper-slide block--border banner_group__variant4" data-slide="{$banner_data->id}:{$bi->id}">
+                <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant4" data-slide="{$banner_data->id}:{$bi->id}">
                 {/if}
                     {if $bi->url}
                     <a class="banner_group__link" aria-label="{$bi->title|escape}" href="{$bi->url|escape}" target="_blank"></a>
