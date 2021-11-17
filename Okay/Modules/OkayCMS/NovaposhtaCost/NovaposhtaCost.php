@@ -126,6 +126,7 @@ class NovaposhtaCost
             "calledMethod" => "getCities",
             "methodProperties" => [
                 "Page" => 1,
+                "Limit" => 1000000,
             ],
         ];
         
@@ -215,7 +216,8 @@ class NovaposhtaCost
                 "calledMethod" => "getWarehouses",
                 "methodProperties" => array(
                     "TypeOfWarehouseRef" => $type,
-                    "Page" => 1
+                    "Page" => 1,
+                    "Limit" => 1000000,
                 )
             );
         }
