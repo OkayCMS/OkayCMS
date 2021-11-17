@@ -246,7 +246,7 @@
 $(function() {
     $('.fn_answer').on('click',function(){
         $('#fn_parent_id').val($(this).data('parent_id'));
-        $('#fn_comment_area').html($(this).data('user_name')+', ');
+        $('#fn_comment_area').text($(this).data('user_name')+', ');
     });
 });
 
