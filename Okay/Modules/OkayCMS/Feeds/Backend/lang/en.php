@@ -1,12 +1,4 @@
 <?php
-// Страница модуля
-$lang['okay_cms__feeds__module__title'] = "Product feeds";
-$lang['okay_cms__feeds__feed_open'] = "Open feed";
-$lang['okay_cms__feeds__module__description_title'] = "Module description";
-$lang['okay_cms__feeds__module__description_content'] = "The module adds the ability to create product feeds using one of several presets.";
-$lang['okay_cms__feeds__module__instruction_title'] = "Instructions";
-$lang['okay_cms__feeds__module__instruction_content'] = "Go to the downloads page and create.";
-
 // Боковое меню
 $lang['okay_cms__feeds__menu'] = "Product feeds";
 
@@ -18,6 +10,7 @@ $lang['okay_cms__feeds__feeds__no'] = "No product feed";
 $lang['okay_cms__feeds__feeds__all_presets'] = "All modules";
 $lang['okay_cms__feeds__feeds__duplicate'] = "Duplicate feed";
 $lang['okay_cms__feeds__feeds__delete'] = "Delete feed";
+$lang['okay_cms__feeds__feeds__open'] = "Open feed";
 
 // Страница выгрузки
 $lang['okay_cms__feeds__feed__new'] = "New feed";

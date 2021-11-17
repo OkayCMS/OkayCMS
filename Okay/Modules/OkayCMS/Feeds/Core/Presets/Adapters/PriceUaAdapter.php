@@ -17,9 +17,9 @@ class PriceUaAdapter extends AbstractPresetAdapter
     /** @var string */
     static protected $footerTemplate = 'presets/price_ua/footer.tpl';
 
-    protected function getCategories($feedId): array
+    protected function buildCategories($feedId): array
     {
-        $result = parent::getCategories($feedId);
+        $result = parent::buildCategories($feedId);
         $result[0]['tag'] = 'catalog';
 
         return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
@@ -104,6 +104,7 @@ class PriceUaAdapter extends AbstractPresetAdapter
 
         if ($this->feed->settings['price_change']) {
             $price = $price + $price / 100 * $this->feed->settings['price_change'];
+            $comparePrice = $comparePrice + $comparePrice / 100 * $this->feed->settings['price_change'];
         }
 
         $result['price']['data'] = $this->money->convert($price, $this->mainCurrency->id, false);

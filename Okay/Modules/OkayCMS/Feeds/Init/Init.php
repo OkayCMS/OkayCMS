@@ -16,7 +16,7 @@ class Init extends AbstractInit
     {
         $this->setModuleType(MODULE_TYPE_XML);
 
-        $this->setBackendMainController('ModuleAdmin');
+        $this->setBackendMainController('FeedsAdmin');
 
         $this->migrateEntityTable(FeedsEntity::class, [
             (new EntityField('id'))->setTypeInt(11, false)->setAutoIncrement(),
@@ -48,8 +48,6 @@ class Init extends AbstractInit
     public function init()
     {
         $this->addPermission(self::PERMISSION);
-        $this->registerBackendController('ModuleAdmin');
-        $this->addBackendControllerPermission('ModuleAdmin', self::PERMISSION);
         $this->registerBackendController('FeedsAdmin');
         $this->addBackendControllerPermission('FeedsAdmin', self::PERMISSION);
         $this->registerBackendController('FeedAdmin');
