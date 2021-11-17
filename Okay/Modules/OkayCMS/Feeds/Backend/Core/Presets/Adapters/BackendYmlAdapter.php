@@ -48,6 +48,7 @@ class BackendYmlAdapter extends AbstractBackendPresetAdapter
             'company' => $postSettings['company'],
             'country_of_origin' => $postSettings['country_of_origin'],
             'price_change' => $postSettings['price_change'],
+            'feed_name' => $postSettings['feed_name'],
             'filter_price' => [
                 'operator' => $postSettings['filter_price']['operator'],
                 'value' => $postSettings['filter_price']['value'] === '' ? null : (float) str_replace(',', '.', $postSettings['filter_price']['value']),
