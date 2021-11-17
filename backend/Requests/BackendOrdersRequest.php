@@ -42,15 +42,16 @@ class BackendOrdersRequest
     {
         $purchases = [];
         if ($this->request->post('purchases')) {
-            foreach ($this->request->post('purchases') as $n => $va)foreach ($va as $i => $v) {
-                if (empty($purchases[$i])) {
-                    $purchases[$i] = new \stdClass;
-                }
-                $purchases[$i]->$n = $v;
+            foreach ($this->request->post('purchases') as $n => $va)
+                foreach ($va as $i => $v) {
+                    if (empty($purchases[$i])) {
+                        $purchases[$i] = new \stdClass;
+                    }
+                    $purchases[$i]->$n = $v;
             }
         }
 
-        return ExtenderFacade::execute(__METHOD__, $purchases, func_get_args());
+        return ExtenderFacade::execute(__METHOD__, array_values($purchases), func_get_args());
     }
 
     public function postOrderDiscounts()

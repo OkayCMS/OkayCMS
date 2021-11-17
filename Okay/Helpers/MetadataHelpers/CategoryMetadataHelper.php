@@ -339,7 +339,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         /** @var EntityFactory $entityFactory */
         $entityFactory = $this->SL->getService(EntityFactory::class);
         
-        if (!empty($selectedFilters)) {
+        if (!empty($this->selectedFilters)) {
             /** @var Languages $languages */
             $languages = $this->SL->getService(Languages::class);
           

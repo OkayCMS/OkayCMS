@@ -208,14 +208,36 @@ class BackendOrdersHelper
         ExtenderFacade::execute(__METHOD__, $purchase, func_get_args());
     }
 
-    public function prepareUpdatePurchase($order, $purchase)
+    public function prepareUpdatePurchase($order, $purchase, $discounts)
     {
-        $variant = $this->variantsEntity->get($purchase->variant_id);
-        $discounts = $this->discountsEntity->order('position')->find([
-            'entity' => 'purchase',
-            'entity_id' => $purchase->id
-        ]);
+        if (!empty($variant = $this->variantsEntity->get($purchase->variant_id))) {
+            $purchase->variant_name = $variant->name;
+            $purchase->sku = $variant->sku;
+        }
 
+        $purchase = $this->prepareCommonPurchase(...func_get_args());
+        
+        return ExtenderFacade::execute(__METHOD__, $purchase, func_get_args());
+    }
+
+    public function addPurchase($purchase)
+    {
+        $purchaseId = $this->purchasesEntity->add($purchase);
+        return ExtenderFacade::execute(__METHOD__, $purchaseId, func_get_args());
+    }
+
+    public function prepareAddPurchase($order, $purchase, $discounts)
+    {
+        $purchase->id = null;
+        $purchase->order_id = $order->id;
+
+        $purchase = $this->prepareCommonPurchase(...func_get_args());
+
+        return ExtenderFacade::execute(__METHOD__, $purchase, func_get_args());
+    }
+
+    public function prepareCommonPurchase($order, $purchase, $discounts)
+    {
         $purchase->price = $purchase->undiscounted_price;
         if (!empty($discounts)) {
             foreach ($discounts as $discount) {
@@ -234,25 +256,8 @@ class BackendOrdersHelper
                 }
             }
         }
+        $purchase->price = max($purchase->price, 0);
 
-        if (!empty($variant)) {
-            $purchase->variant_name = $variant->name;
-            $purchase->sku = $variant->sku;
-        }
-        
-        return ExtenderFacade::execute(__METHOD__, $purchase, func_get_args());
-    }
-
-    public function addPurchase($purchase)
-    {
-        $purchaseId = $this->purchasesEntity->add($purchase);
-        return ExtenderFacade::execute(__METHOD__, $purchaseId, func_get_args());
-    }
-
-    public function prepareAddPurchase($order, $purchase)
-    {
-        $purchase->id = null;
-        $purchase->order_id = $order->id;
         return ExtenderFacade::execute(__METHOD__, $purchase, func_get_args());
     }
     
@@ -626,7 +631,7 @@ class BackendOrdersHelper
         $select ->from(DiscountsEntity::getTable())
                 ->cols(['*'])
                 ->where("((`entity` = 'order' AND `entity_id` = :order_id) OR
-                                (`entity` = 'purchase' AND `entity_id` IN (SELECT `id` FROM `ok_purchases` WHERE `order_id` = :order_id)))")
+                                (`entity` = 'purchase' AND `entity_id` IN (SELECT `id` FROM `".PurchasesEntity::getTable()."` WHERE `order_id` = :order_id)))")
                 ->bindValue('order_id', $orderId);
         $discountIds = $select->results('id');
         if (!empty($discountIds)) {
@@ -698,7 +703,7 @@ class BackendOrdersHelper
         $select ->from(DiscountsEntity::getTable())
             ->cols(['id'])
             ->where("((`entity` = 'order' AND `entity_id` = :order_id) OR
-                            (`entity` = 'purchase' AND `entity_id` IN (SELECT `id` FROM `ok_purchases` WHERE `order_id` = :order_id)))")
+                            (`entity` = 'purchase' AND `entity_id` IN (SELECT `id` FROM `".PurchasesEntity::getTable()."` WHERE `order_id` = :order_id)))")
             ->bindValues(['order_id' => $orderId]);
         if (!empty($discountIds)) {
             $select->where('`id` NOT IN (:discount_ids)')

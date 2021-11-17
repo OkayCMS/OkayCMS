@@ -123,9 +123,10 @@ $total = [
 fputcsv($f, $total, $columnDelimiter);
 fclose($f);
 
+mb_substitute_character('');
 file_put_contents(
     $exportFilesDir.$filename,
-    iconv( "utf-8", "windows-1251//IGNORE", file_get_contents($exportFilesDir.$filename))
+    mb_convert_encoding(file_get_contents($exportFilesDir.$filename), 'Windows-1251')
 );
 
 $data = true;

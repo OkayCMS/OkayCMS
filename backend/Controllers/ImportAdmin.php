@@ -149,7 +149,7 @@ class ImportAdmin extends IndexAdmin
 
     private function winToRtf($text) {
         if (function_exists('iconv')) {
-            return @iconv('windows-1251', 'UTF-8', $text);
+            return @mb_convert_encoding($text, 'UTF-8', 'Windows-1251');
         } else {
             $t = '';
             for($i=0, $m=strlen($text); $i<$m; $i++) {

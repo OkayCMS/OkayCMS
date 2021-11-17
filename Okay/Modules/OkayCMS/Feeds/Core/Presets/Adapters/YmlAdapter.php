@@ -96,6 +96,7 @@ class YmlAdapter extends AbstractPresetAdapter
 
         if ($this->feed->settings['price_change']) {
             $price = $price + $price / 100 * $this->feed->settings['price_change'];
+            $comparePrice = $comparePrice + $comparePrice / 100 * $this->feed->settings['price_change'];
         }
 
         $result['price']['data'] = $this->money->convert($price, $this->mainCurrency->id, false);

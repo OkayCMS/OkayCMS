@@ -233,7 +233,7 @@
 $(function() {
     $('.fn_answer').on('click',function(){
         $('.fn_feedback_id').val($(this).data('feedback_id'));
-        $('.fn_comment_area').html($(this).data('user_name')+', ');
+        $('.fn_comment_area').text($(this).data('user_name')+', ');
     });
 
 });
