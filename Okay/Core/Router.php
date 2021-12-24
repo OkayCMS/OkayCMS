@@ -390,11 +390,37 @@ class Router {
 
         unset($params['route']);
 
+        // Получим список всех переменных роута. Todo Вынести в отдельный метод
+        preg_match_all('~{\$([^$]*)}~', $routeInfo['slug'], $matches);
+        $routeVariables = $matches[1];
+
         // Перебираем переданные параметры, чтобы подставить их как элементы роута
         $urlData = [];
+        $query = [];
         if (!empty($params)) {
-            foreach ($params as $var=>$param) {
-                $urlData['{$' . $var . '}'] = $param;
+            foreach ($params as $var => $param) {
+                if (in_array($var, $routeVariables)) {
+                    if (is_array($param)) {
+                        $res = [];
+                        foreach ($param as $paramName => $paramValue) {
+                            if (!empty($paramValue)) {
+                                if (is_array($paramValue)) {
+                                    $res[] = $paramName . '-' . implode('_', $paramValue);
+                                } else if (is_string($paramName)) {
+                                    $res[] = $paramName.'-'.$paramValue;
+                                } else {
+                                    $res[] = $paramValue;
+                                }
+                            }
+                        }
+                        $res = implode('/', $res);
+                    } else {
+                        $res = $param;
+                    }
+                    $urlData['{$' . $var . '}'] = $res;
+                } else if ($param) {
+                    $query[$var] = $param;
+                }
             }
         }
 
@@ -419,6 +445,10 @@ class Router {
         }
 
         $result = trim(strip_tags(htmlspecialchars($result)));
+
+        if ($query) {
+            $result = $result.'?'.http_build_query($query);
+        }
         
         // TODO здесь есть скрытая связь с FilterHelper. Это может привести к багам, подумать над тем, чтобы решить это
         if (is_object($route) && method_exists($route, 'hasSlashAtEnd') && $route->hasSlashAtEnd()) {
@@ -453,7 +483,7 @@ class Router {
 
     /**
      * Добавляет новые маршруты в реестр класса роутера
-     * @param $routes
+     * @param array $routes
      * @throws \Exception Route name already uses
      * @return void
      */

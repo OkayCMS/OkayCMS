@@ -150,7 +150,7 @@ return [
             'method' => 'rating',
         ],
     ],
-    'search' => [
+    'products' => [
         'slug' => '/all-products/?{$filtersUrl}',
         'patterns' => [
             '{$filtersUrl}' => '(.*)',
@@ -160,6 +160,16 @@ return [
             'method' => 'render',
         ],
     ],
+    'products_features' => [
+        'slug' => '/products_features/all-products/?{$filtersUrl}',
+        'patterns' => [
+            '{$filtersUrl}' => '(.*)',
+        ],
+        'params' => [
+            'controller' => 'ProductsController',
+            'method' => 'getFilter',
+        ],
+    ],
     'ajax_search' => [
         'slug' => '/ajax/search_products',
         'params' => [
@@ -167,26 +177,6 @@ return [
             'method' => 'ajaxSearch',
         ],
         'to_front' => true,
-    ],
-    'discounted' => [
-        'slug' => '/discounted/?{$filtersUrl}',
-        'patterns' => [
-            '{$filtersUrl}' => '(.*)',
-        ],
-        'params' => [
-            'controller' => 'ProductsController',
-            'method' => 'render',
-        ],
-    ],
-    'bestsellers' => [
-        'slug' => '/bestsellers/?{$filtersUrl}',
-        'patterns' => [
-            '{$filtersUrl}' => '(.*)',
-        ],
-        'params' => [
-            'controller' => 'ProductsController',
-            'method' => 'render',
-        ],
     ],
     'order' => [
         'slug' => 'order/{$url}',
@@ -340,7 +330,7 @@ return [
         'defaults' => $productRouteParams->getDefaults(),
     ],
     'category_features' => [
-        'slug' => 'category_features/' . $categoryRouteParams->getSlug(),
+        'slug' => '/category_features' . $categoryRouteParams->getSlug(),
         'patterns' => $categoryRouteParams->getPatterns(),
         'params' => [
             'controller' => 'CategoryController',
@@ -356,6 +346,15 @@ return [
             'method' => 'render',
         ],
         'defaults' => $categoryRouteParams->getDefaults()
+    ],
+    'brand_features' => [
+        'slug' => '/brand_features' . $brandRouteParams->getSlug(),
+        'patterns' => $brandRouteParams->getPatterns(),
+        'params' => [
+            'controller' => 'BrandController',
+            'method' => 'getFilter',
+        ],
+        'defaults' => $brandRouteParams->getDefaults()
     ],
     'brand' => [
         'slug' => $brandRouteParams->getSlug(),

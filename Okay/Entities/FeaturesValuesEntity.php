@@ -204,6 +204,13 @@ class FeaturesValuesEntity extends Entity
     
     protected function filter__category_id($categoriesIds)
     {
+        // Берём значения тех свойств, которые назначены на указанные категории
+        $this->select->join('INNER', '__categories_features AS cf', 'cf.feature_id=f.id AND cf.category_id IN (:category_id)')
+            ->bindValue('category_id', (array)$categoriesIds);
+    }
+
+    protected function filter__have_products_in_categories($categoriesIds)
+    {
         $this->select->join('INNER', '__products_categories AS pc', 'pc.product_id=pf.product_id AND pc.category_id IN (:category_id)')
             ->bindValue('category_id', (array)$categoriesIds);
     }
@@ -405,5 +412,27 @@ class FeaturesValuesEntity extends Entity
                 ->bindValues(['ids' => $ids])
                 ->execute();
         }
+    }
+
+    protected function filter__product_keyword($keyword)
+    {
+        /** @var ProductsEntity $productsEntity */
+        $productsEntity = $this->entity->get(ProductsEntity::class);
+
+        $productsSelect = $productsEntity->getSelect(['keyword' => $keyword]);
+
+        $productsSelect
+            ->join(
+                'LEFT',
+                '__products_features_values AS pv',
+                'pv.product_id = '.ProductsEntity::getTableAlias().'.id'
+            )
+            ->cols(['pv.value_id as product_value_id']);
+
+        $this->select->joinSubSelect(
+            'INNER',
+            $productsSelect,
+            'sij'.ProductsEntity::getTableAlias(),
+            'sij'.ProductsEntity::getTableAlias().'.product_value_id = fv.id');
     }
 }

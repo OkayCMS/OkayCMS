@@ -24,10 +24,10 @@ class EntityFactory
 
     /**
      * @param $class
-     * @return object
+     * @return Entity
      * @throws \Exception
      */
-    public function get($class)
+    public function get($class): Entity
     {
         if (!class_exists($class)) {
             throw new \Exception("Class \"{$class}\" is not exists");

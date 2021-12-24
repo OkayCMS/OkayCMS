@@ -149,6 +149,17 @@
                     <div class="row">
                         <div class="fn_step-8 col-lg-4 col-md-6">
                             <div class="heading_label">
+                                {$btr->settings_catalog_features_max_count_products|escape}
+                                <i class="fn_tooltips" title="{$btr->tooltip_settings_catalog_features_max_count_products|escape}">
+                                    {include file='svg_icon.tpl' svgId='icon_tooltips'}
+                                </i>
+                            </div>
+                            <div class="mb-1">
+                                <input name="features_max_count_products" class="form-control" type="number" value="{$settings->features_max_count_products|escape}" />
+                            </div>
+                        </div>
+                        <div class="fn_step-8 col-lg-4 col-md-6">
+                            <div class="heading_label">
                                 {$btr->settings_catalog_features_cache_ttl|escape} <span style="color: red">Beta</span>
                                 <i class="fn_tooltips" title="{$btr->tooltip_settings_catalog_features_cache_ttl|escape}">
                                     {include file='svg_icon.tpl' svgId='icon_tooltips'}

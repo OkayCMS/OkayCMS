@@ -47,6 +47,7 @@ use Okay\Helpers\BlogHelper;
 use Okay\Helpers\BrandsHelper;
 use Okay\Helpers\CanonicalHelper;
 use Okay\Helpers\CartHelper;
+use Okay\Helpers\CategoriesHelper;
 use Okay\Helpers\ComparisonHelper;
 use Okay\Helpers\CouponHelper;
 use Okay\Helpers\CommentsHelper;
@@ -54,13 +55,11 @@ use Okay\Helpers\DeliveriesHelper;
 use Okay\Helpers\DiscountsHelper;
 use Okay\Helpers\MainHelper;
 use Okay\Helpers\MetadataHelpers\AllProductsMetadataHelper;
-use Okay\Helpers\MetadataHelpers\BestsellersMetadataHelper;
 use Okay\Helpers\MetadataHelpers\BlogCategoryMetadataHelper;
 use Okay\Helpers\MetadataHelpers\BrandMetadataHelper;
 use Okay\Helpers\MetadataHelpers\CartMetadataHelper;
 use Okay\Helpers\MetadataHelpers\CategoryMetadataHelper;
 use Okay\Helpers\MetadataHelpers\CommonMetadataHelper;
-use Okay\Helpers\MetadataHelpers\DiscountedMetadataHelper;
 use Okay\Helpers\MetadataHelpers\OrderMetadataHelper;
 use Okay\Helpers\MetadataHelpers\PostMetadataHelper;
 use Okay\Helpers\MetadataHelpers\ProductMetadataHelper;
@@ -436,9 +435,20 @@ return [
             new SR(EntityFactory::class),
             new SR(MoneyHelper::class),
             new SR(Settings::class),
-            new SR(MainHelper::class),
             new SR(ProductMetadataHelper::class),
+            new SR(CatalogHelper::class),
+            new SR(FilterHelper::class),
         ],
+    ],
+    CategoriesHelper::class => [
+        'class' => CategoriesHelper::class,
+        'arguments' => [
+            new SR(CatalogHelper::class),
+            new SR(EntityFactory::class),
+            new SR(Settings::class),
+            new SR(Design::class),
+            new SR(FilterHelper::class),
+        ]
     ],
     CatalogHelper::class => [
         'class' => CatalogHelper::class,
@@ -447,6 +457,9 @@ return [
             new SR(Money::class),
             new SR(Settings::class),
             new SR(Request::class),
+            new SR(FilterHelper::class),
+            new SR(MetaRobotsHelper::class),
+            new SR(Design::class),
         ],
     ],
     OrdersHelper::class => [
@@ -463,7 +476,6 @@ return [
         'arguments' => [
             new SR(EntityFactory::class),
             new SR(Settings::class),
-            new SR(Languages::class),
             new SR(Request::class),
             new SR(Router::class),
             new SR(Design::class),
@@ -530,6 +542,9 @@ return [
         'class' => BrandsHelper::class,
         'arguments' => [
             new SR(EntityFactory::class),
+            new SR(CatalogHelper::class),
+            new SR(Settings::class),
+            new SR(FilterHelper::class),
         ]
     ],
     ResizeHelper::class => [
@@ -585,12 +600,6 @@ return [
     ],
     PostMetadataHelper::class => [
         'class' => PostMetadataHelper::class,
-    ],
-    DiscountedMetadataHelper::class => [
-        'class' => DiscountedMetadataHelper::class,
-    ],
-    BestsellersMetadataHelper::class => [
-        'class' => BestsellersMetadataHelper::class,
     ],
     AllProductsMetadataHelper::class => [
         'class' => AllProductsMetadataHelper::class,

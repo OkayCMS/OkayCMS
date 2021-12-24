@@ -119,7 +119,7 @@
                             </div>
                          </div>
                         {* Search form *}
-                        <form id="fn_search" class="fn_search_mob search d-md-flex" action="{url_generator route='search'}">
+                        <form id="fn_search" class="fn_search_mob search d-md-flex" action="{url_generator route='products'}">
                             <input class="fn_search search__input" type="text" name="keyword" value="{$keyword|escape}" aria-label="search" data-language="index_search" placeholder="{$lang->index_search}"/>
                             <button class="search__button d-flex align-items-center justify-content-center" aria-label="search" type="submit"></button>
                         </form>

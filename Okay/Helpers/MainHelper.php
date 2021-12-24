@@ -183,6 +183,8 @@ class MainHelper
         $router = $this->SL->getService(Router::class);
         /** @var Phone $phone */
         $phone = $this->SL->getService(Phone::class);
+        /** @var FilterHelper $filterHelper */
+        $filterHelper = $this->SL->getService(FilterHelper::class);
         /** @var EntityFactory $entityFactory */
         $entityFactory = $this->SL->getService(EntityFactory::class);
         /** @var CategoriesEntity $categoriesEntity */
@@ -239,7 +241,10 @@ class MainHelper
 
         $design->assign('payment_methods', $this->getPaymentMethods());
         $design->assign('phone_example', $phone->getPhoneExample());
-        
+
+        $design->assign('keyword', $filterHelper->getKeyword());
+        $design->assign('keyword', $filterHelper->getKeyword(), true);
+
         if (!empty($settings->get('site_social_links'))) {
             $socials = [];
             foreach ($settings->get('site_social_links') as $k=>$socialUrl) {

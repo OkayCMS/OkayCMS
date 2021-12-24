@@ -36,7 +36,7 @@ class NoPrefixStrategy extends AbstractRouteStrategy
         }
 
         return [
-            '{$url}/?{$filtersUrl}',
+            '/{$url}/?{$filtersUrl}',
             [
                 '{$url}' => $brandUrl,
                 '{$filtersUrl}' => $this->matchFiltersUrl($brandUrl, $url)

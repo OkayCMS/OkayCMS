@@ -294,4 +294,17 @@ class BrandsEntity extends Entity
         }
     }
 
+    public function filter__product_keyword($keyword)
+    {
+        /** @var ProductsEntity $productsEntity */
+        $productsEntity = $this->entity->get(ProductsEntity::class);
+
+        $productsSelect = $productsEntity->getSelect(['keyword' => $keyword]);
+
+        $this->select->joinSubSelect(
+            'INNER',
+            $productsSelect,
+            'sij'.ProductsEntity::getTableAlias(),
+            'sij'.ProductsEntity::getTableAlias().'.brand_id = b.id');
+    }
 }

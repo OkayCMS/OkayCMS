@@ -75,7 +75,7 @@
         "url": "{/literal}{url_generator route='main' absolute=1}{literal}",
         "potentialAction": {
         "@type": "SearchAction",
-        "target": "{/literal}{url_generator route='search' absolute=1}{literal}?keyword={search_term_string}",
+        "target": "{/literal}{url_generator route='products' absolute=1}{literal}?keyword={search_term_string}",
         "query-input": "required name=search_term_string"
         }
     }

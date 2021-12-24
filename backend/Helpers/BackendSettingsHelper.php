@@ -127,6 +127,7 @@ class BackendSettingsHelper
         $this->settings->set('increased_image_size', $this->request->post('increased_image_size', 'int'));
         $this->settings->set('features_cache_ttl', $this->request->post('features_cache_ttl', 'int'));
         $this->settings->set('deferred_load_features', $this->request->post('deferred_load_features', 'int'));
+        $this->settings->set('features_max_count_products', $this->request->post('features_max_count_products', 'int'));
         $this->settings->update('units', $this->request->post('units'));
 
         if ($this->request->post('is_preorder', 'integer')) {

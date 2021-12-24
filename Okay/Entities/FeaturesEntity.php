@@ -339,6 +339,29 @@ class FeaturesEntity extends Entity
         $this->select->bindValue('categories_ids', (array)$categoriesIds);
     }
 
+    protected function filter__brand_id($brandsIds)
+    {
+        $this->select->join(
+            'LEFT',
+            FeaturesValuesEntity::getTable().' AS '.FeaturesValuesEntity::getTableAlias(),
+            FeaturesValuesEntity::getTableAlias().'.feature_id = '.FeaturesEntity::getTableAlias().'.id'
+        );
+
+        $this->select->join(
+            'LEFT',
+            '__products_features_values AS pv',
+            'pv.value_id = '.FeaturesValuesEntity::getTableAlias().'.id'
+        );
+
+        $this->select->join(
+            'INNER',
+            ProductsEntity::getTable().' AS '.ProductsEntity::getTableAlias(),
+            'pv.product_id = '.ProductsEntity::getTableAlias().'.id AND '.ProductsEntity::getTableAlias().'.brand_id IN (:brands_ids)'
+        );
+
+        $this->select->bindValue('brands_ids', (array)$brandsIds);
+    }
+
     // Особый фильтр по категории. Фильтрует не по связке свойства и категории, а по имеющимся значениям свойств
     // у товаров указанной категории.
     protected function filter__product_category_id($categoriesIds)
@@ -368,5 +391,30 @@ class FeaturesEntity extends Entity
             
         $this->select->bindValue('export_categories_ids', (array)$categoriesIds);
     }
-    
+
+    protected function filter__product_keyword($keyword)
+    {
+        /** @var ProductsEntity $productsEntity */
+        $productsEntity = $this->entity->get(ProductsEntity::class);
+
+        $productsSelect = $productsEntity->getSelect(['keyword' => $keyword]);
+
+        $this->select->join(
+            'LEFT',
+            FeaturesValuesEntity::getTable().' AS '.FeaturesValuesEntity::getTableAlias(),
+            FeaturesValuesEntity::getTableAlias().'.feature_id = '.FeaturesEntity::getTableAlias().'.id'
+        );
+
+        $this->select->join(
+            'LEFT',
+            '__products_features_values AS pv',
+            'pv.value_id = '.FeaturesValuesEntity::getTableAlias().'.id'
+        );
+
+        $this->select->joinSubSelect(
+            'INNER',
+            $productsSelect,
+            's'. ProductsEntity::getTableAlias(),
+            's'.ProductsEntity::getTableAlias().'.id = pv.product_id');
+    }
 }

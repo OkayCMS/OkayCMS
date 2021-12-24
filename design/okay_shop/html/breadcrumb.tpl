@@ -15,7 +15,7 @@
         {if $controller == "CategoryController"}
             {if $category}
                 {foreach from=$category->path item=cat}
-                    {if !$cat@last}
+                    {if !$cat@last || $keyword}
                         {if $cat->visible}
                             <li itemprop="itemListElement" itemscope
                                 itemtype="https://schema.org/ListItem" class="d-inline-flex align-items-center breadcrumbs__item">
@@ -60,11 +60,21 @@
                 </a>
                 <meta itemprop="position" content="{$level++}" />
             </li>
-            <li itemprop="itemListElement" itemscope
-                itemtype="https://schema.org/ListItem" class="d-inline-flex align-items-center breadcrumbs__item">
-                <span itemprop="name">{$brand->name|escape}</span>
-                <meta itemprop="position" content="{$level++}" />
-            </li>
+            {if $keyword}
+                <li itemprop="itemListElement" itemscope
+                    itemtype="https://schema.org/ListItem" class="d-inline-flex align-items-center breadcrumbs__item">
+                    <a itemprop="item" href="{url_generator route='brand' url=$brand->url}">
+                        <span itemprop="name">{$brand->name|escape}</span>
+                    </a>
+                    <meta itemprop="position" content="{$level++}" />
+                </li>
+            {else}
+                <li itemprop="itemListElement" itemscope
+                    itemtype="https://schema.org/ListItem" class="d-inline-flex align-items-center breadcrumbs__item">
+                    <span itemprop="name">{$brand->name|escape}</span>
+                    <meta itemprop="position" content="{$level++}" />
+                </li>
+            {/if}
 
         {* Brand list page *}
         {elseif $controller == "BrandsController"}

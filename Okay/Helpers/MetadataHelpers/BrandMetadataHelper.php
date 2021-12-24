@@ -6,7 +6,6 @@ namespace Okay\Helpers\MetadataHelpers;
 
 use Okay\Core\FrontTranslations;
 use Okay\Core\Modules\Extender\ExtenderFacade;
-use Okay\Helpers\FilterHelper;
 use Okay\Helpers\MetaRobotsHelper;
 
 class BrandMetadataHelper extends CommonMetadataHelper
@@ -29,16 +28,23 @@ class BrandMetadataHelper extends CommonMetadataHelper
     /** @var int */
     private $currentPageNum;
 
+    /** @var string|null */
+    private $keyword;
+
     public function setUp(
         $brand,
         bool $isFilterPage = false,
         bool $isAllPages = false,
-        int $currentPageNum = 1
+        int $currentPageNum = 1,
+        array $metaArray = [],
+        ?string $keyword = null
     ): void {
         $this->brand          = $brand;
         $this->isFilterPage   = $isFilterPage;
         $this->isAllPages     = $isAllPages;
         $this->currentPageNum = $currentPageNum;
+        $this->metaArray      = $metaArray;
+        $this->keyword        = $keyword;
     }
 
     /**
@@ -56,6 +62,10 @@ class BrandMetadataHelper extends CommonMetadataHelper
             $h1 = (string)$this->brand->name_h1;
         } else {
             $h1 = (string)$this->brand->name;
+        }
+
+        if ($this->keyword !== null) {
+            $h1 .= " «{$this->keyword}»";
         }
 
         return ExtenderFacade::execute(__METHOD__, $h1, func_get_args());
@@ -165,12 +175,12 @@ class BrandMetadataHelper extends CommonMetadataHelper
             /** @var MetaRobotsHelper $metaRobotsHelper */
             $metaRobotsHelper = $this->SL->getService(MetaRobotsHelper::class);
 
-            $metaArray = $this->getMetaArray();
+            $currentPage = $this->metaArray['page'] ?? null;
+            $currentBrands = $this->metaArray['brand'] ?? [];
+            $currentOtherFilters = $this->metaArray['filter'] ?? [];
+            $filterFeatures = $this->metaArray['features_values'] ?? [];
 
-            $currentPage = $metaArray['page'] ?? null;
-            $currentOtherFilters = $metaArray['filter'] ?? [];
-
-            $this->metaRobots = $metaRobotsHelper->getCatalogRobots($currentPage, $currentOtherFilters);
+            $this->metaRobots = $metaRobotsHelper->getCatalogRobots($currentPage, $currentOtherFilters, $filterFeatures, $currentBrands);
         }
 
         if ($this->metaRobots == ROBOTS_NOINDEX_FOLLOW || $this->metaRobots == ROBOTS_NOINDEX_NOFOLLOW) {
@@ -187,9 +197,8 @@ class BrandMetadataHelper extends CommonMetadataHelper
                 'description' => '',
             ];
 
-            $metaArray = $this->getMetaArray();
-            if (!empty($metaArray)) {
-                foreach ($metaArray as $type => $_meta_array) {
+            if (!empty($this->metaArray)) {
+                foreach ($this->metaArray as $type => $_meta_array) {
                     switch ($type) {
                         case 'brand': // no break
                         case 'filter':
@@ -222,15 +231,4 @@ class BrandMetadataHelper extends CommonMetadataHelper
         
         return $this->parts = ExtenderFacade::execute(__METHOD__, $this->parts, func_get_args());
     }
-
-    private function getMetaArray()
-    {
-        if (empty($this->metaArray)) {
-            /** @var FilterHelper $filterHelper */
-            $filterHelper = $this->SL->getService(FilterHelper::class);
-            $this->metaArray = $filterHelper->getMetaArray();
-        }
-        return $this->metaArray;
-    }
-    
 }

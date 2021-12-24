@@ -30,13 +30,13 @@
         </div>
 
         <div class="fn_selected_features">
-            {if !($controller == 'CategoryController' && $settings->deferred_load_features)}
+            {if !$settings->deferred_load_features}
                 {include file='selected_features.tpl'}
             {/if}
         </div>
 
         <div class="fn_features">
-            {if !($controller == 'CategoryController' && $settings->deferred_load_features)}
+            {if !$settings->deferred_load_features}
                 {include file='features.tpl'}
             {else}
                 {* Deferred load features *}

@@ -130,7 +130,7 @@
                 </a>
             </div>
             {/foreach}
-            <a class="sidebar_card__more d-flex align-items-center f_col-12" href="{url_generator route='bestsellers'}">
+            <a class="sidebar_card__more d-flex align-items-center f_col-12" href="{url_generator route='products' filtersUrl=['filter' => ['featured']]}">
                 <span data-language="main_look_all">{$lang->main_look_all}</span>{include file="svg.tpl" svgId="arrow_right2"}
             </a>
         </div>
