@@ -183,23 +183,26 @@ class FeaturesValuesEntity extends Entity
         }
     }
 
-    protected function filter__price(array $priceRange)
+    protected function filter__price(array $price)
     {
-        /** @var Money $money */
-        $money = $this->serviceLocator->getService(Money::class);
-        $coef = $money->getCoefMoney();
+        $productsEntity = $this->entity->get(ProductsEntity::class);
 
-        if (isset($priceRange['min'])) {
-            $this->select->where("floor(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*{$coef})>=:price_min")
-                ->bindValue('price_min', trim($priceRange['min']));
-        }
-        if (isset($priceRange['max'])) {
-            $this->select->where("floor(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*{$coef})<=:price_max")
-                ->bindValue('price_max', trim($priceRange['max']));
-        }
+        $productsSelect = $productsEntity->getSelect(['price' => $price]);
 
-        $this->select->join('LEFT', '__variants AS pv', 'pv.product_id = p.id');
-        $this->select->join('LEFT', '__currencies AS c', 'c.id=pv.currency_id');
+        $productsSelect
+            ->join(
+                'LEFT',
+                '__products_features_values AS pfv',
+                'pfv.product_id = '.ProductsEntity::getTableAlias().'.id'
+            )
+            ->cols(['pfv.value_id as product_value_id']);
+
+        $this->select->joinSubSelect(
+            'INNER',
+            $productsSelect,
+            __FUNCTION__.'_'.ProductsEntity::getTableAlias(),
+            __FUNCTION__.'_'.ProductsEntity::getTableAlias().'.product_value_id = fv.id');
+
     }
     
     protected function filter__category_id($categoriesIds)
@@ -424,15 +427,36 @@ class FeaturesValuesEntity extends Entity
         $productsSelect
             ->join(
                 'LEFT',
-                '__products_features_values AS pv',
-                'pv.product_id = '.ProductsEntity::getTableAlias().'.id'
+                '__products_features_values AS pfv',
+                'pfv.product_id = '.ProductsEntity::getTableAlias().'.id'
             )
-            ->cols(['pv.value_id as product_value_id']);
+            ->cols(['pfv.value_id as product_value_id']);
 
         $this->select->joinSubSelect(
             'INNER',
             $productsSelect,
-            'sij'.ProductsEntity::getTableAlias(),
-            'sij'.ProductsEntity::getTableAlias().'.product_value_id = fv.id');
+            __FUNCTION__.'_'.ProductsEntity::getTableAlias(),
+            __FUNCTION__.'_'.ProductsEntity::getTableAlias().'.product_value_id = fv.id');
+    }
+
+    protected function filter__brand($value)
+    {
+        $productsEntity = $this->entity->get(ProductsEntity::class);
+
+        $productsSelect = $productsEntity->getSelect(['brand' => $value]);
+
+        $productsSelect
+            ->join(
+                'LEFT',
+                '__products_features_values AS pfv',
+                'pfv.product_id = '.ProductsEntity::getTableAlias().'.id'
+            )
+            ->cols(['pfv.value_id as product_value_id']);
+
+        $this->select->joinSubSelect(
+            'INNER',
+            $productsSelect,
+            __FUNCTION__.'_'.ProductsEntity::getTableAlias(),
+            __FUNCTION__.'_'.ProductsEntity::getTableAlias().'.product_value_id = fv.id');
     }
 }

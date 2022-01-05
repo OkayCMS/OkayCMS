@@ -311,6 +311,15 @@ return [
             'method' => 'checkDomain',
         ],
     ],
+    'brands_features' => [
+        'slug' => '/brands_features' . $allBrandsRouteParams->getSlug(),
+        'patterns' => $allBrandsRouteParams->getPatterns(),
+        'params' => [
+            'controller' => 'BrandsController',
+            'method' => 'getFilter',
+        ],
+        'defaults' => $allBrandsRouteParams->getDefaults()
+    ],
     'brands' => [
         'slug' => $allBrandsRouteParams->getSlug(),
         'patterns' => $allBrandsRouteParams->getPatterns(),

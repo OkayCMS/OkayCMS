@@ -153,14 +153,8 @@ class FilterHelper
             $brandsFilter['other_filter'] = $filter['other_filter'];
         }
 
-        if (!empty($filter['price']) && $filter['price']['min'] != '' && $filter['price']['max'] != '') {
-            if (isset($filter['price']['min'])) {
-                $brandsFilter['price']['min'] = round($this->money->convert($filter['price']['min'], null, false));
-            }
-
-            if (isset($filter['price']['max'])) {
-                $brandsFilter['price']['max'] = round($this->money->convert($filter['price']['max'], null, false));
-            }
+        if (!empty($filter['price'])) {
+            $brandsFilter['price'] = $filter['price'];
         }
 
         if (!empty($filter['brand_id'])) {
@@ -248,24 +242,16 @@ class FilterHelper
             $featuresValuesFilter['brand_id'] = $filter['brand_id'];
         }
 
+        if (isset($filter['price'])) {
+            $featuresValuesFilter['price'] = $filter['price'];
+        }
+
         if (!empty($filter['other_filter'])) {
             $featuresValuesFilter['other_filter'] = $filter['other_filter'];
         }
 
         if (!empty($filter['keyword'])) {
             $featuresValuesFilter['product_keyword'] = $filter['keyword'];
-        }
-
-        if (!empty($filter['price']) && $filter['price']['min'] != '' && $filter['price']['max'] != '') {
-
-            if (isset($filter['price']['min'])) {
-                $featuresValuesFilter['price']['min'] = round($this->money->convert($filter['price']['min'], null, false));
-            }
-
-            if (isset($filter['price']['max'])) {
-                $featuresValuesFilter['price']['max'] = round($this->money->convert($filter['price']['max'], null, false));
-            }
-            
         }
 
         return ExtenderFacade::execute(__METHOD__, $featuresValuesFilter, func_get_args());
@@ -285,7 +271,7 @@ class FilterHelper
 
         $currentPage = '';
         $uriArray = $this->parseFilterUrl($filtersUrl);
-        foreach ($uriArray as $k => $v) {
+        foreach ($uriArray as $v) {
             if (empty($v)) {
                 continue;
             }
@@ -311,7 +297,7 @@ class FilterHelper
 
         $currentSort = '';
         $uriArray = $this->parseFilterUrl($filtersUrl);
-        foreach ($uriArray as $k => $v) {
+        foreach ($uriArray as $v) {
             if (empty($v)) {
                 continue;
             }
@@ -336,7 +322,7 @@ class FilterHelper
 
         $otherFilter = [];
         $uriArray = $this->parseFilterUrl($filtersUrl);
-        foreach ($uriArray as $k => $v) {
+        foreach ($uriArray as $v) {
             if (empty($v)) {
                 continue;
             }
@@ -364,7 +350,7 @@ class FilterHelper
 
         $currentBrands = [];
         $uriArray = $this->parseFilterUrl($filtersUrl);
-        foreach ($uriArray as $k => $v) {
+        foreach ($uriArray as $v) {
             if (empty($v)) {
                 continue;
             }
@@ -386,9 +372,34 @@ class FilterHelper
         return ExtenderFacade::execute(__METHOD__, $currentBrands, func_get_args());
     }
 
+    public function getCurrentPrices(string $filtersUrl = null)
+    {
+        if ($filtersUrl === null && ($filtersUrl = $this->getFiltersUrl()) === null) {
+            return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+        }
+
+        $currentPrices = [];
+        $uriArray = $this->parseFilterUrl($filtersUrl);
+        foreach ($uriArray as $v) {
+            if (empty($v)) {
+                continue;
+            }
+
+            $paramName = explode('-', $v)[0];
+            if ($paramName == 'price') {
+                $paramValues = mb_substr($v, strlen($paramName) + 1);
+
+                $prices = explode('_', $paramValues);
+                $currentPrices = ['min' => reset($prices), 'max' => end($prices)];
+            }
+        }
+
+        return ExtenderFacade::execute(__METHOD__, $currentPrices, func_get_args());
+    }
+
     private function getNotFeaturesParts()
     {
-        return ExtenderFacade::execute(__METHOD__, ['brand', 'filter', 'page', 'sort'], func_get_args());
+        return ExtenderFacade::execute(__METHOD__, ['brand', 'filter', 'price', 'page', 'sort'], func_get_args());
     }
 
     public function getCurrentFeatures(string $filtersUrl = null)
@@ -634,11 +645,7 @@ class FilterHelper
     // экземпляр Smarty, чтобы отрабатывал assign
     public function filterChpuUrl($params, $featuresAltLang = [], $smarty = null)
     {
-        if (is_array($params) && is_array(reset($params))) {
-            $params = reset($params);
-        }
-
-        $resultArray = ['brand'=>[],'features'=>[], 'filter'=>[], 'sort'=>null,'page'=>null];
+        $resultArray = ['brand'=>[],'features'=>[], 'filter'=>[], 'sort'=>null,'page'=>null, 'price'=>[]];
         $uriArray = $this->parseFilterUrl($this->filtersUrl);
         if (($currentFeaturesValues = $this->getCurrentFeatures($this->filtersUrl)) === false) {
             return ExtenderFacade::execute(__METHOD__, false, func_get_args());
@@ -671,28 +678,26 @@ class FilterHelper
                 } else {
                     switch ($paramName) {
                         case 'brand':
-                        {
                             $paramValues = mb_substr($v, strlen($paramName) + 1);
                             $resultArray['brand'] = explode('_', $paramValues);
                             break;
-                        }
                         case 'filter':
-                        {
                             $resultArray['filter'] = explode('_', $paramValues);
                             break;
-                        }
+                        case 'price':
+                            $prices = explode('_', $paramValues);
+                            $resultArray['price'] = [
+                                'min' => reset($prices),
+                                'max' => end($prices)
+                            ];
+                            break;
                         case 'sort':
-                        {
                             $resultArray['sort'] = strval($paramValues);
                             break;
-                        }
                         case 'page':
-                        {
                             $resultArray['page'] = $paramValues;
                             break;
-                        }
                         default:
-                        {
                             // Ключем массива должно быть id значения
                             if (!empty($this->featuresUrls)) {
                                 $paramValuesArray = [];
@@ -707,7 +712,6 @@ class FilterHelper
                                 }
                                 $resultArray['features'][$paramName] = $paramValuesArray;
                             }
-                        }
                     }
                 }
             }
@@ -732,7 +736,6 @@ class FilterHelper
             } else {
                 switch ($paramName) {
                     case 'brand':
-                    {
                         if (is_null($paramValues)) {
                             unset($resultArray['brand']);
                         } elseif (in_array($paramValues, $resultArray['brand'])) {
@@ -741,9 +744,7 @@ class FilterHelper
                             $resultArray['brand'][] = $paramValues;
                         }
                         break;
-                    }
                     case 'filter':
-                    {
                         if (is_null($paramValues)) {
                             unset($resultArray['filter']);
                         } elseif (in_array($paramValues, $resultArray['filter'])) {
@@ -755,7 +756,9 @@ class FilterHelper
                             unset($resultArray['filter']);
                         }
                         break;
-                    }
+                    case 'price':
+                        $resultArray['price'] = $paramValues;
+                        break;
                     case 'sort':
                         $resultArray['sort'] = strval($paramValues);
                         break;
@@ -837,12 +840,18 @@ class FilterHelper
             $seoHideFilter = true;
         }
 
+        if (!empty($resultArray['price'])) {
+            $resultString .= '/price-' . $resultArray['price']['min'] . '_' . $resultArray['price']['max'];
+        }
+
         if (!empty($resultArray['sort'])) {
             $resultString .= '/sort-' . $resultArray['sort'];
         }
+
         if ($resultArray['page'] > 1 || $resultArray['page'] == 'all') {
             $resultString .= '/page-' . $resultArray['page'];
         }
+
         $keyword = $this->request->get('keyword');
         if (!empty($keyword)) {
             $resultString .= '?keyword='.htmlspecialchars(strip_tags($keyword));
@@ -932,10 +941,7 @@ class FilterHelper
 
     public function isFilterPage(array $filter): bool
     {
-        $result = (!empty($filter['price'])
-                    && $filter['price']['min'] !== ''
-                    && $filter['price']['max'] !== ''
-                    && $filter['price']['min'] !== null)
+        $result = !empty($filter['price'])
                 || !empty($filter['features'])
                 || !empty($filter['other_filter'])
                 || !empty($filter['brand_id']);

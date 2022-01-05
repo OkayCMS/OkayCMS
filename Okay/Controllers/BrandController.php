@@ -86,7 +86,7 @@ class BrandController extends AbstractController
         $this->design->assign('is_filter_page', $isFilterPage);
 
         if (!$this->settings->get('deferred_load_features') || $this->request->get('ajax','boolean')) {
-            $brandsHelper->assignFilterProcedure(
+            $brandsHelper->assignBrandFilterProcedure(
                 $productsFilter,
                 $catalogFeatures,
                 $brand
@@ -128,7 +128,7 @@ class BrandController extends AbstractController
 
         if ($this->request->get('ajax','boolean')) {
             $this->design->assign('ajax', 1);
-            $result = $catalogHelper->getAjaxFilterData($this->design);
+            $result = $catalogHelper->getAjaxFilterData();
             $this->response->setContent(json_encode($result), RESPONSE_JSON);
             return true;
         }
@@ -241,7 +241,7 @@ class BrandController extends AbstractController
 
         $this->design->assign('is_filter_page', $brandsHelper->isFilterPage($productsFilter));
 
-        $brandsHelper->assignFilterProcedure(
+        $brandsHelper->assignBrandFilterProcedure(
             $productsFilter,
             $catalogFeatures,
             $brand

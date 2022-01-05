@@ -228,6 +228,7 @@ $lang['choose_variant'] = 'Вибрати';
 $lang['add_to_cart'] = 'В кошик';
 $lang['products_search'] = 'Пошук';
 $lang['features_browsed'] = 'Ви переглядали';
+$lang['brands_not_found'] = 'Бренди не знайдені';
 $lang['products_not_found'] = 'Товари не знайдені';
 $lang['products_by_default'] = 'замовчуванням';
 $lang['products_by_name'] = 'назвою';

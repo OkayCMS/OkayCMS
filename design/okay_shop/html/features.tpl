@@ -52,11 +52,11 @@
 {/if}
 
 {* Filters *}
-{if ($catalog_brands || ($catalog_prices->range->min != $catalog_prices->range->max) || $catalog_features)}
+{if ($catalog_brands || ($catalog_prices->min != $catalog_prices->max) || $catalog_features)}
     <div class="sidebar__boxed">
         <div class="filters">
             {* Ajax Price filter *}
-            {if $catalog_prices->range->min != '' && $catalog_prices->range->max != '' && $catalog_prices->range->min != $catalog_prices->range->max}
+            {if $catalog_prices->min != '' && $catalog_prices->max != '' && $catalog_prices->min != $catalog_prices->max}
                 <div class="fn_switch filter__name d-flex align-items-center justify-content-between">
                     <span data-language="features_price">{$lang->features_price}</span>
                     <span class="d-flex align-items-center filter__name_arrow fa fa-chevron-down"></span>
@@ -66,18 +66,18 @@
                     {* Price range *}
                     <div class="d-flex align-items-center justify-content-between price_range">
                         <div class="d-flex align-items-center price_label">
-                            <input class="min_input" id="fn_slider_min" aria-label="{$catalog_prices->range->min}" name="p[min]" value="{($catalog_prices->current->min|default:$catalog_prices->range->min)|escape}" data-price="{$catalog_prices->range->min}" type="text">
+                            <input class="min_input" id="fn_slider_min" aria-label="{$catalog_prices->min}" name="p[min]" value="{($selected_catalog_prices['min']|default:$catalog_prices->min)|escape}" data-price="{$catalog_prices->min}" type="text">
                         </div>
                         <div class="separator">-</div>
                         <div class="d-flex align-items-center price_label max_price">
-                            <input class="max_input" id="fn_slider_max" name="p[max]" aria-label="{$catalog_prices->range->max}" value="{($catalog_prices->current->max|default:$catalog_prices->range->max)|escape}" data-price="{$catalog_prices->range->max}" type="text">
+                            <input class="max_input" id="fn_slider_max" name="p[max]" aria-label="{$catalog_prices->max}" value="{($selected_catalog_prices['max']|default:$catalog_prices->max)|escape}" data-price="{$catalog_prices->max}" type="text">
                         </div>
                         <div class="price_currency">
                             <span>{$currency->sign|escape}</span>
                         </div>
                     </div>
                     {* Price slider *}
-                    <div id="fn_slider_price"></div>
+                    <div id="fn_slider_price" data-href="{furl params=[price=>['min'=>'min', 'max'=>'max'], page=>null, sort=>null, route=>$furlRoute]}"></div>
                 </div>
             {/if}
 

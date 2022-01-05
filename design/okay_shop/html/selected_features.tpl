@@ -8,11 +8,11 @@
             </div>
             <div class="filter__group">
                 <div class="filter__selected_features d-flex align-items-center flex-wrap">
-                    {if $catalog_prices->current->min !== '' && $catalog_prices->current->max !== '' && $catalog_prices->current->min !== null}
+                    {if $selected_catalog_prices}
                         <div class="filter__selected_feature">
                             <form class="filter__selected_feature_item" method="post">
-                                <button type="submit" name="prg_seo_hide" class="fn_filter_reset d-flex align-items-center filter__sf_link checked" value="{furl params=[route=>$furlRoute]}">
-                                    <span>{$lang->features_price}: <i>{$catalog_prices->current->min|escape} - {$catalog_prices->current->max|escape}</i></span>
+                                <button type="submit" name="prg_seo_hide" class="fn_filter_reset d-flex align-items-center filter__sf_link checked" value="{furl params=[price=>null, route=>$furlRoute]}">
+                                    <span>{$lang->features_price}: <i>{$selected_catalog_prices['min']|escape} - {$selected_catalog_prices['max']|escape}</i></span>
                                     {include file="svg.tpl" svgId="remove_icon"}
                                 </button>
                             </form>

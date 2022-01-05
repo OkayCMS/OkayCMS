@@ -399,22 +399,52 @@ class FeaturesEntity extends Entity
 
         $productsSelect = $productsEntity->getSelect(['keyword' => $keyword]);
 
-        $this->select->join(
-            'LEFT',
-            FeaturesValuesEntity::getTable().' AS '.FeaturesValuesEntity::getTableAlias(),
-            FeaturesValuesEntity::getTableAlias().'.feature_id = '.FeaturesEntity::getTableAlias().'.id'
-        );
+        $productsSelect
+            ->join(
+                'LEFT',
+                '__products_features_values AS pfv',
+                'pfv.product_id = '.ProductsEntity::getTableAlias().'.id'
+            )
+            ->join(
+                'LEFT',
+                FeaturesValuesEntity::getTable().' AS '.FeaturesValuesEntity::getTableAlias(),
+                FeaturesValuesEntity::getTableAlias().'.id = pfv.value_id'
+            )
+            ->cols([FeaturesValuesEntity::getTableAlias().'.feature_id as product_feature_id']);
 
-        $this->select->join(
-            'LEFT',
-            '__products_features_values AS pv',
-            'pv.value_id = '.FeaturesValuesEntity::getTableAlias().'.id'
-        );
 
         $this->select->joinSubSelect(
             'INNER',
             $productsSelect,
-            's'. ProductsEntity::getTableAlias(),
-            's'.ProductsEntity::getTableAlias().'.id = pv.product_id');
+            __FUNCTION__.'_'.ProductsEntity::getTableAlias(),
+            __FUNCTION__.'_'.ProductsEntity::getTableAlias().'.product_feature_id = f.id');
+    }
+
+    protected function filter__brand($value)
+    {
+        /** @var ProductsEntity $productsEntity */
+        $productsEntity = $this->entity->get(ProductsEntity::class);
+
+        $productsSelect = $productsEntity->getSelect(['brand' => $value]);
+
+        $productsSelect
+            ->join(
+                'LEFT',
+                '__products_features_values AS pfv',
+                'pfv.product_id = '.ProductsEntity::getTableAlias().'.id'
+            )
+            ->join(
+                'LEFT',
+                FeaturesValuesEntity::getTable().' AS '.FeaturesValuesEntity::getTableAlias(),
+                FeaturesValuesEntity::getTableAlias().'.id = pfv.value_id'
+            )
+            ->cols([FeaturesValuesEntity::getTableAlias().'.feature_id as product_feature_id']);
+
+
+        $this->select->joinSubSelect(
+            'INNER',
+            $productsSelect,
+            __FUNCTION__.'_'.ProductsEntity::getTableAlias(),
+            __FUNCTION__.'_'.ProductsEntity::getTableAlias().'.product_feature_id = f.id');
     }
 }

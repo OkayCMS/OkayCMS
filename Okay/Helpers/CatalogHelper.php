@@ -42,6 +42,9 @@ class CatalogHelper
     /** @var FeaturesEntity */
     private $featuresEntity;
 
+    /** @var ProductsEntity */
+    private $productsEntity;
+
 
     /** @var string[] */
     private $otherFilters = [
@@ -68,13 +71,13 @@ class CatalogHelper
         $this->design           = $design;
 
         $this->featuresEntity = $entityFactory->get(FeaturesEntity::class);
+        $this->productsEntity = $entityFactory->get(ProductsEntity::class);
     }
     
     public function assignCatalogDataProcedure(
         array  $productsFilter,
         array  $catalogFeatures,
-        object $catalogPrices,
-        array  $catalogCategories,
+        array  $catalogCategories = [],
         ?array $catalogBrands = null,
         ?int   $featuresLimit = null
     ): void {
@@ -138,6 +141,11 @@ class CatalogHelper
             }
         }
 
+        $rangeFilter = $productsFilter;
+        unset($rangeFilter['price']);
+
+        $catalogPrices = $this->productsEntity->getPriceRange($rangeFilter);
+
         // Установим возможные значения свойств
         $this->metaRobotsHelper->setAvailableFeatures($catalogFeatures);
 
@@ -150,115 +158,7 @@ class CatalogHelper
         $this->design->assign('selected_catalog_features', $productsFilter['features'] ?? []);
         $this->design->assign('selected_catalog_brands_ids', $productsFilter['brand_id'] ?? []);
         $this->design->assign('selected_catalog_other_filters', $productsFilter['other_filter'] ?? []);
-    }
-    
-    public function getPriceFilter($catalogType, $objectId = null)
-    {
-        $resultPrice = [];
-        $priceFilter = $this->getPriceFromStorage($catalogType, $objectId);
-        
-        $currentPrices = [];
-        if ($this->request->get('p')) {
-            $currentPrices = $this->request->get('p');
-            if (isset($currentPrices['min'])) {
-                $currentPrices['min'] = $this->money->convert($currentPrices['min'], null, false, true);
-            }
-
-            if (isset($currentPrices['max'])) {
-                $currentPrices['max'] = $this->money->convert($currentPrices['max'], null, false, true);
-            }
-        }
-
-        if (isset($currentPrices['min']) && isset($currentPrices['max']) && $currentPrices['max'] !== '' && $currentPrices['min'] !== '' && $currentPrices['min'] !== null) {
-            $resultPrice = $currentPrices;
-        }
-
-        if (empty($resultPrice) && $priceFilter['price_range']['min'] !== '' && $priceFilter['price_range']['max'] !== '' && $priceFilter['price_range']['min'] !== null) {
-            $resultPrice = $priceFilter['price_range'];
-        }
-        
-        return ExtenderFacade::execute(__METHOD__, $resultPrice, func_get_args());
-    }
-    
-    public function getPrices(array &$filter, $catalogType, $objectId = null): object
-    {
-        /** @var ProductsEntity $productsEntity */
-        $productsEntity = $this->entityFactory->get(ProductsEntity::class);
-
-        $priceFilter = $this->getPriceFromStorage($catalogType, $objectId);
-
-        $prices = [];
-        if ($this->request->get('p')) {
-            $prices['current'] = $this->request->get('p');
-
-            if (isset($prices['current']['min'])) {
-                $prices['current']['min'] = $this->money->convert($prices['current']['min'], null, false, true);
-            }
-
-            if (isset($prices['current']['max'])) {
-                $prices['current']['max'] = $this->money->convert($prices['current']['max'], null, false, true);
-            }
-        }
-        if (isset($prices['current']['min']) && isset($prices['current']['max']) && $prices['current']['max'] !== '' && $prices['current']['min'] !== '' && $prices['current']['min'] !== null) {
-            $filterPrice = $prices['current'];
-        } else {
-            unset($prices['current']);
-        }
-        
-        // Если прилетела фильтрация по цене, запомним её
-        if (!empty($filterPrice)) {
-            $priceFilter['price_range'] = $filterPrice;
-            // Если в куках есть сохраненный фильтр по цене, применяем его
-        } elseif ($priceFilter['price_range']['min'] !== '' && $priceFilter['price_range']['max'] !== '' && $priceFilter['price_range']['min'] !== null) {
-            $prices['current'] = $priceFilter['price_range'];
-        }
-
-        if (!empty($filter['price']['min'])) {
-            $filter['price']['min'] = round($this->money->convert($filter['price']['min'], null, false));
-        }
-
-        if (!empty($filter['price']['max'])) {
-            $filter['price']['max'] = round($this->money->convert($filter['price']['max'], null, false));
-        }
-
-        if (isset($prices['current'])) {
-            $prices['current'] = (object)$prices['current'];
-        }
-        $prices = (object)$prices;
-        
-        $rangeFilter = $filter;
-        unset($rangeFilter['price']);
-        $prices->range = $productsEntity->getPriceRange($rangeFilter);
-
-        if (isset($prices->current->min)) {
-            $prices->current->min = round($this->money->convert($prices->current->min, null, false));
-        }
-        if (isset($prices->current->max)) {
-            $prices->current->max = round($this->money->convert($prices->current->max, null, false));
-        }
-        
-        // Вдруг вылезли за диапазон доступного...
-        if (isset($prices->current->min) && $prices->range->min !== '') {
-            if ($prices->current->min < $prices->range->min) {
-                $prices->current->min = $filter['price']['min'] = $prices->range->min;
-            }
-            if ($prices->current->min > $prices->range->max) {
-                $prices->current->min = $filter['price']['min'] = $prices->range->max;
-            }
-        }
-        if (isset($prices->current->max) && $prices->range->max !== '') {
-            if ($prices->current->max > $prices->range->max) {
-                $prices->current->max = $filter['price']['max'] = $prices->range->max;
-            }
-            if ($prices->current->max < $prices->range->min) {
-                $prices->current->max = $filter['price']['max'] = $prices->range->min;
-            }
-        }
-
-        // Сохраняем фильтр в куки
-        setcookie("price_filter", json_encode($priceFilter), time()+3600*24*1, "/");
-
-        return ExtenderFacade::execute(__METHOD__, $prices, func_get_args());
+        $this->design->assign('selected_catalog_prices', $productsFilter['price'] ?? []);
     }
     
     public function getOtherFiltersFilter(array $filter)
@@ -283,9 +183,6 @@ class CatalogHelper
         /** @var FrontTranslations $translations */
         $translations = $SL->getService(FrontTranslations::class);
         
-        /** @var ProductsEntity $productsEntity */
-        $productsEntity = $this->entityFactory->get(ProductsEntity::class);
-        
         $otherFilters = [];
         foreach ($this->otherFilters as $f) {
             $label = 'features_filter_'.$f;
@@ -297,7 +194,7 @@ class CatalogHelper
             if (empty($filter['other_filter']) || !in_array($f, $filter['other_filter'])) {
                 $tmFilter = $filter;
                 $tmFilter['other_filter'] = [$f];
-                $cnt = $productsEntity->count($tmFilter);
+                $cnt = $this->productsEntity->count($tmFilter);
                 if ($cnt > 0) {
                     $otherFilters[] = $item;
                 }
@@ -311,33 +208,28 @@ class CatalogHelper
 
     /**
      * Метод возвращает данные для Ajax ответа при фильтрации
-     * 
-     * @param Design $design
+     *
      * @return object
      */
-    public function getAjaxFilterData(Design $design)
+    public function getAjaxFilterData()
     {
         $result = new \stdClass;
-        $result->products_content = $design->fetch('products_content.tpl');
-        $result->products_pagination = $design->fetch('chpu_pagination.tpl');
-        $result->products_sort = $design->fetch('products_sort.tpl');
-        $result->features = $design->fetch('features.tpl');
-        $result->selected_features = $design->fetch('selected_features.tpl');
+        $result->products_content = $this->design->fetch('products_content.tpl');
+        $result->products_pagination = $this->design->fetch('chpu_pagination.tpl');
+        $result->products_sort = $this->design->fetch('products_sort.tpl');
+        $result->features = $this->design->fetch('features.tpl');
+        $result->selected_features = $this->design->fetch('selected_features.tpl');
         return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
     }
     
     public function paginate($itemsPerPage, $currentPage, array &$filter, Design $design)
     {
-
-        /** @var ProductsEntity $productsEntity */
-        $productsEntity = $this->entityFactory->get(ProductsEntity::class);
-
         if ($this->settings->get('missing_products') === MISSING_PRODUCTS_HIDE) {
             $filter['in_stock'] = true;
         }
         
         // Вычисляем количество страниц
-        $productsCount = $productsEntity->count($filter);
+        $productsCount = $this->productsEntity->count($filter);
 
         // Показать все страницы сразу
         $allPages = false;
@@ -364,53 +256,6 @@ class CatalogHelper
         }
 
         return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
-    }
-
-    private function getPriceFromStorage($catalogType, $objectId = null)
-    {
-        $priceFilter = $this->resetPriceFilter();
-        if (isset($_COOKIE['price_filter'])) {
-            $priceFilter = json_decode($_COOKIE['price_filter'], true);
-        }
-
-        // Когда перешли на другой тип каталога, забываем диапазон цен
-        if ($priceFilter['catalog_type'] != $catalogType) {
-            $priceFilter = $this->resetPriceFilter();
-            $priceFilter['catalog_type'] = $catalogType;
-        }
-
-        if ($priceFilter['catalog_type'] !== null) {
-            switch ($catalogType) {
-                case 'category':
-                    if ($priceFilter['category_id'] != $objectId) {
-                        $priceFilter = $this->resetPriceFilter();
-                        $priceFilter['category_id'] = $objectId;
-                        $priceFilter['catalog_type'] = $catalogType;
-                    }
-                    break;
-                case 'brand':
-                    if ($priceFilter['brand_id'] != $objectId) {
-                        $priceFilter = $this->resetPriceFilter();
-                        $priceFilter['brand_id'] = $objectId;
-                        $priceFilter['catalog_type'] = $catalogType;
-                    }
-                    break;
-            }
-        }
-
-        return ExtenderFacade::execute(__METHOD__, $priceFilter, func_get_args());
-    }
-    
-    private function resetPriceFilter() {
-        return [
-            'category_id'   => null,
-            'brand_id'      => null,
-            'catalog_type'  => null,
-            'price_range'   => [
-                'min' => null,
-                'max' => null,
-            ]
-        ];
     }
 
     /**
@@ -470,6 +315,12 @@ class CatalogHelper
             return ExtenderFacade::execute(__METHOD__, null, func_get_args());
         } else if (!empty($currentOtherFilters)) {
             $filter['other_filter'] = $currentOtherFilters;
+        }
+
+        if (($currentPrices = $this->filterHelper->getCurrentPrices($filtersUrl)) === false) {
+            return ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        } else if (!empty($currentPrices)) {
+            $filter['price'] = $currentPrices;
         }
 
         $filter['visible'] = 1;

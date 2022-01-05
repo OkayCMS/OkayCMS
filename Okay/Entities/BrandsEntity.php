@@ -109,21 +109,17 @@ class BrandsEntity extends Entity
         return ExtenderFacade::execute([static::class, __FUNCTION__], $otherFilter, func_get_args());
     }
     
-    protected function filter__price(array $priceRange)
+    protected function filter__price(array $price)
     {
-        $coef = $this->serviceLocator->getService(Money::class)->getCoefMoney();
+        $productsEntity = $this->entity->get(ProductsEntity::class);
 
-        if (isset($priceRange['min'])) {
-            $this->select->where("floor(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*{$coef})>=:price_min")
-                ->bindValue('price_min', trim($priceRange['min']));
-        }
-        if (isset($priceRange['max'])) {
-            $this->select->where("floor(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*{$coef})<=:price_max")
-                ->bindValue('price_max', trim($priceRange['max']));
-        }
+        $productsSelect = $productsEntity->getSelect(['price' => $price]);
 
-        $this->select->join('LEFT', '__variants AS pv', 'pv.product_id = p.id');
-        $this->select->join('LEFT', '__currencies AS c', 'c.id=pv.currency_id');
+        $this->select->joinSubSelect(
+            'INNER',
+            $productsSelect,
+            __FUNCTION__.'_'.ProductsEntity::getTableAlias(),
+            __FUNCTION__.'_'.ProductsEntity::getTableAlias().'.brand_id = b.id');
 
     }
     
@@ -304,7 +300,7 @@ class BrandsEntity extends Entity
         $this->select->joinSubSelect(
             'INNER',
             $productsSelect,
-            'sij'.ProductsEntity::getTableAlias(),
-            'sij'.ProductsEntity::getTableAlias().'.brand_id = b.id');
+            __FUNCTION__.'_'.ProductsEntity::getTableAlias(),
+            __FUNCTION__.'_'.ProductsEntity::getTableAlias().'.brand_id = b.id');
     }
 }

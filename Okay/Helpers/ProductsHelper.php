@@ -77,7 +77,6 @@ class ProductsHelper implements GetListInterface
         $this->catalogHelper->assignCatalogDataProcedure(
             $productsFilter,
             $catalogFeatures,
-            $this->catalogHelper->getPrices($productsFilter, 'products'),
             $catalogCategories,
             null,
             (int) $this->settings->get('features_max_count_products')
@@ -88,9 +87,7 @@ class ProductsHelper implements GetListInterface
 
     public function getCatalogBaseFeaturesValues(array $featuresIds): array
     {
-        $filter = ['feature_id' => $featuresIds];
-
-        $featuresValues = $this->catalogHelper->getBaseFeaturesValues($filter,
+        $featuresValues = $this->catalogHelper->getBaseFeaturesValues(['feature_id' => $featuresIds],
             $this->settings->get('missing_products'));
 
         return ExtenderFacade::execute(__METHOD__, $featuresValues, func_get_args());
@@ -418,8 +415,6 @@ class ProductsHelper implements GetListInterface
         if (($filter = $this->catalogHelper->getProductsFilter($filtersUrl, $filter)) === null) {
             return ExtenderFacade::execute(__METHOD__, null, func_get_args());
         }
-
-        $filter['price'] = $this->catalogHelper->getPriceFilter('products');
 
         return ExtenderFacade::execute(__METHOD__, $filter, func_get_args());
     }

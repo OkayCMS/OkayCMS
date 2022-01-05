@@ -4,12 +4,12 @@
 namespace Okay\Helpers;
 
 
+use Okay\Core\Design;
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Settings;
 use Okay\Entities\BrandsEntity;
 use Okay\Entities\CategoriesEntity;
-use Okay\Entities\FeaturesEntity;
 
 class BrandsHelper implements GetListInterface
 {
@@ -25,29 +25,34 @@ class BrandsHelper implements GetListInterface
     /** @var FilterHelper */
     private $filterHelper;
 
+    /** @var Design */
+    private $design;
 
-    /** @var FeaturesEntity */
-    private $featuresEntity;
 
     /** @var CategoriesEntity */
     private $categoriesEntity;
+
+    /** @var BrandsEntity */
+    private $brandsEntity;
     
     public function __construct(
         EntityFactory $entityFactory,
         CatalogHelper $catalogHelper,
         Settings      $settings,
-        FilterHelper  $filterHelper
+        FilterHelper  $filterHelper,
+        Design        $design
     ) {
         $this->entityFactory = $entityFactory;
         $this->catalogHelper = $catalogHelper;
         $this->settings      = $settings;
         $this->filterHelper  = $filterHelper;
+        $this->design        = $design;
 
-        $this->featuresEntity   = $entityFactory->get(FeaturesEntity::class);
         $this->categoriesEntity = $entityFactory->get(CategoriesEntity::class);
+        $this->brandsEntity     = $entityFactory->get(BrandsEntity::class);
     }
 
-    public function assignFilterProcedure(
+    public function assignBrandFilterProcedure(
         array  $productsFilter,
         array  $catalogFeatures,
         object $brand
@@ -57,7 +62,6 @@ class BrandsHelper implements GetListInterface
         $this->catalogHelper->assignCatalogDataProcedure(
             $productsFilter,
             $catalogFeatures,
-            $this->catalogHelper->getPrices($productsFilter, 'brand', $brand->id),
             $catalogCategories,
             []
         );
@@ -65,12 +69,33 @@ class BrandsHelper implements GetListInterface
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
-    public function getCatalogBaseFeaturesValues(array $featuresIds, object $brand): array
+    public function assignBrandsFilterProcedure(
+        array  $productsFilter,
+        array  $catalogFeatures
+    ): void {
+        $this->catalogHelper->assignCatalogDataProcedure(
+            $productsFilter,
+            $catalogFeatures,
+            [],
+            [],
+            (int) $this->settings->get('features_max_count_products')
+        );
+
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    public function getCatalogBaseFeaturesValues(array $featuresIds, ?object $brand = null): array
     {
-        $featuresValues = $this->catalogHelper->getBaseFeaturesValues([
-            'brand_id' => $brand->id,
-            'feature_id' => $featuresIds
-        ], $this->settings->get('missing_products'));
+        $filter = ['feature_id' => $featuresIds];
+
+        if ($brand) {
+            $filter['brand_id'] = $brand->id;
+        } else {
+            $filter['brand'] = true;
+        }
+
+        $featuresValues = $this->catalogHelper->getBaseFeaturesValues($filter,
+            $this->settings->get('missing_products'));
 
         return ExtenderFacade::execute(__METHOD__, $featuresValues, func_get_args());
     }
@@ -82,9 +107,11 @@ class BrandsHelper implements GetListInterface
         return ExtenderFacade::execute(__METHOD__, $this->filterHelper->isFilterPage($filter), func_get_args());
     }
 
-    public function getBrandsFilter(array $filter = [])
+    public function getBrandsFilter(array $productsFilter = [])
     {
-        return ExtenderFacade::execute(__METHOD__, $filter, func_get_args());
+        $brandsFilter = $this->filterHelper->prepareFilterGetBrands($productsFilter);
+
+        return ExtenderFacade::execute(__METHOD__, $brandsFilter, func_get_args());
     }
     
     public function getCurrentSort()
@@ -159,18 +186,21 @@ class BrandsHelper implements GetListInterface
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
-    public function getCatalogFeatures(object $brand): array
+    public function getCatalogFeatures(?object $brand = null): array
     {
-        $features = $this->featuresEntity->mappedBy('id')->find([
-            'brand_id' => $brand->id,
-            'in_filter' => 1,
-            'visible' => 1,
-        ]);
+        $filter = $this->catalogHelper->getCatalogFeaturesFilter();
+
+        $filter['brand'] = true;
+        if ($brand) {
+            $filter['brand_id'] = $brand->id;
+        }
+
+        $features = $this->catalogHelper->getCatalogFeatures($filter);
 
         return ExtenderFacade::execute(__METHOD__, $features, func_get_args());
     }
 
-    public function getProductsFilter(object $brand, ?string $filtersUrl = null, array $filter = []): ?array
+    public function getProductsFilter(?object $brand = null, ?string $filtersUrl = null, array $filter = []): ?array
     {
         if (($filter = $this->catalogHelper->getProductsFilter($filtersUrl, $filter)) === null) {
             return ExtenderFacade::execute(__METHOD__, null, func_get_args());
@@ -180,9 +210,54 @@ class BrandsHelper implements GetListInterface
             return ExtenderFacade::execute(__METHOD__, null, func_get_args());
         }
 
-        $filter['brand_id'] = [$brand->id];
-        $filter['price'] = $this->catalogHelper->getPriceFilter('brand', $brand->id);
+        if ($brand) {
+            $filter['brand_id'] = [$brand->id];
+        }
+
 
         return ExtenderFacade::execute(__METHOD__, $filter, func_get_args());
+    }
+
+    public function getBrandsAjaxFilterData()
+    {
+        $result = new \stdClass;
+        $result->products_content = $this->design->fetch('brands_content.tpl');
+        $result->products_pagination = '';
+        $result->products_sort = '';
+        $result->features = $this->design->fetch('features.tpl');
+        $result->selected_features = $this->design->fetch('selected_features.tpl');
+
+        return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
+    }
+
+    public function paginateBrands($itemsPerPage, $currentPage, array &$filter, Design $design)
+    {
+        // Вычисляем количество страниц
+        $brandsCount = $this->brandsEntity->count($filter);
+
+        // Показать все страницы сразу
+        $allPages = false;
+        if ($currentPage == 'all') {
+            $allPages = true;
+            $itemsPerPage = $brandsCount;
+        }
+
+        // Если не задана, то равна 1
+        $currentPage = max(1, (int)$currentPage);
+        $design->assign('current_page_num', $currentPage);
+        $design->assign('is_all_pages', $allPages);
+
+        $pagesNum = !empty($itemsPerPage) ? ceil($brandsCount/$itemsPerPage) : 0;
+        $design->assign('total_pages_num', $pagesNum);
+
+        $filter['page'] = $currentPage;
+        $filter['limit'] = $itemsPerPage;
+
+        $result = true;
+        if ($allPages === false && $currentPage > 1 && $currentPage > $pagesNum) {
+            $result = false;
+        }
+
+        return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
     }
 }

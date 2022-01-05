@@ -115,7 +115,7 @@ class ProductsController extends AbstractController
 
         if ($this->request->get('ajax','boolean')) {
             $this->design->assign('ajax', 1);
-            $result = $catalogHelper->getAjaxFilterData($this->design);
+            $result = $catalogHelper->getAjaxFilterData();
             $this->response->setContent(json_encode($result), RESPONSE_JSON);
             return true;
         }

@@ -54,6 +54,7 @@ use Okay\Helpers\CommentsHelper;
 use Okay\Helpers\DeliveriesHelper;
 use Okay\Helpers\DiscountsHelper;
 use Okay\Helpers\MainHelper;
+use Okay\Helpers\MetadataHelpers\AllBrandsMetadataHelper;
 use Okay\Helpers\MetadataHelpers\AllProductsMetadataHelper;
 use Okay\Helpers\MetadataHelpers\BlogCategoryMetadataHelper;
 use Okay\Helpers\MetadataHelpers\BrandMetadataHelper;
@@ -545,6 +546,7 @@ return [
             new SR(CatalogHelper::class),
             new SR(Settings::class),
             new SR(FilterHelper::class),
+            new SR(Design::class),
         ]
     ],
     ResizeHelper::class => [
@@ -603,6 +605,9 @@ return [
     ],
     AllProductsMetadataHelper::class => [
         'class' => AllProductsMetadataHelper::class,
+    ],
+    AllBrandsMetadataHelper::class => [
+        'class' => AllBrandsMetadataHelper::class,
     ],
     BlogCategoryMetadataHelper::class => [
         'class' => BlogCategoryMetadataHelper::class,

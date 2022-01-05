@@ -847,4 +847,9 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
             $this->select->where('(' . implode(' OR ', $keywordFilter) . ')');
         }
     }
+
+    protected function filter__brand($value)
+    {
+        $this->select->where(($value ? '' : '!') . self::getTableAlias().'.brand_id');
+    }
 }

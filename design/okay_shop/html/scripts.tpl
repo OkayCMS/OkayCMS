@@ -7,14 +7,13 @@
     okay.max_order_amount = {$settings->max_order_amount|escape};
 
     /*Сброс фильтра*/
-    {if in_array($controller, ['ProductsController', 'BrandController', 'CategoryController'])}
+    {if in_array($controller, ['ProductsController', 'BrandController', 'BrandsController', 'CategoryController'])}
         $(document).on('click', '.fn_filter_reset', function () {
             var date = new Date(0);
             document.cookie = "price_filter=; path=/; expires=" + date.toUTCString();
         });
 
-        {if in_array($controller, ['ProductsController', 'BrandController', 'CategoryController']) && $settings->deferred_load_features}
-
+        {if $settings->deferred_load_features}
             {if $settings->features_cache_ttl > 0}
                 {literal}
                 window.featuresCache = {

@@ -382,9 +382,14 @@ class Request
      */
     public function url($params = [])
     {
-
         $query = [];
         $url = @parse_url($_SERVER["REQUEST_URI"]);
+
+        if (isset($params['path'])) {
+            $url['path'] = @parse_url($params['path'], PHP_URL_PATH);
+            unset($params['path']);
+        }
+
         if (!empty($url['query'])) {
             parse_str($url['query'], $query);
         }

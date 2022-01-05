@@ -62,7 +62,6 @@ class CategoriesHelper
         $this->catalogHelper->assignCatalogDataProcedure(
             $productsFilter,
             $catalogFeatures,
-            $this->catalogHelper->getPrices($productsFilter, 'category', $category->id),
             $catalogCategories
         );
 
@@ -104,7 +103,6 @@ class CategoriesHelper
         }
 
         $filter['category_id'] = $category->children;
-        $filter['price'] = $this->catalogHelper->getPriceFilter('category', $category->id);
 
         return ExtenderFacade::execute(__METHOD__, $filter, func_get_args());
     }
