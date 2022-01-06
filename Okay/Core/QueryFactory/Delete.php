@@ -25,15 +25,15 @@ class Delete extends AbstractQuery
         return $this;
     }
 
-    public function where($cond)
+    public function where($cond, ...$binds)
     {
-        $this->queryObject->where($cond);
+        $this->queryObject->where(...func_get_args());
         return $this;
     }
 
     function orWhere($cond)
     {
-        $this->queryObject->orWhere($cond);
+        $this->queryObject->orWhere(...func_get_args());
         return $this;
     }
 

@@ -71,7 +71,7 @@ class ProductsController extends AbstractController
             );
         } else {
             // если включена отложенная загрузка фильтров, установим отдельно возможные значения свойств
-            $baseFeaturesValues = $productsHelper->getCatalogBaseFeaturesValues(array_keys($catalogFeatures));
+            $baseFeaturesValues = $catalogHelper->getBaseFeaturesValues(null, $this->settings->get('missing_products'));
 
             if (!empty($baseFeaturesValues)) {
                 foreach ($baseFeaturesValues as $values) {

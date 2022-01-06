@@ -187,7 +187,7 @@ class FeaturesValuesEntity extends Entity
     {
         $productsEntity = $this->entity->get(ProductsEntity::class);
 
-        $productsSelect = $productsEntity->getSelect(['price' => $price]);
+        $productsSelect = $productsEntity->getSelect(['price' => $price, 'visible' => 1]);
 
         $productsSelect
             ->join(
@@ -422,7 +422,7 @@ class FeaturesValuesEntity extends Entity
         /** @var ProductsEntity $productsEntity */
         $productsEntity = $this->entity->get(ProductsEntity::class);
 
-        $productsSelect = $productsEntity->getSelect(['keyword' => $keyword]);
+        $productsSelect = $productsEntity->getSelect(['keyword' => $keyword, 'visible' => 1]);
 
         $productsSelect
             ->join(
@@ -443,7 +443,7 @@ class FeaturesValuesEntity extends Entity
     {
         $productsEntity = $this->entity->get(ProductsEntity::class);
 
-        $productsSelect = $productsEntity->getSelect(['brand' => $value]);
+        $productsSelect = $productsEntity->getSelect(['brand' => $value, 'visible' => 1]);
 
         $productsSelect
             ->join(
@@ -458,5 +458,23 @@ class FeaturesValuesEntity extends Entity
             $productsSelect,
             __FUNCTION__.'_'.ProductsEntity::getTableAlias(),
             __FUNCTION__.'_'.ProductsEntity::getTableAlias().'.product_value_id = fv.id');
+    }
+
+    protected function filter__selected_features($selectedFeatures)
+    {
+        $statements = [];
+        $binds = [];
+
+        foreach ($selectedFeatures as $featureId => $featureValuesTranslits) {
+            $statements[] = "fv.feature_id = ? AND fv.translit IN (?)";
+            $binds = array_merge($binds, [
+                $featureId,
+                $featureValuesTranslits
+            ]);
+        }
+
+        $statement = '((' . implode(') OR (', $statements) . '))';
+
+        $this->select->where($statement, ...$binds);
     }
 }

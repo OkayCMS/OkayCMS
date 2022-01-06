@@ -99,7 +99,7 @@ class CategoryController extends AbstractController
             );
         } else {
             // если включена отложенная загрузка фильтров, установим отдельно возможные значения свойств
-            $baseFeaturesValues = $categoriesHelper->getCatalogBaseFeaturesValues(array_keys($catalogFeatures), $category);
+            $baseFeaturesValues = $catalogHelper->getBaseFeaturesValues(null, $this->settings->get('missing_products'));
 
             if (!empty($baseFeaturesValues)) {
                 foreach ($baseFeaturesValues as $values) {

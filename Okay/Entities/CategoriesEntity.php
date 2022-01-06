@@ -649,7 +649,7 @@ class CategoriesEntity extends Entity
         /** @var ProductsEntity $productsEntity */
         $productsEntity = $this->entity->get(ProductsEntity::class);
 
-        $productsSelect = $productsEntity->getSelect(['keyword' => $keyword]);
+        $productsSelect = $productsEntity->getSelect(['keyword' => $keyword, 'visible' => 1]);
         $categoryIds = $productsSelect
             ->join('LEFT', '__products_categories AS pc', 'pc.product_id = p.id')
             ->resetCols()

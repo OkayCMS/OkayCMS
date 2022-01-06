@@ -397,7 +397,7 @@ class FeaturesEntity extends Entity
         /** @var ProductsEntity $productsEntity */
         $productsEntity = $this->entity->get(ProductsEntity::class);
 
-        $productsSelect = $productsEntity->getSelect(['keyword' => $keyword]);
+        $productsSelect = $productsEntity->getSelect(['keyword' => $keyword, 'visible' => 1]);
 
         $productsSelect
             ->join(
@@ -425,7 +425,7 @@ class FeaturesEntity extends Entity
         /** @var ProductsEntity $productsEntity */
         $productsEntity = $this->entity->get(ProductsEntity::class);
 
-        $productsSelect = $productsEntity->getSelect(['brand' => $value]);
+        $productsSelect = $productsEntity->getSelect(['brand' => $value, 'visible' => 1]);
 
         $productsSelect
             ->join(

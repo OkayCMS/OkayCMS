@@ -7,18 +7,19 @@ namespace Okay\Controllers;
 use Okay\Core\Router;
 use Okay\Core\Routes\RouteFactory;
 use Okay\Helpers\BrandsHelper;
+use Okay\Helpers\CatalogHelper;
 use Okay\Helpers\FilterHelper;
 use Okay\Helpers\MetadataHelpers\AllBrandsMetadataHelper;
 
 class BrandsController extends AbstractController
 {
-
     /*Отображение страницы всех брендов*/
     public function render(
         BrandsHelper            $brandsHelper,
         FilterHelper            $filterHelper,
         AllBrandsMetadataHelper $allBrandsMetadataHelper,
         RouteFactory            $routeFactory,
+        CatalogHelper           $catalogHelper,
                                 $filtersUrl = ''
     ) {
         $allBrandsRouteParams = $routeFactory->create('brands')->generateRouteParams();
@@ -62,7 +63,7 @@ class BrandsController extends AbstractController
             );
         } else {
             // если включена отложенная загрузка фильтров, установим отдельно возможные значения свойств
-            $baseFeaturesValues = $brandsHelper->getCatalogBaseFeaturesValues(array_keys($catalogFeatures));
+            $baseFeaturesValues = $catalogHelper->getBaseFeaturesValues(null, $this->settings->get('missing_products'));
 
             if (!empty($baseFeaturesValues)) {
                 foreach ($baseFeaturesValues as $values) {

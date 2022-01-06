@@ -84,22 +84,6 @@ class BrandsHelper implements GetListInterface
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
-    public function getCatalogBaseFeaturesValues(array $featuresIds, ?object $brand = null): array
-    {
-        $filter = ['feature_id' => $featuresIds];
-
-        if ($brand) {
-            $filter['brand_id'] = $brand->id;
-        } else {
-            $filter['brand'] = true;
-        }
-
-        $featuresValues = $this->catalogHelper->getBaseFeaturesValues($filter,
-            $this->settings->get('missing_products'));
-
-        return ExtenderFacade::execute(__METHOD__, $featuresValues, func_get_args());
-    }
-
     public function isFilterPage(array $filter): bool
     {
         unset($filter['brand_id']);

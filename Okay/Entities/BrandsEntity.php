@@ -113,7 +113,7 @@ class BrandsEntity extends Entity
     {
         $productsEntity = $this->entity->get(ProductsEntity::class);
 
-        $productsSelect = $productsEntity->getSelect(['price' => $price]);
+        $productsSelect = $productsEntity->getSelect(['price' => $price, 'visible' => 1]);
 
         $this->select->joinSubSelect(
             'INNER',
@@ -295,7 +295,7 @@ class BrandsEntity extends Entity
         /** @var ProductsEntity $productsEntity */
         $productsEntity = $this->entity->get(ProductsEntity::class);
 
-        $productsSelect = $productsEntity->getSelect(['keyword' => $keyword]);
+        $productsSelect = $productsEntity->getSelect(['keyword' => $keyword, 'visible' => 1]);
 
         $this->select->joinSubSelect(
             'INNER',

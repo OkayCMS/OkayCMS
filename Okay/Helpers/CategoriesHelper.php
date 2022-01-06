@@ -79,18 +79,6 @@ class CategoriesHelper
         return ExtenderFacade::execute(__METHOD__, $features, func_get_args());
     }
 
-    public function getCatalogBaseFeaturesValues(array $featuresIds, object $category): array
-    {
-        $filter = [
-            'category_id' => $category->id,
-            'feature_id' => $featuresIds
-        ];
-
-        $featuresValues = $this->catalogHelper->getBaseFeaturesValues($filter, $this->settings->get('missing_products'));
-
-        return ExtenderFacade::execute(__METHOD__, $featuresValues, func_get_args());
-    }
-
     public function isFilterPage(array $filter): bool
     {
         return ExtenderFacade::execute(__METHOD__, $this->filterHelper->isFilterPage($filter), func_get_args());

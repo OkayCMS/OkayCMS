@@ -7,7 +7,6 @@ namespace Okay\Helpers;
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
 use Okay\Core\FrontTranslations;
-use Okay\Core\Money;
 use Okay\Core\Request;
 use Okay\Core\Router;
 use Okay\Core\Settings;
@@ -31,9 +30,6 @@ class FilterHelper
 
     /** @var Settings */
     private $settings;
-
-    /** @var Money */
-    private $money;
 
     /** @var FrontTranslations */
     private $frontTranslations;
@@ -61,43 +57,30 @@ class FilterHelper
     private $featureValuesCache = [];
 
     public function __construct(
-        EntityFactory $entityFactory,
-        Settings $settings,
-        Request $request,
-        Router $router,
-        Design $design,
-        Money $money,
+        EntityFactory     $entityFactory,
+        Settings          $settings,
+        Request           $request,
+        Router            $router,
+        Design            $design,
         FrontTranslations $frontTranslations
     ) {
-        $this->entityFactory = $entityFactory;
-        $this->request = $request;
-        $this->router = $router;
-        $this->design = $design;
-        $this->settings = $settings;
-        $this->money = $money;
+        $this->entityFactory     = $entityFactory;
+        $this->request           = $request;
+        $this->router            = $router;
+        $this->design            = $design;
+        $this->settings          = $settings;
         $this->frontTranslations = $frontTranslations;
 
-        $this->maxFilterBrands = $settings->get('max_brands_filter_depth');
-        $this->maxFilterFilter = $settings->get('max_other_filter_depth');
+        $this->maxFilterBrands         = $settings->get('max_brands_filter_depth');
+        $this->maxFilterFilter         = $settings->get('max_other_filter_depth');
         $this->maxFilterFeaturesValues = $settings->get('max_features_values_filter_depth');
-        $this->maxFilterFeatures = $settings->get('max_features_filter_depth');
-        $this->maxFilterDepth = $settings->get('max_filter_depth');
-
-        if ($keyword = $this->getKeyword()) {
-            $this->featuresValuesFilter['product_keyword'] = $keyword;
-        }
+        $this->maxFilterFeatures       = $settings->get('max_features_filter_depth');
+        $this->maxFilterDepth          = $settings->get('max_filter_depth');
     }
 
-    public function getDiscountedProductsFilter(array $filter = [])
+    public function init()
     {
-        $filter['discounted'] = true;
-        return ExtenderFacade::execute(__METHOD__, $filter, func_get_args());
-    }
-
-    public function getFeaturedProductsFilter(array $filter = [])
-    {
-        $filter['featured'] = true;
-        return ExtenderFacade::execute(__METHOD__, $filter, func_get_args());
+        $this->setFeaturesValuesFilter();
     }
 
     public function setFiltersUrl(string $filtersUrl): void
@@ -118,7 +101,18 @@ class FilterHelper
             $featuresValuesFilter['product_keyword'] = $keyword;
         }
 
+        if (!isset($featuresValuesFilter['feature_id']) && !empty($this->features)) {
+            $featuresValuesFilter['feature_id'] = array_map(function (object $feature) {
+                return $feature->id;
+            }, $this->features);
+        }
+
         $this->featuresValuesFilter = ExtenderFacade::execute(__METHOD__, $featuresValuesFilter, func_get_args());
+    }
+
+    public function getFeaturesValuesFilter(): array
+    {
+        return ExtenderFacade::execute(__METHOD__, $this->featuresValuesFilter, func_get_args());
     }
 
     public function setFeatureValue($featureValue)
@@ -214,8 +208,12 @@ class FilterHelper
     /**
      * Метод возвращает фильтр, который передадим в FeaturesValuesEntity::find()
      */
-    public function prepareFilterGetFeaturesValues(array $filter = [], ?string $missingProducts = null): array
+    public function prepareFilterGetFeaturesValues(array $productsFilter = [], ?array $featuresValuesFilter = null, ?string $missingProducts = null): array
     {
+        if ($featuresValuesFilter === null) {
+            $featuresValuesFilter = $this->featuresValuesFilter;
+        }
+
         $featuresValuesFilter['visible'] = 1;
 
         // Если скрываем из каталога товары не в наличии, значит и в фильтре их значения тоже не нужны будут
@@ -230,28 +228,28 @@ class FilterHelper
             }
         }
 
-        if (!empty($filter['category_id'])) {
-            $featuresValuesFilter['have_products_in_categories'] = $filter['category_id'];
+        if (!empty($productsFilter['category_id'])) {
+            $featuresValuesFilter['have_products_in_categories'] = $productsFilter['category_id'];
         }
 
-        if (isset($filter['features'])) {
-            $featuresValuesFilter['features'] = $filter['features'];
+        if (isset($productsFilter['features'])) {
+            $featuresValuesFilter['features'] = $productsFilter['features'];
         }
 
-        if (isset($filter['brand_id'])) {
-            $featuresValuesFilter['brand_id'] = $filter['brand_id'];
+        if (isset($productsFilter['brand_id'])) {
+            $featuresValuesFilter['brand_id'] = $productsFilter['brand_id'];
         }
 
-        if (isset($filter['price'])) {
-            $featuresValuesFilter['price'] = $filter['price'];
+        if (isset($productsFilter['price'])) {
+            $featuresValuesFilter['price'] = $productsFilter['price'];
         }
 
-        if (!empty($filter['other_filter'])) {
-            $featuresValuesFilter['other_filter'] = $filter['other_filter'];
+        if (!empty($productsFilter['other_filter'])) {
+            $featuresValuesFilter['other_filter'] = $productsFilter['other_filter'];
         }
 
-        if (!empty($filter['keyword'])) {
-            $featuresValuesFilter['product_keyword'] = $filter['keyword'];
+        if (!empty($productsFilter['keyword'])) {
+            $featuresValuesFilter['product_keyword'] = $productsFilter['keyword'];
         }
 
         return ExtenderFacade::execute(__METHOD__, $featuresValuesFilter, func_get_args());

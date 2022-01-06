@@ -480,9 +480,13 @@ return [
             new SR(Request::class),
             new SR(Router::class),
             new SR(Design::class),
-            new SR(Money::class),
             new SR(FrontTranslations::class),
         ],
+        'calls' => [
+            [
+                'method' => 'init'
+            ]
+        ]
     ],
     MoneyHelper::class => [
         'class' => MoneyHelper::class,

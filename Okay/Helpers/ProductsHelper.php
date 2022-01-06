@@ -85,14 +85,6 @@ class ProductsHelper implements GetListInterface
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
-    public function getCatalogBaseFeaturesValues(array $featuresIds): array
-    {
-        $featuresValues = $this->catalogHelper->getBaseFeaturesValues(['feature_id' => $featuresIds],
-            $this->settings->get('missing_products'));
-
-        return ExtenderFacade::execute(__METHOD__, $featuresValues, func_get_args());
-    }
-
     public function getCatalogFeatures(): array
     {
         return ExtenderFacade::execute(__METHOD__, $this->catalogHelper->getCatalogFeatures(), func_get_args());

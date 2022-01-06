@@ -90,13 +90,10 @@ class CatalogHelper
 
         if (!empty($catalogFeatures)) {
             /**
-             * Получаем значения свойств для категории, чтобы на страницах фильтров убрать фильтры
+             * Получаем значения свойств для каталога, чтобы на страницах фильтров убрать фильтры
              * у которых изначально был только один вариант выбора
              */
-            $featuresIds = array_map(function (object $feature) {
-                return $feature->id;
-            }, $catalogFeatures);
-            $baseFeaturesValues = $this->getBaseFeaturesValues(['feature_id' => $featuresIds], $this->settings->get('missing_products'));
+            $baseFeaturesValues = $this->getBaseFeaturesValues(null, $this->settings->get('missing_products'));
 
             // Дополняем массив $catalogFilterFeatures значениями, которые в данный момент выбраны
             // и были изначально, но их фильтрация (по бренду или цене) отсекла.
@@ -111,7 +108,7 @@ class CatalogHelper
             }
 
             // Достаём значения свойств текущей категории
-            $featuresValuesFilter = $this->filterHelper->prepareFilterGetFeaturesValues($productsFilter, $this->settings->get('missing_products'));
+            $featuresValuesFilter = $this->filterHelper->prepareFilterGetFeaturesValues($productsFilter, null, $this->settings->get('missing_products'));
             foreach ($this->filterHelper->getFeaturesValues($featuresValuesFilter) as $featureValue) {
                 if (isset($catalogFeatures[$featureValue->feature_id])) {
                     $this->filterHelper->setFeatureValue($featureValue);
@@ -263,8 +260,12 @@ class CatalogHelper
      * Используется на странице фильтра, и нужно, чтобы определить у фильтра один вариант значения (который нужно скрыть)
      * или изначально было много значений, тогда такой фильтр остаётся
      */
-    public function getBaseFeaturesValues(array $filter, ?string $missingProducts = null): array
+    public function getBaseFeaturesValues(?array $filter = null, ?string $missingProducts = null): array
     {
+        if ($filter === null) {
+            $filter = $this->filterHelper->getFeaturesValuesFilter();
+        }
+
         // Если скрываем из каталога товары не в наличии, значит и в фильтре их значения тоже не нужны будут
         if ($missingProducts === MISSING_PRODUCTS_HIDE) {
             $filter['in_stock'] = true;
