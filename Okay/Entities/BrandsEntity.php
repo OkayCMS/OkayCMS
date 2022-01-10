@@ -115,12 +115,16 @@ class BrandsEntity extends Entity
 
         $productsSelect = $productsEntity->getSelect(['price' => $price, 'visible' => 1]);
 
+        $productsSelect
+            ->resetCols()
+            ->resetOrderBy()
+            ->cols([ProductsEntity::getTableAlias().'.brand_id']);
+
         $this->select->joinSubSelect(
             'INNER',
             $productsSelect,
-            __FUNCTION__.'_'.ProductsEntity::getTableAlias(),
-            __FUNCTION__.'_'.ProductsEntity::getTableAlias().'.brand_id = b.id');
-
+            __FUNCTION__.'__'.ProductsEntity::getTableAlias(),
+            __FUNCTION__.'__'.ProductsEntity::getTableAlias().'.brand_id = b.id');
     }
     
     protected function filter__features($features, $filter)
@@ -297,10 +301,15 @@ class BrandsEntity extends Entity
 
         $productsSelect = $productsEntity->getSelect(['keyword' => $keyword, 'visible' => 1]);
 
+        $productsSelect
+            ->resetCols()
+            ->resetOrderBy()
+            ->cols([ProductsEntity::getTableAlias().'.brand_id']);
+
         $this->select->joinSubSelect(
             'INNER',
             $productsSelect,
-            __FUNCTION__.'_'.ProductsEntity::getTableAlias(),
-            __FUNCTION__.'_'.ProductsEntity::getTableAlias().'.brand_id = b.id');
+            __FUNCTION__.'__'.ProductsEntity::getTableAlias(),
+            __FUNCTION__.'__'.ProductsEntity::getTableAlias().'.brand_id = b.id');
     }
 }

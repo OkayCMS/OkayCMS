@@ -190,6 +190,10 @@ class FeaturesValuesEntity extends Entity
         $productsSelect = $productsEntity->getSelect(['price' => $price, 'visible' => 1]);
 
         $productsSelect
+            ->resetCols()
+            ->resetOrderBy();
+
+        $productsSelect
             ->join(
                 'LEFT',
                 '__products_features_values AS pfv',
@@ -200,8 +204,8 @@ class FeaturesValuesEntity extends Entity
         $this->select->joinSubSelect(
             'INNER',
             $productsSelect,
-            __FUNCTION__.'_'.ProductsEntity::getTableAlias(),
-            __FUNCTION__.'_'.ProductsEntity::getTableAlias().'.product_value_id = fv.id');
+            __FUNCTION__.'__'.ProductsEntity::getTableAlias(),
+            __FUNCTION__.'__'.ProductsEntity::getTableAlias().'.product_value_id = fv.id');
 
     }
     
@@ -425,25 +429,8 @@ class FeaturesValuesEntity extends Entity
         $productsSelect = $productsEntity->getSelect(['keyword' => $keyword, 'visible' => 1]);
 
         $productsSelect
-            ->join(
-                'LEFT',
-                '__products_features_values AS pfv',
-                'pfv.product_id = '.ProductsEntity::getTableAlias().'.id'
-            )
-            ->cols(['pfv.value_id as product_value_id']);
-
-        $this->select->joinSubSelect(
-            'INNER',
-            $productsSelect,
-            __FUNCTION__.'_'.ProductsEntity::getTableAlias(),
-            __FUNCTION__.'_'.ProductsEntity::getTableAlias().'.product_value_id = fv.id');
-    }
-
-    protected function filter__brand($value)
-    {
-        $productsEntity = $this->entity->get(ProductsEntity::class);
-
-        $productsSelect = $productsEntity->getSelect(['brand' => $value, 'visible' => 1]);
+            ->resetCols()
+            ->resetOrderBy();
 
         $productsSelect
             ->join(
@@ -456,8 +443,33 @@ class FeaturesValuesEntity extends Entity
         $this->select->joinSubSelect(
             'INNER',
             $productsSelect,
-            __FUNCTION__.'_'.ProductsEntity::getTableAlias(),
-            __FUNCTION__.'_'.ProductsEntity::getTableAlias().'.product_value_id = fv.id');
+            __FUNCTION__.'__'.ProductsEntity::getTableAlias(),
+            __FUNCTION__.'__'.ProductsEntity::getTableAlias().'.product_value_id = fv.id');
+    }
+
+    protected function filter__brand($value)
+    {
+        $productsEntity = $this->entity->get(ProductsEntity::class);
+
+        $productsSelect = $productsEntity->getSelect(['brand' => $value, 'visible' => 1]);
+
+        $productsSelect
+            ->resetCols()
+            ->resetOrderBy();
+
+        $productsSelect
+            ->join(
+                'LEFT',
+                '__products_features_values AS pfv',
+                'pfv.product_id = '.ProductsEntity::getTableAlias().'.id'
+            )
+            ->cols(['pfv.value_id as product_value_id']);
+
+        $this->select->joinSubSelect(
+            'INNER',
+            $productsSelect,
+            __FUNCTION__.'__'.ProductsEntity::getTableAlias(),
+            __FUNCTION__.'__'.ProductsEntity::getTableAlias().'.product_value_id = fv.id');
     }
 
     protected function filter__selected_features($selectedFeatures)
