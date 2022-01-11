@@ -164,16 +164,24 @@ class MetaRobotsHelper
         }
 
         if (!empty($page) && (!empty($otherFilter) || !empty($featuresFilter) || !empty($brandsFilter))) {
-            return $this->catalogFilterPagination; // no ExtenderFacade
+            $paginationCatalogRobots = $this->catalogFilterPagination; // no ExtenderFacade
+        } else if (!empty($page)) {
+            if ($page == 'all') {
+                $paginationCatalogRobots = $this->catalogPageAll; // no ExtenderFacade
+            } else {
+                $paginationCatalogRobots = $this->catalogPagination; // no ExtenderFacade
+            }
+        } else {
+            $paginationCatalogRobots = 0;
         }
         
-        $baseCatalogRobots = $this->getBaseCatalogRobots($page, $otherFilter);
-        $catalogRobots = $this->getCatalogRobotsExecutor($page, $featuresFilter, $brandsFilter);
+        $baseCatalogRobots = $this->getBaseCatalogRobots($otherFilter);
+        $catalogRobots = $this->getCatalogRobotsExecutor($featuresFilter, $brandsFilter);
         
-        return max($baseCatalogRobots, $catalogRobots); // no ExtenderFacade
+        return max($baseCatalogRobots, $catalogRobots, $paginationCatalogRobots); // no ExtenderFacade
     }
 
-    private function getCatalogRobotsExecutor($page, array $featuresFilter, array $brandsFilter) : int
+    private function getCatalogRobotsExecutor(array $featuresFilter, array $brandsFilter) : int
     {
         if (!empty($featuresFilter)) {
             foreach ($featuresFilter as $values) {
@@ -192,14 +200,6 @@ class MetaRobotsHelper
             }
         }
 
-        if (!empty($page)) {
-            if ($page == 'all') {
-                return $this->catalogPageAll; // no ExtenderFacade
-            } else {
-                return $this->catalogPagination; // no ExtenderFacade
-            }
-        }
-
         if (!empty($featuresFilter)) {
             return $this->catalogFeatures; // no ExtenderFacade
         }
@@ -212,11 +212,10 @@ class MetaRobotsHelper
     }
 
     /**
-     * @param $page
      * @param array $otherFilter
      * @return int
      */
-    private function getBaseCatalogRobots($page, array $otherFilter) : int
+    private function getBaseCatalogRobots(array $otherFilter) : int
     {
         if ($this->maxFilterDepth === 0 && !empty($otherFilter)) {
             return ROBOTS_NOINDEX_NOFOLLOW; // no ExtenderFacade
@@ -225,18 +224,6 @@ class MetaRobotsHelper
         if (!empty($otherFilter)) {
             if (count($otherFilter) > $this->maxOtherFilterDepth) {
                 return ROBOTS_NOINDEX_NOFOLLOW; // no ExtenderFacade
-            }
-        }
-
-        if (!empty($page) && !empty($otherFilter)) {
-            return $this->catalogFilterPagination; // no ExtenderFacade
-        }
-
-        if (!empty($page)) {
-            if ($page == 'all') {
-                return $this->catalogPageAll; // no ExtenderFacade
-            } else {
-                return $this->catalogPagination; // no ExtenderFacade
             }
         }
 

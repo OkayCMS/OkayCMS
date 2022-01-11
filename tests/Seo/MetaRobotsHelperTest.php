@@ -17,14 +17,12 @@ class MetaRobotsHelperTest extends TestCase
 
     /**
      * @param array $robotsSettings
-     * @param $page
      * @param array $otherFilters
      * @param $expectedResult
-     * @dataProvider getBaseCatalogPaginationDataProvider
      * @dataProvider getBaseCatalogOtherFiltersDataProvider
-     * @dataProvider getBaseCatalogOtherFiltersPaginationDataProvider
+     *
      */
-    public function testGetBaseCatalogRobots(array $robotsSettings, $page, array $otherFilters, $expectedResult)
+    public function testGetBaseCatalogRobots(array $robotsSettings, array $otherFilters, $expectedResult)
     {
         // Т.к. метод приватный, доступ к нему получаем через рефлексию
         $reflector = new \ReflectionClass(MetaRobotsHelper::class);
@@ -36,7 +34,7 @@ class MetaRobotsHelperTest extends TestCase
         // Передаем нужные настройки в наш класс
         call_user_func_array([$metaRobotsHelper, 'setParams'], $robotsSettings);
 
-        $actualResult = $method->invokeArgs($metaRobotsHelper, [$page, $otherFilters]);
+        $actualResult = $method->invokeArgs($metaRobotsHelper, [$otherFilters]);
 
         $this->assertEquals($expectedResult, $actualResult);
     }
@@ -185,15 +183,14 @@ class MetaRobotsHelperTest extends TestCase
     }
 
     /**
-     * @param array $canonicalSettings
-     * @param $page
+     * @param array $robotsSettings
      * @param array $featuresFilter
      * @param array $brandsFilter
      * @param array|false $expectedResult
      * @throws \ReflectionException
      * @dataProvider getCatalogFeaturesFilterDataProvider
      */
-    public function testGetCatalogCanonicalDataExecutor(array $canonicalSettings, $page, array $featuresFilter, array $brandsFilter, $expectedResult)
+    public function testGetCatalogRobotsExecutor(array $robotsSettings, array $featuresFilter, array $brandsFilter, $expectedResult)
     {
         // Т.к. метод приватный, доступ к нему получаем через рефлексию
         $reflector = new \ReflectionClass(MetaRobotsHelper::class);
@@ -203,9 +200,9 @@ class MetaRobotsHelperTest extends TestCase
         $metaRobotsHelper = new MetaRobotsHelper;
 
         // Передаем нужные настройки в наш класс
-        call_user_func_array([$metaRobotsHelper, 'setParams'], $canonicalSettings);
+        call_user_func_array([$metaRobotsHelper, 'setParams'], $robotsSettings);
 
-        $actualResult = $method->invokeArgs($metaRobotsHelper, [(string)$page, $featuresFilter, $brandsFilter]);
+        $actualResult = $method->invokeArgs($metaRobotsHelper, [$featuresFilter, $brandsFilter]);
         $this->assertEquals($expectedResult, $actualResult);
     }
 
@@ -226,7 +223,6 @@ class MetaRobotsHelperTest extends TestCase
                     2, // Максимальное кол-во значений одного свойства
                     2, // Общая максимальная вложенность фильтра
                 ],
-                null,
                 [
                     1 => [
                         150 => 'val_11',
@@ -252,7 +248,6 @@ class MetaRobotsHelperTest extends TestCase
                     2, // Максимальное кол-во значений одного свойства
                     2, // Общая максимальная вложенность фильтра
                 ],
-                null,
                 [
                     1 => [
                         150 => 'val_12',
@@ -278,7 +273,6 @@ class MetaRobotsHelperTest extends TestCase
                     2, // Максимальное кол-во значений одного свойства
                     2, // Общая максимальная вложенность фильтра
                 ],
-                null,
                 [
                     1 => [
                         150 => 'val_13',
@@ -304,7 +298,6 @@ class MetaRobotsHelperTest extends TestCase
                     2, // Максимальное кол-во значений одного свойства
                     2, // Общая максимальная вложенность фильтра
                 ],
-                null,
                 [
                     1 => [
                         150 => 'val_14',
@@ -330,7 +323,6 @@ class MetaRobotsHelperTest extends TestCase
                     1, // Максимальное кол-во значений одного свойства
                     2, // Общая максимальная вложенность фильтра
                 ],
-                null,
                 [
                     1 => [
                         150 => 'val_15',
@@ -360,7 +352,6 @@ class MetaRobotsHelperTest extends TestCase
                     2, // Максимальное кол-во значений одного свойства
                     2, // Общая максимальная вложенность фильтра
                 ],
-                null,
                 [
                     'featured',
                 ],
@@ -380,7 +371,6 @@ class MetaRobotsHelperTest extends TestCase
                     2, // Максимальное кол-во значений одного свойства
                     2, // Общая максимальная вложенность фильтра
                 ],
-                null,
                 [
                     'featured',
                 ],
@@ -400,7 +390,6 @@ class MetaRobotsHelperTest extends TestCase
                     2, // Максимальное кол-во значений одного свойства
                     2, // Общая максимальная вложенность фильтра
                 ],
-                null,
                 [
                     'featured',
                 ],
@@ -420,7 +409,6 @@ class MetaRobotsHelperTest extends TestCase
                     2, // Максимальное кол-во значений одного свойства
                     2, // Общая максимальная вложенность фильтра
                 ],
-                null,
                 [
                     'featured',
                     'discounted',
@@ -441,208 +429,6 @@ class MetaRobotsHelperTest extends TestCase
                     2, // Максимальное кол-во значений одного свойства
                     0, // Общая максимальная вложенность фильтра
                 ],
-                null,
-                [
-                    'featured',
-                    'discounted',
-                ],
-                ROBOTS_NOINDEX_NOFOLLOW,
-            ],
-        ];
-    }
-    
-    public function getBaseCatalogPaginationDataProvider() : array
-    {
-        return [
-            [
-                [
-                    ROBOTS_INDEX_FOLLOW, // pagination
-                    ROBOTS_INDEX_FOLLOW, // page-all
-                    ROBOTS_INDEX_FOLLOW, // brand filter
-                    ROBOTS_INDEX_FOLLOW, // features filter
-                    ROBOTS_INDEX_FOLLOW, // other filters
-                    ROBOTS_INDEX_FOLLOW, // filter pagination
-                    2, // Максимальное кол-во брендов
-                    1, // Максимальное кол-во доп. фильтров
-                    2, // Максимальное кол-во разных свойств
-                    2, // Максимальное кол-во значений одного свойства
-                    2, // Общая максимальная вложенность фильтра
-                ],
-                2,
-                [],
-                ROBOTS_INDEX_FOLLOW,
-            ],
-            [
-                [
-                    ROBOTS_NOINDEX_FOLLOW, // pagination
-                    ROBOTS_INDEX_FOLLOW, // page-all
-                    ROBOTS_INDEX_FOLLOW, // brand filter
-                    ROBOTS_INDEX_FOLLOW, // features filter
-                    ROBOTS_INDEX_FOLLOW, // other filters
-                    ROBOTS_INDEX_FOLLOW, // filter pagination
-                    2, // Максимальное кол-во брендов
-                    2, // Максимальное кол-во доп. фильтров
-                    2, // Максимальное кол-во разных свойств
-                    2, // Максимальное кол-во значений одного свойства
-                    0, // Общая максимальная вложенность фильтра
-                ],
-                3,
-                [],
-                ROBOTS_NOINDEX_FOLLOW,
-            ],
-            [
-                [
-                    ROBOTS_NOINDEX_NOFOLLOW, // pagination
-                    ROBOTS_INDEX_FOLLOW, // page-all
-                    ROBOTS_INDEX_FOLLOW, // brand filter
-                    ROBOTS_INDEX_FOLLOW, // features filter
-                    ROBOTS_INDEX_FOLLOW, // other filters
-                    ROBOTS_INDEX_FOLLOW, // filter pagination
-                    2, // Максимальное кол-во брендов
-                    2, // Максимальное кол-во доп. фильтров
-                    0, // Максимальное кол-во разных свойств
-                    2, // Максимальное кол-во значений одного свойства
-                    2, // Общая максимальная вложенность фильтра
-                ],
-                4,
-                [],
-                ROBOTS_NOINDEX_NOFOLLOW,
-            ],
-            [
-                [
-                    ROBOTS_INDEX_FOLLOW, // pagination
-                    ROBOTS_INDEX_FOLLOW, // page-all
-                    ROBOTS_INDEX_FOLLOW, // brand filter
-                    ROBOTS_INDEX_FOLLOW, // features filter
-                    ROBOTS_INDEX_FOLLOW, // other filters
-                    ROBOTS_INDEX_FOLLOW, // filter pagination
-                    2, // Максимальное кол-во брендов
-                    2, // Максимальное кол-во доп. фильтров
-                    2, // Максимальное кол-во разных свойств
-                    2, // Максимальное кол-во значений одного свойства
-                    1, // Общая максимальная вложенность фильтра
-                ],
-                'all',
-                [],
-                ROBOTS_INDEX_FOLLOW,
-            ],
-            [
-                [
-                    ROBOTS_INDEX_FOLLOW, // pagination
-                    ROBOTS_NOINDEX_FOLLOW, // page-all
-                    ROBOTS_INDEX_FOLLOW, // brand filter
-                    ROBOTS_INDEX_FOLLOW, // features filter
-                    ROBOTS_INDEX_FOLLOW, // other filters
-                    ROBOTS_INDEX_FOLLOW, // filter pagination
-                    2, // Максимальное кол-во брендов
-                    2, // Максимальное кол-во доп. фильтров
-                    2, // Максимальное кол-во разных свойств
-                    2, // Максимальное кол-во значений одного свойства
-                    2, // Общая максимальная вложенность фильтра
-                ],
-                'all',
-                [],
-                ROBOTS_NOINDEX_FOLLOW,
-            ],
-            [
-                [
-                    ROBOTS_INDEX_FOLLOW, // pagination
-                    ROBOTS_NOINDEX_NOFOLLOW, // page-all
-                    ROBOTS_INDEX_FOLLOW, // brand filter
-                    ROBOTS_INDEX_FOLLOW, // features filter
-                    ROBOTS_INDEX_FOLLOW, // other filters
-                    ROBOTS_INDEX_FOLLOW, // filter pagination
-                    2, // Максимальное кол-во брендов
-                    2, // Максимальное кол-во доп. фильтров
-                    2, // Максимальное кол-во разных свойств
-                    2, // Максимальное кол-во значений одного свойства
-                    2, // Общая максимальная вложенность фильтра
-                ],
-                'all',
-                [],
-                ROBOTS_NOINDEX_NOFOLLOW,
-            ],
-        ];
-    }
-
-    public function getBaseCatalogOtherFiltersPaginationDataProvider() : array
-    {
-        return [
-            [
-                [
-                    ROBOTS_INDEX_FOLLOW, // pagination
-                    ROBOTS_INDEX_FOLLOW, // page-all
-                    ROBOTS_INDEX_FOLLOW, // brand filter
-                    ROBOTS_INDEX_FOLLOW, // features filter
-                    ROBOTS_INDEX_FOLLOW, // other filters
-                    ROBOTS_INDEX_FOLLOW, // filter pagination
-                    2, // Максимальное кол-во брендов
-                    2, // Максимальное кол-во доп. фильтров
-                    2, // Максимальное кол-во разных свойств
-                    2, // Максимальное кол-во значений одного свойства
-                    2, // Общая максимальная вложенность фильтра
-                ],
-                2,
-                [
-                    'featured',
-                ],
-                ROBOTS_INDEX_FOLLOW,
-            ],
-            [
-                [
-                    ROBOTS_INDEX_FOLLOW, // pagination
-                    ROBOTS_INDEX_FOLLOW, // page-all
-                    ROBOTS_INDEX_FOLLOW, // brand filter
-                    ROBOTS_INDEX_FOLLOW, // features filter
-                    ROBOTS_INDEX_FOLLOW, // other filters
-                    ROBOTS_NOINDEX_FOLLOW, // filter pagination
-                    2, // Максимальное кол-во брендов
-                    2, // Максимальное кол-во доп. фильтров
-                    2, // Максимальное кол-во разных свойств
-                    2, // Максимальное кол-во значений одного свойства
-                    2, // Общая максимальная вложенность фильтра
-                ],
-                3,
-                [
-                    'featured',
-                ],
-                ROBOTS_NOINDEX_FOLLOW,
-            ],
-            [
-                [
-                    ROBOTS_INDEX_FOLLOW, // pagination
-                    ROBOTS_INDEX_FOLLOW, // page-all
-                    ROBOTS_INDEX_FOLLOW, // brand filter
-                    ROBOTS_INDEX_FOLLOW, // features filter
-                    ROBOTS_INDEX_FOLLOW, // other filters
-                    ROBOTS_NOINDEX_NOFOLLOW, // filter pagination
-                    2, // Максимальное кол-во брендов
-                    2, // Максимальное кол-во доп. фильтров
-                    2, // Максимальное кол-во разных свойств
-                    2, // Максимальное кол-во значений одного свойства
-                    2, // Общая максимальная вложенность фильтра
-                ],
-                'all',
-                [
-                    'featured',
-                ],
-                ROBOTS_NOINDEX_NOFOLLOW,
-            ],
-            [// В настройках указано index,follow, но превышена максимальное кол-во доп. фильтров, выводим noindex,nofollow
-                [
-                    ROBOTS_INDEX_FOLLOW, // pagination
-                    ROBOTS_INDEX_FOLLOW, // page-all
-                    ROBOTS_INDEX_FOLLOW, // brand filter
-                    ROBOTS_INDEX_FOLLOW, // features filter
-                    ROBOTS_INDEX_FOLLOW, // other filters
-                    ROBOTS_INDEX_FOLLOW, // filter pagination
-                    2, // Максимальное кол-во брендов
-                    1, // Максимальное кол-во доп. фильтров
-                    2, // Максимальное кол-во разных свойств
-                    2, // Максимальное кол-во значений одного свойства
-                    2, // Общая максимальная вложенность фильтра
-                ],
-                3,
                 [
                     'featured',
                     'discounted',
@@ -949,6 +735,215 @@ class MetaRobotsHelperTest extends TestCase
                 5,
                 [
                     'discounted'
+                ],
+                [],
+                [],
+                ROBOTS_NOINDEX_NOFOLLOW,
+            ],
+            [
+                [
+                    ROBOTS_INDEX_FOLLOW, // pagination
+                    ROBOTS_INDEX_FOLLOW, // page-all
+                    ROBOTS_INDEX_FOLLOW, // brand filter
+                    ROBOTS_INDEX_FOLLOW, // features filter
+                    ROBOTS_INDEX_FOLLOW, // other filters
+                    ROBOTS_INDEX_FOLLOW, // filter pagination
+                    2, // Максимальное кол-во брендов
+                    1, // Максимальное кол-во доп. фильтров
+                    2, // Максимальное кол-во разных свойств
+                    2, // Максимальное кол-во значений одного свойства
+                    2, // Общая максимальная вложенность фильтра
+                ],
+                2,
+                [],
+                [],
+                [],
+                ROBOTS_INDEX_FOLLOW,
+            ],
+            [
+                [
+                    ROBOTS_NOINDEX_FOLLOW, // pagination
+                    ROBOTS_INDEX_FOLLOW, // page-all
+                    ROBOTS_INDEX_FOLLOW, // brand filter
+                    ROBOTS_INDEX_FOLLOW, // features filter
+                    ROBOTS_INDEX_FOLLOW, // other filters
+                    ROBOTS_INDEX_FOLLOW, // filter pagination
+                    2, // Максимальное кол-во брендов
+                    2, // Максимальное кол-во доп. фильтров
+                    2, // Максимальное кол-во разных свойств
+                    2, // Максимальное кол-во значений одного свойства
+                    0, // Общая максимальная вложенность фильтра
+                ],
+                3,
+                [],
+                [],
+                [],
+                ROBOTS_NOINDEX_FOLLOW,
+            ],
+            [
+                [
+                    ROBOTS_NOINDEX_NOFOLLOW, // pagination
+                    ROBOTS_INDEX_FOLLOW, // page-all
+                    ROBOTS_INDEX_FOLLOW, // brand filter
+                    ROBOTS_INDEX_FOLLOW, // features filter
+                    ROBOTS_INDEX_FOLLOW, // other filters
+                    ROBOTS_INDEX_FOLLOW, // filter pagination
+                    2, // Максимальное кол-во брендов
+                    2, // Максимальное кол-во доп. фильтров
+                    0, // Максимальное кол-во разных свойств
+                    2, // Максимальное кол-во значений одного свойства
+                    2, // Общая максимальная вложенность фильтра
+                ],
+                4,
+                [],
+                [],
+                [],
+                ROBOTS_NOINDEX_NOFOLLOW,
+            ],
+            [
+                [
+                    ROBOTS_INDEX_FOLLOW, // pagination
+                    ROBOTS_INDEX_FOLLOW, // page-all
+                    ROBOTS_INDEX_FOLLOW, // brand filter
+                    ROBOTS_INDEX_FOLLOW, // features filter
+                    ROBOTS_INDEX_FOLLOW, // other filters
+                    ROBOTS_INDEX_FOLLOW, // filter pagination
+                    2, // Максимальное кол-во брендов
+                    2, // Максимальное кол-во доп. фильтров
+                    2, // Максимальное кол-во разных свойств
+                    2, // Максимальное кол-во значений одного свойства
+                    1, // Общая максимальная вложенность фильтра
+                ],
+                'all',
+                [],
+                [],
+                [],
+                ROBOTS_INDEX_FOLLOW,
+            ],
+            [
+                [
+                    ROBOTS_INDEX_FOLLOW, // pagination
+                    ROBOTS_NOINDEX_FOLLOW, // page-all
+                    ROBOTS_INDEX_FOLLOW, // brand filter
+                    ROBOTS_INDEX_FOLLOW, // features filter
+                    ROBOTS_INDEX_FOLLOW, // other filters
+                    ROBOTS_INDEX_FOLLOW, // filter pagination
+                    2, // Максимальное кол-во брендов
+                    2, // Максимальное кол-во доп. фильтров
+                    2, // Максимальное кол-во разных свойств
+                    2, // Максимальное кол-во значений одного свойства
+                    2, // Общая максимальная вложенность фильтра
+                ],
+                'all',
+                [],
+                [],
+                [],
+                ROBOTS_NOINDEX_FOLLOW,
+            ],
+            [
+                [
+                    ROBOTS_INDEX_FOLLOW, // pagination
+                    ROBOTS_NOINDEX_NOFOLLOW, // page-all
+                    ROBOTS_INDEX_FOLLOW, // brand filter
+                    ROBOTS_INDEX_FOLLOW, // features filter
+                    ROBOTS_INDEX_FOLLOW, // other filters
+                    ROBOTS_INDEX_FOLLOW, // filter pagination
+                    2, // Максимальное кол-во брендов
+                    2, // Максимальное кол-во доп. фильтров
+                    2, // Максимальное кол-во разных свойств
+                    2, // Максимальное кол-во значений одного свойства
+                    2, // Общая максимальная вложенность фильтра
+                ],
+                'all',
+                [],
+                [],
+                [],
+                ROBOTS_NOINDEX_NOFOLLOW,
+            ],
+            [
+                [
+                    ROBOTS_INDEX_FOLLOW, // pagination
+                    ROBOTS_INDEX_FOLLOW, // page-all
+                    ROBOTS_INDEX_FOLLOW, // brand filter
+                    ROBOTS_INDEX_FOLLOW, // features filter
+                    ROBOTS_INDEX_FOLLOW, // other filters
+                    ROBOTS_INDEX_FOLLOW, // filter pagination
+                    2, // Максимальное кол-во брендов
+                    2, // Максимальное кол-во доп. фильтров
+                    2, // Максимальное кол-во разных свойств
+                    2, // Максимальное кол-во значений одного свойства
+                    2, // Общая максимальная вложенность фильтра
+                ],
+                2,
+                [
+                    'featured',
+                ],
+                [],
+                [],
+                ROBOTS_INDEX_FOLLOW,
+            ],
+            [
+                [
+                    ROBOTS_INDEX_FOLLOW, // pagination
+                    ROBOTS_INDEX_FOLLOW, // page-all
+                    ROBOTS_INDEX_FOLLOW, // brand filter
+                    ROBOTS_INDEX_FOLLOW, // features filter
+                    ROBOTS_INDEX_FOLLOW, // other filters
+                    ROBOTS_NOINDEX_FOLLOW, // filter pagination
+                    2, // Максимальное кол-во брендов
+                    2, // Максимальное кол-во доп. фильтров
+                    2, // Максимальное кол-во разных свойств
+                    2, // Максимальное кол-во значений одного свойства
+                    2, // Общая максимальная вложенность фильтра
+                ],
+                3,
+                [
+                    'featured',
+                ],
+                [],
+                [],
+                ROBOTS_NOINDEX_FOLLOW,
+            ],
+            [
+                [
+                    ROBOTS_INDEX_FOLLOW, // pagination
+                    ROBOTS_INDEX_FOLLOW, // page-all
+                    ROBOTS_INDEX_FOLLOW, // brand filter
+                    ROBOTS_INDEX_FOLLOW, // features filter
+                    ROBOTS_INDEX_FOLLOW, // other filters
+                    ROBOTS_NOINDEX_NOFOLLOW, // filter pagination
+                    2, // Максимальное кол-во брендов
+                    2, // Максимальное кол-во доп. фильтров
+                    2, // Максимальное кол-во разных свойств
+                    2, // Максимальное кол-во значений одного свойства
+                    2, // Общая максимальная вложенность фильтра
+                ],
+                'all',
+                [
+                    'featured',
+                ],
+                [],
+                [],
+                ROBOTS_NOINDEX_NOFOLLOW,
+            ],
+            [// В настройках указано index,follow, но превышена максимальное кол-во доп. фильтров, выводим noindex,nofollow
+                [
+                    ROBOTS_INDEX_FOLLOW, // pagination
+                    ROBOTS_INDEX_FOLLOW, // page-all
+                    ROBOTS_INDEX_FOLLOW, // brand filter
+                    ROBOTS_INDEX_FOLLOW, // features filter
+                    ROBOTS_INDEX_FOLLOW, // other filters
+                    ROBOTS_INDEX_FOLLOW, // filter pagination
+                    2, // Максимальное кол-во брендов
+                    1, // Максимальное кол-во доп. фильтров
+                    2, // Максимальное кол-во разных свойств
+                    2, // Максимальное кол-во значений одного свойства
+                    2, // Общая максимальная вложенность фильтра
+                ],
+                3,
+                [
+                    'featured',
+                    'discounted',
                 ],
                 [],
                 [],
