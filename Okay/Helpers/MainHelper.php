@@ -235,6 +235,7 @@ class MainHelper
         
         $design->assign('currencies', $this->getAllCurrencies());
         $design->assign('currency',   $this->getCurrentCurrency());
+        $design->assignJsVar('currency_cents', $this->getCurrentCurrency()->cents);
 
         $design->assign('user',       $this->getCurrentUser());
         $design->assign('group',      $this->getCurrentUserGroup());

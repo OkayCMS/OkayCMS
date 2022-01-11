@@ -269,7 +269,7 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         $this->buildFilter($filter);
         $this->select->cols([
             "floor(min(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*{$coef})) as min",
-            "floor(max(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*{$coef})) as max",
+            "ceil(max(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*{$coef})) as max",
         ]);
 
         $this->select->join('LEFT', '__variants AS pv', 'pv.product_id = p.id');
@@ -735,10 +735,10 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         $coef = $this->serviceLocator->getService(Money::class)->getCoefMoney();
 
         if (isset($priceRange['min'])) {
-            $this->select->where("floor(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*{$coef})>=?", trim($priceRange['min']));
+            $this->select->where("ROUND(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*{$coef}, 2)>=?", trim($priceRange['min']));
         }
         if (isset($priceRange['max'])) {
-            $this->select->where("floor(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*{$coef})<=?", trim($priceRange['max']));
+            $this->select->where("ROUND(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*{$coef}, 2)<=?", trim($priceRange['max']));
         }
 
         $this->select->join('LEFT', '__variants AS pv', 'pv.product_id = p.id');

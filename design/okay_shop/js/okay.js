@@ -335,17 +335,23 @@ function price_slider_init() {
         ajax_slider();
     }
 
-    noUiSlider.create(stepsSlider, {
+    let sliderConfig = {
         start: [current_min, current_max],
         connect: true,
         range: {
             'min': parseFloat(range_min),
             'max': parseFloat(range_max)
         }
-    });
+    };
+
+    if (!Number(okay.currency_cents)) {
+        sliderConfig.step = 1;
+    }
+
+    noUiSlider.create(stepsSlider, sliderConfig);
 
     stepsSlider.noUiSlider.on('update', function (values, handle) {
-        slider_all[handle].value = values[handle];
+        slider_all[handle].value = Number(values[handle]).toFixed(Number(okay.currency_cents));
     });
 
     stepsSlider.noUiSlider.on('end', function (values, handle) {
