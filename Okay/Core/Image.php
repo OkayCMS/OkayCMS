@@ -12,7 +12,7 @@ use WebPConvert\WebPConvert;
 class Image
 {
     
-    private $allowedExtensions = ['png', 'gif', 'jpg', 'jpeg', 'ico', 'svg'];
+    private $allowedExtensions = ['png', 'gif', 'jpg', 'jpeg', 'ico', 'svg', 'webp'];
 
     private $rootDir;
     
@@ -657,5 +657,14 @@ class Image
         }
 
         return false;
+    }
+
+    public function convertFilenameToWebp($filename)
+    {
+        if (pathinfo($filename, PATHINFO_EXTENSION) !== 'webp') {
+            $filename = $filename.'.webp';
+        }
+
+        return $filename;
     }
 }

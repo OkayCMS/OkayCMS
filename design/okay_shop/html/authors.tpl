@@ -18,7 +18,7 @@
 									{if $a->image}
 										<picture>
 											{if $settings->support_webp}
-												<source type="image/webp" data-srcset="{$a->image|resize:320:500:false:$config->resized_authors_dir}.webp">
+												<source type="image/webp" data-srcset="{$a->image|resize:320:500:false:$config->resized_authors_dir|webp}">
 											{/if}
 											<source data-srcset="{$a->image|resize:320:500:false:$config->resized_authors_dir}">
 											<img class="lazy" data-src="{$a->image|resize:320:500:false:$config->resized_authors_dir}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$a->name|escape}" title="{$a->name|escape}"/>
