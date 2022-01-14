@@ -20,9 +20,6 @@ class CatalogHelper
     /** @var MoneyCore */
     private $money;
 
-    /** @var EntityFactory */
-    private $entityFactory;
-
     /** @var Settings */
     private $settings;
 
@@ -62,7 +59,6 @@ class CatalogHelper
         Design           $design
     )
     {
-        $this->entityFactory    = $entityFactory;
         $this->money            = $money;
         $this->settings         = $settings;
         $this->request          = $request;
@@ -156,6 +152,8 @@ class CatalogHelper
         $this->design->assign('selected_catalog_brands_ids', $productsFilter['brand_id'] ?? []);
         $this->design->assign('selected_catalog_other_filters', $productsFilter['other_filter'] ?? []);
         $this->design->assign('selected_catalog_prices', $productsFilter['price'] ?? []);
+
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
     
     public function getOtherFiltersFilter(array $filter)
