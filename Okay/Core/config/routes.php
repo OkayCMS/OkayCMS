@@ -311,24 +311,6 @@ return [
             'method' => 'checkDomain',
         ],
     ],
-    'brands_features' => [
-        'slug' => '/brands_features' . $allBrandsRouteParams->getSlug(),
-        'patterns' => $allBrandsRouteParams->getPatterns(),
-        'params' => [
-            'controller' => 'BrandsController',
-            'method' => 'getFilter',
-        ],
-        'defaults' => $allBrandsRouteParams->getDefaults()
-    ],
-    'brands' => [
-        'slug' => $allBrandsRouteParams->getSlug(),
-        'patterns' => $allBrandsRouteParams->getPatterns(),
-        'params' => [
-            'controller' => 'BrandsController',
-            'method' => 'render',
-        ],
-        'defaults' => $allBrandsRouteParams->getDefaults(),
-    ],
     'product' => [
         'slug' => $productRouteParams->getSlug(),
         'patterns' => $productRouteParams->getPatterns(),
@@ -373,6 +355,24 @@ return [
             'method' => 'render',
         ],
         'defaults' => $brandRouteParams->getDefaults()
+    ],
+    'brands_features' => [
+        'slug' => '/brands_features' . $allBrandsRouteParams->getSlug(),
+        'patterns' => $allBrandsRouteParams->getPatterns(),
+        'params' => [
+            'controller' => 'BrandsController',
+            'method' => 'getFilter',
+        ],
+        'defaults' => $allBrandsRouteParams->getDefaults()
+    ],
+    'brands' => [
+        'slug' => $allBrandsRouteParams->getSlug(),
+        'patterns' => $allBrandsRouteParams->getPatterns(),
+        'params' => [
+            'controller' => 'BrandsController',
+            'method' => 'render',
+        ],
+        'defaults' => $allBrandsRouteParams->getDefaults(),
     ],
     'author' => [
         'slug' => 'authors/{$url}',
