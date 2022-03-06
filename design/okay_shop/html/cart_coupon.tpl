@@ -1,4 +1,4 @@
-{* Coupon *}
+<!-- Coupon -->
 {if $coupon_request}
     <div class="coupon">
         <div class="fn_switch coupon__title" data-language="cart_coupon">{$lang->cart_coupon}</div>

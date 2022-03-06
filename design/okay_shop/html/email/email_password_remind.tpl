@@ -1,4 +1,4 @@
-{* Письмо восстановления пароля *}
+<!-- Email password remind page -->
 {$subject = "`$lang->email_password_subject`" scope=global}
 
 

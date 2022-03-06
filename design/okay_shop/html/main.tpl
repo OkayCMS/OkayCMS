@@ -1,4 +1,4 @@
-{* The main page template *}
+<!-- The main page template -->
 
 {* Featured products *}
 {get_featured_products var=featured_products limit=5}

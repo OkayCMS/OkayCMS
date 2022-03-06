@@ -1,3 +1,4 @@
+<!-- Desktop categories template -->
 {function name=categories_tree3}
     {if $categories}
         <div class="level_{$level} {if $level == 1}categories_nav__menu{else}categories_nav__subcategory{/if}">

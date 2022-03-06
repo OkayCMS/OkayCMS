@@ -1,4 +1,4 @@
-{* Registration page *}
+<!-- Registration page -->
 
 {* The page title *}
 {$meta_title = $lang->register_title scope=global}

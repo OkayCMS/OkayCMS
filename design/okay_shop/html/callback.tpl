@@ -1,4 +1,4 @@
-{* Callback form *}
+<!-- Callback form -->
 <div class="hidden">
     <form id="fn_callback" class="form form--boxed popup popup_animated fn_validate_callback" method="post">
 
