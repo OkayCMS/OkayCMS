@@ -60,7 +60,7 @@ class NovaposhtaCostSearchController
             "calledMethod" => "searchSettlements",
             "methodProperties" => [
                 "CityName"=> $query,
-                "Limit"=> 10,
+                "Limit"=> 25,
             ],
         ];
 
@@ -92,9 +92,9 @@ class NovaposhtaCostSearchController
     
     public function findCity(Request $request, Response $response, NPCitiesEntity $citiesEntity)
     {
-        
-        $filter['keyword'] = $request->get('query', 'string');
-        $filter['limit'] = 10;
+
+        $filter['keyword'] = $request->get('query');
+        $filter['limit'] = 25;
         
         $cities = $citiesEntity->find($filter);
 
