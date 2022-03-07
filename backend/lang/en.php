@@ -1580,3 +1580,4 @@ $lang['brand_h1'] = 'H1 header';
 $lang['tooltip_brand_h1'] = 'If you need to set the H1 heading different from the brand name - enter it here';
 $lang['general_sort_brands_alphabet'] = 'Alphabetical Sort';
 $lang['general_sort_brands_alphabet_hint'] = 'Sort Brands Alphabetically';
+$lang['product_count_by_feature'] = 'Products count';

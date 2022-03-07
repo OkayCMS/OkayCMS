@@ -1580,3 +1580,4 @@ $lang['brand_h1'] = 'Заголовок H1';
 $lang['tooltip_brand_h1'] = 'Если вам требуется задать заголовок Н1 отличающийся от названия бренда - впишите его сюда';
 $lang['general_sort_brands_alphabet'] = 'Cортировка по алфавиту';
 $lang['general_sort_brands_alphabet_hint'] = 'Отсортировать бренды по алфавиту';
+$lang['product_count_by_feature'] = 'Кол-во товаров';
