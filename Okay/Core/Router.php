@@ -203,6 +203,12 @@ class Router {
                     $method = 'pageNotFound';
                 }
 
+                // If main page after slash has a space(s), like a %20
+                if (preg_match('/^[ ]+$/', $request->getPageUrl(), $matchesSpaces)) {
+                    $controllerName = self::DEFAULT_CONTROLLER_NAMESPACE . 'ErrorController';
+                    $method = 'pageNotFound';
+                }
+
                 /** @var PagesEntity $pagesEntity */
                 $pagesEntity = self::$entityFactory->get(PagesEntity::class);
                 $page = $pagesEntity->get((string) $this->request->getPageUrl());
