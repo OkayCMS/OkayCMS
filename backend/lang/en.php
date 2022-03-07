@@ -582,7 +582,7 @@ $lang['support_closed'] = 'Closed';
 $lang['support_domain_blocked'] = 'Domain is blocked';
 $lang['support_get_keys'] = 'Get the keys';
 $lang['support_last_answer'] = 'The last answer was in';
-$lang['support_las_answer'] = 'Last answer in';
+$lang['support_last_answer'] = 'Last answer in';
 $lang['support_local'] = 'Support does not work on local servers.';
 $lang['support_no'] = 'No topics';
 $lang['support_no_domain'] = 'Domain is not registered (Keys are not relevant)';
@@ -1385,7 +1385,7 @@ $lang['page_routes_template_slash_end_notice'] = 'Pages of contacts, payment and
 $lang['order_history'] = 'Order history';
 $lang['order_history_created'] = 'Created';
 $lang['order_history_by_manager'] = 'by';
-$lang['order_hostory_changed_on'] = 'Changed to';
+$lang['order_history_changed_on'] = 'Changed to';
 $lang['order_referer_channel'] = 'Referral source';
 $lang['order_match_id'] = 'Order ID';
 $lang['order_match_date'] = 'date';
@@ -1586,6 +1586,7 @@ $lang['brand_h1'] = 'H1 header';
 $lang['tooltip_brand_h1'] = 'If you need to set the H1 heading different from the brand name - enter it here';
 $lang['general_sort_brands_alphabet'] = 'Alphabetical Sort';
 $lang['general_sort_brands_alphabet_hint'] = 'Sort Brands Alphabetically';
+$lang['no_message'] = 'Messages not found';
 $lang['license_text_all'] = '1. Software products developed for the OkayCMS framework (hereinafter referred to as the "Products") are the source codes of the programs reproduced in files or on paper, including electronic or printed documentation, as well as the text of this license agreement (hereinafter the "Agreement").
 
 2. The purchase of paid Products or the installation of free Products indicates that the User has read the content of the Agreement, accepts its provisions and will use the Products in accordance with the terms of the Agreement.

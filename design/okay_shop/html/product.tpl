@@ -89,7 +89,7 @@
                     {* Product Rating *}
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="details_boxed__rating">
-                            {*<div class="details_boxed__title" data-language="product_rating">{$lang->product_rating}:</div>*}
+{*                            <div class="details_boxed__title" data-language="product_rating">{$lang->product_rating}:</div>*}
                             <div id="product_{$product->id}" class="product__rating fn_rating" data-rating_post_url="{url_generator route='ajax_product_rating'}" {if $product->rating > 0} itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating"{/if}>
                                 <span class="rating_starOff">
                                     <span class="rating_starOn" style="width:{$product->rating*90/5|string_format:'%.0f'}px;"></span>
@@ -243,11 +243,11 @@
 
                                     {* Comparison *}
                                     {if is_array($comparison->ids) && in_array($product->id, $comparison->ids)}
-                                        <a class="fn_comparison product-page__compare selected" href="#" data-id="{$product->id}" title="{$lang->product_remove_comparison}" data-result-text="{$lang->product_add_comparison}" data-language="product_remove_comparison">
+                                        <a class="fn_comparison product-page__compare selected" href="#" data-id="{$product->id}" title="{$lang->remove_comparison}" data-result-text="{$lang->product_add_comparison}" data-language="product_remove_comparison">
                                             <i class="fa fa-balance-scale"></i>
                                         </a>
                                     {else}
-                                        <a class="fn_comparison product-page__compare" href="#" data-id="{$product->id}" title="{$lang->product_add_comparison}" data-result-text="{$lang->product_remove_comparison}" data-language="product_add_comparison">
+                                        <a class="fn_comparison product-page__compare" href="#" data-id="{$product->id}" title="{$lang->product_add_comparison}" data-result-text="{$lang->remove_comparison}" data-language="product_add_comparison">
                                             <i class="fa fa-balance-scale"></i>
                                         </a>
                                     {/if}

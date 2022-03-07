@@ -1,4 +1,4 @@
-{* The blog sidebar template *}
+<!-- Blog sidebar page -->
 
 {* Mobile close menu *}
 <div class="fn_mobile_toogle sidebar__header sidebar__boxed hidden-lg-up">
@@ -74,7 +74,7 @@
 <div class="sidebar__boxed sidebar__boxed--subscribe hidden-md-down">
     <div class="sidebar_subscribe">
         <div class="sidebar_subscribe__title">
-            <span data-language="subscribe_promotext_post">{$lang->subscribe_promotext_post}</span>
+            <span data-language="subscribe_promotext">{$lang->subscribe_promotext}</span>
         </div>
         <form class="sidebar_subscribe__form fn_validate_subscribe" method="post">
             <div class="sidebar_subscribe__group">

@@ -1,5 +1,5 @@
 {*
-Для отладки данного сообщение пройдите по ссылке http://domain/backend/index.php?controller=EmailTemplatesAdmin&debug=emailOrderUser&order_id=1
+Для отладки данного сообщения пройдите по ссылке http://domain/backend/index.php?controller=EmailTemplatesAdmin&debug=emailOrderUser&order_id=1
 если потребуется, измените параметр order_id
 *}
 
@@ -157,7 +157,7 @@
                                                         {/if}
                                                         {if $order->comment}
                                                         <tr valign="top">
-                                                            <td class="es-p5t es-p5b" width="180px"><span>{$lang>email_order_comment|escape}:</span></td>
+                                                            <td class="es-p5t es-p5b" width="180px"><span>{$lang->email_order_comment|escape}:</span></td>
                                                             <td class="es-p5t es-p5b"><span>{$order->comment|escape|nl2br}</span></td>
                                                         </tr>
                                                         {/if}

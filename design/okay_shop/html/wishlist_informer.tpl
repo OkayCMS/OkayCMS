@@ -1,4 +1,4 @@
-{* Информер избранного (отдаётся аяксом) *}
+<!-- Информер избранного (отдаётся аяксом) -->
 {if $wishlist->products|count > 0}
     <a class="header_informers__link d-flex align-items-center" href="{url_generator route="wishlist"}">
         <i class="d-flex align-items-center fa fa-heart-o"></i>

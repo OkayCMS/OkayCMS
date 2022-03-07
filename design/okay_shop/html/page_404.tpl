@@ -1,4 +1,4 @@
-{* The template of page 404 *}
+<!-- The template of page 404 -->
 
 {* The page heading *}
 {*<h1 class="h1"><span data-page="{$page->id}">{if $page->name_h1|escape}{$page->name_h1|escape}{else}{$page->name|escape}{/if}</span></h1>*}
