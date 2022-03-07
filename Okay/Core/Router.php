@@ -285,6 +285,12 @@ class Router {
             $this->routeParams[$name] = $paramValue;
         }
 
+        if ($this->methodExists($controller, 'beforeController')) {
+            DebugBar::startMeasure("$controllerName::beforeController", "$controllerName::beforeController");
+            call_user_func_array([$controller, 'beforeController'], $this->getMethodParams($controller, 'beforeController', $params, $routeVars, $defaults));
+            DebugBar::stopMeasure("$controllerName::beforeController");
+        }
+
         // Передаем контроллеру, все, что запросили
         if ($this->methodExists($controller, 'onInit')) {
             DebugBar::startMeasure("$controllerName::onInit", "$controllerName::onInit");
