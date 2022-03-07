@@ -8,9 +8,11 @@ use Okay\Core\EntityFactory;
 use Okay\Core\FrontTranslations;
 use Okay\Core\Languages;
 use Okay\Core\Modules\Extender\ExtenderFacade;
+use Okay\Core\Router;
 use Okay\Entities\FeaturesAliasesValuesEntity;
 use Okay\Entities\FeaturesEntity;
 use Okay\Entities\FeaturesValuesAliasesValuesEntity;
+use Okay\Entities\ProductsEntity;
 use Okay\Entities\SEOFilterPatternsEntity;
 use Okay\Helpers\FilterHelper;
 use Okay\Helpers\MetaRobotsHelper;
@@ -39,20 +41,20 @@ class CategoryMetadataHelper extends CommonMetadataHelper
     private $currentPageNum;
 
     /** @var array */
-    private $selectedFilters;
+    private $filter;
 
     public function setUp(
         $category,
         bool $isFilterPage = false,
         bool $isAllPages = false,
         int $currentPageNum = 1,
-        array $selectedFilters = []
+        array $filter = []
     ): void {
         $this->category        = $category;
         $this->isFilterPage    = $isFilterPage;
         $this->isAllPages      = $isAllPages;
         $this->currentPageNum  = $currentPageNum;
-        $this->selectedFilters = $selectedFilters;
+        $this->filter          = $filter;
     }
 
     /**
@@ -329,17 +331,29 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         if (!empty($this->parts)) {
             return $this->parts; // no ExtenderFacade
         }
-        
+
+        /** @var EntityFactory $entityFactory */
+        $entityFactory = $this->SL->getService(EntityFactory::class);
+
+        /** @var ProductsEntity $productsEntity */
+        $productsEntity = $entityFactory->get(ProductsEntity::class);
+
+        $prices = $productsEntity->getPriceRange($this->filter);
+
+        $prices->min = $this->money->convert($prices->min, null, false);
+        $prices->max = $this->money->convert($prices->max, null, false);
+
         $this->parts = [
             '{$category}' => ($this->category->name ? $this->category->name : ''),
             '{$category_h1}' => ($this->category->name_h1 ? $this->category->name_h1 : ''),
+            '{$category_url}' => Router::generateUrl('category', ['url' => $this->category->url]),
             '{$sitename}' => ($this->settings->get('site_name') ? $this->settings->get('site_name') : ''),
+            '{$products_count}' => $productsEntity->count($this->filter),
+            '{$product_max_price}' => $prices->max,
+            '{$product_min_price}' => $prices->min,
         ];
         
-        /** @var EntityFactory $entityFactory */
-        $entityFactory = $this->SL->getService(EntityFactory::class);
-        
-        if (!empty($this->selectedFilters)) {
+        if (!empty($this->filter['features'])) {
             /** @var Languages $languages */
             $languages = $this->SL->getService(Languages::class);
           
@@ -349,7 +363,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
             /** @var FeaturesValuesAliasesValuesEntity $featuresValuesAliasesValuesEntity */
             $featuresValuesAliasesValuesEntity = $entityFactory->get(FeaturesValuesAliasesValuesEntity::class);
             
-            $featuresIds = array_keys($this->selectedFilters);
+            $featuresIds = array_keys($this->filter['features']);
 
             $aliasesValuesFilter = [
                 'lang_id' => $languages->getLangId(),
@@ -357,7 +371,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
             ];
             
             if (in_array(count($featuresIds), [1, 2])) {
-                foreach ($this->selectedFilters as $sf) {
+                foreach ($this->filter['features'] as $sf) {
                     if(count($sf) == 1){
                         $aliasesValuesFilter['feature_value_id'][] = key($sf);
                     } else {

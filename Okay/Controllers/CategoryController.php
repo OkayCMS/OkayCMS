@@ -252,7 +252,7 @@ class CategoryController extends AbstractController
             $isFilterPage,
             $this->design->getVar('is_all_pages'),
             $this->design->getVar('current_page_num'),
-            $currentFeatures
+            $filter
         );
         $this->setMetadataHelper($categoryMetadataHelper);
 
