@@ -110,7 +110,7 @@ class Init extends AbstractInit
         
         // В админке в заказе достаём данные по доставке
         $this->registerQueueExtension(
-            [BackendOrdersHelper::class, 'findOrderDelivery'],
+            [BackendOrdersHelper::class, 'findOrder'],
             [BackendExtender::class, 'getDeliveryDataProcedure']
         );
 
