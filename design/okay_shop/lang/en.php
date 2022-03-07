@@ -9,7 +9,6 @@ $lang['email_comment_answer_s'] = 'Reply to comment';
 $lang['email_comment_answer_l'] = 'Reply to feedback';
 $lang['email_feedback_subject'] = 'Reply to your application';
 $lang['email_feedback_title'] = 'You left a message in';
-$lang['email_feedback_answer'] = 'Administration Response';
 $lang['email_footer_help'] = 'If you have any questions, give us a call';
 $lang['email_new_order'] = 'New order';
 $lang['email_details_order'] = 'Order Details';
