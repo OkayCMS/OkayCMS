@@ -1586,6 +1586,7 @@ $lang['brand_h1'] = 'H1 header';
 $lang['tooltip_brand_h1'] = 'If you need to set the H1 heading different from the brand name - enter it here';
 $lang['general_sort_brands_alphabet'] = 'Alphabetical Sort';
 $lang['general_sort_brands_alphabet_hint'] = 'Sort Brands Alphabetically';
+$lang['product_count_by_feature'] = 'Products count';
 $lang['no_message'] = 'Messages not found';
 $lang['license_text_all'] = '1. Software products developed for the OkayCMS framework (hereinafter referred to as the "Products") are the source codes of the programs reproduced in files or on paper, including electronic or printed documentation, as well as the text of this license agreement (hereinafter the "Agreement").
 
