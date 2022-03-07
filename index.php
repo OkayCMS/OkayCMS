@@ -90,10 +90,10 @@ try {
     $logger = $DI->get(LoggerInterface::class);
     
     $message = $e->getMessage() . PHP_EOL . $e->getTraceAsString();
+    header($_SERVER['SERVER_PROTOCOL'].' 500 Internal Server Error');
     if ($config->get('debug_mode') == true) {
         print $message;
     } else {
         $logger->critical($message);
-        header($_SERVER['SERVER_PROTOCOL'].' 500 Internal Server Error');
     }
 }

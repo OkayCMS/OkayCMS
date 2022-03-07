@@ -19,3 +19,7 @@
 .warehouses_novaposhta {
     display: none;
 }
+.novaposhta_div select.error+label.error+.select2-container .select2-selection--single,
+.novaposhta_div select.error+.select2-container .select2-selection--single{
+    border-color: rgb(231, 71, 71);
+}

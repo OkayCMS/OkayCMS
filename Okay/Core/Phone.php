@@ -18,7 +18,7 @@ class Phone
         $this->settings = $settings;
     }
 
-    public function getPhoneExample() : string
+    public function getPhoneExample(): string
     {
         $phoneUtil = PhoneNumberUtil::getInstance();
         $phoneExample = '';
@@ -46,9 +46,13 @@ class Phone
      * @return string
      * @throws NumberParseException
      */
-    public static function toSave($phoneNumber) : string
+    public static function toSave($phoneNumber): ?string
     {
-        return self::format($phoneNumber, PhoneNumberFormat::E164);
+        try {
+            return self::format($phoneNumber, PhoneNumberFormat::E164);
+        } catch (\Exception $exception) {
+            return null;
+        }
     }
 
     /**
@@ -57,7 +61,7 @@ class Phone
      * @param $phoneNumber
      * @return string
      */
-    public static function clear($phoneNumber) : string
+    public static function clear($phoneNumber): string
     {
         return substr(preg_replace('~[^0-9.+]~', '', $phoneNumber), 0, PhoneNumberUtil::MAX_LENGTH_FOR_NSN);
     }
@@ -69,7 +73,7 @@ class Phone
      * @return bool
      * @throws NumberParseException
      */
-    public static function isValid($phoneNumber) : bool
+    public static function isValid($phoneNumber): bool
     {
         $wrongPrefixes = [
             '+0',
@@ -116,7 +120,7 @@ class Phone
      * @return string
      * @throws NumberParseException
      */
-    public static function format($phoneNumber, $numberFormat = null) : string
+    public static function format($phoneNumber, $numberFormat = null): string
     {
         if (substr($phoneNumber, 0, 2) == '+0') {
             $phoneNumber = substr($phoneNumber, 1);

@@ -53,7 +53,7 @@ class BackendExtender implements ExtensionInterface
         return $variants;
     }
     
-    public function getDeliveryDataProcedure($delivery, $order)
+    public function getDeliveryDataProcedure($order)
     {
         $moduleId = $this->module->getModuleIdByNamespace(__NAMESPACE__);
         $this->design->assign('novaposhta_module_id', $moduleId);

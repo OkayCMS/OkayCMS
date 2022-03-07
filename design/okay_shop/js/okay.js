@@ -295,18 +295,6 @@ function price_slider_init() {
                     $('.fn_features').html(data.features);
                     $('.fn_selected_features').html(data.selected_features);
                     // Выпадающие блоки
-                    $('.fn_switch').click(function(e){
-                        e.preventDefault();
-
-                        $(this).next().slideToggle(300);
-
-                        if ($(this).hasClass('active')) {
-                            $(this).removeClass('active');
-                        }
-                        else {
-                            $(this).addClass('active');
-                        }
-                    });
                     $(".lazy").each(function(){
                         var myLazyLoad = new LazyLoad({
                             elements_selector: ".lazy"
@@ -576,7 +564,7 @@ $(function(){
     $('.fn_callback').fancybox();
 
     // Drop down blocks
-    $('.fn_switch').click(function(e){
+    $(document).on('click', '.fn_switch', function (e) {
         e.preventDefault();
 
         $(this).next().slideToggle(300);
@@ -630,7 +618,7 @@ $(function(){
     });
 
     //Фильтры мобильные, каталог мобильные
-    $('.fn_switch_parent').click(function(){
+    $(document).on('click', '.fn_switch_parent', function () {
         $(this).parent().next().slideToggle(500);
         $(this).toggleClass('down');
     });

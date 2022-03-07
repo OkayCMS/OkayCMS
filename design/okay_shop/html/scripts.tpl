@@ -263,7 +263,7 @@
     {/if}
 
     var form_enter_name = "{$lang->form_enter_name|escape}";
-    var form_enter_phone = "{$lang->form_enter_phone|escape}";
+    var form_enter_phone = "{$lang->form_enter_phone|escape}: {$phone_example}";
     var form_error_captcha = "{$lang->form_error_captcha|escape}";
     var form_enter_email = "{$lang->form_enter_email|escape}";
     var form_enter_password = "{$lang->form_enter_password|escape}";

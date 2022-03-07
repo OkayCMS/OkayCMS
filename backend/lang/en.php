@@ -220,6 +220,8 @@ $lang['general_sku'] = 'SKU';
 $lang['general_status'] = 'Status';
 $lang['general_template'] = 'Template';
 $lang['general_templates_email'] = 'E-mail templates';
+$lang['general_templates_email_admin'] = 'Administrator';
+$lang['general_templates_email_user'] = 'User';
 $lang['general_theme'] = 'Template';
 $lang['general_from'] = 'from';
 $lang['general_to'] = 'to';
@@ -475,6 +477,10 @@ $lang['scripts_scripts'] = 'Scripts';
 $lang['seo_patterns_ajax_brand_name'] = 'Brand name';
 $lang['seo_patterns_ajax_cat_h1'] = 'Category H1';
 $lang['seo_patterns_ajax_cat_name'] = 'Category name';
+$lang['seo_patterns_ajax_cat_url'] = 'Category URL';
+$lang['seo_patterns_ajax_product_min_price'] = 'Minimum price within the filter';
+$lang['seo_patterns_ajax_product_max_price'] = 'Maximum price within the filter';
+$lang['seo_patterns_ajax_products_count'] = 'Count of products within the filter';
 $lang['seo_patterns_ajax_message1'] = 'Using these fields, you can automatically generate meta data for products of this category.';
 $lang['seo_patterns_ajax_message2'] = 'Inserts like';
 $lang['seo_patterns_ajax_message3'] = 'will be replaced by the corresponding values of this product.';
@@ -1581,3 +1587,23 @@ $lang['tooltip_brand_h1'] = 'If you need to set the H1 heading different from th
 $lang['general_sort_brands_alphabet'] = 'Alphabetical Sort';
 $lang['general_sort_brands_alphabet_hint'] = 'Sort Brands Alphabetically';
 $lang['no_message'] = 'Messages not found';
+$lang['license_text_all'] = '1. Software products developed for the OkayCMS framework (hereinafter referred to as the "Products") are the source codes of the programs reproduced in files or on paper, including electronic or printed documentation, as well as the text of this license agreement (hereinafter the "Agreement").
+
+2. The purchase of paid Products or the installation of free Products indicates that the User has read the content of the Agreement, accepts its provisions and will use the Products in accordance with the terms of the Agreement.
+
+3. The Agreement shall enter into force upon receipt of the Products by electronic means of data transmission.
+
+4. All copyrights in the Products are owned by the source code developer (the “Developer”). Products as a whole or individually are subject to copyright and are subject to protection under the law. Use of the Products in violation of the terms of this Agreement is a violation of copyright laws and will be prosecuted in accordance with applicable law.
+
+5. Products are provided "AS IS" ("AS IS") without warranties of performance, purchasing power, data integrity, or other express or implied warranties. The Developer shall not be liable in any way for causing or possible harm to the User, his information or business due to the use or inability to use the Products.
+
+6. This Agreement gives the right to use one copy of the paid Products installed on only one instance of the OkayCMS framework. This copy of the Products may be used on an unlimited number of subdomains attached to a single domain that uses the OkayCMS framework. Any distribution of paid Products, including non-commercial ones, without the prior consent of the Developer, as well as transfer to third parties for use on a lease (sublease) basis, is a violation of this Agreement and entails liability in accordance with applicable law. You may create and use an additional copy of paid Products solely for the purpose of testing or making changes to the source code, provided that such a copy is not available to third parties.
+
+7. Free Products are licensed under the LGPL and may be installed on any number of web servers without limitation. The OkayCMS framework from version 4.0 onwards is free and distributed under the terms of the LGPL license.
+
+8. The User has the right to make any changes to the source code of the Products at his own discretion, except for renaming the Product and changing the Developer ID. In this case, the subsequent use of the Products must be carried out in accordance with this Agreement and subject to the preservation of all copyrights. If the User makes any changes, the Developer is not responsible for the performance of the modified Product.
+
+9. The Developer is not liable if the User is brought to administrative or criminal liability for using the Products for illegal purposes.
+
+10. Termination of this Agreement is allowed in case of deletion of all received files and documentation, as well as their copies. Termination of this Agreement does not oblige the Developer to return the funds spent by the User on the purchase of the Products.
+';
