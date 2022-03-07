@@ -399,21 +399,21 @@ class BackendFeaturesHelper
             $f->features_categories = $this->featuresEntity->getFeatureCategories($f->id);
         }
 
-        $feat = $this->featuresEntity->find();
+        $featuresIds = $this->featuresEntity->cols(['id'])->find();
         $productsCounts = [];
-        foreach ($feat as $f) {
+        foreach ($featuresIds as $featureId) {
             $filterCount = [];
-            $filterCount['features'][$f->id] = [];
-            if(!empty($f->id)){
-                $featureValues = $this->featuresValuesEntity->find(['feature_id' => $f->id]);
+            $filterCount['features'][$featureId] = [];
+            if(!empty($featureId)){
+                $featureValues = $this->featuresValuesEntity->find(['feature_id' => $featureId]);
                 foreach ($featureValues as $value) {
                     if(!empty($value)) {
-                        $filterCount['features'][$f->id][] = $value->translit;
-                        $productsCounts[$f->id]['translit'][] = $value->translit;
+                        $filterCount['features'][$featureId][] = $value->translit;
+                        $productsCounts[$f]['translit'][] = $value->translit;
                     }
                 }
 
-                $productsCounts[$f->id]['count'] = !empty($filterCount['features'][$f->id]) ? $this->productsEntity->count($filterCount) : 0;
+                $productsCounts[$featureId]['count'] = !empty($filterCount['features'][$featureId]) ? $this->productsEntity->count($filterCount) : 0;
             }
         }
         $this->design->assign('products_counts', $productsCounts);
