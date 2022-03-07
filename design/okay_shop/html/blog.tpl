@@ -1,4 +1,4 @@
-{* The blog page template *}
+<!-- Blog page -->
 
 <div class="d-lg-flex align-items-lg-start justify-content-lg-between flex-lg-row-reverse clearfix">
     {* Sidebar with blog *}

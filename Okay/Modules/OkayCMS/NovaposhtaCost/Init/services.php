@@ -6,6 +6,7 @@ namespace Okay\Modules\OkayCMS\NovaposhtaCost;
 
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
+use Okay\Core\FrontTranslations;
 use Okay\Core\Languages;
 use Okay\Core\Modules\Module;
 use Okay\Core\Money;
@@ -22,6 +23,7 @@ return [
         'arguments' => [
             new SR(Request::class),
             new SR(EntityFactory::class),
+            new SR(FrontTranslations::class),
         ],
     ],
     BackendExtender::class => [

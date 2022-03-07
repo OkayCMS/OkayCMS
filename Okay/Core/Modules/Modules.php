@@ -225,7 +225,16 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
                     continue;
                 }
 
+                // TODO: подумать что делать с локатором и циклической зависимостью из-за которой нельзя заинжектить сервис
+                $serviceLocator = ServiceLocator::getInstance();
+
+                /** @var FrontTemplateConfig $frontTemplateConfig */
+                $frontTemplateConfig = $serviceLocator->getService(FrontTemplateConfig::class);
+                $themeDir  = $frontTemplateConfig->getTheme();
+
                 $moduleDir = __DIR__ . '/../../Modules/' . $vendorModule . '/';
+                $themeModuleHtmlDir = dirname(__DIR__,3).'/design/'.$themeDir.'/modules/'.$vendorModule.'/';
+
                 if (!empty($params->modifications->front)) {
                     foreach ($params->modifications->front as $modification) {
                         if (!empty($modification->changes)) {
@@ -239,7 +248,9 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
                                 foreach ($allowedModifiers as $modifier) {
                                     // Если в значении модификатора указано имя файла - значение считаем с самого файла
                                     if (property_exists($change, $modifier)) {
-                                        if (is_file($moduleDir . 'design/html/' . $change->{$modifier})) {
+                                        if (is_file($themeModuleHtmlDir . 'html/' . $change->{$modifier})) {
+                                            $change->{$modifier} = file_get_contents($themeModuleHtmlDir . 'html/' . $change->{$modifier});
+                                        } else if (is_file($moduleDir . 'design/html/' . $change->{$modifier})) {
                                             $change->{$modifier} = file_get_contents($moduleDir . 'design/html/' . $change->{$modifier});
                                         }
                                     }

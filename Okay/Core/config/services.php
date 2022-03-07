@@ -68,6 +68,8 @@ $services = [
             new SR(Languages::class),
             new SR(RouteFactory::class),
             new SR(Modules::class),
+            new SR(LoggerInterface::class),
+            new SR(Config::class),
         ],
     ],
     Config::class => [

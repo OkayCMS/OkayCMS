@@ -926,6 +926,8 @@
     /*
     * функции генерации мета данных
     * */
+    $(document).on('input', 'input[name="meta_title"]', function() { $('#fn_meta_title_counter').text( '('+$('input[name="meta_title"]').val().length+')' ); });
+    $(document).on('input', 'textarea[name="meta_description"]', function() { $('#fn_meta_description_counter').text( '('+$('textarea[name="meta_description"]').val().replace(/\n/g, "\r\n").length+')' ); });
     var is_translit_alpha = $(".fn_is_translit_alpha");
     var translit_pairs = [];
     {foreach $translit_pairs as $i=>$pair}

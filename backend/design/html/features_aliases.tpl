@@ -137,7 +137,14 @@
 
         $(document).on("click", ".fn_save_aliases", function () {
             var action = "set",
+                activePageItem = $('.page-item.active'),
+                link;
+
+            if (activePageItem) {
+                link = activePageItem.find('a').attr('href');
+            } else {
                 link = window.location.href;
+            }
 
             $('input[name="action"]').val(action);
 
@@ -163,12 +170,24 @@
         });
 
         $(document).on("click", ".fn_get_feature", function () {
-            $(".fn_preloader ").addClass("ajax_preloader");
             $(".fn_get_feature").removeClass("active");
-            var elem = $(this),
+            $(this).addClass("active");
+
+            loadFeaturesValues(window.location.href);
+        });
+
+        $(document).on('click', '.fn_pagination a', function (e) {
+            e.preventDefault();
+
+            loadFeaturesValues($(this).attr('href'));
+        });
+
+        function loadFeaturesValues(link) {
+            $(".fn_preloader ").addClass("ajax_preloader");
+
+            var elem = $(".fn_get_feature.active"),
                 feature_id = parseInt(elem.data("feature_id")) ? parseInt(elem.data("feature_id")) : null,
                 action = "get",
-                link = window.location.href,
                 session_id = '{/literal}{$smarty.session.id}{literal}';
 
             $.ajax({
@@ -182,20 +201,14 @@
                 },
                 dataType: 'json',
                 success: function(data){
-                    if(data.success) {
-                        $(".fn_aliases_result_ajax").html(data.feature_aliases_tpl);
-                        $(".fn_aliases_values_result_ajax").html(data.feature_aliases_values_tpl);
-                        set_sortable();
-                        toastr.success(msg, "{/literal}{$btr->toastr_success|escape}{literal}");
-                        elem.addClass("active");
-                        $(".fn_preloader ").removeClass("ajax_preloader");
-                    } else {
-                        toastr.error(msg, "{/literal}{$btr->toastr_error|escape}{literal}");
-                        $(".fn_preloader ").removeClass("ajax_preloader");
-                    }
+                    $(".fn_aliases_result_ajax").html(data.feature_aliases_tpl);
+                    $(".fn_aliases_values_result_ajax").html(data.feature_aliases_values_tpl);
+                    set_sortable();
+                    toastr.success(msg, "{/literal}{$btr->toastr_success|escape}{literal}");
+                    $(".fn_preloader ").removeClass("ajax_preloader");
                 }
             });
-        });
+        }
 
         function set_sortable() {
             $(".sortable").each(function() {

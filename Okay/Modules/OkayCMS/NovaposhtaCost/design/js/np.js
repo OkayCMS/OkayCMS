@@ -226,6 +226,9 @@ function calc_delivery_price(e) {
                         .attr('disabled', false)
                         .select2(whsParams);
                     }
+                    warehouses_block.find('.fn_select_warehouses_novaposhta').rules('add', {
+                        required: true,
+                    });
                 } else {
                     warehouses_block.hide();
                     warehouses_block.find('.fn_select_warehouses_novaposhta')
