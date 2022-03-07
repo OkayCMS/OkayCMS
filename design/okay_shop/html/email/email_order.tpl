@@ -135,6 +135,12 @@
                                                             <td class="es-p5t es-p5b"><span>{$payment_method->name}</span></td>
                                                         </tr>
                                                         {/if}
+                                                        {if $delivery}
+                                                            <tr valign="top">
+                                                                <td class="es-p5t es-p5b" width="180px"><span>{$lang->order_delivery}:</span></td>
+                                                                <td class="es-p5t es-p5b"><span>{$delivery->name}</span></td>
+                                                            </tr>
+                                                        {/if}
                                                         <tr valign="top">
                                                             <td class="es-p5t es-p5b" width="180px"><span>{$lang->email_order_name|escape}:</span></td>
                                                             <td class="es-p5t es-p5b"><span>{$order->name|escape} {$order->last_name|escape}</span></td>
