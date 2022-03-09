@@ -1,4 +1,5 @@
-<<!-- Breadcrumb navigation -->
+<!-- Breadcrumb navigation -->
+
 {$level = 1}
 {if $controller != "MainController"}
     <ol itemscope itemtype="https://schema.org/BreadcrumbList" class="breadcrumbs d-flex flex-wrap align-items-center">
