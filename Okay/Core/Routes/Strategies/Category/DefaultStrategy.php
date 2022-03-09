@@ -26,6 +26,6 @@ class DefaultStrategy extends AbstractRouteStrategy
             $prefix = 'catalog';
         }
 
-        return [$prefix.'/{$url}{$filtersUrl}', ['{$filtersUrl}' => '/?(.*)'], []];
+        return ['/'.$prefix.'/{$url}/?{$filtersUrl}', ['{$filtersUrl}' => '(.*)'], []];
     }
 }

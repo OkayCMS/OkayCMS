@@ -47,7 +47,7 @@ class CategoriesEntity extends Entity
     protected static $additionalFields = [
         'r.slug_url',
     ];
-    
+
     protected static $searchFields = [];
 
     protected static $defaultOrderFields = [
@@ -66,7 +66,8 @@ class CategoriesEntity extends Entity
         parent::flush();
     }
 
-    public function getCategoriesTree() {
+    public function getCategoriesTree()
+    {
         if (empty($this->categoriesTree)) {
             $this->initCategories();
         }
@@ -85,7 +86,7 @@ class CategoriesEntity extends Entity
             return ExtenderFacade::execute([static::class, __FUNCTION__], $category, func_get_args());
         }
 
-        if(is_string($id)) {
+        if (is_string($id)) {
             foreach ($this->allCategories as $category) {
                 if ($category->url == $id) {
                     return ExtenderFacade::execute([static::class, __FUNCTION__], $this->get((int)$category->id), func_get_args());
@@ -95,7 +96,7 @@ class CategoriesEntity extends Entity
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], false, func_get_args());
     }
-    
+
     public function add($category)
     {
         $category = (object) $category;
@@ -111,7 +112,7 @@ class CategoriesEntity extends Entity
         $category->url = preg_replace("/[\s]+/ui", '', $category->url);
 
         while ($this->get((string)$category->url)) {
-            if(preg_match('/(.+)([0-9]+)$/', $category->url, $parts)) {
+            if (preg_match('/(.+)([0-9]+)$/', $category->url, $parts)) {
                 $category->url = $parts[1].''.($parts[2]+1);
             } else {
                 $category->url = $category->url.'2';
@@ -123,11 +124,11 @@ class CategoriesEntity extends Entity
         unset($this->allCategories);
         return $id;
     }
-    
+
     public function update($ids, $category)
     {
         $category = (object) $category;
-        
+
         // При обновлении категории не обновляем уровень вложенности, если его не возможно корректно определить
         if (($levelDepth = $this->determineLevelDepth($category)) !== false) {
             $category->level_depth = $levelDepth;
@@ -140,7 +141,7 @@ class CategoriesEntity extends Entity
         /** @var RouterCacheEntity $routerCacheEntity */
         $routerCacheEntity = $this->entity->get(RouterCacheEntity::class);
         $routerCacheEntity->deleteWrongCache();
-        
+
         return true;
     }
 
@@ -153,7 +154,7 @@ class CategoriesEntity extends Entity
         if (empty($filter)) {
             return ExtenderFacade::execute([static::class, __FUNCTION__], $this->allCategories, func_get_args());
         }
-        
+
         $this->buildFilter($filter);
         $matchedCategories = [];
         foreach ($this->filteredCategoryIds as $id) {
@@ -175,7 +176,7 @@ class CategoriesEntity extends Entity
         if (empty($filter)) {
             return ExtenderFacade::execute([static::class, __FUNCTION__], reset($this->allCategories), func_get_args());
         }
-        
+
         $this->buildFilter($filter);
         foreach ($this->filteredCategoryIds as $id) {
             if (isset($this->allCategories[$id])) {
@@ -191,7 +192,7 @@ class CategoriesEntity extends Entity
     {
         /** @var Image $imageCore */
         $imageCore = $this->serviceLocator->getService(Image::class);
-        
+
         $ids = (array)$ids;
         foreach ($ids as $id) {
             $category = $this->get((int)$id);
@@ -235,19 +236,20 @@ class CategoriesEntity extends Entity
 
             parent::delete($category->children);
         }
-        
+
         unset($this->categoriesTree);
         unset($this->allCategories);
 
         /** @var RouterCacheEntity $routerCacheEntity */
         $routerCacheEntity = $this->entity->get(RouterCacheEntity::class);
         $routerCacheEntity->deleteWrongCache();
-        
+
         return ExtenderFacade::execute([static::class, __FUNCTION__], true, func_get_args());
     }
 
     //Обновление информацию о главной категории товара
-    public function updateMainProductsCategory($productsIds) {
+    public function updateMainProductsCategory($productsIds)
+    {
         $productsIds = (array)$productsIds;
         if (empty($productsIds)) {
             return ExtenderFacade::execute([static::class, __FUNCTION__], false, func_get_args());
@@ -263,11 +265,11 @@ class CategoriesEntity extends Entity
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], true, func_get_args());
     }
-    
+
     public function addProductCategory($productId, $categoryId, $position = 0)
     {
         $this->update($categoryId, ['last_modify' => 'now()']);
-        
+
         $insert = $this->queryFactory->newInsert();
         $insert->into('__products_categories')
             ->cols([
@@ -281,7 +283,7 @@ class CategoriesEntity extends Entity
                 'position' => $position,
             ])
             ->ignore();
-        
+
         $this->db->query($insert);
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], true, func_get_args());
@@ -314,7 +316,8 @@ class CategoriesEntity extends Entity
     }
 
     /*Выбираем категории определенного товара*/
-    public function getProductCategories($productsIds = []) {
+    public function getProductCategories($productsIds = [])
+    {
         $select = $this->queryFactory->newSelect();
         $select->from('__products_categories')
             ->cols([
@@ -323,12 +326,12 @@ class CategoriesEntity extends Entity
                 'position',
             ])
             ->orderBy(['position']);
-        
+
         if (!empty($productsIds)) {
             $select->where('product_id IN (:product_id)')
                 ->bindValue('product_id', (array)$productsIds);
         }
-        
+
         $this->db->query($select);
         $results = $this->db->results();
         return ExtenderFacade::execute([static::class, __FUNCTION__], $results, func_get_args());
@@ -354,14 +357,14 @@ class CategoriesEntity extends Entity
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], $marketCats, func_get_args());
     }
-    
+
     protected function filter__id($ids)
     {
         $ids = (array)$ids;
         $this->filteredCategoryIds = array_merge($this->filteredCategoryIds, $ids);
         $this->filteredCategoryIds = array_unique($this->filteredCategoryIds);
     }
-    
+
     protected function filter__product_id($ids)
     {
         $ids = (array)$ids;
@@ -370,18 +373,18 @@ class CategoriesEntity extends Entity
             ->from('__products_categories')
             ->where('product_id IN (:products_ids)');
         $select->bindValue('products_ids', $ids);
-        
+
         if (!empty($this->filteredCategoryIds)) {
             $select->where('category_id IN (:category_id)')->bindValue('category_id', $this->filteredCategoryIds);
         }
-        
+
         $this->db->query($select);
-        
+
         $categoriesIds = $this->db->results('category_id');
         $this->filteredCategoryIds = array_merge($this->filteredCategoryIds, $categoriesIds);
         $this->filteredCategoryIds = array_unique($this->filteredCategoryIds);
     }
-    
+
     protected function filter__brand_id($brandsIds, &$filter)
     {
         $brandsIds = (array)$brandsIds;
@@ -400,15 +403,15 @@ class CategoriesEntity extends Entity
         if (!empty($this->filteredCategoryIds)) {
             $select->where('pc.category_id IN (:category_id)')->bindValue('category_id', $this->filteredCategoryIds);
         }
-        
+
         if (isset($filter['category_visible'])) {
             $select->where('c.visible=:visible')
                 ->bindValue('visible', (int)$filter['category_visible']);
             unset($filter['category_visible']);
         }
-        
+
         $this->db->query($select);
-        
+
         $categoriesIds = $this->db->results('category_id');
 
         $this->filteredCategoryIds = array_merge($this->filteredCategoryIds, $categoriesIds);
@@ -430,11 +433,11 @@ class CategoriesEntity extends Entity
 
         $finish = false;
         // Не кончаем, пока не кончатся категории, или пока ниодну из оставшихся некуда приткнуть
-        while(!empty($categories)  && !$finish) {
+        while (!empty($categories) && !$finish) {
             $flag = false;
             // Проходим все выбранные категории
-            foreach($categories as $k=>$category) {
-                if(isset($pointers[$category->parent_id])) {
+            foreach ($categories as $k => $category) {
+                if (isset($pointers[$category->parent_id])) {
                     // В дерево категорий (через указатель) добавляем текущую категорию
                     $pointers[$category->id] = $pointers[$category->parent_id]->subcategories[$category->id] = $category;
 
@@ -444,7 +447,7 @@ class CategoriesEntity extends Entity
 
                     // Путь к текущей категории в виде строки
                     $pathUrl = [];
-                    foreach((array) $pointers[$category->id]->path as $singleCategoryInPath) {
+                    foreach ((array)$pointers[$category->id]->path as $singleCategoryInPath) {
                         $pathUrl[] = $singleCategoryInPath->url;
                     }
                     $pointers[$category->id]->path_url = implode('/', $pathUrl);
@@ -457,16 +460,16 @@ class CategoriesEntity extends Entity
                     $flag = true;
                 }
             }
-            if(!$flag) $finish = true;
+            if (!$flag) $finish = true;
         }
 
         // Для каждой категории id всех ее деток узнаем
         $ids = array_reverse(array_keys($pointers));
-        foreach($ids as $id) {
-            if($id>0) {
+        foreach ($ids as $id) {
+            if ($id>0) {
                 $pointers[$id]->children[] = $id;
 
-                if(isset($pointers[$pointers[$id]->parent_id]->children)) {
+                if (isset($pointers[$pointers[$id]->parent_id]->children)) {
                     $pointers[$pointers[$id]->parent_id]->children = array_merge($pointers[$id]->children, $pointers[$pointers[$id]->parent_id]->children);
                 } else {
                     $pointers[$pointers[$id]->parent_id]->children = $pointers[$id]->children;
@@ -485,13 +488,13 @@ class CategoriesEntity extends Entity
             ->leftJoin(ProductsEntity::getTable() . ' AS p', 'p.id = pc.product_id')
             ->where('p.visible = 1')
             ->groupBy(['pc.category_id']);
-        
+
         foreach ($select->results('category_id') as $result) {
             $categoriesIdsWithProducts[$result] = $result;
         }
 
         $hasProductsCategoriesIds = [];
-        foreach($pointers as &$pointer) {
+        foreach ($pointers as &$pointer) {
 
             if (isset($categoriesIdsWithProducts[$pointer->id])) {
                 $hasProductsCategoriesIds[] = $pointer->id;
@@ -508,7 +511,7 @@ class CategoriesEntity extends Entity
         unset($c);
 
         $this->categoriesTree = $tree->subcategories;
-        $this->allCategories  = $pointers;
+        $this->allCategories = $pointers;
     }
 
     private function getAllCategoriesFromDb()
@@ -547,11 +550,11 @@ class CategoriesEntity extends Entity
         if (!property_exists($category, 'parent_id')) {
             return false;
         }
-        
+
         if (empty($this->categoriesTree)) {
             $this->initCategories();
         }
-        
+
         if (empty($category->parent_id)) {
             return 1;
         }
@@ -629,7 +632,7 @@ class CategoriesEntity extends Entity
                     if (!empty($categoryLangFields)) {
                         $sourceCategory = $this->get((int)$categoryId);
                         $destinationCategory = new \stdClass();
-                        foreach($categoryLangFields as $field) {
+                        foreach ($categoryLangFields as $field) {
                             $destinationCategory->{$field} = $sourceCategory->{$field};
                         }
                         $this->update($newCategoryId, $destinationCategory);
@@ -639,5 +642,21 @@ class CategoriesEntity extends Entity
                 }
             }
         }
+    }
+
+    public function filter__product_keyword($keyword)
+    {
+        /** @var ProductsEntity $productsEntity */
+        $productsEntity = $this->entity->get(ProductsEntity::class);
+
+        $productsSelect = $productsEntity->getSelect(['keyword' => $keyword, 'visible' => 1]);
+        $categoryIds = $productsSelect
+            ->join('LEFT', '__products_categories AS pc', 'pc.product_id = p.id')
+            ->resetCols()
+            ->resetOrderBy()
+            ->cols(['pc.category_id'])
+            ->results('category_id');
+
+        $this->filteredCategoryIds = array_merge($this->filteredCategoryIds, $categoryIds);
     }
 }

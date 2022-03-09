@@ -1,10 +1,9 @@
 <?php
 
-
 namespace Okay\Controllers;
 
-
 use Okay\Core\Router;
+use Okay\Core\Routes\RouteFactory;
 use Okay\Entities\BrandsEntity;
 use Okay\Entities\ProductsEntity;
 use Okay\Entities\CategoriesEntity;
@@ -18,116 +17,118 @@ use Okay\Helpers\ProductsHelper;
 
 class BrandController extends AbstractController
 {
-
-    private $catalogType = 'brand';
-
     /*Отображение страницы бренда*/
     public function render(
-        BrandsEntity $brandsEntity,
-        CategoriesEntity $categoriesEntity,
-        CatalogHelper $catalogHelper,
-        ProductsHelper $productsHelper,
-        ProductsEntity $productsEntity,
-        FilterHelper $filterHelper,
+        BrandsEntity        $brandsEntity,
+        CatalogHelper       $catalogHelper,
+        ProductsHelper      $productsHelper,
+        ProductsEntity      $productsEntity,
+        FilterHelper        $filterHelper,
         BrandMetadataHelper $brandMetadataHelper,
-        CanonicalHelper $canonicalHelper,
-        MetaRobotsHelper $metaRobotsHelper,
-        BrandsHelper $brandsHelper,
-        $url,
-        $filtersUrl = ''
+        CanonicalHelper     $canonicalHelper,
+        MetaRobotsHelper    $metaRobotsHelper,
+        BrandsHelper        $brandsHelper,
+        RouteFactory        $routeFactory,
+                            $url,
+                            $filtersUrl = ''
     ) {
-
-        $isFilterPage = false;
-        $filterHelper->setFiltersUrl($filtersUrl);
-        
-        $sortProducts = null;
-        $filter['visible'] = 1;
+        $brandRoute = $routeFactory->create('brand');
+        $this->design->assign('url', $brandRoute->generateSlugUrl($url), true);
+        $this->design->assign('filtersUrl', !empty($filtersUrl) ? '/'.$filtersUrl : '', true);
+        $this->design->assign('ajax_filter_route', 'brand_features', true);
 
         $brand = $brandsEntity->get((string)$url);
+
+        if (empty($brand) || (!$brand->visible && empty($_SESSION['admin']))) {
+            return false;
+        }
 
         //метод можно расширять и отменить либо переопределить дальнейшую логику работы контроллера
         if (($setBrand = $brandsHelper->setBrand($brand)) !== null) {
             return $setBrand;
         }
 
-        // Если нашли фильтр по бренду, кидаем 404
-        if (($currentBrandsIds = $filterHelper->getCurrentBrands($filtersUrl)) === false || !empty($currentBrandsIds)) {
-            return false;
-        }
+        $catalogFeatures = $brandsHelper->getCatalogFeatures($brand);
 
-        // Если нашли фильтр по свойствам, кидаем 404
-        if (($currentFeatures = $filterHelper->getCurrentCategoryFeatures($filtersUrl)) === false || !empty($currentFeatures)) {
-            return false;
-        }
-        
-        if (($currentOtherFilters = $filterHelper->getCurrentOtherFilters($filtersUrl)) === false) {
+        $filterHelper->setFiltersUrl($filtersUrl);
+        $filterHelper->setFeatures($catalogFeatures);
+        $filterHelper->setFeaturesValuesFilter(['brand_id' => $brand->id]);
+
+        if (($productsFilter = $brandsHelper->getProductsFilter($brand, $filtersUrl)) === null) {
             return false;
         }
 
         if (($currentPage = $filterHelper->getCurrentPage($filtersUrl)) === false) {
             return false;
         }
-        
-        if (($currentSort = $filterHelper->getCurrentSort($filtersUrl)) === false) {
-            return false;
-        }
 
-        if (!empty($currentOtherFilters)) {
-            $filter['other_filter'] = $currentOtherFilters;
-            $this->design->assign('selected_other_filters', $currentOtherFilters);
-        }
+        $filterHelper->generateCacheKey("brand-{$brand->id}");
 
-        // Сортировка товаров, сохраняем в сесси, чтобы текущая сортировка оставалась для всего сайта
-        if (!empty($currentSort)) {
-            $_SESSION['sort'] = $currentSort;
-        }
-        if (!empty($_SESSION['sort'])) {
-            $sortProducts = $_SESSION['sort'];
-        } else {
-            $sortProducts = 'position';
-        }
-        $this->design->assign('sort', $sortProducts);
-        
-        $filter['price'] = $catalogHelper->getPriceFilter($this->catalogType, $brand->id);
-        
-        $brand->categories = $categoriesEntity->find(['brand_id'=>$brand->id, 'category_visible'=>1]);
+        $filterHelper->changeLangUrls($filtersUrl);
+
+        $productsSort = $catalogHelper->getProductsSort($filtersUrl);
+
         $this->design->assign('brand', $brand);
-        $filter['brand_id'] = $brand->id;
-        
-        $this->design->assign('other_filters', $catalogHelper->getOtherFilters($filter));
+        $this->design->assign('sort', $productsSort);
 
-        $filter = $filterHelper->getBrandProductsFilter($filter);
+        $metaArray = $filterHelper->getMetaArray($filtersUrl);
 
-        if ((!empty($filter['price']) && $filter['price']['min'] !== '' && $filter['price']['max'] !== '' && $filter['price']['min'] !== null) || !empty($filter['other_filter'])) {
-            $isFilterPage = true;
-        }
-        $this->design->assign('is_filter_page', $isFilterPage);
-        
-        $prices = $catalogHelper->getPrices($filter, $this->catalogType, $brand->id);
-        $this->design->assign('prices', $prices);
-
-        if ($filter === false) {
+        // Если в строке есть параметры которые не должны быть в фильтре, либо параметры с другой категории, бросаем 404
+        if (!empty($metaArray['features_values'])
+            && array_intersect_key($metaArray['features_values'], $catalogFeatures) !== $metaArray['features_values']
+            || !empty($metaArray['brand'])
+            && array_intersect_key($metaArray['brand'], [$brand]) !== $metaArray['brand']
+        ) {
             return false;
         }
+
+        $isFilterPage = $brandsHelper->isFilterPage($productsFilter);
+        $this->design->assign('is_filter_page', $isFilterPage);
+
+        if (!$this->settings->get('deferred_load_features') || $this->request->get('ajax','boolean')) {
+            $brandsHelper->assignBrandFilterProcedure(
+                $productsFilter,
+                $catalogFeatures,
+                $brand
+            );
+        } else {
+            // если включена отложенная загрузка фильтров, установим отдельно возможные значения свойств
+            $baseFeaturesValues = $catalogHelper->getBaseFeaturesValues(null, $this->settings->get('missing_products'));
+
+            if (!empty($baseFeaturesValues)) {
+                foreach ($baseFeaturesValues as $values) {
+                    foreach ($values as $value) {
+                        if (isset($catalogFeatures[$value->feature_id])) {
+                            $catalogFeatures[$value->feature_id]->features_values[$value->id] = $value;
+                        }
+                    }
+                }
+            }
+            foreach ($catalogFeatures as $k => $feature) {
+                if (!property_exists($feature, 'features_values') || empty($feature->features_values)) {
+                    unset($catalogFeatures[$k]);
+                }
+            }
+
+            $metaRobotsHelper->setAvailableFeatures($catalogFeatures);
+        }
         
-        $paginate = $catalogHelper->paginate(
+        if (!$catalogHelper->paginate(
             $this->settings->get('products_num'),
             $currentPage,
-            $filter,
+            $productsFilter,
             $this->design
-        );
-        
-        if (!$paginate) {
+        )) {
             return false;
         }
 
         // Товары
-        $products = $productsHelper->getList($filter, $sortProducts);
+        $products = $productsHelper->getList($productsFilter, $productsSort);
         $this->design->assign('products', $products);
 
         if ($this->request->get('ajax','boolean')) {
             $this->design->assign('ajax', 1);
-            $result = $catalogHelper->getAjaxFilterData($this->design);
+            $result = $catalogHelper->getAjaxFilterData();
             $this->response->setContent(json_encode($result), RESPONSE_JSON);
             return true;
         }
@@ -136,7 +137,7 @@ class BrandController extends AbstractController
         $lastModify = $productsEntity->cols(['last_modify'])
             ->order('last_modify_desc')
             ->find([
-                'brand_id' => $filter['brand_id'],
+                'brand_id' => $productsFilter['brand_id'],
                 'limit' => 1,
             ]);
         $lastModify[] = $brand->last_modify;
@@ -146,16 +147,43 @@ class BrandController extends AbstractController
         $this->response->setHeaderLastModify(max($lastModify));
         //lastModify END
 
-        switch ($metaRobotsHelper->getCatalogRobots($currentPage, $currentOtherFilters)) {
-            case ROBOTS_NOINDEX_FOLLOW:
-                $this->design->assign('noindex_follow', true);
-                break;
-            case ROBOTS_NOINDEX_NOFOLLOW:
-                $this->design->assign('noindex_nofollow', true);
-                break;
+        if (isset($productsFilter['keyword'])) {
+            $this->design->assign('noindex_nofollow', true);
+        } else {
+            switch ($metaRobotsHelper->getCatalogRobots(
+                $currentPage,
+                $productsFilter['other_filter'] ?? [],
+                $metaArray['features_values'] ?? [],
+                [])
+            ) {
+                case ROBOTS_NOINDEX_FOLLOW:
+                    $this->design->assign('noindex_follow', true);
+                    break;
+                case ROBOTS_NOINDEX_NOFOLLOW:
+                    $this->design->assign('noindex_nofollow', true);
+                    break;
+            }
         }
 
-        if ($canonicalData = $canonicalHelper->getCatalogCanonicalData($currentPage, $currentOtherFilters)) {
+        if (!empty($metaArray['features_values'])) {
+            $canonicalFeaturesValues = array_combine(
+                array_map(function ($featureId) use ($catalogFeatures) {
+                    return $catalogFeatures[$featureId]->url;
+                }, array_keys($metaArray['features_values'])),
+                $metaArray['features_values']
+            );
+        } else {
+            $canonicalFeaturesValues = [];
+        }
+
+        $canonicalData = $canonicalHelper->getCatalogCanonicalData(
+            $currentPage,
+            $productsFilter['other_filter'] ?? [],
+            $canonicalFeaturesValues,
+            $productsFilter['brand_id'] ?? []
+        );
+
+        if ($canonicalData) {
             $canonical = Router::generateUrl('brand', ['url' => $brand->url], true);
             $chpuUrl = $filterHelper->filterChpuUrl($canonicalData);
             $chpuUrl = ltrim($chpuUrl, '/');
@@ -173,11 +201,60 @@ class BrandController extends AbstractController
             $brand,
             $isFilterPage,
             $this->design->getVar('is_all_pages'),
-            $this->design->getVar('current_page_num')
+            $this->design->getVar('current_page_num'),
+            $filterHelper->getMetaArray($filtersUrl),
+            $productsFilter['keyword'] ?? null
+
         );
         $this->setMetadataHelper($brandMetadataHelper);
         
         $this->response->setContent('products.tpl');
     }
 
+    public function getFilter(
+        BrandsEntity $brandsEntity,
+        FilterHelper $filterHelper,
+        BrandsHelper $brandsHelper,
+                     $url,
+                     $filtersUrl = ''
+    ) {
+        // Если ленивая отложенная загрузка фильтра отключена, этот метод должен давать 404
+        if (!$this->settings->get('deferred_load_features')) {
+            return false;
+        }
+
+        $brand = $brandsEntity->get((string)$url);
+
+        if (empty($brand) || (!$brand->visible && empty($_SESSION['admin']))) {
+            return false;
+        }
+
+        $catalogFeatures = $brandsHelper->getCatalogFeatures($brand);
+
+        $filterHelper->setFiltersUrl($filtersUrl);
+        $filterHelper->setFeatures($catalogFeatures);
+        $filterHelper->setFeaturesValuesFilter(['brand_id' => $brand->id]);
+
+        if (($productsFilter = $brandsHelper->getProductsFilter($brand, $filtersUrl)) === null) {
+            return false;
+        }
+
+        $this->design->assign('is_filter_page', $brandsHelper->isFilterPage($productsFilter));
+
+        $brandsHelper->assignBrandFilterProcedure(
+            $productsFilter,
+            $catalogFeatures,
+            $brand
+        );
+
+        $this->design->assign('furlRoute', 'brand');
+        $this->design->assign('brand', $brand);
+
+        $response = [
+            'features' => $this->design->fetch('features.tpl', true),
+            'selected_features' => $this->design->fetch('selected_features.tpl', true),
+        ];
+
+        $this->response->setContent(json_encode($response), RESPONSE_JSON);
+    }
 }

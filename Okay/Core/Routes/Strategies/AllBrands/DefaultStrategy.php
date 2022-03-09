@@ -26,6 +26,10 @@ class DefaultStrategy extends AbstractRouteStrategy
             $prefix = 'brands';
         }
 
-        return ['/'.$prefix, [], []];
+        return [
+            '/'.$prefix.'/?{$filtersUrl}',
+            ['{$filtersUrl}' => '(.*)'],
+            []
+        ];
     }
 }

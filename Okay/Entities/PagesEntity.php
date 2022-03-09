@@ -17,8 +17,6 @@ class PagesEntity extends Entity
         'catalog',
         'products',
         'all-products',
-        'discounted',
-        'bestsellers',
         'brands',
         'wishlist',
         'comparison',

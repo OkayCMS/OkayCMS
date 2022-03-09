@@ -71,7 +71,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
 
     public function generateRouteParams($url)
     {
-        $prefix = $this->settings->get('category_routes_template__prefix_and_path') . '/';
+        $prefix = $this->settings->get('category_routes_template__prefix_and_path');
         $allCategories = $this->categoriesEntity->find();
 
         $categoriesPathUrls = [];
@@ -88,7 +88,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
         $matchedRoute = null;
         foreach ($categoriesPathUrls as $categoryPathUrl) {
             $urlPath = trim($categoryPathUrl, '/');
-            if ($this->compareUrlStartsNoSuccess($prefix.$urlPath, $url)) {
+            if ($this->compareUrlStartsNoSuccess($prefix.'/'.$urlPath, $url)) {
                 continue;
             }
 
@@ -98,12 +98,12 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
             if (!empty($urlParts)) {
                 $pathPrefix = implode('/', $urlParts) . '/';
             }
-            $filter = trim($this->matchFiltersUrl($prefix.$urlPath, $url), '/');
+            $filter = trim($this->matchFiltersUrl($prefix.'/'.$urlPath, $url), '/');
             $matchedRoute = [
-                $prefix.'{$url}{$filtersUrl}',
+                '/'.$prefix.'/{$url}/?{$filtersUrl}',
                 [
                     '{$url}' => "{$pathPrefix}({$lastPart})",
-                    '{$filtersUrl}' => "/?(" . $filter . ")",
+                    '{$filtersUrl}' => "(" . $filter . ")",
                 ],
                 []
             ];
@@ -119,7 +119,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
 
     private function getMockRouteParams($prefix)
     {
-        return [$prefix.'{$url}{$filtersUrl}', ['{$url}' => '', '{$filtersUrl}' => ''], []];
+        return [$prefix.'/{$url}/?{$filtersUrl}', ['{$url}' => '', '{$filtersUrl}' => ''], []];
     }
 
     private function compareUrlStartsNoSuccess($categoryPathUrl, $url)

@@ -10,7 +10,6 @@ use Okay\Core\Settings;
 use Okay\Entities\BrandsEntity;
 use Okay\Entities\CategoriesEntity;
 use Okay\Entities\ProductsEntity;
-use Okay\Entities\UserBrowsedProductsEntity;
 use Okay\Entities\VariantsEntity;
 use Okay\Entities\ImagesEntity;
 use Okay\Entities\FeaturesValuesEntity;
@@ -20,26 +19,80 @@ use Okay\Helpers\MetadataHelpers\ProductMetadataHelper;
 
 class ProductsHelper implements GetListInterface
 {
+    /** @var EntityFactory */
     private $entityFactory;
+
+    /** @var MoneyHelper */
     private $moneyHelper;
+
+    /** @var Settings */
     private $settings;
-    private $mainHelper;
 
     /** @var ProductMetadataHelper */
     private $productMetadataHelper;
 
+    /** @var CatalogHelper */
+    private $catalogHelper;
+
+    /** @var FilterHelper */
+    private $filterHelper;
+
+
+    /** @var FeaturesEntity */
+    private $featuresEntity;
+
+    /** @var CategoriesEntity */
+    private $categoriesEntity;
+
     public function __construct(
-        EntityFactory $entityFactory,
-        MoneyHelper $moneyHelper,
-        Settings $settings,
-        MainHelper $mainHelper,
-        ProductMetadataHelper $productMetadataHelper
+        EntityFactory         $entityFactory,
+        MoneyHelper           $moneyHelper,
+        Settings              $settings,
+        ProductMetadataHelper $productMetadataHelper,
+        CatalogHelper         $catalogHelper,
+        FilterHelper          $filterHelper
     ) {
-        $this->entityFactory = $entityFactory;
-        $this->moneyHelper = $moneyHelper;
-        $this->settings = $settings;
-        $this->mainHelper = $mainHelper;
+        $this->entityFactory         = $entityFactory;
+        $this->moneyHelper           = $moneyHelper;
+        $this->settings              = $settings;
         $this->productMetadataHelper = $productMetadataHelper;
+        $this->catalogHelper         = $catalogHelper;
+        $this->filterHelper          = $filterHelper;
+
+        $this->featuresEntity   = $entityFactory->get(FeaturesEntity::class);
+        $this->categoriesEntity = $entityFactory->get(CategoriesEntity::class);
+    }
+
+    public function assignFilterProcedure(
+        array   $productsFilter,
+        array   $catalogFeatures,
+        ?string $keyword = null
+    ): void {
+        if (isset($productsFilter['keyword'])) {
+            $catalogCategories = $this->categoriesEntity->find(['product_keyword' => $productsFilter['keyword']]);
+        } else {
+            $catalogCategories = [];
+        }
+
+        $this->catalogHelper->assignCatalogDataProcedure(
+            $productsFilter,
+            $catalogFeatures,
+            $catalogCategories,
+            null,
+            (int) $this->settings->get('features_max_count_products')
+        );
+
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    public function getCatalogFeatures(): array
+    {
+        return ExtenderFacade::execute(__METHOD__, $this->catalogHelper->getCatalogFeatures(), func_get_args());
+    }
+
+    public function isFilterPage(array $filter): bool
+    {
+        return ExtenderFacade::execute(__METHOD__, $this->filterHelper->isFilterPage($filter), func_get_args());
     }
 
     public function attachProductData($product)
@@ -347,5 +400,14 @@ class ProductsHelper implements GetListInterface
         }
 
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    public function getProductsFilter(?string $filtersUrl = null, array $filter = []): ?array
+    {
+        if (($filter = $this->catalogHelper->getProductsFilter($filtersUrl, $filter)) === null) {
+            return ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        }
+
+        return ExtenderFacade::execute(__METHOD__, $filter, func_get_args());
     }
 }

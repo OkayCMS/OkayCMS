@@ -6,7 +6,6 @@ namespace Okay\Controllers;
 
 use Okay\Core\Image;
 use Okay\Core\Money;
-use Okay\Core\Request;
 use Okay\Core\Response;
 use Okay\Core\Router;
 use Okay\Entities\ProductsEntity;
@@ -14,126 +13,98 @@ use Okay\Helpers\CanonicalHelper;
 use Okay\Helpers\CatalogHelper;
 use Okay\Helpers\FilterHelper;
 use Okay\Helpers\MetadataHelpers\AllProductsMetadataHelper;
-use Okay\Helpers\MetadataHelpers\BestsellersMetadataHelper;
-use Okay\Helpers\MetadataHelpers\DiscountedMetadataHelper;
 use Okay\Helpers\MetaRobotsHelper;
 use Okay\Helpers\ProductsHelper;
 
 class ProductsController extends AbstractController
 {
-
     public function render(
-        CatalogHelper $catalogHelper,
-        ProductsHelper $productsHelper,
-        ProductsEntity $productsEntity,
-        FilterHelper $filterHelper,
-        Router $router,
-        DiscountedMetadataHelper $discountedMetadataHelper,
-        BestsellersMetadataHelper $bestsellersMetadataHelper,
+        CatalogHelper             $catalogHelper,
+        ProductsHelper            $productsHelper,
+        ProductsEntity            $productsEntity,
+        FilterHelper              $filterHelper,
         AllProductsMetadataHelper $allProductsMetadataHelper,
-        CanonicalHelper $canonicalHelper,
-        MetaRobotsHelper $metaRobotsHelper,
-        $filtersUrl = ''
+        CanonicalHelper           $canonicalHelper,
+        MetaRobotsHelper          $metaRobotsHelper,
+                                  $filtersUrl = ''
     ) {
-        
-        $catalogType = $router->getCurrentRouteName();
-        
+        $this->design->assign('filtersUrl', !empty($filtersUrl) ? '/'.$filtersUrl : '', true);
+        $this->design->assign('ajax_filter_route', 'products_features', true);
+
+        $catalogFeatures = $productsHelper->getCatalogFeatures();
+
         $filterHelper->setFiltersUrl($filtersUrl);
+        $filterHelper->setFeatures($catalogFeatures);
 
-        $sortProducts = null;
-        $filter['visible'] = 1;
-
-        // Если нашли фильтр по бренду, кидаем 404
-        if (($currentBrandsIds = $filterHelper->getCurrentBrands($filtersUrl)) === false || !empty($currentBrandsIds)) {
-            return false;
-        }
-
-        // Если нашли фильтр по свойствам, кидаем 404
-        if (($currentFeatures = $filterHelper->getCurrentCategoryFeatures($filtersUrl)) === false || !empty($currentFeatures)) {
-            return false;
-        }
-        
-        // данный фильтр может быть применен только на странице search (all-products)
-        if (($currentOtherFilters = $filterHelper->getCurrentOtherFilters($filtersUrl)) === false
-            || $catalogType != 'search' && !empty($currentOtherFilters)) {
+        if (($productsFilter = $productsHelper->getProductsFilter($filtersUrl)) === null) {
             return false;
         }
 
         if (($currentPage = $filterHelper->getCurrentPage($filtersUrl)) === false) {
             return false;
         }
-        
-        if (($currentSort = $filterHelper->getCurrentSort($filtersUrl)) === false) {
+
+        $filterHelper->generateCacheKey("products");
+
+        $filterHelper->changeLangUrls($filtersUrl);
+
+        $productsSort = $catalogHelper->getProductsSort($filtersUrl);
+
+        $this->design->assign('sort', $productsSort);
+
+        $metaArray = $filterHelper->getMetaArray($filtersUrl);
+
+        // Если в строке есть параметры которые не должны быть в фильтре, либо параметры с другой категории, бросаем 404
+        if (!empty($metaArray['features_values'])
+            && array_intersect_key($metaArray['features_values'], $catalogFeatures) !== $metaArray['features_values']
+        ) {
             return false;
         }
 
-        if (!empty($currentOtherFilters)) {
-            $filter['other_filter'] = $currentOtherFilters;
-            $this->design->assign('selected_other_filters', $currentOtherFilters);
-        }
+        $isFilterPage = $productsHelper->isFilterPage($productsFilter);
+        $this->design->assign('is_filter_page', $isFilterPage);
 
-        // Сортировка товаров, сохраняем в сесси, чтобы текущая сортировка оставалась для всего сайта
-        if (!empty($currentSort)) {
-            $_SESSION['sort'] = $currentSort;
-        }
-        if (!empty($_SESSION['sort'])) {
-            $sortProducts = $_SESSION['sort'];
+        if (!$this->settings->get('deferred_load_features') || $this->request->get('ajax','boolean')) {
+            $productsHelper->assignFilterProcedure(
+                $productsFilter,
+                $catalogFeatures
+            );
         } else {
-            $sortProducts = 'position';
-        }
-        $this->design->assign('sort', $sortProducts);
-        
-        $filter['price'] = $catalogHelper->getPriceFilter($catalogType);
-        
-        if ($catalogType == 'search') {
-            $this->design->assign('other_filters', $catalogHelper->getOtherFilters($filter));
-        }
-        
-        switch ($catalogType) {
-            case 'bestsellers':
-                $filter = $filterHelper->getFeaturedProductsFilter($filter);
-                break;
-            case 'discounted':
-                $filter = $filterHelper->getDiscountedProductsFilter($filter);
-                break;
-            case 'search':
-                // Если задано ключевое слово
-                $keyword = $this->request->get('keyword', null, null, false);
-                $keyword = strip_tags($keyword);
-                $filter = $filterHelper->getSearchProductsFilter($filter, $keyword);
-                if (!empty($keyword)) {
-                    $this->design->assign('keyword', $keyword);
+            // если включена отложенная загрузка фильтров, установим отдельно возможные значения свойств
+            $baseFeaturesValues = $catalogHelper->getBaseFeaturesValues(null, $this->settings->get('missing_products'));
+
+            if (!empty($baseFeaturesValues)) {
+                foreach ($baseFeaturesValues as $values) {
+                    foreach ($values as $value) {
+                        if (isset($catalogFeatures[$value->feature_id])) {
+                            $catalogFeatures[$value->feature_id]->features_values[$value->id] = $value;
+                        }
+                    }
                 }
-                break;
-        }
+            }
+            foreach ($catalogFeatures as $k => $feature) {
+                if (!property_exists($feature, 'features_values') || empty($feature->features_values)) {
+                    unset($catalogFeatures[$k]);
+                }
+            }
 
-        if ((!empty($filter['price']) && $filter['price']['min'] !== '' && $filter['price']['max'] !== '' && $filter['price']['min'] !== null) || !empty($filter['other_filter'])) {
-            $this->design->assign('is_filter_page', true);
-        }
-
-        $prices = $catalogHelper->getPrices($filter, $catalogType);
-        $this->design->assign('prices', $prices);
-
-        if ($filter === false) {
-            return false;
+            $metaRobotsHelper->setAvailableFeatures($catalogFeatures);
         }
         
-        $paginate = $catalogHelper->paginate(
+        if (!$catalogHelper->paginate(
             $this->settings->get('products_num'),
             $currentPage,
-            $filter,
+            $productsFilter,
             $this->design
-        );
-        
-        if (!$paginate) {
+        )) {
             return false;
         }
 
         // Товары
-        $products = $productsHelper->getList($filter, $sortProducts);
+        $products = $productsHelper->getList($productsFilter, $productsSort);
         
         // Если нашелся только один товар, перенаправим сразу на него
-        if (!empty($filter['keyword']) && count($products) == 1) {
+        if (!empty($productsFilter['keyword']) && count($products) == 1) {
             $product = reset($products);
             Response::redirectTo(Router::generateUrl('product', [
                 'url' => $product->url,
@@ -144,24 +115,15 @@ class ProductsController extends AbstractController
 
         if ($this->request->get('ajax','boolean')) {
             $this->design->assign('ajax', 1);
-            $result = $catalogHelper->getAjaxFilterData($this->design);
+            $result = $catalogHelper->getAjaxFilterData();
             $this->response->setContent(json_encode($result), RESPONSE_JSON);
             return true;
         }
 
         //lastModify
-        $lastModifyFilter = ['limit' => 1];
-        switch ($catalogType) {
-            case 'bestsellers':
-                $lastModifyFilter['featured'] = true;
-                break;
-            case 'discounted':
-                $lastModifyFilter['discounted'] = true;
-                break;
-        }
         $lastModify = $productsEntity->cols(['last_modify'])
             ->order('last_modify_desc')
-            ->find($lastModifyFilter);
+            ->find(['limit' => 1]);
         if ($this->page) {
             $lastModify[] = $this->page->last_modify;
         }
@@ -171,7 +133,12 @@ class ProductsController extends AbstractController
         $relPrevNext = $this->design->fetch('products_rel_prev_next.tpl');
         $this->design->assign('rel_prev_next', $relPrevNext);
 
-        switch ($metaRobotsHelper->getCatalogRobots($currentPage, $currentOtherFilters)) {
+        switch ($metaRobotsHelper->getCatalogRobots(
+            $currentPage,
+            $productsFilter['other_filter'] ?? [],
+            $metaArray['features_values'] ?? [],
+            $productsFilter['brand_id'] ?? [])
+        ) {
             case ROBOTS_NOINDEX_FOLLOW:
                 $this->design->assign('noindex_follow', true);
                 break;
@@ -180,8 +147,26 @@ class ProductsController extends AbstractController
                 break;
         }
 
-        if ($canonicalData = $canonicalHelper->getCatalogCanonicalData($currentPage, $currentOtherFilters)) {
-            $canonical = Router::generateUrl($catalogType, [], true);
+        if (!empty($metaArray['features_values'])) {
+            $canonicalFeaturesValues = array_combine(
+                array_map(function ($featureId) use ($catalogFeatures) {
+                    return $catalogFeatures[$featureId]->url;
+                }, array_keys($metaArray['features_values'])),
+                $metaArray['features_values']
+            );
+        } else {
+            $canonicalFeaturesValues = [];
+        }
+
+        $canonicalData = $canonicalHelper->getCatalogCanonicalData(
+            $currentPage,
+            $productsFilter['other_filter'] ?? [],
+            $canonicalFeaturesValues,
+            $productsFilter['brand_id'] ?? []
+        );
+
+        if ($canonicalData) {
+            $canonical = Router::generateUrl('products', [], true);
             $chpuUrl = $filterHelper->filterChpuUrl($canonicalData);
             $chpuUrl = ltrim($chpuUrl, '/');
             if (!empty($chpuUrl)) {
@@ -191,18 +176,13 @@ class ProductsController extends AbstractController
             $this->design->assign('canonical', $canonical);
         }
 
-        switch ($catalogType) {
-            case 'bestsellers':
-                $this->setMetadataHelper($bestsellersMetadataHelper);
-                break;
-            case 'discounted':
-                $this->setMetadataHelper($discountedMetadataHelper);
-                break;
-            case 'search':
-                $allProductsMetadataHelper->setUp($keyword, $this->design->getVar('is_all_pages'), $this->design->getVar('current_page_num'));
-                $this->setMetadataHelper($allProductsMetadataHelper);
-                break;
-        }
+        $allProductsMetadataHelper->setUp(
+            $productsFilter['keyword'] ?? '',
+            $this->design->getVar('is_all_pages'),
+            $this->design->getVar('current_page_num')
+        );
+
+        $this->setMetadataHelper($allProductsMetadataHelper);
         
         $this->response->setContent('products.tpl');
     }
@@ -242,4 +222,39 @@ class ProductsController extends AbstractController
         $this->response->setContent(json_encode($res), RESPONSE_JSON);
     }
 
+    public function getFilter(
+        FilterHelper   $filterHelper,
+        ProductsHelper $productsHelper,
+                       $filtersUrl = ''
+    ) {
+        // Если ленивая отложенная загрузка фильтра отключена, этот метод должен давать 404
+        if (!$this->settings->get('deferred_load_features')) {
+            return false;
+        }
+
+        $catalogFeatures = $productsHelper->getCatalogFeatures();
+
+        $filterHelper->setFiltersUrl($filtersUrl);
+        $filterHelper->setFeatures($catalogFeatures);
+
+        if (($productsFilter = $productsHelper->getProductsFilter($filtersUrl)) === null) {
+            return false;
+        }
+
+        $this->design->assign('is_filter_page', $productsHelper->isFilterPage($productsFilter));
+
+        $productsHelper->assignFilterProcedure(
+            $productsFilter,
+            $catalogFeatures
+        );
+
+        $this->design->assign('furlRoute', 'products');
+
+        $response = [
+            'features' => $this->design->fetch('features.tpl', true),
+            'selected_features' => $this->design->fetch('selected_features.tpl', true),
+        ];
+
+        $this->response->setContent(json_encode($response), RESPONSE_JSON);
+    }
 }

@@ -270,17 +270,17 @@ function price_slider_init() {
         current_max = slider_max.value,
         range_min = slider_min.dataset.price,
         range_max = slider_max.dataset.price,
-        link = window.location.href.replace( /\/page-(\d{1,5})/, '' ),
         ajax_slider = function() {
+            let link = $(stepsSlider).data('href').replace(/price-min_max/, 'price-'+slider_min.value+'_'+slider_max.value);
+
             $.ajax( {
                 url: link,
                 data: {
-                    ajax: 1,
-                    'p[min]': slider_min.value,
-                    'p[max]': slider_max.value
+                    ajax: 1
                 },
                 dataType: 'json',
                 success: function(data) {
+                    window.history.pushState({}, '', link);
 
                     if ((window.featuresCache !== undefined) && window.featuresCache.timeout > 0) {
                         window.featuresCache.set(okay.filterCacheKey, {
@@ -314,7 +314,6 @@ function price_slider_init() {
                 }
             } );
         };
-    link = link.replace(/\/sort-([a-zA-Z_]+)/, '');
     
     function setSliderHandle(i, value) {
         var r = [null, null];
@@ -324,17 +323,23 @@ function price_slider_init() {
         ajax_slider();
     }
 
-    noUiSlider.create(stepsSlider, {
+    let sliderConfig = {
         start: [current_min, current_max],
         connect: true,
         range: {
             'min': parseFloat(range_min),
             'max': parseFloat(range_max)
         }
-    });
+    };
+
+    if (!Number(okay.currency_cents)) {
+        sliderConfig.step = 1;
+    }
+
+    noUiSlider.create(stepsSlider, sliderConfig);
 
     stepsSlider.noUiSlider.on('update', function (values, handle) {
-        slider_all[handle].value = values[handle];
+        slider_all[handle].value = Number(values[handle]).toFixed(Number(okay.currency_cents));
     });
 
     stepsSlider.noUiSlider.on('end', function (values, handle) {

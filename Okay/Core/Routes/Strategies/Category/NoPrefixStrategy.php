@@ -15,7 +15,7 @@ class NoPrefixStrategy extends AbstractRouteStrategy
      */
     private $categoriesEntity;
 
-    private $mockRouteParams = ['{$url}{$filtersUrl}', ['{$url}' => '', '{$filtersUrl}' => ''], ['{$url}' => '', '{$filtersUrl}' => '']];
+    private $mockRouteParams = ['/{$url}/?{$filtersUrl}', ['{$url}' => '', '{$filtersUrl}' => ''], ['{$url}' => '', '{$filtersUrl}' => '']];
 
     public function __construct()
     {
@@ -37,10 +37,10 @@ class NoPrefixStrategy extends AbstractRouteStrategy
         $filter = trim($this->matchFiltersUrl($categoryUrl, $url), '/');
         
         return [
-            '{$url}{$filtersUrl}',
+            '/{$url}/?{$filtersUrl}',
             [
                 '{$url}' => "({$categoryUrl})",
-                '{$filtersUrl}' => '/?(' . $filter . ')',
+                '{$filtersUrl}' => '(' . $filter . ')',
             ],
             []
         ];

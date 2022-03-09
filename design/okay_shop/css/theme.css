@@ -1476,7 +1476,7 @@ a.filter__catalog_link svg{
     width: 20px!important;
     height: 20px!important;
 }
-b.filter__catalog_link.selected{
+.filter__catalog_link.selected{
     color: var(--okay-basic-company);
     font-weight: 500;
 }
