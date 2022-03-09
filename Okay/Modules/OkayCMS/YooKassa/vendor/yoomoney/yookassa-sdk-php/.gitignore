@@ -1,7 +1,0 @@
-
-/vendor/
-.idea
-composer.lock
-/build/
-phpunit.xml
-lsp
