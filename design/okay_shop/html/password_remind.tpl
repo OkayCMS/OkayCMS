@@ -1,4 +1,4 @@
-{* Password remind page *}
+<!-- Password remind page -->
 
 {* The page title *}
 {$meta_title = $lang->password_remind_title scope=global}

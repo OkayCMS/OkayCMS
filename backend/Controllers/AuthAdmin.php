@@ -33,7 +33,7 @@ class AuthAdmin extends IndexAdmin
             } else {
                 $code = $this->config->token(mt_rand(1, mt_getrandmax()) . mt_rand(1, mt_getrandmax()) . mt_rand(1, mt_getrandmax()));
                 $_SESSION['admin_password_recovery_code'] = $code;
-                $notify->passwordRecoveryAdmin($managerToRecovery->email, $code);
+                $notify->emailPasswordRecoveryAdmin($managerToRecovery->email, $code);
                 
                 $result->send = true;
             }

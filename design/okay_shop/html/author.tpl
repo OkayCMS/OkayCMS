@@ -1,3 +1,4 @@
+<!-- Author page -->
 <div class="clearfix">
     {* Sidebar with blog *}
     <div class="fn_mobile_toogle sidebar sidebar--right position_sticky d-lg-flex flex-lg-column">

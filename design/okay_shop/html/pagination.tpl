@@ -1,4 +1,4 @@
-{* Pagination *}
+<!-- Pagination -->
 {if $total_pages_num > 1}
     <ul class="pagination{if $ajax} fn_is_ajax{/if}">
         {* Number of visible pagination links *}

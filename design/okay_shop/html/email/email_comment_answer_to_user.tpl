@@ -1,4 +1,4 @@
-{* Письмо ответа на комметарий пользователю *}
+<!-- Email comment answer to user page -->
 {$subject = "`$lang->email_comment_theme` `$settings->site_name`" scope=global}
 
 

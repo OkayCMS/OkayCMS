@@ -4,6 +4,7 @@
 namespace Okay\Admin\Helpers;
 
 
+use Okay\Core\Design;
 use Okay\Core\Request;
 use Okay\Core\Translit;
 use Okay\Core\Database;
@@ -13,6 +14,7 @@ use Okay\Entities\CategoriesEntity;
 use Okay\Entities\FeaturesEntity;
 use Okay\Entities\FeaturesValuesEntity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
+use Okay\Entities\ProductsEntity;
 
 class BackendFeaturesHelper
 {
@@ -51,19 +53,32 @@ class BackendFeaturesHelper
      */
     private $request;
 
+    /**
+     * @var Design
+     */
+    private $design;
+
+    /**
+     * @var ProductsEntity
+     */
+    private $productsEntity;
+
     public function __construct(
         EntityFactory $entityFactory,
         QueryFactory  $queryFactory,
         Translit      $translit,
         Database      $db,
-        Request       $request
+        Request       $request,
+        Design        $design
     ) {
         $this->featuresValuesEntity = $entityFactory->get(FeaturesValuesEntity::class);
         $this->featuresEntity       = $entityFactory->get(FeaturesEntity::class);
+        $this->productsEntity       = $entityFactory->get(ProductsEntity::class);
         $this->queryFactory         = $queryFactory;
         $this->translit             = $translit;
         $this->db                   = $db;
         $this->request              = $request;
+        $this->design               = $design;
     }
 
     public function updateProductFeatures($product, $featuresValues, $featuresValuesText, $newFeaturesNames, $newFeaturesValues, $productsCategories)
@@ -383,6 +398,25 @@ class BackendFeaturesHelper
         foreach ($features as $f) {
             $f->features_categories = $this->featuresEntity->getFeatureCategories($f->id);
         }
+
+        $featuresIds = $this->featuresEntity->cols(['id'])->find();
+        $productsCounts = [];
+        foreach ($featuresIds as $featureId) {
+            $filterCount = [];
+            $filterCount['features'][$featureId] = [];
+            if(!empty($featureId)){
+                $featureValues = $this->featuresValuesEntity->find(['feature_id' => $featureId]);
+                foreach ($featureValues as $value) {
+                    if(!empty($value)) {
+                        $filterCount['features'][$featureId][] = $value->translit;
+                        $productsCounts[$f]['translit'][] = $value->translit;
+                    }
+                }
+
+                $productsCounts[$featureId]['count'] = !empty($filterCount['features'][$featureId]) ? $this->productsEntity->count($filterCount) : 0;
+            }
+        }
+        $this->design->assign('products_counts', $productsCounts);
 
         return ExtenderFacade::execute(__METHOD__, $features, func_get_args());
     }

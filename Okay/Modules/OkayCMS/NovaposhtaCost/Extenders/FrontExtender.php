@@ -18,14 +18,23 @@ use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCostDeliveryDataEntity;
 
 class FrontExtender implements ExtensionInterface
 {
-    
+    /** @var Request  */
     private $request;
+
+    /** @var EntityFactory  */
     private $entityFactory;
+
+    /** @var FrontTranslations */
+    private $frontTranslations;
     
-    public function __construct(Request $request, EntityFactory $entityFactory)
-    {
-        $this->request = $request;
-        $this->entityFactory = $entityFactory;
+    public function __construct(
+        Request           $request,
+        EntityFactory     $entityFactory,
+        FrontTranslations $frontTranslations
+    ) {
+        $this->request           = $request;
+        $this->entityFactory     = $entityFactory;
+        $this->frontTranslations = $frontTranslations;
     }
 
     /**
@@ -170,5 +179,29 @@ class FrontExtender implements ExtensionInterface
             
             $npDeliveryDataEntity->add($deliveryData);
         }
+    }
+
+    /**
+     * @param $error
+     * @param $order
+     * @return null|string
+     */
+    public function getCartValidateError($error)
+    {
+        if (is_null($error) && $this->request->post('is_novaposhta_delivery', 'boolean')) {
+            if (empty($this->request->post('novaposhta_city'))) {
+                $error = $this->frontTranslations->getTranslation('np_cart_error_city');
+            } else if ($this->request->post('novaposhta_door_delivery')) {
+                if (empty($this->request->post('novaposhta_street'))) {
+                    $error = $this->frontTranslations->getTranslation('np_cart_error_street');
+                } else if (empty($this->request->post('novaposhta_house'))) {
+                    $error = $this->frontTranslations->getTranslation('np_cart_error_house');
+                }
+            } else if (empty($this->request->post('novaposhta_warehouses'))) {
+                $error = $this->frontTranslations->getTranslation('np_cart_error_warehouse');
+            }
+        }
+
+        return $error;
     }
 }

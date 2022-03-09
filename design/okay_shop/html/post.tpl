@@ -1,4 +1,4 @@
-{* Post page *}
+<!-- Post page -->
 
 <div class="d-lg-flex align-items-lg-start justify-content-lg-between flex-lg-row-reverse">
     {* Sidebar with post *}

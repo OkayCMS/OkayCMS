@@ -119,6 +119,14 @@ class MainHelper
     }
 
     /**
+     * Метод, который можно расширять модулями. Выполняется перед работой контроллера
+     */
+    public function commonBeforeControllerProcedure()
+    {
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    /**
      * Метод, который можно расширять модулями. Выполняется он после работы контроллера
      * 
      * @var MetadataInterface|null $metadataHelper
@@ -250,7 +258,7 @@ class MainHelper
                 $social['url'] = $socialUrl;
                 $socials[] = $social;
             }
-            
+
             $design->assign('site_social', $socials);
         }
         

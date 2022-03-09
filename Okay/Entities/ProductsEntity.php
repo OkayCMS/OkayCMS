@@ -266,10 +266,12 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
 
         $this->setUp();
 
+        unset($filter['price']);
+
         $this->buildFilter($filter);
         $this->select->cols([
-            "floor(min(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*{$coef})) as min",
-            "floor(max(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*{$coef})) as max",
+            "min(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*{$coef}) as min",
+            "max(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*{$coef}) as max",
         ]);
 
         $this->select->join('LEFT', '__variants AS pv', 'pv.product_id = p.id');

@@ -1,3 +1,4 @@
+<!-- Cart purchases template -->
 {*NOTICE: Обратите внимание, data-total_purchases_price хранится в основной валюте сайта*}
 <div class="fn_purchases_wrap" data-total_purchases_price="{$cart->total_price}">
 {foreach $cart->purchases as $purchase}

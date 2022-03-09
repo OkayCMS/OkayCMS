@@ -198,27 +198,28 @@ class CatalogHelper
         }
 
         if (!empty($filter['price']['min'])) {
-            $filter['price']['min'] = round($this->money->convert($filter['price']['min'], null, false));
+            $filter['price']['min'] = $this->money->convert($filter['price']['min'], null, false);
         }
 
         if (!empty($filter['price']['max'])) {
-            $filter['price']['max'] = round($this->money->convert($filter['price']['max'], null, false));
+            $filter['price']['max'] = $this->money->convert($filter['price']['max'], null, false);
         }
 
         if (isset($prices['current'])) {
             $prices['current'] = (object)$prices['current'];
         }
         $prices = (object)$prices;
-        
-        $rangeFilter = $filter;
-        unset($rangeFilter['price']);
-        $prices->range = $productsEntity->getPriceRange($rangeFilter);
+
+        $prices->range = $productsEntity->getPriceRange($filter);
+
+        $prices->range->min = $this->money->convert($prices->range->min, null, false);
+        $prices->range->max = $this->money->convert($prices->range->max, null, false);
 
         if (isset($prices->current->min)) {
-            $prices->current->min = round($this->money->convert($prices->current->min, null, false));
+            $prices->current->min = $this->money->convert($prices->current->min, null, false);
         }
         if (isset($prices->current->max)) {
-            $prices->current->max = round($this->money->convert($prices->current->max, null, false));
+            $prices->current->max = $this->money->convert($prices->current->max, null, false);
         }
         
         // Вдруг вылезли за диапазон доступного...

@@ -1,4 +1,4 @@
-{* The Categories page *}
+<!-- The Categories page -->
 
 <div class="clearfix">
     {* Sidebar with filters *}
