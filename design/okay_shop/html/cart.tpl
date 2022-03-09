@@ -1,4 +1,4 @@
-{* The cart page template *}
+<!-- The cart page template -->
 <div class="cart d-flex flex-column">
     {* The cart header *}
     <div class="cart_header">

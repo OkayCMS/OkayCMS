@@ -1,13 +1,6 @@
-{*
-Для отладки ответного сообщение пользователю на комментарий пройдите по ссылке http://domain/backend/index.php?controller=EmailTemplatesAdmin&debug=emailCommentAnswerToUser&comment_id=1, измените параметр comment_id - это номер ответного комментария
-Для отладки ответного сообщение пользователю на обратную связь пройдите по ссылке http://domain/backend/index.php?controller=EmailTemplatesAdmin&debug=emailFeedbackAnswerFoUser&feedback_id=1&text=текст для тестирования если потребуется, измените параметр feedback_id - это номер родительского обращения, text - текст ответа пользователю.
-*}
-{* Письмо ответа на комметарий или обращение пользователю *}
-{if $object->type_obj == 'comment'}
-    {$subject = "`$lang->email_comment_theme` `$settings->site_name`" scope=global}
-{elseif $object->type_obj == 'feedback'}
-    {$subject = "`$lang->email_feedback_subject`" scope=global}
-{/if}
+{* Письмо ответа на комметарий пользователю *}
+{$subject = "`$lang->email_comment_theme` `$settings->site_name`" scope=global}
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -128,6 +121,8 @@
                                                                 {$object->message|escape|nl2br}
                                                             {/if}
                                                         </div>
+                                                        <div class="es-comment-name">{$lang->email_comment_your_comment}</div>
+                                                        <div class="es-comment-text">{$parent_comment->text|escape}</div>
                                                     </div>
                                                 </td>
                                             </tr>

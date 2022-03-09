@@ -1,4 +1,4 @@
-{* Feedback page *}
+<!-- Feedback page -->
 
 <div class="block">
     {* The page heading *}

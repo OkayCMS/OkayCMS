@@ -1,7 +1,5 @@
-{* The products comparison page *}
+<!-- The products comparison page -->
 
-{* The page title *}
-{$meta_title = $lang->comparison_title scope=global}
 
 <div class="block">
     {* The page heading *}

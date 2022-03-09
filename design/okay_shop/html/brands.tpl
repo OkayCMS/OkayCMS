@@ -1,4 +1,4 @@
-{* The brand page template *}
+<!-- The brand page template -->
 
 <div class="block">
 	{* The page heading *}
@@ -18,7 +18,7 @@
 										<div class="brand__image">
 											<picture>
 												{if $settings->support_webp}
-													<source type="image/webp" data-srcset="{$b->image|resize:120:100:false:$config->resized_brands_dir}.webp">
+													<source type="image/webp" data-srcset="{$b->image|resize:120:100:false:$config->resized_brands_dir|webp}">
 												{/if}
 												<source data-srcset="{$b->image|resize:120:100:false:$config->resized_brands_dir}">
 												<img class="brand_img lazy" data-src="{$b->image|resize:120:100:false:$config->resized_brands_dir}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$b->name|escape}" title="{$b->name|escape}"/>

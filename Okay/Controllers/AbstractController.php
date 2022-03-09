@@ -72,6 +72,15 @@ class AbstractController
     {
         $this->metadataHelper = $metadataHelper;
     }
+
+    /*
+     * Метод, который вызывается всегда перед вызовом методов контроллера.
+     * В методе можно принимать аргументы, с указанием типа данных, они автоматически через DI сюда передадутся
+     */
+    final public function beforeController(MainHelper $mainHelper)
+    {
+        $mainHelper->commonBeforeControllerProcedure();
+    }
     
     /*
      * Метод, который вызывается всегда перед вызовом метода контроллера.

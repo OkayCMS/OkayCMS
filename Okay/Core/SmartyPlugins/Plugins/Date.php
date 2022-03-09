@@ -43,11 +43,11 @@ class Date extends Modifier
             $day_num = date('N', $time);
             $mon_num = date('n', $time);
             $custom_format = [
-                'cD'  => addcslashes($translations->{"date_D_{$day_num}"}, 'A..z'), // Дни недели сокращенно
-                'cl'  => addcslashes($translations->{"date_l_{$day_num}"}, 'A..z'), // Дни недели полностью
-                'cS'  => addcslashes($translations->{"date_S_{$mon_num}"}, 'A..z'), // Месяцы сокращенно
-                'cF'  => addcslashes($translations->{"date_F_{$mon_num}"}, 'A..z'), // Месяцы полностью
-                'cFR' => addcslashes($translations->{"date_FR_{$mon_num}"}, 'A..z'), // Месяцы полностью, родительный падеж
+                'cD'  => addcslashes($translations["date_D_".$day_num]->value, 'A..z'), // Дни недели сокращенно
+                'cl'  => addcslashes($translations["date_l_".$day_num]->value, 'A..z'), // Дни недели полностью
+                'cS'  => addcslashes($translations["date_S_".$mon_num]->value, 'A..z'), // Месяцы сокращенно
+                'cF'  => addcslashes($translations["date_F_".$mon_num]->value, 'A..z'), // Месяцы полностью
+                'cFR' => addcslashes($translations["date_FR_".$mon_num]->value, 'A..z'), // Месяцы полностью, родительный падеж
             ];
     
             $format = strtr($format, $custom_format);

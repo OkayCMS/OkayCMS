@@ -1,3 +1,4 @@
+<!-- Desktop categories template -->
 {function name=categories_tree3}
     {if $categories}
         <div class="level_{$level} {if $level == 1}categories_nav__menu{else}categories_nav__subcategory{/if}">
@@ -34,7 +35,7 @@
                                                 {else}
                                                 <picture>
                                                     {if $settings->support_webp}
-                                                        <source type="image/webp" data-srcset="{$c->image|resize:65:65:false:$config->resized_categories_dir}.webp">
+                                                        <source type="image/webp" data-srcset="{$c->image|resize:65:65:false:$config->resized_categories_dir|webp}">
                                                     {/if}
                                                     <source data-srcset="{$c->image|resize:65:65:false:$config->resized_categories_dir}">
                                                     <img class="lazy" data-src="{$c->image|resize:65:65:false:$config->resized_categories_dir}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$c->name|escape}" title="{$c->name|escape}"/>

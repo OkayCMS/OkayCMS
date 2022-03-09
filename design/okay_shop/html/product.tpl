@@ -24,7 +24,7 @@
                                     <a href="{$image->filename|resize:1800:1800:w}" data-fancybox="we2" class="swiper-slide">
                                         <picture>
                                             {if $settings->support_webp}
-                                                <source type="image/webp" srcset="{$image->filename|resize:700:800}.webp">
+                                                <source type="image/webp" srcset="{$image->filename|resize:700:800|webp}>
                                             {/if}
                                                 <source srcset="{$image->filename|resize:700:800}">
                                                 <img {if $image@first} itemprop="image" {/if} src="{$image->filename|resize:700:800}" alt="{$product->name|escape}" title="{$product->name|escape}"/>
@@ -62,7 +62,7 @@
                             <div class="swiper-slide product-page__images-item">
                                 <picture>
                                     {if $settings->support_webp}
-                                        <source type="image/webp" data-srcset="{$image->filename|resize:60:60}.webp">
+                                        <source type="image/webp" data-srcset="{$image->filename|resize:60:60|webp}">
                                     {/if}
                                         <source data-srcset="{$image->filename|resize:60:60}">
                                         <img class="lazy" data-src="{$image->filename|resize:60:60}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$product->name|escape}" title="{$product->name|escape}"/>
@@ -89,7 +89,7 @@
                     {* Product Rating *}
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="details_boxed__rating">
-                            {*<div class="details_boxed__title" data-language="product_rating">{$lang->product_rating}:</div>*}
+{*                            <div class="details_boxed__title" data-language="product_rating">{$lang->product_rating}:</div>*}
                             <div id="product_{$product->id}" class="product__rating fn_rating" data-rating_post_url="{url_generator route='ajax_product_rating'}" {if $product->rating > 0} itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating"{/if}>
                                 <span class="rating_starOff">
                                     <span class="rating_starOn" style="width:{$product->rating*90/5|string_format:'%.0f'}px;"></span>
@@ -243,11 +243,11 @@
 
                                     {* Comparison *}
                                     {if is_array($comparison->ids) && in_array($product->id, $comparison->ids)}
-                                        <a class="fn_comparison product-page__compare selected" href="#" data-id="{$product->id}" title="{$lang->product_remove_comparison}" data-result-text="{$lang->product_add_comparison}" data-language="product_remove_comparison">
+                                        <a class="fn_comparison product-page__compare selected" href="#" data-id="{$product->id}" title="{$lang->remove_comparison}" data-result-text="{$lang->product_add_comparison}" data-language="product_remove_comparison">
                                             <i class="fa fa-balance-scale"></i>
                                         </a>
                                     {else}
-                                        <a class="fn_comparison product-page__compare" href="#" data-id="{$product->id}" title="{$lang->product_add_comparison}" data-result-text="{$lang->product_remove_comparison}" data-language="product_add_comparison">
+                                        <a class="fn_comparison product-page__compare" href="#" data-id="{$product->id}" title="{$lang->product_add_comparison}" data-result-text="{$lang->remove_comparison}" data-language="product_add_comparison">
                                             <i class="fa fa-balance-scale"></i>
                                         </a>
                                     {/if}

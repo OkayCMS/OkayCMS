@@ -9,6 +9,7 @@ $lang['email_comment_answer_s'] = 'Ответ на комментарий';
 $lang['email_comment_answer_l'] = 'Ответ на сообщение';
 $lang['email_feedback_subject'] = 'Ответ на вашу заявку';
 $lang['email_feedback_title'] = 'Вы оставили сообщение в';
+$lang['email_feedback_answer'] = 'Ответ администрации';
 $lang['email_footer_help'] = 'Если у вас есть какие-либо вопросы, позвоните нам';
 $lang['email_new_order'] = 'Новый заказ';
 $lang['email_details_order'] = 'Детали заказа';

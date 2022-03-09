@@ -23,16 +23,35 @@
 <div class="row">
     <div class="col-lg-12 col-md-12">
         <div class="boxed match fn_toggle_wrap tabs">
-           <div class="design_tabs">
-                <div class="design_navigation">
-                    <span class="design_navigation_link focus">{$btr->general_templates_email|escape}</span>
+            <div class="tabs">
+                <div class="heading_tabs">
+                    <div class="tab_navigation">
+                        <a href="#tab1" class="heading_box tab_navigation_link">{$btr->general_templates_email_admin|escape}</a>
+                        <a href="#tab2" class="heading_box tab_navigation_link">{$btr->general_templates_email_user|escape}</a>
+                    </div>
                 </div>
-                <div class="design_container">
-                    <a class="design_tab focus" href="{url debug=emailOrderAdmin order_id=1}">emailOrderAdmin()</a>
-                    <a class="design_tab focus" href="{url debug=emailCommentAdmin comment_id=1}">emailCommentAdmin()</a>
-                    <a class="design_tab focus" href="{url debug=emailCallbackAdmin callback_id=1}">emailCallbackAdmin()</a>
-                    <a class="design_tab focus" href="{url debug=emailFeedbackAdmin feedback_id=1}">emailFeedbackAdmin()</a>
-                    <a class="design_tab focus" href="{url debug=emailOrderUser order_id=1}">emailOrderUser()</a>
+                <div class="tab_container">
+                    <div id="tab1" class="tab">
+                        <div class="design_tabs">
+                            <div class="design_container">
+                                <a class="design_tab focus" href="{url debug=emailOrderAdmin order_id=1}">emailOrderAdmin</a>
+                                <a class="design_tab focus" href="{url debug=emailCommentAdmin comment_id=1}">emailCommentAdmin</a>
+                                <a class="design_tab focus" href="{url debug=emailCallbackAdmin callback_id=1}">emailCallbackAdmin</a>
+                                <a class="design_tab focus" href="{url debug=emailFeedbackAdmin feedback_id=1}">emailFeedbackAdmin</a>
+                                <a class="design_tab focus" href="{url debug=emailPasswordRecoveryAdmin}">emailPasswordRecoveryAdmin</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tab2" class="tab">
+                        <div class="design_tabs">
+                            <div class="design_container">
+                                <a class="design_tab focus" href="{url debug=emailOrderUser order_id=1}">emailOrderUser</a>
+                                <a class="design_tab focus" href="{url debug=emailCommentAnswerToUser}">emailCommentAnswerToUser</a>
+                                <a class="design_tab focus" href="{url debug=emailFeedbackAnswerFoUser}">emailFeedbackAnswerFoUser</a>
+                                <a class="design_tab focus" href="{url debug=emailPasswordRemind user_id=1}">emailPasswordRemind</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
