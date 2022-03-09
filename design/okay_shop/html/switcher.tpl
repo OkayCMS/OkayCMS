@@ -1,4 +1,4 @@
-{* Languages *}
+<!-- Languages -->
 {if $languages|count > 1}
 	{$cnt = 0}
 	{foreach $languages as $ln}
@@ -32,7 +32,7 @@
 	{/if}
 {/if}
 
-{* Currencies *}
+<!-- Currencies -->
 {if $currencies|count > 1}
 	<div class="switcher__item d-flex align-items-center switcher__currencies">
 		<div class="switcher__visible">

@@ -111,9 +111,6 @@ class OrderAdmin extends IndexAdmin
                         }
                     }
 
-                    // Удаляем непереданные скидки
-                    $backendOrdersHelper->deleteDiscounts($postedDiscountIds ?? [], $order->id);
-
                     // Удалить непереданные товары
                     $backendOrdersHelper->deletePurchases($order, $postedPurchasesIds ?? []);
 
@@ -128,6 +125,9 @@ class OrderAdmin extends IndexAdmin
                         }
                         $postedDiscountIds[] = $discount->id;
                     }
+
+                    // Удаляем непереданные скидки
+                    $backendOrdersHelper->deleteDiscounts($postedDiscountIds ?? [], $order->id);
 
                     // Обновим позиции скидок
                     $positions = $ordersRequest->postDiscountPositions();

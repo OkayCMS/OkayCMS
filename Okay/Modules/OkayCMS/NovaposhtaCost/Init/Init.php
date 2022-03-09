@@ -19,6 +19,7 @@ use Okay\Entities\VariantsEntity;
 use Okay\Helpers\CartHelper;
 use Okay\Helpers\DeliveriesHelper;
 use Okay\Helpers\OrdersHelper;
+use Okay\Helpers\ValidateHelper;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCitiesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCostDeliveryDataEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPWarehousesEntity;
@@ -80,6 +81,7 @@ class Init extends AbstractInit
         $this->addBackendBlock('product_variant', 'product_variant_block.tpl');
         $this->addBackendBlock('order_contact', 'order_contact_block.tpl');
         $this->addFrontBlock('front_cart_delivery', 'front_cart_delivery_block.tpl');
+        $this->addFrontBlock('front_scripts_after_validate', 'validation.js');
         
         $this->registerChainExtension(
             [DeliveriesHelper::class, 'prepareDeliveryPriceInfo'],
@@ -108,7 +110,7 @@ class Init extends AbstractInit
         
         // В админке в заказе достаём данные по доставке
         $this->registerQueueExtension(
-            [BackendOrdersHelper::class, 'findOrderDelivery'],
+            [BackendOrdersHelper::class, 'findOrder'],
             [BackendExtender::class, 'getDeliveryDataProcedure']
         );
 
@@ -134,6 +136,11 @@ class Init extends AbstractInit
         $this->registerChainExtension(
             [BackendExportHelper::class, 'prepareVariantsData'],
             [BackendExtender::class, 'extendExportPrepareVariantData']
+        );
+
+        $this->registerChainExtension(
+            [ValidateHelper::class, 'getCartValidateError'],
+            [FrontExtender::class, 'getCartValidateError']
         );
         
         $this->registerBackendController('NovaposhtaCostAdmin');

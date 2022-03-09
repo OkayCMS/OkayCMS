@@ -11,9 +11,10 @@ use Okay\Core\EntityFactory;
 use Okay\Core\Request;
 use Okay\Core\ServiceLocator;
 use Okay\Core\Settings;
-use Okay\Entities\FeaturesEntity;
+use Okay\Entities\TranslationsEntity;
 use Okay\Entities\ProductsEntity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
+use Okay\Entities\FeaturesEntity;
 
 class CatalogHelper
 {
@@ -69,7 +70,7 @@ class CatalogHelper
         $this->featuresEntity = $entityFactory->get(FeaturesEntity::class);
         $this->productsEntity = $entityFactory->get(ProductsEntity::class);
     }
-    
+
     public function assignCatalogDataProcedure(
         array  $productsFilter,
         array  $catalogFeatures,
@@ -177,7 +178,7 @@ class CatalogHelper
         $SL = ServiceLocator::getInstance();
         /** @var FrontTranslations $translations */
         $translations = $SL->getService(FrontTranslations::class);
-        
+
         $otherFilters = [];
         foreach ($this->otherFilters as $f) {
             $label = 'features_filter_'.$f;

@@ -139,7 +139,7 @@
                             </div>
                             {else}
                             <div class="heading_box mt-1">
-                                <div class="text_grey">Нет сообщений</div>
+                                <div class="text_grey">{$btr->no_message}</div>
                             </div>
                             {/if}
                         </div>

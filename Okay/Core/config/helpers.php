@@ -129,6 +129,7 @@ return [
             new SR(Translit::class),
             new SR(Database::class),
             new SR(Request::class),
+            new SR(Design::class),
         ]
     ],
     BackendFeaturesValuesHelper::class => [

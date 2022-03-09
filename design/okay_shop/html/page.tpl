@@ -1,4 +1,4 @@
-{* Page template *}
+<!-- Page template -->
 
 {if $page->url == '404'}
     {include file='page_404.tpl'}

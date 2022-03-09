@@ -96,6 +96,7 @@
                     <div class="okay_list_heading okay_list_features_name">{$btr->general_name|escape}</div>
                     <div class="okay_list_heading okay_list_features_tag">{$btr->general_categories|escape}</div>
                     <div class="okay_list_heading okay_list_setting okay_list_features_setting"></div>
+                    <div class="okay_list_heading feature_value_products_num_title">{$btr->product_count_by_feature}</div>
                     <div class="okay_list_heading okay_list_status">{$btr->general_enable|escape}</div>
                     <div class="okay_list_heading okay_list_url_status">{$btr->feature_url_in_product_short|escape}</div>
                     <div class="okay_list_heading okay_list_status">{$btr->features_in_filter|escape}</div>
@@ -137,6 +138,19 @@
                                 </div>
                             </div>
                             <div class="okay_list_boding okay_list_setting okay_list_features_setting"></div>
+
+                            <div class="okay_list_boding feature_value_products_num">
+                                <div class="heading_label visible_md">{$btr->feature_value_products_num}</div>
+                                <a href="{$rootUrl}/backend/index.php?controller=ProductsAdmin&feature_id={$feature->id}" class="form-control" target="_blank">
+                                    {if isset($products_counts[$feature->id]['count'])}
+                                        {$products_counts[$feature->id]['count']}
+                                    {else}
+                                        0
+                                    {/if}
+                                </a>
+                            </div>
+
+
                             <div class="okay_list_boding okay_list_status">
                                 {*url_in_product*}
                                 <label class="switch switch-default">

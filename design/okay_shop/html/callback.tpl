@@ -1,4 +1,4 @@
-{* Callback form *}
+<!-- Callback form -->
 <div class="hidden">
     <form id="fn_callback" class="form form--boxed popup popup_animated fn_validate_callback" method="post">
 
@@ -22,7 +22,7 @@
                 {elseif $call_error=='empty_name'}
                     <span data-language="form_enter_name">{$lang->form_enter_name}</span>
                 {elseif $call_error=='empty_phone'}
-                    <span data-language="form_enter_phone">{$lang->form_enter_phone}</span>
+                    <span data-language="form_enter_phone">{$lang->form_enter_phone}: {$phone_example}</span>
                 {elseif $call_error=='empty_comment'}
                     <span data-language="form_enter_comment">{$lang->form_enter_comment}</span>
                 {else}

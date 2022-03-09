@@ -1,4 +1,4 @@
-{* The main page template *}
+<!-- The main page template -->
 
 {* Featured products *}
 {get_featured_products var=featured_products limit=5}
@@ -122,7 +122,7 @@
                                                 <div class="d-flex align-items-center justify-content-center main_brands__image">
                                                     <picture>
                                                         {if $settings->support_webp}
-                                                            <source type="image/webp" data-srcset="{$b->image|resize:100:50:false:$config->resized_brands_dir}.webp">
+                                                            <source type="image/webp" data-srcset="{$b->image|resize:100:50:false:$config->resized_brands_dir|webp}">
                                                         {/if}
                                                         <source data-srcset="{$b->image|resize:100:50:false:$config->resized_brands_dir}">
                                                         <img class="main_brands_img lazy" data-src="{$b->image|resize:100:50:false:$config->resized_brands_dir}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$b->name|escape}" title="{$b->name|escape}"/>

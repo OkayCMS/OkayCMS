@@ -21,7 +21,7 @@ class BackendNotifyHelper
 
     public function feedbackAnswerNotify($answerFeedback)
     {
-        $this->notify->emailFeedbackAnswerFoUser($answerFeedback->parent_id, $answerFeedback->message);
+        $this->notify->emailFeedbackAnswerFoUser($answerFeedback->id);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 

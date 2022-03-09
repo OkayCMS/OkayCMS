@@ -11,6 +11,8 @@ use Okay\Core\Database;
 use Okay\Core\QueryFactory;
 use Okay\Core\EntityFactory;
 use Okay\Entities\BrandsEntity;
+use Okay\Entities\FeaturesEntity;
+use Okay\Entities\FeaturesValuesEntity;
 use Okay\Entities\ImagesEntity;
 use Okay\Entities\ProductsEntity;
 use Okay\Entities\RouterCacheEntity;
@@ -48,6 +50,13 @@ class BackendProductsHelper
     /** @var RouterCacheEntity */
     private $routerCacheEntity;
 
+    /** @var FeaturesValuesEntity */
+    private $featuresValuesEntity;
+
+
+    /** @var FeaturesEntity */
+    private $featuresEntity;
+
 
     public function __construct(
         EntityFactory $entityFactory,
@@ -69,6 +78,8 @@ class BackendProductsHelper
         $this->categoriesEntity    = $entityFactory->get(CategoriesEntity::class);
         $this->specialImagesEntity = $entityFactory->get(SpecialImagesEntity::class);
         $this->routerCacheEntity   = $entityFactory->get(RouterCacheEntity::class);
+        $this->featuresValuesEntity= $entityFactory->get(FeaturesValuesEntity::class);
+        $this->featuresEntity      = $entityFactory->get(FeaturesEntity::class);
     }
 
     public function getProduct($id)
@@ -395,6 +406,35 @@ class BackendProductsHelper
             $filter['limit'] = $this->productsEntity->count($filter);
         }
 
+        if (!empty($_GET['feature_id'])) {
+            $featureId = $this->request->get('feature_id', 'integer');
+            $feature = $this->featuresEntity->findOne(['id' => $featureId]);
+            if (!empty($featureId)) {
+                $values = $this->featuresValuesEntity->find(['feature_id' => $featureId]);
+                $productIds = [];
+                $pid = [];
+                if (!empty($values)) {
+                    foreach ($values as $i=>$value) {
+
+                        $select = $this->queryFactory->newSelect();
+                        $select->from('ok_products_features_values')
+                            ->cols(['product_id'])
+                            ->where('value_id=:value_id')
+                            ->bindValues(['value_id' => $value->id]);
+                        $this->db->query($select);
+                        $productId = $this->db->results('product_id');
+                        array_push($productIds, $productId);
+                        if (in_array($value->id, $productIds)) {
+                            unset($productIds[$value->id]);
+                        }
+                        foreach ($productIds[$i] as $id) {
+                            array_push($pid, $id);
+                        }
+                    }
+                    $filter['id'] = $pid;
+                }
+            }
+        }
         return ExtenderFacade::execute(__METHOD__, $filter, func_get_args());
     }
 

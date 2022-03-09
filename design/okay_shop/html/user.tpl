@@ -77,7 +77,7 @@
                                 {if $user_updated}
                                     <div class="message_success">
                                         {include file="svg.tpl" svgId="success_icon"}
-                                        <span data-language="general_messages_success">{$lang->general_messages_success}</span>
+                                        <span data-language="user_messages_success">{$lang->user_messages_success}</span>
                                     </div>
                                 {/if}
                                 <div class="f_row">
@@ -232,7 +232,7 @@
                                                                 {if $purchase->product->image}
                                                                 <picture>
                                                                     {if $settings->support_webp}
-                                                                        <source type="image/webp" data-srcset="{$purchase->product->image->filename|resize:70:70}.webp">
+                                                                        <source type="image/webp" data-srcset="{$purchase->product->image->filename|resize:70:70|webp}">
                                                                     {/if}
                                                                     <source data-srcset="{$purchase->product->image->filename|resize:70:70}">
                                                                     <img class="lazy" data-src="{$purchase->product->image->filename|resize:70:70}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$purchase->product->name|escape}" title="{$purchase->product->name|escape}"/>

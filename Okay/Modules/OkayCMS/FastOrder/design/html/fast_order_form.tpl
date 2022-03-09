@@ -27,17 +27,17 @@
             <div id="fast_order_product_name" class="h6"></div>
 
             <div class="form__group">
-                <input class="fn_validate_fast_name form__input form__placeholder--focus" type="text" name="name" value="" />
+                <input class="fn_validate_fast_name form__input form__placeholder--focus" type="text" name="name" value="{if $request_data.name}{$request_data.name|escape}{elseif $user->name}{$user->name|escape}{/if}" />
                 <span class="form__placeholder" data-language="form_name">{$lang->form_name}*</span>
             </div>
 
             <div class="form__group">
-                <input class="fn_validate_fast_name form__input form__placeholder--focus" type="text" name="last_name" value="" />
+                <input class="fn_validate_fast_name form__input form__placeholder--focus" type="text" name="last_name" value="{if $request_data.last_name}{$request_data.last_name|escape}{elseif $user->last_name}{$user->last_name|escape}{/if}" />
                 <span class="form__placeholder" data-language="form_name">{$lang->form_last_name}</span>
             </div>
 
             <div class="form__group">
-                <input  class="fn_validate_fast_phone form__input form__placeholder--focus" type="text" name="phone" value="" />
+                <input  class="fn_validate_fast_phone form__input form__placeholder--focus" type="text" name="phone" value="{if $request_data.phone}{$request_data.phone|escape}{elseif $user->phone}{$user->phone|escape}{/if}" />
                 <span class="form__placeholder" data-language="form_phone">{$lang->form_phone}*</span>
             </div>
          </div>

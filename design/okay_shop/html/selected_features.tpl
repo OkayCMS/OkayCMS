@@ -1,4 +1,4 @@
-{* selected filters *}
+<!-- selected filters -->
 {if $is_filter_page}
     <div class="sidebar__boxed">
         <div class="filter">

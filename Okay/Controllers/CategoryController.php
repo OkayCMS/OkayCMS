@@ -189,7 +189,7 @@ class CategoryController extends AbstractController
             $canonicalFeaturesValues,
             $productsFilter['brand_id'] ?? []
         );
-        
+
         if ($canonicalData) {
             $canonical = Router::generateUrl('category', ['url' => $category->url], true);
             $chpuUrl = $filterHelper->filterChpuUrl($canonicalData);
@@ -225,10 +225,16 @@ class CategoryController extends AbstractController
                          $url,
                          $filtersUrl = ''
     ) {
+
         // Если ленивая отложенная загрузка фильтра отключена, этот метод должен давать 404
         if (!$this->settings->get('deferred_load_features')) {
             return false;
         }
+
+        $isFilterPage = false;
+        $filter['visible'] = 1;
+
+        $filterHelper->setFiltersUrl($filtersUrl);
 
         $category = $categoriesEntity->get((string)$url);
 
