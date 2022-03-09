@@ -24,7 +24,7 @@
                                     <a href="{$image->filename|resize:1800:1800:w}" data-fancybox="we2" class="swiper-slide">
                                         <picture>
                                             {if $settings->support_webp}
-                                                <source type="image/webp" srcset="{$image->filename|resize:700:800}.webp">
+                                                <source type="image/webp" srcset="{$image->filename|resize:700:800|webp}>
                                             {/if}
                                                 <source srcset="{$image->filename|resize:700:800}">
                                                 <img {if $image@first} itemprop="image" {/if} src="{$image->filename|resize:700:800}" alt="{$product->name|escape}" title="{$product->name|escape}"/>
@@ -62,7 +62,7 @@
                             <div class="swiper-slide product-page__images-item">
                                 <picture>
                                     {if $settings->support_webp}
-                                        <source type="image/webp" data-srcset="{$image->filename|resize:60:60}.webp">
+                                        <source type="image/webp" data-srcset="{$image->filename|resize:60:60|webp}">
                                     {/if}
                                         <source data-srcset="{$image->filename|resize:60:60}">
                                         <img class="lazy" data-src="{$image->filename|resize:60:60}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$product->name|escape}" title="{$product->name|escape}"/>

@@ -26,7 +26,7 @@
                                         {if $c->image}
                                             <picture>
                                                 {if $settings->support_webp}
-                                                    <source type="image/webp" data-srcset="{$c->image|resize:20:20:false:$config->resized_blog_categories_dir}.webp">
+                                                    <source type="image/webp" data-srcset="{$c->image|resize:20:20:false:$config->resized_blog_categories_dir|webp}">
                                                 {/if}
                                                 <source data-srcset="{$c->image|resize:20:20:false:$config->resized_blog_categories_dir}">
                                                 <img class="lazy" data-src="{$c->image|resize:20:20:false:$config->resized_blog_categories_dir}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$c->name|escape}" title="{$c->name|escape}"/>
@@ -47,7 +47,7 @@
                                         {if $c->image}
                                         <picture>
                                             {if $settings->support_webp}
-                                                <source type="image/webp" data-srcset="{$c->image|resize:20:20:false:$config->resized_blog_categories_dir}.webp">
+                                                <source type="image/webp" data-srcset="{$c->image|resize:20:20:false:$config->resized_blog_categories_dir|webp}">
                                             {/if}
                                             <source data-srcset="{$c->image|resize:20:20:false:$config->resized_blog_categories_dir}">
                                             <img class="lazy" data-src="{$c->image|resize:20:20:false:$config->resized_blog_categories_dir}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$c->name|escape}" title="{$c->name|escape}"/>
@@ -103,7 +103,7 @@
                         {if $product->image->filename}
                         <picture>
                             {if $settings->support_webp}
-                                <source type="image/webp" data-srcset="{$product->image->filename|resize:60:60}.webp">
+                                <source type="image/webp" data-srcset="{$product->image->filename|resize:60:60|webp}">
                             {/if}
                             <source data-srcset="{$product->image->filename|resize:60:60}">
                             <img class="lazy" data-src="{$product->image->filename|resize:60:60}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$product->name|escape}" title="{$product->name|escape}"/>

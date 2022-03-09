@@ -31,7 +31,7 @@
 							<span class="delivery__image">
 								<picture>
 									{if $settings->support_webp}
-										<source type="image/webp" data-srcset="{$delivery->image|resize:80:30:false:$config->resized_deliveries_dir}.webp">
+										<source type="image/webp" data-srcset="{$delivery->image|resize:80:30:false:$config->resized_deliveries_dir|webp}">
 									{/if}
 									<source data-srcset="{$delivery->image|resize:80:30:false:$config->resized_deliveries_dir}">
 									<img class="lazy" data-src="{$delivery->image|resize:80:30:false:$config->resized_deliveries_dir}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$delivery->name|escape}" title="{$delivery->name|escape}"/>
@@ -81,7 +81,7 @@
 									<span class="delivery__image">
 										<picture>
 											{if $settings->support_webp}
-												<source type="image/webp" data-srcset="{$payment_method->image|resize:80:30:false:$config->resized_payments_dir}.webp">
+												<source type="image/webp" data-srcset="{$payment_method->image|resize:80:30:false:$config->resized_payments_dir|webp}">
 											{/if}
 											<source data-srcset="{$payment_method->image|resize:80:30:false:$config->resized_payments_dir}">
 											<img class="lazy" data-src="{$payment_method->image|resize:80:30:false:$config->resized_payments_dir}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$payment_method->name|escape}" title="{$payment_method->name|escape}"/>

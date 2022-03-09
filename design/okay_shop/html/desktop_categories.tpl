@@ -35,7 +35,7 @@
                                                 {else}
                                                 <picture>
                                                     {if $settings->support_webp}
-                                                        <source type="image/webp" data-srcset="{$c->image|resize:65:65:false:$config->resized_categories_dir}.webp">
+                                                        <source type="image/webp" data-srcset="{$c->image|resize:65:65:false:$config->resized_categories_dir|webp}">
                                                     {/if}
                                                     <source data-srcset="{$c->image|resize:65:65:false:$config->resized_categories_dir}">
                                                     <img class="lazy" data-src="{$c->image|resize:65:65:false:$config->resized_categories_dir}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$c->name|escape}" title="{$c->name|escape}"/>

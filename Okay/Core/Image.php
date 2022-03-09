@@ -12,7 +12,7 @@ use WebPConvert\WebPConvert;
 class Image
 {
     
-    private $allowedExtensions = ['png', 'gif', 'jpg', 'jpeg', 'ico', 'svg'];
+    private $allowedExtensions = ['png', 'gif', 'jpg', 'jpeg', 'ico', 'svg', 'webp'];
 
     private $rootDir;
     
@@ -627,4 +627,38 @@ class Image
     {
         return file_exists($this->rootDir.$this->originalsDir.urldecode($filename));
     }
+
+
+    private function responseSuccess($responseHeaders)
+    {
+        if (empty($responseHeaders[0])) {
+            return false;
+        }
+
+        preg_match('/\d{3}/', $responseHeaders[0], $matches);
+        if ($matches[0] == '200') {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function isNotHttpsSource($filename)
+    {
+        if (!preg_match("~^https://~", $filename)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function convertFilenameToWebp($filename)
+    {
+        if (pathinfo($filename, PATHINFO_EXTENSION) !== 'webp') {
+            $filename = $filename.'.webp';
+        }
+
+        return $filename;
+    }
+
 }

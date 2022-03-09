@@ -10,8 +10,8 @@
                         <div class="banner_advantages__icon d-flex align-items-center justify-content-center">
                             <picture>
                                 {if $settings->support_webp}
-                                    <source type="image/webp" srcset="{$bi->image|resize:$bi->settings.mobile.w:$bi->settings.mobile.h:false:$config->resized_banners_images_dir}.webp" media="(max-width: 767px)"> 
-                                    <source type="image/webp" srcset="{$bi->image|resize:$bi->settings.desktop.w:$bi->settings.desktop.h:false:$config->resized_banners_images_dir:center:center}.webp">
+                                    <source type="image/webp" srcset="{$bi->image|resize:$bi->settings.mobile.w:$bi->settings.mobile.h:false:$config->resized_banners_images_dir|webp}" media="(max-width: 767px)">
+                                    <source type="image/webp" srcset="{$bi->image|resize:$bi->settings.desktop.w:$bi->settings.desktop.h:false:$config->resized_banners_images_dir:center:center|webp}">
                                 {/if}
                                 <source type="image/jpg" srcset="{$bi->image|resize:$bi->settings.mobile.w:$bi->settings.mobile.h:false:$config->resized_banners_images_dir}" media="(max-width: 767px)">
                                 <source type="image/jpg" srcset="{$bi->image|resize:$bi->settings.desktop.w:$bi->settings.desktop.h:false:$config->resized_banners_images_dir:center:center}">
@@ -50,8 +50,8 @@
                     <div class="banner_group__image">
                         <picture>
                             {if $settings->support_webp}
-                                <source type="image/webp" srcset="{$bi->image|resize:$bi->settings.mobile.w:$bi->settings.mobile.h:false:$config->resized_banners_images_dir}.webp" media="(max-width: 767px)"> 
-                                <source type="image/webp" srcset="{$bi->image|resize:$bi->settings.desktop.w:$bi->settings.desktop.h:false:$config->resized_banners_images_dir:center:center}.webp">
+                                <source type="image/webp" srcset="{$bi->image|resize:$bi->settings.mobile.w:$bi->settings.mobile.h:false:$config->resized_banners_images_dir|webp}" media="(max-width: 767px)">
+                                <source type="image/webp" srcset="{$bi->image|resize:$bi->settings.desktop.w:$bi->settings.desktop.h:false:$config->resized_banners_images_dir:center:center|webp}">
                             {/if}
                             <source type="image/jpg" srcset="{$bi->image|resize:$bi->settings.mobile.w:$bi->settings.mobile.h:false:$config->resized_banners_images_dir}" media="(max-width: 767px)">
                             <source type="image/jpg" srcset="{$bi->image|resize:$bi->settings.desktop.w:$bi->settings.desktop.h:false:$config->resized_banners_images_dir:center:center}">

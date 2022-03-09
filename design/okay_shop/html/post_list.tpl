@@ -5,8 +5,8 @@
                 {if $post->image}
                     <picture>
                         {if $settings->support_webp}
-                            <source class="lazy" type="image/webp" data-srcset="{$post->image|resize:340:240:false:$config->resized_blog_dir:center:center}.webp" media="(max-width: 440px)" srcset="{$rootUrl}/design/{get_theme}/images/xloading.gif"> 
-                            <source class="lazy" type="image/webp" data-srcset="{$post->image|resize:380:240:false:$config->resized_blog_dir:center:center}.webp" srcset="{$rootUrl}/design/{get_theme}/images/xloading.gif">
+                            <source class="lazy" type="image/webp" data-srcset="{$post->image|resize:340:240:false:$config->resized_blog_dir:center:center|webp}" media="(max-width: 440px)" srcset="{$rootUrl}/design/{get_theme}/images/xloading.gif">
+                            <source class="lazy" type="image/webp" data-srcset="{$post->image|resize:380:240:false:$config->resized_blog_dir:center:center|webp}" srcset="{$rootUrl}/design/{get_theme}/images/xloading.gif">
                         {/if}
                         <source class="lazy" data-srcset="{$post->image|resize:340:240:false:$config->resized_blog_dir:center:center}" media="(max-width: 440px)" srcset="{$rootUrl}/design/{get_theme}/images/xloading.gif">
                         <source class="lazy" data-srcset="{$post->image|resize:380:240:false:$config->resized_blog_dir:center:center}" srcset="{$rootUrl}/design/{get_theme}/images/xloading.gif">
@@ -60,7 +60,7 @@
                     {if $post->author->image}
                     <picture>
                         {if $settings->support_webp}
-                            <source type="image/webp" data-srcset="{$post->author->image|resize:24:24:false:$config->resized_authors_dir:center:center}.webp">
+                            <source type="image/webp" data-srcset="{$post->author->image|resize:24:24:false:$config->resized_authors_dir:center:center|webp}">
                         {/if}
                         <source data-srcset="{$post->author->image|resize:24:24:false:$config->resized_authors_dir:center:center}">
                         <img class="lazy" data-src="{$post->author->image|resize:24:24:false:$config->resized_authors_dir:center:center}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$post->author->name|escape}" title="{$post->author->name|escape}"/>
