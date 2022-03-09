@@ -77,7 +77,7 @@
                                 {if $user_updated}
                                     <div class="message_success">
                                         {include file="svg.tpl" svgId="success_icon"}
-                                        <span data-language="general_messages_success">{$lang->general_messages_success}</span>
+                                        <span data-language="user_messages_success">{$lang->user_messages_success}</span>
                                     </div>
                                 {/if}
                                 <div class="f_row">

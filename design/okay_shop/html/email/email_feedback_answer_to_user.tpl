@@ -1,4 +1,4 @@
-{* Письмо ответа на комментарий пользователю *}
+<!-- Email feedback answer to user page -->
 {$subject = "`$lang->email_feedback_subject`" scope=global}
 
 <html xmlns="http://www.w3.org/1999/xhtml">

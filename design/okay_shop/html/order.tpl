@@ -1,4 +1,4 @@
-{* Order page *}
+<!-- Order page -->
 
 <div class="block">
     <div class="block__header block__header--boxed block__header--border">

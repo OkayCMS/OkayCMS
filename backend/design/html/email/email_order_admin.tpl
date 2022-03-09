@@ -20,6 +20,8 @@
     {include "backend/design/html/email/email_head.tpl"}
 </head>
 <body class="body_email">
+{*    {print_r($delivery->name)}*}
+
     <div class="es-wrapper-color">
         <table class="es-wrapper" width="100%" cellspacing="0" cellpadding="0">
             <tbody>
@@ -136,6 +138,12 @@
                                                                 <tr valign="top">
                                                                     <td class="es-p5t es-p5b" width="180px"><span>{$btr->email_order_payment_method|escape}:</span></td>
                                                                     <td class="es-p5t es-p5b"><span>{$payment_method->name}</span></td>
+                                                                </tr>
+                                                            {/if}
+                                                            {if $delivery}
+                                                                <tr valign="top">
+                                                                    <td class="es-p5t es-p5b" width="180px"><span>{$btr->general_shipping}:</span></td>
+                                                                    <td class="es-p5t es-p5b"><span>{$delivery->name}</span></td>
                                                                 </tr>
                                                             {/if}
                                                             <tr valign="top">

@@ -189,8 +189,7 @@ class Notify
         if (!$this->notifyHelper->needSendEmailOrderUser($order)) {
             return $this->notifyHelper->notSendEmailOrderUser($order);
         }
-        
-        /*lang_modify...*/
+
         if (!empty($order->lang_id)) {
             $currentLangId = $this->languages->getLangId();
             $this->languages->setLangId($order->lang_id);
@@ -211,7 +210,6 @@ class Notify
             $this->design->assign('settings', $this->settings);
             $this->design->assign('lang', $this->frontTranslations);
         }
-        /*/lang_modify...*/
         
         $purchases = $this->ordersHelper->getOrderPurchasesList($order->id);
         $this->design->assign('purchases', $purchases);
@@ -250,8 +248,7 @@ class Notify
             $from = ($this->settings->get('notify_from_name') ? $this->settings->get('notify_from_name')." <".$this->settings->get('notify_from_email').">" : $this->settings->get('notify_from_email'));
             $this->email($order->email, $subject, $emailTemplate, $from);
         }
-        
-        /*lang_modify...*/
+
         if (!empty($currentLangId)) {
             $this->languages->setLangId($currentLangId);
 
@@ -270,7 +267,6 @@ class Notify
             $this->settings->initSettings();
             $this->design->assign('settings', $this->settings);
         }
-        /*/lang_modify...*/
 
         if ($debug === true) {
             $this->design->assign('meta_title', $subject);
@@ -353,10 +349,11 @@ class Notify
         if ($debug === true) {
             $this->design->assign('meta_title', $subject);
             return $emailTemplate;
-        } else {
-            $replyTo = (!empty($order->email) ? $order->email : null);
-            $this->email($this->settings->get('order_email'), $subject, $emailTemplate, $this->settings->get('notify_from_email'), $replyTo);
         }
+
+        $replyTo = (!empty($order->email) ? $order->email : null);
+        $this->email($this->settings->get('order_email'), $subject, $emailTemplate, $this->settings->get('notify_from_email'), $replyTo);
+
         return true;
     }
 
@@ -404,10 +401,11 @@ class Notify
         if ($debug === true) {
             $this->design->assign('meta_title', $subject);
             return $emailTemplate;
-        } else {
-            $replyTo = (!empty($comment->email) ? $comment->email : null);
-            $this->email($this->settings->get('comment_email'), $subject, $emailTemplate, $this->settings->get('notify_from_email'), $replyTo);
         }
+
+        $replyTo = (!empty($comment->email) ? $comment->email : null);
+        $this->email($this->settings->get('comment_email'), $subject, $emailTemplate, $this->settings->get('notify_from_email'), $replyTo);
+
         return true;
     }
 
@@ -441,16 +439,16 @@ class Notify
         if ($debug === true) {
             $this->design->assign('meta_title', $subject);
             return $emailTemplate;
-        } else {
-            $this->email($this->settings->get('comment_email'), $subject, $emailTemplate, $this->settings->get('notify_from_email'));
         }
+
+        $this->email($this->settings->get('comment_email'), $subject, $emailTemplate, $this->settings->get('notify_from_email'));
+
         return true;
     }
 
     /*Отправка емейла с ответом на комментарий клиенту*/
-    public function emailCommentAnswerToUser($commentId)
+    public function emailCommentAnswerToUser($commentAnswerId, $debug = false)
     {
-
         /** @var CommentsEntity $commentsEntity */
         $commentsEntity = $this->entityFactory->get(CommentsEntity::class);
 
@@ -459,27 +457,28 @@ class Notify
 
         /** @var BlogEntity $blogEntity */
         $blogEntity = $this->entityFactory->get(BlogEntity::class);
-        
-        if(!($comment = $commentsEntity->get(intval($commentId)))
-                || !($parentComment = $commentsEntity->get(intval($comment->parent_id)))
-                || !$parentComment->email) {
+
+        if(
+            !($commentAnswer = $commentsEntity->get(intval($commentAnswerId)))
+            || !($comment = $commentsEntity->get(intval($commentAnswer->parent_id)))
+            || !$comment->email
+        ) {
             return false;
         }
 
         // если не нужно отправлять письмо, вызываем хелпер, может нужно сделать какую-то альтернативу
-        if (!$this->notifyHelper->needSendEmailCommentAnswerToUser($comment)) {
-            return $this->notifyHelper->notSendEmailCommentAnswerToUser($comment);
+        if (!$this->notifyHelper->needSendEmailCommentAnswerToUser($commentAnswer)) {
+            return $this->notifyHelper->notSendEmailCommentAnswerToUser($commentAnswer);
         }
 
         $templateDir = $this->design->getTemplatesDir();
         $compiledDir = $this->design->getCompiledDir();
         $this->design->setTemplatesDir('design/'.$this->frontTemplateConfig->getTheme().'/html');
         $this->design->setCompiledDir('compiled/' . $this->frontTemplateConfig->getTheme());
-        
-        /*lang_modify...*/
-        if (!empty($parentComment->lang_id)) {
+
+        if (!empty($comment->lang_id)) {
             $currentLangId = $this->languages->getLangId();
-            $this->languages->setLangId($parentComment->lang_id);
+            $this->languages->setLangId($comment->lang_id);
 
             // Переинициализируем на новый язык
             $this->frontTranslations->init();
@@ -488,47 +487,49 @@ class Notify
             $this->design->assign('settings', $this->settings);
             $this->design->assign('lang', $this->frontTranslations);
         }
-        /*/lang_modify...*/
 
-        if ($parentComment->type == 'product') {
-            $parentComment->product = $productsEntity->get(intval($parentComment->object_id));
-        } elseif ($parentComment->type == 'blog') {
-            $parentComment->post = $blogEntity->get(intval($parentComment->object_id));
-        } elseif ($parentComment->type == 'news') {
-            $parentComment->post = $blogEntity->get(intval($parentComment->object_id));
+        if ($comment->type == 'product') {
+            $comment->product = $productsEntity->get(intval($comment->object_id));
+        } elseif ($comment->type == 'blog') {
+            $comment->post = $blogEntity->get(intval($comment->object_id));
+        } elseif ($comment->type == 'news') {
+            $comment->post = $blogEntity->get(intval($comment->object_id));
         }
 
-        $this->design->assign('comment', $comment);
-        $this->design->assign('parent_comment', $parentComment);
+        $this->design->assign('comment', $commentAnswer);
+        $this->design->assign('parent_comment', $comment);
 
-        $this->notifyHelper->finalEmailCommentAnswerToUser($comment);
+        $this->notifyHelper->finalEmailCommentAnswerToUser($commentAnswer);
 
         // Отправляем письмо
         $emailTemplate = $this->design->fetch($this->rootDir.'design/'.$this->frontTemplateConfig->getTheme().'/html/email/email_comment_answer_to_user.tpl');
         $subject = $this->design->getVar('subject');
 
-        $this->email($parentComment->email, $subject, $emailTemplate, $this->settings->get('notify_from_email'));
-
         $this->design->setTemplatesDir($templateDir);
         $this->design->setCompiledDir($compiledDir);
-        
-        /*lang_modify...*/
+
         if (!empty($currentLangId)) {
             $this->languages->setLangId($currentLangId);
-            
+
             // Вернем переводы на предыдущий язык
             $this->frontTranslations->init();
-            
+
             $this->settings->initSettings();
             $this->design->assign('settings', $this->settings);
         }
-        /*/lang_modify...*/
+
+        if ($debug === true) {
+            $this->design->assign('meta_title', $subject);
+            return $emailTemplate;
+        }
+
+        $this->email($comment->email, $subject, $emailTemplate, $this->settings->get('notify_from_email'));
 
         return true;
     }
 
     /*Отправка емейла о восстановлении пароля клиенту*/
-    public function emailPasswordRemind($userId, $code)
+    public function emailPasswordRemind($userId, $code, $debug = false)
     {
         /** @var UsersEntity $usersEntity */
         $usersEntity = $this->entityFactory->get(UsersEntity::class);
@@ -554,10 +555,16 @@ class Notify
         $this->notifyHelper->finalEmailPasswordRemind($user, $code);
         
         // Отправляем письмо
-        $email_template = $this->design->fetch($this->rootDir.'design/'.$this->frontTemplateConfig->getTheme().'/html/email/email_password_remind.tpl');
+        $emailTemplate = $this->design->fetch($this->rootDir.'design/'.$this->frontTemplateConfig->getTheme().'/html/email/email_password_remind.tpl');
         $subject = $this->design->getVar('subject');
+
+        if ($debug === true) {
+            $this->design->assign('meta_title', $subject);
+            return $emailTemplate;
+        }
+
         $from = ($this->settings->notify_from_name ? $this->settings->notify_from_name." <".$this->settings->notify_from_email.">" : $this->settings->notify_from_email);
-        $this->email($user->email, $subject, $email_template, $from);
+        $this->email($user->email, $subject, $emailTemplate, $from);
         
         $this->design->smarty->clearAssign('user');
         $this->design->smarty->clearAssign('code');
@@ -597,36 +604,37 @@ class Notify
         if ($debug === true) {
             $this->design->assign('meta_title', $subject);
             return $emailTemplate;
-        } else {
-            $replyTo = (!empty($feedback->email) ? $feedback->email : null);
-            $this->email($this->settings->get('comment_email'), $subject, $emailTemplate, $this->settings->get('notify_from_email'), $replyTo);
         }
+
+        $replyTo = (!empty($feedback->email) ? $feedback->email : null);
+        $this->email($this->settings->get('comment_email'), $subject, $emailTemplate, $this->settings->get('notify_from_email'), $replyTo);
+
         
         return true;
     }
 
     /*Отправка емейла с ответом на заявку с формы обратной связи клиенту*/
-    public function emailFeedbackAnswerFoUser($comment_id, $text)
+    public function emailFeedbackAnswerFoUser($feedbackAnswerId, $debug = false)
     {
-
         /** @var FeedbacksEntity $feedbackEntity */
         $feedbackEntity = $this->entityFactory->get(FeedbacksEntity::class);
 
-        if(!($feedback = $feedbackEntity->get(intval($comment_id)))) {
+        if(!($feedbackAnswer = $feedbackEntity->get(intval($feedbackAnswerId)))
+            || !($feedback = $feedbackEntity->get(intval($feedbackAnswer->parent_id)))
+        ) {
             return false;
         }
 
         // если не нужно отправлять письмо, вызываем хелпер, может нужно сделать какую-то альтернативу
         if (!$this->notifyHelper->needSendEmailFeedbackAnswerForUser($feedback)) {
-            return $this->notifyHelper->notSendEmailFeedbackAnswerForUser($feedback, $text);
+            return $this->notifyHelper->notSendEmailFeedbackAnswerForUser($feedback, $feedbackAnswer->message);
         }
 
         $templateDir = $this->design->getTemplatesDir();
         $compiledDir = $this->design->getCompiledDir();
         $this->design->setTemplatesDir('design/'.$this->frontTemplateConfig->getTheme().'/html');
         $this->design->setCompiledDir('compiled/' . $this->frontTemplateConfig->getTheme());
-        
-        /*lang_modify...*/
+
         if (!empty($feedback->lang_id)) {
             $currentLangId = $this->languages->getLangId();
             $this->languages->setLangId($feedback->lang_id);
@@ -635,33 +643,37 @@ class Notify
 
             $this->design->assign('lang', $this->frontTranslations);
         }
-        /*/lang_modify...*/
 
         $this->design->assign('feedback', $feedback);
-        $this->design->assign('text', $text);
+        $this->design->assign('text', $feedbackAnswer->message);
 
-        $this->notifyHelper->finalEmailFeedbackAnswerForUser($feedback, $text);
+        $this->notifyHelper->finalEmailFeedbackAnswerForUser($feedback, $feedbackAnswer->message);
 
         // Отправляем письмо
-        $email_template = $this->design->fetch($this->rootDir.'design/'.$this->frontTemplateConfig->getTheme().'/html/email/email_feedback_answer_to_user.tpl');
+        $emailTemplate = $this->design->fetch($this->rootDir.'design/'.$this->frontTemplateConfig->getTheme().'/html/email/email_feedback_answer_to_user.tpl');
         $subject = $this->design->getVar('subject');
-        $from = ($this->settings->get('notify_from_name') ? $this->settings->get('notify_from_name')." <".$this->settings->get('notify_from_email').">" : $this->settings->get('notify_from_email'));
-        $this->email($feedback->email, $subject, $email_template, $from, $from);
 
         $this->design->setTemplatesDir($templateDir);
         $this->design->setCompiledDir($compiledDir);
-        
-        /*lang_modify...*/
+
         if (!empty($currentLangId)) {
             $this->languages->setLangId($currentLangId);
         }
-        /*/lang_modify...*/
+
+        if ($debug === true) {
+            $this->design->assign('meta_title', $subject);
+            return $emailTemplate;
+        }
+
+        $from = ($this->settings->get('notify_from_name') ? $this->settings->get('notify_from_name')." <".$this->settings->get('notify_from_email').">" : $this->settings->get('notify_from_email'));
+        $this->email($feedback->email, $subject, $emailTemplate, $from, $from);
+
         
         return true;
     }
 
     /*Отправка емейла на восстановление пароля администратора*/
-    public function passwordRecoveryAdmin($email, $code)
+    public function emailPasswordRecoveryAdmin($email, $code, $debug = false)
     {
         if (empty($email) || empty($code)){
             return false;
@@ -681,10 +693,16 @@ class Notify
 
         $this->notifyHelper->finalEmailPasswordRecoveryAdmin($email, $code);
         
-        $email_template = $this->design->fetch($this->rootDir.'backend/design/html/email/email_admin_recovery.tpl');
+        $emailTemplate = $this->design->fetch($this->rootDir.'backend/design/html/email/email_admin_recovery.tpl');
         $subject = $this->design->getVar('subject');
-        $this->email($email, $subject, $email_template, $this->settings->get('notify_from_name'));
-        
+
+        if ($debug === true) {
+            $this->design->assign('meta_title', $subject);
+            return $emailTemplate;
+        }
+
+        $this->email($email, $subject, $emailTemplate, $this->settings->get('notify_from_name'));
+
         return true;
     }
     

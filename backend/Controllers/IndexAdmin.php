@@ -25,6 +25,7 @@ use Okay\Core\Translit;
 use Okay\Entities\ManagersEntity;
 use Okay\Entities\LanguagesEntity;
 use Okay\Entities\CurrenciesEntity;
+use Okay\Entities\ModulesEntity;
 use Okay\Entities\SupportInfoEntity;
 
 class IndexAdmin
@@ -145,11 +146,25 @@ class IndexAdmin
         $design->assign('config',    $this->config);
 
         $this->design->assign('rootUrl', $this->request->getRootUrl());
-        
+
+        $modulesEntity = $this->entityFactory->get(ModulesEntity::class);
+        $modules = $modulesEntity->cols(['module_name'])->find();
+        if(is_dir('design/')){
+        $dirs = scandir('design/');
+        $themes = [];
+        foreach($dirs as $dir){
+            if($dir != '.' && $dir != '..' && $dir != '.htaccess'){
+                $themes [] = $dir;
+            }
+        }
+        }
+
         if (!isset($_SESSION['last_version_data'])) {
             $query = http_build_query([
-                'domain' => Request::getDomain(),
+                'domain'  => Request::getDomain(),
                 'version' => $config->version,
+                'modules' => $modules,
+                'themes'  => $themes
             ]);
 
             $ch = curl_init();

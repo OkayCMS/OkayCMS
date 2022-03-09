@@ -1,4 +1,4 @@
-{* Product preview *}
+<!-- Product preview -->
 <div class="product_preview fn_product">
     <div class="fn_transfer clearfix">
         <div class="product_preview__center">

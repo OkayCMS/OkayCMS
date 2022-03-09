@@ -1,4 +1,4 @@
-{* The brand page template *}
+<!-- The brand page template -->
 
 <div class="block">
 	{* The page heading *}

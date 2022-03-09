@@ -25,8 +25,6 @@
                         <div class="message_error">
                             {if $error == 'login_incorrect'}
                             <span data-language="login_error_pass">{$lang->login_error_pass}</span>
-                            {elseif $error == 'user_disabled'}
-                            <span data-language="login_pass_not_active">{$lang->login_pass_not_active}</span>
                             {else}
                             {$error|escape}
                             {/if}

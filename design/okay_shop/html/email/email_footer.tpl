@@ -1,1 +1,1 @@
-{* The footer email *}
+<!-- Email footer page -->
