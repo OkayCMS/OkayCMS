@@ -152,8 +152,8 @@ if (($controllerParams = $module->getBackendControllerParams($backendControllerN
     $moduleName = $controllerParams['module'];
     $controllerName = $controllerParams['controller'];
     
-    $design->useModuleDir();
     $design->setModuleTemplatesDir($module->getModuleDirectory($vendor, $moduleName) . 'Backend/design/html');
+    $design->useModuleDir();
     $controllerName = $module->getBackendControllersNamespace($vendor, $moduleName) . '\\' . $controllerName;
 } else {
     
