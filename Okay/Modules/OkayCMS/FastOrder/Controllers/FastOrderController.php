@@ -18,6 +18,7 @@ use Okay\Helpers\OrdersHelper;
 use Okay\Entities\OrdersEntity;
 use Okay\Entities\PurchasesEntity;
 use Okay\Controllers\AbstractController;
+use Okay\Modules\OkayCMS\FastOrder\Extenders\BackendExtender;
 use Okay\Modules\OkayCMS\FastOrder\Helpers\ValidateHelper;
 
 class FastOrderController extends AbstractController
@@ -32,7 +33,7 @@ class FastOrderController extends AbstractController
         CartHelper        $cartHelper,
         VariantsEntity    $variantsEntity,
         Cart              $cart,
-        ValidateHelper    $validateHelper
+        BackendExtender   $validateExtend
     ) {
         if (!$this->request->method('post')) {
             return $this->response->setContent(json_encode(['errors' => ['Request must be post']]), RESPONSE_JSON);
@@ -51,9 +52,7 @@ class FastOrderController extends AbstractController
 
         $order = $ordersHelper->attachUserIfLogin($order, $this->user);
 
-        $errors = [];
-
-        $errors = $validateHelper->ValidateFastOrder($errors,$order,$variantId);
+        $errors = $validateExtend->ValidateFastOrder($order,$variantId);
 
         if (!empty($errors)) {
             return $this->response->setContent(json_encode(['errors' => $errors]), RESPONSE_JSON);

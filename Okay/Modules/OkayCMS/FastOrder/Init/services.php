@@ -19,6 +19,7 @@ return [
         'arguments' => [
             new SR(Settings::class),
             new SR(Request::class),
+            new SR(ValidateHelper::class),
         ],
     ],
     ValidateHelper::class => [

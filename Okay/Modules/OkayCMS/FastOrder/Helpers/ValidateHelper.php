@@ -5,12 +5,13 @@ namespace Okay\Modules\OkayCMS\FastOrder\Helpers;
 use Okay\Core\EntityFactory;
 use Okay\Core\FrontTranslations;
 use Okay\Core\Modules\Extender\ExtenderFacade;
+use Okay\Core\Modules\Extender\ExtensionInterface;
 use Okay\Core\Request;
 use Okay\Core\Settings;
 use Okay\Core\Validator;
 use Okay\Entities\VariantsEntity;
 
-class ValidateHelper
+class ValidateHelper implements ExtensionInterface
 {
     private $request;
 
@@ -29,8 +30,10 @@ class ValidateHelper
         $this->settings             = $settings;
     }
 
-    public function ValidateFastOrder($errors,$order,$variantId)
+    public function ValidateFastOrderHeler($order,$variantId)
     {
+
+        $errors = [];
         /** @var VariantsEntity $variantsEntity */
         $variantsEntity = $this->entityFactory->get(VariantsEntity::class);
 
@@ -50,6 +53,6 @@ class ValidateHelper
         if ($this->settings->get('captcha_fast_order') && !$this->validator->verifyCaptcha('captcha_fast_order', $captchaCode)) {
             $errors[] = $this->frontTranslations->getTranslation('okay_cms__fast_order__form_captcha_error');
         }
-        return ExtenderFacade::execute(__METHOD__, $errors, func_get_args());
+        return $errors;
     }
 }
