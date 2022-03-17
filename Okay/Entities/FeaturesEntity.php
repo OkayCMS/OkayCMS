@@ -22,6 +22,7 @@ class FeaturesEntity extends Entity
         'to_index_new_value',
         'external_id',
         'visible',
+        'show_in_product',
     ];
 
     protected static $langFields = [

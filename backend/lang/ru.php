@@ -91,6 +91,7 @@ $lang['feature_new'] = 'Новое свойство';
 $lang['feature_updated'] = 'Свойство обновлено';
 $lang['feature_value_id'] = 'ID значения';
 $lang['feature_url_in_product'] = 'Ссылка на фильтр в товаре';
+$lang['feature_show_in_product'] = 'Показать в товаре ';
 $lang['feature_url_in_product_short'] = 'Ссылка в товаре';
 $lang['features_add'] = 'Добавить свойство';
 $lang['features_delete'] = 'Удалить свойство';

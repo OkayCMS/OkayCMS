@@ -29,6 +29,7 @@ class FeaturesAdmin extends IndexAdmin
 
             $ids    = $featuresRequest->postCheck();
             $action = $featuresRequest->postAction();
+
             if (is_array($ids)) {
                 switch($action) {
                     case 'enable': {
