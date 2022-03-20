@@ -25,6 +25,12 @@ class BackendSettingsRequest
         return ExtenderFacade::execute(__METHOD__, $confirm, func_get_args());
     }
 
+    public function postTruncateTableConfirmCategory()
+    {
+        $confirm = $this->request->post('truncate_table_confirm_category');
+        return ExtenderFacade::execute(__METHOD__, $confirm, func_get_args());
+    }
+
     public function postCounters()
     {
         $counters = [];

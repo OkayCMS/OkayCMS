@@ -49,18 +49,9 @@ class DataCleaner
         $sql = $this->queryFactory->newSqlQuery()->setStatement("UPDATE ".PurchasesEntity::getTable()." SET `product_id`=0, `variant_id`=0");
         $this->db->query($sql);
 
-        $this->truncateTable(BrandsEntity::getTable());
-        $this->truncateTable(BrandsEntity::getLangTable());
-
-        $this->truncateTable(CategoriesEntity::getTable());
-        $this->truncateTable(CategoriesEntity::getLangTable());
-        $this->truncateTable('__categories_features');
-
-        $this->truncateTable(FeaturesEntity::getTable());
         $this->truncateTable(FeaturesAliasesValuesEntity::getTable());
         $this->truncateTable(FeaturesValuesEntity::getTable());
         $this->truncateTable(FeaturesValuesAliasesValuesEntity::getTable());
-        $this->truncateTable(FeaturesEntity::getLangTable());
         $this->truncateTable(FeaturesAliasesValuesEntity::getLangTable());
         $this->truncateTable(FeaturesValuesEntity::getLangTable());
 
@@ -74,8 +65,39 @@ class DataCleaner
         $this->truncateTable(VariantsEntity::getTable());
         $this->truncateTable(VariantsEntity::getLangTable());
 
-        $this->truncateTable('__related_blogs');
         $this->truncateTable('__import_log');
+
+        return ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    public function clearCategoryData()
+    {
+        $this->truncateTable(CategoriesEntity::getTable());
+        $this->truncateTable(CategoriesEntity::getLangTable());
+        $this->truncateTable('__categories_features');
+
+        return ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    public function clearBrandData()
+    {
+        $this->truncateTable(BrandsEntity::getTable());
+        $this->truncateTable(BrandsEntity::getLangTable());
+
+        return ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    public function clearFeature()
+    {
+        $this->truncateTable(FeaturesEntity::getTable());
+        $this->truncateTable(FeaturesEntity::getLangTable());
+
+        return ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    public function clearBlog()
+    {
+        $this->truncateTable('__related_blogs');
 
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }

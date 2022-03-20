@@ -159,6 +159,30 @@ class BackendSettingsHelper
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    public function clearCategory()
+    {
+        $this->dataCleaner->clearCategoryData();
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    public function clearBrand()
+    {
+        $this->dataCleaner->clearBrandData();
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    public function clearFeature()
+    {
+        $this->dataCleaner->clearFeature();
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    public function clearBlog()
+    {
+        $this->dataCleaner->clearFeature();
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
     public function updateWatermark()
     {
         $error = '';
