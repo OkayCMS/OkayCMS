@@ -179,7 +179,7 @@ class BackendSettingsHelper
 
     public function clearBlog()
     {
-        $this->dataCleaner->clearFeature();
+        $this->dataCleaner->clearBlog();
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 

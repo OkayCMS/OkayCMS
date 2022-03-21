@@ -4,6 +4,7 @@
 namespace Okay\Core;
 
 
+use Okay\Entities\BlogEntity;
 use Okay\Entities\BrandsEntity;
 use Okay\Entities\CommentsEntity;
 use Okay\Entities\FeaturesValuesAliasesValuesEntity;
@@ -92,12 +93,20 @@ class DataCleaner
         $this->truncateTable(FeaturesEntity::getTable());
         $this->truncateTable(FeaturesEntity::getLangTable());
 
+        $this->truncateTable(FeaturesAliasesValuesEntity::getTable());
+        $this->truncateTable(FeaturesValuesEntity::getTable());
+        $this->truncateTable(FeaturesValuesAliasesValuesEntity::getTable());
+        $this->truncateTable(FeaturesAliasesValuesEntity::getLangTable());
+        $this->truncateTable(FeaturesValuesEntity::getLangTable());
+
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
     public function clearBlog()
     {
         $this->truncateTable('__related_blogs');
+        $this->truncateTable(BlogEntity::getTable());
+        $this->truncateTable(BlogEntity::getLangTable());
 
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
