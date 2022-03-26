@@ -265,7 +265,7 @@ class BackendFeaturesHelper
 
         $keyword = $this->request->get('keyword', 'string');
         if (!empty($keyword)) {
-        $filter['keyword'] = $keyword;
+            $filter['keyword'] = $keyword;
         }
 
 
@@ -409,7 +409,10 @@ class BackendFeaturesHelper
                 foreach ($featureValues as $value) {
                     if(!empty($value)) {
                         $filterCount['features'][$featureId][] = $value->translit;
-                        $productsCounts[$f]['translit'][] = $value->translit;
+                        if (!empty($featureId) && empty($productsCounts[$featureId])) {
+                            $productsCounts[$featureId] = [];
+                        }
+                        $productsCounts[$featureId]['translit'][] = $value->translit;
                     }
                 }
 
