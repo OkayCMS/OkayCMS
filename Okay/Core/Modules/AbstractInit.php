@@ -365,6 +365,28 @@ abstract class AbstractInit
     }
 
     /**
+     * Метод необходим для инициализации логики добавляет новые столбцов в переменную для сортировки по умолчанию или переопределяет переменной дефолтных полей сортировки у необходимой сущности.
+     *
+     * @param $entityClassName рабочая сущночть
+     * @param array $newOrderFields массив со значениями полями сортировки
+     * @param bool $redefine признак о необходимости полного переопределения значения переменной
+     *
+     * @example $this->setDefaultOrderFields(
+                    ProductsEntity::class,
+                    [
+                      'p.priority_sort ASC',
+                      'p.position DESC'
+                    ],
+                    true
+                 );
+     */
+    protected function setDefaultOrderFields($entityClassName, $newOrderFields, $redefine)
+    {
+        /** @var Entity $entityClassName */
+        $entityClassName::setDefaultOrderFields($newOrderFields, $redefine);
+    }
+
+    /**
      * Регистрация ленговой таблицы для указанного Entity. Нужно в случае, если стандартный Entity был не мультиязычна, 
      * а нужно чтобы он стал мультиязычным.
      * 
