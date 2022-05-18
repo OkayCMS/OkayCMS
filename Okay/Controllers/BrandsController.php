@@ -34,6 +34,9 @@ class BrandsController extends AbstractController
         $filterHelper->setFeatures($catalogFeatures);
         $filterHelper->setFeaturesValuesFilter(['brand' => true]);
 
+        $page = $brandsHelper->getBrandsPage();
+        $this->design->assign('page',$page);
+
         if (($productsFilter = $brandsHelper->getProductsFilter(null, $filtersUrl)) === null) {
             return false;
         }

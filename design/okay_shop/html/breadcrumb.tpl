@@ -81,7 +81,7 @@
         {elseif $controller == "BrandsController"}
             <li itemprop="itemListElement" itemscope
                 itemtype="https://schema.org/ListItem" class="d-inline-flex align-items-center breadcrumbs__item">
-                <span itemprop="name">{$lang->main_brands|escape}</span>
+                <span itemprop="name" >{$page->name|escape}</span>
                 <meta itemprop="position" content="{$level++}" />
             </li>
 

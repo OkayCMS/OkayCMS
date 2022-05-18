@@ -10,6 +10,7 @@ use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Settings;
 use Okay\Entities\BrandsEntity;
 use Okay\Entities\CategoriesEntity;
+use Okay\Entities\PagesEntity;
 
 class BrandsHelper implements GetListInterface
 {
@@ -34,6 +35,9 @@ class BrandsHelper implements GetListInterface
 
     /** @var BrandsEntity */
     private $brandsEntity;
+
+    /** @var PagesEntity */
+    private $pagesEntity;
     
     public function __construct(
         EntityFactory $entityFactory,
@@ -50,6 +54,7 @@ class BrandsHelper implements GetListInterface
 
         $this->categoriesEntity = $entityFactory->get(CategoriesEntity::class);
         $this->brandsEntity     = $entityFactory->get(BrandsEntity::class);
+        $this->pagesEntity     = $entityFactory->get(PagesEntity::class);
     }
 
     public function assignBrandFilterProcedure(
@@ -201,6 +206,14 @@ class BrandsHelper implements GetListInterface
 
         return ExtenderFacade::execute(__METHOD__, $filter, func_get_args());
     }
+
+    public function getBrandsPage():object {
+
+        $page = $this->pagesEntity->findOne(['url'=>'brands']);
+
+        return ExtenderFacade::execute(__METHOD__, $page, func_get_args());
+    }
+
 
     public function getBrandsAjaxFilterData()
     {
