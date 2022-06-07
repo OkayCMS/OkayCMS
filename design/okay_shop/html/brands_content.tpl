@@ -4,7 +4,7 @@
         {foreach $brands as $b}
             <div class="brand__item f_col-xs-6 f_col-sm-4 f_col-lg-3">
                 <div class="brand__preview">
-                    <a class="d-flex align-items-center justify-content-center brand__link" data-brand="{$b->id}" href="{url_generator route='brand' url=$b->url filtersUrl=$filtersUrl keyword=$keyword}">
+                    <a class="d-flex align-items-center justify-content-center brand__link" data-brand="{$b->id}" href="{url_generator route='brand' url=$b->url keyword=$keyword}">
                         {if $b->image}
                             <div class="brand__image">
                                 <picture>
