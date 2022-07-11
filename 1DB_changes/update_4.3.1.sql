@@ -1,0 +1,1 @@
+ALTER TABLE `ok_categories` ADD `show_table_content` tinyint(1) NOT NULL DEFAULT '0' AFTER `visible`;
