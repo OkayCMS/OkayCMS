@@ -119,6 +119,7 @@ $lang['general_amount'] = 'Сумма';
 $lang['general_amt'] = 'Количество';
 $lang['general_answer'] = 'Ответить';
 $lang['general_apply'] = 'Применить';
+$lang['general_apply_and_quit'] = 'Применить и выйти';
 $lang['general_approve'] = 'Одобрить';
 $lang['general_at'] = 'в';
 $lang['general_back'] = 'Вернуться к списку';

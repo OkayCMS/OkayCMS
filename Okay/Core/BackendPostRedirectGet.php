@@ -36,8 +36,12 @@ class BackendPostRedirectGet
         unset($_SESSION['message_success']);
     }
 
-    public function redirect()
+    public function redirect($urlRedirectToList = '')
     {
+        if (!empty($urlRedirectToList) && filter_var($urlRedirectToList, FILTER_VALIDATE_URL)) {
+            $this->response->redirectTo($urlRedirectToList);
+        }
+
         if (empty($_SESSION['new_entity_id'])) {
             $this->response->redirectTo($this->request->url());
         }
