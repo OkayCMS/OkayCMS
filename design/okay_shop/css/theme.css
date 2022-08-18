@@ -576,7 +576,6 @@ header{
 .categories_nav .level_3 .subcategory .categories_menu__item{
     position: relative;
     width: 100%;
-    min-height: 1px;
     padding-right: 10px;
     padding-left: 10px;
     -webkit-box-flex: 0;
@@ -822,8 +821,7 @@ header{
     background-size: cover;
     min-height: 200px;
     position: relative;
-    padding: 0;
-    padding-bottom: 36%;
+    padding: 0 0 36%;
     height: 0;
     overflow: hidden;
     background-color: #F4F6F9;
@@ -1252,7 +1250,6 @@ header{
     -webkit-align-items: center;
     -ms-flex-align: center;
     align-items: center;
-    border: none;
     border-radius: 3px;
     padding: 5px 5px;
     font-size: 13px;
@@ -2025,7 +2022,6 @@ a.filter__catalog_link svg{
 }
 .product_preview__buttons .product_preview__button:before{
     font-family: FontAwesome;
-    font-size: inherit;
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -2377,7 +2373,6 @@ a.filter__catalog_link svg{
     border-top: 1px solid #dbdbdb;
     margin: 10px 0 0;
     padding:0 15px;
-    position: relative;
     display: -webkit-inline-box;
     display: -webkit-inline-flex;
     display: -ms-inline-flexbox;
@@ -2800,8 +2795,7 @@ a.filter__catalog_link svg{
     justify-content: space-between;
     background-color: rgb(255, 255, 255);
     border-radius: 4px;
-    border: 1px solid;
-    border-color: rgb(127, 127, 127);
+    border: 1px solid rgb(127, 127, 127);
     opacity: .7;
     height: 34px;
     color: var(--okay-body-text);
@@ -4113,11 +4107,9 @@ table.order_details {min-width: auto;}
     -ms-flex-align: center;
     align-items: center;
     text-decoration: none;
-    position: relative;
     margin: 0;
     border-bottom:none;
     cursor: pointer;
-    text-decoration: none;
     padding: 18px 0;
     color: rgb(34, 34, 34);
     font-size: 13px;
