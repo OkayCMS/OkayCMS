@@ -10,8 +10,8 @@
 
     <Url type="application/opensearchdescription+xml" rel="self" template="{url_generator route="opensearch" absolute=1}" />
     <Url type="application/x-suggestions+json" template="{url_generator route="opensearch_ajax" absolute=1}?query={literal}{searchTerms}{/literal}" />
-    <Url type="text/html" template="{url_generator route="search" absolute=1}?keyword={literal}{searchTerms}{/literal}" />
-    <moz:SearchForm>{url_generator route="search" absolute=1}</moz:SearchForm>
+    <Url type="text/html" template="{url_generator route="products" absolute=1}?keyword={literal}{searchTerms}{/literal}" />
+    <moz:SearchForm>{url_generator route="products" absolute=1}</moz:SearchForm>
     <OutputEncoding>UTF-8</OutputEncoding>
     <InputEncoding>UTF-8</InputEncoding>
 </OpenSearchDescription>
