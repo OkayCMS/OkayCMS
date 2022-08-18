@@ -56,7 +56,7 @@
 {* Discount products *}
 {get_discounted_products var=discounted_products limit=5}
 {if $discounted_products}
-    <div class="main-products main-products__new container">
+    <div class="main-products main-products__sale container">
         <div class="block block--boxed block--border">
             <div class="block__header block__header--promo">
                 <div class="block__title">
