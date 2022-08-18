@@ -1118,7 +1118,6 @@ input::-webkit-input-placeholder{
     font-size: 12px;
     font-weight: 500;
 }
-.form__group label.error,
 .form__captcha label.error {display: none!important;}
 .checkbox {
     display: block;
