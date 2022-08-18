@@ -165,7 +165,7 @@
                         {/if}
                     </div>
                     <div class="toggle_arrow_wrap fn_toggle_card text-primary">
-                        <a class="btn-minimize" href="javascript:;" ><i class="icon-arrow-down"></i></a>
+                        <a class="btn-minimize" href="javascript:;" ><i class="fa fn_icon_arrow fa-angle-down"></i></a>
                     </div>
                 </div>
                 <div class="toggle_body_wrap on fn_card">
@@ -407,7 +407,7 @@
                 <div class="heading_box">
                     {$btr->order_parameters|escape}
                     <div class="toggle_arrow_wrap fn_toggle_card text-primary">
-                        <a class="btn-minimize" href="javascript:;" ><i class="icon-arrow-down"></i></a>
+                        <a class="btn-minimize" href="javascript:;" ><i class="fa fn_icon_arrow fa-angle-down"></i></a>
                     </div>
                 </div>
                 <div class="toggle_body_wrap on fn_card">
@@ -509,7 +509,7 @@
                 <div class="heading_box">
                     {$btr->order_buyer_information|escape}
                     <div class="toggle_arrow_wrap fn_toggle_card text-primary">
-                        <a class="btn-minimize" href="javascript:;" ><i class="icon-arrow-down"></i></a>
+                        <a class="btn-minimize" href="javascript:;" ><i class="fa fn_icon_arrow fa-angle-down"></i></a>
                     </div>
                 </div>
                 <div class="toggle_body_wrap on fn_card">
