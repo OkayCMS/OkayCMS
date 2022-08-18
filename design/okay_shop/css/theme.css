@@ -3387,10 +3387,10 @@ footer {
     display: block;
     width: 100%;
     text-align: left;
-    -webkit-user-select: no-select;
-    -moz-user-select: no-select;
-    -ms-user-select: no-select;
-    user-select: no-select;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
     background: transparent;
     color: var(--okay-second-company-text);
     font-weight: 400;
@@ -4237,7 +4237,7 @@ table.order_details {min-width: auto;}
     text-align: center;
     margin: 20px auto 40px;
 }
-.not_found__image{color: var(--okay-basic-company)};
+.not_found__image{color: var(--okay-basic-company);}
 .not_found__image svg{width: 300px;height: 300px;}
 .not_found__menu{text-align: center;}
 .not_found__description{

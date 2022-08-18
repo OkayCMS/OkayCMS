@@ -2200,15 +2200,15 @@ label.switch_label i{
     -o-transition: 0.15s ease-out;
     -webkit-transition: 0.15s ease-out;
     transition: 0.15s ease-out;
-    -moz-transition-property: opacity background;
-    -o-transition-property: opacity background;
-    -webkit-transition-property: opacity background;
-    transition-property: opacity background;
+    -moz-transition-property: opacity, background;
+    -o-transition-property: opacity, background;
+    -webkit-transition-property: opacity, background;
+    transition-property: opacity, background;
 }
 .switch.switch-default .switch-label::after,
 .switch.switch-default .switch-label::before{
     position: absolute;
-    background-repeat: none;
+    background-repeat: no-repeat;
     top: 8px;
     z-index: 2;
 }
@@ -4454,7 +4454,7 @@ body.menu-pin .page-container {
     -o-transition: -o-transform 400ms cubic-bezier(0.05,0.74,0.27,0.99);
     transition: transform 400ms cubic-bezier(0.05,0.74,0.27,0.99);
     -webkit-backface-visibility: hidden;
-    -webkit-perspective: 1000;
+    -webkit-perspective: 1000px;
 }
 
 
@@ -4546,7 +4546,7 @@ body.menu-pin .page-container {
     -webkit-transition: -webkit-transform 0.4s cubic-bezier(0.05,0.74,0.27,0.99);
     transition: transform 0.4s cubic-bezier(0.05,0.74,0.27,0.99);
     -webkit-backface-visibility: hidden;
-    -webkit-perspective: 1000;
+    -webkit-perspective: 1000px;
     font-family: "Segoe UI","Helvetica Neue",Helvetica,Arial,sans-serif;
     -webkit-font-smoothing: antialiased;
     -webkit-text-size-adjust: 100%;
@@ -6879,7 +6879,7 @@ input[type=range]:focus::-ms-fill-upper {
 .borderRadiusBtm ul li:first-child {
     -moz-border-radius: 5px 5px 0 0;
     border-radius: 5px 5px 0 0;
-    border-bottom: 1 solid #c3c3c3;
+    border-bottom: 1px solid #c3c3c3;
 }
 
 .ddcommon .disabled img,
