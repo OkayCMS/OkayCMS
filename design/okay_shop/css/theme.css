@@ -833,7 +833,7 @@ header{
     padding: 15px;
     position: relative;
     max-width: 100%;
-    margin: 0px auto;
+    margin: 0 auto;
 }
 .sidebar_heading {
     font-size: 14px;
@@ -862,7 +862,7 @@ header{
 }
 .blog_catalog__item{
     position: relative;
-    margin: 0px;
+    margin: 0;
     border-bottom: 1px solid rgb(227, 227, 227);
 }
 .blog_catalog__list--inner .blog_catalog__item,
@@ -1101,7 +1101,7 @@ header{
     -ms-flex-align: center;
     align-items: center;
     justify-content: space-between;
-    margin: 20px 0px;
+    margin: 20px 0;
     background-color: rgb(255, 255, 255);
     padding: 5px 20px 5px;
     border: 1px solid rgb(219, 219, 219);
@@ -1121,7 +1121,7 @@ header{
     -webkit-align-items: center;
     -ms-flex-align: center;
     align-items: center;
-    margin: 20px 0px ;
+    margin: 20px 0;
 }
 .post_tags svg{
     width: 20px;
@@ -1169,7 +1169,7 @@ header{
     color: var(--okay-second-company-text);
     border-radius: 3px;
     padding: 20px 25px 18px;
-    margin: 20px 0px;
+    margin: 20px 0;
 }
 .post_author__images{
     -webkit-box-flex: 0;
@@ -1275,7 +1275,7 @@ header{
 }
 .post_container__footer .pager{
     margin-top: 25px;
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 
 
@@ -2145,7 +2145,7 @@ a.filter__catalog_link svg{
     border: 1px solid rgb(127, 127, 127);
     color: rgb(69, 69, 69);
     opacity: 0.7;
-    font-size: 0px;
+    font-size: 0;
     transition: all .2s;
     padding: 0 5px;
     -webkit-box-flex: 0;
@@ -2259,7 +2259,7 @@ a.filter__catalog_link svg{
 .article__body::after {
     content: "";
     position: absolute;
-    bottom: 0px;
+    bottom: 0;
     left: 0;
     height: 20px;
     width: 100%;
@@ -2330,7 +2330,7 @@ a.filter__catalog_link svg{
     transition: all 0.3s;
 }
 .article__info_item:last-child{
-    padding-right: 0px;
+    padding-right: 0;
 }
 .article__info_item svg{
     width: 14px;
@@ -2526,7 +2526,7 @@ a.filter__catalog_link svg{
 }
 .comment_heading span{
     background: #fff;
-    padding: 0px 20px;
+    padding: 0 20px;
     position: relative;
     z-index: 1;
 }
@@ -2700,11 +2700,11 @@ a.filter__catalog_link svg{
     background-color: #fff;
 }
 .details_boxed__item--one{padding: 15px;}
-.details_boxed__item--inner{padding: 0px;}
+.details_boxed__item--inner{padding: 0;}
 .details_boxed__item:last-child{border-bottom: none;}
 .details_boxed__item ul,
 .details_boxed__item ol{
-    padding: 0px;
+    padding: 0;
     margin: 0 0 0 15px;
 }
 .details_boxed__item ul li,
@@ -2966,7 +2966,7 @@ a.filter__catalog_link svg{
     color: rgb(69, 69, 69);
     opacity: 0.7;
     border-radius: 3px;
-    font-size: 0px;
+    font-size: 0;
     cursor: pointer;
     display: -webkit-box;
     display: -webkit-flex;
@@ -3785,7 +3785,7 @@ footer {
 .coupon__title{
     font-size: 16px;
     line-height: 1.2;
-    margin: 0px 0 15px;
+    margin: 0 0 15px;
     font-weight: 600;
     color: var(--okay-body-text);
 }
@@ -4032,7 +4032,7 @@ table.order_details {min-width: auto;}
 .profile{
     padding: 20px 0;
     border-bottom: 1px solid #dbdbdb;
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 .profile__image{
     -webkit-box-flex: 0;
@@ -4114,11 +4114,11 @@ table.order_details {min-width: auto;}
     align-items: center;
     text-decoration: none;
     position: relative;
-    margin: 0px;
+    margin: 0;
     border-bottom:none;
     cursor: pointer;
     text-decoration: none;
-    padding: 18px 0px;
+    padding: 18px 0;
     color: rgb(34, 34, 34);
     font-size: 13px;
     font-weight: 500;

@@ -562,7 +562,7 @@ body:not(.top-nav) header.navbar {
     flex: 0 0 20px;
     max-width: 20px;
     position: relative;
-    top: 0px;
+    top: 0;
     fill: #ccc;
  }
 .okay_list_heading .main_image_id.active .left_s,
@@ -1329,7 +1329,7 @@ a.link_white:hover{
     margin: 0;
 }
 .alert__content ul li{
-    margin: 5px 0px;
+    margin: 5px 0;
     line-height: 22px;
 }
 .alert__content ul li a{
@@ -1453,7 +1453,7 @@ opacity: 1;
 }
 .boxed strong,
 .boxed svg{
-    margin: 0px 3px;
+    margin: 0 3px;
 }
 .boxed__content{
     color: #333;
@@ -1511,7 +1511,7 @@ opacity: 1;
     color: #fff;
     text-shadow: none;
     font-size: 20px;
-    margin: 0px;
+    margin: 0;
     line-height: 24px;
     display: flex;
     align-items: center;
@@ -1530,7 +1530,7 @@ opacity: 1;
 .boxed_success .text_box li,
 .boxed_warning .text_box li,
 .boxed_attention .text_box li{
-    margin: 7px 0px;
+    margin: 7px 0;
     line-height: 22px;
 }
 .boxed_sorting{
@@ -1546,7 +1546,7 @@ opacity: 1;
     padding-left: 5px;
 }
 .boxed_button{
-    margin: 10px 0px 40px;
+    margin: 10px 0 40px;
         text-align: right;
 }
 .box_btn_heading,
@@ -1555,7 +1555,7 @@ opacity: 1;
 .box_heading{
     display: inline-block;
     vertical-align: middle;
-    margin: 0px;
+    margin: 0;
 }
 .box_heading{
     margin-right: 15px;
@@ -1564,7 +1564,7 @@ opacity: 1;
     margin-right: 10px;
 }
 .wrap_heading{
-    padding: 20px 0px;
+    padding: 20px 0;
 }
 .box_heading.heading_page{
     display: -webkit-inline-box;
@@ -1966,7 +1966,7 @@ select{
     flex-wrap: nowrap;
 }
 .activity_of_switch--box_settings label.switch_label {
-    margin-right: 0px;
+    margin-right: 0;
     margin-left: 15px;
     display: inline-block!important;
 }
@@ -2159,7 +2159,7 @@ label.switch_label {
     margin-bottom: 2px;
 }
 label.switch_label--right {
-    margin-right: 0px;
+    margin-right: 0;
     margin-left: 15px;
 }
 label.switch_label i{
@@ -2390,7 +2390,7 @@ label.switch_label i{
 
 
 /* Search */
-.boxed_search{padding: 20px 0px;}
+.boxed_search{padding: 20px 0;}
 .search{overflow: hidden;}
 .search button{height: 35px;}
 
@@ -2455,7 +2455,7 @@ label.switch_label i{
     -ms-flex-align: center;
 }
 .sortable_flex_item{
-    padding: 10px 15px 10px 0px;
+    padding: 10px 15px 10px 0;
 }
 .sortable_flex_item .product_icon{
     width: 43px;
@@ -2467,7 +2467,7 @@ label.switch_label i{
     text-align: center;
 }
 .sortable_flex_item:last-child{
-    padding: 10px 0px 10px 0px;
+    padding: 10px 0 10px 0;
     float: right;
 }
 .dropzone_block_image{
@@ -2592,7 +2592,7 @@ label.switch_label i{
     -ms-flex-align: center;
     align-items: center;
     top: -1px;
-    padding: 0px 0 0 5px;
+    padding: 0 0 0 5px;
 }
 .order_toolbar__markers .box_labels_hide{
     top: calc(100% + 5px);
@@ -2866,7 +2866,7 @@ label.switch_label i{
     border: 1px solid #ccc;
     border-radius: 3px;
     color: #626262;
-    margin: 0px 1px;
+    margin: 0 1px;
     font-size: 12px;
 }
 
@@ -3016,7 +3016,7 @@ label.switch_label i{
     -webkit-align-items: center;
 }
 .okay_list .okay_list_body_item_child_comments{
-    border-bottom: 0px;
+    border-bottom: 0;
     margin-bottom: 10px;
 }
 .okay_list .okay_list_body .okay_list_boding,
@@ -3085,8 +3085,8 @@ label.switch_label i{
 }
 .okay_list .okay_list_close.remove_variant{
    position: absolute;
-    right: 0px;
-    top: 0px;
+    right: 0;
+    top: 0;
     padding: 5px;
     border-radius: 50%;
     width: 35px;
@@ -3111,8 +3111,8 @@ label.switch_label i{
     display: block;
     font-size: 22px;
     color: RGB(43, 178, 239);
-    border: 0px;
-    outline: 0px;
+    border: 0;
+    outline: 0;
     border-radius: 3px;
     line-height: 0;
 }
@@ -3245,7 +3245,7 @@ label.switch_label i{
     height: 80px;
     text-align: center;
     line-height: 76px;
-    margin: 0px auto;
+    margin: 0 auto;
     background: #fff
 }
 .okay_list .okay_list_delivery_photo a{
@@ -3256,7 +3256,7 @@ label.switch_label i{
     height: 80px;
     text-align: center;
     line-height: 76px;
-    margin: 0px auto;
+    margin: 0 auto;
     background: #fff
 }
 .okay_list .okay_list_photo a img{
@@ -3443,7 +3443,7 @@ label.switch_label i{
     margin-left: 60px;
 }
 .okay_list .submenu_level_1 .okay_list_body_item {
-    border-bottom: 0px solid rgb(204, 204, 204);
+    border-bottom: 0 solid rgb(204, 204, 204);
 }
 .okay_list .okay_list_boding .menu_icon_add{
     color: RGB(16, 207, 189);
@@ -3576,7 +3576,7 @@ label.switch_label i{
 .okay_list .okay_list_currency_exchange_item .equality{
     font-weight: 600;
     font-size: 26px;
-    margin: 0px 10px;
+    margin: 0 10px;
     text-align: center;
     display: inline-block;
     vertical-align: middle;
@@ -3831,7 +3831,7 @@ label.switch_label i{
     transition: 0.1s all;
     margin: 2px 2px;
     vertical-align: middle;
-    line-height: 0px;
+    line-height: 0;
     vertical-align: middle;
     height: 16px;
     width: 16px;
@@ -3885,8 +3885,8 @@ label.switch_label i{
 .input-group--date:after {
     content: "\f073";
     position: absolute;
-    right: 0px;
-    top: 0px;
+    right: 0;
+    top: 0;
     z-index: 1;
     text-align: center;
     width: 10%;
@@ -3916,7 +3916,7 @@ label.switch_label i{
     border-radius: 4px 0 0 4px;
 }
 .input-group.input-group--dabbl .form-control{
-    border-radius: 0px;
+    border-radius: 0;
     border-left: none;
 }
 .input-group.input-group--reset .form-control{
@@ -3948,8 +3948,8 @@ label.switch_label i{
     -ms-flex-pack: center;
     justify-content: center;
     position: absolute;
-    right: 0px;
-    top: 0px;
+    right: 0;
+    top: 0;
     width: 35px;
     height: 35px;
     border: none;
@@ -4004,7 +4004,7 @@ label.switch_label i{
     text-align: center;
     border: 1px solid rgba(0,0,0,0.1);
     background-color: rgb(240, 240, 240);
-    margin: 0px;
+    margin: 0;
     display: -webkit-inline-box;
     display: -webkit-inline-flex;
     display: -ms-inline-flexbox;
@@ -4080,9 +4080,9 @@ label.switch_label i{
     flex: 0 0 calc(100% - 40px);
     max-width: calc(100% - 40px);
     border-radius: 4px 0 0 4px;
-    border-right: 0px;
+    border-right: 0;
     color: #333;
-    margin: 0px;
+    margin: 0;
 }
 .input-group-button .form-control{
     -webkit-box-flex: 0;
@@ -4119,7 +4119,7 @@ label.switch_label i{
 }
 .input-group--left .form-control {
     border-right: 1px solid rgb(204, 204, 204);
-    border-left: 0px;
+    border-left: 0;
 }
 .filter_date__item .btn,
 .filter_date__item .filter_date__button{
@@ -4155,7 +4155,7 @@ label.switch_label i{
     border: 1px solid transparent;
     -webkit-transition: all 0.12s ease;
     transition: all 0.12s ease;
-    padding: 0px 10px;
+    padding: 0 10px;
     width: auto;
     white-space: nowrap;
     margin-right: 3px;
@@ -4221,8 +4221,8 @@ label.switch_label i{
     height: 100%;
     display: block;
     position: absolute;
-    left: 0px;
-    top: 0px;
+    left: 0;
+    top: 0;
     background:  #E4E4E4;
 }
 .okay_list .okay_list_orders_price .form-control,
@@ -4397,7 +4397,7 @@ label.switch_label i{
 
 .pg_id_grup{
     width: calc(100% - 60px);
-    margin: 0px;
+    margin: 0;
 }
 
 
@@ -4444,7 +4444,7 @@ body.menu-pin .page-container {
     left: -210px;
     position: fixed;
     bottom: 0;
-    top: 0px;
+    top: 0;
     right: auto;
     cursor: pointer;
     overflow: hidden;
@@ -4480,7 +4480,7 @@ body.menu-pin .page-container {
 
 .fix_logo_img{
     position: fixed;
-    left: 0px;
+    left: 0;
     width: 31px;
     top: 8px;
 }
@@ -4602,12 +4602,12 @@ body.menu-pin .page-container {
 }
 #admin_catalog  .sidebar-menu .menu_items > li ul.submenu > li {
     background: none;
-    padding: 0px 20px 0 40px;
+    padding: 0 20px 0 40px;
     margin-top: 1px;
 }
 #admin_catalog  .sidebar-menu .menu_items > li ul.submenu > li > a {
     display: block;
-    padding: 5px 0px;
+    padding: 5px 0;
     font-size: 13px;
     white-space: normal;
     color: #788195;
@@ -4627,7 +4627,7 @@ body.menu-pin .page-container {
     font-size: 14px;
 }
 #admin_catalog  .scrollbar-inner > .scroll-element.scroll-y{
-    left: 0px;
+    left: 0;
 }
 body.menu-pin #admin_catalog .scrollbar-inner > .scroll-element.scroll-y,
 #admin_catalog:hover .scrollbar-inner > .scroll-element.scroll-y{
@@ -4666,7 +4666,7 @@ header.navbar .container-fluid{
 }
 .admin_switches{
     position: relative;
-    margin-left: 0px;
+    margin-left: 0;
     margin-top: 10px;
     display: inline-block;
 }
@@ -4783,7 +4783,7 @@ header.navbar .container-fluid{
     font-size: 10px;
     position: absolute;
     padding: 0 5px;
-    top: 0px;
+    top: 0;
     right: 10px;
     font-weight: 600;
     border-radius: 18px;
@@ -4853,13 +4853,13 @@ header.navbar .container-fluid{
     vertical-align: inherit;
 }
 .admin_switches a.btn_vid_help svg{
-    margin-right:0px;
+    margin-right:0;
 }
 .menu_switch{
     position: relative;
     width: 50px;
     height: 55px;
-    margin: 0px 0px 0 0;
+    margin: 0 0 0 0;
     line-height: 55px;
     display: block;
     float: right;
@@ -4957,10 +4957,10 @@ body.menu-pin .menu_switch .menu_hamburger::after {
     position: absolute;
     visibility: hidden;
     border: 1px solid rgba(204, 204, 204, 0.2);
-    padding: 0px;
+    padding: 0;
     background: #fff;
-    -webkit-box-shadow: 0px 0px 5px rgba(204, 204, 204,0.2);
-    box-shadow: 0px 0px 5px rgba(204, 204, 204,0.2);
+    -webkit-box-shadow: 0 0 5px rgba(204, 204, 204,0.2);
+    box-shadow: 0 0 5px rgba(204, 204, 204,0.2);
     color: rgb(118, 118, 118);
     cursor: pointer;
     z-index: 200;
@@ -5008,11 +5008,11 @@ body.menu-pin .menu_switch .menu_hamburger::after {
     border-bottom: none;
 }
 .notification_toggle .notif_icon{
-    padding: 0px;
+    padding: 0;
     width: 40px;
     text-align: center;
     height: 40px;
-    border-radius: 0px;
+    border-radius: 0;
     line-height: 49px;
 }
 .notification_toggle .notif_icon svg{
@@ -5037,7 +5037,7 @@ body.menu-pin .menu_switch .menu_hamburger::after {
 
 /************************************************************************* Footer  */
 #footer {
-    padding: 0px 15px 0px;
+    padding: 0 15px 0;
     line-height: 35px;
     color: rgb(38, 50, 56);
     position: absolute;
@@ -5046,7 +5046,7 @@ body.menu-pin .menu_switch .menu_hamburger::after {
     bottom: 0;
     background-color: rgb(43, 48, 59);
     height: 35px;
-    padding-left: 0px;
+    padding-left: 0;
     z-index: 100;
 }
 
@@ -5081,7 +5081,7 @@ body.menu-pin .menu_switch .menu_hamburger::after {
     padding: 5px;
     border-radius: 2px;
     position: absolute;
-    box-shadow: 0px 2px 7px rgba(0,0,0,0.5);
+    box-shadow: 0 2px 7px rgba(0,0,0,0.5);
     left: 0;
     right: 0;
     top: 33px;
@@ -5148,7 +5148,7 @@ body.menu-pin .menu_switch .menu_hamburger::after {
 }
 
 .add_order_marker .tag{
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 .checkbox_email{
    width: 290px;
@@ -5210,7 +5210,7 @@ body.menu-pin .menu_switch .menu_hamburger::after {
 }
 .okay_list .orders_labels .tag{
    margin-top: 10px;
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 .okay_list .okay_list_order_marker .orders_labels .tag{
     margin-top: 5px
@@ -5279,8 +5279,8 @@ body.menu-pin .menu_switch .menu_hamburger::after {
     top: 5px;
 }
 .box_labels_hide .option_labels_box{
-    margin: 0px;
-    padding: 0px 10px;
+    margin: 0;
+    padding: 0 10px;
 }
 .box_labels_hide .option_labels_box li{
     margin-bottom: 10px;
@@ -5297,7 +5297,7 @@ body.menu-pin .menu_switch .menu_hamburger::after {
     cursor: pointer;
     width: 100%;
     height: 100%;
-    margin: 0px;
+    margin: 0;
     position: relative;
 }
 .option_labels_box .label_labels span{
@@ -5315,7 +5315,7 @@ body.menu-pin .menu_switch .menu_hamburger::after {
     position: absolute;
     transition: border 0.15s ease-in-out 0s, color 0.15s ease-in-out 0s;
     width: 20px;
-    margin-right: 0px;
+    margin-right: 0;
     text-align: center;
     top: 3px;
 }
@@ -5328,7 +5328,7 @@ body.menu-pin .menu_switch .menu_hamburger::after {
 .order_history_block,
 .orders_purchases_block {
     width: 100%;
-    padding: 0px 10px 10px;
+    padding: 0 10px 10px;
     height: auto;
 }
 .order_discounted_block__inner{
@@ -5376,7 +5376,7 @@ body.menu-pin .menu_switch .menu_hamburger::after {
 
 .admin_note{
     border-left: 5px solid #02bcf2;
-    padding: 0px 10px!important;
+    padding: 0 10px!important;
 }
 .admin_note2{
     border-bottom: none;
@@ -5509,7 +5509,7 @@ body.menu-pin .menu_switch .menu_hamburger::after {
     width: auto;
     margin-left: 15px;
     height: 36px;
-    padding: 0px;
+    padding: 0;
 }
 
 /************************************************************************* Categories.tpl  */
@@ -5578,25 +5578,25 @@ body.menu-pin .menu_switch .menu_hamburger::after {
 }
 .theme_block_image .btn{
     position:absolute;
-    right: 0px;
+    right: 0;
     width: 100%;
 }
 .theme_block_image .theme_btn_admin{
-    bottom:0px;
+    bottom:0;
 }
 .theme_block_image .theme_btn_block{
     bottom:45px;
 }
 .bnr_id_grup{
     width: 100%;
-    margin: 0px 0px 10px;
+    margin: 0 0 10px;
 }
 .bnr_id_grup .form-control{
    border-right: 1px solid #ccc;
 }
 .menus_id_grup{
     width: 35%;
-    margin: 0px;
+    margin: 0;
 }
 .banner_group__inputs{
     display: -webkit-box;
@@ -5705,7 +5705,7 @@ body.menu-pin .menu_switch .menu_hamburger::after {
     -webkit-align-items: center;
     -ms-flex-align: center;
     text-align: left;
-    padding: 10px 0px;
+    padding: 10px 0;
     cursor: pointer;
 }
 .banner_type__item .okay_ckeckbox::before {
@@ -5893,7 +5893,7 @@ body.menu-pin .menu_switch .menu_hamburger::after {
     width: 30px;
     height: 30px;
     text-align: center;
-    padding: 0px;
+    padding: 0;
 }
 .toggle_arrow_wrap a{
     position: relative;
@@ -5939,9 +5939,9 @@ body.menu-pin .menu_switch .menu_hamburger::after {
 }
 .product_image_item:hover{
     border: 1px solid #4DCDC1;
-    -webkit-box-shadow: -1px 3px 5px 0px rgba(221,221,221,1);
-    -moz-box-shadow: -1px 3px 5px 0px rgba(221,221,221,1);
-    box-shadow: 0px 1px 3px 0px rgba(77,205,193,1);
+    -webkit-box-shadow: -1px 3px 5px 0 rgba(221,221,221,1);
+    -moz-box-shadow: -1px 3px 5px 0 rgba(221,221,221,1);
+    box-shadow: 0 1px 3px 0 rgba(77,205,193,1);
 }
 
 .dropzone_block{
@@ -6010,7 +6010,7 @@ body.menu-pin .menu_switch .menu_hamburger::after {
     background: none;
     border: none;
     outline: none;
-    padding: 0px;
+    padding: 0;
     cursor: pointer;
 }
 .remove_image:before{
@@ -6230,7 +6230,7 @@ input[type=range]:focus::-ms-fill-upper {
     transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
     border-left: 1px solid rgba(0, 0, 0, 0.15);
     background: #fff;
-    border-radius: 0px;
+    border-radius: 0;
     height: 34px;
     font-weight: 400;
     font-size: 14px;
@@ -6255,7 +6255,7 @@ input[type=range]:focus::-ms-fill-upper {
     float: left;
     height: 34px;
     text-align: center;
-    border-radius: 0px;
+    border-radius: 0;
 }
 .feature_multi_values.btn.btn_mini svg{
     margin: 0;
@@ -6278,7 +6278,7 @@ input[type=range]:focus::-ms-fill-upper {
 .feature_input:focus {
     border-color: rgba(118, 118, 118, 0.7);
     background: #fff;
-    border-radius: 0px 5px 5px 0px;
+    border-radius: 0 5px 5px 0;
 }
 .feature_value::-ms-expand {
     background-color: transparent;
@@ -6320,7 +6320,7 @@ input[type=range]:focus::-ms-fill-upper {
 
 
 .tab{
-    padding: 15px 0 0px;
+    padding: 15px 0 0;
     display: none;
 }
 .tab_navigation{
@@ -6349,7 +6349,7 @@ input[type=range]:focus::-ms-fill-upper {
     -ms-flex-align: center;
     align-items: center;
     padding: .5rem 1rem;
-    margin: 0px;
+    margin: 0;
     font-size:16px;
     color: rgb(149, 149, 149);
     margin-bottom: -1px;
@@ -6494,7 +6494,7 @@ input[type=range]:focus::-ms-fill-upper {
     content: "✔";
     color: rgb(255, 255, 255);
     position: absolute;
-    top: 0px;
+    top: 0;
     right: 3px;
     font-size: 17px;
     line-height: 22px;
@@ -6532,7 +6532,7 @@ input[type=range]:focus::-ms-fill-upper {
 
 }
 .permission_block .permission_box{
-    padding: 10px 0px;
+    padding: 10px 0;
     display: flex;
     display: -webkit-box;
     display: -webkit-flex;
@@ -6661,7 +6661,7 @@ input[type=range]:focus::-ms-fill-upper {
 }
 .bnr_dl_price{
     width: 120px;
-    margin: 0px;
+    margin: 0;
 }
 .delivery_inline_block{
     display: inline-block;
@@ -6680,7 +6680,7 @@ input[type=range]:focus::-ms-fill-upper {
     -webkit-align-items: center;
     -ms-flex-align: center;
     text-align: left;
-    padding: 10px 0px;
+    padding: 10px 0;
     cursor: pointer;
 }
 .payment_item .okay_ckeckbox .payment_name_wrap,
@@ -7199,7 +7199,7 @@ img.fnone {
     display: none;
     overflow: hidden;
     position: fixed;
-    top: 0px;
+    top: 0;
     right: 0;
     bottom: 0;
     left: 0;
@@ -7497,7 +7497,8 @@ base::-moz-progress-bar,
 
 .d-table{display: table;height: 100%}
 .d-100vh-va-middle{display: table-cell;vertical-align: middle;}
-.d-table .input-group .form-control{border-right: 1px solid rgb(204, 204, 204);border-left: 0px}
+.d-table .input-group .form-control{border-right: 1px solid rgb(204, 204, 204);border-left: 0
+}
 
 .card {
     position: relative;
@@ -7604,7 +7605,7 @@ div.tox-fullscreen {
     display: flex;
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
-    padding: 15px 0px!important;
+    padding: 15px 0 !important;
     margin-right: -10px;
     margin-left: -10px;
 }
@@ -7667,7 +7668,7 @@ div.tox-fullscreen {
 .tooltip_box{
     display: inline-block;
     color: #48b0f7;
-    margin: 0px 2px;
+    margin: 0 2px;
     width: 16px;
     height: 16px;
     line-height: 1;
@@ -7697,7 +7698,7 @@ div.tox-fullscreen {
     .tooltip_box:before {display: block; }
 }
 .card form{
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 .auth_buttons{
    display: block;
@@ -7714,7 +7715,7 @@ div.tox-fullscreen {
     color: #2b303b;
     font-size: 26px;
     line-height: 1.2;
-    margin-top: 0px;
+    margin-top: 0;
     margin-bottom: 10px;
     text-align: center;
 }
@@ -7725,7 +7726,7 @@ div.tox-fullscreen {
     margin-bottom: 25px;
 }
 .error_box {
-    border-radius:0px;
+    border-radius:0;
     display: block;
     padding: 10px;
     border-left: 5px solid #C0392B;
@@ -8005,7 +8006,7 @@ div.tox-fullscreen {
     -webkit-animation: cssProgressActive 2s linear infinite;
     -ms-animation: cssProgressActive 2s linear infinite;
     animation: cssProgressActive 2s linear infinite;
-    width: 0px;
+    width: 0;
     height: 30px;
     display: flex;
     align-items: center;
@@ -8026,7 +8027,7 @@ div.tox-fullscreen {
 #fn_video{
     width: 1000px;
     max-width: 100%;
-    padding: 0px!important;
+    padding: 0 !important;
 }
 .video_adaptive{
     position: relative;
@@ -8283,7 +8284,7 @@ ul.submenu .menu_counter {
     padding-left: 35px;
 }
 .order_history{
-    margin: 20px 0px 0 25px;
+    margin: 20px 0 0 25px;
 }
 .order_history__item {
     position: relative;
@@ -8322,8 +8323,8 @@ ul.submenu .menu_counter {
     -webkit-transform: rotate(-45deg);
     transform: rotate(-45deg);
     z-index: 1;
-    margin: 0px;
-    left: 0px;
+    margin: 0;
+    left: 0;
     top: 2px;
 }
 .order_history__content{
@@ -8620,7 +8621,7 @@ ul.submenu .menu_counter {
     display: flex;
     align-items: center;
     max-width: 100%;
-    margin: 30px 0 0px;
+    margin: 30px 0 0;
 }
 .modules_add_new_modules button{
     margin-left: 10px;
