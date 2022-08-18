@@ -310,7 +310,11 @@ class Module
 
     public function generateModuleTemplateDir($vendor, $moduleName)
     {
-        return realpath(__DIR__ . '/../../Modules/' . $vendor . '/' . $moduleName . '/design/html/');
+        $realpath = realpath(__DIR__ . '/../../Modules/' . $vendor . '/' . $moduleName . '/design/html/');
+        if ($realpath === false) {
+            throw new \LogicException(sprintf("Module %s of %s doesn't have design/html directory", $moduleName, $vendor));
+        }
+        return $realpath;
     }
 
     /**
