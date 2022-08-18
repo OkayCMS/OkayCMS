@@ -152,8 +152,6 @@
     }
 }
 @media only screen and (max-width : 991px) {
-    .pr-0 {padding-right: 15px !important;}
-    .pl-0{padding-left: 15px !important;}
     .boxed_search{padding: 0px 0px 20px;}
     .product_images_list li{height: 140px;width: 140px;line-height: 140px;}
     .variants_listadd{min-width: 900px;}
