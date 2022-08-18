@@ -51,8 +51,6 @@ body {
     min-width: 320px;
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
-    max-width: 100%;
-    min-height: 100%;
     /*overflow: hidden;*/
     margin: 0;
     padding: 0;
@@ -95,8 +93,7 @@ body.navbar-fixed {
     z-index: 1100;
 }
 .main .container-fluid {
-    padding: 0 15px;
-    padding-bottom: 35px;
+    padding: 0 15px 35px;
     min-height: 100%;
     position: relative;
     z-index:2;
@@ -1693,8 +1690,6 @@ opacity: 1;
     font-weight: normal;
     vertical-align: middle;
     min-height: 35px;
-    -webkit-transition: all 0.12s ease;
-    transition: all 0.12s ease;
     -webkit-box-shadow: none;
     box-shadow: none;
     border-radius: 4px;
@@ -1758,8 +1753,6 @@ opacity: 1;
     font-weight: normal;
     vertical-align: middle;
     min-height: 35px;
-    -webkit-transition: all 0.12s ease;
-    transition: all 0.12s ease;
     -webkit-box-shadow: none;
     box-shadow: none;
     border-radius: 2px;
@@ -3832,7 +3825,6 @@ label.switch_label i{
     margin: 2px 2px;
     vertical-align: middle;
     line-height: 0;
-    vertical-align: middle;
     height: 16px;
     width: 16px;
 }
@@ -3878,7 +3870,7 @@ label.switch_label i{
     z-index: 0!important;
     border-right: 1px solid #ccc!important;
 }
-.input-group--search .form-control:hover
+.input-group--search .form-control:hover,
 .input-group--date .form-control:hover {
     z-index: 0!important;
 }
@@ -4467,8 +4459,7 @@ body.menu-pin .page-container {
     border-bottom: 1px solid #232730;
     color: #ffffff;
     width: 100%;
-    padding: 0 10px;
-    padding-left: 55px;
+    padding: 0 10px 0 55px;
     clear: both;
     z-index: 10;
 }
@@ -4517,8 +4508,7 @@ body.menu-pin .page-container {
 }
 #admin_catalog  .sidebar-menu .menu_items > li > a {
     display: block;
-    padding: 3px 3px;
-    padding-left: 20px;
+    padding: 3px 3px 3px 20px;
     min-height: 40px;
     line-height: 40px;
     font-size: 14px;
@@ -4653,13 +4643,11 @@ header.navbar {
     top: 0 !important;
     right: 0 !important;
     left: 0 !important;
-    position: relative;
     height: 55px;
-    padding: 0;
     background-color: rgb(43, 48, 59);
     border-bottom: 1px solid #cfd8dc;
     z-index: 1030;
-    padding-left: 70px;
+    padding: 0 0 0 70px;
 }
 header.navbar .container-fluid{
      height: 55px;
@@ -4844,12 +4832,10 @@ header.navbar .container-fluid{
 }
 .admin_switches .btn_version_old svg,
 .admin_switches .btn_version_new svg{
-    vertical-align: middle;
     vertical-align: inherit;
 }
 .admin_switches .btn_version_old span,
 .admin_switches .btn_version_new span{
-    vertical-align: middle;
     vertical-align: inherit;
 }
 .admin_switches a.btn_vid_help svg{
@@ -4943,7 +4929,6 @@ body.menu-pin .menu_switch .menu_hamburger::after {
     opacity: 0;
     -webkit-transition: opacity 0.3s ease, visibility 0.3s ease, top 0.3s ease;
     transition: opacity 0.3s ease, visibility 0.3s ease, top 0.3s ease;
-    background: #ccc;
     width: 240px;
     white-space: normal;
     border-radius: 3px;
@@ -4978,7 +4963,6 @@ body.menu-pin .menu_switch .menu_hamburger::after {
     background: rgb(255, 255, 255);
     border-bottom: 1px solid rgba(204, 204, 204, 0.2);
     position: relative;
-    display: inline-block;
     font-size: 14px;
     width: 100%;
     height: 40px;
@@ -5037,7 +5021,6 @@ body.menu-pin .menu_switch .menu_hamburger::after {
 
 /************************************************************************* Footer  */
 #footer {
-    padding: 0 15px 0;
     line-height: 35px;
     color: rgb(38, 50, 56);
     position: absolute;
@@ -5046,7 +5029,7 @@ body.menu-pin .menu_switch .menu_hamburger::after {
     bottom: 0;
     background-color: rgb(43, 48, 59);
     height: 35px;
-    padding-left: 0;
+    padding: 0 15px 0 0;
     z-index: 100;
 }
 
@@ -5738,10 +5721,7 @@ body.menu-pin .menu_switch .menu_hamburger::after {
 .category_images_list{
     list-style: none;
     padding: 0;
-    margin: 0;
-    margin-left: -1%;
-    margin-right: -1%;
-    margin-bottom: -10px;
+    margin: 0 -1% -10px;
     overflow: hidden;
 }
 .category_images_list li{
@@ -5788,10 +5768,7 @@ body.menu-pin .menu_switch .menu_hamburger::after {
 .brand_images_list{
     list-style: none;
     padding: 0;
-    margin: 0;
-    margin-left: -1%;
-    margin-right: -1%;
-    margin-bottom: -10px;
+    margin: 0 -1% -10px;
     overflow: hidden;
 }
 .brand_images_list li{
@@ -5839,10 +5816,7 @@ body.menu-pin .menu_switch .menu_hamburger::after {
 .author_images_list{
     list-style: none;
     padding: 0;
-    margin: 0;
-    margin-left: -1%;
-    margin-right: -1%;
-    margin-bottom: -10px;
+    margin: 0 -1% -10px;
     overflow: hidden;
 }
 .author_images_list li{
@@ -5913,10 +5887,7 @@ body.menu-pin .menu_switch .menu_hamburger::after {
 .product_images_list{
     list-style: none;
     padding: 0;
-    margin: 0;
-    margin-left: -1%;
-    margin-right: -1%;
-    margin-bottom: -10px;
+    margin: 0 -1% -10px;
 }
 .product_images_list li{
     min-height: 100px;
@@ -6229,13 +6200,12 @@ input[type=range]:focus::-ms-fill-upper {
     border: none;
     transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
     border-left: 1px solid rgba(0, 0, 0, 0.15);
-    background: #fff;
     border-radius: 0;
     height: 34px;
     font-weight: 400;
     font-size: 14px;
     color: #263238;
-    background-color: #fff;
+    background: #fff;
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
 }
 .new_feature_row .new_feature:first-child{
@@ -6266,7 +6236,6 @@ input[type=range]:focus::-ms-fill-upper {
     padding: 5px 10px;
     font-size: 14px;
     color: #607d8b;
-    border: none;
     transition: border-color ease-in-out 0.15s,
     box-shadow ease-in-out 0.15s;
     background: #f7f7f7;
@@ -6349,10 +6318,9 @@ input[type=range]:focus::-ms-fill-upper {
     -ms-flex-align: center;
     align-items: center;
     padding: .5rem 1rem;
-    margin: 0;
     font-size:16px;
     color: rgb(149, 149, 149);
-    margin-bottom: -1px;
+    margin: 0 0 -1px;
 }
 .tab_navigation_link svg{
     width: 16px;
@@ -6704,8 +6672,6 @@ input[type=range]:focus::-ms-fill-upper {
     font-weight: normal;
     vertical-align: middle;
     min-height: 35px!important;
-    -webkit-transition: all 0.12s ease;
-    transition: all 0.12s ease;
     -webkit-box-shadow: none;
     box-shadow: none;
     border-radius: 2px;
@@ -6752,7 +6718,6 @@ input[type=range]:focus::-ms-fill-upper {
     width: 20px!important;
     height: 14px!important;
     color: #f66a6a!important;
-    font-size: 13px!important;
     cursor: pointer!important;
     display: inline-block!important;
     vertical-align: middle!important;
@@ -6971,14 +6936,11 @@ img.fnone {
 }
 
 .ddcommon .ddTitle {
-    padding: 0;
     position: relative;
     display: inline-block;
     width: 100%;
     border: 1px solid rgb(123, 123, 123);
     -webkit-appearance: none;
-    -webkit-transition: all 0.12s ease;
-    transition: all 0.12s ease;
     -webkit-box-shadow: none;
     box-shadow: none;
     border-radius: 2px;
@@ -6988,8 +6950,6 @@ img.fnone {
     transition: background 0.2s linear 0s;
     height: 35px;
     vertical-align: middle;
-    padding: 1px 6px;
-    line-height: normal;
     font-size: 14px;
     font-weight: normal;
     outline: 0;
@@ -6997,7 +6957,7 @@ img.fnone {
     color: rgb(44, 44, 44);
     background-color: rgb(255, 255, 255);
     background-image: none;
-    padding-right: 25px;
+    padding: 1px 25px 1px 6px;
     z-index: 1;
 }
 
@@ -7240,7 +7200,6 @@ img.fnone {
     position: relative;
     background-color: #ffffff;
     border: 1px solid #999999;
-    border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 6px;
     -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
     box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
@@ -7612,7 +7571,6 @@ div.tox-fullscreen {
 .feature_opt_aliases_list{
     position: relative;
     width: 100%;
-    min-height: 1px;
     padding-right: 10px;
     padding-left: 10px;
     -webkit-box-flex: 0;
@@ -8209,7 +8167,6 @@ ul.submenu .menu_counter {
     background: transparent;
     cursor: copy;
     color: inherit;
-    text-decoration: none;
 }
 .fn_clipboard:after {
     content: attr(data-hint);
@@ -8303,8 +8260,8 @@ ul.submenu .menu_counter {
     margin-top: -10px;
     z-index: 1;
     top: 3px;
-    -webkit-box-shadow: 0 0 0 .5px rgb(243, 246, 247);
-    box-shadow: 0 0 0 .5px rgb(243, 246, 247);
+    -webkit-box-shadow: 0 0 0 1px rgb(243, 246, 247);
+    box-shadow: 0 0 0 1px rgb(243, 246, 247);
     background-color: rgb(243, 246, 247);
     -webkit-transform: rotate(45deg);
     transform: rotate(45deg);
