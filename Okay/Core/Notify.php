@@ -120,7 +120,7 @@ class Notify
             $this->PHPMailer->AddAddress($to);
         }
         
-        $this->PHPMailer = ExtenderFacade::execute(__FUNCTION__, $this->PHPMailer, func_get_args());
+        $this->PHPMailer = ExtenderFacade::execute(__METHOD__, $this->PHPMailer, func_get_args());
         
         $success = $this->PHPMailer->Send();
 
