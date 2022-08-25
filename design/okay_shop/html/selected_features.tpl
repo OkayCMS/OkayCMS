@@ -91,10 +91,10 @@
                             </button>
                         </form>
                     </div>
-                {elseif $routeName = 'products'}
+                {else}
                     <div class="filter__selected_feature_reset">
                         <form method="post">
-                            <button type="submit" name="prg_seo_hide" class="fn_filter_reset filter__sf_reset" value="{url_generator route="products"}">
+                            <button type="submit" name="prg_seo_hide" class="fn_filter_reset filter__sf_reset" value="{url_generator route=$route_name}">
                                 {$lang->selected_features_reset}
                             </button>
                         </form>
