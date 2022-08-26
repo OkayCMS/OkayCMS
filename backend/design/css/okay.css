@@ -781,20 +781,20 @@ a.link_white:hover{
 
 .btn-info:hover{
     color: #fff;
-    background-color: rgb(27, 119, 51);
-    border-color: rgb(27, 119, 51);
+    background-color: rgb(73, 178, 101);
+    border-color: rgb(73, 178, 101);
 }
 
 .btn-info:focus{
     color: #fff;
-    background-color: rgb(27, 119, 51);
-    border-color: rgb(27, 119, 51);
+    background-color: rgb(73, 178, 101);
+    border-color: rgb(73, 178, 101);
 }
 
 .btn-info:active{
     color: #fff;
-    background-color: rgb(27, 119, 51);
-    border-color: rgb(27, 119, 51);
+    background-color: rgb(73, 178, 101);
+    border-color: rgb(73, 178, 101);
     background-image: none;
 }
 
@@ -1010,20 +1010,20 @@ a.link_white:hover{
 
 .btn_border-info:hover{
     color: #fff;
-    background-color: rgb(27, 119, 51);
-    border-color: rgb(27, 119, 51);
+    background-color: rgb(73, 178, 101);
+    border-color: rgb(73, 178, 101);
 }
 
 .btn_border-info:focus{
     color: #fff;
-    background-color: rgb(27, 119, 51);
-    border-color: rgb(27, 119, 51);
+    background-color: rgb(73, 178, 101);
+    border-color: rgb(73, 178, 101);
 }
 
 .btn_border-info:active{
     color: #fff;
-    background-color: rgb(27, 119, 51);
-    border-color: rgb(27, 119, 51);
+    background-color: rgb(73, 178, 101);
+    border-color: rgb(73, 178, 101);
 }
 
 .btn_border-info:active:hover,
