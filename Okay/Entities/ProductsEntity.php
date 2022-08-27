@@ -163,6 +163,7 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
 
     private function unlinkImageFiles($productsIds, $imagesIds) // todo нужно ли?
     {
+        if (empty($imagesIds) || empty($productsIds)) return;
         $select = $this->queryFactory->newSelect();
         $select->cols(['filename'])
             ->from('__images')
