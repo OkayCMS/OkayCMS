@@ -78,7 +78,7 @@ trait filter
     private function autoFilter($filterName, $value)
     {
         
-        if ($value === null || $value === []) {
+        if ($value === []) {
             return;
         }
         
@@ -100,6 +100,8 @@ trait filter
             
             if (is_array($value)) {
                 $this->select->where("{$tableAlias}.{$filterName} IN (:magic_filter_{$filterName})");
+            } else if ($value === null) {
+                $this->select->where("{$tableAlias}.{$filterName} IS :magic_filter_{$filterName}");
             } else {
                 $this->select->where("{$tableAlias}.{$filterName} = :magic_filter_{$filterName}");
             }
