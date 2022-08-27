@@ -100,6 +100,9 @@ class UserController extends AbstractController
             case 'user_browsed':
                 $activeTab = 'browsed';
                 break;
+            default:
+                $activeTab = $userHelper->defaultActiveTab(Router::getCurrentRouteName());
+                break;
         }
         
         $this->design->assign('active_tab', $activeTab);
