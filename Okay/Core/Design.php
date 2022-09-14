@@ -336,6 +336,7 @@ class Design
     public function useModuleDir()
     {
         $this->useTemplateDir = self::TEMPLATES_MODULE;
+        $this->setSmartyTemplatesDir();
     }
 
     public function isUseModuleDir()

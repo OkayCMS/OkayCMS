@@ -493,8 +493,10 @@ class MainHelper
                     $module->getModuleName($route['params']['controller'])
                 );
 
-                $design->setModuleTemplatesDir($moduleTemplateDir);
-                $design->useModuleDir();
+                if (!empty($moduleTemplateDir)) {
+                    $design->setModuleTemplatesDir($moduleTemplateDir);
+                    $design->useModuleDir();
+                }
             }
         }
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
