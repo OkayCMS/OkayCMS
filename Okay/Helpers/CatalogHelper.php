@@ -133,6 +133,11 @@ class CatalogHelper
                     }
                 }
             }
+            foreach ($catalogFeatures as $k => $feature) {
+                if (!property_exists($feature, 'features_values') || empty($feature->features_values)) {
+                    unset($catalogFeatures[$k]);
+                }
+            }
         }
 
         $rangeFilter = $productsFilter;
