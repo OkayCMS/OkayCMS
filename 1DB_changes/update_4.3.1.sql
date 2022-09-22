@@ -1,1 +1,2 @@
 ALTER TABLE `ok_categories` ADD `show_table_content` tinyint(1) NOT NULL DEFAULT '0' AFTER `visible`;
+UPDATE `ok_settings` SET `value` = 'fda37584a5eed426c352a431d4852e01' WHERE `ok_settings`.`param` = 'newpost_key';
