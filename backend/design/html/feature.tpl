@@ -512,6 +512,11 @@
 
     <div class="row">
         <div class="col-lg-12 col-md-12 mb-2">
+
+            <button id="fast_save_button_and_quit" type="submit" class="fn_step-10 btn btn_small btn_blue float-md-right ml-1" name="apply_and_quit" value="1">
+                {include file='svg_icon.tpl' svgId='checked'}
+                <span>{$btr->general_apply_and_quit|escape}</span>
+            </button>
             <button type="submit" class="fn_step-10 btn btn_small btn_blue float-md-right">
                 {include file='svg_icon.tpl' svgId='checked'}
                 <span>{$btr->general_apply|escape}</span>

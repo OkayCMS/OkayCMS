@@ -119,6 +119,7 @@ $lang['general_amount'] = 'Amount';
 $lang['general_amt'] = 'Amt.';
 $lang['general_answer'] = 'Answer';
 $lang['general_apply'] = 'Apply';
+$lang['general_apply_and_quit'] = 'Apply and Quit';
 $lang['general_approve'] = 'Approve';
 $lang['general_at'] = 'at';
 $lang['general_back'] = 'Back to list';

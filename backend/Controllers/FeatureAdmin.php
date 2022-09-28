@@ -73,6 +73,12 @@ class FeatureAdmin extends IndexAdmin
             }
 
             if ($neededPostRedirectGet) {
+                //  сохранить и выход в список
+                $buttonRedirectToList = $this->request->post('apply_and_quit', 'integer', 0);
+                if (($buttonRedirectToList == 1) && !empty($urlRedirectToList = $this->request->getRootUrl() . '/backend/index.php?controller=FeaturesAdmin')) {
+                    $this->postRedirectGet->redirect($urlRedirectToList);
+                }
+
                 $this->postRedirectGet->redirect();
             }
         } else {
