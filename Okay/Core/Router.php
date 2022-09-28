@@ -302,7 +302,7 @@ class Router {
         $requiredParametersNames = [];
         $reflectionMethod = new \ReflectionMethod($controller, $methodName);
         foreach ($reflectionMethod->getParameters() as $parameter) {
-            if ($parameter->isDefaultValueAvailable() === false) {
+            if ($parameter->isDefaultValueAvailable() === false) {     // Если параметр не имеет значения по умолчанию в методе контроллера
                 $requiredParametersNames[] = $parameter->name;
             }
         }
