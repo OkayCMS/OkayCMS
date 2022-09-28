@@ -14,3 +14,4 @@ $lang['np_cart_error_city'] = "Выберите город доставки";
 $lang['np_cart_error_street'] = "Введите улицу доставки";
 $lang['np_cart_error_house'] = "Введите номер дома доставки";
 $lang['np_cart_error_warehouse'] = "Выберите отделение доставки";
+$lang['np_cart_calculate'] = "Вычисляем...";
