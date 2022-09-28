@@ -40,7 +40,10 @@ class EmailTemplatesAdmin extends IndexAdmin
                 /*Отправка емейла с ответом на комментарий клиенту*/
                 case 'emailCommentAnswerToUser':
                     $commentId = $this->request->get('comment_id', 'integer', 1);
-                    $this->response->setContent($notify->emailCommentAnswerToUser($commentId, true));
+                    $emailCommentAnswerToUser = $notify->emailCommentAnswerToUser($commentId, true);
+                    if (!empty($emailCommentAnswerToUser)) {
+                        $this->response->setContent($emailCommentAnswerToUser);
+                    }
                     break;
 
                 /*Отправка емейла с ответом на заявку с формы обратной связи клиенту*/
