@@ -384,7 +384,7 @@ class NovaposhtaCost
     {
         $totalVolume = 0;
         foreach ($data->purchases as $purchase) {
-            $totalVolume += (!empty($purchase->variant->volume) && $purchase->variant->volume>0 ? $purchase->variant->volume : $this->settings->get('newpost_volume'))*$purchase->amount;
+            $totalVolume += (!empty($purchase->variant->volume) && $purchase->variant->volume>0 ? $purchase->variant->volume : (!empty($this->settings->get('newpost_volume')) ? $this->settings->get('newpost_volume') : 0.001) ) * $purchase->amount;
         }
         
         return ExtenderFacade::execute(__METHOD__, $totalVolume, func_get_args());
