@@ -2,8 +2,22 @@
 
 $lang['okaycms__integration_ic__description_title'] = "Integration with 1C";
 $lang['okaycms__integration_ic__description_part_1'] = "To configure the exchange of site data with 1C, you need to specify in 1C in the Tools - Data Exchange with a Web Site - Set up Data Exchange with a Web Site section";
-$lang['okaycms__integration_ic__description_part_2'] = "and specify the login / password of the site administrator who has rights to synchronize with 1C";
-$lang['okaycms__integration_ic__description_part_3'] = "More details can be found in the article on the site";
+$lang['okaycms__integration_ic__description_part_2'] = "and specify the login/password of the site administrator who has rights to synchronize with 1C. You can make a separate user to work with 1C";
+$lang['okaycms__integration_ic__description_part_2_1'] = "In the settings, the address of the import page is specified, without GET parameters. 1C itself substitutes the parameters for certain actions.";
+$lang['okaycms__integration_ic__description_part_3'] = "More details can be found below and in the article on the site";
+$lang['okaycms__integration_ic__description_part_4'] = "The logic of the module is approximately as follows. 1C calls the above URL (hereinafter referred to as the entry point) with a set of specific GET parameters that trigger certain actions from the site.";
+$lang['okaycms__integration_ic__description_part_5'] = "Below I will give some examples of these parameters to understand the actions that 1C launches on the site side.";
+$lang['okaycms__integration_ic__description_part_6'] = "On the example of importing goods:";
+$lang['okaycms__integration_ic__description_part_7'] = "The first step is usually the so-called initialization, which prepares the folders for the start of the import, clearing them of the files from the previous cycle. Started with ";
+$lang['okaycms__integration_ic__description_part_8'] = "Next, 1C uploads a set of resources to a temporary folder on the site, these can be product images or XML files with data for import.";
+$lang['okaycms__integration_ic__description_part_9'] = "When loading resources in GET, the filename parameter specifies the name of the file to be created, which will be used/called by this name during further work. The content of the file itself is passed in the body of the request";
+$lang['okaycms__integration_ic__description_part_10'] = "filename - the name of the created file, it can be customized for your tasks. In the far 1C, it refers to the file by this unique name.";
+$lang['okaycms__integration_ic__description_part_11'] = 'After all resources are loaded, category and product import usually starts';
+$lang['okaycms__integration_ic__description_part_12'] = "The import file for categories and products must contain the word import in the name. The further name of the file is individual. And also have the extension xml";
+$lang['okaycms__integration_ic__description_part_13'] = "Further continuation of the import is the launch of the import of a file with quantities, prices, units of measure, which is usually contained in the offers.xml file (the construction of the file name is described using the import.xml example) and is launched ";
+$lang['okaycms__integration_ic__description_part_14'] = "It is also possible to import orders from 1C to the site, this is done by uploading a file with orders and launching at ";
+$lang['okaycms__integration_ic__description_part_15'] = "This completes the import of products.";
+$lang['okaycms__integration_ic__description_part_16'] = "1C can also get XML upload of new orders on the site to export orders to 1C. Only new orders (starting from the time of the last export run) are displayed at startup ";
 $lang['okaycms__integration_ic__settings'] = "Integration Settings Settings";
 $lang['okaycms__integration_ic__settings_brandOptionName'] = "The name of the product property used as a brand";
 $lang['okaycms__integration_ic__settings_guidPriceFrom1C'] = "ID of the price type in 1C, which must be loaded as the main one";
