@@ -22,6 +22,7 @@ class CategoriesEntity extends Entity
         'image',
         'position',
         'visible',
+        'show_table_content',
         'external_id',
         'level_depth',
         'last_modify',
