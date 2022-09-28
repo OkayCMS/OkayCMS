@@ -735,6 +735,7 @@ class BackendOrderHistoryHelper
             $orderHistory = $this->orderHistoryEntity->find(['order_id' => $orderId]);
 
             foreach ($orderHistory as $item) {
+                $item->text = strip_tags($item->text,'<a><p><b><u><s><strong><i><br><span><div><ol><ul><li><table><tbody><tr><td></td><blockquote>');
                 if ($item->manager_id && isset($managers[$item->manager_id])) {
                     $item->manager_name = $managers[$item->manager_id]->login;
                 }

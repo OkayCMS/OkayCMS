@@ -11,7 +11,8 @@ if (!$managers->access('products', $manager)) {
 }
 
 /*Поиск товаров*/
-$keyword = $request->post('query', 'string');
+$keyword = $request->post('query');
+$keyword = strval(preg_replace('/[^\p{L}\p{Nd}\d\s_\-,.%\"\']/ui', '', $keyword));
 $filter = $request->post('filter');
 
 /** @var ProductsEntity $productsEntity */
