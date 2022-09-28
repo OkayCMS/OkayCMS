@@ -393,6 +393,20 @@
                     {include file='svg_icon.tpl' svgId='checked'}
                     <span>{$btr->general_apply|escape}</span>
                 </button>
+
+                {strip}{if $smarty.get.controller == 'CategoryAdmin'
+                ||  $smarty.get.controller == 'BlogCategoryAdmin'
+                ||  $smarty.get.controller == 'BrandAdmin'
+                ||  $smarty.get.controller == 'FeatureAdmin'
+                ||  $smarty.get.controller == 'OrderAdmin'
+                ||  $smarty.get.controller == 'PageAdmin'
+                ||  $smarty.get.controller == 'PostAdmin'
+                ||  $smarty.get.controller == 'ProductAdmin'}
+                    <button type="submit" class="fast_save_button_and_quit btn btn_small btn_blue ml-1">
+                        {include file='svg_icon.tpl' svgId='checked'}
+                        <span>{$btr->general_apply_and_quit|escape}</span>
+                    </button>
+                {/if}{/strip}
             </div>
         </div>
 
@@ -557,13 +571,23 @@
             $('.fn_fast_save .fast_save_button').on('click', function () {
                 $('body').find("form.fn_fast_button").trigger('submit');
             });
+            {if $smarty.get.controller == 'CategoryAdmin'
+            ||  $smarty.get.controller == 'BlogCategoryAdmin'
+            ||  $smarty.get.controller == 'BrandAdmin'
+            ||  $smarty.get.controller == 'FeatureAdmin'
+            ||  $smarty.get.controller == 'OrderAdmin'
+            ||  $smarty.get.controller == 'PageAdmin'
+            ||  $smarty.get.controller == 'PostAdmin'
+            ||  $smarty.get.controller == 'ProductAdmin'}
+            $('.fast_save_button_and_quit').on('click', function () {
+                $('body').find("form.fn_fast_button").find("#fast_save_button_and_quit").trigger("click");
+            });{/if}
         }
 
         /* Check */
         if($('.fn_check_all').size()>0){
             $(document).on('change','.fn_check_all',function(){
                 if($(this).is(":checked")) {
-                    console.log($(this).closest("form").find('.hidden_check'))
                     $(this).closest("form").find('.hidden_check').each(function () {
                         if(!$(this).is(":checked")) {
                             $(this).trigger("click");

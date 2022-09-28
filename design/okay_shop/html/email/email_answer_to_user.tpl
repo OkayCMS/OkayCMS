@@ -121,8 +121,6 @@
                                                                 {$object->message|escape|nl2br}
                                                             {/if}
                                                         </div>
-                                                        <div class="es-comment-name">{$lang->email_comment_your_comment}</div>
-                                                        <div class="es-comment-text">{$parent_comment->text|escape}</div>
                                                     </div>
                                                 </td>
                                             </tr>

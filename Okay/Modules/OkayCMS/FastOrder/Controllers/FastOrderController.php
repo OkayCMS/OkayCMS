@@ -18,6 +18,8 @@ use Okay\Helpers\OrdersHelper;
 use Okay\Entities\OrdersEntity;
 use Okay\Entities\PurchasesEntity;
 use Okay\Controllers\AbstractController;
+use Okay\Modules\OkayCMS\FastOrder\Extenders\BackendExtender;
+use Okay\Modules\OkayCMS\FastOrder\Helpers\ValidateHelper;
 
 class FastOrderController extends AbstractController
 {
@@ -30,7 +32,8 @@ class FastOrderController extends AbstractController
         FrontTranslations $frontTranslations,
         CartHelper        $cartHelper,
         VariantsEntity    $variantsEntity,
-        Cart              $cart
+        Cart              $cart,
+        BackendExtender   $validateExtend
     ) {
         if (!$this->request->method('post')) {
             return $this->response->setContent(json_encode(['errors' => ['Request must be post']]), RESPONSE_JSON);
@@ -42,30 +45,14 @@ class FastOrderController extends AbstractController
         $order->phone   = Phone::toSave($this->request->post('phone'));
         $order->email   = '';
         $order->address = '';
-        $order->comment = 'Быстрый заказ';
+        $order->comment = $frontTranslations->getTranslation('fast_order');
         $order->lang_id = $languages->getLangId();
         $order->ip      = $_SERVER['REMOTE_ADDR'];
         $variantId = $this->request->post('variant_id');
 
         $order = $ordersHelper->attachUserIfLogin($order, $this->user);
 
-        $errors = [];
-        if (!$validator->isName($order->name, true)) {
-            $errors[] = $frontTranslations->getTranslation('okay_cms__fast_order__form_name_error');
-        }
-        
-        if (!$validator->isPhone($order->phone, true)) {
-            $errors[] = $frontTranslations->getTranslation('okay_cms__fast_order__form_phone_error');
-        }
-        
-        if (empty($variantId) || !$variantsEntity->findOne(['id' => $variantId])) {
-            $errors[] = $frontTranslations->getTranslation('okay_cms__fast_order__wrong_variant');
-        }
-
-        $captchaCode =  $this->request->post('captcha_code', 'string');
-        if ($this->settings->get('captcha_fast_order') && !$validator->verifyCaptcha('captcha_fast_order', $captchaCode)) {
-            $errors[] = $frontTranslations->getTranslation('okay_cms__fast_order__form_captcha_error');
-        }
+        $errors = $validateExtend->ValidateFastOrder($order,$variantId);
 
         if (!empty($errors)) {
             return $this->response->setContent(json_encode(['errors' => $errors]), RESPONSE_JSON);

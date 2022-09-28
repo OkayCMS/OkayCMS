@@ -26,6 +26,10 @@ class DefaultStrategy extends AbstractRouteStrategy
             $prefix = 'all-posts';
         }
 
-        return ['/'.$prefix, [], []];
+        return [
+            '{$url}',
+            ['{$url}' => $prefix],
+            ['{$url}' => $prefix]
+        ];
     }
 }

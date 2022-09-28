@@ -100,6 +100,7 @@
                     <div class="okay_list_heading okay_list_status">{$btr->general_enable|escape}</div>
                     <div class="okay_list_heading okay_list_url_status">{$btr->feature_url_in_product_short|escape}</div>
                     <div class="okay_list_heading okay_list_status">{$btr->features_in_filter|escape}</div>
+                    <div class="okay_list_heading okay_list_status">{$btr->feature_show_in_product|escape}</div>
                     <div class="okay_list_heading okay_list_close"></div>
                 </div>
                 {*Параметры элемента*}
@@ -171,6 +172,14 @@
                                 {*visible*}
                                 <label class="switch switch-default">
                                     <input class="switch-input fn_ajax_action {if $feature->in_filter}fn_active_class{/if}" data-controller="feature" data-action="in_filter" data-id="{$feature->id}" name="in_filter" value="1" type="checkbox"  {if $feature->in_filter}checked=""{/if}/>
+                                    <span class="switch-label"></span>
+                                    <span class="switch-handle"></span>
+                                </label>
+                            </div>
+                            <div class="okay_list_boding show_in_product">
+                                {*show_in_product*}
+                                <label class="switch switch-default">
+                                    <input class="switch-input fn_ajax_action {if $feature->show_in_product}fn_active_class{/if}" data-controller="feature" data-action="show_in_product" data-id="{$feature->id}" name="show_in_product" value="1" type="checkbox"  {if $feature->show_in_product}checked=""{/if}/>
                                     <span class="switch-label"></span>
                                     <span class="switch-handle"></span>
                                 </label>

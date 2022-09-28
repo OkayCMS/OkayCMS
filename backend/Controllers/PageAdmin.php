@@ -46,6 +46,12 @@ class PageAdmin extends IndexAdmin
                 }
 
                 if (! $this->design->getVar('message_error')) {
+                    //  сохранить и выход в список
+                    $buttonRedirectToList = $this->request->post('apply_and_quit', 'integer', 0);
+                    if (($buttonRedirectToList == 1) && !empty($urlRedirectToList = $this->request->getRootUrl() . '/backend/index.php?controller=PagesAdmin')) {
+                        $this->postRedirectGet->redirect($urlRedirectToList);
+                    }
+
                     $this->postRedirectGet->redirect();
                 }
             }

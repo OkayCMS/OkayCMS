@@ -783,7 +783,9 @@ $(function(){
         formatResult: function(suggestion, currentValue) {
             var reEscape = new RegExp( '(\\' + ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'].join( '|\\' ) + ')', 'g' );
             var pattern = '(' + currentValue.replace( reEscape, '\\$1' ) + ')';
-            return "<div>" + (suggestion.data.image ? "<img align='middle' src='" + suggestion.data.image + "'> " : '') + "</div>" + "<a href=" + suggestion.data.url + '>' + suggestion.value.replace( new RegExp( pattern, 'gi' ), '<strong>$1<\/strong>' ) + '<\/a>' + "<span>" + suggestion.price + " " + suggestion.currency + "</span>";
+            return "<div>" + (suggestion.data.image ? "<img align='middle' src='" + suggestion.data.image + "'> " : '') + "</div>" +
+                "<a href='" + suggestion.data.url + "'>" + suggestion.value.replace( new RegExp( pattern, 'gi' ), "<strong>$1</strong>" ) + "</a>" +
+                "<span>" + suggestion.price + " " + suggestion.currency + "</span>";
         }
     } );
 
