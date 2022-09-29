@@ -1,6 +1,7 @@
-{* Письмо ответа на комметарий пользователю *}
+{* Письмо ответа на комметарий пользователю
+Для отладки данного сообщения пройдите по ссылке http://domain/backend/index.php?controller=EmailTemplatesAdmin&debug=emailCommentAnswerToUser&comment_id=2
+если потребуется, измените параметр comment_id (номер комментария ответа) *}
 {$subject = "`$lang->email_comment_theme` `$settings->site_name`" scope=global}
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
