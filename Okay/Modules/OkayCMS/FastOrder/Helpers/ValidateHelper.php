@@ -13,7 +13,20 @@ use Okay\Entities\VariantsEntity;
 
 class ValidateHelper implements ExtensionInterface
 {
+    /** @var Request $request */
     private $request;
+
+    /** @var Validator $validator */
+    private $validator;
+
+    /** @var EntityFactory $entityFactory */
+    private $entityFactory;
+
+    /** @var FrontTranslations $frontTranslations */
+    private $frontTranslations;
+
+    /** @var Settings $settings */
+    private $settings;
 
     public function __construct(
         Request                 $request,
@@ -30,9 +43,8 @@ class ValidateHelper implements ExtensionInterface
         $this->settings             = $settings;
     }
 
-    public function ValidateFastOrderHeler($order,$variantId)
+    public function validateFastOrderHeler($order,$variantId)
     {
-
         $errors = [];
         /** @var VariantsEntity $variantsEntity */
         $variantsEntity = $this->entityFactory->get(VariantsEntity::class);
@@ -53,6 +65,7 @@ class ValidateHelper implements ExtensionInterface
         if ($this->settings->get('captcha_fast_order') && !$this->validator->verifyCaptcha('captcha_fast_order', $captchaCode)) {
             $errors[] = $this->frontTranslations->getTranslation('okay_cms__fast_order__form_captcha_error');
         }
+
         return $errors;
     }
 }

@@ -12,10 +12,15 @@ use Okay\Modules\OkayCMS\FastOrder\Helpers\ValidateHelper;
 
 class BackendExtender implements ExtensionInterface
 {
-
+    /** @var Settings $settings */
     private $settings;
+
+    /** @var Request $request */
     private $request;
-    
+
+    /** @var ValidateHelper $validateHelper */
+    private $validateHelper;
+
     public function __construct(
         Settings          $settings,
         Request           $request,
@@ -35,7 +40,7 @@ class BackendExtender implements ExtensionInterface
     public function  ValidateFastOrder($order,$variantId)
     {
 
-        $errors = $this->validateHelper->ValidateFastOrderHeler($order,$variantId);
+        $errors = $this->validateHelper->validateFastOrderHeler($order,$variantId);
 
         return ExtenderFacade::execute(__METHOD__, $errors, func_get_args());
     }
