@@ -32,8 +32,12 @@ class DefaultStrategy extends AbstractRouteStrategy
 
         $this->brandsEntity = $entityFactory->get(BrandsEntity::class);
 
+        if (empty($prefix = $this->settings->get('brand_routes_template__default'))) {
+            $prefix = 'brand';
+        }
+
         $this->mockRouteParams = [
-            '/'.$this->settings->get('brand_routes_template__default').'/{$url}/?{$filtersUrl}', [
+            '/'.$prefix.'/{$url}/?{$filtersUrl}', [
                 '{$url}' => ' ', '{$filtersUrl}' => '(.*)'
             ],
             []
