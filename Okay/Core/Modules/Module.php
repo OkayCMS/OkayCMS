@@ -47,7 +47,15 @@ class Module
 
         if (file_exists($moduleJsonFileFile)) {
             $moduleParams = json_decode(file_get_contents($moduleJsonFileFile));
-        } else {
+            if (JSON_ERROR_NONE !== $code = json_last_error()) {
+                $this->logger->error(sprintf(
+                    "Error %d when decoding module.json of %s/%s: %s",
+                    $code, $vendor, $moduleName, json_last_error_msg()
+                ));
+            }
+        }
+
+        if (empty($moduleParams)) {
             $moduleParams = new \stdClass();
         }
 
