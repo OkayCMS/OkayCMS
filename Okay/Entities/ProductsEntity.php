@@ -163,11 +163,15 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
 
     private function unlinkImageFiles($productsIds, $imagesIds) // todo нужно ли?
     {
+        if (empty($productsIds) || empty($imagesIds)) {
+            return ExtenderFacade::execute([static::class, __FUNCTION__], false, func_get_args());
+        }
+
         $select = $this->queryFactory->newSelect();
         $select->cols(['filename'])
             ->from('__images')
-            ->where('id IN(:images_ids)')
-            ->where('product_id IN(:products_ids)')
+            ->where('id IN (:images_ids)')
+            ->where('product_id IN (:products_ids)')
             ->bindValue('images_ids', $imagesIds)
             ->bindValue('products_ids', $productsIds);
         $this->db->query($select);
@@ -178,8 +182,8 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
             $select = $this->queryFactory->newSelect();
             $select->cols(['filename'])
                 ->from('__images')
-                ->where('filename IN(:images_filenames)')
-                ->where('product_id NOT IN(:products_ids)')
+                ->where('filename IN (:images_filenames)')
+                ->where('product_id NOT IN (:products_ids)')
                 ->bindValue('images_filenames', $candidatesToDelete)
                 ->bindValue('products_ids', $productsIds);
             $this->db->query($select);

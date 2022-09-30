@@ -126,6 +126,10 @@ class FeaturesValuesEntity extends Entity
 
     public function countProductsByValueId(array $valuesIds)
     {
+        if (empty($valuesIds)) {
+            return ExtenderFacade::execute([static::class, __FUNCTION__], [], func_get_args());
+        }
+
         $select = $this->queryFactory->newSelect();
         $select->cols([
             'COUNT(product_id) AS count',
@@ -137,6 +141,7 @@ class FeaturesValuesEntity extends Entity
         
         $this->db->query($select);
         $count = $this->db->results(null, 'value_id');
+
         return ExtenderFacade::execute([static::class, __FUNCTION__], $count, func_get_args());
     }
 
