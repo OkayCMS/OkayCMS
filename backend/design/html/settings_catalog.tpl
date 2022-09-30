@@ -353,6 +353,46 @@
                         </div>
                     </div>
                 </div>
+                <div class="toggle_body_wrap on fn_card">
+                    <div class="row">
+                        <div class="col-lg-4 col-md-6">
+                            <div class="heading_label"></div>
+                            <div class="mb-1">
+                                <button type="button" class="btn btn_small btn_blue fn_truncate_table" data-default="category">
+                                    {include file='svg_icon.tpl' svgId='checked'}
+                                    <span>Очистить категории</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="heading_label"></div>
+                            <div class="mb-1">
+                                <button type="button" class="btn btn_small btn_blue fn_truncate_table" data-default="brand">
+                                    {include file='svg_icon.tpl' svgId='checked'}
+                                    <span>Очистить бренд</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="heading_label"></div>
+                            <div class="mb-1">
+                                <button type="button" class="btn btn_small btn_blue fn_truncate_table" data-default="blog">
+                                    {include file='svg_icon.tpl' svgId='checked'}
+                                    <span>Очистить статьи</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="heading_label"></div>
+                            <div class="mb-1">
+                                <button type="button" class="btn btn_small btn_blue fn_truncate_table" data-default="feature">
+                                    {include file='svg_icon.tpl' svgId='checked'}
+                                    <span>Очистить свойства</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 {get_design_block block="settings_catalog_truncate"}
             </div>
         </div>
@@ -447,7 +487,23 @@
     $(document).on("click", ".fn_truncate_table", function () {
         $('.fn_truncate_table_confirm').fadeIn(500);
         $('[name="truncate_table_password"]').prop('disabled', false);
-        $('[name="truncate_table_confirm"]').val('1');
+        console.log($(this).data( "default" ) === "category");
+        if($(this).data( "default" ) === "category"){
+            $('[name="truncate_table_confirm"]').val('2');
+        }
+        if ($(this).data("default") === "brand") {
+            $('[name="truncate_table_confirm"]').val('3');
+        }
+        if ($(this).data("default") === "feature") {
+            $('[name="truncate_table_confirm"]').val('4');
+        }
+        if ($(this).data("default") === "blog") {
+            $('[name="truncate_table_confirm"]').val('5');
+        }
+        if ($(this).data("default") === null) {
+            $('[name="truncate_table_confirm"]').val('1');
+        }
+
     });
     $(document).on("input", ".fn_rating", function () {
         $(this).closest(".fn_range_wrap").find(".fn_show_range").html($(this).val());

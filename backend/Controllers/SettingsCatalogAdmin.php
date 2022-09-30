@@ -27,11 +27,39 @@ class SettingsCatalogAdmin extends IndexAdmin
                 $backendSettingsCatalogHelper->updateSettings();
             }
 
-            if ($settingsCatalogRequest->postTruncateTableConfirm()) {
+            if ($settingsCatalogRequest->postTruncateTableConfirm() === "1") {
                 if ($error = $backendValidateHelper->getTruncateTableValidateError()) {
                     $this->design->assign('message_error', $error);
                 } else {
                     $backendSettingsCatalogHelper->clearCatalog();
+                }
+            }
+            if ($settingsCatalogRequest->postTruncateTableConfirm() === "2") {
+                if ($error = $backendValidateHelper->getTruncateTableValidateError()) {
+                    $this->design->assign('message_error', $error);
+                } else {
+                    $backendSettingsCatalogHelper->clearCategory();
+                }
+            }
+            if ($settingsCatalogRequest->postTruncateTableConfirm() === "3") {
+                if ($error = $backendValidateHelper->getTruncateTableValidateError()) {
+                    $this->design->assign('message_error', $error);
+                } else {
+                    $backendSettingsCatalogHelper->clearBrand();
+                }
+            }
+            if ($settingsCatalogRequest->postTruncateTableConfirm() === "4") {
+                if ($error = $backendValidateHelper->getTruncateTableValidateError()) {
+                    $this->design->assign('message_error', $error);
+                } else {
+                    $backendSettingsCatalogHelper->clearFeature();
+                }
+            }
+            if ($settingsCatalogRequest->postTruncateTableConfirm() === "5") {
+                if ($error = $backendValidateHelper->getTruncateTableValidateError()) {
+                    $this->design->assign('message_error', $error);
+                } else {
+                    $backendSettingsCatalogHelper->clearBlog();
                 }
             }
 
