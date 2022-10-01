@@ -24,12 +24,16 @@
                         {literal}
                             <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{$category}</a> - {/literal}{$btr->seo_patterns_ajax_cat_name|escape}</li>{literal}
                             <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{$category_h1}</a> - {/literal}{$btr->seo_patterns_ajax_cat_h1|escape}</li>{literal}
+                            <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{$category_url}</a> - {/literal}{$btr->seo_patterns_ajax_cat_url|escape}</li>{literal}
                             <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{$brand}</a> - {/literal}{$btr->seo_patterns_ajax_brand_name|escape}</li>{literal}
                             <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{$sitename}</a> - {/literal}{$btr->seo_patterns_ajax_site_name|escape}</li>{literal}
                             <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{$feature_name}</a> - {/literal}{$btr->seo_patterns_ajax_feature_name|escape}</li>{literal}
                             <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{$feature_val}</a> - {/literal}{$btr->seo_patterns_ajax_feature_val|escape}</li>{literal}
                             <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{$feature_name_2}</a> - {/literal}{$btr->seo_patterns_ajax_feature_name|escape} 2</li>{literal}
                             <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{$feature_val_2}</a> - {/literal}{$btr->seo_patterns_ajax_feature_val|escape} 2</li>{literal}
+                            <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{$product_min_price}</a> - {/literal}{$btr->seo_patterns_ajax_product_min_price|escape}</li>{literal}
+                            <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{$product_max_price}</a> - {/literal}{$btr->seo_patterns_ajax_product_max_price|escape}</li>{literal}
+                            <li><a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{$products_count}</a> - {/literal}{$btr->seo_patterns_ajax_products_count|escape}</li>{literal}
                         {/literal}
 
                         {if $features_aliases}
@@ -182,9 +186,17 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-12 col-md-12">
+                        <div class="heading_label">{$btr->seo_filter_patterns_ajax_annotation|escape}</div>
+                        <div class="mb-1">
+                            <textarea name="seo_filter_patterns[annotation][]" class="form-control fn_ajax_area okay_textarea">{$p->annotation|escape}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 col-md-12">
                         <div class="heading_label">{$btr->seo_filter_patterns_ajax_description|escape}</div>
                         <div class="mb-1">
-                            <textarea name="seo_filter_patterns[description][]" class="form-control fn_ajax_area">{$p->description|escape}</textarea>
+                            <textarea name="seo_filter_patterns[description][]" class="form-control fn_ajax_area okay_textarea">{$p->description|escape}</textarea>
                         </div>
                     </div>
                 </div>

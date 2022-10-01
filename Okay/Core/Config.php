@@ -4,6 +4,8 @@
 namespace Okay\Core;
 
 
+use Okay\Core\DebugBar\DebugBar;
+
 /**
  * Класс-обертка для конфигурационного файла с настройками магазина
  * В отличие от класса Settings, Config оперирует низкоуровневыми настройками, например найстройками базы данных.
@@ -12,7 +14,7 @@ class Config
 {
 
     /*Версия системы*/
-    public $version = '4.0.4';
+    public $version = '4.3.0';
     /*Тип системы*/
     public $version_type = 'pro';
     
@@ -114,6 +116,7 @@ class Config
         foreach ($ini as $var=>$value) {
             $this->masterVars[$var] = $value;
             $this->vars[$var] = $value;
+            DebugBar::setConfigValue($var, $value, 'core');
         }
 
         /*Заменяем настройки, если есть локальный конфиг*/
@@ -121,13 +124,14 @@ class Config
             $ini = parse_ini_file($this->configLocalFile);
             foreach ($ini as $var => $value) {
                 $this->localVars[$var] = $this->vars[$var] = $value;
+                DebugBar::setConfigValue($var, $value, 'local');
             }
         }
 
         // Вычисляем DOCUMENT_ROOT вручную, так как иногда в нем находится что-то левое
-        $localPath = getenv("SCRIPT_NAME");
-        $absolutePath = getenv("SCRIPT_FILENAME");
-        $_SERVER['DOCUMENT_ROOT'] = substr($absolutePath,0, strpos($absolutePath, $localPath));
+        if (($localPath = getenv("SCRIPT_NAME")) && ($absolutePath = getenv("SCRIPT_FILENAME"))) {
+            $_SERVER['DOCUMENT_ROOT'] = substr($absolutePath,0, strpos($absolutePath, $localPath));
+        }
 
         // Определяем корневую директорию сайта
         $this->vars['root_dir'] =  dirname(dirname(__DIR__)).DIRECTORY_SEPARATOR;
@@ -162,6 +166,7 @@ class Config
 
             if (!isset($this->localVars[$var])) {
                 $this->vars[$var] = $value;
+                DebugBar::setConfigValue($var, $value, $filename);
             }
         }
     }

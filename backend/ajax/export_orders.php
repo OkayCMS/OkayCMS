@@ -15,6 +15,7 @@ $columnsNames = [
     'id'=>           'Order ID',
     'date'=>         'Order date',
     'name'=>         'User name',
+    'last_name'=>    'User last name',
     'phone'=>        'User phone',
     'email'=>        'User email',
     'address'=>      'User address',
@@ -73,7 +74,7 @@ $filter['limit'] = $ordersCount;
 
 $statusId = $request->get('status', 'integer');
 if (!empty($statusId)) {
-    $filter['status'] = $statusId;
+    $filter['status_id'] = $statusId;
 }
 
 $labelId = $request->get('label', 'integer');
@@ -108,20 +109,22 @@ if (!empty($orders)) {
         fputcsv($f, $str, $columnDelimiter);
     }
 }
+
+fclose($f);
+
 $totalOrders = $ordersEntity->count($filter);
 
 if($ordersCount*$page < $totalOrders) {
     $data = ['end'=>false, 'page'=>$page, 'totalpages'=>$totalOrders/$ordersCount];
 } else {
     $data = ['end'=>true, 'page'=>$page, 'totalpages'=>$totalOrders/$ordersCount];
+
+    mb_substitute_character('');
+    file_put_contents(
+        $exportFilesDir.$filename,
+        mb_convert_encoding(file_get_contents($exportFilesDir.$filename), 'Windows-1251')
+    );
 }
-
-fclose($f);
-
-file_put_contents(
-    $exportFilesDir.$filename,
-    iconv( "utf-8", "windows-1251//IGNORE", file_get_contents($exportFilesDir.$filename))
-);
 
 if($data) {
     $response->setContent(json_encode($data), RESPONSE_JSON)->sendContent();

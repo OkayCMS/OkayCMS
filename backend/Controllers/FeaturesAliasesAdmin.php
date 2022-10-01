@@ -14,7 +14,6 @@ use Okay\Entities\FeaturesValuesAliasesValuesEntity;
 
 class FeaturesAliasesAdmin extends IndexAdmin
 {
-
     public function fetch(
         FeaturesAliasesEntity $featuresAliasesEntity,
         FeaturesAliasesValuesEntity $featuresAliasesValuesEntity,
@@ -29,49 +28,10 @@ class FeaturesAliasesAdmin extends IndexAdmin
         $this->design->setCompiledDir('backend/design/compiled');
 
         if ($this->request->post("ajax")){
-            if ($this->request->post("action") == "get") {
-                $result = new \stdClass();
-                $result->success = false;
-
-                $featuresAliases = $featuresAliasesEntity->mappedBy('id')->find();
-
-                $feature = new \stdClass();
-                if ($featureId = $this->request->post("feature_id", "integer")) {
-                    $feature = $featuresEntity->get($featureId);
-                }
-
-                if (!empty($feature) && !empty($feature->id)) {
-
-                    $featuresValues = [];
-                    foreach ($featuresValuesEntity->find(['feature_id'=>$feature->id]) as $fv) {
-                        $featuresValues[$fv->translit] = $fv;
-                    }
-
-                    foreach ($featuresValuesAliasesValuesEntity->find(['feature_id'=>$feature->id]) as $oa) {
-                        $featuresValues[$oa->translit]->aliases[$oa->feature_alias_id] = $oa;
-                    }
-                    $this->design->assign('features_values', $featuresValues);
-
-                    foreach ($featuresAliasesValuesEntity->find(['feature_id'=>$feature->id]) as $fv) {
-                        $featuresAliases[$fv->feature_alias_id]->value = $fv;
-                    }
-                    $result->success = true;
-                }
-
-                $this->design->assign('feature', $feature);
-                $this->design->assign('features_aliases', $featuresAliases);
-
-                $result->feature_aliases_tpl = $this->design->fetch("features_aliases_ajax.tpl");
-                $result->feature_aliases_values_tpl = $this->design->fetch("features_aliases_values_ajax.tpl");
-                $this->response->setContent(json_encode($result), RESPONSE_JSON);
-                return;
-
-            }
+            $result = new \stdClass();
 
             /*Обновление шаблона данных категории*/
             if ($this->request->post("action") == "set") {
-
-                $result = new \stdClass();
                 $result->success = false;
 
                 if ($featureId = $this->request->post("feature_id", "integer")) {
@@ -158,52 +118,91 @@ class FeaturesAliasesAdmin extends IndexAdmin
                     foreach ($featuresAliasesValuesEntity->find(['feature_id'=>$feature->id]) as $fv) {
                         $featuresAliases[$fv->feature_alias_id]->value = $fv;
                     }
-                    
-                    $this->design->assign('features_aliases', $featuresAliases);
 
-                    // Удалим все алиасы значений свойств для текущего языка
-                    if (!empty($feature->id)) {
+                    if ($optionsAliases = $this->request->post('options_aliases')) {
+                        // Удалим все алиасы значений свойств для текущего языка
                         $delete = $queryFactory->newDelete();
                         $delete->from(FeaturesValuesAliasesValuesEntity::getTable())
                             ->where('feature_id=:feature_id AND lang_id=:lang_id')
+                            ->where('feature_value_id IN (:feature_value_ids)')
                             ->bindValues([
                                 'feature_id' => $feature->id,
                                 'lang_id' => $languagesCore->getLangId(),
+                                'feature_value_ids' => array_keys($optionsAliases)
                             ]);
                         $this->db->query($delete);
-                    }
 
-                    $featuresValues = [];
-                    foreach ($featuresValuesEntity->find(['feature_id'=>$feature->id]) as $fv) {
-                        $featuresValues[$fv->translit] = $fv;
-                    }
-                    $this->design->assign('features_values', $featuresValues);
+                        $featuresValues = $featuresValuesEntity->mappedBy('id')->find(['feature_id'=>$feature->id]);
 
-                    if ($feature->id && $this->request->post('options_aliases')) {
-                        foreach ($this->request->post('options_aliases') as $o_translit=>$values) {
+                        foreach ($optionsAliases as $featureValueId=>$values) {
                             foreach ($values as $feature_alias_id=>$value) {
-                                if (!empty($value) && isset($featuresAliases[$feature_alias_id]) && isset($featuresValues[$o_translit])) {
+                                if (!empty($value) && isset($featuresAliases[$feature_alias_id]) && isset($featuresValues[$featureValueId])) {
                                     $optionAlias = new \stdClass;
-                                    $optionAlias->translit = $o_translit;
+                                    $optionAlias->feature_value_id = $featureValueId;
                                     $optionAlias->value    = $value;
                                     $optionAlias->lang_id  = $languagesCore->getLangId();
                                     $optionAlias->feature_id       = $feature->id;
                                     $optionAlias->feature_alias_id = $feature_alias_id;
                                     $featuresValuesAliasesValuesEntity->add($optionAlias);
-                                    $featuresValues[$o_translit]->aliases[$feature_alias_id] = $optionAlias;
+                                    $featuresValues[$featureValueId]->aliases[$feature_alias_id] = $optionAlias;
                                 }
                             }
                         }
                     }
-                    $this->design->assign('feature', $feature);
+                }
+            }
+
+            $featuresAliases = $featuresAliasesEntity->mappedBy('id')->find();
+
+            if ($featureId = $this->request->post("feature_id", "integer")) {
+                $feature = $featuresEntity->get($featureId);
+            } else {
+                $feature = new \stdClass();
+            }
+
+            if (!empty($feature) && !empty($feature->id)) {
+                $filter = [
+                    'feature_id' => $feature->id
+                ];
+
+                $featuresValuesCount = $featuresValuesEntity->count($filter);
+
+                $page = $this->request->get('page', 'int', 1);
+
+                if ($this->request->get('page') === 'all') {
+                    $filter['page'] = 1;
+                    $filter['limit'] = $featuresValuesCount;
+                } else {
+                    $filter['page'] = $page;
+                    $filter['limit'] = 10;
                 }
 
-                $result->feature_aliases_tpl = $this->design->fetch("features_aliases_ajax.tpl");
-                $result->feature_aliases_values_tpl = $this->design->fetch("features_aliases_values_ajax.tpl");
-                $this->response->setContent(json_encode($result), RESPONSE_JSON);
-                return;
+                $this->design->assign('pages_count',  ceil($featuresValuesCount/$filter['limit']));
+                $this->design->assign('current_page', $filter['page']);
 
+                $featuresValues = $featuresValuesEntity->mappedBy('id')
+                    ->find($filter);
+
+                if (!empty($featuresValuesIds = array_keys($featuresValues))) {
+                    foreach ($featuresValuesAliasesValuesEntity->find(['feature_value_id' => $featuresValuesIds]) as $oa) {
+                        $featuresValues[$oa->feature_value_id]->aliases[$oa->feature_alias_id] = $oa;
+                    }
+                }
+
+                $this->design->assign('features_values', $featuresValues);
+
+                foreach ($featuresAliasesValuesEntity->find(['feature_id'=>$feature->id]) as $fv) {
+                    $featuresAliases[$fv->feature_alias_id]->value = $fv;
+                }
             }
+
+            $this->design->assign('feature', $feature);
+            $this->design->assign('features_aliases', $featuresAliases);
+
+            $result->feature_aliases_tpl = $this->design->fetch("features_aliases_ajax.tpl");
+            $result->feature_aliases_values_tpl = $this->design->fetch("features_aliases_values_ajax.tpl");
+            $this->response->setContent(json_encode($result), RESPONSE_JSON);
+            return;
         }
 
         $featuresCount = $featuresEntity->count();

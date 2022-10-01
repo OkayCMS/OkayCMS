@@ -107,6 +107,7 @@ class Design
         'array_keys',
         'pathinfo',
         'strtolower',
+        'strpos',
     ];
 
 
@@ -138,7 +139,7 @@ class Design
         $this->smarty->caching         = $smartyCaching;
         $this->smarty->cache_lifetime  = $smartyCacheLifetime;
         $this->smarty->debugging       = $smartyDebugging;
-        $this->smarty->error_reporting = E_ALL & ~E_NOTICE;
+        $this->smarty->error_reporting = E_ALL & ~E_NOTICE & ~E_WARNING;
 
         $theme = $this->frontTemplateConfig->getTheme();
 
@@ -260,29 +261,9 @@ class Design
     public function templateExists($tplFile)
     {
         $tplFile = mb_strcut($tplFile, 0, 250);
-        
-        if ($this->isUseModuleDir() === false) {
-            $this->setSmartyTemplatesDir($this->getDefaultTemplatesDir());
-        } else {
-            
-            $namespace = str_replace($this->rootDir, '', $this->getModuleTemplatesDir());
-            $namespace = str_replace('/', '\\', $namespace);
-            
-            $vendor = $this->module->getVendorName($namespace);
-            $moduleName = $this->module->getModuleName($namespace);
-            /**
-             * Устанавливаем директории поиска файлов шаблона как:
-             * Директория модуля в дизайне (если модуль кастомизируют)
-             * Директория модуля
-             * Стандартная директория дизайна
-             */
-            $this->setSmartyTemplatesDir([
-                dirname($this->getDefaultTemplatesDir()) . "/modules/{$vendor}/{$moduleName}/html",
-                $this->getModuleTemplatesDir(),
-                $this->getDefaultTemplatesDir(),
-            ]);
-        }
-        
+
+        $this->setSmartyTemplatesDir();
+
         return $this->smarty->templateExists(trim(preg_replace('~[\n\r]*~', '', $tplFile)));
     }
     
@@ -336,24 +317,7 @@ class Design
         
         $this->registerSmartyPlugins();
 
-        if ($this->isUseModuleDir() === false) {
-            $this->setSmartyTemplatesDir($this->getDefaultTemplatesDir());
-        } else {
-            $vendor = $this->getModuleVendorByPath($this->getModuleTemplatesDir());
-            $moduleName = $this->getModuleNameByPath($this->getModuleTemplatesDir());
-
-            /**
-             * Устанавливаем директории поиска файлов шаблона как:
-             * Директория модуля в дизайне (если модуль кастомизируют)
-             * Директория модуля
-             * Стандартная директория дизайна
-             */
-            $this->setSmartyTemplatesDir([
-                rtrim($this->getDefaultTemplatesDir(), '/') . "/../modules/{$vendor}/{$moduleName}/html",
-                $this->getModuleTemplatesDir(),
-                $this->getDefaultTemplatesDir(),
-            ]);
-        }
+        $this->setSmartyTemplatesDir();
 
         $html = $this->smarty->fetch($template);
         
@@ -366,11 +330,13 @@ class Design
     public function useDefaultDir()
     {
         $this->useTemplateDir = self::TEMPLATES_DEFAULT;
+        $this->setSmartyTemplatesDir();
     }
 
     public function useModuleDir()
     {
         $this->useTemplateDir = self::TEMPLATES_MODULE;
+        $this->setSmartyTemplatesDir();
     }
 
     public function isUseModuleDir()
@@ -402,6 +368,7 @@ class Design
     public function setModuleTemplatesDir($moduleTemplateDir)
     {
         $this->moduleTemplateDir = $moduleTemplateDir;
+        $this->setSmartyTemplatesDir();
     }
 
     public function getModuleTemplatesDir()
@@ -418,7 +385,7 @@ class Design
         }
         
         $this->defaultTemplateDir = $dir;
-        $this->setSmartyTemplatesDir($dir);
+        $this->smarty->setTemplateDir($dir);
     }
 
     /*Установка директории для готовых файлов для отображения*/
@@ -470,9 +437,28 @@ class Design
         return $this->detect->isTablet();
     }
 
-    public function setSmartyTemplatesDir($dir)
+    public function setSmartyTemplatesDir()
     {
-        $this->smarty->setTemplateDir($dir);
+        if ($this->isUseModuleDir() === false) {
+            $this->smarty->setTemplateDir($this->getDefaultTemplatesDir());
+        } else {
+            $namespace = str_replace($this->rootDir, '', $this->getModuleTemplatesDir());
+            $namespace = str_replace('/', '\\', $namespace);
+
+            $vendor = $this->module->getVendorName($namespace);
+            $moduleName = $this->module->getModuleName($namespace);
+            /**
+             * Устанавливаем директории поиска файлов шаблона как:
+             * Директория модуля в дизайне (если модуль кастомизируют)
+             * Директория модуля
+             * Стандартная директория дизайна
+             */
+            $this->smarty->setTemplateDir([
+                dirname($this->getDefaultTemplatesDir()) . "/modules/{$vendor}/{$moduleName}/html",
+                $this->getModuleTemplatesDir(),
+                $this->getDefaultTemplatesDir(),
+            ]);
+        }
     }
     
     public function clearCompiled()

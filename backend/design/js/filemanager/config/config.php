@@ -1,4 +1,9 @@
 <?php
+
+use Okay\Core\Request;
+
+require_once(dirname(__DIR__, 5) . '/vendor/autoload.php');
+
 $version = "9.14.0";
 if (session_status() === PHP_SESSION_NONE) {
     if (!empty($_SERVER['HTTP_USER_AGENT'])) {
@@ -8,7 +13,6 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 mb_internal_encoding('UTF-8');
 mb_http_output('UTF-8');
-mb_http_input('UTF-8');
 mb_language('uni');
 mb_regex_encoding('UTF-8');
 ob_start('mb_output_handler');
@@ -78,7 +82,7 @@ $config = array(
     | with start and final /
     |
     */
-    'upload_dir' => '/files/uploads/',
+    'upload_dir' => Request::getSubDir() . '/files/uploads/',
     /*
     |--------------------------------------------------------------------------
     | relative path from filemanager folder to upload folder

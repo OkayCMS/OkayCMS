@@ -72,20 +72,21 @@ foreach($subscribesEntity->find($filter) as $s) {
     fputcsv($f, $str, $columnDelimiter);
 }
 
+fclose($f);
+
 $totalSubscribes = $subscribesEntity->count();
 
 if($subscribesCount*$page < $totalSubscribes) {
     $data = ['end'=>false, 'page'=>$page, 'totalpages'=>$totalSubscribes/$subscribesCount];
 } else {
     $data = ['end'=>true, 'page'=>$page, 'totalpages'=>$totalSubscribes/$subscribesCount];
+
+    mb_substitute_character('');
+    file_put_contents(
+        $exportFilesDir.$filename,
+        mb_convert_encoding(file_get_contents($exportFilesDir.$filename), 'Windows-1251')
+    );
 }
-
-fclose($f);
-
-file_put_contents(
-    $exportFilesDir.$filename,
-    iconv( "utf-8", "windows-1251//IGNORE", file_get_contents($exportFilesDir.$filename))
-);
 
 if ($data) {
     $response->setContent(json_encode($data), RESPONSE_JSON)->sendContent();

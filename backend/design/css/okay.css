@@ -442,7 +442,7 @@ body:not(.top-nav) header.navbar {
     font-weight: 500;
     color: rgb(149, 149, 149);
     font-size: 14px;
-    margin-bottom: 0;
+    margin-bottom: 2px;
     min-height: 22px;
     line-height: 1.3;
 }
@@ -482,6 +482,9 @@ body:not(.top-nav) header.navbar {
     height: 24px;
     border: 1px solid #ccc9;
     border-radius: 3px;
+}
+.translation_module_hint{
+    color: #48b0f7;
 }
 .translation_icon img {
     margin-top: -5px;
@@ -716,6 +719,7 @@ a.link_white:hover{
     height: 10px;
     margin-right: 3px;
 }
+
 .btn:focus,
 .btn:hover {text-decoration: none;}
 .btn:active,
@@ -1906,7 +1910,6 @@ select{
     -ms-flex-direction: row;
     flex-direction: row;
 }
-
 .activity_of_switch .activity_of_switch_item{
     display: flex;
     display: -webkit-box;
@@ -2154,6 +2157,10 @@ label.switch_label {
     margin-right:10px;
     font-size:14px;
     margin-bottom: 2px;
+}
+label.switch_label--right {
+    margin-right: 0px;
+    margin-left: 15px;
 }
 label.switch_label i{
     margin-left: 3px;
@@ -6326,6 +6333,9 @@ input[type=range]:focus::-ms-fill-upper {
     margin-bottom: 0;
     list-style: none;
 }
+.tab_navigation--round{
+    border: none;
+}
 .tab_navigation_link{
     border: 1px solid transparent;
     border-top-left-radius: .25rem;
@@ -6358,8 +6368,35 @@ input[type=range]:focus::-ms-fill-upper {
 .tab_navigation_link:hover{
     color: #263238;
 }
+
+.tab_navigation--round .tab_navigation_link{
+    background: #FFF;
+    border-radius: 3px;
+    border: 1px solid rgb(238, 238, 238);
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 16px;
+    margin-right: 10px;
+    margin-bottom: 5px;
+    line-height: 1.2;
+}
+.tab_navigation--round .tab_navigation_link.selected{
+    color: #fff;
+    background-color: #272b35;
+    border-color: #272b35;
+    text-decoration: none;
+}
+.tab_navigation--round .tab_navigation_link svg{
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+}
 .tab_container{
     min-height: 160px;
+}
+.tab_container--h-auto{
+    min-height: auto;
 }
 .show_more_images{
     width: 100%;
@@ -7694,10 +7731,6 @@ div.tox-fullscreen {
     border-left: 5px solid #C0392B;
     background-color: #F2D7D5;
     color: #C0392B;
-}
-.jssocials-share-odnoklassniki,
-.jssocials-share-vkontakte{
-    display: none!important;
 }
 /******************** Learning style */
 

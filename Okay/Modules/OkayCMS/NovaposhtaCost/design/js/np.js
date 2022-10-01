@@ -189,9 +189,9 @@ function calc_delivery_price(e) {
     if (city_ref) {
         delivery_block.find('input[name="novaposhta_delivery_city_id"]').val(city_ref);
         let warehouse_ref = delivery_block.find('input[name="novaposhta_delivery_warehouse_id"]').val();
-        
-        price_elem.text('Вычисляем...');
-        $('#fn_total_delivery_price').text('Вычисляем...');
+
+        price_elem.text(okay.np_cart_calculate);
+        $('#fn_total_delivery_price').text(okay.np_cart_calculate);
         term_elem.text('');
 
         delivery_block.find('input[name="novaposhta_delivery_price"]').val('');
@@ -201,23 +201,25 @@ function calc_delivery_price(e) {
             data: {city: city_ref, redelivery: redelivery, warehouse: warehouse_ref, delivery_id: delivery_id},
             dataType: 'json',
             success: function(data) {
-                if (data.price_response.success) {
-                    price_elem.text(data.price_response.price_formatted);
-                    delivery_block.find('input[name="novaposhta_delivery_price"]').val(data.price_response.price);
-                    delivery_block.find('input[name="delivery_id"]').data('total_price', data.price_response.cart_total_price)
-                        .data('delivery_price', data.price_response.price );
+                if (data.hasOwnProperty('price_response')) {
+                    if (data.price_response.success) {
+                        price_elem.text(data.price_response.price_formatted);
+                        delivery_block.find('input[name="novaposhta_delivery_price"]').val(data.price_response.price);
+                        delivery_block.find('input[name="delivery_id"]').data('total_price', data.price_response.cart_total_price)
+                            .data('delivery_price', data.price_response.price);
 
-                    okay.change_payment_method();
+                        okay.change_payment_method();
+                    }
                 }
                 
-                if (data.term_response.success) {
+                if (data.hasOwnProperty('term_response') && data.term_response.success) {
                     delivery_block.find('input[name="novaposhta_delivery_term"]').val(data.term_response.term);
                     term_elem.text(data.term_response.term);
                     term_elem.parent().show();
                 } else {
                     term_elem.parent().hide();
                 }
-                if (data.warehouses_response.success) {
+                if (data.hasOwnProperty('warehouses_response') && data.warehouses_response.success) {
                     warehouses_block.show();
                     selected_whref = $('.fn_select_warehouses_novaposhta').find(':selected').attr('data-warehouse_ref');
                     if(!$('.fn_select_warehouses_novaposhta').find(':selected').val() || data.warehouses_response.warehouses.indexOf(selected_whref)== -1){
@@ -226,6 +228,9 @@ function calc_delivery_price(e) {
                         .attr('disabled', false)
                         .select2(whsParams);
                     }
+                    warehouses_block.find('.fn_select_warehouses_novaposhta').rules('add', {
+                        required: true,
+                    });
                 } else {
                     warehouses_block.hide();
                     warehouses_block.find('.fn_select_warehouses_novaposhta')

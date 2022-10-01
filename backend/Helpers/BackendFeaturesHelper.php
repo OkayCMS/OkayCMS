@@ -4,6 +4,7 @@
 namespace Okay\Admin\Helpers;
 
 
+use Okay\Core\Design;
 use Okay\Core\Request;
 use Okay\Core\Translit;
 use Okay\Core\Database;
@@ -13,6 +14,7 @@ use Okay\Entities\CategoriesEntity;
 use Okay\Entities\FeaturesEntity;
 use Okay\Entities\FeaturesValuesEntity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
+use Okay\Entities\ProductsEntity;
 
 class BackendFeaturesHelper
 {
@@ -51,19 +53,32 @@ class BackendFeaturesHelper
      */
     private $request;
 
+    /**
+     * @var Design
+     */
+    private $design;
+
+    /**
+     * @var ProductsEntity
+     */
+    private $productsEntity;
+
     public function __construct(
         EntityFactory $entityFactory,
         QueryFactory  $queryFactory,
         Translit      $translit,
         Database      $db,
-        Request       $request
+        Request       $request,
+        Design        $design
     ) {
         $this->featuresValuesEntity = $entityFactory->get(FeaturesValuesEntity::class);
         $this->featuresEntity       = $entityFactory->get(FeaturesEntity::class);
+        $this->productsEntity       = $entityFactory->get(ProductsEntity::class);
         $this->queryFactory         = $queryFactory;
         $this->translit             = $translit;
         $this->db                   = $db;
         $this->request              = $request;
+        $this->design               = $design;
     }
 
     public function updateProductFeatures($product, $featuresValues, $featuresValuesText, $newFeaturesNames, $newFeaturesValues, $productsCategories)
@@ -204,7 +219,14 @@ class BackendFeaturesHelper
 
     public function getFeature($id)
     {
-        $feature = $this->featuresEntity->get((int) $id);
+        $feature = $this->featuresEntity->findOne(['id' => $id]);
+
+        if (empty($feature->id)) {
+            // Сразу активен
+            $feature = new \stdClass();
+            $feature->visible = 1;
+        }
+        
         return ExtenderFacade::execute(__METHOD__, $feature, func_get_args());
     }
 
@@ -217,7 +239,7 @@ class BackendFeaturesHelper
     public function getFeatureCategories($feature)
     {
         $featureCategories = [];
-        if (!empty($feature)) {
+        if (!empty($feature->id)) {
             $featureCategories = $this->featuresEntity->getFeatureCategories($feature->id);
         } elseif ($category_id = $this->request->get('category_id')) {
             $featureCategories[] = $category_id;
@@ -243,7 +265,7 @@ class BackendFeaturesHelper
 
         $keyword = $this->request->get('keyword', 'string');
         if (!empty($keyword)) {
-        $filter['keyword'] = $keyword;
+            $filter['keyword'] = $keyword;
         }
 
 
@@ -263,6 +285,8 @@ class BackendFeaturesHelper
 
     public function delete($ids)
     {
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        
         $currentCategoryId = $this->request->get('category_id', 'integer');
         foreach ($ids as $id) {
             // текущие категории
@@ -276,19 +300,29 @@ class BackendFeaturesHelper
                 $this->featuresEntity->delete($id);
             }
         }
-
-        ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
     public function unsetInFilter($ids)
     {
-        $this->featuresEntity->update($ids, ['in_filter'=>0]);
+        $this->featuresEntity->update($ids, ['in_filter' => 0]);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
     public function setInFilter($ids)
     {
-        $this->featuresEntity->update($ids, ['in_filter'=>1]);
+        $this->featuresEntity->update($ids, ['in_filter' => 1]);
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    public function enable($ids)
+    {
+        $this->featuresEntity->update($ids, ['visible' => 1]);
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    public function disable($ids)
+    {
+        $this->featuresEntity->update($ids, ['visible' => 0]);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
@@ -364,6 +398,28 @@ class BackendFeaturesHelper
         foreach ($features as $f) {
             $f->features_categories = $this->featuresEntity->getFeatureCategories($f->id);
         }
+
+        $featuresIds = $this->featuresEntity->cols(['id'])->find();
+        $productsCounts = [];
+        foreach ($featuresIds as $featureId) {
+            $filterCount = [];
+            $filterCount['features'][$featureId] = [];
+            if(!empty($featureId)){
+                $featureValues = $this->featuresValuesEntity->find(['feature_id' => $featureId]);
+                foreach ($featureValues as $value) {
+                    if(!empty($value)) {
+                        $filterCount['features'][$featureId][] = $value->translit;
+                        if (!empty($featureId) && empty($productsCounts[$featureId])) {
+                            $productsCounts[$featureId] = [];
+                        }
+                        $productsCounts[$featureId]['translit'][] = $value->translit;
+                    }
+                }
+
+                $productsCounts[$featureId]['count'] = !empty($filterCount['features'][$featureId]) ? $this->productsEntity->count($filterCount) : 0;
+            }
+        }
+        $this->design->assign('products_counts', $productsCounts);
 
         return ExtenderFacade::execute(__METHOD__, $features, func_get_args());
     }

@@ -91,6 +91,7 @@ $lang['feature_new'] = 'New feature';
 $lang['feature_updated'] = 'Feature updated';
 $lang['feature_value_id'] = 'Value ID';
 $lang['feature_url_in_product'] = 'Filter reference in product';
+$lang['feature_show_in_product'] = 'Show in product';
 $lang['feature_url_in_product_short'] = 'Reference in product';
 $lang['features_add'] = 'Add feature';
 $lang['features_delete'] = 'Delete feature';
@@ -119,6 +120,7 @@ $lang['general_amount'] = 'Amount';
 $lang['general_amt'] = 'Amt.';
 $lang['general_answer'] = 'Answer';
 $lang['general_apply'] = 'Apply';
+$lang['general_apply_and_quit'] = 'Apply and Quit';
 $lang['general_approve'] = 'Approve';
 $lang['general_at'] = 'at';
 $lang['general_back'] = 'Back to list';
@@ -220,6 +222,8 @@ $lang['general_sku'] = 'SKU';
 $lang['general_status'] = 'Status';
 $lang['general_template'] = 'Template';
 $lang['general_templates_email'] = 'E-mail templates';
+$lang['general_templates_email_admin'] = 'Administrator';
+$lang['general_templates_email_user'] = 'User';
 $lang['general_theme'] = 'Template';
 $lang['general_from'] = 'from';
 $lang['general_to'] = 'to';
@@ -475,6 +479,10 @@ $lang['scripts_scripts'] = 'Scripts';
 $lang['seo_patterns_ajax_brand_name'] = 'Brand name';
 $lang['seo_patterns_ajax_cat_h1'] = 'Category H1';
 $lang['seo_patterns_ajax_cat_name'] = 'Category name';
+$lang['seo_patterns_ajax_cat_url'] = 'Category URL';
+$lang['seo_patterns_ajax_product_min_price'] = 'Minimum price within the filter';
+$lang['seo_patterns_ajax_product_max_price'] = 'Maximum price within the filter';
+$lang['seo_patterns_ajax_products_count'] = 'Count of products within the filter';
 $lang['seo_patterns_ajax_message1'] = 'Using these fields, you can automatically generate meta data for products of this category.';
 $lang['seo_patterns_ajax_message2'] = 'Inserts like';
 $lang['seo_patterns_ajax_message3'] = 'will be replaced by the corresponding values of this product.';
@@ -568,7 +576,7 @@ $lang['subscribe_mailing_email'] = 'E-mail';
 $lang['subscribe_mailing_export'] = 'subscribers_export';
 $lang['subscribe_mailing_mo'] = 'No subscribers to display';
 $lang['subscribe_mailing_subscribes'] = 'Subscribers';
-$lang['support_condition'] = 'Purchase technical support';
+$lang['support_condition'] = 'About support';
 $lang['support_add'] = 'Add topic';
 $lang['support_already_receive_keys'] = 'This domain has already received the keys';
 $lang['support_already_sent'] = 'The request has already been sent (in 5 minutes it will be possible to try again)';
@@ -576,7 +584,7 @@ $lang['support_closed'] = 'Closed';
 $lang['support_domain_blocked'] = 'Domain is blocked';
 $lang['support_get_keys'] = 'Get the keys';
 $lang['support_last_answer'] = 'The last answer was in';
-$lang['support_las_answer'] = 'Last answer in';
+$lang['support_last_answer'] = 'Last answer in';
 $lang['support_local'] = 'Support does not work on local servers.';
 $lang['support_no'] = 'No topics';
 $lang['support_no_domain'] = 'Domain is not registered (Keys are not relevant)';
@@ -628,6 +636,8 @@ $lang['translations_translate'] = 'Translations';
 $lang['translations_translation'] = 'Translation';
 $lang['translations_var'] = 'Variable';
 $lang['translations_system_translation'] = 'System translation, you can override';
+$lang['translations_module'] = 'Module';
+$lang['tooltip_translation_module'] = 'One or more translations are contained in modules. Translations from modules can only be edited. When deleted, only translations in the theme under such a variable, if any, will be deleted.';
 $lang['user_already_registered'] = 'User with this e-mail already registered';
 $lang['user_email'] = 'Enter user e-mail';
 $lang['user_group_add'] = 'Add user group';
@@ -747,6 +757,7 @@ $lang['email_order_discount'] = 'Discount';
 $lang['email_order_coupon'] = 'Coupon';
 $lang['email_order_total'] = 'Total';
 $lang['email_order_info'] = 'Learn More';
+$lang['email_order_payment_method'] = 'Payment method';
 $lang['left_catalog'] = 'Catalog';
 $lang['left_products_title'] = 'Products';
 $lang['left_categories_title'] = 'Categories';
@@ -976,6 +987,9 @@ $lang['admintooltip_edit_language'] = 'Edit language';
 $lang['settings_capcha_help1'] = 'You can get keys for reCAPTCHA';
 $lang['settings_capcha_help2'] = 'on the official page of reCAPTCHA';
 $lang['truncate_table_button'] = 'Clear products catalog';
+$lang['truncate_table_button_clear'] = 'Clear';
+$lang['truncate_catalog_data'] = 'Categories, products, options, properties and their pictures will be deleted';
+$lang['truncate_catalog_entity_data'] = 'When an entity is deleted, the relationship tables in which this entity participates are also cleared, so that a situation does not happen during the next data filling and there is no coincidence of incorrect positions';
 $lang['truncate_table_confirm'] = 'I confirm the deletion';
 $lang['truncate_table_password'] = 'Password from the admin panel';
 $lang['title_truncate_table'] = 'Clear products catalog';
@@ -1108,7 +1122,6 @@ $lang['allow_to_visible_system_modules'] = 'Allow display of system modules';
 $lang['allow_to_visible_empty_categories'] = 'Show empty categories';
 $lang['allow_to_visible_empty_categories_notice'] = 'If you turn off this setting, categories without products will not be displayed in the catalog, but will remain available by direct link to users and search engines. If the setting is enabled';
 $lang['no_modules'] = 'No modules';
-$lang['settings_advantages'] = 'Advantages';
 $lang['lesson_status_done'] = 'Completed';
 $lang['lesson_status_not_done'] = 'Not completed';
 
@@ -1129,6 +1142,7 @@ $lang['learning_hint_categories_photo'] = '<p><strong>Изображение</st
 $lang['learning_hint_categories_name'] = '<p>Здесь отображается название категории.</p>';
 $lang['learning_hint_categories_status'] = '<p>С помощью этого переключателя можно отключить и включить отображение категории на сайте.</p>';
 $lang['learning_hint_categories_setting'] = '<p>Нажав на эту кнопку вы быстро откроете страницу этой категории на сайте в новом окне</p>';
+$lang['learning_hint_categories_setting_duplicate'] = '<p>Нажав на эту кнопку вы продублируете категорию со всеми ее подкатегориями и данными, но с уникальным URL</p>';
 $lang['learning_hint_categories_add'] = '<p>Мы ознакомились с возможностями управления списком категорий. Теперь давайте перейдем на страницу добавления / редактирования категории</p><p>Нажмите <strong>"Перейти"</strong> чтобы продолжить.</p>';
 
 $lang['learning_hint_category_intro'] = '<p>Мы перешли на <strong>страницу категории</strong>. Здесь добавляются или редактируются сами категории.</p><p>Давайте подробнее рассмотрим поля, которые необходимо заполнять при создании новой категории.</p>';
@@ -1163,14 +1177,16 @@ $lang['learning_hint_brand_finish'] = '<p>Вы прошли обучение и 
 $lang['learning_hint_features_intro'] = '<p>Одной из важных составляющих любого интернет-магазина является <strong>свойство товара</strong>.</p><p> При поиске конкретного товара покупатели часто фильтруют товары по свойствам.</p>';
 $lang['learning_hint_features_intro2'] = '<p>Мы сейчас находимся на <strong>странице свойств товара</strong>.</p><p> Отображаются они в виде списка, в котором можно легко ими управлять.</p>';
 $lang['learning_hint_features_sorting'] = '<p>Мы можем <strong>фильтровать</strong> свойства по категориям товара и выбирать количество отображаемых свойств на странице админ. панели.</p>';
-$lang['learning_hint_features_item'] = '<p>Давайте рассмотрим возможности управления, на примере уже созданного свойства <strong>Габариты</strong>.</p>';
+$lang['learning_hint_features_item'] = '<p>Давайте рассмотрим возможности управления, на примере уже созданного свойства <strong>Вес</strong>.</p>';
 $lang['learning_hint_features_move_zone'] = '<p>С помощью элемента <i class="fa fa-arrows-v"></i> , вы сможете перемещать  свойство меняя его положение в списке. Для этого просто зажмите этот элемент и перетяните свойство на нужное место. В этом же порядке свойства будут отображаться в фильтре для клиентов сайта</p>';
 $lang['learning_hint_features_check'] = '<p>Отмечая свойства <strong>чекбоксами</strong>, вы можете массово выполять с ними одно действие. Например отметить что эти свойства нужно: Использовать в фильтре.</p>';
 $lang['learning_hint_features_name'] = '<p><strong>Название свойства</strong>, используется в фильтре на страницах категорий товаров</p>';
 $lang['learning_hint_features_category'] = '<p>Мы видим <strong>категорию</strong> к которой относится данное свойство.</p>';
 $lang['learning_hint_features_status'] = '<p>С помощью этого переключателя можно быстро включить или выключить отображение <strong>ссылки в товаре</strong> на товары с таким же свойством из такой-же категории. Для того, чтобы ссылка появилась свойство должно быть включено для индескации поисковыми системами</p>';
-$lang['learning_hint_features_setting'] = '<p>Также есть возможность для быстрого включения и выключения отобржения свойства в <strong>фильтре</strong>.</p>';
+$lang['learning_hint_features_status_2'] = '<p>С помощью этого переключателя можно настраивать отображение свойства в фильтре</p>';
+$lang['learning_hint_features_setting'] = '<p>Также есть возможность для быстрого включения и выключения отображения свойства в <strong>фильтре</strong>.</p>';
 $lang['learning_hint_features_add'] = '<p>Мы ознакомились с возможностью управления списком свойств. Теперь давайте перейдем на страницу добавления / редактирования свойства.</p><p>Нажмите <strong>"Перейти"</strong> чтобы продолжить.</p>';
+$lang['learning_hint_features_meta_data'] = '<p><strong>Мета-данные</strong> - это данные необходимые для поискового продвижения<br><strong>ID свойства</strong> - используется в разделе SEO для гибкой настройки оптимизации сайта<br><strong>ID значения</strong> - также используется для SEO оптимизации<br><strong>Описание свойства</strong> - выводится в карточке товара при наведении<br></p>';
 
 $lang['learning_hint_feature_intro'] = '<p>Мы перешли на <strong>страницу свойства</strong>. Здесь добавляются или редактируются сами свойства.</p><p>Давайте подробнее рассмотрим поля, которые вам необходимо заполнять при создании нового свойства.</p>';
 $lang['learning_hint_feature_name'] = '<p><p>В это поле вводим <strong>название свойства</strong> которое будет выводиться на сайте.</p><p class="required"> Обязательное к заполнению поле.</p>';
@@ -1179,7 +1195,8 @@ $lang['learning_hint_feature_link'] = '<p>При включении данной
 $lang['learning_hint_feature_activity'] = '<p>С помощью этого переключателя можно включить/выключить отображение данного <strong>свойства в фильтре</strong> в каталоге товаров.</p>';
 $lang['learning_hint_feature_filter'] = '<p>Здесь выбираются <strong>категории</strong> в которых будет доступно данное свойство. Так сделано чтобы неиспользуемые в определенных категориях свойства не отображались в них.</p>';
 $lang['learning_hint_feature_list'] = '<p>Давайте более подробно рассмотрим панель управления <strong>значениями свойства</strong>.</p>';
-$lang['learning_hint_feature_list_sorting'] = '<p><strong>Добавить значение</strong> свойства можно воспользовашись этой кнопкой. Тажке здесь можно задать, нужно ли индексировать поисковым системам фильтры по значениям этого свойства. Также здесь задется количество отображаемых свойств на странице в админке</p>';
+$lang['learning_hint_feature_list_add'] = '<p><strong>Добавить значение</strong> свойства можно воспользовавшись этой кнопкой.';
+$lang['learning_hint_feature_list_sorting'] = '<p>Можно настроить, нужно ли индексировать поисковым системам фильтры по значениям этого свойства. Также здесь задается количество отображаемых свойств на странице в админке</p>';
 $lang['learning_hint_feature_item'] = '<p>Давайте рассмотрим возможности управления на примере уже <strong>созданного свойства</strong>.</p>';
 $lang['learning_hint_feature_move_zone'] = '<p>С помощью элемента <i class="fa fa-arrows-v"></i> , вы сможете перемещать свойства, меняя его положение в списке. Для этого просто зажмите этот элемент и перетяните значение свойства на нужное место</p>';
 $lang['learning_hint_feature_list_name'] = '<p>В этой строке мы <strong>переименовываем</strong> значение свойства.</p>';
@@ -1201,7 +1218,7 @@ $lang['learning_hint_products_name'] = '<p>Здесь отображается �
 $lang['learning_hint_products_list_price'] = '<p>Для удобства у каждого товара выведена <strong> его цена</strong> и отображение, в какой валюте она задана.</p>';
 $lang['learning_hint_products_list_count'] = '<p><strong>Количество</strong> товаров. Если указать "0" товар будет доступен по <strong>Предзаказу</strong> или же будет отображаться что его "Нет в наличии". Это указывается в настройках каталога.</p>';
 $lang['learning_hint_products_status'] = '<p>С помощью этого переключателя можно быстро включить и выключить <strong> отображение товара </strong> на сайте.</p>';
-$lang['learning_hint_products_setting'] = '<p>Блок <strong>быстрых действий</strong> для товара. Звездочка отметит товар как "Хит продаж" на сайте, два листочка создадут копию товара для дальнейшего редактирования, экран позволит открыть ссылку на товар на сайте, кнопка XML позволит добавить товар в выгрузку в файл XML. </p>';
+$lang['learning_hint_products_setting'] = '<p>Блок <strong>быстрых действий</strong> для товара. Звездочка отметит товар как "Хит продаж" на сайте, два листочка создадут копию товара для дальнейшего редактирования, глаз позволит открыть ссылку на товар на сайте. </p>';
 $lang['learning_hint_products_add'] = '<p>Мы ознакомились с возможностью управления списком товаров. Теперь давайте перейдем на страницу добавления / редактирования товара</p><p>Нажмите <strong>"Перейти"</strong> чтобы продолжить.</p>';
 
 $lang['learning_hint_product_intro'] = '<p>Мы перешли на <strong>страницу товара</strong>. Здесь обычно добавляются или редактируются сами товары.</p><p>Давайте подробнее рассмотрим поля, которые вам необходимо заполнять при создании нового товара.</p>';
@@ -1212,7 +1229,7 @@ $lang['learning_hint_product_hits'] = '<p>Переключатель <strong>х�
 $lang['learning_hint_product_images'] = '<p>В разделе <strong>Изображение</strong> можно загрузить несколько изображений для товара. Первое изображение будет основным, остальные будут отображаться как дополнительные изображения. Для того чтобы поменять их местами достаточно просто перетянуть фото на нужное место.</p><p class="required"> поддерживающиеся форматы jpeg, png, gif </p>';
 $lang['learning_hint_product_brand'] = '<p>В данном селекте вы можете выбрать <strong>бренд</strong> товара. Объединяйте товары в бренды, чтобы покупателям было удобнее просматривать их.</p>';
 $lang['learning_hint_product_category'] = '<p><strong>Категории</strong> используются для быстрого поиска нужного товара или услуги на сайте. Категория - это обязательное поле для создания товара.</p>';
-$lang['learning_hint_product_variant'] = '<p>Вы можете создать разные <strong>варианты товара</strong> по цене, цвету или другим характеристикам.</p><p><strong>Название варианта </strong> - это могут быть размеры, цвета или что-то ещё. Например: 37,38,39, белый, красный, синий</p><p><strong>Цена</strong> - это цена именно этого варианта товара. Для разных вариантов могут быть заданы разные цены</p><p><strong>Старая цена</strong> - будет выводится на сайте перечеркнутой. Это удобно использовать для акций</p><p><strong>Вес</strong> - используется при просчете для служб доставки</p><p><strong>Кол-во</strong> - можно указать остаток товара или "0" тогда товар будет доступен по предзаказу</p><p><strong>Ед. изм</strong> - уп. шт. прочее.</p>';
+$lang['learning_hint_product_variant'] = '<p>Вы можете создать разные <strong>варианты товара</strong> по цене, цвету или другим характеристикам.</p><p><strong>Артикул </strong> - уникальный идентификатор варианта, используется для импорта товаров</p><p><strong>Название варианта </strong> - это могут быть размеры, цвета или что-то ещё. Например: 37,38,39, белый, красный, синий</p><p><strong>Цена</strong> - это цена именно этого варианта товара. Для разных вариантов могут быть заданы разные цены</p><p><strong>Старая цена</strong> - будет выводится на сайте перечеркнутой. Это удобно использовать для акций</p><p><strong>Вес</strong> - используется при просчете для служб доставки</p><p><strong>Кол-во</strong> - можно указать остаток товара или "0" тогда товар будет доступен по предзаказу</p><p><strong>Ед. изм</strong> - уп. шт. прочее.</p>';
 $lang['learning_hint_product_promo'] = '<p><strong>Промоизображения</strong> на товарах могут рассказать покупателю, что на данный товар действует акция, спецпредолжение по доставке или оплате, подарок к товару и т.д.</p><p>Вы можете загрузить своё промоизображение</p><p class="required"> поддерживающиеся форматы jpeg, png, gif </p>';
 $lang['learning_hint_product_rating'] = '<p><strong>Рейтинг товара</strong> отображается на карточке товара и показывает, насколько высоко пользователи оценили товар. Но при желании вы сами можете указать рейтинг для товара ;)</p>';
 $lang['learning_hint_product_features'] = '<p><strong>Свойства товара</strong> используются в фильтре и помогают найти данный товар. У товара может быть задано несколько значений одного свойства. Например, если товар состоит из нескольких тканей. Для того чтобы добавить второе значение свойства нужно нажать плюс в строке с нужным свойством и вписать дополнительное значение. Для добавления нового свойства к товару нужно нажать кнопку "Добавить свойство" внизу блока со свойствами</p>';
@@ -1255,7 +1272,7 @@ $lang['learning_hint_delivery_intro'] = '<p>Мы перешли на <strong>с�
 $lang['learning_hint_delivery_name'] = '<p>В это поле вводим <strong>название способа доставки</strong> которое будет выводиться на сайте.</p><p class="required"> Обязательное к заполнению поле</p>';
 $lang['learning_hint_delivery_activity'] = '<p><strong>Активность</strong> включает или отключает способ доставки на сайте.</p>';
 $lang['learning_hint_delivery_images'] = '<p>В разделе <strong>Изображение</strong> можно загрузить иконку для способа доставки.</p>';
-$lang['learning_hint_delivery_type'] = '<p>В этом разделе нужно настроить стоимость доставки.</p><p> Есть три типа оплаты:</p> <p><strong>-Платная</strong> - нужно указать "стоимость" и минимальную сумму заказа для бесплатной доставки, если необходимо. </p><p><strong>-Бесплатная</strong></p><p><strong>-Оплачивается отдельно</strong>. Такой вариант используется если доставка платная, но вы оплату за неё не берете, а клиент платит при получении доставки курьеру или транспортной компании</p>';
+$lang['learning_hint_delivery_type'] = '<p>В этом разделе нужно настроить стоимость доставки.</p><p> Есть три типа оплаты:</p> <p><strong>-Платная</strong> - нужно указать "стоимость" и минимальную сумму заказа для бесплатной доставки, если необходимо. <p><strong>-Оплачивается отдельно</strong>. Такой вариант используется если доставка платная, но вы оплату за неё не берете, а клиент платит при получении доставки курьеру или транспортной компании</p></p><p><strong>-Бесплатная</strong></p>';
 $lang['learning_hint_delivery_module'] = '<p>Для доставки можно задать определенный модуль-интеграцию с транспортной компанией. Например модуль интеграции с Новой Почтой позволяет выбрать отделение доставки и точно просчитать стоимость доставки. Если же модуля-интеграции нет, нужно оставить значение "Ручная обработка"</p>';
 $lang['learning_hint_delivery_payments'] = '<p>Теперь к доставке нужно привязать один или несколько доступных способов оплаты. Можно настроить так чтобы у определенных способов доставки были только определенные способы оплаты, например не была доступна оплата наличными при доставке Новой Почтой</p>';
 $lang['learning_hint_delivery_descriptions'] = '<p>В этом разделе можно задать <strong>описание способа доставки</strong> Оно выведется в корзине при выборе этого способа доставки.</p>';
@@ -1312,7 +1329,7 @@ $lang['learning_hint_order_intro2'] = '<p><strong>Содержание зака�
 $lang['learning_hint_order_toolbar'] = '<p>Здесь указан номер заказа, статус, который можно изменить после обработки заказа, возможность задать метку для заказа, а также возможность распечатать заказ.</p>';
 $lang['learning_hint_order_toolbar__status'] = '<p><strong>Смена статуса</strong> заказа Например: "Принят." после того как мы созвонились с клиентом и получили от него подтверждение </p>';
 $lang['learning_hint_order_toolbar__print'] = '<p>Кнопка печати заказа.</p>';
-$lang['learning_hint_order_toolbar__markers'] = '<p>Возможность добавить <strong>метку</strong> Напимер: Перезвонить.</p>';
+$lang['learning_hint_order_toolbar__markers'] = '<p>Возможность добавить <strong>метку</strong>. Например: Перезвонить.</p>';
 $lang['learning_hint_order_toolbar__button'] = '<p>Открыть страницу заказа на сайте.</p>';
 $lang['learning_hint_order_left_content'] = '<p>Список заказанных товаров находится в <strong>содержании заказа</strong>.</p>';
 $lang['learning_hint_order_parameters'] = '<p><strong>Параметры заказа</strong> информация об итоговой сумме, наличии скидки, выбранном способе оплаты и доставки.</p>';
@@ -1340,12 +1357,11 @@ $lang['learning_hint_seo_patterns_finish'] = '<p>Вы прошли обучен�
 
 $lang['learning_hint_blog_intro'] = '<p><strong>Блог</strong> - это отличный инструмент для интернет-магазина. С помощью него вы можете не только ближе познакомить клиента с вашими товарами, но еще и продвинуть сайт в поиске, используя уникальные тексты и правильно подобранные ключевые запросы.</p>';
 $lang['learning_hint_blog_intro2'] = '<p>Мы сейчас находимся на <strong>странице блога</strong>. Здесь статьи и новости отображаются в виде списка, в котором можно легко ими управлять.</p>';
-$lang['learning_hint_blog_sorting'] = '<p>С помощью этого селекта вы можете <strong>отфильтровать</strong> на страницу блога только статьи или новости</p>';
+$lang['learning_hint_blog_sorting'] = '<p>С помощью этого селекта вы можете <strong>отфильтровать</strong> на странице блога только статьи или новости</p>';
 $lang['learning_hint_blog_item'] = '<p>Давайте рассмотрим возможности управления на примере уже созданной статьи.</p>';
 $lang['learning_hint_blog_check'] = '<p>Отмечая статьи <strong>чекбоксами</strong>, вы можете выполнять с ними массово одно действие. Например удалить все отмеченные записи</p>';
 $lang['learning_hint_blog_photo'] = '<p><strong>Изображение</strong> позволяет нам визуально быстро найти нужную статью, а клиентов дополнительно привлекает к прочтению статьи.</p>';
 $lang['learning_hint_blog_name'] = '<p>Здесь отображается название статьи или новости</p>';
-$lang['learning_hint_blog_type'] = '<p>В этом блоке выводится тип записи <strong>Новость или Статья</strong>.</p>';
 $lang['learning_hint_blog_status'] = '<p>Быстро можно отключить и включить отображение статьи в блоге</p>';
 $lang['learning_hint_blog_setting'] = '<p>С помощью этой кнопки можно перейти к просмотру записи на сайте</p>';
 $lang['learning_hint_blog_add'] = '<p>Мы ознакомились с возможностью управления списком статей. Теперь давайте перейдем на страницу добавления / редактирования статьи</p><p>Нажмите <strong>"Перейти"</strong> чтобы продолжить</p>';
@@ -1355,7 +1371,7 @@ $lang['learning_hint_post_name'] = '<p>В это поле вводим <strong>�
 $lang['learning_hint_post_url'] = '<p><strong>URL</strong> - ссылка данной статьи. После ввода названия она создается автоматически, но если вы захотите отредактировать её, можно нажать на иконку замка и вписать свой URL </p>';
 $lang['learning_hint_post_activity'] = '<p><strong>Активность</strong> включает или отключает отображение статьи на сайте.</p>';
 $lang['learning_hint_post_images'] = '<p>В разделе <strong>Изображение</strong> можно загрузить фото для статьи. Это фото будет выводиться на главной странице и в списке статей</p><p class="required"> поддерживающиеся форматы jpeg, png, gif </p>';
-$lang['learning_hint_post_parameters'] = '<p>Здесь нужно будет указать <strong>тип записи</strong> и дату публикации.</p>';
+$lang['learning_hint_post_parameters'] = '<p>Здесь нужно будет указать <strong>тип записи</strong>, дату публикации, дату обновления, категорию, автора и время чтения.</p>';
 $lang['learning_hint_post_product'] = '<p>Этот блок отвечает за привязку товара к статье. Его удобно использовать при написании обзора на товар или группу товаров.</p>';
 $lang['learning_hint_post_descriptions'] = '<p>В этом разделе можно написать <strong>Краткое описание</strong> и <strong>Полное описание</strong> для статьи. Краткое описание - это то что выводится на главной странице и в списке записей. Полное описание - это собственно текст статьи.</p>';
 $lang['learning_hint_post_finish'] = '<p>Вы прошли обучение и теперь сможете правильно работать с Блогом.</p><p>Нажмите <strong>"Завершить"</strong> чтобы перейти к следующему уроку</p>';
@@ -1374,7 +1390,7 @@ $lang['page_routes_template_slash_end_notice'] = 'Pages of contacts, payment and
 $lang['order_history'] = 'Order history';
 $lang['order_history_created'] = 'Created';
 $lang['order_history_by_manager'] = 'by';
-$lang['order_hostory_changed_on'] = 'Changed to';
+$lang['order_history_changed_on'] = 'Changed to';
 $lang['order_referer_channel'] = 'Referral source';
 $lang['order_match_id'] = 'Order ID';
 $lang['order_match_date'] = 'date';
@@ -1435,8 +1451,6 @@ $lang['orders_date_filter_list_orders_to'] = 'to';
 $lang['orders_date_filter_list_orders_reset'] = 'Reset filter';
 $lang['orders_unit'] = 'ptc';
 $lang['import_modules_fields'] = 'Fields from modules';
-$lang['advantage_image_title'] = 'Image';
-$lang['advantage_description_title'] = 'Description';
 $lang['alert_description'] = 'Description';
 $lang['alert_error'] = 'Important!';
 $lang['alert_info'] = 'Instruction';
@@ -1448,7 +1462,7 @@ $lang['tooltip_settings_phone_default_region'] = 'Parsing phone numbers that are
 $lang['settings_phone_default_format'] = 'Default phone format';
 $lang['tooltip_settings_phone_default_format'] = 'This format only affects the output of the phone number';
 $lang['general_sort_feature_values_alphabet'] = 'Alphabetical Sort';
-$lang['general_sort_feature_values_alphabet_hint'] = 'Property values ​​are sorted in the admin panel and on the site';
+$lang['general_sort_feature_values_alphabet_hint'] = 'Property values are sorted in the admin panel and on the site';
 $lang['categories_dublicate'] = 'Duplicate category';
 $lang['pages_dublicate'] = 'Duplicate page';
 $lang['brands_dublicate'] = 'Duplicate brand';
@@ -1501,6 +1515,8 @@ $lang['order_discount_title'] = 'Order discounts';
 $lang['settings_catalog_features_cache_ttl'] = 'Filter Cache Time (sec)';
 $lang['tooltip_settings_catalog_features_cache_ttl'] = 'If you enable the lazy loading filter, you can also cache it on the client. The filter block will be cached for each filter page within the category (excluding sorting and pagination). Don\'t set too high a value. The recommended one, from which it is worth starting from - 120, and then choose the one suitable for a specific project. If filters do not need to be cached, but only lazy loading is needed, set this parameter to 0 ';
 $lang['settings_catalog_features_cache_deferred'] = 'Deferred loading of filters';
+$lang['settings_catalog_features_max_count_products'] = 'Max number of filters on the products page';
+$lang['tooltip_settings_catalog_features_max_count_products'] = 'On the page of all products or on the search page, there can be a lot of filters by properties. This way you can limit their number. Only filters that have not been used are counted, that is, the total number of filters will consist of the given value + used filters';
 $lang['tooltip_settings_catalog_features_cache_deferred'] = 'Lazy loading of filters can be useful on projects where there are many properties in the filter and the loading of the category page is "slow". When this parameter is enabled, the category page will be loaded without filters, and then the filter block itself will be loaded by ajax ';
 $lang['m_module_version'] = 'Okay version';
 $lang['m_module_demo'] = 'Module Demo';
@@ -1571,3 +1587,31 @@ $lang['settings_hide_equal_compare_price_notice'] = 'Hide old price if it is les
 $lang['order_history_value'] = 'at the rate of';
 $lang['settings_increased_image_size'] = 'Increased size of images';
 $lang['settings_increased_image_size_notice'] = 'This parameter enables the display of images in the product list in increased resolution. This affects the quality of the image display on high-resolution displays, but can negatively affect the speed of the site (Pagespeed) ';
+$lang['seo_patterns_ajax_products_annotation'] = 'Products annotation template';
+$lang['seo_filter_patterns_ajax_annotation'] = 'Annotation template';
+$lang['brand_h1'] = 'H1 header';
+$lang['tooltip_brand_h1'] = 'If you need to set the H1 heading different from the brand name - enter it here';
+$lang['general_sort_brands_alphabet'] = 'Alphabetical Sort';
+$lang['general_sort_brands_alphabet_hint'] = 'Sort Brands Alphabetically';
+$lang['product_count_by_feature'] = 'Products count';
+$lang['no_message'] = 'Messages not found';
+$lang['license_text_all'] = '1. Software products developed for the OkayCMS framework (hereinafter referred to as the "Products") are the source codes of the programs reproduced in files or on paper, including electronic or printed documentation, as well as the text of this license agreement (hereinafter the "Agreement").
+
+2. The purchase of paid Products or the installation of free Products indicates that the User has read the content of the Agreement, accepts its provisions and will use the Products in accordance with the terms of the Agreement.
+
+3. The Agreement shall enter into force upon receipt of the Products by electronic means of data transmission.
+
+4. All copyrights in the Products are owned by the source code developer (the “Developer”). Products as a whole or individually are subject to copyright and are subject to protection under the law. Use of the Products in violation of the terms of this Agreement is a violation of copyright laws and will be prosecuted in accordance with applicable law.
+
+5. Products are provided "AS IS" ("AS IS") without warranties of performance, purchasing power, data integrity, or other express or implied warranties. The Developer shall not be liable in any way for causing or possible harm to the User, his information or business due to the use or inability to use the Products.
+
+6. This Agreement gives the right to use one copy of the paid Products installed on only one instance of the OkayCMS framework. This copy of the Products may be used on an unlimited number of subdomains attached to a single domain that uses the OkayCMS framework. Any distribution of paid Products, including non-commercial ones, without the prior consent of the Developer, as well as transfer to third parties for use on a lease (sublease) basis, is a violation of this Agreement and entails liability in accordance with applicable law. You may create and use an additional copy of paid Products solely for the purpose of testing or making changes to the source code, provided that such a copy is not available to third parties.
+
+7. Free Products are licensed under the LGPL and may be installed on any number of web servers without limitation. The OkayCMS framework from version 4.0 onwards is free and distributed under the terms of the LGPL license.
+
+8. The User has the right to make any changes to the source code of the Products at his own discretion, except for renaming the Product and changing the Developer ID. In this case, the subsequent use of the Products must be carried out in accordance with this Agreement and subject to the preservation of all copyrights. If the User makes any changes, the Developer is not responsible for the performance of the modified Product.
+
+9. The Developer is not liable if the User is brought to administrative or criminal liability for using the Products for illegal purposes.
+
+10. Termination of this Agreement is allowed in case of deletion of all received files and documentation, as well as their copies. Termination of this Agreement does not oblige the Developer to return the funds spent by the User on the purchase of the Products.
+';

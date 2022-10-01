@@ -7,6 +7,7 @@ namespace Okay\Helpers;
 use Okay\Core\Cart;
 use Okay\Core\Comparison;
 use Okay\Core\Config;
+use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
 use Okay\Core\FrontTranslations;
@@ -23,7 +24,6 @@ use Okay\Core\Settings;
 use Okay\Core\TemplateConfig\FrontTemplateConfig;
 use Okay\Core\UserReferer\UserReferer;
 use Okay\Core\WishList;
-use Okay\Entities\AdvantagesEntity;
 use Okay\Entities\BlogCategoriesEntity;
 use Okay\Entities\CategoriesEntity;
 use Okay\Entities\CurrenciesEntity;
@@ -119,6 +119,14 @@ class MainHelper
     }
 
     /**
+     * Метод, который можно расширять модулями. Выполняется перед работой контроллера
+     */
+    public function commonBeforeControllerProcedure()
+    {
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    /**
      * Метод, который можно расширять модулями. Выполняется он после работы контроллера
      * 
      * @var MetadataInterface|null $metadataHelper
@@ -134,8 +142,6 @@ class MainHelper
             /** @var MetadataInterface $metadataHelper */
             $metadataHelper = $this->SL->getService(CommonMetadataHelper::class);
         }
-
-        $metadataHelper->setUp();
         
         if ($design->getVar('h1') === null) {
             $design->assign('h1', $metadataHelper->getH1());
@@ -151,6 +157,10 @@ class MainHelper
         
         if ($design->getVar('meta_description') === null) {
             $design->assign('meta_description', $metadataHelper->getMetaDescription());
+        }
+        
+        if ($design->getVar('annotation') === null) {
+            $design->assign('annotation', $metadataHelper->getAnnotation());
         }
         
         if ($design->getVar('description') === null) {
@@ -181,6 +191,8 @@ class MainHelper
         $router = $this->SL->getService(Router::class);
         /** @var Phone $phone */
         $phone = $this->SL->getService(Phone::class);
+        /** @var FilterHelper $filterHelper */
+        $filterHelper = $this->SL->getService(FilterHelper::class);
         /** @var EntityFactory $entityFactory */
         $entityFactory = $this->SL->getService(EntityFactory::class);
         /** @var CategoriesEntity $categoriesEntity */
@@ -192,7 +204,10 @@ class MainHelper
 
         $pages = $pagesEntity->find(['visible'=>1]);
         $design->assign('pages', $pages);
-        
+
+        // Передаём в дизайн DebugBarRenderer
+        $design->assign('debug_bar_renderer', DebugBar::getRenderer());
+
         // Передаем стили и скрипты в шаблон
         /** @var FrontTemplateConfig $frontTemplateConfig */
         $frontTemplateConfig = $this->SL->getService(FrontTemplateConfig::class);
@@ -228,13 +243,17 @@ class MainHelper
         
         $design->assign('currencies', $this->getAllCurrencies());
         $design->assign('currency',   $this->getCurrentCurrency());
+        $design->assignJsVar('currency_cents', $this->getCurrentCurrency()->cents);
 
         $design->assign('user',       $this->getCurrentUser());
         $design->assign('group',      $this->getCurrentUserGroup());
 
         $design->assign('payment_methods', $this->getPaymentMethods());
         $design->assign('phone_example', $phone->getPhoneExample());
-        
+
+        $design->assign('keyword', $filterHelper->getKeyword());
+        $design->assign('keyword', $filterHelper->getKeyword(), true);
+
         if (!empty($settings->get('site_social_links'))) {
             $socials = [];
             foreach ($settings->get('site_social_links') as $k=>$socialUrl) {
@@ -245,7 +264,7 @@ class MainHelper
                 $social['url'] = $socialUrl;
                 $socials[] = $social;
             }
-            
+
             $design->assign('site_social', $socials);
         }
         
@@ -283,10 +302,6 @@ class MainHelper
                 $design->assign(MenuEntity::MENU_VAR_PREFIX . $menu->group_id, $design->fetch("menu.tpl"));
             }
         }
-
-        /** @var AdvantagesEntity $advantagesEntity */
-        $advantagesEntity = $entityFactory->get(AdvantagesEntity::class);
-        $design->assign('advantages', $advantagesEntity->find());
 
         // Передаем текущий контроллер
         if ($route = $router->getRouteByName($router->getCurrentRouteName())) {
@@ -478,8 +493,10 @@ class MainHelper
                     $module->getModuleName($route['params']['controller'])
                 );
 
-                $design->setModuleTemplatesDir($moduleTemplateDir);
-                $design->useModuleDir();
+                if (!empty($moduleTemplateDir)) {
+                    $design->setModuleTemplatesDir($moduleTemplateDir);
+                    $design->useModuleDir();
+                }
             }
         }
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
@@ -499,10 +516,10 @@ class MainHelper
      * Подсчет количества видимых дочерних элементов
      * 
      * @param array $items
-     * @param $allItems
-     * @param string $subItemsName
+     * @param array $allItems
+     * @param string [$subItemsName = subcategories]
      */
-    private function countVisible(array $items, $allItems, $subItemsName = 'subcategories')
+    public function countVisible(array $items, array $allItems, $subItemsName = 'subcategories')
     {
         foreach ($items as $item) {
             if (isset($allItems[$item->parent_id]) && !isset($allItems[$item->parent_id]->count_children_visible)) {

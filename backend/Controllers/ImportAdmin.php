@@ -11,30 +11,31 @@ use Okay\Entities\FeaturesEntity;
 
 class ImportAdmin extends IndexAdmin
 {
-    /**
-     * @var Request
-     */
+    /** @var Request */
     protected $request;
 
-    /**
-     * @var Import
-     */
+    /** @var Import */
     protected $importCore;
 
-    /**
-     * @var QueryFactory
-     */
+    /** @var QueryFactory */
     protected $queryFactory;
+
+
+    /** @var FeaturesEntity */
+    protected $featuresEntity;
 
 
     public function fetch(
         Import $importCore,
         Request $request,
-        QueryFactory $queryFactory
+        QueryFactory $queryFactory,
+        FeaturesEntity $featuresEntity
     ) {
         $this->request      = $request;
         $this->importCore   = $importCore;
         $this->queryFactory = $queryFactory;
+
+        $this->featuresEntity = $featuresEntity;
         
         $this->design->assign('import_files_dir', $importCore->getImportFilesDir());
         if(!is_writable($importCore->getImportFilesDir())) {
@@ -148,7 +149,7 @@ class ImportAdmin extends IndexAdmin
 
     private function winToRtf($text) {
         if (function_exists('iconv')) {
-            return @iconv('windows-1251', 'UTF-8', $text);
+            return @mb_convert_encoding($text, 'UTF-8', 'Windows-1251');
         } else {
             $t = '';
             for($i=0, $m=strlen($text); $i<$m; $i++) {
@@ -177,11 +178,8 @@ class ImportAdmin extends IndexAdmin
         $source_columns = $this->importCore->getColumns();
         $this->design->assign('columns_names', array_keys($this->importCore->getColumnsNames()));
 
-        $sql = $this->queryFactory->newSqlQuery();
-        $sql->setStatement("SELECT f.name FROM ".FeaturesEntity::getTable()." f ORDER BY f.position");
-        $this->db->query($sql);
+        $features = $this->featuresEntity->col('name')->order('position')->find();
 
-        $features = $this->db->results('name');
         $this->design->assign('features', $features);
 
         $this->importCore->initInternalColumns();

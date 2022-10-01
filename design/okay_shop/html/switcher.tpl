@@ -1,4 +1,4 @@
-{* Languages *}
+<!-- Languages -->
 {if $languages|count > 1}
 	{$cnt = 0}
 	{foreach $languages as $ln}
@@ -32,7 +32,7 @@
 	{/if}
 {/if}
 
-{* Currencies *}
+<!-- Currencies -->
 {if $currencies|count > 1}
 	<div class="switcher__item d-flex align-items-center switcher__currencies">
 		<div class="switcher__visible">
@@ -43,7 +43,7 @@
 			{foreach $currencies as $c}
 				{if $c->enabled}
 					<form method="POST">
-						<button type="submit" name="prg_seo_hide" class="switcher__link d-flex align-items-center {if $currency->id== $c->id} active{/if}" value="{url currency_id=$c->id}">
+						<button type="submit" name="prg_seo_hide" class="switcher__link d-flex align-items-center {if $currency->id== $c->id} active{/if}" value="{url path={furl price=null} currency_id=$c->id}">
 							<span class="switcher__name hidden-lg-down">{$c->name|escape}</span>
 							<span class="switcher__name hidden-xl-up">{$c->sign|escape}</span>
 						</button>

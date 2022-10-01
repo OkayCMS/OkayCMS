@@ -205,24 +205,25 @@
                         dfd.resolveWith(that, [data]);
                     },
                     thumbnail;
-                if (data.exif) {
-                    if (options.orientation === true) {
-                        options.orientation = data.exif.get('Orientation');
-                    }
-                    if (options.thumbnail) {
-                        thumbnail = data.exif.get('Thumbnail');
-                        if (thumbnail) {
-                            loadImage(thumbnail, resolve, options);
-                            return dfd.promise();
-                        }
-                    }
-                    // Prevent orienting the same image twice:
-                    if (data.orientation) {
-                        delete options.orientation;
-                    } else {
-                        data.orientation = options.orientation;
-                    }
-                }
+                ///* Исправление загрузки jpg в файловом менеджере */
+                // if (data.exif) {
+                //     if (options.orientation === true) {
+                //         options.orientation = data.exif.get('Orientation');
+                //     }
+                //     if (options.thumbnail) {
+                //         thumbnail = data.exif.get('Thumbnail');
+                //         if (thumbnail) {
+                //             loadImage(thumbnail, resolve, options);
+                //             return dfd.promise();
+                //         }
+                //     }
+                //     // Prevent orienting the same image twice:
+                //     if (data.orientation) {
+                //         delete options.orientation;
+                //     } else {
+                //         data.orientation = options.orientation;
+                //     }
+                // }
                 if (img) {
                     resolve(loadImage.scale(img, options));
                     return dfd.promise();

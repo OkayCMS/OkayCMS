@@ -3,7 +3,7 @@
 use Okay\Core\Modules\Modules;
 use Okay\Modules\OkayCMS\NovaposhtaCost\NovaposhtaCost;
 
-chdir(dirname(dirname(dirname(dirname(dirname(__DIR__))))));
+chdir(dirname(__DIR__, 5));
 
 require_once('vendor/autoload.php');
 

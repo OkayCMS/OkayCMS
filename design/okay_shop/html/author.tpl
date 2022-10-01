@@ -1,3 +1,4 @@
+<!-- Author page -->
 <div class="clearfix">
     {* Sidebar with blog *}
     <div class="fn_mobile_toogle sidebar sidebar--right position_sticky d-lg-flex flex-lg-column">
@@ -10,7 +11,7 @@
                 <a data-fancybox="author_image" href="{$author->image|resize:800:800:false:$config->resized_authors_dir}">
                     <picture>
                         {if $settings->support_webp}
-                            <source type="image/webp" data-srcset="{$author->image|resize:320:500:false:$config->resized_authors_dir}.webp">
+                            <source type="image/webp" data-srcset="{$author->image|resize:320:500:false:$config->resized_authors_dir|webp}">
                         {/if}
                         <source data-srcset="{$author->image|resize:320:500:false:$config->resized_authors_dir}">
                         <img class="lazy" data-src="{$author->image|resize:320:500:false:$config->resized_authors_dir}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$author->name|escape}" title="{$author->name|escape}"/>

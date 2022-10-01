@@ -302,4 +302,20 @@ class UserHelper
         
         return $itemsInDb; // no ExtenderFacade
     }
+
+    /**
+     * Метод необходим для внедрения в личный кабинет пользователя.
+     * Позволяет указать при добавлении новой кастомной вкладки, что эта вкладка активна при перезагрузке страницы.
+     *
+     * @param $currentRouteName
+     * @return mixed|void|null
+     */
+    public function defaultActiveTab($currentRouteName)
+    {
+        if (empty($currentRouteName)) {
+            return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+        }
+
+        return ExtenderFacade::execute(__METHOD__, $currentRouteName, func_get_args());
+    }
 }

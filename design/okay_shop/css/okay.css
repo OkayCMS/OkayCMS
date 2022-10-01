@@ -948,7 +948,6 @@ input::-webkit-input-placeholder{
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
 }
-.form__footer #uLogin,
 .form__footer .form__button,
 .form__footer .captcha{margin-bottom: 10px;}
 .form__footer { margin-bottom: -10px;}
@@ -1078,7 +1077,8 @@ input::-webkit-input-placeholder{
     -webkit-box-align: center;
     -webkit-align-items: center;
     -ms-flex-align: center;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
     border-radius: 5px;
     font-weight: 400;
     font-size: 12px;

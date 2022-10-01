@@ -11,12 +11,27 @@ use Okay\Entities\PagesEntity;
 
 class AllProductsMetadataHelper extends CommonMetadataHelper
 {
-    
+    /** @var string */
+    private $keyword;
+
+    /** @var bool */
+    private $isAllPages;
+
+    /** @var int */
+    private $currentPageNum;
+
+    public function setUp($keyword = '', bool $isAllPages = false, int $currentPageNum = 1): void
+    {
+        $this->keyword        = $keyword;
+        $this->isAllPages     = $isAllPages;
+        $this->currentPageNum = $currentPageNum;
+    }
+
     public function __construct()
     {
         parent::__construct();
         
-        if (!$this->design->getVar('keyword')) {
+        if (!$this->keyword) {
             $entityFactory = $this->SL->getService(EntityFactory::class);
             /** @var PagesEntity $pagesEntity */
             $pagesEntity = $entityFactory->get(PagesEntity::class);
@@ -27,12 +42,12 @@ class AllProductsMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getH1Template()
+    public function getH1Template(): string
     {
-        if ($keyword = $this->design->getVar('keyword')) {
+        if ($this->keyword) {
             /** @var FrontTranslations $translations */
             $translations = $this->SL->getService(FrontTranslations::class);
-            $h1 = $translations->getTranslation('general_search') . ' ' . $keyword;
+            $h1 = $translations->getTranslation('general_search') . ' ' . $this->keyword;
         } else {
             $h1 = parent::getH1Template();
         }
@@ -43,12 +58,12 @@ class AllProductsMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getDescriptionTemplate()
+    public function getDescriptionTemplate(): string
     {
-        if ($keyword = $this->design->getVar('keyword')) {
+        if ($this->keyword) {
             /** @var FrontTranslations $translations */
             $translations = $this->SL->getService(FrontTranslations::class);
-            $description = $translations->getTranslation('general_search') . ' ' . $keyword;
+            $description = $translations->getTranslation('general_search') . ' ' . $this->keyword;
         } else {
             $description = parent::getDescriptionTemplate();
         }
@@ -59,23 +74,20 @@ class AllProductsMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaTitleTemplate()
+    public function getMetaTitleTemplate(): string
     {
-        if ($keyword = $this->design->getVar('keyword')) {
+        if ($this->keyword) {
             /** @var FrontTranslations $translations */
             $translations = $this->SL->getService(FrontTranslations::class);
-            $metaTitle = $translations->getTranslation('general_search') . ' ' . $keyword;
+            $metaTitle = $translations->getTranslation('general_search') . ' ' . $this->keyword;
         } else {
             $metaTitle = parent::getMetaTitleTemplate();
         }
 
-        $isAllPages = $this->design->getVar('is_all_pages');
-        $currentPageNum = $this->design->getVar('current_page_num');
-
-        if ((int)$currentPageNum > 1 && $isAllPages !== true) {
+        if ((int)$this->currentPageNum > 1 && $this->isAllPages !== true) {
             /** @var FrontTranslations $translations */
             $translations = $this->SL->getService(FrontTranslations::class);
-            $metaTitle .= $translations->getTranslation('meta_page') . ' ' . $currentPageNum;
+            $metaTitle .= $translations->getTranslation('meta_page') . ' ' . $this->currentPageNum;
         }
         
         return ExtenderFacade::execute(__METHOD__, $metaTitle, func_get_args());
@@ -84,12 +96,12 @@ class AllProductsMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaKeywordsTemplate()
+    public function getMetaKeywordsTemplate(): string
     {
-        if ($keyword = $this->design->getVar('keyword')) {
+        if ($this->keyword) {
             /** @var FrontTranslations $translations */
             $translations = $this->SL->getService(FrontTranslations::class);
-            $metaKeywords = $translations->getTranslation('general_search') . ' ' . $keyword;
+            $metaKeywords = $translations->getTranslation('general_search') . ' ' . $this->keyword;
         } else {
             $metaKeywords = parent::getMetaKeywordsTemplate();
         }
@@ -100,12 +112,12 @@ class AllProductsMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaDescriptionTemplate()
+    public function getMetaDescriptionTemplate(): string
     {
-        if ($keyword = $this->design->getVar('keyword')) {
+        if ($this->keyword) {
             /** @var FrontTranslations $translations */
             $translations = $this->SL->getService(FrontTranslations::class);
-            $metaDescription = $translations->getTranslation('general_search') . ' ' . $keyword;
+            $metaDescription = $translations->getTranslation('general_search') . ' ' . $this->keyword;
         } else {
             $metaDescription = parent::getMetaDescriptionTemplate();
         }

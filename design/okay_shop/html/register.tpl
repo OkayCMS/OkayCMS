@@ -1,4 +1,4 @@
-{* Registration page *}
+<!-- Registration page -->
 
 {* The page title *}
 {$meta_title = $lang->register_title scope=global}
@@ -110,10 +110,6 @@
                 <div class="block_explanation">
                     <div class="block__description">
                         {$description}
-                    </div>
-                    {* Link to registration *}
-                    <div class="form__footer">
-                        <div id="uLogin" data-ulogin="display=panel;theme=flat;fields=first_name,last_name,email;providers=facebook,google;mobilebuttons=0;"></div>
                     </div>
                 </div>
             </div>

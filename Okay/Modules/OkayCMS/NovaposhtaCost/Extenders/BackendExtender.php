@@ -6,6 +6,7 @@ namespace Okay\Modules\OkayCMS\NovaposhtaCost\Extenders;
 
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
+use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Modules\Extender\ExtensionInterface;
 use Okay\Core\Modules\Module;
 use Okay\Core\Request;
@@ -34,7 +35,8 @@ class BackendExtender implements ExtensionInterface
         if (isset($itemFromCsv[Init::VOLUME_FIELD])) {
             $variant[Init::VOLUME_FIELD] = trim($itemFromCsv[Init::VOLUME_FIELD]);
         }
-        return $variant;
+
+        return ExtenderFacade::execute(__METHOD__, $variant, func_get_args());
     }
     
     /**
@@ -49,11 +51,11 @@ class BackendExtender implements ExtensionInterface
                 $variant->volume = 0;
             }
         }
-        
-        return $variants;
+
+        return ExtenderFacade::execute(__METHOD__, $variants, func_get_args());
     }
     
-    public function getDeliveryDataProcedure($delivery, $order)
+    public function getDeliveryDataProcedure($order)
     {
         $moduleId = $this->module->getModuleIdByNamespace(__NAMESPACE__);
         $this->design->assign('novaposhta_module_id', $moduleId);
@@ -134,12 +136,14 @@ class BackendExtender implements ExtensionInterface
     public function extendExportColumnsNames($columnsNames)
     {
         $columnsNames[Init::VOLUME_FIELD] = Init::VOLUME_FIELD;
-        return $columnsNames;
+
+        return ExtenderFacade::execute(__METHOD__, $columnsNames, func_get_args());
     }
 
     public function extendExportPrepareVariantData($preparedVariantData, $variant)
     {
         $preparedVariantData[Init::VOLUME_FIELD] = $variant->{Init::VOLUME_FIELD};
-        return $preparedVariantData;
+
+        return ExtenderFacade::execute(__METHOD__, $preparedVariantData, func_get_args());
     }
 }

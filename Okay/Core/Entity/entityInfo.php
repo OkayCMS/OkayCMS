@@ -80,6 +80,22 @@ trait entityInfo
     }
 
     /**
+     * Метод добавляет новые столбцы для сортировки по умолчанию или переопределяет полностью переменную сортировки по умолчанию у сущности
+     *
+     * @var array $newOrderFields
+     * @var bool $redefine
+     * @return array
+     */
+    final public static function setDefaultOrderFields($newOrderFields, $redefine = false)
+    {
+        if (!empty($redefine) && !empty($newOrderFields)) {
+            return (array)static::$defaultOrderFields = $newOrderFields;
+        }
+
+        return (array)static::$defaultOrderFields = array_merge($newOrderFields, static::$defaultOrderFields);
+    }
+
+    /**
      * @return string
      */
     final public static function getLangObject()

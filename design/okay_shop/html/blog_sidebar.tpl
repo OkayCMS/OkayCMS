@@ -1,4 +1,4 @@
-{* The blog sidebar template *}
+<!-- Blog sidebar page -->
 
 {* Mobile close menu *}
 <div class="fn_mobile_toogle sidebar__header sidebar__boxed hidden-lg-up">
@@ -26,7 +26,7 @@
                                         {if $c->image}
                                             <picture>
                                                 {if $settings->support_webp}
-                                                    <source type="image/webp" data-srcset="{$c->image|resize:20:20:false:$config->resized_blog_categories_dir}.webp">
+                                                    <source type="image/webp" data-srcset="{$c->image|resize:20:20:false:$config->resized_blog_categories_dir|webp}">
                                                 {/if}
                                                 <source data-srcset="{$c->image|resize:20:20:false:$config->resized_blog_categories_dir}">
                                                 <img class="lazy" data-src="{$c->image|resize:20:20:false:$config->resized_blog_categories_dir}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$c->name|escape}" title="{$c->name|escape}"/>
@@ -47,7 +47,7 @@
                                         {if $c->image}
                                         <picture>
                                             {if $settings->support_webp}
-                                                <source type="image/webp" data-srcset="{$c->image|resize:20:20:false:$config->resized_blog_categories_dir}.webp">
+                                                <source type="image/webp" data-srcset="{$c->image|resize:20:20:false:$config->resized_blog_categories_dir|webp}">
                                             {/if}
                                             <source data-srcset="{$c->image|resize:20:20:false:$config->resized_blog_categories_dir}">
                                             <img class="lazy" data-src="{$c->image|resize:20:20:false:$config->resized_blog_categories_dir}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$c->name|escape}" title="{$c->name|escape}"/>
@@ -74,7 +74,7 @@
 <div class="sidebar__boxed sidebar__boxed--subscribe hidden-md-down">
     <div class="sidebar_subscribe">
         <div class="sidebar_subscribe__title">
-            <span data-language="subscribe_promotext_post">{$lang->subscribe_promotext_post}</span>
+            <span data-language="subscribe_promotext">{$lang->subscribe_promotext}</span>
         </div>
         <form class="sidebar_subscribe__form fn_validate_subscribe" method="post">
             <div class="sidebar_subscribe__group">
@@ -103,7 +103,7 @@
                         {if $product->image->filename}
                         <picture>
                             {if $settings->support_webp}
-                                <source type="image/webp" data-srcset="{$product->image->filename|resize:60:60}.webp">
+                                <source type="image/webp" data-srcset="{$product->image->filename|resize:60:60|webp}">
                             {/if}
                             <source data-srcset="{$product->image->filename|resize:60:60}">
                             <img class="lazy" data-src="{$product->image->filename|resize:60:60}" src="{$rootUrl}/design/{get_theme}/images/xloading.gif" alt="{$product->name|escape}" title="{$product->name|escape}"/>
@@ -130,7 +130,7 @@
                 </a>
             </div>
             {/foreach}
-            <a class="sidebar_card__more d-flex align-items-center f_col-12" href="{url_generator route='bestsellers'}">
+            <a class="sidebar_card__more d-flex align-items-center f_col-12" href="{url_generator route='products' filtersUrl=['filter' => ['featured']]}">
                 <span data-language="main_look_all">{$lang->main_look_all}</span>{include file="svg.tpl" svgId="arrow_right2"}
             </a>
         </div>

@@ -14,6 +14,7 @@ use Okay\Entities\DeliveriesEntity;
 use Okay\Entities\FeedbacksEntity;
 use Okay\Entities\OrdersEntity;
 use Okay\Entities\OrderStatusEntity;
+use Okay\Entities\PaymentsEntity;
 use Okay\Entities\ProductsEntity;
 use Okay\Entities\UsersEntity;
 use Okay\Helpers\NotifyHelper;
@@ -171,6 +172,9 @@ class Notify
         /** @var DeliveriesEntity $deliveriesEntity */
         $deliveriesEntity = $this->entityFactory->get(DeliveriesEntity::class);
         
+        /** @var PaymentsEntity $paymentsEntity */
+        $paymentsEntity = $this->entityFactory->get(PaymentsEntity::class);
+        
         /** @var OrderStatusEntity $ordersStatusEntity */
         $ordersStatusEntity = $this->entityFactory->get(OrderStatusEntity::class);
         
@@ -217,8 +221,12 @@ class Notify
         $this->design->assign('discounts', $discounts);
         
         // Способ доставки
-        $delivery = $deliveriesEntity->get($order->delivery_id);
+        $delivery = $deliveriesEntity->findOne(['id' => $order->delivery_id]);
         $this->design->assign('delivery', $delivery);
+        
+        // Способ оплаты
+        $paymentMethod = $paymentsEntity->findOne(['id' => $order->payment_method_id]);
+        $this->design->assign('payment_method', $paymentMethod);
         
         $this->design->assign('order', $order);
         if (!empty($order->status_id)) {
@@ -280,6 +288,9 @@ class Notify
 
         /** @var DeliveriesEntity $deliveriesEntity */
         $deliveriesEntity = $this->entityFactory->get(DeliveriesEntity::class);
+
+        /** @var PaymentsEntity $paymentsEntity */
+        $paymentsEntity = $this->entityFactory->get(PaymentsEntity::class);
         
         /** @var UsersEntity $usersEntity */
         $usersEntity = $this->entityFactory->get(UsersEntity::class);
@@ -307,8 +318,12 @@ class Notify
         $this->design->assign('discounts', $discounts);
         
         // Способ доставки
-        $delivery = $deliveriesEntity->get($order->delivery_id);
+        $delivery = $deliveriesEntity->findOne(['id' => $order->delivery_id]);
         $this->design->assign('delivery', $delivery);
+
+        // Способ оплаты
+        $paymentMethod = $paymentsEntity->findOne(['id' => $order->payment_method_id]);
+        $this->design->assign('payment_method', $paymentMethod);
         
         // Пользователь
         $user = $usersEntity->get(intval($order->user_id));
@@ -360,6 +375,11 @@ class Notify
         if (!($comment = $commentsEntity->get(intval($commentId)))) {
             return false;
         }
+
+        // если не нужно отправлять письмо, вызываем хелпер, может нужно сделать какую-то альтернативу
+        if (!$this->notifyHelper->needSendEmailCommentAdmin($comment)) {
+            return $this->notifyHelper->notSendEmailCommentAdmin($comment);
+        }
         
         if ($comment->type == 'product') {
             $comment->product = $productsEntity->get(intval($comment->object_id));
@@ -374,6 +394,8 @@ class Notify
         // Перевод админки
         $this->backendTranslations->initTranslations($this->settings->get('email_lang'));
         $this->design->assign('btr', $this->backendTranslations);
+
+        $this->notifyHelper->finalEmailCommentAdmin($comment);
         
         // Отправляем письмо
         $emailTemplate = $this->design->fetch($this->rootDir.'backend/design/html/email/email_comment_admin.tpl');
@@ -398,11 +420,19 @@ class Notify
         if (!($callback = $callbacksEntity->get(intval($callbackId)))) {
             return false;
         }
+
+        // если не нужно отправлять письмо, вызываем хелпер, может нужно сделать какую-то альтернативу
+        if (!$this->notifyHelper->needSendEmailCallbackAdmin($callback)) {
+            return $this->notifyHelper->notSendEmailCallbackAdmin($callback);
+        }
+        
         $this->design->assign('callback', $callback);
 
         // Перевод админки
         $this->backendTranslations->initTranslations($this->settings->get('email_lang'));
         $this->design->assign('btr', $this->backendTranslations);
+
+        $this->notifyHelper->finalEmailCallbackAdmin($callback);
         
         // Отправляем письмо
         $emailTemplate = $this->design->fetch($this->rootDir.'backend/design/html/email/email_callback_admin.tpl');
@@ -418,7 +448,7 @@ class Notify
     }
 
     /*Отправка емейла с ответом на комментарий клиенту*/
-    public function emailCommentAnswerToUser($commentId)
+    public function emailCommentAnswerToUser($commentId, $debug = false)
     {
 
         /** @var CommentsEntity $commentsEntity */
@@ -434,6 +464,11 @@ class Notify
                 || !($parentComment = $commentsEntity->get(intval($comment->parent_id)))
                 || !$parentComment->email) {
             return false;
+        }
+
+        // если не нужно отправлять письмо, вызываем хелпер, может нужно сделать какую-то альтернативу
+        if (!$this->notifyHelper->needSendEmailCommentAnswerToUser($comment)) {
+            return $this->notifyHelper->notSendEmailCommentAnswerToUser($comment);
         }
 
         $templateDir = $this->design->getTemplatesDir();
@@ -457,20 +492,23 @@ class Notify
 
         if ($parentComment->type == 'product') {
             $parentComment->product = $productsEntity->get(intval($parentComment->object_id));
-        } elseif ($parentComment->type == 'blog') {
-            $parentComment->post = $blogEntity->get(intval($parentComment->object_id));
-        } elseif ($parentComment->type == 'news') {
+        } elseif ($parentComment->type == 'post') {
             $parentComment->post = $blogEntity->get(intval($parentComment->object_id));
         }
 
-        $this->design->assign('comment', $comment);
+        $comment->type_obj = 'comment';
+        $this->design->assign('object', $comment);
         $this->design->assign('parent_comment', $parentComment);
 
+        $this->notifyHelper->finalEmailCommentAnswerToUser($comment);
+
         // Отправляем письмо
-        $emailTemplate = $this->design->fetch($this->rootDir.'design/'.$this->frontTemplateConfig->getTheme().'/html/email/email_comment_answer_to_user.tpl');
+        $emailTemplate = $this->design->fetch($this->rootDir.'design/'.$this->frontTemplateConfig->getTheme().'/html/email/email_answer_to_user.tpl');
         $subject = $this->design->getVar('subject');
 
-        $this->email($parentComment->email, $subject, $emailTemplate, $this->settings->get('notify_from_email'));
+        if ($debug === false) {
+            $this->email($parentComment->email, $subject, $emailTemplate, $this->settings->get('notify_from_email'));
+        }
 
         $this->design->setTemplatesDir($templateDir);
         $this->design->setCompiledDir($compiledDir);
@@ -487,6 +525,11 @@ class Notify
         }
         /*/lang_modify...*/
 
+        if ($debug === true) {
+            $this->design->assign('meta_title', $subject);
+            return $emailTemplate;
+        }
+
         return true;
     }
 
@@ -500,6 +543,11 @@ class Notify
             return false;
         }
 
+        // если не нужно отправлять письмо, вызываем хелпер, может нужно сделать какую-то альтернативу
+        if (!$this->notifyHelper->needSendEmailPasswordRemind($user)) {
+            return $this->notifyHelper->notSendEmailPasswordRemind($user, $code);
+        }
+
         $currentLangId = $this->languages->getLangId();
 
         $this->settings->initSettings();
@@ -508,6 +556,8 @@ class Notify
         
         $this->design->assign('user', $user);
         $this->design->assign('code', $code);
+
+        $this->notifyHelper->finalEmailPasswordRemind($user, $code);
         
         // Отправляем письмо
         $email_template = $this->design->fetch($this->rootDir.'design/'.$this->frontTemplateConfig->getTheme().'/html/email/email_password_remind.tpl');
@@ -531,12 +581,19 @@ class Notify
         if (!($feedback = $feedbackEntity->get(intval($feedbackId)))) {
             return false;
         }
+
+        // если не нужно отправлять письмо, вызываем хелпер, может нужно сделать какую-то альтернативу
+        if (!$this->notifyHelper->needSendEmailFeedbackAdmin($feedback)) {
+            return $this->notifyHelper->notSendEmailFeedbackAdmin($feedback);
+        }
         
         $this->design->assign('feedback', $feedback);
 
         // Перевод админки
         $this->backendTranslations->initTranslations($this->settings->get('email_lang'));
         $this->design->assign('btr', $this->backendTranslations);
+
+        $this->notifyHelper->finalEmailFeedbackAdmin($feedback);
         
         // Отправляем письмо
         $emailTemplate = $this->design->fetch($this->rootDir.'backend/design/html/email/email_feedback_admin.tpl');
@@ -555,7 +612,7 @@ class Notify
     }
 
     /*Отправка емейла с ответом на заявку с формы обратной связи клиенту*/
-    public function emailFeedbackAnswerFoUser($comment_id,$text)
+    public function emailFeedbackAnswerFoUser($comment_id, $text, $debug = false)
     {
 
         /** @var FeedbacksEntity $feedbackEntity */
@@ -563,6 +620,11 @@ class Notify
 
         if(!($feedback = $feedbackEntity->get(intval($comment_id)))) {
             return false;
+        }
+
+        // если не нужно отправлять письмо, вызываем хелпер, может нужно сделать какую-то альтернативу
+        if (!$this->notifyHelper->needSendEmailFeedbackAnswerForUser($feedback)) {
+            return $this->notifyHelper->notSendEmailFeedbackAnswerForUser($feedback, $text);
         }
 
         $templateDir = $this->design->getTemplatesDir();
@@ -580,15 +642,20 @@ class Notify
             $this->design->assign('lang', $this->frontTranslations);
         }
         /*/lang_modify...*/
-
-        $this->design->assign('feedback', $feedback);
+        $feedback->type_obj = 'feedback';
+        $this->design->assign('object', $feedback);
         $this->design->assign('text', $text);
 
+        $this->notifyHelper->finalEmailFeedbackAnswerForUser($feedback, $text);
+
         // Отправляем письмо
-        $email_template = $this->design->fetch($this->rootDir.'design/'.$this->frontTemplateConfig->getTheme().'/html/email/email_feedback_answer_to_user.tpl');
+        $email_template = $this->design->fetch($this->rootDir.'design/'.$this->frontTemplateConfig->getTheme().'/html/email/email_answer_to_user.tpl');
         $subject = $this->design->getVar('subject');
-        $from = ($this->settings->get('notify_from_name') ? $this->settings->get('notify_from_name')." <".$this->settings->get('notify_from_email').">" : $this->settings->get('notify_from_email'));
-        $this->email($feedback->email, $subject, $email_template, $from, $from);
+
+       if ($debug === false) {
+            $from = ($this->settings->get('notify_from_name') ? $this->settings->get('notify_from_name')." <".$this->settings->get('notify_from_email').">" : $this->settings->get('notify_from_email'));
+            $this->email($feedback->email, $subject, $email_template, $from, $from);
+        }
 
         $this->design->setTemplatesDir($templateDir);
         $this->design->setCompiledDir($compiledDir);
@@ -598,7 +665,12 @@ class Notify
             $this->languages->setLangId($currentLangId);
         }
         /*/lang_modify...*/
-        
+
+        if ($debug === true) {
+            $this->design->assign('meta_title', $subject);
+            return $email_template;
+        }
+
         return true;
     }
 
@@ -609,12 +681,20 @@ class Notify
             return false;
         }
 
+        // если не нужно отправлять письмо, вызываем хелпер, может нужно сделать какую-то альтернативу
+        if (!$this->notifyHelper->needSendEmailPasswordRecoveryAdmin($email)) {
+            return $this->notifyHelper->notSendEmailPasswordRecoveryAdmin($email, $code);
+        }
+
         // Перевод админки
         $this->backendTranslations->initTranslations($this->settings->get('email_lang'));
         $this->design->assign('btr', $this->backendTranslations);
         
         $this->design->assign('code',$code);
         $this->design->assign('recovery_url', Request::getRootUrl() . '/backend/index.php?controller=AuthAdmin&code='.$code);
+
+        $this->notifyHelper->finalEmailPasswordRecoveryAdmin($email, $code);
+        
         $email_template = $this->design->fetch($this->rootDir.'backend/design/html/email/email_admin_recovery.tpl');
         $subject = $this->design->getVar('subject');
         $this->email($email, $subject, $email_template, $this->settings->get('notify_from_name'));

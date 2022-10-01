@@ -71,8 +71,8 @@ class BackendBlogCategoriesHelper
 
     public function delete($ids)
     {
-        $this->categoriesEntity->delete($ids);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        $this->categoriesEntity->delete($ids);
     }
 
     public function countAllCategories()

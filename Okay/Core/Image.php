@@ -12,7 +12,7 @@ use WebPConvert\WebPConvert;
 class Image
 {
     
-    private $allowedExtensions = ['png', 'gif', 'jpg', 'jpeg', 'ico', 'svg'];
+    private $allowedExtensions = ['png', 'gif', 'jpg', 'jpeg', 'ico', 'svg', 'webp'];
 
     private $rootDir;
     
@@ -338,32 +338,24 @@ class Image
         
         $localFile = $this->rootDir.$this->config->get('original_images_dir').$newName;
 
-        // Перед долгим копированием займем это имя
-        fclose(fopen($localFile, 'w'));
-        if (copy($filename, $localFile) && filesize($localFile) > 0) {
-            $encodedFilename = rawurlencode($filename);
-            $update = $this->queryFactory->newUpdate();
-            $update->table('__images')
-                ->cols(['filename' => $newName])
-                ->where('filename=:encoded_filename')
-                ->orWhere('filename=:filename_original')
-                ->bindValues([
-                    'encoded_filename' => $encodedFilename,
-                    'filename_original' => $filename,
-                ]);
-            $this->db->query($update);
-            $_SESSION['resize_files'][$encodedFilename] = $newName;
-            return ExtenderFacade::execute(__METHOD__, $newName, func_get_args());
+        if (!touch($localFile)) {
+            return ExtenderFacade::execute(__METHOD__, false, func_get_args());
         }
 
-        if ($this->isNotHttpsSource($filename)) {
-            @unlink($localFile);
-        }
+        $ch = curl_init($filename);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 1000);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_ENCODING, "");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $file = curl_exec($ch);
+        $info = curl_getinfo($ch);
+        curl_close($ch);
 
-        $filenameHttp = preg_replace("~^https://~", "http://", $filename);
-        $headers      = @get_headers($filenameHttp);
+        if ($info['http_code'] === 200 && $info['size_download'] > 0) {
+            $fp = fopen($localFile, 'w+');
+            fwrite($fp, $file);
+            fclose($fp);
 
-        if ($this->responseSuccess($headers) && copy($filenameHttp, $localFile) && filesize($localFile) > 0) {
             $encodedFilename = rawurlencode($filename);
             $update = $this->queryFactory->newUpdate();
             $update->table('__images')
@@ -636,6 +628,7 @@ class Image
         return file_exists($this->rootDir.$this->originalsDir.urldecode($filename));
     }
 
+
     private function responseSuccess($responseHeaders)
     {
         if (empty($responseHeaders[0])) {
@@ -658,4 +651,14 @@ class Image
 
         return false;
     }
+
+    public function convertFilenameToWebp($filename)
+    {
+        if (pathinfo($filename, PATHINFO_EXTENSION) !== 'webp') {
+            $filename = $filename.'.webp';
+        }
+
+        return $filename;
+    }
+
 }

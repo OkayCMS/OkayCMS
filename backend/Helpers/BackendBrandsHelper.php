@@ -12,6 +12,7 @@ use Okay\Core\QueryFactory;
 use Okay\Core\Request;
 use Okay\Entities\BrandsEntity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
+use Okay\Entities\CategoriesEntity;
 
 class BackendBrandsHelper
 {
@@ -19,6 +20,11 @@ class BackendBrandsHelper
      * @var BrandsEntity
      */
     private $brandsEntity;
+    
+    /**
+     * @var CategoriesEntity
+     */
+    private $categoriesEntity;
 
     /**
      * @var Image
@@ -54,6 +60,7 @@ class BackendBrandsHelper
         Request       $request
     ){
         $this->brandsEntity = $entityFactory->get(BrandsEntity::class);
+        $this->categoriesEntity = $entityFactory->get(CategoriesEntity::class);
         $this->config       = $config;
         $this->imageCore    = $imageCore;
         $this->queryFactory = $queryFactory;
@@ -76,9 +83,10 @@ class BackendBrandsHelper
 
     public function prepareFilterForProductsAdmin($categoryId)
     {
+        $category = $this->categoriesEntity->get((int)$categoryId);
         $brandsFilter = [];
-        if (!empty($categoryId)) {
-            $brandsFilter['category_id'] = ['category_id' => $categoryId];
+        if (!empty($category)) {
+            $brandsFilter['category_id'] = $category->children;
         }
 
         $brandsCount = $this->brandsEntity->count($brandsFilter);
@@ -159,8 +167,8 @@ class BackendBrandsHelper
 
     public function delete($ids)
     {
-        $this->brandsEntity->delete($ids);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        $this->brandsEntity->delete($ids);
     }
 
     public function moveToPage($ids, $targetPage, $filter)
@@ -296,6 +304,25 @@ class BackendBrandsHelper
         foreach($ids as $id) {
             $this->brandsEntity->duplicate((int)$id);
         }
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    public function sortBrandsPositionsAlphabet()
+    {
+        $brands = [];
+        foreach($this->brandsEntity->cols(['id', 'name'])->find() as $b) {
+            $brands[$b->id] = $b->name;
+        }
+
+        asort($brands, SORT_NATURAL);
+
+        $i = 0;
+        $brandIds = array_keys($brands);
+
+        foreach($brandIds as $brandId) {
+            $this->brandsEntity->update($brandId, ['position'=>$i++]);
+        }
+
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 }

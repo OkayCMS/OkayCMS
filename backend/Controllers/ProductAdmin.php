@@ -94,6 +94,12 @@ class ProductAdmin extends IndexAdmin
                 $relatedProducts = $backendProductsHelper->prepareUpdateRelatedProducts($product, $relatedProducts);
                 $backendProductsHelper->updateRelatedProducts($product, $relatedProducts);
 
+                //  сохранить и выход в список
+                $buttonRedirectToList = $this->request->post('apply_and_quit', 'integer', 0);
+                if (($buttonRedirectToList == 1) && !empty($urlRedirectToList = $this->request->getRootUrl() . '/backend/index.php?controller=ProductsAdmin')) {
+                    $this->postRedirectGet->redirect($urlRedirectToList);
+                }
+
                 $this->postRedirectGet->redirect();
             }
         } else {

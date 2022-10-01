@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="autodeploy" default="build">
+
+    <target name="vars">
+        <resolvepath propertyName="root.path" file="../../../.."/>
+        <echo msg="Root path: '${root.path}'" />
+
+        <property name="cmd.composer" value="./bin/composer.phar"/>
+        <property name="log.checkout" value="./log/checkout.log"/>
+        <property name="log.untracked" value="./log/untracked.log"/>
+    </target>
+
+    <target name="git">
+        <echo msg="Begin 'git checkout -- ${root.path}/'"/>
+        <exec command="git diff --name-status | xargs -0 >> ${log.checkout}" checkreturn="true" passthru="true" error="stdout"/>
+        <exec command="git ls-files ${root.path}/ --others --exclude-standard | xargs -0 >> ${log.untracked}" checkreturn="true" passthru="true" error="stdout"/>
+        <exec command="git checkout -- ${root.path}/" checkreturn="true" passthru="true" error="stdout"/>
+
+        <echo msg="Begin 'git checkout ${branch}'"/>
+        <exec command="git checkout ${branch}" checkreturn="true" passthru="true" error="stdout"/>
+
+        <echo msg="Begin 'git pull origin ${branch}'" />
+        <exec command="git pull origin ${branch}" checkreturn="true" passthru="true" error="stdout" />
+    </target>
+    
+    <target name="composer">
+        <echo msg="Begin 'composer install'" />
+        <exec command="COMPOSER_HOME='~/.composer/' ${php_path}php ${cmd.composer} install --working-dir ${root.path}" checkreturn="true" passthru="true" error="stdout" />
+    </target>
+
+    <target name="clear_cache">
+        <echo msg="Clear compiled"/>
+        <delete>
+            <fileset dir="${root.path}/compiled">
+                <exclude name=".keep_folder"/>
+            </fileset>
+        </delete>
+        <delete>
+            <fileset dir="${root.path}/backend/design/compiled">
+                <exclude name=".keep_folder"/>
+            </fileset>
+        </delete>
+    </target>
+
+    <target name="migrate">
+        <echo msg="Begin migration '${php_path}php ./cli/migrate.php'"/>
+        <exec command="${php_path}php ./cli/migrate.php" checkreturn="true" passthru="true" error="stdout"/>
+    </target>
+
+    <target name="update_modules">
+        <echo msg="Begin update modules '${php_path}php ./cli/update_modules.php'"/>
+        <exec command="${php_path}php ./cli/update_modules.php" checkreturn="true" passthru="true" error="stdout"/>
+    </target>
+
+    <target name="build" depends="vars, git, composer, migrate, update_modules, clear_cache"/>
+</project>

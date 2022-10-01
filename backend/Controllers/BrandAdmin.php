@@ -45,6 +45,12 @@ class BrandAdmin extends IndexAdmin
                     $backendBrandsHelper->uploadImage($image, $brand);
                 }
 
+                //  сохранить и выход в список
+                $buttonRedirectToList = $this->request->post('apply_and_quit', 'integer', 0);
+                if (($buttonRedirectToList == 1) && !empty($urlRedirectToList = $this->request->getRootUrl() . '/backend/index.php?controller=BrandsAdmin')) {
+                    $this->postRedirectGet->redirect($urlRedirectToList);
+                }
+
                 $this->postRedirectGet->redirect();
             }
         } else {

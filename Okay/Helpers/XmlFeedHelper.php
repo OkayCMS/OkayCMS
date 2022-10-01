@@ -24,7 +24,6 @@ use Okay\Entities\ImagesEntity;
 
 class XmlFeedHelper
 {
-
     /** @var Languages */
     private $languages;
     
@@ -55,11 +54,52 @@ class XmlFeedHelper
         $this->allCurrencies = $currenciesEntity->mappedBy('id')->find();
         
     }
+
+    /**
+     * Принимает массив тегов, каждый из которых является массивом с ключами:
+     * data - значение, которое нужно вставить в тег (можно текст XML, если там должен быть вложенный тег,а можно
+     *        другой массив с тегами, так как метод рекурсивный)
+     * tag - если много тегов с одинаковым названием, можно указывать его не в ключе массива, а указать здесь
+     *       название тега
+     * attributes - ассоциативный массив аттрибутов тега, ключ - название аттрибута, значение - значение аттрибута
+     *
+     * Пример:
+     * [
+     *      [
+     *          'tag' => 'item',
+     *          'attributes => [
+     *              'id' => 245
+     *          ],
+     *          'data' => 'item_text_1'
+     *      ],
+     *      [
+     *          'tag' => 'item',
+     *          'attributes => [
+     *              'id' => 246
+     *          ],
+     *          'data' => [...]
+     *      ]
+     * ]
+     *
+     * @param array $items
+     * @return string
+     */
+    public function compileItems(array $items): string
+    {
+        $result = '';
+
+        foreach ($items as $key => $item) {
+            $result .= $this->compileItem($item['data'] ?? [], $item['tag'] ?? $key, $item['attributes'] ?? []);
+        }
+
+        return $result;// No ExtenderFacade
+    }
     
     /**
      * Метод формирует XML строку, на основе данных из массива.
      * Метод принимает массив, как описание офера. Ключ массива это название тега, а значение - массив с ключами:
-     * data - значение, которое нужно вставить в тег (можно текст XML, если там должен быть вложенный тег)
+     * data - значение, которое нужно вставить в тег (можно текст XML, если там должен быть вложенный тег,а можно
+     *        другой массив с тегами)
      * tag - если много тегов с одинаковым названием, можно указывать его не в ключе массива, а указать здесь
      *       название тега
      * attributes - ассоциативный массив аттрибутов тега, ключ - название аттрибута, значение - значение аттрибута
@@ -77,12 +117,12 @@ class XmlFeedHelper
      * <id>1</id>
      * <guarantee type="shop">2</guarantee>
      *
-     * @param array $item описание офера
+     * @param mixed $data описание офера
      * @param string $itemTag название тега в который нужно обернуть сам офер
      * @param array $itemTagAttributes атрибуты для тега офера
      * @return string
      */
-    public function compileItem(array $item, $itemTag = null, array $itemTagAttributes = [])
+    public function compileItem($data, $itemTag = null, array $itemTagAttributes = [])
     {
         $xmlProduct = '';
         if (!empty($itemTag)) {
@@ -94,21 +134,13 @@ class XmlFeedHelper
                 }
             }
             
-            $xmlProduct .= "<{$itemTag}{$itemTagAttributesString}>" . PHP_EOL;
+            $xmlProduct .= PHP_EOL."<{$itemTag}{$itemTagAttributesString}>";
         }
-        foreach ($item as $tag => $value) {
-            if (!empty($value['tag'])) {
-                $tag = $value['tag'];
-            }
 
-            $attributes = '';
-            if (!empty($value['attributes'])) {
-                foreach ($value['attributes'] as $attrName => $attrValue) {
-                    $attributes .= " {$attrName}=\"{$attrValue}\"";
-                }
-            }
-
-            $xmlProduct .= "<{$tag}{$attributes}>{$value['data']}</{$tag}>" . PHP_EOL;
+        if (is_array($data)) {
+            $xmlProduct .= $this->compileItems($data);
+        } else {
+            $xmlProduct .= $data;
         }
 
         if (!empty($itemTag)) {
@@ -128,15 +160,15 @@ class XmlFeedHelper
     {
         $select->cols([
             'GROUP_CONCAT(DISTINCT lf.feature_id, "!-", lf.name SEPARATOR "@|@") AS features_string',
-            'GROUP_CONCAT(DISTINCT fv.feature_id, "!-", fv.value SEPARATOR "@|@") AS values_string',
+            'GROUP_CONCAT(DISTINCT fv.feature_id, "!-", lfv.value SEPARATOR "@|@") AS values_string',
             'GROUP_CONCAT(DISTINCT f.id, "!-", f.auto_name_id SEPARATOR "@|@") AS auto_name_id_string',
             'GROUP_CONCAT(DISTINCT f.id, "!-", f.auto_value_id SEPARATOR "@|@") AS auto_value_id_string',
         ])
             ->leftJoin('__products_features_values pv', 'pv.product_id = p.id')
             ->leftJoin(FeaturesValuesEntity::getTable().' AS  fv', 'pv.value_id = fv.id')
             ->leftJoin(FeaturesValuesEntity::getLangTable().' AS  lfv', 'fv.id = lfv.feature_value_id and lfv.lang_id=' . $this->languages->getLangId())
-            ->leftJoin(FeaturesEntity::getTable().' AS  f', 'fv.feature_id = f.id')
-            ->leftJoin(FeaturesEntity::getLangTable().' AS  lf', 'fv.feature_id = lf.feature_id and lf.lang_id=' . $this->languages->getLangId());
+            ->leftJoin(FeaturesEntity::getTable().' AS  f', 'fv.feature_id = f.id AND f.visible')
+            ->leftJoin(FeaturesEntity::getLangTable().' AS  lf', 'f.id = lf.feature_id and lf.lang_id=' . $this->languages->getLangId());
         
         return $select;// No ExtenderFacade
     }
@@ -230,13 +262,10 @@ class XmlFeedHelper
 
     public function attachDescriptionByTemplate($product)
     {
-        
-        if (empty($product->description)) {
-            
-            if (!empty($product->main_category_id)) {
+        if (!empty($product->main_category_id)) {
+            $category = $this->allCategories[$product->main_category_id];
 
-                $category = $this->allCategories[$product->main_category_id];
-                
+            if (isset($product->description) && empty($product->description)) {
                 if ($data = $this->getCategoryField($category, 'auto_description')) {
                     $descriptionTemplate = $data;
                 } elseif (!empty($this->defaultProductsSeoPattern->auto_description)) {
@@ -246,6 +275,19 @@ class XmlFeedHelper
                 if (!empty($descriptionTemplate)) {
                     $metaData = strtr($descriptionTemplate, $this->getMetadataParts($product));
                     $product->description = trim(preg_replace('/{\$[^$]*}/', '', $metaData));
+                }
+            }
+
+            if (isset($product->annotation) && empty($product->annotation)) {
+                if ($data = $this->getCategoryField($category, 'auto_annotation')) {
+                    $annotationTemplate = $data;
+                } elseif (!empty($this->defaultProductsSeoPattern->auto_annotation)) {
+                    $annotationTemplate = $this->defaultProductsSeoPattern->auto_annotation;
+                }
+
+                if (!empty($annotationTemplate)) {
+                    $metaData = strtr($annotationTemplate, $this->getMetadataParts($product));
+                    $product->annotation = trim(preg_replace('/{\$[^$]*}/', '', $metaData));
                 }
             }
         }
@@ -270,7 +312,7 @@ class XmlFeedHelper
         }
         
         $mataDataParts = [
-            '{$brand}'         => $product->vendor,
+            '{$brand}'         => $product->brand_name,
             '{$product}'       => $product->product_name,
             '{$price}'         => $price . ' ' . $this->mainCurrency->sign,
             '{$compare_price}' => ($comparePrice != null ? $comparePrice . ' ' . $this->mainCurrency->sign : ''),

@@ -8,27 +8,30 @@ use Okay\Core\Modules\Extender\ExtenderFacade;
 
 class ProductMetadataHelper extends CommonMetadataHelper
 {
-    private $category;
-    private $categoryPath;
+    /** @var object */
     private $product;
 
-    public function setUp()
+    /** @var object|null */
+    private $category;
+
+    /** @var object|null */
+    private $brand;
+
+    public function setUp(object $product, ?object $category = null, ?object $brand = null): void
     {
-        parent::setUp();
-        $this->category = $this->design->getVar('category');
-        $this->product  = $this->design->getVar('product');
-        $this->categoryPath = array_reverse($this->category->path);
+        $this->product  = $product;
+        $this->category = $category;
+        $this->brand    = $brand;
     }
 
     /**
      * @inheritDoc
      */
-    public function getH1Template()
+    public function getH1Template(): string
     {
         $defaultProductsSeoPattern = (object)$this->settings->get('default_products_seo_pattern');
 
-        $h1 = $this->product->name;
-
+        $h1 = (string)$this->product->name;
         if ($data = $this->getCategoryField('auto_h1')) {
             $h1 = $data;
         } elseif(!empty($defaultProductsSeoPattern->auto_h1)) {
@@ -43,10 +46,30 @@ class ProductMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getDescriptionTemplate()
+    public function getAnnotationTemplate(): string
     {
         $defaultProductsSeoPattern = (object)$this->settings->get('default_products_seo_pattern');
-        $description = $this->product->description;
+
+        $annotation = (string)$this->product->annotation;
+        if (empty($annotation)) {
+            if ($data = $this->getCategoryField('auto_annotation')) {
+                $annotation = $data;
+            } elseif (!empty($defaultProductsSeoPattern->auto_annotation)) {
+                $annotation = $defaultProductsSeoPattern->auto_annotation;
+            }
+        }
+        
+        return ExtenderFacade::execute(__METHOD__, $annotation, func_get_args());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getDescriptionTemplate(): string
+    {
+        $defaultProductsSeoPattern = (object)$this->settings->get('default_products_seo_pattern');
+
+        $description = (string)$this->product->description;
         if (empty($description)) {
             if ($data = $this->getCategoryField('auto_description')) {
                 $description = $data;
@@ -61,7 +84,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaTitleTemplate()
+    public function getMetaTitleTemplate(): string
     {
         $defaultProductsSeoPattern = (object)$this->settings->get('default_products_seo_pattern');
 
@@ -70,7 +93,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
         } elseif (!empty($defaultProductsSeoPattern->auto_meta_title)) {
             $metaTitle = $defaultProductsSeoPattern->auto_meta_title;
         } else {
-            $metaTitle = $this->product->meta_title;
+            $metaTitle = (string)$this->product->meta_title;
         }
         
         return ExtenderFacade::execute(__METHOD__, $metaTitle, func_get_args());
@@ -79,7 +102,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaKeywordsTemplate()
+    public function getMetaKeywordsTemplate(): string
     {
         $defaultProductsSeoPattern = (object)$this->settings->get('default_products_seo_pattern');
 
@@ -88,7 +111,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
         } elseif (!empty($defaultProductsSeoPattern->auto_meta_keywords)) {
             $metaKeywords = $defaultProductsSeoPattern->auto_meta_keywords;
         } else {
-            $metaKeywords = $this->product->meta_keywords;
+            $metaKeywords = (string)$this->product->meta_keywords;
         }
         
         return ExtenderFacade::execute(__METHOD__, $metaKeywords, func_get_args());
@@ -97,7 +120,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getMetaDescriptionTemplate()
+    public function getMetaDescriptionTemplate(): string
     {
         $defaultProductsSeoPattern = (object)$this->settings->get('default_products_seo_pattern');
 
@@ -106,7 +129,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
         } elseif (!empty($defaultProductsSeoPattern->auto_meta_desc)) {
             $metaDescription = $defaultProductsSeoPattern->auto_meta_desc;
         } else {
-            $metaDescription = $this->product->meta_description;
+            $metaDescription = (string)$this->product->meta_description;
         }
         
         return ExtenderFacade::execute(__METHOD__, $metaDescription, func_get_args());
@@ -116,7 +139,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
      * Метод возвращает массив переменных и их значений, который учавствуют в формировании метаданных
      * @return array
      */
-    protected function getParts()
+    protected function getParts(): array
     {
         if (!empty($this->parts)) {
             return $this->parts; // no ExtenderFacade
@@ -125,15 +148,15 @@ class ProductMetadataHelper extends CommonMetadataHelper
         $currency = $this->mainHelper->getCurrentCurrency();
 
         $this->parts = [
-            '{$brand}'         => ($this->design->getVar('brand') ? $this->design->getVar('brand')->name : ''),
-            '{$product}'       => ($this->design->getVar('product') ? $this->design->getVar('product')->name : ''),
+            '{$brand}'         => ($this->brand ? $this->brand->name : ''),
+            '{$product}'       => ($this->product ? $this->product->name : ''),
             '{$price}'         => ($this->product->variant->price != null ? $this->money->convert($this->product->variant->price, $currency->id, false) . ' ' . $currency->sign : ''),
             '{$compare_price}' => ($this->product->variant->compare_price != null ? $this->money->convert($this->product->variant->compare_price, $currency->id, false) . ' ' . $currency->sign : ''),
             '{$sku}'           => ($this->product->variant->sku != null ? $this->product->variant->sku : ''),
             '{$sitename}'      => ($this->settings->get('site_name') ? $this->settings->get('site_name') : '')
         ];
 
-        if ($this->category = $this->design->getVar('category')) {
+        if ($this->category) {
             $this->parts['{$category}'] = ($this->category->name ? $this->category->name : '');
             $this->parts['{$category_h1}'] = ($this->category->name_h1 ? $this->category->name_h1 : '');
 
@@ -153,17 +176,13 @@ class ProductMetadataHelper extends CommonMetadataHelper
 
     private function getCategoryField($fieldName)
     {
-        if (empty($this->categoryPath)) {
-            return false;
-        }
-        
-        foreach ($this->categoryPath as $c) {
-            if (!empty($c->{$fieldName})) {
-                return $c->{$fieldName};
+        if (!empty($this->category)) {
+            foreach (array_reverse($this->category->path) as $c) {
+                if (!empty($c->{$fieldName})) {
+                    return $c->{$fieldName};
+                }
             }
         }
         return false;
     }
-
-
 }

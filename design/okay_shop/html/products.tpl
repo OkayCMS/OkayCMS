@@ -1,4 +1,4 @@
-{* The Categories page *}
+<!-- The Categories page -->
 
 <div class="clearfix">
     {* Sidebar with filters *}
@@ -30,13 +30,13 @@
         </div>
 
         <div class="fn_selected_features">
-            {if !($controller == 'CategoryController' && $settings->deferred_load_features)}
+            {if !$settings->deferred_load_features}
                 {include file='selected_features.tpl'}
             {/if}
         </div>
 
         <div class="fn_features">
-            {if !($controller == 'CategoryController' && $settings->deferred_load_features)}
+            {if !$settings->deferred_load_features}
                 {include file='features.tpl'}
             {else}
                 {* Deferred load features *}
@@ -58,20 +58,12 @@
         <div class="products_container__boxed">
             <h1 class="h1"{if $category} data-category="{$category->id}"{/if}{if $brand} data-brand="{$brand->id}"{/if}>{$h1|escape}</h1>
 
-            {if $current_page_num == 1 && (!empty($category->annotation) || !empty($brand->annotation)) && !$is_filter_page && !$smarty.get.page && !$smarty.get.sort}
+            {if !empty($annotation)}
                 <div class="boxed boxed--big">
                     <div class="">
                         <div class="fn_readmore">
                             <div class="block__description">
-                                {* Краткое описание категории *}
-                                {if !empty($category->annotation)}
-                                {$category->annotation}
-                                {/if}
-
-                                {* Краткое описание бренда *}
-                                {if !empty($brand->annotation)}
-                                {$brand->annotation}
-                                {/if}
+                                {$annotation}
                             </div>
                         </div>
                     </div>
@@ -106,10 +98,21 @@
 
             {if $description}
                 <div class="boxed boxed--big">
-                    <div class="">
-                        <div class="fn_readmore">
-                            <div class="block__description">{$description}</div>
+                    {* Table contents *}
+                    {if !empty($table_of_content)}
+                        <div class="post__table_contents">
+                            <div class="post__table_contents_title">{$lang->blog_table_contents}</div>
+                            <ol>
+                                {foreach $table_of_content as $content_item}
+                                    <li style="margin-left: {$content_item.header_level*15-15}px">
+                                        <a class="fn_ancor_post" href="{$content_item.url|escape}">{$content_item.anchor_text|escape}</a>
+                                    </li>
+                                {/foreach}
+                            </ol>
                         </div>
+                    {/if}
+                    <div class="">
+                        <div class="block__description">{$description}</div>
                     </div>
                 </div>
             {/if}

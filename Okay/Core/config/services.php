@@ -6,14 +6,15 @@ namespace Okay\Core;
 
 use Monolog\Handler\ChromePHPHandler;
 use Monolog\Handler\RotatingFileHandler;
+use Okay\Core\Console\Application AS ConsoleApplication;
 use Okay\Core\Entity\UrlUniqueValidator;
 use Okay\Core\Modules\ModuleDesign;
 use Okay\Core\Modules\ModulesEntitiesFilters;
 use Okay\Core\OkayContainer\Reference\ParameterReference as PR;
 use Okay\Core\OkayContainer\Reference\ServiceReference as SR;
-
 use Monolog\Logger;
 use Okay\Core\Routes\RouteFactory;
+use Okay\Core\Scheduler\Scheduler;
 use Okay\Core\TemplateConfig\BackendTemplateConfig;
 use Okay\Core\TemplateConfig\FrontTemplateConfig;
 use Okay\Helpers\MainHelper;
@@ -67,6 +68,8 @@ $services = [
             new SR(Languages::class),
             new SR(RouteFactory::class),
             new SR(Modules::class),
+            new SR(LoggerInterface::class),
+            new SR(Config::class),
         ],
     ],
     Config::class => [
@@ -349,9 +352,8 @@ $services = [
         'class' => WishList::class,
         'arguments' => [
             new SR(EntityFactory::class),
-            new SR(Settings::class),
-            new SR(MoneyHelper::class),
             new SR(MainHelper::class),
+            new SR(ProductsHelper::class),
         ],
     ],
     BrowsedProducts::class => [
@@ -421,10 +423,26 @@ $services = [
         'class' => UpdateObject::class,
     ],
     QueueExtender::class => [
-        'class' => QueueExtender::class
+        'class' => QueueExtender::class,
+        'calls' => [
+            [
+                'method' => 'setDeprecated',
+                'arguments' => [
+                    new PR('config.deprecated_methods'),
+                ]
+            ],
+        ],
     ],
     ChainExtender::class => [
-        'class' => ChainExtender::class
+        'class' => ChainExtender::class,
+        'calls' => [
+            [
+                'method' => 'setDeprecated',
+                'arguments' => [
+                    new PR('config.deprecated_methods'),
+                ]
+            ],
+        ],
     ],
     ExtenderFacade::class => [
         'class' => ExtenderFacade::class,
@@ -495,6 +513,17 @@ $services = [
         'class' => Discounts::class,
         'arguments' => [
             new SR(EntityFactory::class),
+        ]
+    ],
+    ConsoleApplication::class => [
+        'class' => ConsoleApplication::class,
+        'arguments' => [
+        ]
+    ],
+    Scheduler::class => [
+        'class' => Scheduler::class,
+        'arguments' => [
+            new PR('logger.dir'),
         ]
     ],
 ];

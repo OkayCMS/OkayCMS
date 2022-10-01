@@ -7,9 +7,11 @@ namespace Okay\Modules\OkayCMS\NovaposhtaCost\Extenders;
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
 use Okay\Core\FrontTranslations;
+use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Modules\Extender\ExtensionInterface;
 use Okay\Core\Modules\Module;
 use Okay\Core\Request;
+use Okay\Core\Router;
 use Okay\Core\ServiceLocator;
 use Okay\Entities\OrdersEntity;
 use Okay\Entities\PaymentsEntity;
@@ -18,14 +20,28 @@ use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCostDeliveryDataEntity;
 
 class FrontExtender implements ExtensionInterface
 {
-    
+    /** @var Request  */
     private $request;
+
+    /** @var EntityFactory  */
     private $entityFactory;
-    
-    public function __construct(Request $request, EntityFactory $entityFactory)
-    {
-        $this->request = $request;
-        $this->entityFactory = $entityFactory;
+
+    /** @var FrontTranslations */
+    private $frontTranslations;
+
+    /** @var Design $design */
+    private $design;
+
+    public function __construct(
+        Request           $request,
+        EntityFactory     $entityFactory,
+        FrontTranslations $frontTranslations,
+        Design            $design
+    ) {
+        $this->request           = $request;
+        $this->entityFactory     = $entityFactory;
+        $this->frontTranslations = $frontTranslations;
+        $this->design            = $design;
     }
 
     /**
@@ -69,7 +85,7 @@ class FrontExtender implements ExtensionInterface
                 $delivery->delivery_price_text = $frontTranslations->getTranslation('np_need_select_city');
             }
         }
-        return $deliveries;
+        return ExtenderFacade::execute(__METHOD__, $deliveries, func_get_args());
     }
 
     /**
@@ -109,8 +125,17 @@ class FrontExtender implements ExtensionInterface
                 $defaultData['novaposhta_apartment'] = $npDeliveryData->apartment;
             }
         }
-        
-        return $defaultData;
+
+        $route_name = Router::getCurrentRouteName();
+        if ( !empty($route_name) && ($route_name === 'cart') ) {
+            $np_cart_calculate = $this->frontTranslations->getTranslation('np_cart_calculate');
+            if (empty($np_cart_calculate)) {
+                $np_cart_calculate = 'Вычисляем...';
+            }
+            $this->design->assignJsVar('np_cart_calculate', $np_cart_calculate);
+        }
+
+        return ExtenderFacade::execute(__METHOD__, $defaultData, func_get_args());
     }
     
     /**
@@ -124,10 +149,15 @@ class FrontExtender implements ExtensionInterface
      */
     public function setCartDeliveryPrice($result, $delivery, $order)
     {
-        if ($this->request->post('is_novaposhta_delivery', 'boolean')) {
+        if (
+            $this->request->post('is_novaposhta_delivery', 'boolean') &&
+            $delivery->paid &&
+            $delivery->free_from > $order->total_price
+        ) {
             $result['delivery_price'] = $this->request->post('novaposhta_delivery_price');
         }
-        return $result;
+
+        return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
     }
     
     /**
@@ -162,8 +192,34 @@ class FrontExtender implements ExtensionInterface
             } else {
                 $deliveryData->warehouse_id = $this->request->post('novaposhta_delivery_warehouse_id');
             }
-            
-            $npDeliveryDataEntity->add($deliveryData);
+
+            $addId = $npDeliveryDataEntity->add($deliveryData);
+
+            return ExtenderFacade::execute(__METHOD__, [$addId, $deliveryData], func_get_args());
         }
+    }
+
+    /**
+     * @param $error
+     * @param $order
+     * @return null|string
+     */
+    public function getCartValidateError($error)
+    {
+        if (is_null($error) && $this->request->post('is_novaposhta_delivery', 'boolean')) {
+            if (empty($this->request->post('novaposhta_city'))) {
+                $error = $this->frontTranslations->getTranslation('np_cart_error_city');
+            } else if ($this->request->post('novaposhta_door_delivery')) {
+                if (empty($this->request->post('novaposhta_street'))) {
+                    $error = $this->frontTranslations->getTranslation('np_cart_error_street');
+                } else if (empty($this->request->post('novaposhta_house'))) {
+                    $error = $this->frontTranslations->getTranslation('np_cart_error_house');
+                }
+            } else if (empty($this->request->post('novaposhta_warehouses'))) {
+                $error = $this->frontTranslations->getTranslation('np_cart_error_warehouse');
+            }
+        }
+
+        return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
 }

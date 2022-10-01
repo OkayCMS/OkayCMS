@@ -17,6 +17,7 @@ class FeaturesValuesEntity extends Entity
         'feature_id',
         'position',
         'to_index',
+        'external_id',
     ];
 
     protected static $langFields = [
@@ -111,17 +112,24 @@ class FeaturesValuesEntity extends Entity
     }
     
     /*Удаление значения свойства*/
-    public function delete($valuesIds = null)
+    public function delete($ids = null)
     {
+        if (parent::delete($ids)) {
+            $ids = (array)$ids;
 
-        // TODO удалять с алиасов
-        $this->deleteProductValue(null, $valuesIds);
+            $this->deleteProductValue(null, $ids);
+            $this->deleteAliases($ids);
+        }
 
-        return parent::delete($valuesIds);
+        return parent::delete($ids);
     }
 
     public function countProductsByValueId(array $valuesIds)
     {
+        if (empty($valuesIds)) {
+            return ExtenderFacade::execute([static::class, __FUNCTION__], [], func_get_args());
+        }
+
         $select = $this->queryFactory->newSelect();
         $select->cols([
             'COUNT(product_id) AS count',
@@ -133,6 +141,7 @@ class FeaturesValuesEntity extends Entity
         
         $this->db->query($select);
         $count = $this->db->results(null, 'value_id');
+
         return ExtenderFacade::execute([static::class, __FUNCTION__], $count, func_get_args());
     }
 
@@ -179,26 +188,40 @@ class FeaturesValuesEntity extends Entity
         }
     }
 
-    protected function filter__price(array $priceRange)
+    protected function filter__price(array $price)
     {
-        /** @var Money $money */
-        $money = $this->serviceLocator->getService(Money::class);
-        $coef = $money->getCoefMoney();
+        $productsEntity = $this->entity->get(ProductsEntity::class);
 
-        if (isset($priceRange['min'])) {
-            $this->select->where("floor(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*{$coef})>=:price_min")
-                ->bindValue('price_min', trim($priceRange['min']));
-        }
-        if (isset($priceRange['max'])) {
-            $this->select->where("floor(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*{$coef})<=:price_max")
-                ->bindValue('price_max', trim($priceRange['max']));
-        }
+        $productsSelect = $productsEntity->getSelect(['price' => $price, 'visible' => 1]);
 
-        $this->select->join('LEFT', '__variants AS pv', 'pv.product_id = p.id');
-        $this->select->join('LEFT', '__currencies AS c', 'c.id=pv.currency_id');
+        $productsSelect
+            ->resetCols()
+            ->resetOrderBy();
+
+        $productsSelect
+            ->join(
+                'LEFT',
+                '__products_features_values AS pfv',
+                'pfv.product_id = '.ProductsEntity::getTableAlias().'.id'
+            )
+            ->cols(['pfv.value_id as product_value_id']);
+
+        $this->select->joinSubSelect(
+            'INNER',
+            $productsSelect,
+            __FUNCTION__.'__'.ProductsEntity::getTableAlias(),
+            __FUNCTION__.'__'.ProductsEntity::getTableAlias().'.product_value_id = fv.id');
+
     }
     
     protected function filter__category_id($categoriesIds)
+    {
+        // Берём значения тех свойств, которые назначены на указанные категории
+        $this->select->join('INNER', '__categories_features AS cf', 'cf.feature_id=f.id AND cf.category_id IN (:category_id)')
+            ->bindValue('category_id', (array)$categoriesIds);
+    }
+
+    protected function filter__have_products_in_categories($categoriesIds)
     {
         $this->select->join('INNER', '__products_categories AS pc', 'pc.product_id=pf.product_id AND pc.category_id IN (:category_id)')
             ->bindValue('category_id', (array)$categoriesIds);
@@ -388,4 +411,87 @@ class FeaturesValuesEntity extends Entity
         return ExtenderFacade::execute([static::class, __FUNCTION__], true, func_get_args());
     }
 
+    /**
+     * @param array $ids
+     * @throws \Exception
+     */
+    public function deleteAliases(array $ids): void
+    {
+        if (!empty($ids)) {
+            $this->queryFactory->newDelete()
+                ->from(FeaturesValuesAliasesValuesEntity::getTable())
+                ->where('feature_value_id IN (:ids)')
+                ->bindValues(['ids' => $ids])
+                ->execute();
+        }
+    }
+
+    protected function filter__product_keyword($keyword)
+    {
+        /** @var ProductsEntity $productsEntity */
+        $productsEntity = $this->entity->get(ProductsEntity::class);
+
+        $productsSelect = $productsEntity->getSelect(['keyword' => $keyword, 'visible' => 1]);
+
+        $productsSelect
+            ->resetCols()
+            ->resetOrderBy();
+
+        $productsSelect
+            ->join(
+                'LEFT',
+                '__products_features_values AS pfv',
+                'pfv.product_id = '.ProductsEntity::getTableAlias().'.id'
+            )
+            ->cols(['pfv.value_id as product_value_id']);
+
+        $this->select->joinSubSelect(
+            'INNER',
+            $productsSelect,
+            __FUNCTION__.'__'.ProductsEntity::getTableAlias(),
+            __FUNCTION__.'__'.ProductsEntity::getTableAlias().'.product_value_id = fv.id');
+    }
+
+    protected function filter__brand($value)
+    {
+        $productsEntity = $this->entity->get(ProductsEntity::class);
+
+        $productsSelect = $productsEntity->getSelect(['brand' => $value, 'visible' => 1]);
+
+        $productsSelect
+            ->resetCols()
+            ->resetOrderBy();
+
+        $productsSelect
+            ->join(
+                'LEFT',
+                '__products_features_values AS pfv',
+                'pfv.product_id = '.ProductsEntity::getTableAlias().'.id'
+            )
+            ->cols(['pfv.value_id as product_value_id']);
+
+        $this->select->joinSubSelect(
+            'INNER',
+            $productsSelect,
+            __FUNCTION__.'__'.ProductsEntity::getTableAlias(),
+            __FUNCTION__.'__'.ProductsEntity::getTableAlias().'.product_value_id = fv.id');
+    }
+
+    protected function filter__selected_features($selectedFeatures)
+    {
+        $statements = [];
+        $binds = [];
+
+        foreach ($selectedFeatures as $featureId => $featureValuesTranslits) {
+            $statements[] = "fv.feature_id = ? AND fv.translit IN (?)";
+            $binds = array_merge($binds, [
+                $featureId,
+                $featureValuesTranslits
+            ]);
+        }
+
+        $statement = '((' . implode(') OR (', $statements) . '))';
+
+        $this->select->where($statement, ...$binds);
+    }
 }

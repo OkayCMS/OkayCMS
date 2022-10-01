@@ -25,6 +25,7 @@ use Okay\Core\Translit;
 use Okay\Entities\ManagersEntity;
 use Okay\Entities\LanguagesEntity;
 use Okay\Entities\CurrenciesEntity;
+use Okay\Entities\ModulesEntity;
 use Okay\Entities\SupportInfoEntity;
 
 class IndexAdmin
@@ -145,13 +146,38 @@ class IndexAdmin
         $design->assign('config',    $this->config);
 
         $this->design->assign('rootUrl', $this->request->getRootUrl());
-        
+
+        $modulesEntity = $this->entityFactory->get(ModulesEntity::class);
+        $modules = $modulesEntity->cols(['module_name'])->find();
+        if(is_dir('design/')){
+        $dirs = scandir('design/');
+        $themes = [];
+        foreach($dirs as $dir){
+            if($dir != '.' && $dir != '..' && $dir != '.htaccess'){
+                $themes [] = $dir;
+            }
+        }
+        }
+
         if (!isset($_SESSION['last_version_data'])) {
             $query = http_build_query([
-                'domain' => Request::getDomain(),
+                'domain'  => Request::getDomain(),
                 'version' => $config->version,
+                'modules' => $modules,
+                'themes'  => $themes
             ]);
-            if ($versionData = @file_get_contents('https://okay-cms.com/last_version.json?' . $query)) {
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'https://okay-cms.com/last_version.json?' . $query);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+            $versionData = curl_exec($ch);
+            curl_close($ch);
+            
+            if ($versionData) {
                 $versionData = json_decode($versionData, true);
                 $_SESSION['last_version_data'] = $versionData;
             } else {

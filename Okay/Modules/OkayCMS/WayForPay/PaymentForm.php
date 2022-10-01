@@ -74,7 +74,7 @@ class PaymentForm extends AbstractModule implements PaymentFormInterface
         $this->design->assign('merchantAuthType', 'simpleSignature');
         $this->design->assign('merchantDomainName', $_SERVER['HTTP_HOST']);
 
-        $price           = round($this->money->convert($order->total_price, $paymentMethod->currency_id, false), 2);
+        $price           = $this->money->convert($order->total_price, $paymentMethod->currency_id, false, false, 2);
         $paymentCurrency = $currenciesEntity->get(intval($paymentMethod->currency_id));
         $this->design->assign('amount', $price);
         $this->design->assign('currency', $paymentCurrency->code);
@@ -126,7 +126,7 @@ class PaymentForm extends AbstractModule implements PaymentFormInterface
         $purchasesPrices = [];
 
         foreach($purchases as $purchase) {
-            $purchasesPrices[] = round($this->money->convert($purchase->price, $currencyId, false), 2);
+            $purchasesPrices[] = $this->money->convert($purchase->price, $currencyId, false, false, 2);
         }
 
         return $purchasesPrices;

@@ -241,6 +241,16 @@
                         </div>
                         <textarea name="meta_description" class="form-control okay_textarea fn_meta_field">{$brand->meta_description|escape}</textarea>
                     </div>
+                    <div class="col-lg-12 col-md-12">
+                        <div class="heading_label">{$btr->brand_h1|escape}
+                            <i class="fn_tooltips" title="{$btr->tooltip_brand_h1|escape}">
+                                {include file='svg_icon.tpl' svgId='icon_tooltips'}
+                            </i>
+                        </div>
+                        <div>
+                            <input name="name_h1" class="form-control" type="text" value="{$brand->name_h1|escape}"/>
+                        </div>
+                    </div>
                 </div>
                 {get_design_block block="brand_meta"}
             </div>
@@ -279,6 +289,10 @@
                 </div>
                 <div class="row">
                    <div class="col-lg-12 col-md-12 mt-1">
+                       <button id="fast_save_button_and_quit" type="submit" class="fn_step-7 btn btn_small btn_blue float-md-right ml-1" name="apply_and_quit" value="1">
+                           {include file='svg_icon.tpl' svgId='checked'}
+                           <span>{$btr->general_apply_and_quit|escape}</span>
+                       </button>
                         <button type="submit" class="fn_step-7 btn btn_small btn_blue float-md-right">
                             {include file='svg_icon.tpl' svgId='checked'}
                             <span>{$btr->general_apply|escape}</span>

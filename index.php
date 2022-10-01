@@ -6,29 +6,33 @@ use Okay\Core\Router;
 use Okay\Core\Request;
 use Okay\Core\Response;
 use Okay\Core\Config;
+use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\Modules\Modules;
+use Okay\Core\OkayContainer\OkayContainer;
 use Psr\Log\LoggerInterface;
 
 ini_set('display_errors', 'off');
+
+require_once('vendor/autoload.php');
 
 if (!empty($_SERVER['HTTP_USER_AGENT'])) {
     session_name(md5($_SERVER['HTTP_USER_AGENT']));
 }
 session_start();
 
-require_once('vendor/autoload.php');
-
+/** @var OkayContainer $DI */
 $DI = include 'Okay/Core/config/container.php';
 
-/**
- * Конфигурируем в конструкторе сервиса параметры системы
- *
- * @var Config $config
- */
+/** Инициализируем панель отладки */
+if (false) {
+    DebugBar::init();
+}
+DebugBar::startMeasure('init', 'System init');
+
+/** @var Config $config Конфигурируем в конструкторе сервиса параметры системы */
 $config = $DI->get(Config::class);
 
 try {
-
     /** @var Router $router */
     $router = $DI->get(Router::class);
     
@@ -62,8 +66,9 @@ try {
     
     /** @var Modules $modules */
     $modules = $DI->get(Modules::class);
+    DebugBar::stopMeasure('init');
     $modules->startEnabledModules();
-    
+
     $router->run();
 
     if ($response->getContentType() == RESPONSE_HTML) {
@@ -78,17 +83,17 @@ try {
         print "page generation time: " . $execTime . " seconds\r\n";
         print "-->";
     }
-    
+
 } catch (\Exception $e) {
     
     /** @var LoggerInterface $logger */
     $logger = $DI->get(LoggerInterface::class);
     
     $message = $e->getMessage() . PHP_EOL . $e->getTraceAsString();
+    header($_SERVER['SERVER_PROTOCOL'].' 500 Internal Server Error');
     if ($config->get('debug_mode') == true) {
         print $message;
     } else {
         $logger->critical($message);
-        header($_SERVER['SERVER_PROTOCOL'].' 500 Internal Server Error');
     }
 }

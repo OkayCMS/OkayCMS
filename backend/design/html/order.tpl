@@ -30,11 +30,11 @@
                     </select>
                 </div>
                 {if $order->id && !empty($order->url)}
-                    <a data-hint="{$btr->general_open|escape}" class="hint-bottom-middle-t-info-s-small-mobile  hint-anim ml-h site_block_icon" target="_blank"  href="{url_generator route='order' url=$order->url absolute=1}" >
+                    <a data-hint="{$btr->general_open|escape}" class="hint-bottom-middle-t-info-s-small-mobile  hint-anim ml-h site_block_icon order_toolbar__eye" target="_blank"  href="{url_generator route='order' url=$order->url absolute=1}" >
                         {include file='svg_icon.tpl' svgId='eye'}
                     </a>
                 {/if}
-                <a data-hint="{$btr->order_print|escape}" href="{url view=print id=$order->id return=null}" target="_blank" title="{$btr->order_print|escape}" class="hint-bottom-middle-t-info-s-small-mobile  hint-anim ml-h print_block_icon">
+                <a data-hint="{$btr->order_print|escape}" href="{url view=print id=$order->id return=null}" target="_blank" title="{$btr->order_print|escape}" class="hint-bottom-middle-t-info-s-small-mobile  hint-anim ml-h print_block_icon order_toolbar__print">
                     {include file='svg_icon.tpl' svgId='print'}
                 </a>
                 {*Метки заказа*}
@@ -198,7 +198,7 @@
                                                 <div class="okay_list_boding okay_list_order_name">
                                                     <div class="boxes_inline">
                                                         {if $purchase->product}
-                                                            <a class="text_600 {if $purchase->variant->stock == 0}hint-bottom-middle-t-info-s-small-mobile  hint-anim text_500 text_warning{/if}" {if $purchase->variant->stock == 0}data-hint="{$btr->product_out_stock|escape}"{/if} href="{url controller=ProductAdmin id=$purchase->product->id}">{$purchase->product_name|escape}</a>
+                                                            <a class="text_600 {if !$order->closed && $purchase->variant->stock == 0}hint-bottom-middle-t-info-s-small-mobile  hint-anim text_500 text_warning{/if}" {if !$order->closed && $purchase->variant->stock == 0}data-hint="{$btr->product_out_stock|escape}"{/if} href="{url controller=ProductAdmin id=$purchase->product->id}">{$purchase->product_name|escape}</a>
                                                             {if $purchase->variant_name}
                                                                 <div class="mt-q font_12"><span class="text_grey">{$btr->order_option|escape}</span> {$purchase->variant_name|escape}</div>
                                                             {/if}
@@ -228,7 +228,7 @@
                                                         <div class="boxes_inline mt-h">
                                                             <select name="purchases[variant_id][{$purchase->id|escape}]" class="selectpicker form-control {if $purchase->product->variants|count == 1}hidden{/if} fn_purchase_variant">
                                                                 {foreach $purchase->product->variants as $v}
-                                                                    <option data-price="{$v->price|escape}" data-units="{if $v->units}{$v->units|escape}{else}{$settings->units|escape}{/if}" data-amount="{$v->stock|escape}" value="{$v->id|escape}" {if $v->id == $purchase->variant_id}selected{/if} >
+                                                                    <option {get_design_block block="order_purchase_variants_option_block" vars=['v'=>$v]} data-price="{$v->price|escape}" data-units="{if $v->units}{$v->units|escape}{else}{$settings->units|escape}{/if}" data-amount="{$v->stock|escape}" value="{$v->id|escape}" {if $v->id == $purchase->variant_id}selected{/if} >
                                                                         {if $v->name}
                                                                             {$v->name|escape}
                                                                         {else}
@@ -636,6 +636,10 @@
     </div>
     <div class="row">
         <div class="col-lg-12 col-md-12 mb-2">
+            <button id="fast_save_button_and_quit" type="submit" class="btn btn_small btn_blue float-md-right ml-1" name="apply_and_quit" value="1">
+                {include file='svg_icon.tpl' svgId='checked'}
+                <span>{$btr->general_apply_and_quit|escape}</span>
+            </button>
             <button type="submit" class="btn btn_small btn_blue float-sm-right">
                 {include file='svg_icon.tpl' svgId='checked'}
                 <span>{$btr->general_apply|escape}</span>

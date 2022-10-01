@@ -18,10 +18,52 @@
                 <div class="alert__title mb-q">{$btr->alert_info|escape}</div>
                 <div class="text_box">
                     <p class="mb-1">
-                        {$btr->okaycms__integration_ic__description_part_1} (<b>{url_generator route="integration_1c" absolute=1}</b>) {$btr->okaycms__integration_ic__description_part_2}.
+                        {$btr->okaycms__integration_ic__description_part_1|escape} (<b>{url_generator route="integration_1c" absolute=1}</b>) {$btr->okaycms__integration_ic__description_part_2|escape}.
                     </p>
                     <p class="mb-1">
-                        {$btr->okaycms__integration_ic__description_part_3} <b>OkayCMS</b>: <a href="https://okay-cms.com/article/instruktsiya-po-nastrojke-obmena-dannymi-sajta-s-1s-8h-na-primere-konfiguratsii-ut-23" target="_blank">https://okay-cms.com/article/instruktsiya-po-nastrojke-obmena-dannymi-sajta-s-1s-8h-na-primere-konfiguratsii-ut-23</a>
+                        {$btr->okaycms__integration_ic__description_part_2_1|escape}</b>
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_3|escape} <b>OkayCMS</b>: <a href="https://okay-cms.com/article/instruktsiya-po-nastrojke-obmena-dannymi-sajta-s-1s-8h-na-primere-konfiguratsii-ut-23" target="_blank">https://okay-cms.com/article/instruktsiya-po-nastrojke-obmena-dannymi-sajta-s-1s-8h-na-primere-konfiguratsii-ut-23</a>
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_4|escape}</b>
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_5|escape}</b>
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_6|escape}</b>
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_7|escape} <b>{url_generator route="integration_1c" absolute=1}?mode=init</b>
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_8|escape}
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_9|escape} (<b>{url_generator route="integration_1c" absolute=1}?mode=file&type=catalog&filename=import0_1.xml</b>)
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_10|escape}
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_11|escape} (<b>{url_generator route="integration_1c" absolute=1}?mode=import&type=catalog&filename=import0_1.xml</b>)
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_12|escape}.
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_13|escape} <b>{url_generator route="integration_1c" absolute=1}?mode=import&type=catalog&filename=offers_1.xml</b>
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_14|escape} <b>{url_generator route="integration_1c" absolute=1}?mode=file&type=sale&filename=orders.xml</b>
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_15|escape}
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_16|escape} <b>{url_generator route="integration_1c" absolute=1}?mode=query&type=sale</b>
                     </p>
                 </div>
             </div>
@@ -80,53 +122,6 @@
                                     </div>
                                 {/foreach}
                             {/if}
-
-                            <div class="fn_row fn_new_status fn_sort_item okay_list_body">
-                                <div class="fn_row okay_list_body_item">
-                                    <div class="okay_list_row fn_sort_item">
-                                        <div class="okay_list_boding okay_list_drag"></div>
-                                        <div class="okay_list_boding okay_list_order_stg_sts_name_1c">
-                                            <input type="text" class="form-control" name="new_name[]" value="">
-                                            {if $is_mobile == true}
-                                                <div class="hidden-sm-up mt-q">
-                                                    <select name="new_is_close[]" class="selectpicker form-control">
-                                                        <option value="1">{$btr->order_settings_reduse_products|escape}</option>
-                                                        <option value="0">{$btr->order_settings_not_reduse_products|escape}</option>
-                                                    </select>
-                                                </div>
-                                                <div class="hidden-sm-up mt-q">
-                                                    <select name="new_status_1c[]" class="selectpicker form-control">
-                                                        <option value="not_use">{$btr->order_settings_1c_not_use|escape}</option>
-                                                        <option value="new">{$btr->order_settings_1c_new|escape}</option>
-                                                        <option value="accepted">{$btr->order_settings_1c_accepted|escape}</option>
-                                                        <option value="to_delete">{$btr->order_settings_1c_to_delete|escape}</option>
-                                                    </select>
-                                                </div>
-                                            {/if}
-                                        </div>
-                                        {if $is_mobile == false}
-                                            <div class="okay_list_boding okay_list_order_stg_sts_status">
-                                                <select name="new_is_close[]" class="selectpicker form-control">
-                                                    <option value="1">{$btr->order_settings_reduse_products|escape}</option>
-                                                    <option value="0">{$btr->order_settings_not_reduse_products|escape}</option>
-                                                </select>
-                                            </div>
-                                            <div class="okay_list_boding okay_list_order_stg_sts_status2">
-                                                <select name="new_status_1c[]" class="selectpicker form-control">
-                                                    <option value="not_use">{$btr->order_settings_1c_not_use|escape}</option>
-                                                    <option value="new">{$btr->order_settings_1c_new|escape}</option>
-                                                    <option value="accepted">{$btr->order_settings_1c_accepted|escape}</option>
-                                                    <option value="to_delete">{$btr->order_settings_1c_to_delete|escape}</option>
-                                                </select>
-                                            </div>
-                                        {/if}
-                                        <div class="okay_list_boding okay_list_order_stg_sts_label">
-                                            <input name="new_color[]" value="" class="hidden">
-                                            <span data-hint="{$btr->order_settings_select_colour|escape}" class="fn_color label_color_item hint-bottom-middle-t-info-s-small-mobile  hint-anim"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         {*Блок массовых действий*}
@@ -225,6 +220,16 @@
                                             </div>
                                             <div class="col-xl-12 col-lg-12 col-md-12">
                                                 <div class="permission_box permission_box--long">
+                                                    <span>{$btr->okaycms__integration_ic__settings_eraseComparePriceEqual|escape}</span>
+                                                    <label class="switch switch-default">
+                                                        <input class="switch-input" name="integration1cEraseComparePriceEqual" value='1' type="checkbox" {if $settings->integration1cEraseComparePriceEqual}checked=""{/if}/>
+                                                        <span class="switch-label"></span>
+                                                        <span class="switch-handle"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-12 col-lg-12 col-md-12">
+                                                <div class="permission_box permission_box--long">
                                                     <span>
                                                         {$btr->okaycms__integration_1c__settings_exportPurchasesDiscountsSeparate|escape}
                                                         <i class="fn_tooltips" title="{$btr->okaycms__integration_1c__settings_exportPurchasesDiscountsSeparate_tooltip|escape}">
@@ -254,47 +259,9 @@
                             </div>
                         </div>
                     </div>
-                    
+
                 </form>
             </div>
         </div>
     </div>
 </div>
-
-{* On document load *}
-{literal}
-    <link rel="stylesheet" media="screen" type="text/css" href="design/js/colorpicker/css/colorpicker.css" />
-    <script type="text/javascript" src="design/js/colorpicker/js/colorpicker.js"></script>
-    <script>
-        $(function() {
-            var new_label = $(".fn_new_label").clone(true);
-            $(".fn_new_label").remove();
-
-            var new_status = $(".fn_new_status").clone(true);
-            $(".fn_new_status").remove();
-
-            $(document).on("click", ".fn_add_Label", function () {
-                clone_label = new_label.clone(true);
-                $(".fn_labels_list").append(clone_label);
-            });
-
-            $(document).on("click", ".fn_add_status", function () {
-                clone_status = new_status.clone(true);
-                clone_status.find("select").selectpicker();
-                $(".fn_status_list").append(clone_status);
-            });
-
-            $(document).on("mouseenter click", ".fn_color", function () {
-                var elem = $(this);
-                elem.ColorPicker({
-                    onChange: function (hsb, hex, rgb) {
-                        elem.css('backgroundColor', '#' + hex);
-                        elem.prev().val(hex);
-                    }
-                });
-            });
-
-        });
-    </script>
-{/literal}
-

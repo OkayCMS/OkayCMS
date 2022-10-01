@@ -204,6 +204,16 @@ $plugins = [
             new SR(Config::class),
         ],
     ],
+    Plugins\JsonLdText::class => [
+        'class' => Plugins\JsonLdText::class,
+        'arguments' => [],
+    ],
+    Plugins\Webp::class => [
+        'class' => Plugins\Webp::class,
+        'arguments' => [
+            new SR(Image::class),
+        ],
+    ],
 ];
 
 $DI->bindServices($plugins);

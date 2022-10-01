@@ -28,6 +28,9 @@ class BackendImportHelper
     private $languages;
     private $entityFactory;
     private $imageCore;
+
+    /** @var FeaturesEntity */
+    private $featuresEntity;
     
     public function __construct(
         Import $import,
@@ -41,6 +44,8 @@ class BackendImportHelper
         $this->languages = $languages;
         $this->entityFactory = $entityFactory;
         $this->imageCore = $imageCore;
+
+        $this->featuresEntity = $entityFactory->get(FeaturesEntity::class);
     }
     
     // Импорт одного товара $item[column_name] = value;
@@ -247,12 +252,18 @@ class BackendImportHelper
             $variant['name'] = trim($itemFromCsv['variant']);
         }
 
-        if (isset($itemFromCsv['price']) && !empty($itemFromCsv['price'])) {
-            $variant['price'] = str_replace(',', '.', str_replace(' ', '', trim($itemFromCsv['price'])));
+        if (isset($itemFromCsv['price'])) {
+            $price = str_replace(',', '.', str_replace(' ', '', trim($itemFromCsv['price'])));
+            if (!empty($price) || $price === '0.00' || $price === '0.0' || $price === '0') {
+                $variant['price'] = $price;
+            }
         }
 
-        if (isset($itemFromCsv['compare_price']) && !empty($itemFromCsv['compare_price'])) {
-            $variant['compare_price'] = str_replace(',', '.', str_replace(' ', '', trim($itemFromCsv['compare_price'])));
+        if (isset($itemFromCsv['compare_price'])) {
+            $comparePrice = str_replace(',', '.', str_replace(' ', '', trim($itemFromCsv['compare_price'])));
+            if (!empty($comparePrice) || $comparePrice === '0.00' || $comparePrice === '0.0' || $comparePrice === '0') {
+                $variant['compare_price'] = $comparePrice;
+            }
         }
 
         if (isset($itemFromCsv['stock'])) {
@@ -346,10 +357,7 @@ class BackendImportHelper
                 continue;
             }
 
-            $sql = $this->queryFactory->newSqlQuery();
-            $sql->setStatement("SELECT f.id FROM __features f WHERE f.name=:feature_name LIMIT 1");
-            $sql->bindValue('feature_name', $featureName);
-            $featureId = $sql->result('id');
+            $featureId = $this->featuresEntity->col('id')->findOne(['name' => $featureName]);
 
             if (empty($featureId)) {
                 $featureId = $featuresEntity->add(['name' => $featureName]);

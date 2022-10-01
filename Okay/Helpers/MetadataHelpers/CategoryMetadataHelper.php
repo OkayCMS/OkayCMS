@@ -6,12 +6,12 @@ namespace Okay\Helpers\MetadataHelpers;
 
 use Okay\Core\EntityFactory;
 use Okay\Core\FrontTranslations;
+use Okay\Core\Languages;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Entities\FeaturesAliasesValuesEntity;
 use Okay\Entities\FeaturesEntity;
 use Okay\Entities\FeaturesValuesAliasesValuesEntity;
 use Okay\Entities\SEOFilterPatternsEntity;
-use Okay\Helpers\FilterHelper;
 use Okay\Helpers\MetaRobotsHelper;
 
 class CategoryMetadataHelper extends CommonMetadataHelper
@@ -25,26 +25,65 @@ class CategoryMetadataHelper extends CommonMetadataHelper
 
     private $featuresPlusFeaturesIds = [];
 
+    /** @var object */
+    private $category;
+
+    /** @var bool */
+    private $isFilterPage;
+
+    /** @var bool */
+    private $isAllPages;
+
+    /** @var int */
+    private $currentPageNum;
+
+    /** @var array */
+    private $selectedFilters;
+
+    /** @var string|null */
+    private $keyword;
+
+    public function setUp(
+        $category,
+        bool $isFilterPage = false,
+        bool $isAllPages = false,
+        int $currentPageNum = 1,
+        array $selectedFilters = [],
+        array $metaArray = [],
+        ?string $keyword = null
+    ): void {
+        $this->category        = $category;
+        $this->isFilterPage    = $isFilterPage;
+        $this->isAllPages      = $isAllPages;
+        $this->currentPageNum  = $currentPageNum;
+        $this->selectedFilters = $selectedFilters;
+        $this->metaArray       = $metaArray;
+        $this->keyword         = $keyword;
+    }
+
     /**
      * @inheritDoc
      */
-    public function getH1Template()
+    public function getH1Template(): string
     {
-        $category = $this->design->getVar('category');
         $seoFilterPattern = $this->getSeoFilterPattern();
         $filterAutoMeta = $this->getFilterAutoMeta();
 
         $pageH1 = parent::getH1Template();
         $seoFilterPatternH1 = !empty($seoFilterPattern->h1) ? $seoFilterPattern->h1 : null;
         $filterAutoMetaH1 = !empty($filterAutoMeta->h1) ? $filterAutoMeta->h1 : null;
-        $categoryH1 = !empty($category->name_h1) ? $category->name_h1 : $category->name;
+        $categoryH1 = !empty($this->category->name_h1) ? $this->category->name_h1 : $this->category->name;
 
         $h1 = $this->matchPriorityH1($pageH1, $seoFilterPatternH1, $filterAutoMetaH1, $categoryH1);
+
+        if ($this->keyword !== null) {
+            $h1 .= " «{$this->keyword}»";
+        }
 
         return ExtenderFacade::execute(__METHOD__, $h1, func_get_args());
     }
 
-    public function matchPriorityH1($pageH1, $seoFilterPatternH1, $filterAutoMetaH1, $categoryH1)
+    public function matchPriorityH1($pageH1, $seoFilterPatternH1, $filterAutoMetaH1, $categoryH1): string
     {
         if ($pageH1) {
             $h1 = $pageH1;
@@ -62,12 +101,32 @@ class CategoryMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    public function getDescriptionTemplate()
+    public function getAnnotationTemplate(): string
     {
-        $category = $this->design->getVar('category');
-        $isFilterPage = $this->design->getVar('is_filter_page');
-        $isAllPages = $this->design->getVar('is_all_pages');
-        $currentPageNum = $this->design->getVar('current_page_num');
+        $seoFilterPattern = $this->getSeoFilterPattern();
+        $filterAutoMeta = $this->getFilterAutoMeta();
+
+        $seoFilterPatternAnnotation = $seoFilterPattern->annotation ?? null;
+        $filterAutoMetaAnnotation = $filterAutoMeta->annotation ?? null;
+
+        $annotation = $this->matchPriorityDescription(
+            $this->currentPageNum,
+            $this->isAllPages,
+            '',
+            $seoFilterPatternAnnotation,
+            $filterAutoMetaAnnotation,
+            $this->isFilterPage,
+            $this->category->annotation
+        );
+
+        return ExtenderFacade::execute(__METHOD__, $annotation, func_get_args());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getDescriptionTemplate(): string
+    {
         $seoFilterPattern = $this->getSeoFilterPattern();
         $filterAutoMeta = $this->getFilterAutoMeta();
 
@@ -75,13 +134,28 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         $seoFilterPatternDescription = !empty($seoFilterPattern->description) ? $seoFilterPattern->description : null;
         $filterAutoMetaDescription = !empty($filterAutoMeta->description) ? $filterAutoMeta->description : null;
 
-        $description = $this->matchPriorityDescription($currentPageNum, $isAllPages, $pageDescription, $seoFilterPatternDescription, $filterAutoMetaDescription, $isFilterPage, $category->description);
+        $description = $this->matchPriorityDescription(
+            $this->currentPageNum,
+            $this->isAllPages,
+            $pageDescription,
+            $seoFilterPatternDescription,
+            $filterAutoMetaDescription,
+            $this->isFilterPage,
+            $this->category->description
+        );
 
         return ExtenderFacade::execute(__METHOD__, $description, func_get_args());
     }
 
-    public function matchPriorityDescription($currentPageNum, $isAllPages, $pageDescription, $seoFilterPatternDescription, $filterAutoMetaDescription, $isFilterPage, $categoryDescription)
-    {
+    public function matchPriorityDescription(
+        $currentPageNum,
+        $isAllPages,
+        $pageDescription,
+        $seoFilterPatternDescription,
+        $filterAutoMetaDescription,
+        $isFilterPage,
+        $categoryDescription
+    ): string {
         if ((int)$currentPageNum > 1 || $isAllPages === true) {
             $description = '';
         } elseif ($pageDescription) {
@@ -91,7 +165,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         /*} elseif (!empty($filterAutoMetaDescription)) {
             $description = $filterAutoMetaDescription;*/
         } elseif ($isFilterPage === false) {
-            $description = $categoryDescription;
+            $description = (string)$categoryDescription;
         } else {
             $description = '';
         }
@@ -99,31 +173,28 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         return ExtenderFacade::execute(__METHOD__, $description, func_get_args());
     }
     
-    public function getMetaTitleTemplate() // todo проверить как отработают экстендеры если их навесить на этот метод (где юзается parent::getMetaTitle())
+    public function getMetaTitleTemplate(): string // todo проверить как отработают экстендеры если их навесить на этот метод (где юзается parent::getMetaTitle())
     {
-        $category = $this->design->getVar('category');
         $seoFilterPattern = $this->getSeoFilterPattern();
         $filterAutoMeta = $this->getFilterAutoMeta();
-        $isAllPages = $this->design->getVar('is_all_pages');
-        $currentPageNum = $this->design->getVar('current_page_num');
 
         $pageTitle = parent::getMetaTitleTemplate();
         $seoFilterPatternMetaTitle =  !empty($seoFilterPattern->meta_title) ? $seoFilterPattern->meta_title : null;
         $filterAutoMetaTitle = !empty($filterAutoMeta->meta_title) ? $filterAutoMeta->meta_title : null;
 
-        $metaTitle = $this->matchPriorityMetaTitle($pageTitle, $seoFilterPatternMetaTitle, $filterAutoMetaTitle, $category->meta_title);
+        $metaTitle = $this->matchPriorityMetaTitle($pageTitle, $seoFilterPatternMetaTitle, $filterAutoMetaTitle, $this->category->meta_title);
 
         // Добавим номер страницы к тайтлу
-        if ((int)$currentPageNum > 1 && $isAllPages !== true) {
+        if ((int)$this->currentPageNum > 1 && $this->isAllPages !== true) {
             /** @var FrontTranslations $translations */
             $translations = $this->SL->getService(FrontTranslations::class);
-            $metaTitle .= $translations->getTranslation('meta_page') . ' ' . $currentPageNum;
+            $metaTitle .= $translations->getTranslation('meta_page') . ' ' . $this->currentPageNum;
         }
         
         return ExtenderFacade::execute(__METHOD__, $metaTitle, func_get_args());
     }
 
-    public function matchPriorityMetaTitle($pageTitle, $seoFilterPatternMetaTitle, $filterAutoMetaTitle, $categoryMetaTitle)
+    public function matchPriorityMetaTitle($pageTitle, $seoFilterPatternMetaTitle, $filterAutoMetaTitle, $categoryMetaTitle): string
     {
         if ($pageTitle) {
             $metaTitle = $pageTitle;
@@ -132,15 +203,14 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         } elseif (!empty($filterAutoMetaTitle)) {
             $metaTitle = $categoryMetaTitle . ' ' . $filterAutoMetaTitle;
         } else {
-            $metaTitle = $categoryMetaTitle;
+            $metaTitle = (string)$categoryMetaTitle;
         }
 
         return ExtenderFacade::execute(__METHOD__, $metaTitle, func_get_args());
     }
 
-    public function getMetaKeywordsTemplate()
+    public function getMetaKeywordsTemplate(): string
     {
-        $category = $this->design->getVar('category');
         $seoFilterPattern = $this->getSeoFilterPattern();
         $filterAutoMeta = $this->getFilterAutoMeta();
 
@@ -148,12 +218,12 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         $seoFilterPatternMetaKeywords = !empty($seoFilterPattern->meta_keywords) ? $seoFilterPattern->meta_keywords : null;
         $filterAutoMetaMetaKeywords = !empty($filterAutoMeta->meta_keywords) ? $filterAutoMeta->meta_keywords : null;
 
-        $metaKeywords = $this->matchPriorityMetaKeywords($pageKeywords, $seoFilterPatternMetaKeywords, $filterAutoMetaMetaKeywords, $category->meta_keywords);
+        $metaKeywords = $this->matchPriorityMetaKeywords($pageKeywords, $seoFilterPatternMetaKeywords, $filterAutoMetaMetaKeywords, $this->category->meta_keywords);
 
         return ExtenderFacade::execute(__METHOD__, $metaKeywords, func_get_args());
     }
 
-    public function matchPriorityMetaKeywords($pageKeywords, $seoFilterPatternMetaKeywords, $filterAutoMetaMetaKeywords, $categoryMetaKeywords)
+    public function matchPriorityMetaKeywords($pageKeywords, $seoFilterPatternMetaKeywords, $filterAutoMetaMetaKeywords, $categoryMetaKeywords): string
     {
         if ($pageKeywords) {
             $metaKeywords = $pageKeywords;
@@ -162,15 +232,14 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         } elseif (!empty($filterAutoMetaMetaKeywords)) {
             $metaKeywords = $categoryMetaKeywords . ' ' . $filterAutoMetaMetaKeywords;
         } else {
-            $metaKeywords = $categoryMetaKeywords;
+            $metaKeywords = (string)$categoryMetaKeywords;
         }
 
         return ExtenderFacade::execute(__METHOD__, $metaKeywords, func_get_args());
     }
     
-    public function getMetaDescriptionTemplate()
+    public function getMetaDescriptionTemplate(): string
     {
-        $category = $this->design->getVar('category');
         $seoFilterPattern = $this->getSeoFilterPattern();
         $filterAutoMeta = $this->getFilterAutoMeta();
 
@@ -178,12 +247,12 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         $seoFilterPatternMetaDescription = !empty($seoFilterPattern->meta_description) ? $seoFilterPattern->meta_description : null;
         $filterAutoMetaMetaDescription = !empty($filterAutoMeta->meta_description) ? $filterAutoMeta->meta_description : null;
 
-        $metaDescription = $this->matchPriorityMetaDescription($pageMetaDescription, $seoFilterPatternMetaDescription, $filterAutoMetaMetaDescription, $category->meta_description);
+        $metaDescription = $this->matchPriorityMetaDescription($pageMetaDescription, $seoFilterPatternMetaDescription, $filterAutoMetaMetaDescription, $this->category->meta_description);
 
         return ExtenderFacade::execute(__METHOD__, $metaDescription, func_get_args());
     }
 
-    public function matchPriorityMetaDescription($pageMetaDescription, $seoFilterPatternMetaDescription, $filterAutoMetaMetaDescription, $categoryMetaDescription)
+    public function matchPriorityMetaDescription($pageMetaDescription, $seoFilterPatternMetaDescription, $filterAutoMetaMetaDescription, $categoryMetaDescription): string
     {
         if ($pageMetaDescription) {
             $metaDescription = $pageMetaDescription;
@@ -192,7 +261,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         } elseif (!empty($filterAutoMetaMetaDescription)) {
             $metaDescription = $categoryMetaDescription . ' ' . $filterAutoMetaMetaDescription;
         } else {
-            $metaDescription = $categoryMetaDescription;
+            $metaDescription = (string)$categoryMetaDescription;
         }
 
         return ExtenderFacade::execute(__METHOD__, $metaDescription, func_get_args());
@@ -205,14 +274,12 @@ class CategoryMetadataHelper extends CommonMetadataHelper
             /** @var MetaRobotsHelper $metaRobotsHelper */
             $metaRobotsHelper = $this->SL->getService(MetaRobotsHelper::class);
 
-            $metaArray = $this->getMetaArray();
+            $currentPage = $this->metaArray['page'] ?? null;
+            $currentBrands = $this->metaArray['brand'] ?? [];
+            $currentOtherFilters = $this->metaArray['filter'] ?? [];
+            $filterFeatures = $this->metaArray['features_values'] ?? [];
 
-            $currentPage = isset($metaArray['page']) ? $metaArray['page'] : null;
-            $currentBrands = isset($metaArray['brand']) ? $metaArray['brand'] : [];
-            $currentOtherFilters = isset($metaArray['filter']) ? $metaArray['filter'] : [];
-            $filterFeatures = isset($metaArray['features_values']) ? $metaArray['features_values'] : [];
-
-            $this->metaRobots = $metaRobotsHelper->getCategoryRobots($currentPage, $currentOtherFilters, $filterFeatures, $currentBrands);
+            $this->metaRobots = $metaRobotsHelper->getCatalogRobots($currentPage, $currentOtherFilters, $filterFeatures, $currentBrands);
         }
 
         if ($this->metaRobots == ROBOTS_NOINDEX_FOLLOW || $this->metaRobots == ROBOTS_NOINDEX_NOFOLLOW) {
@@ -226,17 +293,17 @@ class CategoryMetadataHelper extends CommonMetadataHelper
                 'meta_title' => '',
                 'meta_keywords' => '',
                 'meta_description' => '',
+                'annotation' => '',
                 'description' => '',
             ];
 
-            $metaArray = $this->getMetaArray();
-            if (!empty($metaArray)) {
-                foreach ($metaArray as $type => $_meta_array) {
+            if (!empty($this->metaArray)) {
+                foreach ($this->metaArray as $type => $_meta_array) {
                     switch ($type) {
                         case 'brand': // no break
                         case 'filter':
                         {
-                            $autoMeta['h1'] = $autoMeta['meta_title'] = $autoMeta['meta_keywords'] = $autoMeta['meta_description'] = $autoMeta['description'] = implode($this->metaDelimiter, $_meta_array);
+                            $autoMeta['h1'] = $autoMeta['meta_title'] = $autoMeta['meta_keywords'] = $autoMeta['meta_description'] = $autoMeta['annotation'] = $autoMeta['description'] = implode($this->metaDelimiter, $_meta_array);
                             break;
                         }
                         case 'features_values':
@@ -246,6 +313,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
                                 $autoMeta['meta_title'] .= (!empty($autoMeta['meta_title']) ? $this->metaDelimiter : '') . implode($this->metaDelimiter, $f_array);
                                 $autoMeta['meta_keywords'] .= (!empty($autoMeta['meta_keywords']) ? $this->metaDelimiter : '') . implode($this->metaDelimiter, $f_array);
                                 $autoMeta['meta_description'] .= (!empty($autoMeta['meta_description']) ? $this->metaDelimiter : '') . implode($this->metaDelimiter, $f_array);
+                                $autoMeta['annotation'] .= (!empty($autoMeta['annotation']) ? $this->metaDelimiter : '') . implode($this->metaDelimiter, $f_array);
                                 $autoMeta['description'] .= (!empty($autoMeta['description']) ? $this->metaDelimiter : '') . implode($this->metaDelimiter, $f_array);
                             }
                             break;
@@ -262,55 +330,61 @@ class CategoryMetadataHelper extends CommonMetadataHelper
     /**
      * @inheritDoc
      */
-    protected function getParts()
+    protected function getParts(): array
     {
 
         if (!empty($this->parts)) {
             return $this->parts; // no ExtenderFacade
         }
         
-        $category = $this->design->getVar('category');
-        
         $this->parts = [
-            '{$category}' => ($category->name ? $category->name : ''),
-            '{$category_h1}' => ($category->name_h1 ? $category->name_h1 : ''),
+            '{$category}' => ($this->category->name ? $this->category->name : ''),
+            '{$category_h1}' => ($this->category->name_h1 ? $this->category->name_h1 : ''),
             '{$sitename}' => ($this->settings->get('site_name') ? $this->settings->get('site_name') : ''),
         ];
-
-        $selectedFilters = $this->design->getVar('selected_filters');
         
         /** @var EntityFactory $entityFactory */
         $entityFactory = $this->SL->getService(EntityFactory::class);
         
-        if (!empty($selectedFilters)) {
+        if (!empty($this->selectedFilters)) {
+            /** @var Languages $languages */
+            $languages = $this->SL->getService(Languages::class);
+          
             /** @var FeaturesAliasesValuesEntity $featuresAliasesValuesEntity */
             $featuresAliasesValuesEntity = $entityFactory->get(FeaturesAliasesValuesEntity::class);
 
             /** @var FeaturesValuesAliasesValuesEntity $featuresValuesAliasesValuesEntity */
             $featuresValuesAliasesValuesEntity = $entityFactory->get(FeaturesValuesAliasesValuesEntity::class);
             
-            $featuresIds = array_keys($selectedFilters);
+            $featuresIds = array_keys($this->selectedFilters);
 
-            $aliasesValuesFilter['feature_id'] = $featuresIds;
+            $aliasesValuesFilter = [
+                'lang_id' => $languages->getLangId(),
+                'feature_id' => $featuresIds
+            ];
             
             if (in_array(count($featuresIds), [1, 2])) {
-                foreach ($selectedFilters as $sf) {
+                foreach ($this->selectedFilters as $sf) {
                     if(count($sf) == 1){
-                        $aliasesValuesFilter['translit'][] = reset($sf);
+                        $aliasesValuesFilter['feature_value_id'][] = key($sf);
                     } else {
-                        unset($aliasesValuesFilter['translit']);
+                        unset($aliasesValuesFilter['feature_value_id']);
                         break;
                     }
                 }
             }
 
             //Если паттерн свойство+свойство
-            if (count($aliasesValuesFilter['translit']) == 2) {
+            if (!empty($aliasesValuesFilter['feature_value_id']) && count($aliasesValuesFilter['feature_value_id']) == 2) {
+                
+                $featureIdsInPatternSettingsOrder = [];
                 //достаем порядок свойств в шаблонах в админке
-                $seoFilterPattern = $this->getSeoFilterPattern();
-                $featureIdsInPatternSettingsOrder[] = $seoFilterPattern->feature_id;
-                $featureIdsInPatternSettingsOrder[] = $seoFilterPattern->second_feature_id;
+                if ($seoFilterPattern = $this->getSeoFilterPattern()) {
+                    $featureIdsInPatternSettingsOrder[] = $seoFilterPattern->feature_id;
+                    $featureIdsInPatternSettingsOrder[] = $seoFilterPattern->second_feature_id;
+                }
 
+                $featuresAliasesForSelected = [];
                 foreach ($featuresAliasesValuesEntity->find(array('feature_id'=>$featuresIds)) as $fv) {
                     $featuresAliasesForSelected[$fv->feature_id][$fv->variable] = $fv->value;
                 }
@@ -348,26 +422,25 @@ class CategoryMetadataHelper extends CommonMetadataHelper
                 }
             }
         }
-        $metaArray = $this->getMetaArray();
 
-        if (!empty($metaArray['brand']) && count($metaArray['brand']) == 1) {
-            $this->parts['{$brand}'] = reset($metaArray['brand']);
+        if (!empty($this->metaArray['brand']) && count($this->metaArray['brand']) == 1) {
+            $this->parts['{$brand}'] = reset($this->metaArray['brand']);
         }
-        if (!empty($metaArray['features_values']) && count($metaArray['features_values']) == 1) {
+        if (!empty($this->metaArray['features_values']) && count($this->metaArray['features_values']) == 1) {
 
             /** @var FeaturesEntity $featuresEntity */
             $featuresEntity = $entityFactory->get(FeaturesEntity::class);
             
-            reset($metaArray['features_values']);
-            $featureId = key($metaArray['features_values']);
+            reset($this->metaArray['features_values']);
+            $featureId = key($this->metaArray['features_values']);
             $feature = $featuresEntity->get((int)$featureId);
 
             $this->parts['{$feature_name}'] = $feature->name;
-            $this->parts['{$feature_val}'] = implode(', ', reset($metaArray['features_values']));
-        } elseif (!empty($metaArray['features_values']) && count($metaArray['features_values']) == 2) {
+            $this->parts['{$feature_val}'] = implode(', ', reset($this->metaArray['features_values']));
+        } elseif (!empty($this->metaArray['features_values']) && count($this->metaArray['features_values']) == 2) {
 
             if (empty($this->featuresPlusFeaturesIds) || count($this->featuresPlusFeaturesIds) !=2) {
-                $this->featuresPlusFeaturesIds = array_keys($metaArray['features_values']);
+                $this->featuresPlusFeaturesIds = array_keys($this->metaArray['features_values']);
             }
 
             /** @var FeaturesEntity $featuresEntity */
@@ -375,10 +448,10 @@ class CategoryMetadataHelper extends CommonMetadataHelper
             $features = $featuresEntity->mappedBy('id')->find(['id'=>$this->featuresPlusFeaturesIds]);
 
             $this->parts['{$feature_name}'] = $features[$this->featuresPlusFeaturesIds[0]]->name;
-            $this->parts['{$feature_val}'] = implode(', ', $metaArray['features_values'][$this->featuresPlusFeaturesIds[0]]);
+            $this->parts['{$feature_val}'] = implode(', ', $this->metaArray['features_values'][$this->featuresPlusFeaturesIds[0]]);
 
             $this->parts['{$feature_name_2}'] = $features[$this->featuresPlusFeaturesIds[1]]->name;
-            $this->parts['{$feature_val_2}'] = implode(', ', $metaArray['features_values'][$this->featuresPlusFeaturesIds[1]]);
+            $this->parts['{$feature_val_2}'] = implode(', ', $this->metaArray['features_values'][$this->featuresPlusFeaturesIds[1]]);
         }
         
         return $this->parts = ExtenderFacade::execute(__METHOD__, $this->parts, func_get_args());
@@ -391,14 +464,12 @@ class CategoryMetadataHelper extends CommonMetadataHelper
             /** @var MetaRobotsHelper $metaRobotsHelper */
             $metaRobotsHelper = $this->SL->getService(MetaRobotsHelper::class);
 
-            $metaArray = $this->getMetaArray();
+            $currentPage = $this->metaArray['page'] ?? null;
+            $currentBrands = $this->metaArray['brand'] ?? [];
+            $currentOtherFilters = $this->metaArray['filter'] ?? [];
+            $filterFeatures = $this->metaArray['features_values'] ?? [];
 
-            $currentPage = isset($metaArray['page']) ? $metaArray['page'] : null;
-            $currentBrands = isset($metaArray['brand']) ? $metaArray['brand'] : [];
-            $currentOtherFilters = isset($metaArray['filter']) ? $metaArray['filter'] : [];
-            $filterFeatures = isset($metaArray['features_values']) ? $metaArray['features_values'] : [];
-
-            $this->metaRobots = $metaRobotsHelper->getCategoryRobots($currentPage, $currentOtherFilters, $filterFeatures, $currentBrands);
+            $this->metaRobots = $metaRobotsHelper->getCatalogRobots($currentPage, $currentOtherFilters, $filterFeatures, $currentBrands);
         }
         
         if ($this->metaRobots == ROBOTS_NOINDEX_FOLLOW || $this->metaRobots == ROBOTS_NOINDEX_NOFOLLOW) {
@@ -406,15 +477,14 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         }
         
         if (empty($this->seoFilterPattern)) {
-            $category = $this->design->getVar('category');
-            $categoriesIdsForPattern = [0, $category->id];
+            $categoriesIdsForPattern = [0, $this->category->id];
             /** @var EntityFactory $entityFactory */
             $entityFactory = $this->SL->getService(EntityFactory::class);
 
             /** @var SEOFilterPatternsEntity $SEOFilterPatternsEntity */
             $SEOFilterPatternsEntity = $entityFactory->get(SEOFilterPatternsEntity::class);
 
-            if (!empty($metaArray['brand']) && count($metaArray['brand']) == 1 && !empty($metaArray['features_values']) && count($metaArray['features_values']) == 1) {
+            if (!empty($this->metaArray['brand']) && count($this->metaArray['brand']) == 1 && !empty($this->metaArray['features_values']) && count($this->metaArray['features_values']) == 1) {
                 /** @var FeaturesEntity $featuresEntity */
                 $featuresEntity = $entityFactory->get(FeaturesEntity::class);
 
@@ -425,8 +495,8 @@ class CategoryMetadataHelper extends CommonMetadataHelper
                     $seoFilterPatterns[$key] = $p;
                 }
 
-                reset($metaArray['features_values']);
-                $featureId = key($metaArray['features_values']);
+                reset($this->metaArray['features_values']);
+                $featureId = key($this->metaArray['features_values']);
                 $feature = $featuresEntity->get((int)$featureId);
 
                 // Определяем какой шаблон брать по умолчанию, для категории + определенное свойство, или категории и любое свойство
@@ -443,15 +513,15 @@ class CategoryMetadataHelper extends CommonMetadataHelper
                     $this->seoFilterPattern = $seoFilterPatterns['brand_feature'];
                 }
 
-            } elseif (!empty($metaArray['brand']) && count($metaArray['brand']) == 1 && empty($metaArray['features_values'])) {
+            } elseif (!empty($this->metaArray['brand']) && count($this->metaArray['brand']) == 1 && empty($this->metaArray['features_values'])) {
                 $seoFilterPatterns = $SEOFilterPatternsEntity->mappedBy('category_id')->find(['category_id' => $categoriesIdsForPattern, 'type' => 'brand']);
-                if (!empty($seoFilterPatterns[$category->id])) {
-                    $this->seoFilterPattern = $seoFilterPatterns[$category->id];
+                if (!empty($seoFilterPatterns[$this->category->id])) {
+                    $this->seoFilterPattern = $seoFilterPatterns[$this->category->id];
                 } else {
                     $this->seoFilterPattern = reset($seoFilterPatterns);
                 }
 
-            } elseif (!empty($metaArray['features_values']) && count($metaArray['features_values']) == 1 && empty($metaArray['brand'])) {
+            } elseif (!empty($this->metaArray['features_values']) && count($this->metaArray['features_values']) == 1 && empty($this->metaArray['brand'])) {
 
                 /** @var FeaturesEntity $featuresEntity */
                 $featuresEntity = $entityFactory->get(FeaturesEntity::class);
@@ -463,8 +533,8 @@ class CategoryMetadataHelper extends CommonMetadataHelper
                     $seoFilterPatterns[$key] = $p;
                 }
 
-                reset($metaArray['features_values']);
-                $featureId = key($metaArray['features_values']);
+                reset($this->metaArray['features_values']);
+                $featureId = key($this->metaArray['features_values']);
                 $feature = $featuresEntity->get((int)$featureId);
 
                 // Определяем какой шаблон брать по умолчанию, для категории + определенное свойство, или категории и любое свойство
@@ -481,10 +551,10 @@ class CategoryMetadataHelper extends CommonMetadataHelper
                     $this->seoFilterPattern = $seoFilterPatterns['feature'];
                 }
 
-            } elseif (!empty($metaArray['features_values']) && count($metaArray['features_values']) == 2 && empty($metaArray['brand'])) {
+            } elseif (!empty($this->metaArray['features_values']) && count($this->metaArray['features_values']) == 2 && empty($this->metaArray['brand'])) {
 
                 $featuresIds = [];
-                foreach ($metaArray['features_values'] as $key=>$metaArrayFeatureValue) {
+                foreach ($this->metaArray['features_values'] as $key=>$metaArrayFeatureValue) {
                     if (!in_array($key, $featuresIds)) {
                         $featuresIds[] = $key;
                     }
@@ -549,17 +619,7 @@ class CategoryMetadataHelper extends CommonMetadataHelper
                 }
             }
         }
+        
         return $this->seoFilterPattern;
     }
-
-    private function getMetaArray()
-    {
-        if (empty($this->metaArray)) {
-            /** @var FilterHelper $filterHelper */
-            $filterHelper = $this->SL->getService(FilterHelper::class);
-            $this->metaArray = $filterHelper->getMetaArray();
-        }
-        return $this->metaArray;
-    }
-    
 }

@@ -360,7 +360,7 @@
                                         </div>
                                         <div class="okay_list_boding variants_item_amount">
                                             <div class="heading_label">{$btr->general_qty|escape}</div>
-                                            <input class="variant_input" name="variants[stock][]" type="text" value="{if $variant->infinity || $variant->stock == ''}∞{else}{$variant->stock|escape}{/if}"/>
+                                            <input class="variant_input" name="variants[stock][]" type="text" value="{if $variant->infinity}∞{else}{$variant->stock|escape}{/if}"/>
                                         </div>
                                         <div class="okay_list_boding variants_item_units">
                                             <div class="heading_label">{$btr->products_variant_units|escape}</div>
@@ -759,6 +759,10 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-12 col-md-12 mt-1">
+                        <button id="fast_save_button_and_quit" type="submit" class="fn_step-15 btn btn_small btn_blue float-md-right ml-1" name="apply_and_quit" value="1">
+                            {include file='svg_icon.tpl' svgId='checked'}
+                            <span>{$btr->general_apply_and_quit|escape}</span>
+                        </button>
                         <button type="submit" class="fn_step-15 btn btn_small btn_blue float-md-right">
                             {include file='svg_icon.tpl' svgId='checked'}
                             <span>{$btr->general_apply|escape}</span>

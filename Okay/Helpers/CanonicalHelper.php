@@ -8,8 +8,8 @@ class CanonicalHelper
 {
     private $catalogPagination;
     private $catalogPageAll;
-    private $categoryBrand;
-    private $categoryFeatures;
+    private $catalogBrand;
+    private $catalogFeatures;
     private $catalogOtherFilter;
     private $catalogFilterPagination;
 
@@ -22,8 +22,8 @@ class CanonicalHelper
     public function setParams(
         $catalogPagination,
         $catalogPageAll,
-        $categoryBrand,
-        $categoryFeatures,
+        $catalogBrand,
+        $catalogFeatures,
         $catalogOtherFilter,
         $catalogFilterPagination,
         $maxBrandFilterDepth,
@@ -34,8 +34,8 @@ class CanonicalHelper
     ) {
         $this->catalogPagination = (int)$catalogPagination;
         $this->catalogPageAll = (int)$catalogPageAll;
-        $this->categoryBrand = (int)$categoryBrand;
-        $this->categoryFeatures = (int)$categoryFeatures;
+        $this->catalogBrand = (int)$catalogBrand;
+        $this->catalogFeatures = (int)$catalogFeatures;
         $this->catalogOtherFilter = (int)$catalogOtherFilter;
         $this->catalogFilterPagination = (int)$catalogFilterPagination;
 
@@ -55,7 +55,7 @@ class CanonicalHelper
      * 
      * Определение canonical для категории
      */
-    public function getCategoryCanonicalData($page, array $otherFilter, array $featuresFilter, array $brandsFilter)
+    public function getCatalogCanonicalData($page, array $otherFilter, array $featuresFilter, array $brandsFilter)
     {
         $result = [];
         
@@ -84,7 +84,7 @@ class CanonicalHelper
             return $result; // no ExtenderFacade
         }
         
-        // Т.к. getCategoryCanonicalDataExecutor не может вернуть связку для доп. фильтров и свойств или бренда,
+        // Т.к. getCatalogCanonicalDataExecutor не может вернуть связку для доп. фильтров и свойств или бренда,
         // определяем эту связку здесь
         if (!empty($otherFilter)) {
             if (count($otherFilter) > $this->maxOtherFilterDepth) {
@@ -97,18 +97,18 @@ class CanonicalHelper
             }
         }
         
-        if (($catalogData = $this->getCatalogCanonicalData($page, $otherFilter)) === false) {
+        if (($baseCatalogData = $this->getBaseCatalogCanonicalData($page, $otherFilter)) === false) {
             return false; // no ExtenderFacade
         }
         
-        if (($categoryData = $this->getCategoryCanonicalDataExecutor($page, $featuresFilter, $brandsFilter)) === false) {
+        if (($catalogData = $this->getCatalogCanonicalDataExecutor($page, $featuresFilter, $brandsFilter)) === false) {
             return false; // no ExtenderFacade
         }
         
-        return $categoryData + $catalogData; // no ExtenderFacade
+        return $catalogData + $baseCatalogData; // no ExtenderFacade
     }
     
-    private function getCategoryCanonicalDataExecutor($page, array $featuresFilter, array $brandsFilter)
+    private function getCatalogCanonicalDataExecutor($page, array $featuresFilter, array $brandsFilter)
     {
         $result = [];
 
@@ -176,11 +176,11 @@ class CanonicalHelper
         }
         
         if (!empty($featuresFilter)) {
-            switch ($this->categoryFeatures) {
+            switch ($this->catalogFeatures) {
                 case CANONICAL_WITHOUT_FILTER:
                     
                     // Заполняем массив, где ключи - транслиты свойств, значение null, чтобы удалить эти значения
-                    $result = array_merge($result, 
+                    $result = array_merge($result,
                         array_fill_keys(array_keys($featuresFilter), null)
                     );
                     
@@ -193,7 +193,7 @@ class CanonicalHelper
         }
         
         if (!empty($brandsFilter)) {
-            switch ($this->categoryBrand) {
+            switch ($this->catalogBrand) {
                 case CANONICAL_WITHOUT_FILTER:
                     $result['brand'] = null;
                     break;
@@ -214,7 +214,7 @@ class CanonicalHelper
      * 
      * Определение canonical для страниц списков товаров (discounted, all-products, brand)
      */
-    public function getCatalogCanonicalData($page, array $otherFilter)
+    private function getBaseCatalogCanonicalData($page, array $otherFilter)
     {
         $result = [
             'sort' => null,

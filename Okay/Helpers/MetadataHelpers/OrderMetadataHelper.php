@@ -9,21 +9,28 @@ use Okay\Core\Modules\Extender\ExtenderFacade;
 
 class OrderMetadataHelper extends CommonMetadataHelper
 {
-    public function getMetaTitle()
+    /** @var object */
+    private $order;
+
+    public function setUp(object $order)
     {
-        $order = $this->design->getVar('order');
+        $this->order = $order;
+    }
+
+    public function getMetaTitle(): string
+    {
         /** @var FrontTranslations $translations */
         $translations = $this->SL->getService(FrontTranslations::class);
-        $metaTitle = $this->compileMetadata($translations->getTranslation('order_title')) . ' ' . $order->id;
+        $metaTitle = $this->compileMetadata($translations->getTranslation('order_title')) . ' ' . $this->order->id;
         return ExtenderFacade::execute(__METHOD__, $metaTitle, func_get_args());
     }
     
-    public function getMetaKeywords()
+    public function getMetaKeywords(): string
     {
         return ExtenderFacade::execute(__METHOD__, '', func_get_args());
     }
     
-    public function getMetaDescription()
+    public function getMetaDescription(): string
     {
         return ExtenderFacade::execute(__METHOD__, '', func_get_args());
     }

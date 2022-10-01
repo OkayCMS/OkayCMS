@@ -8,10 +8,10 @@ $(function() {
 
         function setTools() {
             if ( localStorage.getItem("adminTooltip") == "set" ) {
-                $({$menu_selector}).on('mouseover', show_tooltip);
+                $(document).on('mouseover', {$menu_selector}, show_tooltip);
                 $('.changeTools').addClass('on').attr('title', '{$btr->admintooltip_disable}');
             } else {
-                $({$menu_selector}).off('mouseover', show_tooltip);
+                $(document).off('mouseover', {$menu_selector}, show_tooltip);
                 $('.changeTools').removeClass('on').attr('title', '{$btr->admintooltip_enable}');
             }
         }
@@ -37,7 +37,7 @@ $(function() {
         });
 
     } else {
-        $({$menu_selector}).on('mouseover', show_tooltip);
+        $(document).on('mouseover', {$menu_selector}, show_tooltip);
     }
 });
 
@@ -54,7 +54,7 @@ function show_tooltip()
 
     from = encodeURIComponent(window.location);
     tooltipcontent = '';
-    var lang = '&lang_id={$language->id}';
+    var lang = '&lang_id={$front_lang_id}';
     if(typeof  lang_id != 'undefined') {
         lang = '&lang_id=' + lang_id;
     }

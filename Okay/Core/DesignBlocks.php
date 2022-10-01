@@ -4,7 +4,8 @@
 namespace Okay\Core;
 
 
-use Okay\Core\Entity\Entity;
+use Okay\Core\DebugBar\DebugBar;
+use Okay\Core\OkayContainer\MethodDI;
 
 /**
  * Class DesignBlocks
@@ -27,6 +28,8 @@ use Okay\Core\Entity\Entity;
 
 class DesignBlocks
 {
+    use MethodDI;
+
     /**
      * @var array список зарегистрированных блоков
      */
@@ -81,31 +84,16 @@ class DesignBlocks
             // порядку в админ панели
             $reversedBlocks = array_reverse($this->registeredBlocks[$blockName]);
             foreach ($reversedBlocks as $blockTplFile) {
-
+                DebugBar::startDesignBlockFetch($blockTplFile);
                 // Если с блоком регистрировали калбеки, запускаем их в порядке регистрации
                 if (!empty($this->callbacks[$blockName][$blockTplFile])) {
                     foreach ($this->callbacks[$blockName][$blockTplFile] as $callback) {
-                        $reflectionMethod = new \ReflectionFunction($callback);
-                        $methodParams = [];
-                        foreach ($reflectionMethod->getParameters() as $parameter) {
-
-                            if ($parameter->getClass() !== null) { // Если для аргумента указан type hint, передадим экземляр соответствующего класса
-                                // Определяем это Entity или сервис из DI
-                                if (is_subclass_of($parameter->getClass()->name, Entity::class)) {
-                                    $methodParams[$parameter->getClass()->name] = $this->entityFactory->get($parameter->getClass()->name);
-                                } else {
-                                    $methodParams[$parameter->getClass()->name] = $this->SL->getService($parameter->getClass()->name);
-                                }
-                            } else { // Если не нашли значения аргументу, и он не имеет значения по умолчанию в ф-ции - ошибка
-                               
-                                throw new \Exception("Missing argument \"\${$parameter->name}\" in callback for block \"{$blockName}\"");
-                            }
-                        }
-                        call_user_func_array($callback, $methodParams);
+                        call_user_func_array($callback, $this->getMethodArguments(new \ReflectionFunction($callback)));
                     }
                 }
                 
                 $blockHtml .= $this->design->fetch($blockTplFile);
+                DebugBar::finishDesignBlockFetch($blockName, $blockTplFile);
             }
         }
         return $blockHtml;

@@ -15,14 +15,15 @@ $exportFilesDir  = 'backend/files/export_users/';
 $filename        = 'users.csv';
 
 $columnsNames = [
-    'name'       => '���',
+    'name'       => 'Name',
+    'last_name'  => 'Last name',
     'email'      => 'Email',
-    'phone'      => '�������',
-    'address'    => '�����',
-    'group_name' => '������',
-    'discount'   => '������',
-    'created'    => '����',
-    'last_ip'    => '��������� IP'
+    'phone'      => 'Phone',
+    'address'    => 'Address',
+    'group_name' => 'Group name',
+    'discount'   => 'Discount',
+    'created'    => 'Created',
+    'last_ip'    => 'Last IP'
 ];
 
 /** @var Database $db */
@@ -74,20 +75,21 @@ foreach($usersEntity->find($filter) as $u) {
     fputcsv($f, $str, $columnDelimiter);
 }
 
+fclose($f);
+
 $totalUsers = $usersEntity->count($filter);
 
 if($usersCount*$page < $totalUsers) {
     $data = ['end'=>false, 'page'=>$page, 'totalpages'=>$totalUsers/$usersCount];
 } else {
     $data = ['end'=>true, 'page'=>$page, 'totalpages'=>$totalUsers/$usersCount];
+
+    mb_substitute_character('');
+    file_put_contents(
+        $exportFilesDir.$filename,
+        mb_convert_encoding(file_get_contents($exportFilesDir.$filename), 'Windows-1251')
+    );
 }
-
-fclose($f);
-
-file_put_contents(
-    $exportFilesDir.$filename,
-    iconv( "utf-8", "windows-1251//IGNORE", file_get_contents($exportFilesDir.$filename))
-);
 
 if ($data) {
     $response->setContent(json_encode($data), RESPONSE_JSON)->sendContent();

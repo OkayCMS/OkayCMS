@@ -6,6 +6,7 @@ namespace Okay\Modules\OkayCMS\NovaposhtaCost;
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Languages;
+use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Money;
 use Okay\Core\Settings;
 use Okay\Entities\CurrenciesEntity;
@@ -125,6 +126,7 @@ class NovaposhtaCost
             "calledMethod" => "getCities",
             "methodProperties" => [
                 "Page" => 1,
+                "Limit" => 1000000,
             ],
         ];
         
@@ -214,7 +216,8 @@ class NovaposhtaCost
                 "calledMethod" => "getWarehouses",
                 "methodProperties" => array(
                     "TypeOfWarehouseRef" => $type,
-                    "Page" => 1
+                    "Page" => 1,
+                    "Limit" => 1000000,
                 )
             );
         }
@@ -323,14 +326,10 @@ class NovaposhtaCost
             $npCurrency = $currenciesEntity->getMainCurrency();
         }
 
-        $totalWeight = 0;
+        $totalWeight = $this->calcWeight($data);
         $totalVolume = 0;
-        foreach ($data->purchases as $purchase) {
-            $totalWeight += (!empty($purchase->variant->weight) && $purchase->variant->weight>0 ? $purchase->variant->weight : $this->settings->get('newpost_weight'))*$purchase->amount;
-
-            if ($this->settings->get('newpost_use_volume')){
-                $totalVolume += (!empty($purchase->variant->volume) && $purchase->variant->volume>0 ? $purchase->variant->volume : $this->settings->get('newpost_volume'))*$purchase->amount;
-            }
+        if ($this->settings->get('newpost_use_volume')){
+            $totalVolume = $this->calcVolume($data);
         }
 
         $methodProperties = [
@@ -371,6 +370,26 @@ class NovaposhtaCost
         return $this->npRequest(json_encode($request));
     }
 
+    protected function calcWeight($data)
+    {
+        $totalWeight = 0;
+        foreach ($data->purchases as $purchase) {
+            $totalWeight += (!empty($purchase->variant->weight) && $purchase->variant->weight>0 ? $purchase->variant->weight : $this->settings->get('newpost_weight'))*$purchase->amount;
+        }
+        
+        return ExtenderFacade::execute(__METHOD__, $totalWeight, func_get_args());
+    }
+
+    protected function calcVolume($data)
+    {
+        $totalVolume = 0;
+        foreach ($data->purchases as $purchase) {
+            $totalVolume += (!empty($purchase->variant->volume) && $purchase->variant->volume>0 ? $purchase->variant->volume : (!empty($this->settings->get('newpost_volume')) ? $this->settings->get('newpost_volume') : 0.001) ) * $purchase->amount;
+        }
+        
+        return ExtenderFacade::execute(__METHOD__, $totalVolume, func_get_args());
+    }
+    
     /**
      * Калькулятор срока доставки
      * @param string $cityRef id города Новой Почты

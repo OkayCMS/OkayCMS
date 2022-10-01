@@ -219,14 +219,14 @@ class HotlineHelper
 
             // Приводим цены в гривнах
             if ($this->UAH_currency) {
-                $result['priceRUAH']['data'] = $this->money->convert($product->price, $this->UAH_currency->id);
+                $result['priceRUAH']['data'] = $this->money->convert($product->price, $this->UAH_currency->id, false);
             } else {
-                $result['priceRUAH']['data'] = $this->money->convert($product->price, $this->mainCurrency->id);
+                $result['priceRUAH']['data'] = $this->money->convert($product->price, $this->mainCurrency->id, false);
             }
 
             // Приводим цены в долларах
             if ($this->USD_currency) {
-                $result['priceRUSD']['data'] = $this->money->convert($product->price, $this->USD_currency->id);
+                $result['priceRUSD']['data'] = $this->money->convert($product->price, $this->USD_currency->id, false);
             }
         }
 

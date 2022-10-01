@@ -107,7 +107,7 @@ class ReportStatsAdmin extends IndexAdmin
         $filename        = 'export_stat_products.csv';
         
         $page = $this->request->get('page');
-        if (empty($page) || $page==1) {
+        if (empty($page) || $page == 1 || $page == 'all') {
             $page = 1;
             if (is_writable($exportFilesDir.$filename)) {
                 unlink($exportFilesDir.$filename);
@@ -155,12 +155,11 @@ class ReportStatsAdmin extends IndexAdmin
         
         $filter['page'] = max(1, $this->request->get('page', 'integer'));
         $filter['limit'] = 40;
-
-        if ($this->request->get('page') == 'all') {
-            $filter['limit'] = $statCount;
-        }
         
         $totalCount = $reportStatEntity->count($filter);
+        if ($this->request->get('page') == 'all') {
+            $filter['limit'] = $totalCount;
+        }
         $totalCount += $reportStatEntity->countNullable($filter);
 
         $totalSum = 0;
@@ -196,9 +195,10 @@ class ReportStatsAdmin extends IndexAdmin
         fputcsv($f, $total, $columnDelimiter);
         fclose($f);
 
+        mb_substitute_character('');
         file_put_contents(
             $exportFilesDir.$filename,
-            iconv( "utf-8", "windows-1251//IGNORE", file_get_contents($exportFilesDir.$filename))
+            mb_convert_encoding(file_get_contents($exportFilesDir.$filename), 'Windows-1251')
         );
 
         if ($statCount*$page < $totalCount) {

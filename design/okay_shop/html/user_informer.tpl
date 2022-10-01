@@ -1,4 +1,4 @@
-{* User account *}
+<!-- User account -->
 {if $user}
 	<a class="d-inline-flex align-items-center account__link" href="{url_generator route='user'}">
 		{include file="svg.tpl" svgId="user_icon"}

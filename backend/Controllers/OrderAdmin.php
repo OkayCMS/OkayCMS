@@ -81,9 +81,12 @@ class OrderAdmin extends IndexAdmin
                 $orderLabelsEntity->updateOrderLabels($order->id, $orderLabels);
 
                 if ($order->id) {
+                    $orderDiscounts = $ordersRequest->postOrderDiscounts();
+                    $purchasesDiscounts = $ordersRequest->postPurchasesDiscounts();
+
                     /*Работа с покупками заказа*/
-                    $postedPurchasesIds = [];
-                    foreach ($purchases as $purchase) {
+                    foreach ($purchases as $i => $purchase) {
+                        $purchaseDiscounts = $purchasesDiscounts[$i] ?? [];
                         if (!empty($purchase->id)) {
                             $preparedPurchase = $backendPurchasesHelper->prepareUpdate($order, $purchase);
                             $backendPurchasesHelper->update($preparedPurchase);
@@ -110,11 +113,7 @@ class OrderAdmin extends IndexAdmin
                         $postedDiscountIds[] = $discount->id;
                     }
 
-                    // Обновляем скидки товаров
-                    $discounts = $ordersRequest->postPurchasesDiscounts();
-                    $i = 0;
-                    foreach ($purchases as $purchase) {
-                        $purchaseDiscounts = $discounts[$i++];
+                        // Обновляем скидки товаров
                         if ($purchase->id && !empty($purchaseDiscounts)) {
                             foreach ($purchaseDiscounts as $discount) {
                                 if (!empty($discount->id)) {
@@ -128,6 +127,24 @@ class OrderAdmin extends IndexAdmin
                             }
                         }
                     }
+
+                    // Удалить непереданные товары
+                    $backendOrdersHelper->deletePurchases($order, $postedPurchasesIds ?? []);
+
+                    // Обновляем скидки заказа
+                    foreach ($orderDiscounts as $discount) {
+                        if (!empty($discount->id)) {
+                            $preparedDiscount = $backendOrdersHelper->prepareUpdateOrderDiscount($discount, $order);
+                            $backendOrdersHelper->updateDiscount($preparedDiscount);
+                        } else {
+                            $preparedDiscount = $backendOrdersHelper->prepareAddOrderDiscount($discount, $order);
+                            $discount->id = $backendOrdersHelper->addDiscount($preparedDiscount);
+                        }
+                        $postedDiscountIds[] = $discount->id;
+                    }
+
+                    // Удаляем непереданные скидки
+                    $backendOrdersHelper->deleteDiscounts($postedDiscountIds ?? [], $order->id);
 
                     // Обновим позиции скидок
                     $positions = $ordersRequest->postDiscountPositions();
@@ -163,6 +180,11 @@ class OrderAdmin extends IndexAdmin
             }
 
             if (! $this->design->getVar('message_error')) {
+                $buttonRedirectToList = $this->request->post('apply_and_quit', 'integer', 0);
+                if (($buttonRedirectToList == 1) && !empty($urlRedirectToList = $this->request->getRootUrl() . '/backend/index.php?controller=OrdersAdmin')) {
+                    $this->postRedirectGet->redirect($urlRedirectToList);
+                }
+
                 $this->postRedirectGet->redirect();
             }
         }
@@ -179,7 +201,7 @@ class OrderAdmin extends IndexAdmin
             $subtotal = 0;
             $hasVariantNotInStock = false;
             foreach ($purchases as $purchase) {
-                if ((empty($purchase->variant) || $purchase->amount > $purchase->variant->stock || !$purchase->variant->stock) && !$hasVariantNotInStock) {
+                if (!$order->closed && ((empty($purchase->variant) || $purchase->amount > $purchase->variant->stock || !$purchase->variant->stock) && !$hasVariantNotInStock)) {
                     $hasVariantNotInStock = true;
                 }
                 $subtotal += $purchase->price * $purchase->amount;

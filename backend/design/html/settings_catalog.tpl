@@ -149,6 +149,17 @@
                     <div class="row">
                         <div class="fn_step-8 col-lg-4 col-md-6">
                             <div class="heading_label">
+                                {$btr->settings_catalog_features_max_count_products|escape}
+                                <i class="fn_tooltips" title="{$btr->tooltip_settings_catalog_features_max_count_products|escape}">
+                                    {include file='svg_icon.tpl' svgId='icon_tooltips'}
+                                </i>
+                            </div>
+                            <div class="mb-1">
+                                <input name="features_max_count_products" class="form-control" type="number" value="{$settings->features_max_count_products|escape}" />
+                            </div>
+                        </div>
+                        <div class="fn_step-8 col-lg-4 col-md-6">
+                            <div class="heading_label">
                                 {$btr->settings_catalog_features_cache_ttl|escape} <span style="color: red">Beta</span>
                                 <i class="fn_tooltips" title="{$btr->tooltip_settings_catalog_features_cache_ttl|escape}">
                                     {include file='svg_icon.tpl' svgId='icon_tooltips'}
@@ -321,8 +332,9 @@
                             <div class="mb-1">
                                 <button type="button" class="btn btn_small btn_blue fn_truncate_table">
                                     {include file='svg_icon.tpl' svgId='checked'}
-                                    <span>{$btr->truncate_table_button|escape}</span>
+                                    <span>{$btr->truncate_table_button|escape}*</span>
                                 </button>
+                            <div class="mt-1">* {$btr->truncate_catalog_data|escape}</div>
                             </div>
                         </div>
                         <div class="fn_truncate_table_confirm" style="display: none;">
@@ -341,6 +353,77 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="toggle_body_wrap on fn_card">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6">
+                            <div class="heading_label"></div>
+                            <div class="mb-1">
+                                <button type="button" class="btn btn_small btn_blue fn_truncate_table_entity" name="truncate_table_confirm" value="category" data-name="{$btr->general_categories|escape}" data-default="category">
+                                    {include file='svg_icon.tpl' svgId='checked'}
+                                    <span>{$btr->truncate_table_button_clear|escape} {$btr->general_categories|escape}</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <div class="heading_label"></div>
+                            <div class="mb-1">
+                                <button type="button" class="btn btn_small btn_blue fn_truncate_table_entity" name="truncate_table_confirm" value="product" data-name="{$btr->general_products|escape}" data-default="product">
+                                    {include file='svg_icon.tpl' svgId='checked'}
+                                    <span>{$btr->truncate_table_button_clear|escape} {$btr->general_products|escape}</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <div class="heading_label"></div>
+                            <div class="mb-1">
+                                <button type="button" class="btn btn_small btn_blue fn_truncate_table_entity" name="truncate_table_confirm" value="feature" data-name="{$btr->features_features|escape}" data-default="feature">
+                                    {include file='svg_icon.tpl' svgId='checked'}
+                                    <span>{$btr->truncate_table_button_clear|escape} {$btr->features_features|escape}</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <div class="heading_label"></div>
+                            <div class="mb-1">
+                                <button type="button" class="btn btn_small btn_blue fn_truncate_table_entity" name="truncate_table_confirm" value="brand" data-name="{$btr->brands_brands|escape}" data-default="brand">
+                                    {include file='svg_icon.tpl' svgId='checked'}
+                                    <span>{$btr->truncate_table_button_clear|escape} {$btr->brands_brands|escape}</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <div class="heading_label"></div>
+                            <div class="mb-1">
+                                <button type="button" class="btn btn_small btn_blue fn_truncate_table_entity" name="truncate_table_confirm" value="blog" data-name="{$btr->blog_blog|escape}" data-default="blog">
+                                    {include file='svg_icon.tpl' svgId='checked'}
+                                    <span>{$btr->truncate_table_button_clear|escape} {$btr->blog_blog|escape}</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="fn_truncate_table_confirm_entity" style="display: none;">
+                            <div class="col-lg-4 col-md-6">
+                                <div class="heading_label">{$btr->truncate_table_password|escape}</div>
+                                <div class="mb-1">
+                                    <input name="truncate_table_password_entity" class="form-control" type="password" value="" disabled />
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="heading_label">&nbsp;</div>
+                                <button type="submit" class="btn btn_small btn-danger" name="truncate_table_confirm_entity" value="">
+                                    {include file='svg_icon.tpl' svgId='checked'}
+                                    <span>{$btr->truncate_table_confirm|escape}: <span class="fn_name_entity"></span></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-1">* {$btr->truncate_catalog_entity_data|escape}</div>
+
                 </div>
                 {get_design_block block="settings_catalog_truncate"}
             </div>
@@ -435,8 +518,18 @@
 <script>
     $(document).on("click", ".fn_truncate_table", function () {
         $('.fn_truncate_table_confirm').fadeIn(500);
+        $('.fn_truncate_table_confirm_entity').fadeOut(500);
         $('[name="truncate_table_password"]').prop('disabled', false);
         $('[name="truncate_table_confirm"]').val('1');
+    });
+    $(document).on("click", ".fn_truncate_table_entity", function () {
+        $('.fn_truncate_table_confirm_entity').fadeIn(500);
+        $('[name="truncate_table_password_entity"]').prop('disabled', false);
+        $('.fn_truncate_table_confirm').fadeOut(500);
+        if(typeof ($(this).data('default')) != 'undefined') {
+            $('.fn_name_entity').html($(this).data('name'));
+            $('[name="truncate_table_confirm_entity"]').val($(this).data('default'));
+        }
     });
     $(document).on("input", ".fn_rating", function () {
         $(this).closest(".fn_range_wrap").find(".fn_show_range").html($(this).val());

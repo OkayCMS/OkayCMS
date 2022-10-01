@@ -4,8 +4,10 @@
 namespace Okay\Core\TemplateConfig;
 
 
+use DebugBar\JavascriptRenderer;
 use Okay\Core\BackendTranslations;
 use Okay\Core\Config;
+use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\Module;
@@ -389,7 +391,7 @@ class FrontTemplateConfig
      * @param string $dir
      * @return string
      */
-    public function compileIndividualCss($filename, $dir = null)
+    public function compilePluginIndividualCss($filename, $dir = null)
     {
         if ($filename != $this->themeSettingsFileName && $this->checkFile($filename, self::TYPE_CSS, $dir) === true) {
             $fullFilePath = $this->getFullPath($filename, self::TYPE_CSS, $dir);
@@ -406,7 +408,7 @@ class FrontTemplateConfig
      * @param bool $defer
      * @return string
      */
-    public function compileIndividualJs($filename, $dir = null, $defer = false)
+    public function compilePluginIndividualJs($filename, $dir = null, $defer = false)
     {
         if ($this->checkFile($filename, self::TYPE_JS, $dir) === true) {
             $fullFilePath = $this->getFullPath($filename, self::TYPE_JS, $dir);
@@ -420,6 +422,7 @@ class FrontTemplateConfig
     public function compileFiles()
     {
         $this->registerTemplateFiles();
+        $this->registerDebugBarFiles();
 
         // Подключаем основной файл стилей
         $this->headCssFilename = $this->cssConfig->compileRegistered(TC_POSITION_HEAD, $this->compileCssDir, $this->getTheme());
@@ -466,7 +469,7 @@ class FrontTemplateConfig
             // Подключаем дополнительные индивидуальные файлы стилей
             if ($this->headIndividualCssFilenames !== []) {
                 foreach ($this->headIndividualCssFilenames as $filename) {
-                    $includeHtml .= "<link href=\"{$filename}\" type=\"text/css\" rel=\"stylesheet\">" . PHP_EOL;
+                    $includeHtml .= $this->compileIndividualCss($filename);
                 }
             }
 
@@ -478,7 +481,7 @@ class FrontTemplateConfig
             // Подключаем дополнительные индивидуальные JS файлы
             if ($this->headIndividualJsFilenames !== []) {
                 foreach ($this->headIndividualJsFilenames as $filename) {
-                    $includeHtml .= "<script src=\"{$filename}\"" . ($this->jsConfig->hasDefer($filename) ? " defer" : '') . "></script>" . PHP_EOL;
+                    $includeHtml .= $this->compileIndividualJs($filename);
                 }
             }
         } else {
@@ -490,7 +493,7 @@ class FrontTemplateConfig
             // Подключаем дополнительные индивидуальные файлы стилей
             if ($this->footerIndividualCssFilenames !== []) {
                 foreach ($this->footerIndividualCssFilenames as $filename) {
-                    $includeHtml .= "<link href=\"{$filename}\" type=\"text/css\" rel=\"stylesheet\">" . PHP_EOL;
+                    $includeHtml .= $this->compileIndividualCss($filename);
                 }
             }
 
@@ -502,12 +505,38 @@ class FrontTemplateConfig
             // Подключаем дополнительные индивидуальные JS файлы
             if ($this->footerIndividualJsFilenames !== []) {
                 foreach ($this->footerIndividualJsFilenames as $filename) {
-                    $includeHtml .= "<script src=\"{$filename}\"" . ($this->jsConfig->hasDefer($filename) ? " defer" : '') . "></script>" . PHP_EOL;
+                    $includeHtml .= $this->compileIndividualJs($filename);
                 }
             }
         }
 
         return $includeHtml;
+    }
+
+    private function compileIndividualCss($filename): string
+    {
+        return "<link href=\"{$filename}\" type=\"text/css\" rel=\"stylesheet\"" .
+            $this->compileElementAttributes($this->cssConfig->getAttributes($filename)) .
+            ">" . PHP_EOL;
+    }
+
+    private function compileIndividualJs(string $filename): string
+    {
+        return "<script src=\"{$filename}\"" .
+            ($this->jsConfig->hasDefer($filename) ? " defer" : '') .
+            $this->compileElementAttributes($this->jsConfig->getAttributes($filename)) .
+            "></script>".PHP_EOL;
+    }
+
+    private function compileElementAttributes($attributes): string
+    {
+        if ($attributes) {
+            return ' '.implode(' ', array_map(function($attribute, $value) {
+                    return "$attribute=\"$value\"";
+                }, array_keys($attributes), $attributes));
+        } else {
+            return '';
+        }
     }
     
     private function checkFile($filename, $type, $dir = null)
@@ -588,7 +617,45 @@ class FrontTemplateConfig
                 }
             }
         }
+
         $this->registeredTemplateFiles = true;
+    }
+
+    /**
+     * Метод регистрирует асеты для панели отладки
+     */
+    private function registerDebugBarFiles()
+    {
+        /** @var JavascriptRenderer $debugBarRenderer */
+        if ($debugBarRenderer = DebugBar::getRenderer()) {
+            // Регистрируем css файлы из библиотеки
+            foreach ($debugBarRenderer->getAssets('css', $debugBarRenderer::RELATIVE_PATH) as $cssFilePath) {
+                $this->cssConfig->register(
+                    (new Css('debug_bar_'.pathinfo($cssFilePath, PATHINFO_BASENAME)))
+                        ->setPosition('footer')
+                        ->setIndividual(true),
+                    $cssFilePath
+                );
+            }
+
+            // Регистрируем js файлы из библиотеки
+            foreach ($debugBarRenderer->getAssets('js', $debugBarRenderer::RELATIVE_PATH) as $jsFilePath) {
+                $this->jsConfig->register(
+                    (new Js('debug_bar_'.pathinfo($jsFilePath, PATHINFO_BASENAME)))
+                        ->setPosition('footer')
+                        ->setIndividual(true),
+                    $jsFilePath
+                );
+            }
+
+            // Регистрируем js файлы из ядра
+            $this->jsConfig->register(
+                (new Js('debug_bar_core_widgets.js'))
+                    ->setPosition('footer')
+                    ->setIndividual(true),
+                'Okay/Core/DebugBar/Resources/js/widgets.js'
+            );
+        }
     }
 
     /**

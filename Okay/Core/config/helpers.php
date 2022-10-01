@@ -49,26 +49,27 @@ use Okay\Helpers\BlogHelper;
 use Okay\Helpers\BrandsHelper;
 use Okay\Helpers\CanonicalHelper;
 use Okay\Helpers\CartHelper;
+use Okay\Helpers\CategoriesHelper;
 use Okay\Helpers\ComparisonHelper;
 use Okay\Helpers\CouponHelper;
 use Okay\Helpers\CommentsHelper;
 use Okay\Helpers\DeliveriesHelper;
 use Okay\Helpers\DiscountsHelper;
 use Okay\Helpers\MainHelper;
+use Okay\Helpers\MetadataHelpers\AllBrandsMetadataHelper;
 use Okay\Helpers\MetadataHelpers\AllProductsMetadataHelper;
-use Okay\Helpers\MetadataHelpers\BestsellersMetadataHelper;
 use Okay\Helpers\MetadataHelpers\BlogCategoryMetadataHelper;
 use Okay\Helpers\MetadataHelpers\BrandMetadataHelper;
 use Okay\Helpers\MetadataHelpers\CartMetadataHelper;
 use Okay\Helpers\MetadataHelpers\CategoryMetadataHelper;
 use Okay\Helpers\MetadataHelpers\CommonMetadataHelper;
-use Okay\Helpers\MetadataHelpers\DiscountedMetadataHelper;
 use Okay\Helpers\MetadataHelpers\OrderMetadataHelper;
 use Okay\Helpers\MetadataHelpers\PostMetadataHelper;
 use Okay\Helpers\MetadataHelpers\ProductMetadataHelper;
 use Okay\Helpers\MetadataHelpers\AuthorMetadataHelper;
 use Okay\Helpers\MetaRobotsHelper;
 use Okay\Helpers\NotifyHelper;
+use Okay\Helpers\PagesHelper;
 use Okay\Helpers\PaymentsHelper;
 use Okay\Helpers\RelatedProductsHelper;
 use Okay\Helpers\CommonHelper;
@@ -76,6 +77,7 @@ use Okay\Helpers\ResizeHelper;
 use Okay\Helpers\SiteMapHelper;
 use Okay\Helpers\UserHelper;
 use Okay\Helpers\ValidateHelper;
+use Okay\Helpers\WishListHelper;
 use Okay\Helpers\XmlFeedHelper;
 use Okay\Requests\CommonRequest;
 use Psr\Log\LoggerInterface;
@@ -86,6 +88,7 @@ use Okay\Helpers\FilterHelper;
 use Okay\Helpers\MoneyHelper;
 use Okay\Core\Entity\UrlUniqueValidator;
 use Okay\Admin\Helpers\BackendExportHelper;
+use Symfony\Component\Console\Helper\QuestionHelper as ConsoleQuestionHelper;
 
 return [
     BackendMainHelper::class => [
@@ -128,6 +131,7 @@ return [
             new SR(Translit::class),
             new SR(Database::class),
             new SR(Request::class),
+            new SR(Design::class),
         ]
     ],
     BackendFeaturesValuesHelper::class => [
@@ -386,6 +390,15 @@ return [
     MainHelper::class => [
         'class' => MainHelper::class,
     ],
+    WishListHelper::class => [
+        'class' => WishListHelper::class,
+        'arguments' => [
+            new SR(Design::class),
+            new SR(WishList::class),
+            new SR(FrontTemplateConfig::class),
+            new SR(LoggerInterface::class),
+        ]
+    ],
     DeliveriesHelper::class => [
         'class' => DeliveriesHelper::class,
         'arguments' => [
@@ -441,8 +454,20 @@ return [
             new SR(EntityFactory::class),
             new SR(MoneyHelper::class),
             new SR(Settings::class),
-            new SR(MainHelper::class),
+            new SR(ProductMetadataHelper::class),
+            new SR(CatalogHelper::class),
+            new SR(FilterHelper::class),
         ],
+    ],
+    CategoriesHelper::class => [
+        'class' => CategoriesHelper::class,
+        'arguments' => [
+            new SR(CatalogHelper::class),
+            new SR(EntityFactory::class),
+            new SR(Settings::class),
+            new SR(Design::class),
+            new SR(FilterHelper::class),
+        ]
     ],
     CatalogHelper::class => [
         'class' => CatalogHelper::class,
@@ -451,6 +476,9 @@ return [
             new SR(Money::class),
             new SR(Settings::class),
             new SR(Request::class),
+            new SR(FilterHelper::class),
+            new SR(MetaRobotsHelper::class),
+            new SR(Design::class),
         ],
     ],
     OrdersHelper::class => [
@@ -467,12 +495,16 @@ return [
         'arguments' => [
             new SR(EntityFactory::class),
             new SR(Settings::class),
-            new SR(Languages::class),
             new SR(Request::class),
             new SR(Router::class),
             new SR(Design::class),
-            new SR(Money::class),
+            new SR(FrontTranslations::class),
         ],
+        'calls' => [
+            [
+                'method' => 'init'
+            ]
+        ]
     ],
     MoneyHelper::class => [
         'class' => MoneyHelper::class,
@@ -533,6 +565,10 @@ return [
         'class' => BrandsHelper::class,
         'arguments' => [
             new SR(EntityFactory::class),
+            new SR(CatalogHelper::class),
+            new SR(Settings::class),
+            new SR(FilterHelper::class),
+            new SR(Design::class),
         ]
     ],
     ResizeHelper::class => [
@@ -589,14 +625,11 @@ return [
     PostMetadataHelper::class => [
         'class' => PostMetadataHelper::class,
     ],
-    DiscountedMetadataHelper::class => [
-        'class' => DiscountedMetadataHelper::class,
-    ],
-    BestsellersMetadataHelper::class => [
-        'class' => BestsellersMetadataHelper::class,
-    ],
     AllProductsMetadataHelper::class => [
         'class' => AllProductsMetadataHelper::class,
+    ],
+    AllBrandsMetadataHelper::class => [
+        'class' => AllBrandsMetadataHelper::class,
     ],
     BlogCategoryMetadataHelper::class => [
         'class' => BlogCategoryMetadataHelper::class,
@@ -657,6 +690,14 @@ return [
                     new PR('seo.filter.max_filter_depth'),
                 ]
             ],
+        ]
+    ],
+    PagesHelper::class => [
+        'class' => PagesHelper::class,
+    ],
+    ConsoleQuestionHelper::class => [
+        'class' => ConsoleQuestionHelper::class,
+        'arguments' => [
         ]
     ],
 ];

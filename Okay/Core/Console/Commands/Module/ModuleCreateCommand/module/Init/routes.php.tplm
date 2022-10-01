@@ -1,0 +1,8 @@
+<?php
+
+
+namespace Okay\Modules\%namespace_vendor%\%namespace_module%\Init;
+
+
+return [
+];

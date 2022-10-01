@@ -196,15 +196,15 @@ class Select extends AbstractQuery implements SelectInterface, SubselectInterfac
         return $this;
     }
 
-    public function where($cond, $param = null)
+    public function where($cond, ...$binds)
     {
-        $this->queryObject->where($cond, $param);
+        $this->queryObject->where(...func_get_args());
         return $this;
     }
 
     public function orWhere($cond)
     {
-        $this->queryObject->orWhere($cond);
+        $this->queryObject->orWhere(...func_get_args());
         return $this;
     }
 

@@ -79,21 +79,23 @@ class ExportOrders extends AbstractExport
                 $t1_4 = $t1_3->addChild("УчтеноВСумме", "true");
             }
 
+            $name = $order->name . ($order->last_name ? ' '.$order->last_name : '');
+
             // Контрагенты
             $k1 = $doc->addChild ( 'Контрагенты' );
             $k1_1 = $k1->addChild ( 'Контрагент' );
-            $k1_2 = $k1_1->addChild ( "Ид", $order->name);
-            $k1_2 = $k1_1->addChild ( "Наименование", $order->name);
+            $k1_2 = $k1_1->addChild ( "Ид", $name);
+            $k1_2 = $k1_1->addChild ( "Наименование", $name);
             $k1_2 = $k1_1->addChild ( "Роль", "Покупатель" );
-            $k1_2 = $k1_1->addChild ( "ПолноеНаименование", $order->name );
+            $k1_2 = $k1_1->addChild ( "ПолноеНаименование", $name);
 
             //Представители
             $p1_1 = $k1_1->addChild ( 'Представители' );
             $p1_2 = $p1_1->addChild ( 'Представитель' );
             $p1_3 = $p1_2->addChild ( 'Контрагент' );
             $p1_4 = $p1_3->addChild ( "Отношение", "Контактное лицо" );
-            $p1_4 = $p1_3->addChild ( "Ид", $order->name );
-            $p1_4 = $p1_3->addChild ( "Наименование", $order->name);
+            $p1_4 = $p1_3->addChild ( "Ид", $name);
+            $p1_4 = $p1_3->addChild ( "Наименование", $name);
 
             // Доп параметры
             $addr = $k1_1->addChild ('АдресРегистрации');

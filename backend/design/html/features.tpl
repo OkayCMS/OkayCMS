@@ -96,8 +96,11 @@
                     <div class="okay_list_heading okay_list_features_name">{$btr->general_name|escape}</div>
                     <div class="okay_list_heading okay_list_features_tag">{$btr->general_categories|escape}</div>
                     <div class="okay_list_heading okay_list_setting okay_list_features_setting"></div>
+                    <div class="okay_list_heading feature_value_products_num_title">{$btr->product_count_by_feature}</div>
+                    <div class="okay_list_heading okay_list_status">{$btr->general_enable|escape}</div>
                     <div class="okay_list_heading okay_list_url_status">{$btr->feature_url_in_product_short|escape}</div>
                     <div class="okay_list_heading okay_list_status">{$btr->features_in_filter|escape}</div>
+                    <div class="okay_list_heading okay_list_status">{$btr->feature_show_in_product|escape}</div>
                     <div class="okay_list_heading okay_list_close"></div>
                 </div>
                 {*Параметры элемента*}
@@ -136,6 +139,27 @@
                                 </div>
                             </div>
                             <div class="okay_list_boding okay_list_setting okay_list_features_setting"></div>
+
+                            <div class="okay_list_boding feature_value_products_num">
+                                <div class="heading_label visible_md">{$btr->feature_value_products_num}</div>
+                                <a href="{$rootUrl}/backend/index.php?controller=ProductsAdmin&feature_id={$feature->id}" class="form-control" target="_blank">
+                                    {if isset($products_counts[$feature->id]['count'])}
+                                        {$products_counts[$feature->id]['count']}
+                                    {else}
+                                        0
+                                    {/if}
+                                </a>
+                            </div>
+
+
+                            <div class="okay_list_boding okay_list_status">
+                                {*url_in_product*}
+                                <label class="switch switch-default">
+                                    <input class="switch-input fn_ajax_action {if $feature->visible}fn_active_class{/if}" data-controller="feature" data-action="visible" data-id="{$feature->id}" name="visible" value="1" type="checkbox"  {if $feature->visible}checked=""{/if}/>
+                                    <span class="switch-label"></span>
+                                    <span class="switch-handle"></span>
+                                </label>
+                            </div>
                             <div class="okay_list_boding okay_list_url_status">
                                 {*url_in_product*}
                                 <label class="switch switch-default">
@@ -148,6 +172,14 @@
                                 {*visible*}
                                 <label class="switch switch-default">
                                     <input class="switch-input fn_ajax_action {if $feature->in_filter}fn_active_class{/if}" data-controller="feature" data-action="in_filter" data-id="{$feature->id}" name="in_filter" value="1" type="checkbox"  {if $feature->in_filter}checked=""{/if}/>
+                                    <span class="switch-label"></span>
+                                    <span class="switch-handle"></span>
+                                </label>
+                            </div>
+                            <div class="okay_list_boding show_in_product">
+                                {*show_in_product*}
+                                <label class="switch switch-default">
+                                    <input class="switch-input fn_ajax_action {if $feature->show_in_product}fn_active_class{/if}" data-controller="feature" data-action="show_in_product" data-id="{$feature->id}" name="show_in_product" value="1" type="checkbox"  {if $feature->show_in_product}checked=""{/if}/>
                                     <span class="switch-label"></span>
                                     <span class="switch-handle"></span>
                                 </label>
@@ -173,6 +205,8 @@
                         </div>
                         <div class="okay_list_option">
                             <select name="action" class="selectpicker features_action">
+                                <option value="enable">{$btr->general_do_enable|escape}</option>
+                                <option value="disable">{$btr->general_do_disable|escape}</option>
                                 <option value="set_in_filter">{$btr->features_in_filter|escape}</option>
                                 <option value="unset_in_filter">{$btr->features_not_in_filter|escape}</option>
                                 <option value="delete">{$btr->general_delete|escape}</option>

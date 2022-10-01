@@ -20,16 +20,16 @@ class CanonicalHelperTest extends TestCase
      * @param array $brandsFilter
      * @param array|false $expectedResult
      * @throws \ReflectionException
-     * @dataProvider getCategoryFeaturesFilterDataProvider
-     * @dataProvider getCategoryBrandsFilterDataProvider
-     * @dataProvider getCategoryFeaturesBrandsFilterDataProvider
-     * @dataProvider getCategoryPaginationFeaturesBrandsFilterDataProvider
+     * @dataProvider getCatalogFeaturesFilterDataProvider
+     * @dataProvider getCatalogBrandsFilterDataProvider
+     * @dataProvider getCatalogFeaturesBrandsFilterDataProvider
+     * @dataProvider getCatalogPaginationFeaturesBrandsFilterDataProvider
      */
-    public function testGetCategoryCanonicalDataExecutor(array $canonicalSettings, $page, array $featuresFilter, array $brandsFilter, $expectedResult)
+    public function testGetCatalogCanonicalDataExecutor(array $canonicalSettings, $page, array $featuresFilter, array $brandsFilter, $expectedResult)
     {
         // Т.к. метод приватный, доступ к нему получаем через рефлексию
         $reflector = new \ReflectionClass(CanonicalHelper::class);
-        $method = $reflector->getMethod('getCategoryCanonicalDataExecutor');
+        $method = $reflector->getMethod('getCatalogCanonicalDataExecutor');
         $method->setAccessible(true);
 
         $canonicalHelper = new CanonicalHelper;
@@ -46,18 +46,23 @@ class CanonicalHelperTest extends TestCase
      * @param $page
      * @param array $otherFilters
      * @param array|false $expectedResult
-     * @dataProvider getCatalogPaginationDataProvider
-     * @dataProvider getCatalogOtherFiltersDataProvider
-     * @dataProvider getCatalogOtherFiltersPaginationDataProvider
+     * @dataProvider getBaseCatalogPaginationDataProvider
+     * @dataProvider getBaseCatalogOtherFiltersDataProvider
+     * @dataProvider getBaseCatalogOtherFiltersPaginationDataProvider
      */
-    public function testGetCatalogCanonical(array $canonicalSettings, $page, array $otherFilters, $expectedResult)
+    public function testGetBaseCatalogCanonical(array $canonicalSettings, $page, array $otherFilters, $expectedResult)
     {
+        // Т.к. метод приватный, доступ к нему получаем через рефлексию
+        $reflector = new \ReflectionClass(CanonicalHelper::class);
+        $method = $reflector->getMethod('getBaseCatalogCanonicalData');
+        $method->setAccessible(true);
+
         $canonicalHelper = new CanonicalHelper;
-        
+
         // Передаем нужные настройки в наш класс
         call_user_func_array([$canonicalHelper, 'setParams'], $canonicalSettings);
 
-        $actualResult = $canonicalHelper->getCatalogCanonicalData((string)$page, $otherFilters);
+        $actualResult = $method->invokeArgs($canonicalHelper, [(string)$page, $otherFilters]);
         
         $this->assertEquals($expectedResult, $actualResult);
     }
@@ -71,29 +76,29 @@ class CanonicalHelperTest extends TestCase
      * @param array $featuresFilter
      * @param array $brandsFilter
      * @param array|false $expectedResult
-     * @dataProvider getCategoryPaginationFullFiltersDataProvider
+     * @dataProvider getCatalogPaginationFullFiltersDataProvider
      */
-    public function testGetCategoryCanonicalData(array $canonicalSettings, $page, array $otherFilters, array $featuresFilter, array $brandsFilter, $expectedResult)
+    public function testGetCatalogCanonicalData(array $canonicalSettings, $page, array $otherFilters, array $featuresFilter, array $brandsFilter, $expectedResult)
     {
         $canonicalHelper = new CanonicalHelper;
         
         // Передаем нужные настройки в наш класс
         call_user_func_array([$canonicalHelper, 'setParams'], $canonicalSettings);
         
-        $actualResult = $canonicalHelper->getCategoryCanonicalData($page, $otherFilters, $featuresFilter, $brandsFilter);
+        $actualResult = $canonicalHelper->getCatalogCanonicalData($page, $otherFilters, $featuresFilter, $brandsFilter);
         
         $this->assertEquals($expectedResult, $actualResult);
     }
 
-    public function getCategoryFeaturesFilterDataProvider() : array
+    public function getCatalogFeaturesFilterDataProvider() : array
     {
         return [
             [ // Страница фильтров, в настройках ведет на страницу без фильтра, canonical на страницу без фильтра
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -121,8 +126,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITH_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITH_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -144,8 +149,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_ABSENT, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_ABSENT, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -166,15 +171,15 @@ class CanonicalHelperTest extends TestCase
         ];
     }
     
-    public function getCategoryBrandsFilterDataProvider() : array
+    public function getCatalogBrandsFilterDataProvider() : array
     {
         return [
             [ // Страница фильтров, в настройках ведет на страницу без фильтра, canonical на страницу без фильтра
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -196,8 +201,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITH_FILTER, // Category brand filter
-                    CANONICAL_WITH_FILTER, // Category features filter
+                    CANONICAL_WITH_FILTER, // Catalog brand filter
+                    CANONICAL_WITH_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -217,8 +222,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_ABSENT, // Category brand filter
-                    CANONICAL_ABSENT, // Category features filter
+                    CANONICAL_ABSENT, // Catalog brand filter
+                    CANONICAL_ABSENT, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -237,15 +242,15 @@ class CanonicalHelperTest extends TestCase
         ];
     }
     
-    public function getCategoryFeaturesBrandsFilterDataProvider() : array
+    public function getCatalogFeaturesBrandsFilterDataProvider() : array
     {
         return [
             [ // Страница фильтров, в настройках ведет на страницу без фильтра и без бренда, canonical на страницу без фильтра
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -276,8 +281,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITH_FILTER, // Category brand filter
-                    CANONICAL_WITH_FILTER, // Category features filter
+                    CANONICAL_WITH_FILTER, // Catalog brand filter
+                    CANONICAL_WITH_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -304,8 +309,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITH_FILTER, // Category brand filter
-                    CANONICAL_ABSENT, // Category features filter
+                    CANONICAL_WITH_FILTER, // Catalog brand filter
+                    CANONICAL_ABSENT, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -332,8 +337,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITH_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITH_FILTER, // Catalog features filter
                     CANONICAL_WITH_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -361,15 +366,15 @@ class CanonicalHelperTest extends TestCase
         ];
     }
     
-    public function getCategoryPaginationFeaturesBrandsFilterDataProvider() : array
+    public function getCatalogPaginationFeaturesBrandsFilterDataProvider() : array
     {
         return [
             [ // Страница фильтров и пагинации, в настройках ведет на первую страницу без фильтра, canonical на первую страницу без фильтра
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITH_FILTER, // Category brand filter
-                    CANONICAL_WITH_FILTER, // Category features filter
+                    CANONICAL_WITH_FILTER, // Catalog brand filter
+                    CANONICAL_WITH_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -401,8 +406,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITH_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITH_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -431,8 +436,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_CURRENT_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -461,8 +466,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_ABSENT, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -489,8 +494,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_ABSENT, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -522,8 +527,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_ABSENT, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -556,8 +561,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_ABSENT, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -589,8 +594,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_ABSENT, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -614,15 +619,15 @@ class CanonicalHelperTest extends TestCase
         ];
     }
 
-    public function getCatalogPaginationDataProvider() : array
+    public function getBaseCatalogPaginationDataProvider() : array
     {
         return [
             [ // Страница пагинации, canonical на первую
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -642,8 +647,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -662,8 +667,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_CURRENT_PAGE, // Catalog pagination
                     CANONICAL_CURRENT_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -682,8 +687,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_CURRENT_PAGE, // Catalog pagination
                     CANONICAL_CURRENT_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -703,8 +708,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_PAGE_ALL, // Catalog pagination
                     CANONICAL_CURRENT_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -724,8 +729,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_PAGE_ALL, // Catalog pagination
                     CANONICAL_CURRENT_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -744,8 +749,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_ABSENT, // Catalog pagination
                     CANONICAL_CURRENT_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -762,8 +767,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -783,8 +788,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_CURRENT_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -804,8 +809,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_ABSENT, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -821,15 +826,15 @@ class CanonicalHelperTest extends TestCase
         ];
     }
     
-    public function getCatalogOtherFiltersDataProvider() : array
+    public function getBaseCatalogOtherFiltersDataProvider() : array
     {
         return [
             [ // Страница фильтров, в настройках ведет на страницу без фильтра, canonical на страницу без фильтра
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -851,8 +856,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITH_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -873,8 +878,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_ABSENT, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -893,8 +898,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITH_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -917,8 +922,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITH_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -944,15 +949,15 @@ class CanonicalHelperTest extends TestCase
      * Тест страницы пагинации результатов фильтрации
      * @return array[]
      */
-    public function getCatalogOtherFiltersPaginationDataProvider() : array
+    public function getBaseCatalogOtherFiltersPaginationDataProvider() : array
     {
         return [
             [ // Страница пагинации и доп. фильтра, настройках без пагинации без доп. фильтра canonical на первую без фильтра
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -975,8 +980,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_CURRENT_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITH_FILTER, // Catalog other filter
                     CANONICAL_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -998,8 +1003,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_CURRENT_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_CURRENT_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -1021,8 +1026,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_ABSENT, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_ABSENT, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -1041,8 +1046,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -1065,8 +1070,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_CURRENT_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITH_FILTER, // Catalog other filter
                     CANONICAL_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -1088,8 +1093,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_CURRENT_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_CURRENT_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -1111,8 +1116,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_ABSENT, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITHOUT_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_ABSENT, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -1134,15 +1139,15 @@ class CanonicalHelperTest extends TestCase
      * Немного кейсов определения каноникла в категории при разных условиях
      * @return array[]
      */
-    public function getCategoryPaginationFullFiltersDataProvider() : array
+    public function getCatalogPaginationFullFiltersDataProvider() : array
     {
         return [
             [
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITH_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITH_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_WITHOUT_FILTER_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -1177,8 +1182,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITH_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITH_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_FIRST_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -1211,8 +1216,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITH_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITH_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_CURRENT_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -1245,8 +1250,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITH_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITH_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_ABSENT, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -1276,8 +1281,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITH_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITH_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_WITHOUT_FILTER, // Catalog other filter
                     CANONICAL_ABSENT, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -1307,8 +1312,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITH_FILTER, // Category brand filter
-                    CANONICAL_WITHOUT_FILTER, // Category features filter
+                    CANONICAL_WITH_FILTER, // Catalog brand filter
+                    CANONICAL_WITHOUT_FILTER, // Catalog features filter
                     CANONICAL_ABSENT, // Catalog other filter
                     CANONICAL_ABSENT, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -1329,8 +1334,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITH_FILTER, // Category brand filter
-                    CANONICAL_WITH_FILTER, // Category features filter
+                    CANONICAL_WITH_FILTER, // Catalog brand filter
+                    CANONICAL_WITH_FILTER, // Catalog features filter
                     CANONICAL_ABSENT, // Catalog other filter
                     CANONICAL_ABSENT, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -1355,8 +1360,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITH_FILTER, // Category brand filter
-                    CANONICAL_WITH_FILTER, // Category features filter
+                    CANONICAL_WITH_FILTER, // Catalog brand filter
+                    CANONICAL_WITH_FILTER, // Catalog features filter
                     CANONICAL_ABSENT, // Catalog other filter
                     CANONICAL_CURRENT_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -1382,8 +1387,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITH_FILTER, // Category brand filter
-                    CANONICAL_WITH_FILTER, // Category features filter
+                    CANONICAL_WITH_FILTER, // Catalog brand filter
+                    CANONICAL_WITH_FILTER, // Catalog features filter
                     CANONICAL_ABSENT, // Catalog other filter
                     CANONICAL_CURRENT_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -1414,8 +1419,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITH_FILTER, // Category brand filter
-                    CANONICAL_WITH_FILTER, // Category features filter
+                    CANONICAL_WITH_FILTER, // Catalog brand filter
+                    CANONICAL_WITH_FILTER, // Catalog features filter
                     CANONICAL_ABSENT, // Catalog other filter
                     CANONICAL_CURRENT_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -1442,8 +1447,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITH_FILTER, // Category brand filter
-                    CANONICAL_WITH_FILTER, // Category features filter
+                    CANONICAL_WITH_FILTER, // Catalog brand filter
+                    CANONICAL_WITH_FILTER, // Catalog features filter
                     CANONICAL_ABSENT, // Catalog other filter
                     CANONICAL_CURRENT_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -1476,8 +1481,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITH_FILTER, // Category brand filter
-                    CANONICAL_WITH_FILTER, // Category features filter
+                    CANONICAL_WITH_FILTER, // Catalog brand filter
+                    CANONICAL_WITH_FILTER, // Catalog features filter
                     CANONICAL_ABSENT, // Catalog other filter
                     CANONICAL_CURRENT_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов
@@ -1513,8 +1518,8 @@ class CanonicalHelperTest extends TestCase
                 [
                     CANONICAL_FIRST_PAGE, // Catalog pagination
                     CANONICAL_FIRST_PAGE, // page-all
-                    CANONICAL_WITH_FILTER, // Category brand filter
-                    CANONICAL_WITH_FILTER, // Category features filter
+                    CANONICAL_WITH_FILTER, // Catalog brand filter
+                    CANONICAL_WITH_FILTER, // Catalog features filter
                     CANONICAL_ABSENT, // Catalog other filter
                     CANONICAL_CURRENT_PAGE, // Catalog filter pagination
                     2, // Максимальное кол-во брендов

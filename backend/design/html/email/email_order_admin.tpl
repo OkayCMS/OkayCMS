@@ -20,6 +20,8 @@
     {include "backend/design/html/email/email_head.tpl"}
 </head>
 <body class="body_email">
+{*    {print_r($delivery->name)}*}
+
     <div class="es-wrapper-color">
         <table class="es-wrapper" width="100%" cellspacing="0" cellpadding="0">
             <tbody>
@@ -132,6 +134,18 @@
                                                                         </span>
                                                                 </td>
                                                             </tr>
+                                                            {if $payment_method}
+                                                                <tr valign="top">
+                                                                    <td class="es-p5t es-p5b" width="180px"><span>{$btr->email_order_payment_method|escape}:</span></td>
+                                                                    <td class="es-p5t es-p5b"><span>{$payment_method->name}</span></td>
+                                                                </tr>
+                                                            {/if}
+                                                            {if $delivery}
+                                                                <tr valign="top">
+                                                                    <td class="es-p5t es-p5b" width="180px"><span>{$btr->general_shipping}:</span></td>
+                                                                    <td class="es-p5t es-p5b"><span>{$delivery->name}</span></td>
+                                                                </tr>
+                                                            {/if}
                                                             <tr valign="top">
                                                                 <td class="es-p5t es-p5b" width="180px"><span>{$btr->email_order_name|escape}:</span></td>
                                                                 <td class="es-p5t es-p5b"><span>{$order->name|escape} {$order->last_name|escape}</span></td>
@@ -272,7 +286,7 @@
                                                                                             <td>
                                                                                                 <a href="{url_generator route='product' url=$purchase->product->url absolute=1}" style="font-family: 'Trebuchet MS';font-size: 16px;color: #222;text-decoration: none;line-height: normal;">{$purchase->product_name|escape}</a><br />
                                                                                                 <span class="es-p5t"><em><span style="color: rgb(128, 128, 128); font-size: 12px;">{$purchase->variant_name|escape}</span></em></span>
-                                                                                                {if $purchase->variant->stock == 0}
+                                                                                                {if !$order->closed && $purchase->variant->stock == 0}
                                                                                                 <div class="es-p5t" style="color: #000; font-size: 12px;font-weight: 600">{$lang->product_pre_order|escape}</div>
                                                                                                 {/if}
                                                                                                 {get_design_block block="email_order_admin_purchase_name" vars=['purchase' => $purchase]}
@@ -339,18 +353,16 @@
                                                                                 <td align="right">
                                                                                     <table style="width: 500px;" cellspacing="1" cellpadding="1" border="0" align="right">
                                                                                         <tbody>
-                                                                                        {if $order->discount}
-                                                                                        <tr>
-                                                                                            <td style="text-align: right; font-size: 18px; line-height: 150%;">{$btr->email_order_discount}:</td>
-                                                                                            <td style="text-align: right; font-size: 18px; line-height: 150%; color: #000;">{$order->discount|escape}&nbsp;%</td>
-                                                                                        </tr>
-                                                                                        {/if}
-
-                                                                                        {if $order->coupon_discount>0}
-                                                                                        <tr>
-                                                                                            <td style="text-align: right; font-size: 18px; line-height: 150%;">{$btr->email_order_coupon} {$order->coupon_code|escape}:</td>
-                                                                                            <td style="text-align: right; font-size: 18px; line-height: 150%; color: #000;">&minus;{$order->coupon_discount|escape}&nbsp;{$currency->sign|escape}</td>
-                                                                                        </tr>
+                                                                                        {* Discounts *}
+                                                                                        {if $discounts}
+                                                                                            {foreach $discounts as $discount}
+                                                                                                <tr>
+                                                                                                    <td style="text-align: right; font-size: 14px;font-weight:600; line-height: 150%;">{$discount->name}:</td>
+                                                                                                    <td class="es-discount" style="text-align: right;font-weight:600; font-size: 14px; line-height: 150%; color: #000;"><i>{$discount->percentDiscount|string_format:"%.2f"} %</i>
+                                                                                                        &minus; {$discount->absoluteDiscount|convert} <span class="currency">{$currency->sign|escape}</span>
+                                                                                                    </td>
+                                                                                                </tr>
+                                                                                            {/foreach}
                                                                                         {/if}
 
                                                                                         {if $order->separate_delivery || !$order->separate_delivery && $order->delivery_price > 0}

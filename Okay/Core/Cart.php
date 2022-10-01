@@ -22,7 +22,6 @@ class Cart
 {
     /** @var Settings */
     private $settings;
-
     /** @var ProductsHelper */
     private $productsHelper;
 
@@ -109,6 +108,12 @@ class Cart
      */
     public $isEmpty = true;
 
+    /**
+     * @var array
+     * Total sum for all applied discounts for purchases
+     */
+    public $total_purchases_discounts = [];
+
     public function __construct(
         EntityFactory   $entityFactory,
         Settings        $settings,
@@ -138,11 +143,44 @@ class Cart
     public function init()
     {
         if (empty($_SESSION['user_id'])) {
+            if (!empty($_COOKIE['shopping_cart'])&& is_array($items = json_decode($_COOKIE['shopping_cart'], true))) {
+                foreach ($items as $key => $item){
+                    if (!empty($_SESSION['shopping_cart'][$key]))
+                    {
+                        $_SESSION['shopping_cart'][$key] = max($item, $_SESSION['shopping_cart'][$key]);
+                    } else {
+                        $_SESSION['shopping_cart'][$key] = $item;
+                    }
+                }
+                if (!empty($items)) {
+                    $this->saveShoppingCart($_SESSION['shopping_cart']);
+                }
+            }
+
             if (isset($_SESSION['shopping_cart'])) {
                 $this->getPurchases($_SESSION['shopping_cart']);
             } else {
                 $this->getPurchases([]);
             }
+        }
+    }
+
+    /**
+     * We save the data of the selected products in a cookie
+     *
+     * @param array $items
+     */
+    public function saveShoppingCart(array $items)
+    {
+        if (!empty($items)) {
+            $_COOKIE['shopping_cart'] = json_encode($items);
+            setcookie('shopping_cart', $_COOKIE['shopping_cart'], time() + 30 * 24 * 3600, '/');   //  на месяц
+        } else if (empty($items)) {
+            //  And delete the cookie variable when we empty the trash
+            if (isset($_COOKIE['shopping_cart'])) {
+                unset($_COOKIE['shopping_cart']);
+            }
+            setcookie('shopping_cart', '', time()-3600, '/');
         }
     }
 
@@ -198,6 +236,9 @@ class Cart
                 $amount = max(1, $amount);
                 $amount = min($amount, ($variant->stock > 0 ? $variant->stock : min($this->settings->get('max_order_amount'), $amount)));
                 $_SESSION['shopping_cart'][$variantId] = intval($amount);
+                if (!empty($_SESSION['shopping_cart'])) {
+                    $this->saveShoppingCart($_SESSION['shopping_cart']);
+                }
                 $this->addPurchase($variantId, $amount);
                 if ($user = $this->mainHelper->getCurrentUser()) {
                     $this->userCartItemsEntity->updateAmount($user->id, $variantId, $amount);
@@ -226,6 +267,9 @@ class Cart
                 $amount = max(1, $amount);
                 $amount = min($amount, ($variant->stock > 0 ? $variant->stock : min($this->settings->get('max_order_amount'), $amount)));
                 $_SESSION['shopping_cart'][$variantId] = intval($amount);
+                if (!empty($_SESSION['shopping_cart'])) {
+                    $this->saveShoppingCart($_SESSION['shopping_cart']);
+                }
                 $this->updatePurchase($variantId, $amount);
                 if ($user = $this->mainHelper->getCurrentUser()) {
                     $this->userCartItemsEntity->updateAmount($user->id, $variantId, $amount);
@@ -234,6 +278,8 @@ class Cart
         } else {
             $this->addItem($variantId, $amount);
         }
+
+        ExtenderFacade::execute(__METHOD__, $this, func_get_args());
     }
 
     /**
@@ -245,6 +291,7 @@ class Cart
     public function deleteItem($variantId)
     {
         unset($_SESSION['shopping_cart'][$variantId]);
+        $this->saveShoppingCart($_SESSION['shopping_cart']);
         if ($user = $this->mainHelper->getCurrentUser()) {
             $this->userCartItemsEntity->deleteByVariantId($user->id, $variantId);
         }
@@ -264,6 +311,13 @@ class Cart
 
         unset($_SESSION['shopping_cart']);
         unset($_SESSION['coupon_code']);
+
+        //  delete the cookie variable when we empty the trash
+        if (isset($_COOKIE['shopping_cart'])) {
+            unset($_COOKIE['shopping_cart']);
+            setcookie('shopping_cart', '', time()-3600, '/');
+        }
+
         $this->purchases = [];
         $this->updateTotals();
         ExtenderFacade::execute(__METHOD__, $this, func_get_args());
@@ -429,6 +483,7 @@ class Cart
     private function applyDiscounts()
     {
         if (!$this->isEmpty) {
+            $this->total_purchases_discounts = [];
             $this->applyPurchasesDiscounts();
             $this->discounts = [];
             $this->total_price = $this->undiscounted_total_price;
@@ -436,15 +491,23 @@ class Cart
             if (!empty($this->availableDiscounts) && !empty($sets)) {
                 foreach ($sets as $set) {
                     if ($signs = $this->discountsHelper->parseSet($set)) {
-                        if (empty($signs) || !isset($signs['cart']) || (isset($signs['cart']) && !$this->checkAvailableDiscounts($signs['cart']))) {
-                            continue;
-                        }
-                        foreach ($this->purchases as $purchase) {
-                            /** @var $purchase Purchase */
-                            if (isset($signs['purchase']) && !$purchase->checkAvailableDiscounts($signs['purchase'])) {
-                                continue 2;
+                        if (isset($signs['purchase'])) {
+                            foreach ($this->purchases as $purchase) {
+                                /** @var $purchase Purchase */
+                                if ($purchase->checkAvailableDiscounts($signs['purchase'])) {
+                                    break 2;
+                                }
                             }
                         }
+
+                        if (
+                            empty($signs) ||
+                            !isset($signs['cart']) ||
+                            (isset($signs['cart']) && !$this->checkAvailableDiscounts($signs['cart']))
+                        ) {
+                            continue;
+                        }
+
                         $discounts = $this->discountsHelper->prepareDiscounts($signs['cart'], $this->availableDiscounts);
                         list($this->discounts, $this->total_price) = $this->discountsHelper->calculateDiscounts($discounts, $this->undiscounted_total_price);
                         break;
