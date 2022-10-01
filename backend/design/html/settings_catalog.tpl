@@ -332,8 +332,9 @@
                             <div class="mb-1">
                                 <button type="button" class="btn btn_small btn_blue fn_truncate_table">
                                     {include file='svg_icon.tpl' svgId='checked'}
-                                    <span>{$btr->truncate_table_button|escape}</span>
+                                    <span>{$btr->truncate_table_button|escape}*</span>
                                 </button>
+                            <div class="mt-1">* {$btr->truncate_catalog_data|escape}</div>
                             </div>
                         </div>
                         <div class="fn_truncate_table_confirm" style="display: none;">
@@ -355,43 +356,74 @@
                 </div>
                 <div class="toggle_body_wrap on fn_card">
                     <div class="row">
-                        <div class="col-lg-4 col-md-6">
+                        <div class="col-lg-3 col-md-6">
                             <div class="heading_label"></div>
                             <div class="mb-1">
-                                <button type="button" class="btn btn_small btn_blue fn_truncate_table" data-default="category">
+                                <button type="button" class="btn btn_small btn_blue fn_truncate_table_entity" name="truncate_table_confirm" value="category" data-name="{$btr->general_categories|escape}" data-default="category">
                                     {include file='svg_icon.tpl' svgId='checked'}
-                                    <span>Очистить категории</span>
+                                    <span>{$btr->truncate_table_button_clear|escape} {$btr->general_categories|escape}</span>
                                 </button>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-md-6">
+
+                        <div class="col-lg-3 col-md-6">
                             <div class="heading_label"></div>
                             <div class="mb-1">
-                                <button type="button" class="btn btn_small btn_blue fn_truncate_table" data-default="brand">
+                                <button type="button" class="btn btn_small btn_blue fn_truncate_table_entity" name="truncate_table_confirm" value="product" data-name="{$btr->general_products|escape}" data-default="product">
                                     {include file='svg_icon.tpl' svgId='checked'}
-                                    <span>Очистить бренд</span>
+                                    <span>{$btr->truncate_table_button_clear|escape} {$btr->general_products|escape}</span>
                                 </button>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-md-6">
+
+                        <div class="col-lg-3 col-md-6">
                             <div class="heading_label"></div>
                             <div class="mb-1">
-                                <button type="button" class="btn btn_small btn_blue fn_truncate_table" data-default="blog">
+                                <button type="button" class="btn btn_small btn_blue fn_truncate_table_entity" name="truncate_table_confirm" value="feature" data-name="{$btr->features_features|escape}" data-default="feature">
                                     {include file='svg_icon.tpl' svgId='checked'}
-                                    <span>Очистить статьи</span>
+                                    <span>{$btr->truncate_table_button_clear|escape} {$btr->features_features|escape}</span>
                                 </button>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-md-6">
+
+                        <div class="col-lg-3 col-md-6">
                             <div class="heading_label"></div>
                             <div class="mb-1">
-                                <button type="button" class="btn btn_small btn_blue fn_truncate_table" data-default="feature">
+                                <button type="button" class="btn btn_small btn_blue fn_truncate_table_entity" name="truncate_table_confirm" value="brand" data-name="{$btr->brands_brands|escape}" data-default="brand">
                                     {include file='svg_icon.tpl' svgId='checked'}
-                                    <span>Очистить свойства</span>
+                                    <span>{$btr->truncate_table_button_clear|escape} {$btr->brands_brands|escape}</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <div class="heading_label"></div>
+                            <div class="mb-1">
+                                <button type="button" class="btn btn_small btn_blue fn_truncate_table_entity" name="truncate_table_confirm" value="blog" data-name="{$btr->blog_blog|escape}" data-default="blog">
+                                    {include file='svg_icon.tpl' svgId='checked'}
+                                    <span>{$btr->truncate_table_button_clear|escape} {$btr->blog_blog|escape}</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="fn_truncate_table_confirm_entity" style="display: none;">
+                            <div class="col-lg-4 col-md-6">
+                                <div class="heading_label">{$btr->truncate_table_password|escape}</div>
+                                <div class="mb-1">
+                                    <input name="truncate_table_password_entity" class="form-control" type="password" value="" disabled />
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="heading_label">&nbsp;</div>
+                                <button type="submit" class="btn btn_small btn-danger" name="truncate_table_confirm_entity" value="">
+                                    {include file='svg_icon.tpl' svgId='checked'}
+                                    <span>{$btr->truncate_table_confirm|escape}: <span class="fn_name_entity"></span></span>
                                 </button>
                             </div>
                         </div>
                     </div>
+                    <div class="mt-1">* {$btr->truncate_catalog_entity_data|escape}</div>
+
                 </div>
                 {get_design_block block="settings_catalog_truncate"}
             </div>
@@ -486,24 +518,18 @@
 <script>
     $(document).on("click", ".fn_truncate_table", function () {
         $('.fn_truncate_table_confirm').fadeIn(500);
+        $('.fn_truncate_table_confirm_entity').fadeOut(500);
         $('[name="truncate_table_password"]').prop('disabled', false);
-        console.log($(this).data( "default" ) === "category");
-        if($(this).data( "default" ) === "category"){
-            $('[name="truncate_table_confirm"]').val('2');
+        $('[name="truncate_table_confirm"]').val('1');
+    });
+    $(document).on("click", ".fn_truncate_table_entity", function () {
+        $('.fn_truncate_table_confirm_entity').fadeIn(500);
+        $('[name="truncate_table_password_entity"]').prop('disabled', false);
+        $('.fn_truncate_table_confirm').fadeOut(500);
+        if(typeof ($(this).data('default')) != 'undefined') {
+            $('.fn_name_entity').html($(this).data('name'));
+            $('[name="truncate_table_confirm_entity"]').val($(this).data('default'));
         }
-        if ($(this).data("default") === "brand") {
-            $('[name="truncate_table_confirm"]').val('3');
-        }
-        if ($(this).data("default") === "feature") {
-            $('[name="truncate_table_confirm"]').val('4');
-        }
-        if ($(this).data("default") === "blog") {
-            $('[name="truncate_table_confirm"]').val('5');
-        }
-        if ($(this).data("default") === null) {
-            $('[name="truncate_table_confirm"]').val('1');
-        }
-
     });
     $(document).on("input", ".fn_rating", function () {
         $(this).closest(".fn_range_wrap").find(".fn_show_range").html($(this).val());

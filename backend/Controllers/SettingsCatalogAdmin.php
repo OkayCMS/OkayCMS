@@ -27,39 +27,28 @@ class SettingsCatalogAdmin extends IndexAdmin
                 $backendSettingsCatalogHelper->updateSettings();
             }
 
-            if ($settingsCatalogRequest->postTruncateTableConfirm() === "1") {
-                if ($error = $backendValidateHelper->getTruncateTableValidateError()) {
+            if (!empty($this->request->post('truncate_table_confirm')) || !empty($this->request->post('truncate_table_confirm_entity'))) {
+                if (empty($error = $backendValidateHelper->getTruncateTableValidateError())) {
+                    if ($settingsCatalogRequest->postTruncateTableConfirm() === "1") {
+                        $backendSettingsCatalogHelper->clearCatalog();
+
+                    } elseif ($settingsCatalogRequest->postTruncateTableConfirmEntity() === "category") {
+                        $backendSettingsCatalogHelper->clearCategorys();
+
+                    } elseif ($settingsCatalogRequest->postTruncateTableConfirmEntity() === "product") {
+                        $backendSettingsCatalogHelper->clearProducts();
+
+                    } elseif ($settingsCatalogRequest->postTruncateTableConfirmEntity() === "brand") {
+                        $backendSettingsCatalogHelper->clearBrands();
+
+                    } elseif ($settingsCatalogRequest->postTruncateTableConfirmEntity() === "feature") {
+                        $backendSettingsCatalogHelper->clearFeatures();
+
+                    } elseif ($settingsCatalogRequest->postTruncateTableConfirmEntity() === "blog") {
+                        $backendSettingsCatalogHelper->clearBlogs();
+                    }
+                } elseif (!empty($error)) {
                     $this->design->assign('message_error', $error);
-                } else {
-                    $backendSettingsCatalogHelper->clearCatalog();
-                }
-            }
-            if ($settingsCatalogRequest->postTruncateTableConfirm() === "2") {
-                if ($error = $backendValidateHelper->getTruncateTableValidateError()) {
-                    $this->design->assign('message_error', $error);
-                } else {
-                    $backendSettingsCatalogHelper->clearCategory();
-                }
-            }
-            if ($settingsCatalogRequest->postTruncateTableConfirm() === "3") {
-                if ($error = $backendValidateHelper->getTruncateTableValidateError()) {
-                    $this->design->assign('message_error', $error);
-                } else {
-                    $backendSettingsCatalogHelper->clearBrand();
-                }
-            }
-            if ($settingsCatalogRequest->postTruncateTableConfirm() === "4") {
-                if ($error = $backendValidateHelper->getTruncateTableValidateError()) {
-                    $this->design->assign('message_error', $error);
-                } else {
-                    $backendSettingsCatalogHelper->clearFeature();
-                }
-            }
-            if ($settingsCatalogRequest->postTruncateTableConfirm() === "5") {
-                if ($error = $backendValidateHelper->getTruncateTableValidateError()) {
-                    $this->design->assign('message_error', $error);
-                } else {
-                    $backendSettingsCatalogHelper->clearBlog();
                 }
             }
 

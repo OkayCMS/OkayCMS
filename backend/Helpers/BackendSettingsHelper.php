@@ -156,30 +156,46 @@ class BackendSettingsHelper
     {
         $this->dataCleaner->clearAllCatalogImages();
         $this->dataCleaner->clearCatalogData();
+
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
-    public function clearCategory()
+    public function clearCategorys()
     {
+        $this->dataCleaner->clearCategoryImages();
         $this->dataCleaner->clearCategoryData();
+
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
-    public function clearBrand()
+    public function clearProducts()
     {
-        $this->dataCleaner->clearBrandData();
+        $this->dataCleaner->clearProductImages();
+        $this->dataCleaner->clearProductVariantData();
+
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
-    public function clearFeature()
+    public function clearBrands()
     {
-        $this->dataCleaner->clearFeature();
+        $this->dataCleaner->clearBrandImages();
+        $this->dataCleaner->clearBrandsData();
+
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
-    public function clearBlog()
+    public function clearFeatures()
     {
-        $this->dataCleaner->clearBlog();
+        $this->dataCleaner->clearFeaturesData();
+
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    public function clearBlogs()
+    {
+        $this->dataCleaner->clearBlogImages();
+        $this->dataCleaner->clearBlogsData();
+
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
