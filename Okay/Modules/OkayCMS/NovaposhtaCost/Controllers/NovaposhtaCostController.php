@@ -5,6 +5,7 @@ namespace Okay\Modules\OkayCMS\NovaposhtaCost\Controllers;
 
 
 use Okay\Admin\Helpers\BackendOrdersHelper;
+use Okay\Admin\Helpers\BackendPurchasesHelper;
 use Okay\Controllers\AbstractController;
 use Okay\Core\Cart;
 use Okay\Core\EntityFactory;
@@ -45,7 +46,8 @@ class NovaposhtaCostController extends AbstractController
         DeliveriesEntity $deliveriesEntity,
         OrdersEntity $ordersEntity,
         LoggerInterface $logger,
-        BackendOrdersHelper $backendOrdersHelper
+        BackendOrdersHelper    $backendOrdersHelper,
+        BackendPurchasesHelper $backendPurchasesHelper
     ) {
         
         $this->design->assignJsVar('np_delivery_module_id', 1);
@@ -64,7 +66,7 @@ class NovaposhtaCostController extends AbstractController
             }
 
             $data = new \stdClass();
-            $data->purchases = $backendOrdersHelper->findOrderPurchases($order);
+            $data->purchases = $backendPurchasesHelper->findOrderPurchases($order);
             $data->total_price = $order->total_price;
         } else {
             $data = $cart->get();
