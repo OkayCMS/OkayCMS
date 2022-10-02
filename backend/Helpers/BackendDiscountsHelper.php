@@ -110,6 +110,9 @@ class BackendDiscountsHelper
 
     public function delete($postedDiscountsIds, $orderId)
     {
+        if (empty($orderId)) {
+            return false;
+        }
         $select = $this->queryFactory->newSelect();
         $select ->from(DiscountsEntity::getTable())
             ->cols(['id'])

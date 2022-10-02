@@ -115,6 +115,10 @@ class BackendPurchasesHelper
 
     public function delete($order, array $postedPurchasesIds)
     {
+        if (empty($order) || empty($order->id)) {
+            return ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        }
+
         foreach ($this->purchasesEntity->find(['order_id' => $order->id]) as $p) {
             if (!in_array($p->id, $postedPurchasesIds)) {
                 $this->purchasesEntity->delete($p->id);
