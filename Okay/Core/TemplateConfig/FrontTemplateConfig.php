@@ -590,6 +590,10 @@ class FrontTemplateConfig
 
         $runningModules = $this->modules->getRunningModules();
         foreach ($runningModules as $runningModule) {
+            //  пропускаем не активные модули
+            if (empty($runningModule['is_active'])) {
+                continue;
+            }
 
             $moduleThemesDir = $this->module->getModuleDirectory($runningModule['vendor'], $runningModule['module_name']) . 'design/';
 
