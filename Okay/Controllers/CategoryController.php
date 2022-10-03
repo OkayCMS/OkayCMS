@@ -129,7 +129,9 @@ class CategoryController extends AbstractController
             
             $metaRobotsHelper->setAvailableFeatures($catalogFeatures);
         }
-        
+
+        $productsFilter = $filterHelper->getCategoryProductsFilter($productsFilter);
+
         if (!$catalogHelper->paginate(
             $this->settings->get('products_num'),
             $currentPage,
