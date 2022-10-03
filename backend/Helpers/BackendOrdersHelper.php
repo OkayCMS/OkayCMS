@@ -4,11 +4,14 @@
 namespace Okay\Admin\Helpers;
 
 
+use Okay\Core\Classes\Discount;
 use Okay\Core\EntityFactory;
+use Okay\Core\QueryFactory;
 use Okay\Core\Request;
 use Okay\Core\Settings;
 use Okay\Entities\CurrenciesEntity;
 use Okay\Entities\DeliveriesEntity;
+use Okay\Entities\DiscountsEntity;
 use Okay\Entities\ImagesEntity;
 use Okay\Entities\OrderHistoryEntity;
 use Okay\Entities\OrderLabelsEntity;
@@ -21,6 +24,8 @@ use Okay\Entities\PurchasesEntity;
 use Okay\Entities\UserGroupsEntity;
 use Okay\Entities\UsersEntity;
 use Okay\Entities\VariantsEntity;
+use Okay\Helpers\DiscountsHelper;
+use Okay\Helpers\MoneyHelper;
 
 class BackendOrdersHelper
 {
@@ -60,27 +65,34 @@ class BackendOrdersHelper
     /** @var UserGroupsEntity */
     private $userGroupsEntity;
 
+    /** @var DiscountsEntity */
+    private $discountsEntity;
+    
+    /** @var MoneyHelper */
+    private $moneyHelper;
+
     /** @var Request */
     private $request;
 
     /** @var Settings */
     private $settings;
 
+    /** @var QueryFactory */
+    private $queryFactory;
+
     /** @var EntityFactory */
     private $entityFactory;
 
-    /** @var BackendPurchasesHelper */
-    private $backendPurchasesHelper;
-
-    /** @var BackendDiscountsHelper */
-    private $backendDiscountsHelper;
+    /** @var DiscountsHelper */
+    private $discountsHelper;
     
     public function __construct(
-        EntityFactory          $entityFactory,
-        Request                $request,
-        Settings               $settings,
-        BackendPurchasesHelper $backendPurchasesHelper,
-        BackendDiscountsHelper $backendDiscountsHelper
+        EntityFactory   $entityFactory,
+        MoneyHelper     $moneyHelper,
+        Request         $request,
+        Settings        $settings,
+        QueryFactory    $queryFactory,
+        DiscountsHelper $discountsHelper
     ) {
         $this->ordersEntity       = $entityFactory->get(OrdersEntity::class);
         $this->variantsEntity     = $entityFactory->get(VariantsEntity::class);
@@ -94,12 +106,14 @@ class BackendOrdersHelper
         $this->paymentsEntity     = $entityFactory->get(PaymentsEntity::class);
         $this->usersEntity        = $entityFactory->get(UsersEntity::class);
         $this->userGroupsEntity   = $entityFactory->get(UserGroupsEntity::class);
+        $this->discountsEntity    = $entityFactory->get(DiscountsEntity::class);
 
-        $this->entityFactory          = $entityFactory;
-        $this->request                = $request;
-        $this->settings               = $settings;
-        $this->backendPurchasesHelper = $backendPurchasesHelper;
-        $this->backendDiscountsHelper = $backendDiscountsHelper;
+        $this->entityFactory   = $entityFactory;
+        $this->moneyHelper     = $moneyHelper;
+        $this->request         = $request;
+        $this->settings        = $settings;
+        $this->queryFactory    = $queryFactory;
+        $this->discountsHelper = $discountsHelper;
     }
 
     /**
@@ -154,7 +168,7 @@ class BackendOrdersHelper
             }
         }
         
-        return ExtenderFacade::execute(__METHOD__, $products, func_get_args());
+        return ExtenderFacade::execute(__METHOD__, $products, func_get_args());;
     }
     
     /**
@@ -164,12 +178,6 @@ class BackendOrdersHelper
     public function executeCustomPost($order)
     {
         ExtenderFacade::execute(__METHOD__, $order, func_get_args());
-    }
-
-    public function getBeforeUpdate($orderId)
-    {
-        $order = $this->ordersEntity->findOne(['id' => $orderId]);
-        return ExtenderFacade::execute(__METHOD__, $order, func_get_args());
     }
     
     public function prepareAdd($order)
@@ -192,6 +200,76 @@ class BackendOrdersHelper
     {
         $this->ordersEntity->update($order->id, $order);
         ExtenderFacade::execute(__METHOD__, $order, func_get_args());
+    }
+
+    public function updatePurchase($purchase)
+    {
+        $this->purchasesEntity->update($purchase->id, $purchase);
+        ExtenderFacade::execute(__METHOD__, $purchase, func_get_args());
+    }
+
+    public function prepareUpdatePurchase($order, $purchase, $discounts)
+    {
+        if (!empty($variant = $this->variantsEntity->get($purchase->variant_id))) {
+            $purchase->variant_name = $variant->name;
+            $purchase->sku = $variant->sku;
+        }
+
+        $purchase = $this->prepareCommonPurchase(...func_get_args());
+        
+        return ExtenderFacade::execute(__METHOD__, $purchase, func_get_args());
+    }
+
+    public function addPurchase($purchase)
+    {
+        $purchaseId = $this->purchasesEntity->add($purchase);
+        return ExtenderFacade::execute(__METHOD__, $purchaseId, func_get_args());
+    }
+
+    public function prepareAddPurchase($order, $purchase, $discounts)
+    {
+        $purchase->id = null;
+        $purchase->order_id = $order->id;
+
+        $purchase = $this->prepareCommonPurchase(...func_get_args());
+
+        return ExtenderFacade::execute(__METHOD__, $purchase, func_get_args());
+    }
+
+    public function prepareCommonPurchase($order, $purchase, $discounts)
+    {
+        $purchase->price = $purchase->undiscounted_price;
+        if (!empty($discounts)) {
+            foreach ($discounts as $discount) {
+                switch ($discount->type) {
+                    case 'absolute':
+                        $purchase->price -= $discount->value;
+                        break;
+
+                    case 'percent':
+                        if ($discount->from_last_discount) {
+                            $purchase->price -= $purchase->price * ($discount->value / 100);
+                        } else {
+                            $purchase->price -= $purchase->undiscounted_price * ($discount->value / 100);
+                        }
+                        break;
+                }
+            }
+        }
+        $purchase->price = max($purchase->price, 0);
+
+        return ExtenderFacade::execute(__METHOD__, $purchase, func_get_args());
+    }
+    
+    public function deletePurchases($order, array $postedPurchasesIds)
+    {
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        
+        foreach ($this->purchasesEntity->find(['order_id' => $order->id]) as $p) {
+            if (!in_array($p->id, $postedPurchasesIds)) {
+                $this->purchasesEntity->delete($p->id);
+            }
+        }
     }
     
     public function updateOrderStatus($order, $newStatusId)
@@ -266,6 +344,70 @@ class BackendOrdersHelper
         
         return ExtenderFacade::execute(__METHOD__, $neighborsOrders, func_get_args());
     }
+    
+    public function findOrderPurchases($order)
+    {
+        if ($purchases = $this->purchasesEntity->mappedBy('id')->find(['order_id'=>$order->id])) {
+            // Покупки
+            $productsIds = [];
+            $variantsIds = [];
+            $imagesIds = [];
+            foreach ($purchases as $purchase) {
+                $productsIds[] = $purchase->product_id;
+                $variantsIds[] = $purchase->variant_id;
+            }
+
+            $products = [];
+            foreach ($this->productsEntity->find(['id'=>$productsIds, 'limit' => count($productsIds)]) as $p) {
+                $products[$p->id] = $p;
+                $imagesIds[] = $p->main_image_id;
+            }
+
+            if (!empty($imagesIds)) {
+                $images = $this->imagesEntity->find(['id'=>$imagesIds]);
+                foreach ($images as $image) {
+                    if (isset($products[$image->product_id])) {
+                        $products[$image->product_id]->image = $image;
+                    }
+                }
+            }
+
+            $variants = $this->variantsEntity->mappedBy('id')->find(['product_id'=>$productsIds]);
+            $variants = $this->moneyHelper->convertVariantsPriceToMainCurrency($variants);
+
+            foreach ($variants as $variant) {
+                if (!empty($products[$variant->product_id])) {
+                    $products[$variant->product_id]->variants[] = $variant;
+                }
+            }
+
+            $discounts = $this->discountsEntity->find([
+                'entity' => 'purchase',
+                'entity_id' => array_keys($purchases)
+            ]);
+
+            $sortedDiscounts = [];
+            if (!empty($discounts)) {
+                foreach ($discounts as $discount) {
+                    $sortedDiscounts[$discount->entity_id][] = $discount;
+                }
+            }
+
+            foreach ($purchases as $purchase) {
+                if(!empty($products[$purchase->product_id])) {
+                    $purchase->product = $products[$purchase->product_id];
+                }
+                if (!empty($variants[$purchase->variant_id])) {
+                    $purchase->variant = $variants[$purchase->variant_id];
+                }
+                if (isset($sortedDiscounts[$purchase->id])) {
+                    list($purchase->discounts) = $this->discountsHelper->calculateDiscounts($this->discountsHelper->buildFromDB($sortedDiscounts[$purchase->id]), $purchase->undiscounted_price);
+                }
+            }
+        }
+        
+        return ExtenderFacade::execute(__METHOD__, $purchases, func_get_args());
+    }
 
     public function buildCountStatusesFilter($filter)
     {
@@ -274,7 +416,7 @@ class BackendOrdersHelper
         if (isset($filter['label'])) {
             $countStatusesFilter['label'] = $filter['label'];
         }
-
+        
         if (isset($filter['keyword'])) {
             $countStatusesFilter['keyword'] = $filter['keyword'];
         }
@@ -483,156 +625,108 @@ class BackendOrdersHelper
         return ExtenderFacade::execute(__METHOD__, $page, func_get_args());
     }
 
-    /** TODO Remove deprecated method. Deprecated: 4.1.0)*/
-    public function prepareAddPurchase($order, $purchase)
-    {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Please use ' . BackendPurchasesHelper::class, E_USER_DEPRECATED);
-
-        $purchase = $this->backendPurchasesHelper->prepareAdd($order, $purchase);
-        return ExtenderFacade::execute(__METHOD__, $purchase, func_get_args());
-    }
-
-    /** TODO Remove deprecated method. Deprecated: 4.1.0)*/
-    public function addPurchase($purchase)
-    {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Please use ' . BackendPurchasesHelper::class, E_USER_DEPRECATED);
-
-        $purchaseId = $this->backendPurchasesHelper->add($purchase);
-        return ExtenderFacade::execute(__METHOD__, $purchaseId, func_get_args());
-    }
-
-    /** TODO Remove deprecated method. Deprecated: 4.1.0)*/
-    public function prepareUpdatePurchase($order, $purchase)
-    {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Please use ' . BackendPurchasesHelper::class, E_USER_DEPRECATED);
-
-        $purchase = $this->backendPurchasesHelper->prepareUpdate($order, $purchase);
-        return ExtenderFacade::execute(__METHOD__, $purchase, func_get_args());
-    }
-
-    /** TODO Remove deprecated method. Deprecated: 4.1.0)*/
-    public function updatePurchase($purchase)
-    {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Please use ' . BackendPurchasesHelper::class, E_USER_DEPRECATED);
-
-        $this->backendPurchasesHelper->update($purchase);
-        ExtenderFacade::execute(__METHOD__, $purchase, func_get_args());
-    }
-
-    /** TODO Remove deprecated method. Deprecated: 4.1.0)*/
-    public function deletePurchases($order, array $postedPurchasesIds)
-    {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Please use ' . BackendPurchasesHelper::class, E_USER_DEPRECATED);
-
-        $this->backendPurchasesHelper->delete($order, $postedPurchasesIds);
-        ExtenderFacade::execute(__METHOD__, null, func_get_args());
-    }
-
-    /** TODO Remove deprecated method. Deprecated: 4.1.0)*/
-    public function findOrderPurchases($order)
-    {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Please use ' . BackendPurchasesHelper::class, E_USER_DEPRECATED);
-
-        $purchases = $this->backendPurchasesHelper->findOrderPurchases($order);
-        return ExtenderFacade::execute(__METHOD__, $purchases, func_get_args());
-    }
-
-    /** TODO Remove deprecated method. Deprecated: 4.1.0)*/
     public function getDiscountsBeforeUpdate($orderId)
     {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Please use ' . BackendDiscountsHelper::class, E_USER_DEPRECATED);
+        $select = $this->queryFactory->newSelect();
+        $select ->from(DiscountsEntity::getTable())
+                ->cols(['*'])
+                ->where("((`entity` = 'order' AND `entity_id` = :order_id) OR
+                                (`entity` = 'purchase' AND `entity_id` IN (SELECT `id` FROM `".PurchasesEntity::getTable()."` WHERE `order_id` = :order_id)))")
+                ->bindValue('order_id', $orderId);
+        $discountIds = $select->results('id');
+        if (!empty($discountIds)) {
+            $discounts = $this->discountsEntity->mappedBy('id')->find(['id' => $discountIds]);
+        } else {
+            $discounts = [];
+        }
 
-        $discounts = $this->backendDiscountsHelper->getBeforeUpdate($orderId);
         return $discounts;
     }
 
-    /** TODO Remove deprecated method. Deprecated: 4.1.0)*/
     public function getOrderDiscounts($orderId)
     {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Please use ' . BackendDiscountsHelper::class, E_USER_DEPRECATED);
+        /** @var OrdersEntity $ordersEntity */
+        $ordersEntity = $this->entityFactory->get(OrdersEntity::class);
+        $discountsDB = $this->discountsEntity->find([
+            'entity' => 'order',
+            'entity_id' => $orderId
+        ]);
+        $order = $ordersEntity->findOne(['id' => $orderId]);
+        list($discounts) = $this->discountsHelper->calculateDiscounts($this->discountsHelper->buildFromDB($discountsDB), $order->undiscounted_total_price);
 
-        $discounts = $this->backendDiscountsHelper->getOrderDiscounts($orderId);
         return ExtenderFacade::execute(__METHOD__, $discounts, func_get_args());
     }
 
-    /** TODO Remove deprecated method. Deprecated: 4.1.0)*/
-    public function prepareAddOrderDiscount($discount, $order)
-    {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Please use ' . BackendDiscountsHelper::class, E_USER_DEPRECATED);
-
-        $discount = $this->backendDiscountsHelper->prepareAddOrderDiscount($discount, $order);
-        return ExtenderFacade::execute(__METHOD__, $discount, func_get_args());
-    }
-
-    /** TODO Remove deprecated method. Deprecated: 4.1.0)*/
     public function prepareUpdateOrderDiscount($discount, $order)
     {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Please use ' . BackendDiscountsHelper::class, E_USER_DEPRECATED);
-
-        $discount = $this->backendDiscountsHelper->prepareUpdateOrderDiscount($discount, $order);
         return ExtenderFacade::execute(__METHOD__, $discount, func_get_args());
     }
 
-    /** TODO Remove deprecated method. Deprecated: 4.1.0)*/
-    public function prepareAddPurchaseDiscount($discount, $purchase)
+    public function prepareAddOrderDiscount($discount, $order)
     {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Please use ' . BackendDiscountsHelper::class, E_USER_DEPRECATED);
+        $discount->entity = 'order';
+        $discount->entity_id = $order->id;
 
-        $discount = $this->backendDiscountsHelper->prepareAddPurchaseDiscount($discount, $purchase);
         return ExtenderFacade::execute(__METHOD__, $discount, func_get_args());
     }
 
-    /** TODO Remove deprecated method. Deprecated: 4.1.0)*/
     public function prepareUpdatePurchaseDiscount($discount, $purchase)
     {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Please use ' . BackendDiscountsHelper::class, E_USER_DEPRECATED);
-
-        $discount = $this->backendDiscountsHelper->prepareUpdatePurchaseDiscount($discount, $purchase);
         return ExtenderFacade::execute(__METHOD__, $discount, func_get_args());
     }
 
-    /** TODO Remove deprecated method. Deprecated: 4.1.0)*/
+    public function prepareAddPurchaseDiscount($discount, $purchase)
+    {
+        $discount->entity = 'purchase';
+        $discount->entity_id = $purchase->id;
+
+        return ExtenderFacade::execute(__METHOD__, $discount, func_get_args());
+    }
+
     public function updateDiscount($discount)
     {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Please use ' . BackendDiscountsHelper::class, E_USER_DEPRECATED);
+        $this->discountsEntity->update($discount->id, $discount);
 
-        $this->backendDiscountsHelper->update($discount);
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
-    /** TODO Remove deprecated method. Deprecated: 4.1.0)*/
     public function addDiscount($discount)
     {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Please use ' . BackendDiscountsHelper::class, E_USER_DEPRECATED);
+        $discountId = $this->discountsEntity->add($discount);
 
-        $discountId = $this->backendDiscountsHelper->add($discount);
         return ExtenderFacade::execute(__METHOD__, $discountId, func_get_args());
     }
 
-    /** TODO Remove deprecated method. Deprecated: 4.1.0)*/
     public function deleteDiscounts($discountIds, $orderId)
     {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Please use ' . BackendDiscountsHelper::class, E_USER_DEPRECATED);
-
-        $this->backendDiscountsHelper->delete($discountIds, $orderId);
-        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        $select = $this->queryFactory->newSelect();
+        $select ->from(DiscountsEntity::getTable())
+            ->cols(['id'])
+            ->where("((`entity` = 'order' AND `entity_id` = :order_id) OR
+                            (`entity` = 'purchase' AND `entity_id` IN (SELECT `id` FROM `".PurchasesEntity::getTable()."` WHERE `order_id` = :order_id)))")
+            ->bindValues(['order_id' => $orderId]);
+        if (!empty($discountIds)) {
+            $select->where('`id` NOT IN (:discount_ids)')
+                ->bindValues([ 'discount_ids' => $discountIds]);
+        }
+        $idsForDelete = $select->results('id');
+        $this->discountsEntity->delete($idsForDelete);
     }
 
-    /** TODO Remove deprecated method. Deprecated: 4.1.0)*/
     public function sortDiscountPositions($positions)
     {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Please use ' . BackendDiscountsHelper::class, E_USER_DEPRECATED);
+        $ids = array_keys($positions);
+        sort($positions);
 
-        list ($ids, $positions) = $this->backendDiscountsHelper->sortPositions($positions);
         return ExtenderFacade::execute(__METHOD__, [$ids, $positions], func_get_args());
     }
 
-    /** TODO Remove deprecated method. Deprecated: 4.1.0)*/
     public function updateDiscountPositions($ids, $positions)
     {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Please use ' . BackendDiscountsHelper::class, E_USER_DEPRECATED);
+        foreach($positions as $i=>$position) {
+            $this->discountsEntity->update($ids[$i], array('position' => (int) $position));
+        }
 
-        $this->backendDiscountsHelper->updatePositions($ids, $positions);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 }
