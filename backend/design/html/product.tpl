@@ -220,7 +220,7 @@
                                 </i>
                             </li>
                         {/foreach}
-                        <li class="fn_new_image_item product_image_item fn_sort_item">
+                        <li class="fn_new_image_item product_image_item fn_sort_item hidden">
                             <button type="button" class="fn_remove_image remove_image"></button>
                             <img src="" alt=""/>
                         </li>
@@ -802,7 +802,7 @@
             $(".fn_rating_value").val($(this).val());
         });
 
-        var image_item_clone = $(".fn_new_image_item").clone(true);
+        var image_item_clone = $(".fn_new_image_item").clone(true).removeClass('hidden');
         $(".fn_new_image_item").remove();
         var new_image_tem_clone = $(".fn_new_spec_image_item").clone(true);
         $(".fn_new_spec_image_item").remove();

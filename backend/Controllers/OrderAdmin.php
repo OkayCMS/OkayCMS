@@ -20,7 +20,7 @@ use Okay\Entities\PurchasesEntity;
 
 class OrderAdmin extends IndexAdmin
 {
-    
+
     public function fetch(
         OrdersEntity              $ordersEntity,
         PurchasesEntity           $purchasesEntity,
