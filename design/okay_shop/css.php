@@ -11,12 +11,12 @@
 use Okay\Core\TemplateConfig\Css;
 
 return [
-    (new Css('font-awesome.min.css')),
+    //(new Css('font-awesome.min.css')),
     (new Css('grid.css')),
     (new Css('okay.css')),
     (new Css('theme.css')),
     (new Css('select2.min.css')),
-    (new Css('jquery.fancybox.min.css')),
+    //(new Css('jquery.fancybox.min.css')),
     (new Css('media.css')),
     (new Css('mobile_menu.css'))
 ];
