@@ -88,6 +88,11 @@ class FilterHelper
         $this->filtersUrl = ExtenderFacade::execute(__METHOD__, $filtersUrl, func_get_args());
     }
 
+    public function getCategoryProductsFilter(array $filter = [])
+    {
+        return ExtenderFacade::execute(__METHOD__, $filter, func_get_args());
+    }
+
     public function getFiltersUrl(): ?string
     {
         $filtersUrl = $this->filtersUrl;
