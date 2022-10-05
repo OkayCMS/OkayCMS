@@ -73,8 +73,10 @@ $(document).on('change', '.fn_variant', function() {
     }
     if( selected.data( 'discount' ) ) {
         parent.find('.fn_discount_label').html(selected.data( 'discount' )).removeClass( 'hidden-xs-up' );
+        price.parent().addClass('price--red');
     } else {
         parent.find('.fn_discount_label').addClass( 'hidden-xs-up' );
+        price.parent().removeClass('price--red');
     }
     /* Артикул */
     if( typeof(selected.data( 'sku' )) != 'undefined' ) {
