@@ -65,4 +65,12 @@
         <input name="novaposhta_delivery_city_id" type="hidden" value="{$request_data.novaposhta_delivery_city_id}"/>
         
     </div>
+
+    <script>
+        var form_enter_novaposhta_city = "{$lang->np_form_enter_city|escape}";
+        var form_enter_novaposhta_street = "{$lang->np_form_enter_street|escape}";
+        var form_enter_novaposhta_house = "{$lang->np_form_novaposhta_house|escape}";
+        var form_enter_novaposhta_warehouses = "{$lang->np_form_novaposhta_warehouses|escape}";
+
+    </script>
 {/if}
