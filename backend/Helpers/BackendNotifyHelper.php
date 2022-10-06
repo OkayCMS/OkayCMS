@@ -19,10 +19,15 @@ class BackendNotifyHelper
         $this->notify = $notify;
     }
 
-    public function feedbackAnswerNotify($answerFeedback)
+    public function feedbackAnswerNotify($answerFeedbackId)
     {
-        $this->notify->emailFeedbackAnswerFoUser($answerFeedback->id);
-        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        if (empty($answerFeedbackId)) {
+            return ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        }
+
+        $this->notify->emailFeedbackAnswerFoUser($answerFeedbackId);
+
+        ExtenderFacade::execute(__METHOD__, true, func_get_args());
     }
 
     /**
