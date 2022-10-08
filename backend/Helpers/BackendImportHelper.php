@@ -122,18 +122,31 @@ class BackendImportHelper
 
         if (isset($importedItem->status)) {
             if (!empty($product)) {
-                $current_url = '';
-                if (!empty($productId)){
-                    $select = $this->queryFactory->newSelect();
-                    $current_url = $select->cols(['url'])
-                        ->from('__products')
-                        ->where('id=:id')
-                        ->limit(1)
-                        ->bindValue('id', $productId)
-                        ->result('url');
+                if (!empty($productId)) {
+                    if (empty($product['url'])) {
+                        $select = $this->queryFactory->newSelect();
+                        $current_url = $select->cols(['url'])
+                            ->from('__products')
+                            ->where('id=:id')
+                            ->limit(1)
+                            ->bindValue('id', $productId)
+                            ->result('url');
+                    } else {    //  если в БД есть url и пользователю хочет поменять его через csv
+                        $current_url = isset($product['url']) ? Translit::translit($product['url']) : '';
+                        $current_url = str_replace('.', '', $current_url);
+                    }
+                } else {
+                    $current_url = isset($product['url']) ? Translit::translit($product['url']) : '';
+                    $current_url = str_replace('.', '', $current_url);
                 }
-                if (!isset($product['url']) && !empty($product['name']) && empty($current_url)) {
-                    $product['url'] = Translit::translit($product['name']);
+
+                if (empty($current_url) && !empty($itemFromCsv['name'])) {
+                    $current_url = Translit::translit($itemFromCsv['name']);
+                    $current_url = str_replace('.', '', $current_url);
+                }
+
+                if (!empty($current_url)) {
+                    $product['url'] = $current_url;
                 }
                 
                 if (empty($productId)) {
@@ -328,12 +341,7 @@ class BackendImportHelper
         }
 
         if (!empty($itemFromCsv['url'])) {
-            $product['url'] = Translit::translit(trim($itemFromCsv['url']));
-        } elseif (!empty($itemFromCsv['name'])) {
-            $product['url'] = Translit::translit(trim($itemFromCsv['name']));
-        }
-        if (!empty($product['url'])) {
-            $product['url'] = str_replace('.', '', $product['url']);
+            $product['url'] = trim($itemFromCsv['url']);
         }
 
         return ExtenderFacade::execute(__METHOD__, $product, func_get_args());
