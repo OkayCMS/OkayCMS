@@ -32,7 +32,7 @@ class NPCitiesEntity extends Entity
     
     public function filter__keyword($keywords)
     {
-        $keywords = explode(' ', $keywords);
+        $keywords = (array)$keywords;
 
         $tableAlias = $this->getTableAlias();
         $langAlias = $this->lang->getLangAlias(
