@@ -271,6 +271,10 @@
                                                     <button data-hint="{$btr->general_delete_product|escape}" type="button" class="btn_close fn_remove_item hint-bottom-right-t-info-s-small-mobile  hint-anim" >
                                                         {include file='svg_icon.tpl' svgId='trash'}
                                                     </button>
+                                                    {*open*}
+                                                    <a href="{url_generator route="product" url=$purchase->product->url absolute=1}{if $purchase->variant_id}?variant={$purchase->variant_id}{/if}" target="_blank" data-hint="{$btr->general_view|escape}" class="setting_icon setting_icon_open hint-bottom-middle-t-info-s-small-mobile hint-anim">
+                                                        {include file='svg_icon.tpl' svgId='icon_desktop'}
+                                                    </a>
                                                 </div>
                                             </div>
 
