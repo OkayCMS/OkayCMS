@@ -121,7 +121,7 @@
 
     setStreetAutocomplete({/literal}'{$novaposhta_delivery_data->city_id|escape}'{literal});
     
-    // Автокомплит адреса в корзине из справочника Новой Почты
+    // Автокомплит адреса из справочника Новой Почты
     let streetAutocomplete = false;
     $( ".fn_newpost_city_name" ).devbridgeAutocomplete({
         serviceUrl: okay.router['OkayCMS_NovaposhtaCost_find_city_for_door'],
@@ -132,7 +132,7 @@
             $('input[name=novaposhta_city_name]').val(suggestion.city);
             $('input[name=novaposhta_area_name]').val(suggestion.area);
             $('input[name=novaposhta_region_name]').val(suggestion.region);
-            setDoorAddress()
+            setDoorAddress();
             if (suggestion.streets_availability) {
                 setStreetAutocomplete(suggestion.ref);
             } else {
@@ -206,6 +206,7 @@
         maxHeight: 320,
         noCache: true,
         onSelect: function(suggestion) {
+            $('input[name="novaposhta_warehouse_id"]').val(''); //  очищаем выбранное отделение другого города
             $('input[name="novaposhta_city_id"]').val(suggestion.data.ref);
             showWarehouses(suggestion.data.ref);
         },
