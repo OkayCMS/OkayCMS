@@ -35,7 +35,11 @@
             <input type="text" class="fn_newpost_city_name form-control" autocomplete="off" value="{$novaposhta_delivery_data->city_id|newpost_city}">
         </div>
         <div class="mb-1">
-            <div class="heading_label">{$btr->order_np_warehouse}</div>
+            <div class="heading_label">{$btr->order_np_warehouse}
+                <i class="fn_tooltips" title="{$btr->np_update_address_info|escape}">
+                    {include file='svg_icon.tpl' svgId='icon_tooltips'}
+                </i>
+            </div>
             <select name="novaposhta_warehouse" tabindex="1" class="selectpicker form-control warehouses_novaposhta" data-live-search="true"></select>
         </div>
     {/if}

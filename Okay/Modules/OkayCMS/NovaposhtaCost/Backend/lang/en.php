@@ -38,6 +38,7 @@ $lang['settings_np_last_update_warehouses'] = 'Date of update of the cache of po
 $lang['np_update_cache_now'] = 'Refresh';
 $lang['np_update_address'] = 'Address updated successfully';
 $lang['np_no_update_address'] = 'The address field has not been updated because it already contains data';
+$lang['np_update_address_info'] = 'If you want to correctly update the Address field with the new data, please clear the Address field above before selecting a department.';
 $lang['settings_np__description'] = 'The New Mail module allows you to select a city and branch in the basket and show the cost';
 $lang['settings_np_options'] = 'Parameters';
 $lang['tooltip_settings_np_api'] = 'You can get the API key in your account on the New Mail website';
