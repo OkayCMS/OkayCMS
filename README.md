@@ -1,4 +1,4 @@
-OkayCMS v.4
+OkayCMS v.4.3.1
 ----------------------
 
 OkayCMS is a PHP CMS for creating backend and frontend applications.
