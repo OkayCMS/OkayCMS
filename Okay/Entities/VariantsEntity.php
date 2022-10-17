@@ -126,7 +126,11 @@ class VariantsEntity extends Entity
 
     protected function filter__in_stock()
     {
-        $this->select->where('(v.stock > 0 OR v.stock IS NULL)');
+        if ($this->settings->get('is_preorder')) {
+            $this->select->where('(v.stock = 0 OR v.stock IS NULL)');
+        }else{
+            $this->select->where('(v.stock > 0 OR v.stock IS NULL)');
+        }
     }
 
     protected function filter__not_id($id)
