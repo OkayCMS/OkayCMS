@@ -1782,7 +1782,6 @@ select{
     vertical-align: middle;
 }
 .popup_animated {
-    max-width: 550px;
     border-radius: 4px;
     overflow: hidden;
     transform: translateY(-80px);
