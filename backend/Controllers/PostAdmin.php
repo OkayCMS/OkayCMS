@@ -66,7 +66,13 @@ class PostAdmin extends IndexAdmin
                 // Связанные товары
                 $relatedProducts = $backendBlogHelper->prepareUpdateRelatedProducts($post, $relatedProducts);
                 $backendBlogHelper->updateRelatedProducts($post, $relatedProducts);
-                
+
+                //  сохранить и выход в список
+                $buttonRedirectToList = $this->request->post('apply_and_quit', 'integer', 0);
+                if (($buttonRedirectToList == 1) && !empty($urlRedirectToList = $this->request->getRootUrl() . '/backend/index.php?controller=BlogAdmin')) {
+                    $this->postRedirectGet->redirect($urlRedirectToList);
+                }
+
                 $this->postRedirectGet->redirect();
             }
         } else {

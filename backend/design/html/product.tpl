@@ -220,7 +220,7 @@
                                 </i>
                             </li>
                         {/foreach}
-                        <li class="fn_new_image_item product_image_item fn_sort_item">
+                        <li class="fn_new_image_item product_image_item fn_sort_item hidden">
                             <button type="button" class="fn_remove_image remove_image"></button>
                             <img src="" alt=""/>
                         </li>
@@ -384,7 +384,7 @@
                                     {/if}
                                 </div>
                             {/foreach}
-                            <div class="okay_list_body_item variants_list_item fn_new_row_variant">
+                            <div class="okay_list_body_item variants_list_item fn_new_row_variant hidden">
                                 <div class="okay_list_row ">
                                     <div class="okay_list_boding variants_item_drag">
                                         <div class="heading_label"></div>
@@ -500,7 +500,7 @@
                                 </li>
                             {/foreach}
                         {/if}
-                        <li class="fn_new_spec_image_item product_image_item fn_sort_item">
+                        <li class="fn_new_spec_image_item product_image_item fn_sort_item hidden">
                             <button type="button" class="fn_remove_image remove_image"></button>
                             <img src="" alt=""/>
                             <i class="move_zone fa fa-arrows font-2xl"></i>
@@ -759,6 +759,10 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-12 col-md-12 mt-1">
+                        <button id="fast_save_button_and_quit" type="submit" class="fn_step-15 btn btn_small btn_blue float-md-right ml-1" name="apply_and_quit" value="1">
+                            {include file='svg_icon.tpl' svgId='checked'}
+                            <span>{$btr->general_apply_and_quit|escape}</span>
+                        </button>
                         <button type="submit" class="fn_step-15 btn btn_small btn_blue float-md-right">
                             {include file='svg_icon.tpl' svgId='checked'}
                             <span>{$btr->general_apply|escape}</span>
@@ -798,9 +802,9 @@
             $(".fn_rating_value").val($(this).val());
         });
 
-        var image_item_clone = $(".fn_new_image_item").clone(true);
+        var image_item_clone = $(".fn_new_image_item").clone(true).removeClass('hidden');
         $(".fn_new_image_item").remove();
-        var new_image_tem_clone = $(".fn_new_spec_image_item").clone(true);
+        var new_image_tem_clone = $(".fn_new_spec_image_item").clone(true).removeClass('hidden');
         $(".fn_new_spec_image_item").remove();
         // Или перетаскиванием
         if(window.File && window.FileReader && window.FileList) {
@@ -885,7 +889,7 @@
         });
 
         // Добавление варианта
-        var variant = $(".fn_new_row_variant").clone(false);
+        var variant = $(".fn_new_row_variant").clone(false).removeClass('hidden');
         $(".fn_new_row_variant").remove();
         variant.find('.bootstrap-select').replaceWith(function() { return $('select', this); });
         $(document).on("click", ".fn_add_variant", function () {

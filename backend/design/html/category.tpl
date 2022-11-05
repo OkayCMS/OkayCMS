@@ -149,8 +149,6 @@
     </div>
 
     {*Дополнительные настройки*}
-    {$switch_checkboxes = {get_design_block block="category_switch_checkboxes"}}
-    {if !empty($switch_checkboxes)}
     <div class="row">
         <div class="col-lg-12 col-md-12">
             <div class="boxed fn_toggle_wrap ">
@@ -162,13 +160,22 @@
                 </div>
                 <div class="toggle_body_wrap on fn_card">
                     <div class="activity_of_switch activity_of_switch--box_settings">
-                        {$switch_checkboxes}
+                        <div class="activity_of_switch_item"> {* row block *}
+                            <div class="okay_switch clearfix">
+                                <label class="switch_label">{$btr->general_show_table_content|escape}</label>
+                                <label class="switch switch-default">
+                                    <input class="switch-input" name="show_table_content" value='1' type="checkbox" {if $category->show_table_content}checked=""{/if}/>
+                                    <span class="switch-label"></span>
+                                    <span class="switch-handle"></span>
+                                </label>
+                            </div>
+                        </div>
+                        {get_design_block block="category_switch_checkboxes"}
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    {/if}
 
     {*Параметры элемента*}
     <div class="row">
@@ -336,6 +343,10 @@
                 </div>
                 <div class="row">
                    <div class="col-lg-12 col-md-12 mt-1">
+                       <button id="fast_save_button_and_quit" type="submit" class="fn_step-9 btn btn_small btn_blue float-md-right ml-1" name="apply_and_quit" value="1">
+                           {include file='svg_icon.tpl' svgId='checked'}
+                           <span>{$btr->general_apply_and_quit|escape}</span>
+                       </button>
                         <button type="submit" class="fn_step-9 btn btn_small btn_blue float-md-right">
                             {include file='svg_icon.tpl' svgId='checked'}
                             <span>{$btr->general_apply|escape}</span>

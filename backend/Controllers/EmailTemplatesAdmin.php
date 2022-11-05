@@ -6,12 +6,21 @@ namespace Okay\Admin\Controllers;
 
 use Okay\Admin\Helpers\BackendNotifyHelper;
 use Okay\Core\Notify;
+use Okay\Core\QueryFactory;
+use Okay\Entities\CommentsEntity;
+use Okay\Entities\FeedbacksEntity;
+use Okay\Entities\ManagersEntity;
 
 class EmailTemplatesAdmin extends IndexAdmin
 {
 
     /*Чтение файлов шаблона*/
-    public function fetch(Notify $notify, BackendNotifyHelper $notifyHelper)
+    public function fetch(
+        Notify               $notify,
+        BackendNotifyHelper  $notifyHelper,
+        ManagersEntity       $managersEntity,
+        QueryFactory         $queryFactory
+    )
     {
         if ($debugEmail = $this->request->get('debug')) {
             switch ($debugEmail) {
@@ -31,25 +40,87 @@ class EmailTemplatesAdmin extends IndexAdmin
                     $feedbackId = $this->request->get('feedback_id', 'integer', 1);
                     $this->response->setContent($notify->emailFeedbackAdmin($feedbackId, true));
                     break;
-                    
+                case 'emailPasswordRecoveryAdmin':
+                    $this->response->setContent($notify->emailPasswordRecoveryAdmin($managersEntity->get($_SESSION['admin']), 'test', true));
+                    break;
                 case 'emailOrderUser':
                     $orderId = $this->request->get('order_id', 'integer', 1);
                     $this->response->setContent($notify->emailOrderUser($orderId, true));
                     break;
-
                 /*Отправка емейла с ответом на комментарий клиенту*/
                 case 'emailCommentAnswerToUser':
-                    $commentId = $this->request->get('comment_id', 'integer', 1);
-                    $this->response->setContent($notify->emailCommentAnswerToUser($commentId, true));
-                    break;
+                    //  если не указан конкрентый id тогда чтобы отобразить верстку шаблона производится поиск первого
+                    if (empty($commentAnswerPostId = $this->request->get('comment_id', 'integer'))) {
+                        $commentAnswerId = $queryFactory->newSelect()
+                            ->from(CommentsEntity::getTable().' AS c1')
+                            ->cols(['c1.*'])
+                            ->join('left', CommentsEntity::getTable().' AS c2', 'c1.parent_id = c2.id')
+                            ->where('c2.id IS NOT NULL')
+                            ->where("c2.email != ''")
+                            ->result('id');
+                    } else {
+                        //  проверяем существует ли такой дочерний комментарий
+                        $commentAnswerId = $queryFactory->newSelect()
+                            ->from(CommentsEntity::getTable().' AS c')
+                            ->cols(['id'])
+                            ->where('id = :id')
+                            ->where('parent_id > 0')
+                            ->bindValues([
+                                'id' => $commentAnswerPostId,
+                            ])
+                            ->result('id');
+                    }
 
+                    if (!empty($commentAnswerId)) {
+                        $commentAnswerData = $notify->emailCommentAnswerToUser($commentAnswerId, true);
+                        if (!empty($commentAnswerData)) {
+                            $this->response->setContent($commentAnswerData);
+                        } else {
+                            $this->response->setContent('No data');
+                        }
+                    } else {
+                        $this->response->setContent('No data');
+                    }
+                    break;
                 /*Отправка емейла с ответом на заявку с формы обратной связи клиенту*/
                 case 'emailFeedbackAnswerFoUser':
-                    $comment_id = $this->request->get('feedback_id', 'integer', 1);
-                    $text = $this->request->get('text', 'string', 'test');
-                    $this->response->setContent($notify->emailFeedbackAnswerFoUser($comment_id, $text,true));
-                    break;
+                    //  если не указан конкрентый id тогда чтобы отобразить верстку шаблона производится поиск первого
+                    if (empty($feedbackAnswerPostId = $this->request->get('feedback_id', 'integer'))) {
+                        $feedbackAnswerId = $queryFactory->newSelect()
+                            ->from(FeedbacksEntity::getTable().' AS f1')
+                            ->cols(['f1.*'])
+                            ->join('left', FeedbacksEntity::getTable().' AS f2', 'f1.parent_id = f2.id')
+                            ->where('f2.id IS NOT NULL')
+                            ->where("f2.email != ''")
+                            ->result('id');
+                    } else {
+                        //  проверяем существует ли такой дочерний feedback
+                        $feedbackAnswerId = $queryFactory->newSelect()
+                            ->from(FeedbacksEntity::getTable().' AS f')
+                            ->cols(['id'])
+                            ->where('id = :id')
+                            ->where('parent_id > 0')
+                            ->bindValues([
+                                'id' => $feedbackAnswerPostId,
+                            ])
+                            ->result('id');
+                    }
 
+                    if (!empty($feedbackAnswerId)) {
+                        $feedbackAnswerData = $notify->emailFeedbackAnswerFoUser($feedbackAnswerId, true);
+                        if (!empty($feedbackAnswerData)) {
+                            $this->response->setContent($feedbackAnswerData);
+                        } else {
+                            $this->response->setContent('No data');
+                        }
+                    } else {
+                        $this->response->setContent('No data');
+                    }
+                    break;
+                case 'emailPasswordRemind':
+                    $userId = $this->request->get('user_id', 'integer', 1);
+                    $this->response->setContent($notify->emailPasswordRemind($userId, 'test', true));
+                    break;
                 default:
                     if ($response = $notifyHelper->debugTemplate($debugEmail)) {
                         $this->response->setContent($response);

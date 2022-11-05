@@ -98,10 +98,21 @@
 
             {if $description}
                 <div class="boxed boxed--big">
-                    <div class="">
-                        <div class="fn_readmore">
-                            <div class="block__description">{$description}</div>
+                    {* Table contents *}
+                    {if !empty($table_of_content)}
+                        <div class="post__table_contents">
+                            <div class="post__table_contents_title">{$lang->blog_table_contents}</div>
+                            <ol>
+                                {foreach $table_of_content as $content_item}
+                                    <li style="margin-left: {$content_item.header_level*15-15}px">
+                                        <a class="fn_ancor_post" href="{$content_item.url|escape}">{$content_item.anchor_text|escape}</a>
+                                    </li>
+                                {/foreach}
+                            </ol>
                         </div>
+                    {/if}
+                    <div class="">
+                        <div class="block__description">{$description}</div>
                     </div>
                 </div>
             {/if}

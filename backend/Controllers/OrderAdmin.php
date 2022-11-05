@@ -20,7 +20,7 @@ use Okay\Entities\PurchasesEntity;
 
 class OrderAdmin extends IndexAdmin
 {
-    
+
     public function fetch(
         OrdersEntity              $ordersEntity,
         PurchasesEntity           $purchasesEntity,
@@ -157,6 +157,11 @@ class OrderAdmin extends IndexAdmin
             }
 
             if (! $this->design->getVar('message_error')) {
+                $buttonRedirectToList = $this->request->post('apply_and_quit', 'integer', 0);
+                if (($buttonRedirectToList == 1) && !empty($urlRedirectToList = $this->request->getRootUrl() . '/backend/index.php?controller=OrdersAdmin')) {
+                    $this->postRedirectGet->redirect($urlRedirectToList);
+                }
+
                 $this->postRedirectGet->redirect();
             }
         }

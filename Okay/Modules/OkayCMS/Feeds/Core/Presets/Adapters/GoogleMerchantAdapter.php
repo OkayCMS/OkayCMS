@@ -100,7 +100,7 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
         $result['g:id']['data'] = $this->xmlFeedHelper->escape($product->variant_id);
 
         if (!empty($product->weight > 0)) {
-            $result['g:product_weight']['data'] = $this->xmlFeedHelper->escape($product->weight);
+            $result['g:product_weight']['data'] = $this->xmlFeedHelper->escape($product->weight . ' kg');
         }
 
         if (!empty($product->sku)) {

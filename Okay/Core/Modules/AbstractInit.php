@@ -125,7 +125,7 @@ abstract class AbstractInit
      * Все данные из вашего tpl файла будут подставляться в конец выделеного блока.
      *
      * @param string $blockName название блока
-     * @param string $blockTplFile имя tpl файла блока из директории Backend/design/html модуля
+     * @param string $blockTplFile имя tpl файла блока из директории /backend/design/html модуля
      * @param callable $callback ф-ция которую нужно вызвать перед отрисовкой шортблока. Может использоваться для 
      * передачи в дизайн данных, нужных для отрисовки шортблока. Можно указывать как аргументы с указанием 
      * type hint Services, Entities etc.
@@ -146,7 +146,7 @@ abstract class AbstractInit
      * Все данные из вашего tpl файла будут подставляться в конец выделеного блока.
      *
      * @param string $blockName название блока
-     * @param string $blockTplFile имя tpl файла блока из директории Backend/design/html модуля
+     * @param string $blockTplFile имя tpl файла блока из директории /design/html модуля
      * @param callable $callback ф-ция которую нужно вызвать перед отрисовкой шортблока. Может использоваться для
      * передачи в дизайн данных, нужных для отрисовки шортблока. Можно указывать как аргументы с указанием
      * type hint Services, Entities etc.
@@ -167,7 +167,7 @@ abstract class AbstractInit
     
     /**
      * Метод расширяет коллекцию объектов доступную для использования в файле ajax/update_object.php,
-     * который обновляет определенную по алиасу сущность повредством AJAX запроса из админ панели сайта
+     * который обновляет определенную по алиасу сущность поcредством AJAX запроса из админ панели сайта
      *
      * @param $alias - уникальный псевдоним, который идентифицирует сущность (указывается в атрибуте data-controller="алиас" тега в админ панели)
      * @param $permission - права доступа к псевдониму для менеджера
@@ -362,6 +362,28 @@ abstract class AbstractInit
     protected function registerEntityAdditionalField($entityClassName, $fieldName)
     {
         $entityClassName::addAdditionalField($fieldName);
+    }
+
+    /**
+     * Метод необходим для инициализации логики добавляет новые столбцов в переменную для сортировки по умолчанию или переопределяет переменной дефолтных полей сортировки у необходимой сущности.
+     *
+     * @param $entityClassName рабочая сущночть
+     * @param array $newOrderFields массив со значениями полями сортировки
+     * @param bool $redefine признак о необходимости полного переопределения значения переменной
+     *
+     * @example $this->setDefaultOrderFields(
+                    ProductsEntity::class,
+                    [
+                      'p.priority_sort ASC',
+                      'p.position DESC'
+                    ],
+                    true
+                 );
+     */
+    protected function setDefaultOrderFields($entityClassName, $newOrderFields, $redefine)
+    {
+        /** @var Entity $entityClassName */
+        $entityClassName::setDefaultOrderFields($newOrderFields, $redefine);
     }
 
     /**

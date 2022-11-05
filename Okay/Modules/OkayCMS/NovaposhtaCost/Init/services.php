@@ -24,6 +24,7 @@ return [
             new SR(Request::class),
             new SR(EntityFactory::class),
             new SR(FrontTranslations::class),
+            new SR(Design::class),
         ],
     ],
     BackendExtender::class => [

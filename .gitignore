@@ -21,6 +21,7 @@ files/**/*.*
 !files/**/*.htm
 !files/**/*.html
 !files/**/*.wml
+!files/originals/payments/*.png
 !files/**/.gitignore
 !files/lang/*.*
 files/thumbs/*

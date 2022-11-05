@@ -249,7 +249,8 @@ class ProductsHelper implements GetListInterface
         }
 
         $featuresFilter['visible'] = true;
-        
+        $featuresFilter['show_in_product'] = 1;
+
         foreach ($featuresEntity->find($featuresFilter) as $f) {
             $features[$f->id] = $f;
         }

@@ -7,9 +7,11 @@ namespace Okay\Modules\OkayCMS\NovaposhtaCost\Extenders;
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
 use Okay\Core\FrontTranslations;
+use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Modules\Extender\ExtensionInterface;
 use Okay\Core\Modules\Module;
 use Okay\Core\Request;
+use Okay\Core\Router;
 use Okay\Core\ServiceLocator;
 use Okay\Entities\OrdersEntity;
 use Okay\Entities\PaymentsEntity;
@@ -26,15 +28,20 @@ class FrontExtender implements ExtensionInterface
 
     /** @var FrontTranslations */
     private $frontTranslations;
-    
+
+    /** @var Design $design */
+    private $design;
+
     public function __construct(
         Request           $request,
         EntityFactory     $entityFactory,
-        FrontTranslations $frontTranslations
+        FrontTranslations $frontTranslations,
+        Design            $design
     ) {
         $this->request           = $request;
         $this->entityFactory     = $entityFactory;
         $this->frontTranslations = $frontTranslations;
+        $this->design            = $design;
     }
 
     /**
@@ -78,7 +85,7 @@ class FrontExtender implements ExtensionInterface
                 $delivery->delivery_price_text = $frontTranslations->getTranslation('np_need_select_city');
             }
         }
-        return $deliveries;
+        return ExtenderFacade::execute(__METHOD__, $deliveries, func_get_args());
     }
 
     /**
@@ -118,8 +125,17 @@ class FrontExtender implements ExtensionInterface
                 $defaultData['novaposhta_apartment'] = $npDeliveryData->apartment;
             }
         }
-        
-        return $defaultData;
+
+        $route_name = Router::getCurrentRouteName();
+        if ( !empty($route_name) && ($route_name === 'cart') ) {
+            $np_cart_calculate = $this->frontTranslations->getTranslation('np_cart_calculate');
+            if (empty($np_cart_calculate)) {
+                $np_cart_calculate = 'Вычисляем...';
+            }
+            $this->design->assignJsVar('np_cart_calculate', $np_cart_calculate);
+        }
+
+        return ExtenderFacade::execute(__METHOD__, $defaultData, func_get_args());
     }
     
     /**
@@ -141,7 +157,7 @@ class FrontExtender implements ExtensionInterface
             $result['delivery_price'] = $this->request->post('novaposhta_delivery_price');
         }
 
-        return $result;
+        return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
     }
     
     /**
@@ -176,8 +192,10 @@ class FrontExtender implements ExtensionInterface
             } else {
                 $deliveryData->warehouse_id = $this->request->post('novaposhta_delivery_warehouse_id');
             }
-            
-            $npDeliveryDataEntity->add($deliveryData);
+
+            $addId = $npDeliveryDataEntity->add($deliveryData);
+
+            return ExtenderFacade::execute(__METHOD__, [$addId, $deliveryData], func_get_args());
         }
     }
 
@@ -202,6 +220,6 @@ class FrontExtender implements ExtensionInterface
             }
         }
 
-        return $error;
+        return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
 }

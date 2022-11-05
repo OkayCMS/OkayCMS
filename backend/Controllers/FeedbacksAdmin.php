@@ -33,10 +33,10 @@ class FeedbacksAdmin extends IndexAdmin
         if ($feedbacksRequest->postFeedbackAnswer()) {
             $answerFeedback = $feedbacksRequest->postFeedback();
             $answerFeedback = $backendFeedbacksHelper->prepareAddAnswer($answerFeedback);
-            $success        = $backendFeedbacksHelper->addAnswer($answerFeedback);
+            $answerFeedbackId = $backendFeedbacksHelper->addAnswer($answerFeedback);
 
-            if ($success) {
-                $backendNotifyHelper->feedbackAnswerNotify($answerFeedback);
+            if (!empty($answerFeedbackId)) {
+                $backendNotifyHelper->feedbackAnswerNotify($answerFeedbackId);
             }
         }
         

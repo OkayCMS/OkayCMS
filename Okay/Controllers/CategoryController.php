@@ -68,6 +68,17 @@ class CategoryController extends AbstractController
 
         $productsSort = $catalogHelper->getProductsSort($filtersUrl);
 
+        //  добавляем оглавление в описании категории блога
+        if ($category->show_table_content && !empty($category->description)) {
+            $result = $categoriesHelper->getTableOfContent($category->description);
+            $category->description = $result[0];
+
+            // Выводим оглавление только если там более трех пунктов
+            if (count($result[1]) >= 2) {
+                $this->design->assign('table_of_content', $result[1]);
+            }
+        }
+
         $this->design->assign('category', $category);
         $this->design->assign('sort', $productsSort);
 
@@ -118,7 +129,9 @@ class CategoryController extends AbstractController
             
             $metaRobotsHelper->setAvailableFeatures($catalogFeatures);
         }
-        
+
+        $productsFilter = $filterHelper->getCategoryProductsFilter($productsFilter);
+
         if (!$catalogHelper->paginate(
             $this->settings->get('products_num'),
             $currentPage,

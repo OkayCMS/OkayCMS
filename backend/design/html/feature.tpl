@@ -130,6 +130,20 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="heading_label__switch heading_label__switch--not_label">
+                                        <div class="heading_label boxes_inline">
+                                            {$btr->feature_show_in_product|escape}
+                                        </div>
+                                        <div class="boxes_inline">
+                                            <div class="okay_switch clearfix">
+                                                <label class="switch switch-default">
+                                                    <input class="switch-input" name="show_in_product" value='1' type="checkbox" {if $feature->show_in_product}checked=""{/if}/>
+                                                    <span class="switch-label"></span>
+                                                    <span class="switch-handle"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -512,6 +526,11 @@
 
     <div class="row">
         <div class="col-lg-12 col-md-12 mb-2">
+
+            <button id="fast_save_button_and_quit" type="submit" class="fn_step-10 btn btn_small btn_blue float-md-right ml-1" name="apply_and_quit" value="1">
+                {include file='svg_icon.tpl' svgId='checked'}
+                <span>{$btr->general_apply_and_quit|escape}</span>
+            </button>
             <button type="submit" class="fn_step-10 btn btn_small btn_blue float-md-right">
                 {include file='svg_icon.tpl' svgId='checked'}
                 <span>{$btr->general_apply|escape}</span>

@@ -85,13 +85,13 @@ class BlogController extends AbstractController
         BlogHelper $blogHelper,
         BlogCategoriesEntity $blogCategoriesEntity,
         BlogCategoryMetadataHelper $categoryMetadataHelper,
-        $url = ''
+        $url
     ) {
 
         $filter = $blogHelper->getPostsFilter();
 
         $category = null;
-        if (!empty($url)) {
+        if (!empty($url) && ($url != 'all-posts')) {
             $category = $blogCategoriesEntity->findOne(['url' => $url]);
             if (($setCategory = $blogHelper->setBlogCategory($category)) !== null) {
                 return $setCategory;

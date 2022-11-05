@@ -247,6 +247,9 @@ class BackendValidateHelper
 
         $error = '';
         $pass = $this->request->post('truncate_table_password');
+        if (empty($pass)) {
+            $pass = $this->request->post('truncate_table_password_entity');
+        }
         $manager = $managersEntity->get($_SESSION['admin']);
         if (! $this->managers->checkPassword($pass, $manager->password)) {
             $error = 'truncate_table_password_failed';

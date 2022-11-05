@@ -165,7 +165,7 @@
                         {/if}
                     </div>
                     <div class="toggle_arrow_wrap fn_toggle_card text-primary">
-                        <a class="btn-minimize" href="javascript:;" ><i class="icon-arrow-down"></i></a>
+                        <a class="btn-minimize" href="javascript:;" ><i class="fa fn_icon_arrow fa-angle-down"></i></a>
                     </div>
                 </div>
                 <div class="toggle_body_wrap on fn_card">
@@ -271,6 +271,10 @@
                                                     <button data-hint="{$btr->general_delete_product|escape}" type="button" class="btn_close fn_remove_item hint-bottom-right-t-info-s-small-mobile  hint-anim" >
                                                         {include file='svg_icon.tpl' svgId='trash'}
                                                     </button>
+                                                    {*open*}
+                                                    <a href="{url_generator route="product" url=$purchase->product->url absolute=1}{if $purchase->variant_id}?variant={$purchase->variant_id}{/if}" target="_blank" data-hint="{$btr->general_view|escape}" class="setting_icon setting_icon_open hint-bottom-middle-t-info-s-small-mobile hint-anim">
+                                                        {include file='svg_icon.tpl' svgId='icon_desktop'}
+                                                    </a>
                                                 </div>
                                             </div>
 
@@ -407,7 +411,7 @@
                 <div class="heading_box">
                     {$btr->order_parameters|escape}
                     <div class="toggle_arrow_wrap fn_toggle_card text-primary">
-                        <a class="btn-minimize" href="javascript:;" ><i class="icon-arrow-down"></i></a>
+                        <a class="btn-minimize" href="javascript:;" ><i class="fa fn_icon_arrow fa-angle-down"></i></a>
                     </div>
                 </div>
                 <div class="toggle_body_wrap on fn_card">
@@ -509,7 +513,7 @@
                 <div class="heading_box">
                     {$btr->order_buyer_information|escape}
                     <div class="toggle_arrow_wrap fn_toggle_card text-primary">
-                        <a class="btn-minimize" href="javascript:;" ><i class="icon-arrow-down"></i></a>
+                        <a class="btn-minimize" href="javascript:;" ><i class="fa fn_icon_arrow fa-angle-down"></i></a>
                     </div>
                 </div>
                 <div class="toggle_body_wrap on fn_card">
@@ -636,6 +640,10 @@
     </div>
     <div class="row">
         <div class="col-lg-12 col-md-12 mb-2">
+            <button id="fast_save_button_and_quit" type="submit" class="btn btn_small btn_blue float-md-right ml-1" name="apply_and_quit" value="1">
+                {include file='svg_icon.tpl' svgId='checked'}
+                <span>{$btr->general_apply_and_quit|escape}</span>
+            </button>
             <button type="submit" class="btn btn_small btn_blue float-sm-right">
                 {include file='svg_icon.tpl' svgId='checked'}
                 <span>{$btr->general_apply|escape}</span>

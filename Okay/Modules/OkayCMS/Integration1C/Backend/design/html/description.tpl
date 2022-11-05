@@ -18,10 +18,52 @@
                 <div class="alert__title mb-q">{$btr->alert_info|escape}</div>
                 <div class="text_box">
                     <p class="mb-1">
-                        {$btr->okaycms__integration_ic__description_part_1} (<b>{url_generator route="integration_1c" absolute=1}</b>) {$btr->okaycms__integration_ic__description_part_2}.
+                        {$btr->okaycms__integration_ic__description_part_1|escape} (<b>{url_generator route="integration_1c" absolute=1}</b>) {$btr->okaycms__integration_ic__description_part_2|escape}.
                     </p>
                     <p class="mb-1">
-                        {$btr->okaycms__integration_ic__description_part_3} <b>OkayCMS</b>: <a href="https://okay-cms.com/article/instruktsiya-po-nastrojke-obmena-dannymi-sajta-s-1s-8h-na-primere-konfiguratsii-ut-23" target="_blank">https://okay-cms.com/article/instruktsiya-po-nastrojke-obmena-dannymi-sajta-s-1s-8h-na-primere-konfiguratsii-ut-23</a>
+                        {$btr->okaycms__integration_ic__description_part_2_1|escape}</b>
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_3|escape} <b>OkayCMS</b>: <a href="https://okay-cms.com/article/instruktsiya-po-nastrojke-obmena-dannymi-sajta-s-1s-8h-na-primere-konfiguratsii-ut-23" target="_blank">https://okay-cms.com/article/instruktsiya-po-nastrojke-obmena-dannymi-sajta-s-1s-8h-na-primere-konfiguratsii-ut-23</a>
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_4|escape}</b>
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_5|escape}</b>
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_6|escape}</b>
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_7|escape} <b>{url_generator route="integration_1c" absolute=1}?mode=init</b>
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_8|escape}
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_9|escape} (<b>{url_generator route="integration_1c" absolute=1}?mode=file&type=catalog&filename=import0_1.xml</b>)
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_10|escape}
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_11|escape} (<b>{url_generator route="integration_1c" absolute=1}?mode=import&type=catalog&filename=import0_1.xml</b>)
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_12|escape}.
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_13|escape} <b>{url_generator route="integration_1c" absolute=1}?mode=import&type=catalog&filename=offers_1.xml</b>
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_14|escape} <b>{url_generator route="integration_1c" absolute=1}?mode=file&type=sale&filename=orders.xml</b>
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_15|escape}
+                    </p>
+                    <p class="mb-1">
+                        {$btr->okaycms__integration_ic__description_part_16|escape} <b>{url_generator route="integration_1c" absolute=1}?mode=query&type=sale</b>
                     </p>
                 </div>
             </div>
@@ -217,7 +259,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                 </form>
             </div>
         </div>

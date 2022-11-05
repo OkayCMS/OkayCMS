@@ -66,6 +66,12 @@ class CategoryAdmin extends IndexAdmin
                 $image = $backendCategoriesHelper->prepareUploadCategoryImage($category, $image);
                 $backendCategoriesHelper->uploadCategoryImage($category, $image);
 
+                //  сохранить и выход в список
+                $buttonRedirectToList = $this->request->post('apply_and_quit', 'integer', 0);
+                if (($buttonRedirectToList == 1) && !empty($urlRedirectToList = $this->request->getRootUrl() . '/backend/index.php?controller=CategoriesAdmin')) {
+                    $this->postRedirectGet->redirect($urlRedirectToList);
+                }
+
                 $this->postRedirectGet->redirect();
             }
         } else {

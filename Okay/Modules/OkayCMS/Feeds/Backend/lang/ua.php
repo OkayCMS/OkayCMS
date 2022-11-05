@@ -52,7 +52,7 @@ $lang['okay_cms__feeds__feed__features_settings__title'] = "Налаштуван
 $lang['okay_cms__feeds__feed__features_settings__faq'] = "Зміна налаштувань властивостей";
 $lang['okay_cms__feeds__feed__features_settings__save_notify'] = "Збережіть фід для роботи з цими настройками.";
 $lang['okay_cms__feeds__feed__features_settings__table_settings'] = "Налаштування";
-$lang['okay_cms__feeds__feed__features_settings__documentation'] = "В даній вкладці ви можете вкл. або вик. передачу опредленних свойст в фід. Використовуйте документацію потрібного вам фида для коректного назви властивостей.​";
+$lang['okay_cms__feeds__feed__features_settings__documentation'] = "У цій вкладці ви можете включити або вимкнути передачу певних властивостей у фід. Використовуйте документацію потрібного вам фида для коректного назви властивостей.​";
 
 // Страница выгрузки/Сопоставления категорий
 $lang['okay_cms__feeds__feed__categories_settings__tab'] = "Налаштування категорій";

@@ -22,6 +22,14 @@ class BackendSettingsRequest
     public function postTruncateTableConfirm()
     {
         $confirm = $this->request->post('truncate_table_confirm');
+
+        return ExtenderFacade::execute(__METHOD__, $confirm, func_get_args());
+    }
+
+    public function postTruncateTableConfirmEntity()
+    {
+        $confirm = $this->request->post('truncate_table_confirm_entity', 'string', '');
+
         return ExtenderFacade::execute(__METHOD__, $confirm, func_get_args());
     }
 
@@ -45,30 +53,35 @@ class BackendSettingsRequest
     public function filesFavicon()
     {
         $siteFavicon = $this->request->files('site_favicon');
+
         return ExtenderFacade::execute(__METHOD__, $siteFavicon, func_get_args());
     }
 
     public function postFavicon()
     {
         $favicon = $this->request->post('site_favicon');
+
         return ExtenderFacade::execute(__METHOD__, $favicon, func_get_args());
     }
 
     public function postMultiLangLogo()
     {
         $multiLangLogo = $this->request->post('multilang_logo', 'integer');
+
         return ExtenderFacade::execute(__METHOD__, $multiLangLogo, func_get_args());
     }
 
     public function filesSiteLogo()
     {
         $siteLogo = $this->request->files('site_logo');
+
         return ExtenderFacade::execute(__METHOD__, $siteLogo, func_get_args());
     }
 
     public function postSiteLogo()
     {
         $siteLogo = $this->request->post('site_logo');
+
         return ExtenderFacade::execute(__METHOD__, $siteLogo, func_get_args());
     }
 }

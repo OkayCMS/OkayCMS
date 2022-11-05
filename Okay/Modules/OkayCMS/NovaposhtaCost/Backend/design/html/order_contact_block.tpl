@@ -35,8 +35,12 @@
             <input type="text" class="fn_newpost_city_name form-control" autocomplete="off" value="{$novaposhta_delivery_data->city_id|newpost_city}">
         </div>
         <div class="mb-1">
-            <div class="heading_label">{$btr->order_np_warehouse}</div>
-            <select name="novaposhta_warehouse" tabindex="1" class="selectpicker form-control warehouses_novaposhta"></select>
+            <div class="heading_label">{$btr->order_np_warehouse}
+                <i class="fn_tooltips" title="{$btr->np_update_address_info|escape}">
+                    {include file='svg_icon.tpl' svgId='icon_tooltips'}
+                </i>
+            </div>
+            <select name="novaposhta_warehouse" tabindex="1" class="selectpicker form-control warehouses_novaposhta" data-live-search="true"></select>
         </div>
     {/if}
     
@@ -117,7 +121,7 @@
 
     setStreetAutocomplete({/literal}'{$novaposhta_delivery_data->city_id|escape}'{literal});
     
-    // Автокомплит адреса в корзине из справочника Новой Почты
+    // Автокомплит адреса из справочника Новой Почты
     let streetAutocomplete = false;
     $( ".fn_newpost_city_name" ).devbridgeAutocomplete({
         serviceUrl: okay.router['OkayCMS_NovaposhtaCost_find_city_for_door'],
@@ -128,7 +132,7 @@
             $('input[name=novaposhta_city_name]').val(suggestion.city);
             $('input[name=novaposhta_area_name]').val(suggestion.area);
             $('input[name=novaposhta_region_name]').val(suggestion.region);
-            setDoorAddress()
+            setDoorAddress();
             if (suggestion.streets_availability) {
                 setStreetAutocomplete(suggestion.ref);
             } else {
@@ -202,6 +206,7 @@
         maxHeight: 320,
         noCache: true,
         onSelect: function(suggestion) {
+            $('input[name="novaposhta_warehouse_id"]').val(''); //  очищаем выбранное отделение другого города
             $('input[name="novaposhta_city_id"]').val(suggestion.data.ref);
             showWarehouses(suggestion.data.ref);
         },
@@ -244,7 +249,15 @@
             let city_name = $('.fn_newpost_city_name').val(),
                 warehouse_name = $(this).val(),
                 delivery_address = city_name + ', ' + warehouse_name;
-            $('textarea[name="address"]').text(delivery_address);
+
+            var msg = "";
+            if($('textarea[name="address"]').val().length <= 0){
+                $('textarea[name="address"]').val(delivery_address);
+                toastr.success(msg, "{/literal}{$btr->np_update_address|escape}{literal}", 10);
+            } else {
+                toastr.error(msg, "{/literal}{$btr->np_no_update_address|escape}{literal}", 10);
+            }
+
             $('input[name="novaposhta_warehouse_id"]').val($(this).children(':selected').data('warehouse_ref'));
             let new_href = 'https://www.google.com/maps/search/'+ delivery_address +'?hl=ru';
             $("a#google_map").attr("href", new_href);

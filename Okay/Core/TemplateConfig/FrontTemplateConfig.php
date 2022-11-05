@@ -591,6 +591,11 @@ class FrontTemplateConfig
         $runningModules = $this->modules->getRunningModules();
         foreach ($runningModules as $runningModule) {
 
+            //  пропускаем не активированные модули
+            if (empty($runningModule['is_active'])) {
+                continue;
+            }
+
             $moduleThemesDir = $this->module->getModuleDirectory($runningModule['vendor'], $runningModule['module_name']) . 'design/';
 
             if (file_exists($moduleThemesDir . 'css.php') && ($moduleCss = include $moduleThemesDir . 'css.php') && is_array($moduleCss)) {

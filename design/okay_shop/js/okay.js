@@ -73,8 +73,10 @@ $(document).on('change', '.fn_variant', function() {
     }
     if( selected.data( 'discount' ) ) {
         parent.find('.fn_discount_label').html(selected.data( 'discount' )).removeClass( 'hidden-xs-up' );
+        price.parent().addClass('price--red');
     } else {
         parent.find('.fn_discount_label').addClass( 'hidden-xs-up' );
+        price.parent().removeClass('price--red');
     }
     /* Артикул */
     if( typeof(selected.data( 'sku' )) != 'undefined' ) {
@@ -783,7 +785,9 @@ $(function(){
         formatResult: function(suggestion, currentValue) {
             var reEscape = new RegExp( '(\\' + ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'].join( '|\\' ) + ')', 'g' );
             var pattern = '(' + currentValue.replace( reEscape, '\\$1' ) + ')';
-            return "<div>" + (suggestion.data.image ? "<img align='middle' src='" + suggestion.data.image + "'> " : '') + "</div>" + "<a href=" + suggestion.data.url + '>' + suggestion.value.replace( new RegExp( pattern, 'gi' ), '<strong>$1<\/strong>' ) + '<\/a>' + "<span>" + suggestion.price + " " + suggestion.currency + "</span>";
+            return "<div>" + (suggestion.data.image ? "<img align='middle' src='" + suggestion.data.image + "'> " : '') + "</div>" +
+                "<a href='" + suggestion.data.url + "'>" + suggestion.value.replace( new RegExp( pattern, 'gi' ), "<strong>$1</strong>" ) + "</a>" +
+                "<span>" + suggestion.price + " " + suggestion.currency + "</span>";
         }
     } );
 
