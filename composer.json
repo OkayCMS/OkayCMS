@@ -23,7 +23,7 @@
         }
     ],
     "require": {
-        "php": "^7.2 || ^8.0",
+        "php": "^7.4 || ^8.0",
         "ext-SimpleXML": "*",
         "ext-XMLReader": "*",
         "ext-pdo": "*",
@@ -52,7 +52,7 @@
         "dragonmantank/cron-expression": "^3.1",
         "symfony/process": "^5.3",
         "symfony/lock": "^5.3",
-        "symfony/vardumper": "^5.4.6"
+        "symfony/var-dumper": "^5.4.6"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5",
