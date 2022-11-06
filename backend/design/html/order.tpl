@@ -549,7 +549,7 @@
                             <textarea name="comment" class="form-control short_textarea">{$order->comment|escape}</textarea>
                         </div>
                          <div class="mb-1">
-                            <div class="heading_label boxes_inline">{$btr->order_ip|escape} {if $order->id}<a href="https://who.is/whois-ip/ip-address/{$order->ip|escape}" target="_blank"><i class="fa fa-map-marker"></i> whois</a>{/if}</div>
+                            <div class="heading_label boxes_inline">{$btr->order_ip|escape} {if $order->id}<a href="https://2ip.ua/ru/services/information-service/whois?a=act&ip={$order->ip|escape}" target="_blank"><i class="fa fa-map-marker"></i> whois</a>{/if}</div>
                             <div class="boxes_inline text_dark text_600">{$order->ip|escape}</div>
                         </div>
                         {if $order->referer_channel}
