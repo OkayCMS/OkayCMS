@@ -72,7 +72,11 @@ $(document).on('change', '.fn_variant', function() {
         cprice.parent().addClass( 'hidden-xs-up' );
     }
     if( selected.data( 'discount' ) ) {
-        parent.find('.fn_discount_label').html(selected.data( 'discount' )).removeClass( 'hidden-xs-up' );
+        if ( parent.find('.fn_discount_label').parent().hasClass('stickers')) {
+            parent.find('.fn_discount_label').html('<span class="sticker sticker--discount">'+selected.data( 'discount' )+'</span>').removeClass( 'hidden-xs-up' );
+        } else {
+            parent.find('.fn_discount_label').html(selected.data( 'discount' )).removeClass( 'hidden-xs-up' );
+        }
         price.parent().addClass('price--red');
     } else {
         parent.find('.fn_discount_label').addClass( 'hidden-xs-up' );
@@ -1139,7 +1143,6 @@ $(function(){
                         window.location = response.url;
                     }
                 } else {
-                    console.log('test')
                     submitted_cart = false;
                     simpleSubmit = true;
                     $(cartForm).submit();
