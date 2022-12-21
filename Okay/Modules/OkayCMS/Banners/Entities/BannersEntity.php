@@ -16,12 +16,12 @@ class BannersEntity extends Entity
         'position',
         'visible',
         'show_all_pages',
+        'show_all_products',
         'categories',
         'pages',
         'brands',
         'as_individual_shortcode',
         'settings',
-        'show_all_products',
     ];
 
     protected static $defaultOrderFields = [
