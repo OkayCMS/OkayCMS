@@ -30,7 +30,7 @@ cache/
 /Okay/log/*
 config/config.local.php
 design/*/lang/local.*.php
-design/*/css/theme-settings.css
+#design/*/css/theme-settings.css
 !*.keep_folder
 !*.htaccess
 .phpunit.result.cache
