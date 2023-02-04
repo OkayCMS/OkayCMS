@@ -84,7 +84,7 @@ if($usersCount*$page < $totalUsers) {
 } else {
     $data = ['end'=>true, 'page'=>$page, 'totalpages'=>$totalUsers/$usersCount];
 
-    mb_substitute_character('');
+    mb_substitute_character('none');
     file_put_contents(
         $exportFilesDir.$filename,
         mb_convert_encoding(file_get_contents($exportFilesDir.$filename), 'Windows-1251')

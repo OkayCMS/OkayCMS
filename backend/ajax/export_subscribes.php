@@ -81,7 +81,7 @@ if($subscribesCount*$page < $totalSubscribes) {
 } else {
     $data = ['end'=>true, 'page'=>$page, 'totalpages'=>$totalSubscribes/$subscribesCount];
 
-    mb_substitute_character('');
+    mb_substitute_character('none');
     file_put_contents(
         $exportFilesDir.$filename,
         mb_convert_encoding(file_get_contents($exportFilesDir.$filename), 'Windows-1251')
