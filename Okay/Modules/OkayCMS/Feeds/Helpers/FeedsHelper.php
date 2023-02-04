@@ -43,9 +43,7 @@ class FeedsHelper
 
     public function checkIfUaMainLanguageIs()
     {
-        if (
-            (!empty($this->uaLang))
-            && ($this->firstLanguage->label != 'ua')   //  если UA не главный
+        if ((!empty($this->uaLang))
             && ($this->uaLang->enabled == 1)       //  если UA активный
             && ($this->language->label != 'ua')     //  если UA не текущий
         ) {

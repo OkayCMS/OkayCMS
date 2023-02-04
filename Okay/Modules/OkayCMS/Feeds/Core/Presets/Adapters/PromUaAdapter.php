@@ -62,7 +62,6 @@ class PromUaAdapter extends AbstractPresetAdapter
 
         //  получаем украинские данные
         if (!empty($uaLang)
-            && ($uaLang != false)
             && !empty($uaLangId = $uaLang->id)
         ) {
             if ($this->feed->settings['use_full_description']) {
@@ -144,6 +143,8 @@ class PromUaAdapter extends AbstractPresetAdapter
         } else {
             $result['url']['data'] = Router::generateUrl('product', ['url' => $product->url], true);
         }
+
+        $result['name']['data'] = $this->xmlFeedHelper->escape($product->product_name . (!empty($product->variant_name) ? ' ' . $product->variant_name : ''));
 
         if (!empty($product->product_name_ua)) {
             $result['name_ua']['data'] = $this->xmlFeedHelper->escape($product->product_name_ua . (!empty($product->variant_name_ua) ? ' ' . $product->variant_name_ua : '') . (!empty($product->sku) ? ' (' . ($product->sku) . ')' : ''));
