@@ -16,9 +16,9 @@ $totalPrice  = 0;
 $totalAmount = 0;
 
 $columnsNames = [
-    'name'   => 'Имя',
-    'amount' => 'Количество',
-    'price'  => 'Цена',
+    'name'   => 'пїЅпїЅпїЅ',
+    'amount' => 'пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ',
+    'price'  => 'пїЅпїЅпїЅпїЅ',
 ];
 
 $columnDelimiter = ';';
@@ -54,20 +54,20 @@ if (!$managers->access('category_stats', $managersEntity->get($_SESSION['admin']
     exit();
 }
 
-// Страница, которую экспортируем
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 $page = $request->get('page');
 if (empty($page) || $page==1) {
     $page = 1;
-    // Если начали сначала - удалим старый файл экспорта
+    // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ - пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     if (is_writable($exportFilesDir.$filename)) {
         unlink($exportFilesDir.$filename);
     }
 }
 
-// Открываем файл экспорта на добавление
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 $f = fopen($exportFilesDir.$filename, 'ab');
 
-// Если начали сначала - добавим в первую строку названия колонок
+// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ - пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 if ($page == 1) {
     fputcsv($f, $columnsNames, $columnDelimiter);
 }
@@ -115,7 +115,7 @@ foreach ($categories_list as $c) {
 }
 
 $total = [
-    'name' => 'Имя',
+    'name' => 'пїЅпїЅпїЅ',
     'amount' => $totalAmount,
     'price'=>$totalPrice
 ];
@@ -123,7 +123,7 @@ $total = [
 fputcsv($f, $total, $columnDelimiter);
 fclose($f);
 
-mb_substitute_character('');
+mb_substitute_character('none');
 file_put_contents(
     $exportFilesDir.$filename,
     mb_convert_encoding(file_get_contents($exportFilesDir.$filename), 'Windows-1251')
