@@ -16,9 +16,9 @@ $totalPrice  = 0;
 $totalAmount = 0;
 
 $columnsNames = [
-    'name'   => '���',
-    'amount' => '����������',
-    'price'  => '����',
+    'name'   => 'Имя',
+    'amount' => 'Количество',
+    'price'  => 'Цена',
 ];
 
 $columnDelimiter = ';';
@@ -54,20 +54,20 @@ if (!$managers->access('category_stats', $managersEntity->get($_SESSION['admin']
     exit();
 }
 
-// ��������, ������� ������������
+// Страница, которую экспортируем
 $page = $request->get('page');
 if (empty($page) || $page==1) {
     $page = 1;
-    // ���� ������ ������� - ������ ������ ���� ��������
+    // Если начали сначала - удалим старый файл экспорта
     if (is_writable($exportFilesDir.$filename)) {
         unlink($exportFilesDir.$filename);
     }
 }
 
-// ��������� ���� �������� �� ����������
+// Открываем файл экспорта на добавление
 $f = fopen($exportFilesDir.$filename, 'ab');
 
-// ���� ������ ������� - ������� � ������ ������ �������� �������
+// Если начали сначала - добавим в первую строку названия колонок
 if ($page == 1) {
     fputcsv($f, $columnsNames, $columnDelimiter);
 }
@@ -115,7 +115,7 @@ foreach ($categories_list as $c) {
 }
 
 $total = [
-    'name' => '���',
+    'name' => 'Имя',
     'amount' => $totalAmount,
     'price'=>$totalPrice
 ];
