@@ -5,6 +5,7 @@ namespace Okay\Modules\OkayCMS\NovaposhtaCost;
 
 
 use Okay\Core\EntityFactory;
+use Okay\Core\FrontTranslations;
 use Okay\Core\Languages;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Money;
@@ -30,16 +31,20 @@ class NovaposhtaCost
     
     /** @var Languages */
     private $languages;
+
+    /** @var FrontTranslations */
+    private $frontTranslations;
     
     private $cacheLifetime;
     
-    public function __construct(Settings $settings, EntityFactory $entityFactory, Money $money, Languages $languages)
+    public function __construct(Settings $settings, EntityFactory $entityFactory, Money $money, Languages $languages, FrontTranslations $frontTranslations)
     {
-        $this->entityFactory = $entityFactory;
-        $this->npApiKey = $settings->get('newpost_key');
-        $this->settings = $settings;
-        $this->money = $money;
-        $this->languages = $languages;
+        $this->entityFactory     = $entityFactory;
+        $this->npApiKey          = $settings->get('newpost_key');
+        $this->settings          = $settings;
+        $this->money             = $money;
+        $this->languages         = $languages;
+        $this->frontTranslations = $frontTranslations;
         
         $cacheLifetime = $settings->get('np_cache_lifetime');
         $this->cacheLifetime = !empty($cacheLifetime) ? $cacheLifetime : 86400;
@@ -74,8 +79,10 @@ class NovaposhtaCost
         
         $warehouses = $warehousesEntity->find($filter);
 
+        $np_cart_select_warehouse = (!empty($this->frontTranslations->getTranslation('np_cart_select_warehouse')) ? $this->frontTranslations->getTranslation('np_cart_select_warehouse') : 'Выберите отделение доставки');
+
         $result['success'] = true;
-        $result['warehouses'] = '<option'.(empty($warehouseRef)? ' selected' : '').' disabled value="">Выберите отделение доставки</option>';
+        $result['warehouses'] = '<option'.(empty($warehouseRef)? ' selected' : '').' disabled value="">' . $np_cart_select_warehouse . '</option>';
         foreach ($warehouses as $warehouse) {
             $result['warehouses'] .= '<option value="'.$warehouse->name.'" data-warehouse_ref="'.$warehouse->ref.'"'.(!empty($warehouseRef) && $warehouseRef == $warehouse->ref ? 'selected' : '').'>'.$warehouse->name.'</option>';
         }
