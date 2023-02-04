@@ -138,10 +138,19 @@ class YmlAdapter extends AbstractPresetAdapter
             $result['weight']['data'] = $this->xmlFeedHelper->escape($product->weight);
         }
 
+        //  добавляем описание
         if (!empty($product->description)) {
-            $result['description']['data'] = $this->xmlFeedHelper->escape($product->description);
+            if (!empty($this->feed->settings['description_in_html']) && $this->feed->settings['description_in_html'] == 1) {    //  передаем html полностью в CDATA
+                $result['description']['data'] = '<![CDATA['. $product->description .']]>';
+            } else {
+                $result['description']['data'] = $this->xmlFeedHelper->escape($product->description);
+            }
         } else if (!empty($product->annotation)) {
-            $result['description']['data'] = $this->xmlFeedHelper->escape($product->annotation);
+            if (!empty($this->feed->settings['description_in_html']) && $this->feed->settings['description_in_html'] == 1) {    //  передаем html полностью в CDATA
+                $result['description']['data'] = '<![CDATA['. $product->annotation .']]>';
+            } else {
+                $result['description']['data'] = $this->xmlFeedHelper->escape($product->annotation);
+            }
         }
 
         $countryOfOriginParamId = $this->feed->settings['country_of_origin'];
