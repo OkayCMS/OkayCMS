@@ -96,7 +96,17 @@ class FacebookAdapter extends AbstractPresetAdapter
             $result['link']['data'] = Router::generateUrl('product', ['url' => $product->url], true);
         }
 
-        $result['description']['data'] = $this->xmlFeedHelper->escape($product->description ?? $product->annotation);
+        //  добавляем описание
+        if (!empty($this->feed->settings['description_in_html']) && $this->feed->settings['description_in_html'] == 1) {    //  передаем html текст полностью в CDATA
+            if (empty($product->description) && empty($product->annotation)) {
+                $result['description']['data'] = '';
+            } else {
+                $result['description']['data'] = '<![CDATA['. ($product->description ?? $product->annotation) .']]>';
+            }
+        } else {
+            $result['description']['data'] = $this->xmlFeedHelper->escape($product->description ?? $product->annotation);
+        }
+
         $result['id']['data'] = $this->xmlFeedHelper->escape($product->variant_id);
 
         if (!empty($product->weight > 0)) {

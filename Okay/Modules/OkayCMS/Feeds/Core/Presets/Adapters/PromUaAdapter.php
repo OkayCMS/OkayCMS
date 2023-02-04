@@ -200,16 +200,31 @@ class PromUaAdapter extends AbstractPresetAdapter
             $result['weight']['data'] = $this->xmlFeedHelper->escape($product->weight);
         }
 
-        if (!empty($product->description)) {
-            $result['description']['data'] = '<![CDATA['.$product->description.']]>';
-        } else if (!empty($product->annotation)) {
-            $result['description']['data'] = '<![CDATA['.$product->annotation.']]>';
-        }
+        //  добавляем описание
+        if (!empty($this->feed->settings['description_in_html']) && $this->feed->settings['description_in_html'] == 1) {    //  передаем html текст полностью в CDATA
+            if (!empty($product->description)) {
+                $result['description']['data'] = '<![CDATA['.$product->description.']]>';
+            } else if (!empty($product->annotation)) {
+                $result['description']['data'] = '<![CDATA['.$product->annotation.']]>';
+            }
 
-        if (!empty($product->description_ua)) {
-        $result['description_ua']['data'] = '<![CDATA['.$product->description_ua.']]>';
-        } else if (!empty($product->annotation_ua)) {
-            $result['description_ua']['data'] = '<![CDATA['.$product->annotation_ua.']]>';
+            if (!empty($product->description_ua)) {
+                $result['description_ua']['data'] = '<![CDATA['.$product->description_ua.']]>';
+            } else if (!empty($product->annotation_ua)) {
+                $result['description_ua']['data'] = '<![CDATA['.$product->annotation_ua.']]>';
+            }
+        } else {
+            if (!empty($product->description)) {    //  передаем описание без верстки
+                $result['description']['data'] = $this->xmlFeedHelper->escape($product->description);
+            } else if (!empty($product->annotation)) {
+                $result['description']['data'] = $this->xmlFeedHelper->escape($product->annotation);
+            }
+
+            if (!empty($product->description_ua)) {
+                $result['description_ua']['data'] = $this->xmlFeedHelper->escape($product->description_ua);
+            } else if (!empty($product->annotation_ua)) {
+                $result['description_ua']['data'] = $this->xmlFeedHelper->escape($product->annotation_ua);
+            }
         }
 
         $countryOfOriginParamId = $this->feed->settings['country_of_origin'];
