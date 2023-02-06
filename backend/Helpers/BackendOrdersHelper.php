@@ -148,11 +148,16 @@ class BackendOrdersHelper
                 }
             }
 
-            $variants = $this->variantsEntity->find([
+            $filter = [
                 'product_id' => array_keys($products),
-                'in_stock' => !$this->settings->get('is_preorder'),
                 'has_price' => true,
-            ]);
+            ];
+
+            if (!$this->settings->get('is_preorder')) {
+                $filter['in_stock'] = true;
+            }
+
+            $variants = $this->variantsEntity->find($filter);
 
             foreach ($variants as $variant) {
                 if (isset($products[$variant->product_id])) {
