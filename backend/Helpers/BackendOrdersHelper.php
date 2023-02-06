@@ -484,11 +484,11 @@ class BackendOrdersHelper
 
     public function changeStatus($ids)
     {
-        if($this->request->post("change_status_id")) {
-            $newStatus = $this->orderStatusEntity->find(["status"=>$this->request->post("change_status_id","integer")]);
+        if(!empty($change_status_id = $this->request->post("change_status_id"))) {
+            $newStatus = $this->orderStatusEntity->findOne(["id" => $change_status_id]);
             $errorOrders = [];
             foreach($ids as $id) {
-                if($newStatus[0]->is_close == 1){
+                if($newStatus->is_close == 1){
                     if (!$this->ordersEntity->close(intval($id))) {
                         $errorOrders[] = $id;
                         //$this->design->assign('error_orders', $errorOrders);
