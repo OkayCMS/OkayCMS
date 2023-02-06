@@ -143,7 +143,7 @@ class Cart
     public function init()
     {
         if (empty($_SESSION['user_id'])) {
-            if (!empty($_COOKIE['shopping_cart'])&& is_array($items = json_decode($_COOKIE['shopping_cart'], true))) {
+            if (!empty($_COOKIE['shopping_cart']) && is_array($items = json_decode($_COOKIE['shopping_cart'], true))) {
                 foreach ($items as $key => $item){
                     if (!empty($_SESSION['shopping_cart'][$key]))
                     {
@@ -182,6 +182,8 @@ class Cart
             }
             setcookie('shopping_cart', '', time()-3600, '/');
         }
+
+        ExtenderFacade::execute(__METHOD__, $this, func_get_args());
     }
 
     /**
