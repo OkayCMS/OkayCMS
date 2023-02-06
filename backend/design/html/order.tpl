@@ -639,7 +639,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-lg-12 col-md-12 mb-2">
+        <div class="col-lg-12 col-md-12 mb-3">
             <button id="fast_save_button_and_quit" type="submit" class="btn btn_small btn_blue float-md-right ml-1" name="apply_and_quit" value="1">
                 {include file='svg_icon.tpl' svgId='checked'}
                 <span>{$btr->general_apply_and_quit|escape}</span>
