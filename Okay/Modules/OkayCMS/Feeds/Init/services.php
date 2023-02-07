@@ -7,6 +7,7 @@ use Okay\Core\OkayContainer\Reference\ServiceReference as SR;
 use Okay\Core\OkayContainer\Reference\ParameterReference as PR;
 use Okay\Core\QueryFactory;
 use Okay\Core\Request;
+use Okay\Helpers\MainHelper;
 use Okay\Helpers\ProductsHelper;
 use Okay\Modules\OkayCMS\Feeds\Backend\Core\Presets\BackendPresetAdapterFactory;
 use Okay\Modules\OkayCMS\Feeds\Backend\Helpers\BackendFeedsHelper;
@@ -42,6 +43,7 @@ return [
         'class' => FeedsHelper::class,
         'arguments' => [
             new SR(PresetAdapterFactory::class),
+            new SR(MainHelper::class),
         ]
     ],
     PresetAdapterFactory::class => [

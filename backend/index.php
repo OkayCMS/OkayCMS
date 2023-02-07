@@ -39,11 +39,10 @@ $time_start = microtime(true);
 if(!empty($_SERVER['HTTP_USER_AGENT'])){
     session_name(md5($_SERVER['HTTP_USER_AGENT']));
 }
+ini_set('session.gc_maxlifetime', 86400); // 86400 = 24 часа
+ini_set('session.cookie_lifetime', 0); // 0 - пока браузер не закрыт
 session_start();
 $_SESSION['id'] = session_id();
-
-@ini_set('session.gc_maxlifetime', 86400); // 86400 = 24 часа
-@ini_set('session.cookie_lifetime', 0); // 0 - пока браузер не закрыт
 
 if ($config->get('debug_mode') == true) {
     ini_set('display_errors', 'on');

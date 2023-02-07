@@ -549,7 +549,7 @@
                             <textarea name="comment" class="form-control short_textarea">{$order->comment|escape}</textarea>
                         </div>
                          <div class="mb-1">
-                            <div class="heading_label boxes_inline">{$btr->order_ip|escape} {if $order->id}<a href="https://who.is/whois-ip/ip-address/{$order->ip|escape}" target="_blank"><i class="fa fa-map-marker"></i> whois</a>{/if}</div>
+                            <div class="heading_label boxes_inline">{$btr->order_ip|escape} {if $order->id}<a href="https://2ip.ua/ru/services/information-service/whois?a=act&ip={$order->ip|escape}" target="_blank"><i class="fa fa-map-marker"></i> whois</a>{/if}</div>
                             <div class="boxes_inline text_dark text_600">{$order->ip|escape}</div>
                         </div>
                         {if $order->referer_channel}
@@ -639,7 +639,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-lg-12 col-md-12 mb-2">
+        <div class="col-lg-12 col-md-12 mb-3">
             <button id="fast_save_button_and_quit" type="submit" class="btn btn_small btn_blue float-md-right ml-1" name="apply_and_quit" value="1">
                 {include file='svg_icon.tpl' svgId='checked'}
                 <span>{$btr->general_apply_and_quit|escape}</span>

@@ -46,6 +46,7 @@ class BackendFacebookAdapter extends AbstractBackendPresetAdapter
         $settings = [
             'upload_only_products_in_stock' => $postSettings['upload_only_products_in_stock'] ?? 0,
             'use_full_description' => $postSettings['use_full_description'] ?? 0,
+            'description_in_html' => $postSettings['description_in_html'] ?? 0,
             'no_export_without_price' => $postSettings['no_export_without_price'] ?? 0,
             'adult' => $postSettings['adult'] ?? 0,
             'use_variant_name_like_size' => $postSettings['use_variant_name_like_size'] ?? 0,

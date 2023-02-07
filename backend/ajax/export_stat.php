@@ -16,9 +16,9 @@ $totalPrice  = 0;
 $totalAmount = 0;
 
 $columnsNames = [
-    'name'   => 'Èìÿ',
-    'amount' => 'Êîëè÷åñòâî',
-    'price'  => 'Öåíà',
+    'name'   => 'Ð˜Ð¼Ñ',
+    'amount' => 'ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾',
+    'price'  => 'Ð¦ÐµÐ½Ð°',
 ];
 
 $columnDelimiter = ';';
@@ -54,20 +54,20 @@ if (!$managers->access('category_stats', $managersEntity->get($_SESSION['admin']
     exit();
 }
 
-// Ñòðàíèöà, êîòîðóþ ýêñïîðòèðóåì
+// Ð¡Ñ‚Ñ€Ð°Ð½Ð¸Ñ†Ð°, ÐºÐ¾Ñ‚Ð¾Ñ€ÑƒÑŽ ÑÐºÑÐ¿Ð¾Ñ€Ñ‚Ð¸Ñ€ÑƒÐµÐ¼
 $page = $request->get('page');
 if (empty($page) || $page==1) {
     $page = 1;
-    // Åñëè íà÷àëè ñíà÷àëà - óäàëèì ñòàðûé ôàéë ýêñïîðòà
+    // Ð•ÑÐ»Ð¸ Ð½Ð°Ñ‡Ð°Ð»Ð¸ ÑÐ½Ð°Ñ‡Ð°Ð»Ð° - ÑƒÐ´Ð°Ð»Ð¸Ð¼ ÑÑ‚Ð°Ñ€Ñ‹Ð¹ Ñ„Ð°Ð¹Ð» ÑÐºÑÐ¿Ð¾Ñ€Ñ‚Ð°
     if (is_writable($exportFilesDir.$filename)) {
         unlink($exportFilesDir.$filename);
     }
 }
 
-// Îòêðûâàåì ôàéë ýêñïîðòà íà äîáàâëåíèå
+// ÐžÑ‚ÐºÑ€Ñ‹Ð²Ð°ÐµÐ¼ Ñ„Ð°Ð¹Ð» ÑÐºÑÐ¿Ð¾Ñ€Ñ‚Ð° Ð½Ð° Ð´Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ
 $f = fopen($exportFilesDir.$filename, 'ab');
 
-// Åñëè íà÷àëè ñíà÷àëà - äîáàâèì â ïåðâóþ ñòðîêó íàçâàíèÿ êîëîíîê
+// Ð•ÑÐ»Ð¸ Ð½Ð°Ñ‡Ð°Ð»Ð¸ ÑÐ½Ð°Ñ‡Ð°Ð»Ð° - Ð´Ð¾Ð±Ð°Ð²Ð¸Ð¼ Ð² Ð¿ÐµÑ€Ð²ÑƒÑŽ ÑÑ‚Ñ€Ð¾ÐºÑƒ Ð½Ð°Ð·Ð²Ð°Ð½Ð¸Ñ ÐºÐ¾Ð»Ð¾Ð½Ð¾Ðº
 if ($page == 1) {
     fputcsv($f, $columnsNames, $columnDelimiter);
 }
@@ -115,7 +115,7 @@ foreach ($categories_list as $c) {
 }
 
 $total = [
-    'name' => 'Èìÿ',
+    'name' => 'Ð˜Ð¼Ñ',
     'amount' => $totalAmount,
     'price'=>$totalPrice
 ];
@@ -123,7 +123,7 @@ $total = [
 fputcsv($f, $total, $columnDelimiter);
 fclose($f);
 
-mb_substitute_character('');
+mb_substitute_character('none');
 file_put_contents(
     $exportFilesDir.$filename,
     mb_convert_encoding(file_get_contents($exportFilesDir.$filename), 'Windows-1251')

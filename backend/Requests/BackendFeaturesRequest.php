@@ -41,7 +41,7 @@ class BackendFeaturesRequest
         $feature->visible            = $this->request->post('visible', 'int');
         $feature->to_index_new_value = $this->request->post('to_index_new_value');
         $feature->description        = $this->request->post('description');
-        $feature->show_in_product    = $this->request->post('show_in_product');
+        $feature->show_in_product    = $this->request->post('show_in_product', 'int', 0);
 
         $feature->url = preg_replace("/[\s]+/ui", '', $feature->url);
         $feature->url = strtolower(preg_replace("/[^0-9a-z]+/ui", '', $feature->url));

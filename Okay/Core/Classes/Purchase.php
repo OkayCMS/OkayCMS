@@ -201,9 +201,16 @@ class Purchase
         foreach ($this->discounts as $discount){
             if (!isset($cart->total_purchases_discounts[$discount->sign])) {
                 $discountForTotal = (object)(array)$discount;
+                $discountForTotal->absoluteDiscount *= $this->amount;
+                $discountForTotal->priceBeforeDiscount *= $this->amount;
+                $discountForTotal->priceAfterDiscount *= $this->amount;
+                $discountForTotal->percentDiscount = round($discountForTotal->absoluteDiscount / $discountForTotal->priceBeforeDiscount * 100, 2);
                 $cart->total_purchases_discounts[$discount->sign] = $discountForTotal;
             } else {
-                $cart->total_purchases_discounts[$discount->sign]->absoluteDiscount += $discount->absoluteDiscount;
+                $cart->total_purchases_discounts[$discount->sign]->absoluteDiscount += $discount->absoluteDiscount * $this->amount;
+                $cart->total_purchases_discounts[$discount->sign]->priceBeforeDiscount += $discount->priceBeforeDiscount * $this->amount;
+                $cart->total_purchases_discounts[$discount->sign]->priceAfterDiscount += $discount->priceAfterDiscount* $this->amount;
+                $cart->total_purchases_discounts[$discount->sign]->percentDiscount = round($cart->total_purchases_discounts[$discount->sign]->absoluteDiscount / $cart->total_purchases_discounts[$discount->sign]->priceBeforeDiscount * 100, 2);
             }
         }
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());

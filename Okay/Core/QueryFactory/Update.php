@@ -39,7 +39,7 @@ class Update extends AbstractQuery implements QueryInterface
 
     public function col($col)
     {
-        $this->queryObject->col($col);
+        $this->queryObject->col(...func_get_args());
         return $this;
     }
 

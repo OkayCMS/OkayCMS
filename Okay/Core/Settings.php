@@ -108,31 +108,28 @@ class Settings
         
         $this->db->query($select->cols(['param', 'value'])->from('__settings'));
         foreach($this->db->results() as $result) {
-            if($this->isSerializable($result->value)) {
-                $this->vars[$result->param] = unserialize($result->value);;
-            } else {
-                $this->vars[$result->param] = $result->value;
-            }
+            $this->vars[$result->param] = $this->unserialize($result->value, $result->value);;
         }
-    
+
         // Выбираем из базы настройки с переводами к текущему языку
         $this->vars_lang = [];
         $multi = $this->getSettings();
         if (is_array($multi)) {
             foreach ($multi as $s) {
-                if($this->isSerializable($s->value)) {
-                    $this->vars_lang[$s->param] = unserialize($s->value);
-                } else {
-                    $this->vars_lang[$s->param] = $s->value;
-                }
+                $this->vars_lang[$s->param] = $this->unserialize($s->value, $s->value);
             }
         }
     }
 
-    private function isSerializable($value)
+    private function unserialize($value, $default = false)
     {
-        $unserializedValue = @unserialize($value);
-        return (is_array($unserializedValue) || is_object($unserializedValue));
+        $success = true;
+        set_error_handler(function () use (&$success) {
+            $success = false;
+        });
+        $original = unserialize($value);
+        restore_error_handler();
+        return $success ? $original : $default;
     }
     
     /**
