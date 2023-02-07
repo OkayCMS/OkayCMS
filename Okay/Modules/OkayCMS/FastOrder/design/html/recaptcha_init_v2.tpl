@@ -3,7 +3,7 @@
     var fastOrderRecaptcha;
     onloadCallback = function() {
         baseOnloadCallback();
-        if($('#recaptcha_fast_order').length>0){
+        if(document.querySelector("#recaptcha_fast_order") !== null){
             fastOrderRecaptcha = grecaptcha.render('recaptcha_fast_order', {
                 'sitekey' : "{$settings->public_recaptcha|escape}"
             });

@@ -3,7 +3,7 @@
     var fastOrderRecaptcha;
     onloadReCaptchaInvisible = function() {
         baseOnloadReCaptchaInvisible();
-        if($('#recaptcha_fast_order').length>0){
+        if(document.querySelector("#recaptcha_fast_order") !== null){
             fastOrderRecaptcha = grecaptcha.render('recaptcha_fast_order', {
                 'sitekey' : "{$settings->public_recaptcha_invisible|escape}",
                 "callback": "sendAjaxFastOrderForm",
@@ -15,5 +15,5 @@
     var resetFastOrderCaptcha = function() {
         grecaptcha.reset(fastOrderRecaptcha);
     }
-    
+
 </script>
