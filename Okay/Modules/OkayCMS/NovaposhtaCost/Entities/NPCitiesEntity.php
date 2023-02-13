@@ -29,7 +29,34 @@ class NPCitiesEntity extends Entity
     protected static $searchFields = [
         'name'
     ];
-    
+
+    public function find(array $filter = [])
+    {
+        $result = parent::find($filter);
+        if(empty($result)){
+            $currentLanguageId = $_SESSION['lang_id'];
+            $languages = $this->lang->getAllLanguages();
+            foreach($languages as $lang){
+                if($lang->id == $currentLanguageId) continue;
+
+                $this->lang->setLangId($lang->id);
+                $filter['limit'] = (!empty($filter['limit'])) ? $filter['limit'] : 20;
+                $langResult = parent::find($filter);
+                if(!empty($langResult)){
+                    $refs = [];
+                    foreach($langResult as $row){
+                        if(!empty($row->ref))
+                            $refs[] = $row->ref;
+                    }
+                    $this->lang->setLangId($currentLanguageId);
+                    $result = parent::find(['ref' => $refs]);
+                    break;
+                }
+            }
+        }
+        return $result;
+    }
+
     public function filter__keyword($keywords)
     {
         $keywords = explode(' ', $keywords);
