@@ -215,6 +215,7 @@ $lang['general_select_action'] = 'Оберіть дію';
 $lang['general_select_label'] = 'Оберіть мітку';
 $lang['general_select_status'] = 'Оберіть статус';
 $lang['general_settings_saved'] = 'Налаштування збережені';
+$lang['user_messages_success'] = 'Дані збережені';
 $lang['general_shipping'] = 'Доставка';
 $lang['general_short_description'] = 'Короткий опис';
 $lang['general_show_by'] = 'Показати по:';

@@ -215,6 +215,7 @@ $lang['general_select_action'] = 'Select an action';
 $lang['general_select_label'] = 'Select a label';
 $lang['general_select_status'] = 'Select a status';
 $lang['general_settings_saved'] = 'Settings saved';
+$lang['user_messages_success'] = 'Data saved';
 $lang['general_shipping'] = 'Shipping';
 $lang['general_short_description'] = 'Annotation';
 $lang['general_show_by'] = 'Show by:';
