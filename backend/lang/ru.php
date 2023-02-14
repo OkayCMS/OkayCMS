@@ -215,6 +215,7 @@ $lang['general_select_action'] = 'Выберите действие';
 $lang['general_select_label'] = 'Выберите метку';
 $lang['general_select_status'] = 'Выберите статус';
 $lang['general_settings_saved'] = 'Настройки сохранены';
+$lang['user_messages_success'] = 'Данные сохранены';
 $lang['general_shipping'] = 'Доставка';
 $lang['general_short_description'] = 'Краткое описание';
 $lang['general_show_by'] = 'Показать по:';

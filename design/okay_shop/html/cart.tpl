@@ -245,7 +245,7 @@
     <div class="cart_footer">
         <div class="container">
             <div class="cart_footer__copyright f_col-md flex-md-first d-flex align-items-center">
-                <div class="d-flex align-items-center">
+                <div>
                     <span>© {$smarty.now|date_format:"%Y"}</span>
                     <span data-language="index_copyright">{$lang->index_copyright}</span>
                 </div>
