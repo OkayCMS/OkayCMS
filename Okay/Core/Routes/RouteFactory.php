@@ -12,6 +12,10 @@ class RouteFactory
             return new ProductRoute($params);
         }
 
+        if ($routeName === 'products') {
+            return new AllProductsRoute($params);
+        }
+
         if ($routeName === 'category') {
             return new CategoryRoute($params);
         }

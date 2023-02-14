@@ -1385,6 +1385,7 @@ $lang['settings_router_url_slash_end_notice'] = 'All urls of this group will has
 $lang['common_routing'] = 'Urls for shared sections';
 $lang['settings_router_common_slash_end_notice'] = 'This url will have a slash at the end';
 $lang['common_routes_brands'] = 'Brand List';
+$lang['common_routes_products'] = 'List of all products';
 $lang['common_routes_posts'] = 'Post list';
 $lang['common_routes_news'] = 'News list';
 $lang['hide_front_delivery_price'] = 'Hide delivery price';
