@@ -28,6 +28,10 @@ class RouteFactory
             return new BlogCategoryRoute($params);
         }
 
+        if ($routeName === 'blog') {
+            return new AllBlogRoute($params);
+        }
+
         if ($routeName === 'post') {
             return new PostRoute($params);
         }
