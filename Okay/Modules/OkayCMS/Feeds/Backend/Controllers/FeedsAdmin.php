@@ -52,7 +52,7 @@ class FeedsAdmin extends IndexAdmin
         }
         $filter['page'] = min($filter['page'], $pagesCount);
 
-        $feeds   = $feedsEntity->find($filter);
+        $feeds   = $feedsEntity->order('position_asc')->find($filter);
         $presets = $backendFeedsHelper->getPresets();
 
         $this->design->assign('feeds', $feeds);
