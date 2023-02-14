@@ -20,6 +20,10 @@ class FeedsEntity extends Entity
         'position'
     ];
 
+    protected static $defaultOrderFields = [
+        'position',
+    ];
+
     protected static $table = 'okay_cms__feeds__feeds';
     protected static $tableAlias = 'oc_ff';
 
