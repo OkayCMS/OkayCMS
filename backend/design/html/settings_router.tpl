@@ -297,6 +297,26 @@
                             </label>
                         </div>
                     </div>
+
+                    <div class="okay_type_radio_wrap">
+                        <label for="" class="okay_type_radio_no_width" >
+                            <span>{$btr->common_routes_products}: {$rootUrl}/all-products</span>
+                        </label>
+
+                        <div class="okay_switch clearfix">
+                            <label class="switch_label">
+                                {$btr->settings_router_url_slash_end}
+                                <i class="fn_tooltips" title="{$btr->settings_router_url_slash_end_notice}">
+                                    {include file='svg_icon.tpl' svgId='icon_tooltips'}
+                                </i>
+                            </label>
+                            <label class="switch switch-default">
+                                <input class="switch-input" name="all_products_routes_template_slash_end" value='1' type="checkbox" id="visible_checkbox" {if $settings->all_products_routes_template_slash_end}checked=""{/if}/>
+                                <span class="switch-label"></span>
+                                <span class="switch-handle"></span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
                 {get_design_block block="settings_router_news"}
             </div>

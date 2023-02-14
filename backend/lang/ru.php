@@ -1386,6 +1386,7 @@ $lang['settings_router_url_slash_end_notice'] = 'Ко всем урлам дан
 $lang['common_routing'] = 'Url-ы для общих разделов';
 $lang['settings_router_common_slash_end_notice'] = 'У этого урла будет обязательным слеш в конце';
 $lang['common_routes_brands'] = 'Список брендов';
+$lang['common_routes_products'] = 'Список всех товаров';
 $lang['common_routes_posts'] = 'Список постов';
 $lang['common_routes_news'] = 'Список новостей';
 $lang['hide_front_delivery_price'] = 'Скрыть цену';
