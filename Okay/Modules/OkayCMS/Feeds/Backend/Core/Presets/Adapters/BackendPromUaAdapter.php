@@ -46,6 +46,7 @@ class BackendPromUaAdapter extends AbstractBackendPresetAdapter
             'upload_without_images' => $postSettings['upload_without_images'] ?? 0,
             'upload_only_products_in_stock' => $postSettings['upload_only_products_in_stock'] ?? 0,
             'use_full_description' => $postSettings['use_full_description'] ?? 0,
+            'description_in_html' => $postSettings['description_in_html'] ?? 0,
             'no_export_without_price' => $postSettings['no_export_without_price'] ?? 0,
             'count' => $postSettings['count'] ?? 0,
             'company' => $postSettings['company'],

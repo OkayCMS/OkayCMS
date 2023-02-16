@@ -12,6 +12,10 @@ class RouteFactory
             return new ProductRoute($params);
         }
 
+        if ($routeName === 'products') {
+            return new AllProductsRoute($params);
+        }
+
         if ($routeName === 'category') {
             return new CategoryRoute($params);
         }
@@ -26,6 +30,10 @@ class RouteFactory
 
         if ($routeName === 'blog_category') {
             return new BlogCategoryRoute($params);
+        }
+
+        if ($routeName === 'blog') {
+            return new AllBlogRoute($params);
         }
 
         if ($routeName === 'post') {

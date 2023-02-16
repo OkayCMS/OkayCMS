@@ -148,11 +148,16 @@ class BackendOrdersHelper
                 }
             }
 
-            $variants = $this->variantsEntity->find([
+            $filter = [
                 'product_id' => array_keys($products),
-                'in_stock' => !$this->settings->get('is_preorder'),
                 'has_price' => true,
-            ]);
+            ];
+
+            if (!$this->settings->get('is_preorder')) {
+                $filter['in_stock'] = true;
+            }
+
+            $variants = $this->variantsEntity->find($filter);
 
             foreach ($variants as $variant) {
                 if (isset($products[$variant->product_id])) {
@@ -484,11 +489,11 @@ class BackendOrdersHelper
 
     public function changeStatus($ids)
     {
-        if($this->request->post("change_status_id")) {
-            $newStatus = $this->orderStatusEntity->find(["status"=>$this->request->post("change_status_id","integer")]);
+        if(!empty($change_status_id = $this->request->post("change_status_id"))) {
+            $newStatus = $this->orderStatusEntity->findOne(["id" => $change_status_id]);
             $errorOrders = [];
             foreach($ids as $id) {
-                if($newStatus[0]->is_close == 1){
+                if($newStatus->is_close == 1){
                     if (!$this->ordersEntity->close(intval($id))) {
                         $errorOrders[] = $id;
                         //$this->design->assign('error_orders', $errorOrders);

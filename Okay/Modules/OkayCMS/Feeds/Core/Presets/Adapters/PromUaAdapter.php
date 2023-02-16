@@ -7,6 +7,8 @@ use Okay\Core\QueryFactory\Select;
 use Okay\Core\Router;
 use Okay\Core\Routes\ProductRoute;
 use Okay\Entities\CurrenciesEntity;
+use Okay\Entities\VariantsEntity;
+use Okay\Entities\ProductsEntity;
 use Okay\Modules\OkayCMS\Feeds\Core\Presets\AbstractPresetAdapter;
 
 class PromUaAdapter extends AbstractPresetAdapter
@@ -56,10 +58,38 @@ class PromUaAdapter extends AbstractPresetAdapter
     {
         $sql = parent::getQuery(...func_get_args());
 
-        if ($this->feed->settings['use_full_description']) {
-            $sql->cols(['lp.description AS description']);
+        $uaLang = $this->feedHelper->checkIfUaMainLanguageIs();
+
+        //  получаем украинские данные
+        if (!empty($uaLang)
+            && !empty($uaLangId = $uaLang->id)
+        ) {
+            if ($this->feed->settings['use_full_description']) {
+                $sql->cols([
+                    'lp.description AS description',
+                    'lp_ua.name as product_name_ua',
+                    'lp_ua.description as description_ua',
+                    'lv_ua.name as variant_name_ua',
+                ]);
+            } else {
+                $sql->cols(['lp.annotation AS annotation']);
+                $sql->cols([
+                    'lp.annotation AS annotation',
+                    'lp_ua.name as product_name_ua',
+                    'lp_ua.annotation as annotation_ua',
+                    'lv_ua.name as variant_name_ua',
+                ]);
+            }
+
+            $sql->leftJoin(ProductsEntity::getLangTable().' AS lp_ua', 'lp_ua.product_id = t.product_id and lp_ua.lang_id=' . $uaLangId);
+            $sql->leftJoin(VariantsEntity::getLangTable().' AS lv_ua', 'lv_ua.variant_id = t.variant_id and lv_ua.lang_id=' . $uaLangId);
+
         } else {
-            $sql->cols(['lp.annotation AS annotation']);
+            if ($this->feed->settings['use_full_description']) {
+                $sql->cols(['lp.description AS description']);
+            } else {
+                $sql->cols(['lp.annotation AS annotation']);
+            }
         }
 
         return ExtenderFacade::execute(__METHOD__, $sql, func_get_args());
@@ -116,6 +146,10 @@ class PromUaAdapter extends AbstractPresetAdapter
 
         $result['name']['data'] = $this->xmlFeedHelper->escape($product->product_name . (!empty($product->variant_name) ? ' ' . $product->variant_name : ''));
 
+        if (!empty($product->product_name_ua)) {
+            $result['name_ua']['data'] = $this->xmlFeedHelper->escape($product->product_name_ua . (!empty($product->variant_name_ua) ? ' ' . $product->variant_name_ua : '') . (!empty($product->sku) ? ' (' . ($product->sku) . ')' : ''));
+        }
+
         $price = $product->price;
         $comparePrice = $product->compare_price;
         if (isset($this->allCurrencies[$product->currency_id])) {
@@ -167,10 +201,31 @@ class PromUaAdapter extends AbstractPresetAdapter
             $result['weight']['data'] = $this->xmlFeedHelper->escape($product->weight);
         }
 
-        if (!empty($product->description)) {
-            $result['description']['data'] = $this->xmlFeedHelper->escape($product->description);
-        } else if (!empty($product->annotation)) {
-            $result['description']['data'] = $this->xmlFeedHelper->escape($product->annotation);
+        //  добавляем описание
+        if (!empty($this->feed->settings['description_in_html']) && $this->feed->settings['description_in_html'] == 1) {    //  передаем html текст полностью в CDATA
+            if (!empty($product->description)) {
+                $result['description']['data'] = '<![CDATA['.$product->description.']]>';
+            } else if (!empty($product->annotation)) {
+                $result['description']['data'] = '<![CDATA['.$product->annotation.']]>';
+            }
+
+            if (!empty($product->description_ua)) {
+                $result['description_ua']['data'] = '<![CDATA['.$product->description_ua.']]>';
+            } else if (!empty($product->annotation_ua)) {
+                $result['description_ua']['data'] = '<![CDATA['.$product->annotation_ua.']]>';
+            }
+        } else {
+            if (!empty($product->description)) {    //  передаем описание без верстки
+                $result['description']['data'] = $this->xmlFeedHelper->escape($product->description);
+            } else if (!empty($product->annotation)) {
+                $result['description']['data'] = $this->xmlFeedHelper->escape($product->annotation);
+            }
+
+            if (!empty($product->description_ua)) {
+                $result['description_ua']['data'] = $this->xmlFeedHelper->escape($product->description_ua);
+            } else if (!empty($product->annotation_ua)) {
+                $result['description_ua']['data'] = $this->xmlFeedHelper->escape($product->annotation_ua);
+            }
         }
 
         $countryOfOriginParamId = $this->feed->settings['country_of_origin'];

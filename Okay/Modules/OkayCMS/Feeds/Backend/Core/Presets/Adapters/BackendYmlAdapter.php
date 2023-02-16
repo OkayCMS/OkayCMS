@@ -39,6 +39,7 @@ class BackendYmlAdapter extends AbstractBackendPresetAdapter
             'store' => $postSettings['store'] ?? 0,
             'pickup' => $postSettings['pickup'] ?? 0,
             'use_full_description' => $postSettings['use_full_description'] ?? 0,
+            'description_in_html' => $postSettings['description_in_html'] ?? 0,
             'has_manufacturer_warranty' => $postSettings['has_manufacturer_warranty'] ?? 0,
             'no_export_without_price' => $postSettings['no_export_without_price'] ?? 0,
             'delivery' => $postSettings['delivery'] ?? 0,

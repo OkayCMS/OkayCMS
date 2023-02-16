@@ -46,7 +46,7 @@ class Init extends AbstractInit
             (new EntityField('categories'))->setTypeVarchar(255)->setDefault(''),
             (new EntityField('pages'))->setTypeVarchar(255)->setDefault(''),
             (new EntityField('brands'))->setTypeVarchar(255)->setDefault(''),
-            (new EntityField('individual_shortcode'))->setTypeVarchar(255, true)->setDefault(''),
+            (new EntityField('as_individual_shortcode'))->setTypeTinyInt(1, true)->setDefault(0),
             (new EntityField('settings'))->setTypeText(),
         ]);
         

@@ -14,8 +14,8 @@
         /* to centre page on screen*/
         margin-left: auto;
         margin-right: auto;
-        border: 1px solid black;
-
+        border: 1px solid #8c8c8c;
+        line-height: 1.2;
         font-family: Trebuchet MS, times, arial, sans-serif;        
         font-size: 10pt;
         color: black;
@@ -23,72 +23,74 @@
     }
     
     div#header{
-        margin-left: 50px;
-        margin-top: 50px;
-        height: 150px;
-        width: 500px;
-        float: left;
+        margin-left: 25px;
+        margin-top: 20px;
+        height: 90px;
+        width: 950px;
     }
     div#company{
-        margin-right: 50px;
-        margin-top: 50px;
-        height: 150px;
-        width: 400px;
-        float: right;
-        text-align: right;
+        margin-left: 25px;
+        margin-top: 25px;
+        height: 80px;
+        width: 950px;
+        font-size: 18px;
+        line-height: 1.3;
     }
     div#customer{
-        margin-right: 50px;
-        min-height: 200px;
-        width: 300px;
-        float: right;
+        margin-left: 25px;
+        min-height: 170px;
+        width: 950px;
+        margin-top: 10px;
     }
     div#customer table{
         margin-bottom: 20px;
-        font-size: 20px;
+        font-size: 18px;
+        line-height: 1.5;
     }
-    div#map{
-        margin-left: 50px;
-        height: 400px;
-        width: 500px;
-        float: left;
+    div#customer td{
+        padding-top: 2px;
+        padding-bottom: 2px;
+    }
+    div#customer .small{
+        font-size: 17px;
     }
     div#purchases{
-        margin-left: 50px;
+        margin-left: 25px;
+        margin-top: 30px;
         margin-bottom: 20px;
-        min-height: 600px;
-        width: 100%;
-        float: left;
+        min-height: 100px;
+        width: 950px;
         
     }
     div#purchases table{
-        width: 900px;
+        width: 950px;
         border-collapse:collapse
     }
     div#purchases table th
     {
         font-weight: normal;
         text-align: left;
-        font-size: 25px;
+        font-size: 20px;
     }
     div#purchases td, div#purchases th
     {
-        font-size: 18px;
+        font-size: 17px;
         padding-top: 10px;
         padding-bottom: 10px;
         margin: 0;        
     }
     div#purchases td
     {
-        border-top: 1px solid black;     
+        border-top: 1px solid #8c8c8c;     
     }
  
     div#total{
         float: right;
-        margin-right: 50px;
+        margin-right: 25px;
         height: 100px;
         width: 500px;
         text-align: right;
+        margin-top: 50px;
     }
     div#total table{
         width: 500px;
@@ -99,14 +101,14 @@
     {
         font-weight: normal;
         text-align: left;
-        font-size: 22px;
-        border-top: 1px solid black;     
+        font-size: 20px;
+        border-top: 1px solid #8c8c8c;     
     }
     div#total td
     {
         text-align: right;
-        border-top: 1px solid black;     
-        font-size: 18px;
+        border-top: 1px solid #8c8c8c;     
+        font-size: 17px;
         padding-top: 10px;
         padding-bottom: 10px;
         margin: 0;        
@@ -114,6 +116,15 @@
     div#total .total
     {
         font-size: 30px;
+    }
+    td{
+        vertical-align:top;
+    }
+    .td_pr_1{
+        padding-right: 10px;
+    }
+    .td_pr_0{
+        padding-right: 0;
     }
     h1{
         margin: 0;
@@ -128,11 +139,15 @@
     p
     {
         margin: 0;
-        font-size: 20px;
+        font-size: 18px;
     }
     div#purchases td.align_right, div#purchases th.align_right
     {
         text-align: right;
+    }
+        div#purchases td.align_center, div#purchases th.align_center
+    {
+        text-align: center;
     }
     .custom_short_block {
         
@@ -178,37 +193,47 @@
 
 <body _onload="window.print();">
 
+{* {var_dump($settings)} *}
+
+<div id="company">
+    <h2>{$settings->site_name|escape}</h2>
+    <p>{$rootUrl}</p>
+    {if $settings->site_phones}
+        {foreach $settings->site_phones as $phone}
+            {if $phone@first}
+                <p class="phone">{$phone|escape}</p>
+            {/if}
+        {/foreach}
+    {/if}
+</div>
+
 <div id="header">
     <h1>{$btr->general_order_number|escape} {$order->id}</h1>
     <p>{$btr->order_print_from|escape} {$order->date|date}</p>
 </div>
 
-<div id="company">
-    <h2>{$settings->site_name|escape}</h2>
-    <p>{$rootUrl}</p>
-</div>
-
 {*Информация о клиенте*}
 <div id="customer">
-    <h2>{$btr->order_print_recipient|escape}</h2>
     <table>
         <tr>
-            <td>{$order->name|escape}</td>
+            <td class="td_pr_1">{$btr->order_print_recipient|escape}:</td>
+            <td class="small">{$order->name|escape} {$order->last_name|escape}</td>
+        </tr>      
+        <tr>
+            <td class="td_pr_1">{$btr->order_print_phone|escape}:</td>
+            <td class="small">{$order->phone|phone}</td>
         </tr>    
         <tr>
-            <td>{$order->last_name|escape}</td>
+            <td class="td_pr_1">{$btr->order_print_email|escape}:</td>
+            <td class="small">{$order->email|escape}</td>
         </tr>    
         <tr>
-            <td>{$order->phone|phone}</td>
+            <td class="td_pr_1">{$btr->order_print_adress|escape}:</td>
+            <td class="small">{$order->address|escape}</td>
         </tr>    
         <tr>
-            <td>{$order->email|escape}</td>
-        </tr>    
-        <tr>
-            <td>{$order->address|escape}</td>
-        </tr>    
-        <tr>
-            <td><i>{$order->comment|escape|nl2br}</i></td>
+            <td class="td_pr_1">{$btr->order_print_comment|escape}:</td>
+            <td class="small"><i>{$order->comment|escape|nl2br}</i></td>
         </tr>
         {get_design_block block="order_print_user_info"}
     </table>
@@ -224,22 +249,19 @@
 
 </div>
 
-<div id="map">
-    <iframe width="550" height="370" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?ie=UTF8&iwloc=near&hl=ru&t=m&z=16&mrt=loc&geocode=&q={$order->address|escape|urlencode}&output=embed"></iframe>
-</div>
-
 {*Информация о заказе*}
 <div id="purchases">
     <table>
         <tr>
-            <th>{$btr->order_print_product|escape}</th>
-            <th class="align_right">{$btr->general_price|escape}</th>
-            <th class="align_right">{$btr->general_amt|escape}</th>
-            <th class="align_right">{$btr->order_print_total|escape}</th>
+            <th class="td_pr_1">{$btr->order_print_product|escape}</th>
+            <th class="td_pr_1"  width="100px">{$btr->general_sku|escape}</th>
+            <th class="td_pr_1" width="110px">{$btr->general_price|escape}</th>
+            <th class="align_center td_pr_1" width="80px">{$btr->general_amt|escape}</th>
+            <th class="align_right td_pr_1" width="110px">{$btr->order_print_total|escape}</th>
         </tr>
         {foreach $purchases as $purchase}
         <tr>
-            <td>
+            <td class="td_pr_1">
                 <div class="view_purchase">
                     {if $purchase->product->name}
                         {$purchase->product->name|escape}
@@ -258,15 +280,22 @@
                     {get_design_block block="order_print_purchase_name" vars=['purchase'=>$purchase]}
                 </div>
             </td>
-            <td class="align_right">
+            <td class="td_pr_1"  width="100px">
+                {if $purchase->sku} 
+                {$purchase->sku|escape}
+                {else}
+                ---
+                {/if}
+            </td>
+            <td class="td_pr_1"  width="110px">
                 <span class=view_purchase>{$purchase->price|escape}</span> {$currency->sign|escape}
             </td>
-            <td class="align_right">            
+            <td class="align_center td_pr_1" width="80px">            
                 <span class=view_purchase>
                     {$purchase->amount|escape} {if $purchase->units}{$purchase->units|escape}{else}{$settings->units|escape}{/if}
                 </span>
             </td>
-            <td class="align_right">
+            <td class="align_right" width="110px">
                 <span class=view_purchase>{$purchase->price*$purchase->amount}</span> {$currency->sign|escape}
             </td>
         </tr>
@@ -320,7 +349,6 @@
         {get_design_block block="order_print_total_price_custom"}
     </table>
 </div>
-
 </body>
 </html>
 

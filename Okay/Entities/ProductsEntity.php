@@ -203,7 +203,7 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         $ext = end($parts);
 
         array_pop($parts);
-        $filenameWithoutExt = implode($parts, '.');
+        $filenameWithoutExt = implode('.', $parts);
 
         $pattern = $this->config->root_dir . $this->config->resized_images_dir . $filenameWithoutExt . ".*x*." . $ext;
         $resizedImages = glob($pattern);

@@ -172,10 +172,10 @@
                             <a href=""  class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{$global_banners}{/literal}</a>
                             <br>{$btr->banner_instruction_global_shortcode_part_2|escape}
                         </p>
-                        {if $banner->individual_shortcode}
+                        {if $banner->as_individual_shortcode}
                         <p>
                             {$btr->banner_instruction_shortcode_part_1|escape}
-                            <a href=""  class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{${/literal}{$banner->individual_shortcode|escape}{literal}}{/literal}</a>
+                            <a href=""  class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{${/literal}{$banner->as_individual_shortcode|escape}{literal}}{/literal}</a>
                             {$btr->banner_instruction_shortcode_part_2|escape}
                         </p>
                         <p>{$btr->banner_instruction_shortcode_part_3}</p>

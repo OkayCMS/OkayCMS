@@ -43,6 +43,7 @@ return [
             new SR(EntityFactory::class),
             new SR(Money::class),
             new SR(Languages::class),
+            new SR(FrontTranslations::class),
         ],
     ],
 ];

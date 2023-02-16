@@ -60,7 +60,8 @@ class FastOrderController extends AbstractController
         
         /** @var OrdersEntity $ordersEntity */
         $ordersEntity = $entityFactory->get(OrdersEntity::class);
-        $orderId      = $ordersEntity->add($order);
+        $preparedOrder = $ordersHelper->prepareAdd($order);
+        $orderId       = $ordersEntity->add($preparedOrder);
 
         $amount = $this->request->post('amount', 'integer');
         if ($amount <= 0) {

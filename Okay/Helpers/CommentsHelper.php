@@ -25,6 +25,7 @@ class CommentsHelper implements GetListInterface
     private $notify;
     private $languages;
     private $user;
+    private $mainHelper;
 
     public function __construct(
         EntityFactory  $entityFactory,
@@ -41,6 +42,7 @@ class CommentsHelper implements GetListInterface
         $this->design = $design;
         $this->notify = $notify;
         $this->languages = $languages;
+        $this->mainHelper = $mainHelper;
         $this->user = $mainHelper->getCurrentUser();
     }
 
@@ -187,9 +189,11 @@ class CommentsHelper implements GetListInterface
                 $comment->type      = $objectType;
                 $comment->ip        = $_SERVER['REMOTE_ADDR'];
                 $comment->lang_id   = $this->languages->getLangId();
-                
+
                 if (!empty($this->user->id)) {
                     $comment->user_id = $this->user->id;
+                } elseif (!empty($user = $this->mainHelper->getCurrentUser()) && !empty($user->id)) {
+                    $comment->user_id = $user->id;
                 }
                 
                 // Добавляем комментарий в базу

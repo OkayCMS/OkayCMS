@@ -127,7 +127,16 @@ class HotlineAdapter extends AbstractPresetAdapter
             $result['vendor']['data'] = $this->xmlFeedHelper->escape($product->brand_name);
         }
 
-        $result['description']['data'] = $this->xmlFeedHelper->escape($product->description ?? $product->annotation);
+        //  добавляем описание
+        if (!empty($this->feed->settings['description_in_html']) && $this->feed->settings['description_in_html'] == 1) {    //  передаем html текст полностью в CDATA
+            if (empty($product->description) && empty($product->annotation)) {
+                $result['description']['data'] = '';
+            } else {
+                $result['description']['data'] = '<![CDATA['. ($product->description ?? $product->annotation) .']]>';
+            }
+        } else {
+            $result['description']['data'] = $this->xmlFeedHelper->escape($product->description ?? $product->annotation);
+        }
 
         // Указываем связку урла товара и его slug
         ProductRoute::setUrlSlugAlias($product->url, $product->slug_url);
