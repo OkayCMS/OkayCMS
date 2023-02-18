@@ -33,6 +33,8 @@ class UsersEntity extends Entity
         'name',
         'email',
         'last_ip',
+        'last_name',
+        'phone',
     ];
 
     protected static $defaultOrderFields = [
