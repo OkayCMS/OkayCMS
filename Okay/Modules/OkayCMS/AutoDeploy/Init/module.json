@@ -1,5 +1,7 @@
 {
-  "version": "1.1.0",
+  "Okay": "4.3.2",
+  "version": "1.7.3",
+  "moduleName": "Автоматическая сборка проекта",
   "vendor": {
     "email": "info@okay-cms.com",
     "site": "https://okay-cms.com"
