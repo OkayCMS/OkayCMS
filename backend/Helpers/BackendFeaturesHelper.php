@@ -399,27 +399,12 @@ class BackendFeaturesHelper
             $f->features_categories = $this->featuresEntity->getFeatureCategories($f->id);
         }
 
-        $featuresIds = $this->featuresEntity->cols(['id'])->find();
-        $productsCounts = [];
-        foreach ($featuresIds as $featureId) {
-            $filterCount = [];
-            $filterCount['features'][$featureId] = [];
-            if(!empty($featureId)){
-                $featureValues = $this->featuresValuesEntity->find(['feature_id' => $featureId]);
-                foreach ($featureValues as $value) {
-                    if(!empty($value)) {
-                        $filterCount['features'][$featureId][] = $value->translit;
-                        if (!empty($featureId) && empty($productsCounts[$featureId])) {
-                            $productsCounts[$featureId] = [];
-                        }
-                        $productsCounts[$featureId]['translit'][] = $value->translit;
-                    }
-                }
-
-                $productsCounts[$featureId]['count'] = !empty($filterCount['features'][$featureId]) ? $this->productsEntity->count($filterCount) : 0;
-            }
-        }
-        $this->design->assign('products_counts', $productsCounts);
+        $this->design->assign('products_counts', (array)$this->featuresEntity->getSelect($filter)
+            ->resetCols()->cols(['f.id AS feature_id', 'COUNT(*) AS products_count'])
+            ->innerJoin('__features_values fv', 'fv.feature_id = f.id')
+            ->innerJoin('__products_features_values pfv', 'pfv.value_id = fv.id')
+            ->groupBy(['f.id'])
+            ->results('products_count', 'feature_id'));
 
         return ExtenderFacade::execute(__METHOD__, $features, func_get_args());
     }
