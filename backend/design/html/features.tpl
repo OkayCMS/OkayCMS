@@ -143,11 +143,7 @@
                             <div class="okay_list_boding feature_value_products_num">
                                 <div class="heading_label visible_md">{$btr->feature_value_products_num}</div>
                                 <a href="{$rootUrl}/backend/index.php?controller=ProductsAdmin&feature_id={$feature->id}" class="form-control" target="_blank">
-                                    {if isset($products_counts[$feature->id])}
-                                        {$products_counts[$feature->id]}
-                                    {else}
-                                        0
-                                    {/if}
+                                    {$products_counts[$feature->id]|default:0}
                                 </a>
                             </div>
 
