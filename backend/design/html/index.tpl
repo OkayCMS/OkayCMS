@@ -561,14 +561,14 @@
                 }
             }
 
-            $('input,textarea,select, .dropdown-toggle, .fn_sort_item, .fn_category_item').bind('keyup change dragover',function(){
+            $(document).on('keyup change dragover', 'input,textarea,select, .dropdown-toggle, .fn_sort_item, .fn_category_item', function() {
                $('.fn_fast_save').show();
             });
-            $('#fn_add_purchase').bind('click',function(){
+            $(document).on('click', '#fn_add_purchase', function() {
                 $('.fn_fast_save').show();
             });
 
-            $('.fn_fast_save .fast_save_button').on('click', function () {
+            $(document).on('click', '.fn_fast_save .fast_save_button', function () {
                 $('body').find("form.fn_fast_button").trigger('submit');
             });
             {if $smarty.get.controller == 'CategoryAdmin'
