@@ -113,15 +113,15 @@ class Settings
      * @param mixed $default
      * @return mixed
      */
-    private function unserialize(string $data, $default = false)
+    private function unserialize($in, $default)
     {
-        $unserializeable = true;
-        set_error_handler(function () use (&$unserializeable) {
-            $unserializeable = false;
+        if ($in === '') return $default;
+        set_error_handler(function () use (&$out, $default) {
+            $out = $default;
         });
-        $value = unserialize($data);
+        $out = unserialize($in);
         restore_error_handler();
-        return $unserializeable ? $value : $default;
+        return $out;
     }
     
     /**
