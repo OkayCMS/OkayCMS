@@ -400,9 +400,9 @@ class BackendFeaturesHelper
         }
 
         $this->design->assign('products_counts', (array)$this->featuresEntity->getSelect($filter)
-            ->resetCols()->cols(['f.id AS feature_id', 'COUNT(*) AS products_count'])
+            ->resetCols()->cols(['f.id AS feature_id', 'COUNT(DISTINCT pfv.product_id) AS products_count'])
             ->innerJoin('__features_values fv', 'fv.feature_id = f.id')
-            ->innerJoin('__products_features_values pfv', 'pfv.value_id = fv.id')
+            ->leftJoin('__products_features_values pfv', 'pfv.value_id = fv.id')
             ->groupBy(['f.id'])
             ->results('products_count', 'feature_id'));
 
