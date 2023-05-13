@@ -155,6 +155,36 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
 
         $result['g:adult']['data'] = $this->feed->settings['adult'] ? 'true' : 'false';
 
+        //добавляем атрибуты в product_detail, согласно настройкам в ok_okay_cms__feeds__feeds
+        if (isset($product->features)) {
+            foreach ($product->features as $keyFeature => $feature) {
+                $attributeName = $this->xmlFeedHelper->escape($feature['name']);
+                $attributeValue = $this->xmlFeedHelper->escape($feature['values_string']);
+                if (isset($this->feed->features_settings[$feature['id']]['name_in_feed']) && $this->feed->features_settings[$feature['id']]['name_in_feed']) {
+                    $attributeName = $this->xmlFeedHelper->escape($this->feed->features_settings[$feature['id']]['name_in_feed']);
+                }
+                if (isset($attributeName) && $attributeName
+                    && isset($attributeValue) && $attributeValue
+                    && (!isset($this->feed->features_settings[$feature['id']])  //показываем свойство, если под него нет вообще настроек
+                        || $this->feed->features_settings[$feature['id']]['to_feed']
+                    )
+                ) {
+                    $result[] = [
+                        'tag' => 'g:product_detail',
+                        'data' => [
+                            'g:attribute_name' => [
+                                'data' => $attributeName
+                            ],
+                            'g:attribute_value' => [
+                                'data' => $attributeValue
+                            ],
+                        ]
+                    ];
+                }
+            }
+        }
+        ///добавляем атрибуты в product_detail, согласно настройкам в ok_okay_cms__feeds__feeds
+
         if (($featureId = $this->feed->settings['color']) && isset($product->features[$featureId])) {
             $result['g:color']['data'] = $this->xmlFeedHelper->escape($product->features[$featureId]['values_string']);
             unset($product->features[$featureId]);
