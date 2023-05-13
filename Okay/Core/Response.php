@@ -15,6 +15,68 @@ class Response
     private $type;
     private $isStream = false;
     private $statusCode = 200;
+
+    private const STATUS_CODES_MESSAGES = [
+        100 => 'Continue',
+        101 => 'Switching Protocols',
+        102 => 'Processing',
+
+        200 => 'OK',
+        201 => 'Created',
+        202 => 'Accepted',
+        203 => 'Non-Authoritative Information',
+        204 => 'No Content',
+        205 => 'Reset Content',
+        206 => 'Partial Content',
+        207 => 'Multi-Status',
+        208 => 'Already Reported',
+
+        304 => 'Not Modified',
+
+        400 => 'Bad Request',
+        401 => 'Unauthorized',
+        402 => 'Payment Required',
+        403 => 'Forbidden',
+        404 => 'Not Found',
+        405 => 'Method Not Allowed',
+        406 => 'Not Acceptable',
+        407 => 'Proxy Authentication Required',
+        408 => 'Request Timeout',
+        409 => 'Conflict',
+        410 => 'Gone',
+        411 => 'Length Required',
+        412 => 'Precondition Failed',
+        413 => 'Content Too Large',
+        414 => 'URI Too Long',
+        415 => 'Unsupported Media Type',
+        416 => 'Range Not Satisfiable',
+        417 => 'Expectation Failed',
+        421 => 'Misdirected Request',
+        422 => 'Unprocessable Content',
+        423 => 'Locked',
+        424 => 'Failed Dependency',
+        425 => 'Too Early',
+        426 => 'Upgrade Required',
+        428 => 'Precondition Required',
+        429 => 'Too Many Requests',
+        431 => 'Request Header Fields Too Large',
+        451 => 'Unavailable For Legal Reasons',
+
+        500 => 'Internal Server Error',
+        501 => 'Not Implemented',
+        502 => 'Bad Gateway',
+        503 => 'Service Unavailable',
+        504 => 'Gateway Timeout',
+        505 => 'HTTP Version Not Supported',
+        506 => 'Variant Also Negotiates',
+        507 => 'Insufficient Storage',
+        508 => 'Loop Detected',
+        509 => 'Bandwidth Limit Exceeded',
+        510 => 'Not Extended',
+        511 => 'Network Authentication Required',
+        520 => 'Unknown Error',
+        521 => 'Web Server Is Down',
+    ];
     
     public function __construct(AdapterManager $adapterManager, string $version)
     {
@@ -50,7 +112,7 @@ class Response
             throw new \Exception('Response status code cannot be empty');
         } elseif (in_array($statusCode, [301, 302, 303, 307, 308])) {
             throw new \Exception("Please use Okay\\Core\\Response::redirectTo method for $statusCode redirect");
-        } elseif (empty(self::status_codes_messages[$statusCode])) {
+        } elseif (empty(self::STATUS_CODES_MESSAGES[$statusCode])) {
             throw new \Exception("Response status code $statusCode is invalid or not supported");
         }
         $this->statusCode = $statusCode;
@@ -190,69 +252,7 @@ class Response
         $this->addHeader(sprintf('%s %d %s',
             $_SERVER['SERVER_PROTOCOL'],
             $this->statusCode,
-            self::status_codes_messages[$this->statusCode]
+            self::STATUS_CODES_MESSAGES[$this->statusCode]
         ));
     }
-    
-    const status_codes_messages = [
-        100 => 'Continue',
-        101 => 'Switching Protocols',
-        102 => 'Processing',
-        
-        200 => 'OK',
-        201 => 'Created',
-        202 => 'Accepted',
-        203 => 'Non-Authoritative Information',
-        204 => 'No Content',
-        205 => 'Reset Content',
-        206 => 'Partial Content',
-        207 => 'Multi-Status',
-        208 => 'Already Reported',
-        
-        304 => 'Not Modified',
-        
-        400 => 'Bad Request',
-        401 => 'Unauthorized',
-        402 => 'Payment Required',
-        403 => 'Forbidden',
-        404 => 'Not Found',
-        405 => 'Method Not Allowed',
-        406 => 'Not Acceptable',
-        407 => 'Proxy Authentication Required',
-        408 => 'Request Timeout',
-        409 => 'Conflict',
-        410 => 'Gone',
-        411 => 'Length Required',
-        412 => 'Precondition Failed',
-        413 => 'Content Too Large',
-        414 => 'URI Too Long',
-        415 => 'Unsupported Media Type',
-        416 => 'Range Not Satisfiable',
-        417 => 'Expectation Failed',
-        421 => 'Misdirected Request',
-        422 => 'Unprocessable Content',
-        423 => 'Locked',
-        424 => 'Failed Dependency',
-        425 => 'Too Early',
-        426 => 'Upgrade Required',
-        428 => 'Precondition Required',
-        429 => 'Too Many Requests',
-        431 => 'Request Header Fields Too Large',
-        451 => 'Unavailable For Legal Reasons',
-        
-        500 => 'Internal Server Error',
-        501 => 'Not Implemented',
-        502 => 'Bad Gateway',
-        503 => 'Service Unavailable',
-        504 => 'Gateway Timeout',
-        505 => 'HTTP Version Not Supported',
-        506 => 'Variant Also Negotiates',
-        507 => 'Insufficient Storage',
-        508 => 'Loop Detected',
-        509 => 'Bandwidth Limit Exceeded',
-        510 => 'Not Extended',
-        511 => 'Network Authentication Required',
-        520 => 'Unknown Error',
-        521 => 'Web Server Is Down',
-    ];
 }
