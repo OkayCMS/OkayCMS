@@ -95,7 +95,7 @@ class CategoriesEntity extends Entity
             }
         }
 
-        return ExtenderFacade::execute([static::class, __FUNCTION__], false, func_get_args());
+        return ExtenderFacade::execute([static::class, __FUNCTION__], null, func_get_args());
     }
 
     public function add($category)

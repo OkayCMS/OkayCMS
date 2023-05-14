@@ -54,8 +54,7 @@ class VariantsEntity extends Entity
 
         $variant = parent::get($id);
 
-        $variant = $this->resetInfo($variant);
-        return $variant;
+        return $this->resetInfo($variant);
     }
 
     public function find(array $filter = [])
@@ -63,8 +62,10 @@ class VariantsEntity extends Entity
         $this->select->join('left', '__currencies AS c', 'c.id=v.currency_id');
         $variants = parent::find($filter);
 
-        foreach ($variants as &$variant) {
-            $variant = $this->resetInfo($variant);
+        if (is_object(reset($variants))) {
+            foreach ($variants as &$variant) {
+                $variant = $this->resetInfo($variant);
+            }
         }
 
         return $variants;
