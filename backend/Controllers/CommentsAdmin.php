@@ -45,15 +45,11 @@ class CommentsAdmin extends IndexAdmin
         }
 
         if ($status = $backendCommentsHelper->matchStatus($filter)) {
-            $this->design->assign('type', $status);
-        }
-
-        if (isset($filter['type'])) {
-            $this->design->assign('type', $filter['type']);
+            $this->design->assign('status', $status);
         }
 
         if (isset($filter['keyword'])) {
-            $this->design->assign('type', $filter['keyword']);
+            $this->design->assign('keyword', $filter['keyword']);
         }
 
         $this->design->assign('pages_count',    ceil($commentsCount/$filter['limit']));
