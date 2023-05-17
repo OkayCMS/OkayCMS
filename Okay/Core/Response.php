@@ -163,7 +163,7 @@ class Response
      * @param string $content
      * @param string|null $type
      */
-    public function sendStream(string $content, ?string $type): void
+    public function sendStream(string $content, string $type = null): void
     {
         $this->isStream = true;
         
