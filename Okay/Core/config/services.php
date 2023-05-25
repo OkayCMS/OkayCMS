@@ -222,6 +222,14 @@ $services = [
             new SR(NotifyHelper::class),
             new PR('root_dir'),
         ],
+        'calls' => [
+            [
+                'method' => 'setTestInternalEmail',
+                'arguments' => [
+                    new PR('notify.test_internal_email'),
+                ]
+            ],
+        ]
     ],
     Money::class => [
         'class' => Money::class,
