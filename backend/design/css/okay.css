@@ -2997,6 +2997,18 @@ label.switch_label i{
     background-color: rgba(250, 250, 250, 0.51);
 }
 
+.okay_list .okay_list_body_item.module_access_expire{
+    background-color: rgba(250, 250, 142, 0.3);
+}
+.okay_list .okay_list_body_item.module_access_expire:hover{
+    background-color: rgba(250, 250, 142, 0.35);
+}
+.okay_list .okay_list_body_item.module_access_expired{
+    background-color: rgba(250, 142, 142, 0.3);
+}
+.okay_list .okay_list_body_item.module_access_expired:hover{
+    background-color: rgba(250, 142, 142, 0.35);
+}
 .okay_list .okay_list_row{
     width: 100%;
     height: auto;
@@ -3168,6 +3180,10 @@ label.switch_label i{
     width: 140px;
     text-align: center!important;
 }
+.okay_list .okay_list_module_expire{
+    width: 200px;
+    text-align: center!important;
+}
 .okay_list .okay_list_module_version{
     width: 140px;
     text-align: center!important;
@@ -3294,7 +3310,7 @@ label.switch_label i{
     text-align: left;
 }
 .okay_list .okay_list_module_name{
-    width: calc(100% - 700px);
+    width: calc(100% - 900px);
     position: relative;
     text-align: left;
 }
@@ -4521,6 +4537,12 @@ body.menu-pin .page-container {
     width: 100%;
     color: rgb(120, 129, 149);
 }
+#admin_catalog  .sidebar-menu .menu_items .danger_counter {
+    background-color: rgb(160 150 100 / 50%);
+}
+#admin_catalog  .sidebar-menu .menu_items > li > a.danger_counter .title{
+    color: rgb(180 180 180);
+}
 #admin_catalog  .icon-thumbnail{
     display: inline-block;
     background: #21252d;
@@ -4549,6 +4571,8 @@ body.menu-pin .page-container {
 #admin_catalog  .sidebar-menu .menu_items > li.active > a,
 #admin_catalog  .sidebar-menu .menu_items > li.active > .icon-thumbnail,
 #admin_catalog  .sidebar-menu .menu_items > li:hover > a,
+#admin_catalog  .sidebar-menu .menu_items > li:hover > a.danger_counter .title,
+#admin_catalog  .sidebar-menu .menu_items > li.active > a.danger_counter .title,
 #admin_catalog  .sidebar-menu .menu_items > li:hover > .icon-thumbnail{
     color: #fff;
 }

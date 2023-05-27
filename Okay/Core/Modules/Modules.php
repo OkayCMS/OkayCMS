@@ -5,6 +5,7 @@ namespace Okay\Core\Modules;
 
 
 use Okay\Core\DebugBar\DebugBar;
+use Okay\Core\Modules\DTO\ModuleParamsDTO;
 use Okay\Core\OkayContainer\OkayContainer;
 use Okay\Core\Router;
 use Smarty;
@@ -60,13 +61,14 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
     private $runningModules = [];
 
     /**
-     * @var array параметры модулей из файла module.json
+     * @var ModuleParamsDTO[] параметры модулей из файла module.json
      */
     private $modulesParams = [];
     private $modulesModifications = ['front' => [], 'backend' => []];
     private $modificationsInit = false;
 
     private $plugins;
+    private $expireModulesNum = 0;
 
     public function __construct(
         EntityFactory $entityFactory,
@@ -124,7 +126,7 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
         $modules = $this->db->results();
 
         foreach ($modules as $module) {
-            // Запоминаем какие модули мы запустили, они понадобятся чтобы активировать их js и css
+            // Запоминаем какие модули мы запустили, они понадобятся, чтобы активировать их js и css
             $this->runningModules[$module->vendor . '/' . $module->module_name] = [
                 'vendor' => $module->vendor,
                 'module_name' => $module->module_name,
@@ -178,11 +180,19 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
 
             if ($moduleParams = $this->module->getModuleParams($module->vendor, $module->module_name)) {
                 $this->modulesParams[$module->vendor . '/' . $module->module_name] = $moduleParams;
+                if ($moduleParams->getDaysToExpire() >= 0 || $moduleParams->isAccessExpired()) {
+                    $this->expireModulesNum++;
+                }
             }
 
             $this->backendControllersList = array_merge($this->backendControllersList, $this->startModule($module->id, $module->vendor, $module->module_name));
             DebugBar::stopMeasure("$module->vendor/$module->module_name", ['init' => '']);
         }
+    }
+
+    public function getExpireModulesNum(): int
+    {
+        return $this->expireModulesNum;
     }
 
     public function getBackendModulesTplModifications()
@@ -235,55 +245,51 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
                 $moduleDir = __DIR__ . '/../../Modules/' . $vendorModule . '/';
                 $themeModuleHtmlDir = dirname(__DIR__,3).'/design/'.$themeDir.'/modules/'.$vendorModule.'/';
 
-                if (!empty($params->modifications->front)) {
-                    foreach ($params->modifications->front as $modification) {
-                        if (!empty($modification->changes)) {
-                            foreach ($modification->changes as $change) {
+                foreach ($params->getFrontModifications() as $modification) {
+                    if (!empty($modification->changes)) {
+                        foreach ($modification->changes as $change) {
 
-                                // Если не указали комментарий, добавим название модуля
-                                if (empty($change->comment)) {
-                                    $change->comment = $vendorModule;
-                                }
+                            // Если не указали комментарий, добавим название модуля
+                            if (empty($change->comment)) {
+                                $change->comment = $vendorModule;
+                            }
 
-                                foreach ($allowedModifiers as $modifier) {
-                                    // Если в значении модификатора указано имя файла - значение считаем с самого файла
-                                    if (property_exists($change, $modifier)) {
-                                        if (is_file($themeModuleHtmlDir . 'html/' . $change->{$modifier})) {
-                                            $change->{$modifier} = file_get_contents($themeModuleHtmlDir . 'html/' . $change->{$modifier});
-                                        } else if (is_file($moduleDir . 'design/html/' . $change->{$modifier})) {
-                                            $change->{$modifier} = file_get_contents($moduleDir . 'design/html/' . $change->{$modifier});
-                                        }
+                            foreach ($allowedModifiers as $modifier) {
+                                // Если в значении модификатора указано имя файла - значение считаем с самого файла
+                                if (property_exists($change, $modifier)) {
+                                    if (is_file($themeModuleHtmlDir . 'html/' . $change->{$modifier})) {
+                                        $change->{$modifier} = file_get_contents($themeModuleHtmlDir . 'html/' . $change->{$modifier});
+                                    } else if (is_file($moduleDir . 'design/html/' . $change->{$modifier})) {
+                                        $change->{$modifier} = file_get_contents($moduleDir . 'design/html/' . $change->{$modifier});
                                     }
                                 }
                             }
                         }
                     }
-                    $frontModifications = array_merge($frontModifications, $params->modifications->front);
                 }
+                $frontModifications = array_merge($frontModifications, $params->getFrontModifications());
 
-                if (!empty($params->modifications->backend)) {
-                    foreach ($params->modifications->backend as $modification) {
-                        if (!empty($modification->changes)) {
-                            foreach ($modification->changes as $change) {
+                foreach ($params->getBackendModifications() as $modification) {
+                    if (!empty($modification->changes)) {
+                        foreach ($modification->changes as $change) {
 
-                                // Если не указали комментарий, добавим название модуля
-                                if (empty($change->comment)) {
-                                    $change->comment = $vendorModule;
-                                }
+                            // Если не указали комментарий, добавим название модуля
+                            if (empty($change->comment)) {
+                                $change->comment = $vendorModule;
+                            }
 
-                                foreach ($allowedModifiers as $modifier) {
-                                    // Если в занчении модификатора указано имя файла, значение считаем с самого файла
-                                    if (property_exists($change, $modifier)) {
-                                        if (is_file($moduleDir . 'Backend/design/html/' . $change->{$modifier})) {
-                                            $change->{$modifier} = file_get_contents($moduleDir . 'Backend/design/html/' . $change->{$modifier});
-                                        }
+                            foreach ($allowedModifiers as $modifier) {
+                                // Если в занчении модификатора указано имя файла, значение считаем с самого файла
+                                if (property_exists($change, $modifier)) {
+                                    if (is_file($moduleDir . 'Backend/design/html/' . $change->{$modifier})) {
+                                        $change->{$modifier} = file_get_contents($moduleDir . 'Backend/design/html/' . $change->{$modifier});
                                     }
                                 }
                             }
                         }
                     }
-                    $backendModifications = array_merge($backendModifications, $params->modifications->backend);
                 }
+                $backendModifications = array_merge($backendModifications, $params->getBackendModifications());
             }
         }
 
@@ -358,6 +364,11 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
         $notInstalledModules = $modulesEntity->findNotInstalled();
         foreach($notInstalledModules as $module) {
             $this->mockingSmartyPlugins($module);
+            if ($moduleParams = $this->module->getModuleParams($module->vendor, $module->module_name)) {
+                if ($moduleParams->getDaysToExpire() >= 0 || $moduleParams->isAccessExpired()) {
+                    $this->expireModulesNum++;
+                }
+            }
         }
     }
 

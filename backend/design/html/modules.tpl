@@ -78,6 +78,7 @@
                     </div>
                     <div class="okay_list_heading okay_list_photo">{$btr->general_photo|escape}</div>
                     <div class="okay_list_heading okay_list_module_name">{$btr->general_name|escape}</div>
+                    <div class="okay_list_heading okay_list_module_expire hidden-md-down"></div>
                     <div class="okay_list_heading okay_list_module_version hidden-md-down">{$btr->module_version|escape}</div>
                     <div class="okay_list_heading okay_list_module_type hidden-md-down">{$btr->module_type|escape}</div>
                     <div class="okay_list_heading okay_list_status">{$btr->general_enable|escape}</div>

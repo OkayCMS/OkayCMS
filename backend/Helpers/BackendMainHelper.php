@@ -8,6 +8,7 @@ use Okay\Core\Design;
 use Okay\Core\EntityFactory;
 use Okay\Core\ManagerMenu;
 use Okay\Core\Modules\Extender\ExtenderFacade;
+use Okay\Core\Modules\Modules;
 use Okay\Entities\CallbacksEntity;
 use Okay\Entities\CommentsEntity;
 use Okay\Entities\FeedbacksEntity;
@@ -20,12 +21,18 @@ class BackendMainHelper
     private $entityFactory;
     private $managerMenu;
     private $design;
-    
-    public function __construct(EntityFactory $entityFactory, ManagerMenu $managerMenu, Design $design)
-    {
+    private $modules;
+
+    public function __construct(
+        EntityFactory $entityFactory,
+        ManagerMenu $managerMenu,
+        Design $design,
+        Modules $modules
+    ) {
         $this->entityFactory = $entityFactory;
         $this->managerMenu = $managerMenu;
         $this->design = $design;
+        $this->modules = $modules;
     }
 
     public function evensCounters()
@@ -62,12 +69,22 @@ class BackendMainHelper
         $newCallbacksCounter = $callbacksEntity->count(['processed'=>0]);
         $this->design->assign("new_callbacks_counter", $newCallbacksCounter);
 
-        $this->design->assign("all_counter", $newOrdersCounter+$newCommentsCounter+$newFeedbacksCounter+$newCallbacksCounter);
+        $modulesAccessExpireCounter = $this->modules->getExpireModulesNum();
+        $this->design->assign("modules_access_expire_counter", $modulesAccessExpireCounter);
+
+        $this->design->assign("all_counter",
+            $newOrdersCounter
+            +$newCommentsCounter
+            +$newFeedbacksCounter
+            +$newCallbacksCounter
+            +$modulesAccessExpireCounter
+        );
         
         $this->managerMenu->addCounter('left_orders_title', $newOrdersCounter);
         $this->managerMenu->addCounter('left_comments_title', $newCommentsCounter);
         $this->managerMenu->addCounter('left_feedbacks_title', $newFeedbacksCounter);
         $this->managerMenu->addCounter('left_callbacks_title', $newCallbacksCounter);
+        $this->managerMenu->addCounter('left_modules_list', $modulesAccessExpireCounter);
 
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
