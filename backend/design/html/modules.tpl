@@ -159,8 +159,19 @@
                 if (data.hasOwnProperty('success') && data.success === true) {
                     $('.fn_modules_list').prepend(data.modules);
                 }
-                console.log(data);
             }
+        });
+    });
+    $(document).on('click', '.fn_continue_access', function () {
+        let destination = $(this).data('target') + '?return_url={urlencode($rootUrl)}{urlencode($smarty.server.REQUEST_URI)}&continue_modules_expire=1';
+        $.ajax({
+            url: '{url controller='ModulesAdmin@resetModulesAccessExpiresCache'}',
+            type: 'GET',
+            cache: false,
+            contentType: false,
+            processData: false
+        }).done(function(response) {
+            window.location.replace(destination);
         });
     });
 </script>

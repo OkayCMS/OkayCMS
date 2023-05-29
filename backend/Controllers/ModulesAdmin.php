@@ -251,4 +251,10 @@ class ModulesAdmin extends IndexAdmin
         }
         $this->response->setContent(json_encode($result), RESPONSE_JSON);
     }
+
+    public function resetModulesAccessExpiresCache(BackendModulesHelper $modulesHelper)
+    {
+        $modulesHelper->resetModulesAccessExpiresCache();
+        $this->response->setContent(json_encode('ok'), RESPONSE_JSON);
+    }
 }

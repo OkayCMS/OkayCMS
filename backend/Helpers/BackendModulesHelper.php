@@ -43,6 +43,15 @@ class BackendModulesHelper
 
     /**
      * @return void
+     * Метод інвалідує кеш інформації про закінчення терміну доступу до оновлень модулів
+     */
+    public function resetModulesAccessExpiresCache(): void
+    {
+        $this->settings->set('modules_access_check_date', date('Y-m-d', time() - 86400));
+    }
+
+    /**
+     * @return void
      *
      * Метод оновлює кеш даних інформації по закінченню терміну доступу до оновлень модулів
      */

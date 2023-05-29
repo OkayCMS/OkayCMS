@@ -85,7 +85,7 @@
 
             <div class="okay_list_boding okay_list_module_expire hidden-md-down">
                 {if $module->params->getAddToCartUrl()}
-                    <button class="fn_continue_access btn btn-warning btn--update mt-h" type="button" data-target="{$module->params->getAddToCartUrl()|escape}">{$btr->module_access_continue_access|escape} TODO доробить</button>
+                    <button class="fn_continue_access btn btn-warning btn--update mt-h" type="button" data-target="{$module->params->getAddToCartUrl()|escape}">{$btr->module_access_continue_access|escape}</button>
                 {/if}
             </div>
             <div class="okay_list_boding okay_list_module_version hidden-md-down">
