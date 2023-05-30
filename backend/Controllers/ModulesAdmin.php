@@ -9,6 +9,7 @@ use Okay\Core\BackendTranslations;
 use Okay\Core\Managers;
 use Okay\Core\Modules\Installer;
 use Okay\Core\Modules\Modules;
+use Okay\Core\Request;
 use Okay\Core\Validator;
 use Okay\Entities\ManagersEntity;
 use Okay\Entities\ModulesEntity;
@@ -90,7 +91,8 @@ class ModulesAdmin extends IndexAdmin
         }
 
         $this->design->assign('modules', $modulesList);
-        
+        $this->design->assign('domain', Request::getDomain());
+
         $this->response->setContent($this->design->fetch('modules.tpl'));
     }
     

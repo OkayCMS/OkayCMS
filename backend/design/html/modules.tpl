@@ -163,7 +163,10 @@
         });
     });
     $(document).on('click', '.fn_continue_access', function () {
-        let destination = $(this).data('target') + '?return_url={urlencode($rootUrl)}{urlencode($smarty.server.REQUEST_URI)}&continue_modules_expire=1';
+        let destination = $(this).data('target')
+            + '?cite_return_url={urlencode($rootUrl)}{urlencode($smarty.server.REQUEST_URI)}'
+            + '&continue_modules_expire=1'
+            + '&checkout_domain={$domain}';
         $.ajax({
             url: '{url controller='ModulesAdmin@resetModulesAccessExpiresCache'}',
             type: 'GET',
