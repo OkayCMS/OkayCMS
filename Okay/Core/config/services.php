@@ -205,6 +205,14 @@ $services = [
             new SR(EntityFactory::class),
             new PR('root_dir'),
         ],
+        'calls' => [
+            [
+                'method' => 'setProductionDomain',
+                'arguments' => [
+                    new PR('production_domain'),
+                ]
+            ],
+        ],
     ],
     Notify::class => [
         'class' => Notify::class,
@@ -229,7 +237,7 @@ $services = [
                     new PR('notify.test_internal_email'),
                 ]
             ],
-        ]
+        ],
     ],
     Money::class => [
         'class' => Money::class,

@@ -119,4 +119,5 @@ return [
     'notify' => [
         'test_internal_email' => $_ENV['TEST_INTERNAL_EMAIL'] ?? '',
     ],
+    'production_domain' => $_ENV['PRODUCTION_DOMAIN'] ?? '',
 ];

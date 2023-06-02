@@ -5,6 +5,7 @@ services:
     container_name: ${APP_NAME:?err}-php
     environment:
       - TEST_INTERNAL_EMAIL=${TEST_INTERNAL_EMAIL:-}
+      - PRODUCTION_DOMAIN=${PRODUCTION_DOMAIN:-}
     volumes:
       - '..:/var/www/html'
       - './config/php:/usr/local/etc/php'
