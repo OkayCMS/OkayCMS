@@ -11,7 +11,7 @@ docker compose up -d
 ```shell
 docker compose -p okay_develop up -d
 ```
-де projectName - ім'я проекту.
+де okay_develop - ім'я проекту.
 
 Також рекомендую, якщо на машині планується кілька проектів, щоб не ходити по http://localhost:80, http://localhost:81...
 Додавати всі хости в файл hosts на 127.0.0.1 і запустити обратний проксі.
