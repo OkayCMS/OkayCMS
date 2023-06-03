@@ -202,7 +202,22 @@
                                 <span class="notif_count">{$new_callbacks_counter}</span>
                             </div>
                             {/if}
-                            {if !$new_orders_counter > 0 && !$new_comments_counter > 0 && !$new_feedbacks_counter > 0 && !$new_callbacks_counter > 0}
+                            {if $modules_access_expire_counter > 0}
+                            <div class="notif_item">
+                                <a href="index.php?controller=ModulesAdmin" class="l_notif">
+                                    <span class="notif_icon boxed_notify">
+                                        {include file='svg_icon.tpl' svgId='left_modules'}
+                                    </span>
+                                    <span class="notif_title">{$btr->left_modules|escape}</span>
+                                </a>
+                                <span class="notif_count">{$modules_access_expire_counter}</span>
+                            </div>
+                            {/if}
+                            {if !$new_orders_counter > 0
+                            && !$new_comments_counter > 0
+                            && !$new_feedbacks_counter > 0
+                            && !$new_callbacks_counter > 0
+                            && !$modules_access_expire_counter > 0}
                             <div class="notif_item">
                                 <span class="notif_title">{$btr->index_no_notification|escape}</span>
                             </div>
@@ -281,7 +296,7 @@
                                         <div class="fn_backend_menu_section" data-section_name="{$section}">{$section}</div>
                                     {/if}
 
-                                    <a class="fn_learning_{$section} nav-link {if $items|count > 1}fn_item_switch nav-dropdown-toggle{/if}" href="{if $items|count > 1}javascript:;{else}index.php?controller={$items|reset|reset}{/if}">
+                                    <a class="fn_learning_{$section} nav-link {if $items|count > 1}fn_item_switch nav-dropdown-toggle{/if}{if $section == 'left_modules' && $modules_access_expire_counter > 0} danger_counter{/if}" href="{if $items|count > 1}javascript:;{else}index.php?controller={$items|reset|reset}{/if}">
                                         <span class="{$section} title">{$btr->getTranslation({$section})}</span>
                                         <span class="icon-thumbnail">
                                             {if !empty($additional_section_icons[$section])}

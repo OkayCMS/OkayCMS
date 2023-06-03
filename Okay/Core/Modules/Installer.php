@@ -47,7 +47,7 @@ class Installer
 
             $moduleParams = $this->module->getModuleParams($vendor, $moduleName);
             
-            $module->version = $moduleParams->version;
+            $module->version = $moduleParams->getVersion();
             
             if (!$moduleId = $this->modulesEntity->add($module)) {
                 // todo ошибка во время утановки
@@ -59,7 +59,7 @@ class Installer
                 $initObject->install();
 
                 // Апдейты при установке вызываем всегда начиная с версии 1.0.0
-                $updateMethods = $this->getUpdateMethods($initClassName, $moduleParams->math_version, $this->module->getMathVersion('1.0.0'));
+                $updateMethods = $this->getUpdateMethods($initClassName, $moduleParams->getMathVersion(), $this->module->getMathVersion('1.0.0'));
 
                 // Вызываем поочередно методы для обновления модуля
                 if (!empty($updateMethods)) {
@@ -85,13 +85,13 @@ class Installer
             return;
         }
         
-        if (!($moduleParams = $this->module->getModuleParams($module->vendor, $module->module_name)) || empty($moduleParams->math_version)) {
+        if (!($moduleParams = $this->module->getModuleParams($module->vendor, $module->module_name)) || empty($moduleParams->getMathVersion())) {
             return;
         }
 
         if ($initClassName = $this->module->getInitClassName($module->vendor, $module->module_name)) {
 
-            $updateMethods = $this->getUpdateMethods($initClassName, $moduleParams->math_version, $moduleMathVersion);
+            $updateMethods = $this->getUpdateMethods($initClassName, $moduleParams->getMathVersion(), $moduleMathVersion);
             
             // Вызываем поочередно методы для обновления модуля
             if (!empty($updateMethods)) {
@@ -102,7 +102,7 @@ class Installer
             }
 
             // Обновляем версию модуля в системе
-            $this->modulesEntity->update($moduleId, ['version' => $moduleParams->version]);
+            $this->modulesEntity->update($moduleId, ['version' => $moduleParams->getVersion()]);
         }
     }
     

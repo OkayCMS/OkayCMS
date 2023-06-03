@@ -5,7 +5,9 @@ namespace Okay\Core\Modules;
 
 
 use Monolog\Logger;
+use Okay\Admin\Helpers\BackendModulesHelper;
 use Okay\Core\EntityFactory;
+use Okay\Core\Modules\DTO\ModuleParamsDTO;
 use Okay\Core\ServiceLocator;
 use Okay\Entities\ModulesEntity;
 
@@ -26,10 +28,12 @@ class Module
      * @var Logger
      */
     protected $logger;
+    protected $modulesExpires;
 
-    public function __construct(Logger $logger)
+    public function __construct(Logger $logger, BackendModulesHelper $modulesHelper)
     {
         $this->logger = $logger;
+        $this->modulesExpires = $modulesHelper->getModulesAccessExpiresFromCache();
     }
 
     private static $modulesIds;
@@ -39,15 +43,18 @@ class Module
      * 
      * @param $vendor
      * @param $moduleName
-     * @return object|null
+     * @return ModuleParamsDTO
      */
-    public function getModuleParams($vendor, $moduleName)
+    public function getModuleParams($vendor, $moduleName): ModuleParamsDTO
     {
         $moduleJsonFileFile = __DIR__ . '/../../Modules/' . $vendor . '/' . $moduleName . '/Init/module.json';
 
+        $moduleParamsDTO = new ModuleParamsDTO();
         if (file_exists($moduleJsonFileFile)) {
-            $moduleParams = json_decode(file_get_contents($moduleJsonFileFile));
-            if (JSON_ERROR_NONE !== $code = json_last_error()) {
+            $moduleParams = json_decode(file_get_contents($moduleJsonFileFile), true);
+            if (JSON_ERROR_NONE === $code = json_last_error()) {
+                $moduleParamsDTO->fromArray($moduleParams);
+            } else {
                 $this->logger->error(sprintf(
                     "Error %d when decoding module.json of %s/%s: %s",
                     $code, $vendor, $moduleName, json_last_error_msg()
@@ -55,19 +62,18 @@ class Module
             }
         }
 
-        if (empty($moduleParams)) {
-            $moduleParams = new \stdClass();
+        if (isset($this->modulesExpires[$vendor . '/' . $moduleName])) {
+            $moduleExpireInfo = $this->modulesExpires[$vendor . '/' . $moduleName];
+            if ($moduleExpireInfo->daysToExpire >= 0) {
+                $moduleParamsDTO->setDaysToExpire((int)$moduleExpireInfo->daysToExpire);
+            } else {
+                $moduleParamsDTO->setAccessExpired(true);
+            }
+            $moduleParamsDTO->setAddToCartUrl($moduleExpireInfo->addToCartUrl);
         }
+        $moduleParamsDTO->setMathVersion($this->getMathVersion($moduleParamsDTO->getVersion()));
 
-        if (empty($moduleParams->version)) {
-            $moduleParams->version = '1.0.0';
-        }
-
-        if ($mathVersion = $this->getMathVersion($moduleParams->version)) {
-            $moduleParams->math_version = $mathVersion;
-        }
-
-        return $moduleParams;
+        return $moduleParamsDTO;
     }
     
     /**

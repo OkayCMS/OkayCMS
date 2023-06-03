@@ -328,7 +328,7 @@ class Request
     
     public static function getDomain()
     {
-        return !empty(self::$domain) ? self::$domain : rtrim($_SERVER['HTTP_HOST']);;
+        return !empty(self::$domain) ? self::$domain : rtrim($_SERVER['HTTP_HOST']);
     }
     
     public static function setDomain($domain)
