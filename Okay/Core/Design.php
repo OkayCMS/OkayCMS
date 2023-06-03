@@ -108,6 +108,7 @@ class Design
         'pathinfo',
         'strtolower',
         'strpos',
+        'sprintf',
     ];
 
 
