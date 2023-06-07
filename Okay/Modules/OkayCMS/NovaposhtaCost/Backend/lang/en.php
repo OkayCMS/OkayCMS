@@ -52,3 +52,4 @@ $lang['np_cron_update_cache_1'] = 'In order for the data to be updated automatic
 $lang['np_cron_update_cache_2'] = 'every minute (* * * * *) and the data will be updated automatically once a day.';
 $lang['settings_np_include_volume'] = 'Include in the calculation of the cost of delivery the volume of cargo.';
 $lang['settings_np_include_assessed'] = 'Include estimated cost in shipping costs';
+$lang['np_update_type_cities'] = 'Cities';

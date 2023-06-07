@@ -51,3 +51,4 @@ $lang['np_cron_update_cache_1'] = 'Для того, чтобы данные об
 $lang['np_cron_update_cache_2'] = 'каждую минуту (* * * * *) и данные будут обновляться автоматически раз в сутки.';
 $lang['settings_np_include_volume'] = 'Включить в расчет стоимости доставки объем груза.';
 $lang['settings_np_include_assessed'] = 'Включить в расчет стоимости доставки оценочную стоимость';
+$lang['np_update_type_cities'] = 'Города';

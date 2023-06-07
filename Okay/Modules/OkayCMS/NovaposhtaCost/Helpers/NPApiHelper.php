@@ -149,12 +149,19 @@ class NPApiHelper
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, 'https://api.novaposhta.ua/v2.0/json/');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: text/xml"]);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
         curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestParams));
         curl_setopt($ch, CURLOPT_POST, 1);
         $response = curl_exec($ch);
         curl_close($ch);
+
+        if ($response === false) {
+            $this->lastCallError = 'Error in API call';
+            return false;
+        }
+
         return json_decode($response);
     }
 }

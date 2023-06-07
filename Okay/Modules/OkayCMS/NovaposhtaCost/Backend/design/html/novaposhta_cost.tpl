@@ -187,7 +187,7 @@
                         <div class="mb-2 mt-2 row">
                             {foreach $warehouses_types_data as $w_type}
                                 <div class="col-md-6">
-                                    <input name="np_warehouses_types[]" id="type_{$w_type@iteration}" value="{$w_type->getRef()|escape}"  type="checkbox" {if in_array($w_type->getRef(), $settings->np_warehouses_types)}checked=""{/if} />
+                                    <input name="np_warehouses_types[]" id="type_{$w_type@iteration}" value="{$w_type->getTypeRef()|escape}"  type="checkbox" {if in_array($w_type->getTypeRef(), $settings->np_warehouses_types)}checked=""{/if} />
                                     <label for="type_{$w_type@iteration}">
                                         {if $manager->lang == 'ru'}
                                             {$w_type->getNameRu()|escape}
@@ -202,19 +202,12 @@
 
                     <div class="mt-2 mb-2">
                         <p class="mt-2 mb-2">{$btr->settings_np_update_label}</p>
+                        <div class="fn_progress_block">
+                        </div>
                         <div class="flex_np_update">
-                            <div class="flex_np_update__select">
-                                <select class="selectpicker form-control mb-1" name="warehouse_update_type">
-                                    <option value="">{$btr->np_update_all|escape}</option>
-                                    {foreach $warehouses_types_data as $w_type}
-                                        {if in_array($w_type->Ref, $settings->np_warehouses_types)}
-                                            <option value="{$w_type->Ref}">{$btr->np_update|escape}{$w_type->DescriptionRu}</option>
-                                        {/if}
-                                    {/foreach}
-                                </select>
-                            </div>
+
                             <div class="flex_np_update__btn">
-                                <button type="submit" name="update_cache" value="1" class="btn btn_small btn-warning ">
+                                <button type="button" class="btn btn_small btn-warning fn_update_cache">
                                     <span>{$btr->np_update_cache_now|escape}</span>
                                 </button>
                             </div>
@@ -312,8 +305,9 @@
     </div>
 </form>
 
+<script src="{$rootUrl}/backend/design/js/piecon/piecon.js"></script>
+<script src="{$rootUrl}/backend/design/js/autocomplete/jquery.autocomplete-min.js"></script>
 {literal}
-<script src="design/js/autocomplete/jquery.autocomplete-min.js"></script>
 <script>
     sclipboard();
 
@@ -331,5 +325,97 @@
             return "<span>" + suggestion.value.replace( new RegExp( pattern, 'gi' ), '<strong>$1<\/strong>' ) + "<\/span>";
         }
     } );
+
+    function do_update(page, importItem)
+    {
+        page = typeof(page) != 'undefined' ? page : 1;
+        let data = {
+            page: page,
+            updateType: importItem.updateType
+        };
+
+        for (let paramKey in importItem.updateParams) {
+            data[paramKey] = importItem.updateParams[paramKey];
+        }
+
+        $.ajax({
+            url: "/backend/index.php?controller=OkayCMS.NovaposhtaCost.NovaposhtaCostAdmin@updateData",
+            data: data,
+            dataType: 'json',
+            success: function(data) {
+                if (data.hasOwnProperty('error')) {
+                    importItem.progressBlock.find('.np_import_result')
+                        .text(data.error)
+                        .addClass('alert--error alert')
+                        .removeClass('np_import_result')
+                        .css('padding', '5px')
+                        .show();
+                    importItem.progressItem.hide();
+                    importItem.resolve('result');
+                } else if (data.hasOwnProperty('pagesNum') && data.pagesNum > 0 && page < data.pagesNum) {
+                    importItem.progressItem.attr('value', Math.round(100 * page / data.pagesNum));
+                    Piecon.setProgress(Math.round(100 * page / data.pagesNum));
+                    do_update(++page, importItem);
+                } else {
+                    Piecon.setProgress(100);
+                    importItem.progressItem.attr('value', 100).hide();
+                    importItem.progressBlock.find('.np_import_result').fadeIn(500);
+                    importItem.resolve('result');
+                }
+            },
+            error: function(xhr, status, errorThrown) {
+                alert(errorThrown+'\n'+xhr.responseText);
+            }
+        });
+
+    }
+
+    $(document).on('click', '.fn_update_cache', function () {
+        $.ajax({
+            url: "/backend/index.php?controller=OkayCMS.NovaposhtaCost.NovaposhtaCostAdmin@getUpdateTypes",
+            dataType: 'json',
+            success: function(data) {
+                    if (data.hasOwnProperty('updateTypes')) {
+
+                        function initFunction(updateElement) {
+                            return new Promise((resolve, reject) => {
+                                updateElement.resolve = resolve;
+                                Piecon.setOptions({fallback: 'force'});
+                                Piecon.setProgress(0);
+                                do_update(1, updateElement);
+                            });
+                        }
+                        let init = initFunction;
+
+                        for (let key in data.updateTypes) {
+                            let updateType = data.updateTypes[key];
+                            let updateElement = {
+                                progressItem: $('<progress id="progressbar_' + key + '" class="progress progress-xs progress-info"  value="0" max="100">sdfsdfsd</progress>'),
+                                progressBlock: $('<div><p class="mb-0">' + updateType['updateName'] + '</p><div class="np_import_result" style="display: none"></div></div>'),
+                                updateType: updateType['updateType'],
+                                updateParams: updateType['updateParams'],
+                                initProgress: function () {
+                                    this.progressItem.appendTo(this.progressBlock);
+                                    this.progressBlock.appendTo('.fn_progress_block');
+                                }
+                            };
+                            updateElement.initProgress();
+
+                            if (key == 0) {
+                                init = init(updateElement);
+                            } else {
+                                init = init.then(
+                                    result => initFunction(updateElement)
+                                );
+                            }
+                        }
+                    }
+
+            },
+            error: function(xhr, status, errorThrown) {
+                alert(errorThrown+'\n'+xhr.responseText);
+            }
+        });
+    });
 </script>
 {/literal}

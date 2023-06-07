@@ -6,13 +6,13 @@ class NPWarehouseTypeDTO
 {
     private string $name;
     private string $nameRu;
-    private string $ref;
+    private string $typeRef;
 
-    public function __construct(string $name, string $nameRu, string $ref)
+    public function __construct(string $name, string $nameRu, string $typeRef)
     {
         $this->name = $name;
         $this->nameRu = $nameRu;
-        $this->ref = $ref;
+        $this->typeRef = $typeRef;
     }
 
     /**
@@ -26,9 +26,9 @@ class NPWarehouseTypeDTO
     /**
      * @return string
      */
-    public function getRef(): string
+    public function getTypeRef(): string
     {
-        return $this->ref;
+        return $this->typeRef;
     }
 
     /**
