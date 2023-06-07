@@ -187,8 +187,14 @@
                         <div class="mb-2 mt-2 row">
                             {foreach $warehouses_types_data as $w_type}
                                 <div class="col-md-6">
-                                    <input name="np_warehouses_types[]" id="type_{$w_type@iteration}" value="{$w_type->Ref}"  type="checkbox" {if in_array($w_type->Ref,$settings->np_warehouses_types)}checked=""{/if} />
-                                    <label for="type_{$w_type@iteration}">{$w_type->DescriptionRu}</label>
+                                    <input name="np_warehouses_types[]" id="type_{$w_type@iteration}" value="{$w_type->getRef()|escape}"  type="checkbox" {if in_array($w_type->getRef(), $settings->np_warehouses_types)}checked=""{/if} />
+                                    <label for="type_{$w_type@iteration}">
+                                        {if $manager->lang == 'ru'}
+                                            {$w_type->getNameRu()|escape}
+                                        {else}
+                                            {$w_type->getName()|escape}
+                                        {/if}
+                                    </label>
                                 </div>
                             {/foreach}
                         </div>

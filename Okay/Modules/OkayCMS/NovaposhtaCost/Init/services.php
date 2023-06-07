@@ -16,6 +16,8 @@ use Okay\Core\Request;
 use Okay\Core\Settings;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Extenders\BackendExtender;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Extenders\FrontExtender;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPApiHelper;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPCacheHelper;
 
 return [
     FrontExtender::class => [
@@ -44,6 +46,20 @@ return [
             new SR(Money::class),
             new SR(Languages::class),
             new SR(FrontTranslations::class),
+        ],
+    ],
+    NPApiHelper::class => [
+        'class' => NPApiHelper::class,
+        'arguments' => [
+            new SR(Settings::class),
+        ],
+    ],
+    NPCacheHelper::class => [
+        'class' => NPCacheHelper::class,
+        'arguments' => [
+            new SR(NPApiHelper::class),
+            new SR(EntityFactory::class),
+            new SR(Languages::class),
         ],
     ],
 ];
