@@ -161,12 +161,6 @@
                     {$btr->np_warehouses_data_info}
                 </div>
                 <div class="">
-                    <!--TODO "Этот блок возможно не нужен"-->
-                    {*if $settings->np_last_update_cities_date}
-                    <div class="alert mb-2">
-                        {$btr->settings_np_update_date}: <strong>{$settings->np_last_update_cities_date|date} {$settings->np_last_update_cities_date|time}</strong>
-                    </div>
-                    {/if*}
 
                     {if $settings->np_last_update_warehouses_date}
                     <div class="text_green text_600">
@@ -176,48 +170,18 @@
                     </div>
                     {/if}
 
-                    <div class="alert alert--icon alert--info">
-                        <div class="alert__content">
-                            <div class="alert__title">{$btr->alert_info}</div>
-                            <p>{$btr->np_warehouses_data_description}</p>
-                        </div>
-                    </div>
-
-                    {if $warehouses_types_data}
-                        <div class="mb-2 mt-2 row">
-                            {foreach $warehouses_types_data as $w_type}
-                                <div class="col-md-6">
-                                    <input name="np_warehouses_types[]" id="type_{$w_type@iteration}" value="{$w_type->getTypeRef()|escape}"  type="checkbox" {if in_array($w_type->getTypeRef(), $settings->np_warehouses_types)}checked=""{/if} />
-                                    <label for="type_{$w_type@iteration}">
-                                        {if $manager->lang == 'ru'}
-                                            {$w_type->getNameRu()|escape}
-                                        {else}
-                                            {$w_type->getName()|escape}
-                                        {/if}
-                                    </label>
-                                </div>
-                            {/foreach}
-                        </div>
-                    {/if}
-
                     <div class="mt-2 mb-2">
                         <p class="mt-2 mb-2">{$btr->settings_np_update_label}</p>
-                        <div class="fn_progress_block">
-                        </div>
+                        <div class="fn_progress_block"></div>
                         <div class="flex_np_update">
 
                             <div class="flex_np_update__btn">
-                                <button type="button" class="btn btn_small btn-warning fn_update_cache">
-                                    <span>{$btr->np_update_cache_now|escape}</span>
+                                <button type="button" class="btn btn_small btn-warning fn_update_cache"
+                                        data-cancel_text="{$btr->np_cancel_update_cache|escape}"
+                                        data-resume_text="{$btr->np_update_cache_now|escape}">
+                                    {$btr->np_update_cache_now|escape}
                                 </button>
                             </div>
-                        </div>
-                    </div>
-                    
-                    <div class="alert alert--icon alert--error">
-                        <div class="alert__content">
-                            <div class="alert__title">Важно!</div>
-                            <p>{$btr->np_warehouses_data_update_warning|escape}</p>
                         </div>
                     </div>
 
@@ -229,27 +193,6 @@
                             {$btr->np_cron_update_cache_2}
                         </div>
                     </div>
-
-                    <!--TODO "Этот блок возможно не нужен"-->
-                    {*<div class="row">
-                        <div class="col-lg-6 col-md-6">
-                            <div class="boxes_inline">
-                                <div class="okay_switch clearfix">
-                                    <label class="switch switch-default">
-                                        <input class="switch-input" name="np_auto_update_data" value='1' type="checkbox" {if $settings->np_auto_update_data}checked=""{/if}/>
-                                        <span class="switch-label"></span>
-                                        <span class="switch-handle"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6">
-                            <div class="heading_label">{$btr->settings_np_cache_lifetime}</div>
-                            <div class="mb-1">
-                                <input type="text" name="np_cache_lifetime" value="{$settings->np_cache_lifetime|escape}" placeholder="86400" class="form-control">
-                            </div>
-                        </div>
-                    </div>*}
                 </div>
             </div>
         </div>
@@ -326,8 +269,12 @@
         }
     } );
 
-    function do_update(page, importItem)
+    function do_update(page, importItem, isLast, signal)
     {
+        if (signal.aborted) {
+            importItem.reject('cancel');
+            return;
+        }
         page = typeof(page) != 'undefined' ? page : 1;
         let data = {
             page: page,
@@ -355,11 +302,14 @@
                 } else if (data.hasOwnProperty('pagesNum') && data.pagesNum > 0 && page < data.pagesNum) {
                     importItem.progressItem.attr('value', Math.round(100 * page / data.pagesNum));
                     Piecon.setProgress(Math.round(100 * page / data.pagesNum));
-                    do_update(++page, importItem);
+                    do_update(++page, importItem, isLast, signal);
                 } else {
                     Piecon.setProgress(100);
                     importItem.progressItem.attr('value', 100).hide();
                     importItem.progressBlock.find('.np_import_result').fadeIn(500);
+                    if (isLast) {
+                        $('.fn_update_cache').text('{/literal}{$btr->np_update_cache_finished|escape}{literal}');
+                    }
                     importItem.resolve('result');
                 }
             },
@@ -370,47 +320,69 @@
 
     }
 
+    let controller = new AbortController();
+    let signal = controller.signal;
+
     $(document).on('click', '.fn_update_cache', function () {
+        let button = $(this);
+
+        if (button.hasClass('running')) {
+            button.text(button.data('resume_text')).removeClass('running');
+            $('.fn_progress_block').html('');
+            controller.abort();
+            return;
+        } else {
+            controller = new AbortController();
+            signal = controller.signal;
+            button.prop('disabled', true);
+        }
+
         $.ajax({
             url: "/backend/index.php?controller=OkayCMS.NovaposhtaCost.NovaposhtaCostAdmin@getUpdateTypes",
             dataType: 'json',
             success: function(data) {
-                    if (data.hasOwnProperty('updateTypes')) {
+                if (data.hasOwnProperty('updateTypes')) {
+                    button.text(button.data('cancel_text'))
+                        .addClass('running')
+                        .prop('disabled', false);
 
-                        function initFunction(updateElement) {
-                            return new Promise((resolve, reject) => {
-                                updateElement.resolve = resolve;
-                                Piecon.setOptions({fallback: 'force'});
-                                Piecon.setProgress(0);
-                                do_update(1, updateElement);
-                            });
+                    function initFunction(updateElement, isLast, signal) {
+                        if (signal.aborted) {
+                            return Promise.reject('cancel');
                         }
-                        let init = initFunction;
+                        return new Promise((resolve, reject) => {
+                            updateElement.resolve = resolve;
+                            updateElement.reject = reject;
+                            Piecon.setOptions({fallback: 'force'});
+                            Piecon.setProgress(0);
+                            do_update(1, updateElement, isLast, signal);
+                        });
+                    }
+                    let initPromise = initFunction;
 
-                        for (let key in data.updateTypes) {
-                            let updateType = data.updateTypes[key];
-                            let updateElement = {
-                                progressItem: $('<progress id="progressbar_' + key + '" class="progress progress-xs progress-info"  value="0" max="100">sdfsdfsd</progress>'),
-                                progressBlock: $('<div><p class="mb-0">' + updateType['updateName'] + '</p><div class="np_import_result" style="display: none"></div></div>'),
-                                updateType: updateType['updateType'],
-                                updateParams: updateType['updateParams'],
-                                initProgress: function () {
-                                    this.progressItem.appendTo(this.progressBlock);
-                                    this.progressBlock.appendTo('.fn_progress_block');
-                                }
-                            };
-                            updateElement.initProgress();
-
-                            if (key == 0) {
-                                init = init(updateElement);
-                            } else {
-                                init = init.then(
-                                    result => initFunction(updateElement)
-                                );
+                    for (let key in data.updateTypes) {
+                        let updateType = data.updateTypes[key];
+                        let updateElement = {
+                            progressItem: $('<progress id="progressbar_' + key + '" class="progress progress-xs progress-info"  value="0" max="100">sdfsdfsd</progress>'),
+                            progressBlock: $('<div><p class="mb-0">' + updateType['updateName'] + '</p><div class="np_import_result" style="display: none"></div></div>'),
+                            updateType: updateType['updateType'],
+                            updateParams: updateType['updateParams'],
+                            initProgress: function () {
+                                this.progressItem.appendTo(this.progressBlock);
+                                this.progressBlock.appendTo('.fn_progress_block');
                             }
+                        };
+                        updateElement.initProgress();
+                        let isLast = key == data.updateTypes.length - 1;
+                        if (key == 0) {
+                            initPromise = initPromise(updateElement, isLast, signal);
+                        } else {
+                            initPromise = initPromise.then(
+                                result => initFunction(updateElement, isLast, signal),
+                            ).catch(e => {});
                         }
                     }
-
+                }
             },
             error: function(xhr, status, errorThrown) {
                 alert(errorThrown+'\n'+xhr.responseText);

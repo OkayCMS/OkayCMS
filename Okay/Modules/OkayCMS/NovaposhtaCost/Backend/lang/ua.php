@@ -2,9 +2,7 @@
 
 $lang['np_update_all'] = 'Оновити всі пункти видачі';
 $lang['np_update'] = 'Обновить ';
-$lang['np_warehouses_data_info'] = 'Данные о точках выдачи';
-$lang['np_warehouses_data_description'] = 'Выберите, какие точки выдачи будут доступны для клиента при выборе способа доставки.</br> Типы пунктов, которые не выбраны, будут удалены с сайта при дальнейших обновлениях.';
-$lang['np_warehouses_data_update_warning'] = 'Обновление всех пунктов выдачи одновременно может вызвать большую нагрузку на сервер из-за чего данные могут не обновиться. Если у вас такое происходит, обновите данные о точках выдачи по частям, выбирая конкретные категории пунктов выдачи';
+$lang['np_warehouses_data_info'] = 'Дані про точки видачі';
 $lang['left_setting_np_title'] = 'Нова Пошта';
 $lang['settings_np'] = 'Налаштування Нової Пошти';
 $lang['settings_np_key'] = 'Ключ API «Нова Пошта»';
@@ -30,9 +28,6 @@ $lang['payment_np_cash_on_delivery'] = 'Дозволити оплату післ
 $lang['payment_np_payment_method_name'] = 'Спосіб оплати';
 $lang['payment_np_cash_on_delivery_type'] = 'Список способів оплати для оплати післяплатою';
 $lang['okaycms__np__import_field'] = 'Об\'єм варіанту';
-$lang['settings_np_np_auto_update_data'] = 'Автоматичне оновлення пунктів видачі';
-$lang['settings_np_np_auto_update_data_title'] = 'Оновлення кеша відбувається в момент, коли користувач запитує дані по пункту видачі і при такій настройці коли кеш інвалідіруется, один раз у одного користувача може спостерігатися "пригальмовування" вибору міста і відділення поки оновлюється кеш.';
-$lang['settings_np_cache_lifetime'] = 'Час життя автоматичного кеша (с)';
 $lang['settings_np_last_update_cities'] = 'Дата поновлення кеша міст';
 $lang['settings_np_last_update_warehouses'] = 'Дата поновлення кеша пунктів видачі';
 $lang['np_update_cache_now'] = 'Оновити';
@@ -53,3 +48,5 @@ $lang['np_cron_update_cache_2'] = 'щохвилини (* * * * *) і дані б
 $lang['settings_np_include_volume'] = 'Включити в розрахунок вартості доставки обсяг вантажу.';
 $lang['settings_np_include_assessed'] = 'Включити в розрахунок вартості доставки оціночну вартість.';
 $lang['np_update_type_cities'] = 'Міста';
+$lang['np_cancel_update_cache'] = 'Відмінити';
+$lang['np_update_cache_finished'] = 'Завершено';

@@ -5,7 +5,7 @@ namespace Okay\Modules\OkayCMS\NovaposhtaCost\Helpers;
 use Okay\Core\EntityFactory;
 use Okay\Core\Languages;
 use Okay\Entities\LanguagesEntity;
-use Okay\Modules\OkayCMS\NovaposhtaCost\DTO\NPPaginationDTO;
+use Okay\Modules\OkayCMS\NovaposhtaCost\DTO\NPWarehouseTypeDTO;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCitiesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPWarehousesEntity;
 
@@ -144,5 +144,34 @@ class NPCacheHelper
         $this->languages->setLangId($currentLangId);
 
         return ceil($warehousesDTO->getTotalCount() / $limit);
+    }
+
+    /**
+     * @return NPWarehouseTypeDTO[]
+     *
+     * Метод повертає оновлюємі типи відділень
+     */
+    public function getUpdatedWarehousesTypes(): array
+    {
+        // todo допрацювати
+        return $this->apiHelper->getWarehouseTypes();
+    }
+
+    public function cronUpdateWarehousesCache()
+    {
+        foreach ($this->getUpdatedWarehousesTypes() as $warehouseTypeDTO) {
+            $page = 1;
+            do {
+                $pagesNum = $this->updateWarehousesCache($warehouseTypeDTO->getTypeRef(), $page++, 1000);
+            } while ($page <= $pagesNum);
+        }
+    }
+
+    public function cronUpdateCitiesCache()
+    {
+        $page = 1;
+        do {
+            $pagesNum = $this->updateCitiesCache($page++, 1000);
+        } while ($page <= $pagesNum);
     }
 }

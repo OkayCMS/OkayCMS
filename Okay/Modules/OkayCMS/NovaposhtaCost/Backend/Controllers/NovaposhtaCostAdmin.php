@@ -10,18 +10,14 @@ use Okay\Core\Response;
 use Okay\Entities\PaymentsEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPApiHelper;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPCacheHelper;
-use Okay\Modules\OkayCMS\NovaposhtaCost\NovaposhtaCost;
 
 class NovaposhtaCostAdmin extends IndexAdmin
 {
     private const UPDATE_TYPE_CITIES = 'cities';
     private const UPDATE_TYPE_WAREHOUSES = 'warehouses';
 
-    public function fetch(
-        PaymentsEntity $paymentsEntity,
-        NovaposhtaCost $novaposhtaCost,
-        NPApiHelper $apiHelper
-    ) {
+    public function fetch(PaymentsEntity $paymentsEntity)
+    {
 
         if ($this->request->method('POST')) {
             $this->settings->set('newpost_key', $this->request->post('newpost_key'));
@@ -30,16 +26,11 @@ class NovaposhtaCostAdmin extends IndexAdmin
             $this->settings->set('newpost_volume', str_replace(',', '.', $this->request->post('newpost_volume')));
             $this->settings->set('newpost_use_volume', $this->request->post('newpost_use_volume'));
             $this->settings->set('newpost_use_assessed_value', $this->request->post('newpost_use_assessed_value'));
-            $this->settings->set('np_auto_update_data', $this->request->post('np_auto_update_data'));
-            $this->settings->set('np_cache_lifetime', $this->request->post('np_cache_lifetime'));
-            $this->settings->set('np_warehouses_types', $this->request->post('np_warehouses_types'));
             $this->design->assign('message_success', 'saved');
         }
 
         $paymentMethods = $paymentsEntity->find();
         $this->design->assign('payment_methods', $paymentMethods);
-
-        $this->design->assign('warehouses_types_data', $apiHelper->getWarehouseTypes());
 
         $this->response->setContent($this->design->fetch('novaposhta_cost.tpl'));
     }
@@ -57,7 +48,7 @@ class NovaposhtaCostAdmin extends IndexAdmin
     ): Response
     {
         $page = $this->request->get('page', 'int', 1);
-        $perPage = 140;
+        $perPage = 500;
         $updateType = $this->request->get('updateType', 'string');
         if (!$updateType || !in_array($updateType, [self::UPDATE_TYPE_CITIES, self::UPDATE_TYPE_WAREHOUSES])) {
             return $this->response->setContent(json_encode([
@@ -92,7 +83,7 @@ class NovaposhtaCostAdmin extends IndexAdmin
         ]), RESPONSE_JSON);
     }
 
-    public function getUpdateTypes(NPApiHelper $apiHelper, BackendTranslations $backendTranslations)
+    public function getUpdateTypes(NPCacheHelper $cacheHelper, BackendTranslations $backendTranslations)
     {
         $updateTypes[] = [
             'updateType' => self::UPDATE_TYPE_CITIES,
@@ -100,7 +91,7 @@ class NovaposhtaCostAdmin extends IndexAdmin
             'updateParams' => [],
         ];
 
-        foreach ($apiHelper->getWarehouseTypes() as $warehouseTypeDTO) {
+        foreach ($cacheHelper->getUpdatedWarehousesTypes() as $warehouseTypeDTO) {
             $warehouseTypeName = $warehouseTypeDTO->getName();
 
             if ($this->manager->lang == 'ru' && !empty($warehouseTypeDTO->getNameRu())) {

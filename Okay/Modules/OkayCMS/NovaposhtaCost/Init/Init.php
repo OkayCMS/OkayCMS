@@ -13,7 +13,6 @@ use Okay\Core\Modules\AbstractInit;
 use Okay\Core\Modules\EntityField;
 use Okay\Core\Scheduler\Schedule;
 use Okay\Core\ServiceLocator;
-use Okay\Core\Settings;
 use Okay\Entities\PaymentsEntity;
 use Okay\Entities\VariantsEntity;
 use Okay\Helpers\CartHelper;
@@ -25,7 +24,7 @@ use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCostDeliveryDataEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPWarehousesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Extenders\BackendExtender;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Extenders\FrontExtender;
-use Okay\Modules\OkayCMS\NovaposhtaCost\NovaposhtaCost;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPCacheHelper;
 
 class Init extends AbstractInit
 {
@@ -147,7 +146,7 @@ class Init extends AbstractInit
         $this->addBackendControllerPermission('NovaposhtaCostAdmin', 'okaycms__novaposhta_cost');
 
         $this->registerSchedule(
-            (new Schedule([NovaposhtaCost::class, 'parseCitiesToCache']))
+            (new Schedule([NPCacheHelper::class, 'cronUpdateCitiesCache']))
                 ->name('Parses NP cities to the db cache')
                 ->time('0 0 * * *')
                 ->overlap(false)
@@ -155,7 +154,7 @@ class Init extends AbstractInit
         );
 
         $this->registerSchedule(
-            (new Schedule([NovaposhtaCost::class, 'parseWarehousesToCache']))
+            (new Schedule([NPCacheHelper::class, 'cronUpdateWarehousesCache']))
                 ->name('Parses NP warehouses to the db cache')
                 ->time('0 0 * * *')
                 ->overlap(false)
@@ -166,18 +165,10 @@ class Init extends AbstractInit
     public function update_1_1_0()
     {
         $this->migrateEntityField(NPWarehousesEntity::class, (new EntityField('type'))->setTypeVarchar(100, true)->setDefault(''));
-        
-        $defaultWarehouseTypes = [
-            '841339c7-591a-42e2-8233-7a0a00f0ed6f',
-            '9a68df70-0267-42a8-bb5c-37f427e36ee4'
-        ];
 
         $SL = ServiceLocator::getInstance();
-        $settings = $SL->getService(Settings::class);
         $entityFactory = $SL->getService(EntityFactory::class);
-        
-        $settings->set('np_warehouses_types', $defaultWarehouseTypes);
-        
+
         $warehousesTypesData = (array)json_decode(file_get_contents(dirname(__FILE__,2).'/tempData/typeData.json'));
         
         /** @var NPWarehousesEntity $warehousesEntity */
