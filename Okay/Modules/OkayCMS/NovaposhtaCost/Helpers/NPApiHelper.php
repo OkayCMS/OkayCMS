@@ -74,15 +74,19 @@ class NPApiHelper
                 if ($warehouseData->TypeOfWarehouse != $warehouseType) {
                     continue;
                 }
+                $name = htmlspecialchars($warehouseData->Description);
+                $name = preg_replace('~(?:(№\d+)\S*)~', '$1', $name);
                 $warehouseDTO = new NPWarehouseDTO(
-                    htmlspecialchars($warehouseData->Description),
+                    $name,
                     $warehouseData->Ref,
                     $warehouseData->CityRef,
                     $warehouseData->TypeOfWarehouse,
                     (int)$warehouseData->Number
                 );
                 if (!empty($warehouseData->DescriptionRu)) {
-                    $warehouseDTO->setNameRu(htmlspecialchars($warehouseData->DescriptionRu));
+                    $nameRu = htmlspecialchars($warehouseData->DescriptionRu);
+                    $nameRu = preg_replace('~(?:(№\d+)\S*)~', '$1', $nameRu);
+                    $warehouseDTO->setNameRu($nameRu);
                 }
                 $warehousesDTO->setWarehouse($warehouseDTO);
             }
