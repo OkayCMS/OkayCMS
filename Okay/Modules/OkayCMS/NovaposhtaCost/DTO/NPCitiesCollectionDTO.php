@@ -11,7 +11,7 @@ class NPCitiesCollectionDTO
     private int $totalCount = 0;
 
     /**
-     * @return array
+     * @return NPCityDTO[]
      */
     public function getCities(): array
     {

@@ -31,6 +31,8 @@ class Init extends AbstractInit
     
     const VOLUME_FIELD = 'volume';
     const CASH_ON_DELIVERY = 'novaposhta_cost__cash_on_delivery';
+    const UPDATE_TYPE_CITIES = 'cities';
+    const UPDATE_TYPE_WAREHOUSES = 'warehouses';
 
     public function install()
     {
@@ -156,7 +158,7 @@ class Init extends AbstractInit
         $this->registerSchedule(
             (new Schedule([NPCacheHelper::class, 'cronUpdateWarehousesCache']))
                 ->name('Parses NP warehouses to the db cache')
-                ->time('0 0 * * *')
+                ->time('10 0 * * *')
                 ->overlap(false)
                 ->timeout(3600)
         );
@@ -180,6 +182,22 @@ class Init extends AbstractInit
                 $warehousesEntity->update((int)$warehouse->id,['type' => $warehousesTypesData[$ref]]); 
             } 
         }
-        $warehousesEntity->removeRedundant();
+    }
+
+    public function update_1_2_0()
+    {
+        $this->migrateEntityField(
+            NPWarehousesEntity::class,
+            (new EntityField('updated_at'))->setTypeTimestamp()
+        );
+
+        $this->migrateEntityField(
+            NPWarehousesEntity::class,
+            (new EntityField('number'))->setTypeInt(11)
+        );
+        $this->migrateEntityField(
+            NPCitiesEntity::class,
+            (new EntityField('updated_at'))->setTypeTimestamp()
+        );
     }
 }

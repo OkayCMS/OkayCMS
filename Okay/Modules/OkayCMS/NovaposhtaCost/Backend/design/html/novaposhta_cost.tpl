@@ -165,7 +165,8 @@
                     {if $settings->np_last_update_warehouses_date}
                     <div class="text_green text_600">
                         <div class="mb-1">
-                            {$btr->settings_np_update_date} <strong>{$settings->np_last_update_warehouses_date|date} {$settings->np_last_update_warehouses_date|time}</strong>
+                            {$btr->settings_np_update_date}
+                            <strong>{$last_update_date|date} {$last_update_date|time}</strong>
                         </div>
                     </div>
                     {/if}
@@ -269,7 +270,7 @@
         }
     } );
 
-    function do_update(page, importItem, isLast, signal)
+    function doUpdate(page, importItem, isLast, signal)
     {
         if (signal.aborted) {
             importItem.reject('cancel');
@@ -300,9 +301,43 @@
                     importItem.progressItem.hide();
                     importItem.resolve('result');
                 } else if (data.hasOwnProperty('pagesNum') && data.pagesNum > 0 && page < data.pagesNum) {
-                    importItem.progressItem.attr('value', Math.round(100 * page / data.pagesNum));
-                    Piecon.setProgress(Math.round(100 * page / data.pagesNum));
-                    do_update(++page, importItem, isLast, signal);
+                    importItem.progressItem.attr('value', Math.round(100 * page / (data.pagesNum + 1)));
+                    Piecon.setProgress(Math.round(100 * page / (data.pagesNum + 1)));
+                    doUpdate(++page, importItem, isLast, signal);
+                } else {
+                    importItem.progressItem.attr('value', Math.round(100 * page / (data.pagesNum + 1)));
+                    Piecon.setProgress(Math.round(100 * page / (data.pagesNum + 1)));
+                    finalUpdate(importItem, isLast)
+                }
+            },
+            error: function(xhr, status, errorThrown) {
+                alert(errorThrown+'\n'+xhr.responseText);
+            }
+        });
+    }
+
+    function finalUpdate(importItem, isLast)
+    {
+        let data = {
+            removeType: importItem.updateType,
+        };
+        for (let paramKey in importItem.updateParams) {
+            data[paramKey] = importItem.updateParams[paramKey];
+        }
+        $.ajax({
+            url: "/backend/index.php?controller=OkayCMS.NovaposhtaCost.NovaposhtaCostAdmin@finalImport",
+            data: data,
+            dataType: 'json',
+            success: function(data) {
+                if (data.hasOwnProperty('error')) {
+                    importItem.progressBlock.find('.np_import_result')
+                        .text(data.error)
+                        .addClass('alert--error alert')
+                        .removeClass('np_import_result')
+                        .css('padding', '5px')
+                        .show();
+                    importItem.progressItem.hide();
+                    importItem.resolve('result');
                 } else {
                     Piecon.setProgress(100);
                     importItem.progressItem.attr('value', 100).hide();
@@ -317,7 +352,6 @@
                 alert(errorThrown+'\n'+xhr.responseText);
             }
         });
-
     }
 
     let controller = new AbortController();
@@ -355,7 +389,7 @@
                             updateElement.reject = reject;
                             Piecon.setOptions({fallback: 'force'});
                             Piecon.setProgress(0);
-                            do_update(1, updateElement, isLast, signal);
+                            doUpdate(1, updateElement, isLast, signal);
                         });
                     }
                     let initPromise = initFunction;
@@ -375,11 +409,16 @@
                         updateElement.initProgress();
                         let isLast = key == data.updateTypes.length - 1;
                         if (key == 0) {
-                            initPromise = initPromise(updateElement, isLast, signal);
+                            initPromise = initPromise(updateElement, isLast, signal)
+                                .catch(e => {
+                                    Piecon.reset();
+                                });
                         } else {
                             initPromise = initPromise.then(
                                 result => initFunction(updateElement, isLast, signal),
-                            ).catch(e => {});
+                            ).catch(e => {
+                                Piecon.reset();
+                            });
                         }
                     }
                 }

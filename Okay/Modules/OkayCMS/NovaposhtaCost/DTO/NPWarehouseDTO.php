@@ -9,13 +9,20 @@ class NPWarehouseDTO
     private string $ref;
     private string $cityRef;
     private string $typeOfWarehouse;
+    private int $number;
 
-    public function __construct(string $name, string $ref, string $cityRef, string $typeOfWarehouse)
-    {
+    public function __construct(
+        string $name,
+        string $ref,
+        string $cityRef,
+        string $typeOfWarehouse,
+        int $number
+    ) {
         $this->name = $name;
         $this->ref = $ref;
         $this->cityRef = $cityRef;
         $this->typeOfWarehouse = $typeOfWarehouse;
+        $this->number = $number;
     }
 
     /**
@@ -64,5 +71,13 @@ class NPWarehouseDTO
     public function getTypeOfWarehouse(): string
     {
         return $this->typeOfWarehouse;
+    }
+
+    /**
+     * @return int
+     */
+    public function getNumber(): int
+    {
+        return $this->number;
     }
 }

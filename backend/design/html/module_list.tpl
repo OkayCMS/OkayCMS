@@ -93,7 +93,7 @@
 
                 {if !empty($module->params->getVersion()) && $module->params->getVersion() != $module->version}
                     {if $module->params->getVersion() > $module->version}
-                        <button type="button" class="fn_update_module btn btn-outline-warning btn--update mt-h hint-top-middle-t-info-s-small-mobile hint-anim" data-hint="{$btr->module_need_update} {$module->params->version}">{include 'svg_icon.tpl' svgId='refresh_icon'} {$module->params->version}</button>
+                        <button type="button" class="fn_update_module btn btn-outline-warning btn--update mt-h hint-top-middle-t-info-s-small-mobile hint-anim" data-hint="{$btr->module_need_update} {$module->params->getVersion()}">{include 'svg_icon.tpl' svgId='refresh_icon'} {$module->params->getVersion()}</button>
                     {else}
                         {$btr->module_downgrade_warning} {$module->params->getVersion()}
                     {/if}

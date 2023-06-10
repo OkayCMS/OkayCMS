@@ -15,11 +15,13 @@ class NPApiHelper
 {
     private string $apiKey;
     private string $lastCallError = '';
+    private Settings $settings;
 
     public function __construct(
         Settings $settings
     ) {
         $this->apiKey = $settings->get('newpost_key');
+        $this->settings = $settings;
     }
 
     /**
@@ -49,9 +51,6 @@ class NPApiHelper
             }
             return $result;
         }
-        if (!empty($response->errors)) {
-            $this->lastCallError = implode('<br>', $response->errors);
-        }
         return [];
     }
 
@@ -79,7 +78,8 @@ class NPApiHelper
                     htmlspecialchars($warehouseData->Description),
                     $warehouseData->Ref,
                     $warehouseData->CityRef,
-                    $warehouseData->TypeOfWarehouse
+                    $warehouseData->TypeOfWarehouse,
+                    (int)$warehouseData->Number
                 );
                 if (!empty($warehouseData->DescriptionRu)) {
                     $warehouseDTO->setNameRu(htmlspecialchars($warehouseData->DescriptionRu));
@@ -91,9 +91,6 @@ class NPApiHelper
             }
             return $warehousesDTO;
         } else {
-            if (!empty($response->errors)) {
-                $this->lastCallError = implode('<br>', $response->errors);
-            }
             return null;
         }
     }
@@ -127,9 +124,6 @@ class NPApiHelper
             }
             return $citiesDTO;
         } else {
-            if (!empty($response->errors)) {
-                $this->lastCallError = implode('<br>', $response->errors);
-            }
             return null;
         }
     }
@@ -162,6 +156,24 @@ class NPApiHelper
             return false;
         }
 
-        return json_decode($response);
+        $response = json_decode($response);
+
+        if (!empty($response->errors)) {
+            $this->lastCallError = implode('<br>', $response->errors);
+            // Запам'ятовуємо помилку по API key
+            if (strpos($this->lastCallError, 'API key') !== false) {
+                $this->settings->set('np_api_key_is_incorrect', true);
+            }
+            return false;
+        }
+        if (!empty($response->success)) {
+            if (empty($response->data)) {
+                $this->lastCallError = 'Response data is empty';
+                return false;
+            }
+            return $response;
+        }
+
+        return false;
     }
 }

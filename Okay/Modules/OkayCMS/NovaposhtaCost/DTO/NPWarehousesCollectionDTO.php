@@ -28,7 +28,7 @@ class NPWarehousesCollectionDTO
     }
 
     /**
-     * @return array
+     * @return NPWarehouseDTO[]
      */
     public function getWarehouses(): array
     {

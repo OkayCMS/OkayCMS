@@ -11,6 +11,7 @@ class NPCitiesEntity extends Entity
     protected static $fields = [
         'id',
         'ref',
+        'updated_at',
     ];
 
     protected static $langFields = [
@@ -29,6 +30,37 @@ class NPCitiesEntity extends Entity
     protected static $searchFields = [
         'name'
     ];
+
+    public function add($object)
+    {
+        $object = (object)$object;
+        $object->updated_at = 'NOW()';
+        return parent::add($object);
+    }
+
+    public function update($ids, $object)
+    {
+        $object = (object)$object;
+        $object->updated_at = 'NOW()';
+        parent::update($ids, $object);
+    }
+
+    public function removeRedundant(string $updatedAt)
+    {
+        $sql = $this->queryFactory->newSqlQuery();
+        $sql->setStatement(sprintf('
+                DELETE npc, l FROM %s npc
+                INNER JOIN %s l ON l.city_id = npc.id
+                WHERE
+                npc.updated_at < :updated_at
+            ',
+            self::getTable(),
+            self::getLangTable()
+        ))->bindValues([
+            'updated_at' => $updatedAt,
+        ]);
+        $this->db->query($sql);
+    }
 
     public function find(array $filter = [])
     {

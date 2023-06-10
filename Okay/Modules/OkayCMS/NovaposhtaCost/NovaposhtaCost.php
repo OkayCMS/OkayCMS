@@ -304,7 +304,6 @@ class NovaposhtaCost
         }
         
         if(!empty($result)){
-            $warehousesEntity->removeRedundant();
             return true;
         } else {
             return false;

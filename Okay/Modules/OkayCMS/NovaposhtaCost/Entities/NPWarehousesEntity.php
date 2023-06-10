@@ -12,6 +12,7 @@ class NPWarehousesEntity extends Entity
         'id',
         'ref',
         'city_ref',
+        'updated_at',
     ];
 
     protected static $langFields = [
@@ -22,14 +23,48 @@ class NPWarehousesEntity extends Entity
     protected static $tableAlias = 'npw';
     protected static $langTable = 'okaycms__np_warehouses';
     protected static $langObject = 'warehouse';
+    protected static $defaultOrderFields = [
+        'number'
+    ];
 
-    public function removeRedundant()
+    public function add($object)
     {
-        $warehousesTypesToSave = $this->settings->get('np_warehouses_types');
-        $delete = $this->queryFactory->newDelete();
-        $delete->from($this->getTable())->where('type NOT IN (:types)');
-        $delete->bindValue('types', $warehousesTypesToSave);
-        $this->db->query($delete);
+        $object = (object)$object;
+        $object->updated_at = 'NOW()';
+        return parent::add($object);
     }
-    
+
+    public function update($ids, $object)
+    {
+        $object = (object)$object;
+        $object->updated_at = 'NOW()';
+        parent::update($ids, $object);
+    }
+
+    public function removeRedundant(string $updatedAt, array $warehousesTypes = [])
+    {
+        $sql = $this->queryFactory->newSqlQuery();
+
+        $warehousesTypesWhere = '';
+        if (!empty($warehousesTypes)) {
+            $warehousesTypesWhere = 'AND npw.type IN (:types)';
+            $sql->bindValue('types', $warehousesTypes);
+        }
+
+        $sql->setStatement(sprintf('
+                DELETE npw, l FROM %s npw
+                INNER JOIN %s l ON l.warehouse_id = npw.id
+                WHERE
+                npw.updated_at < :updated_at
+                %s
+            ',
+            self::getTable(),
+            self::getLangTable(),
+            $warehousesTypesWhere
+        ))->bindValues([
+            'updated_at' => $updatedAt,
+        ]);
+
+        $this->db->query($sql);
+    }
 }

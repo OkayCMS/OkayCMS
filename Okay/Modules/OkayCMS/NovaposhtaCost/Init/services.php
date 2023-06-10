@@ -60,6 +60,7 @@ return [
             new SR(NPApiHelper::class),
             new SR(EntityFactory::class),
             new SR(Languages::class),
+            new SR(Settings::class),
         ],
     ],
 ];

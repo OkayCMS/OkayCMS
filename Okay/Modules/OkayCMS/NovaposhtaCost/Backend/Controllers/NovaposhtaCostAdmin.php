@@ -8,17 +8,15 @@ use Okay\Admin\Controllers\IndexAdmin;
 use Okay\Core\BackendTranslations;
 use Okay\Core\Response;
 use Okay\Entities\PaymentsEntity;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPWarehousesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPApiHelper;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPCacheHelper;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Init\Init;
 
 class NovaposhtaCostAdmin extends IndexAdmin
 {
-    private const UPDATE_TYPE_CITIES = 'cities';
-    private const UPDATE_TYPE_WAREHOUSES = 'warehouses';
-
-    public function fetch(PaymentsEntity $paymentsEntity)
+    public function fetch(PaymentsEntity $paymentsEntity, NPWarehousesEntity $warehousesEntity)
     {
-
         if ($this->request->method('POST')) {
             $this->settings->set('newpost_key', $this->request->post('newpost_key'));
             $this->settings->set('newpost_city', $this->request->post('newpost_city'));
@@ -31,6 +29,9 @@ class NovaposhtaCostAdmin extends IndexAdmin
 
         $paymentMethods = $paymentsEntity->find();
         $this->design->assign('payment_methods', $paymentMethods);
+
+        $lastUpdateDate = $warehousesEntity->order('updated_at_ASC')->cols(['updated_at'])->findOne();
+        $this->design->assign('last_update_date', $lastUpdateDate);
 
         $this->response->setContent($this->design->fetch('novaposhta_cost.tpl'));
     }
@@ -50,13 +51,13 @@ class NovaposhtaCostAdmin extends IndexAdmin
         $page = $this->request->get('page', 'int', 1);
         $perPage = 500;
         $updateType = $this->request->get('updateType', 'string');
-        if (!$updateType || !in_array($updateType, [self::UPDATE_TYPE_CITIES, self::UPDATE_TYPE_WAREHOUSES])) {
+        if (!$updateType || !in_array($updateType, [Init::UPDATE_TYPE_CITIES, Init::UPDATE_TYPE_WAREHOUSES])) {
             return $this->response->setContent(json_encode([
                 'error' => 'Empty or wrong updateType',
             ]), RESPONSE_JSON);
         }
         $pagesNum = null;
-        if ($updateType === self::UPDATE_TYPE_WAREHOUSES) {
+        if ($updateType === Init::UPDATE_TYPE_WAREHOUSES) {
             $warehousesType = $this->request->get('warehousesType', 'string');
             if (empty($warehousesType)) {
                 return $this->response->setContent(json_encode([
@@ -64,7 +65,7 @@ class NovaposhtaCostAdmin extends IndexAdmin
                 ]), RESPONSE_JSON);
             }
             $pagesNum = $cacheHelper->updateWarehousesCache($warehousesType, $page, $perPage);
-        } elseif ($updateType === self::UPDATE_TYPE_CITIES) {
+        } elseif ($updateType === Init::UPDATE_TYPE_CITIES) {
             $pagesNum = $cacheHelper->updateCitiesCache($page, $perPage);
         }
 
@@ -83,10 +84,29 @@ class NovaposhtaCostAdmin extends IndexAdmin
         ]), RESPONSE_JSON);
     }
 
+    public function finalImport(NPCacheHelper $cacheHelper): Response
+    {
+        $removeType = $this->request->get('removeType', 'string');
+        $typeRef = '';
+        if ($removeType == Init::UPDATE_TYPE_WAREHOUSES) {
+            $typeRef = $this->request->get('warehousesType', 'string');
+            if (empty($typeRef)) {
+                return $this->response->setContent(json_encode([
+                    'error' => 'Empty warehousesType',
+                ]), RESPONSE_JSON);
+            }
+        }
+
+        $cacheHelper->removeRedundant($removeType, $typeRef);
+        return $this->response->setContent(json_encode([
+            'ok' => true,
+        ]), RESPONSE_JSON);
+    }
+
     public function getUpdateTypes(NPCacheHelper $cacheHelper, BackendTranslations $backendTranslations)
     {
         $updateTypes[] = [
-            'updateType' => self::UPDATE_TYPE_CITIES,
+            'updateType' => Init::UPDATE_TYPE_CITIES,
             'updateName' => $backendTranslations->getTranslation('np_update_type_cities'),
             'updateParams' => [],
         ];
@@ -99,13 +119,16 @@ class NovaposhtaCostAdmin extends IndexAdmin
             }
 
             $updateTypes[] = [
-                'updateType' => self::UPDATE_TYPE_WAREHOUSES,
+                'updateType' => Init::UPDATE_TYPE_WAREHOUSES,
                 'updateName' => $warehouseTypeName,
                 'updateParams' => [
                     'warehousesType' => $warehouseTypeDTO->getTypeRef()
                 ],
             ];
         }
+
+        $cacheHelper->rememberStartUpdateTime();
+
         $this->response->setContent(json_encode([
             'updateTypes' => $updateTypes,
         ]), RESPONSE_JSON);
