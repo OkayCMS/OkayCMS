@@ -15,10 +15,14 @@ use Okay\Modules\OkayCMS\NovaposhtaCost\Init\Init;
 
 class NovaposhtaCostAdmin extends IndexAdmin
 {
-    public function fetch(PaymentsEntity $paymentsEntity, NPWarehousesEntity $warehousesEntity)
-    {
+    public function fetch(
+        PaymentsEntity $paymentsEntity,
+        NPWarehousesEntity $warehousesEntity,
+        NPCacheHelper $cacheHelper
+    ) {
         if ($this->request->method('POST')) {
             $this->settings->set('newpost_key', $this->request->post('newpost_key'));
+            $this->settings->set('np_api_key_error', false);
             $this->settings->set('newpost_city', $this->request->post('newpost_city'));
             $this->settings->set('newpost_weight', str_replace(',', '.', $this->request->post('newpost_weight')));
             $this->settings->set('newpost_volume', str_replace(',', '.', $this->request->post('newpost_volume')));
@@ -32,6 +36,8 @@ class NovaposhtaCostAdmin extends IndexAdmin
 
         $lastUpdateDate = $warehousesEntity->order('updated_at_ASC')->cols(['updated_at'])->findOne();
         $this->design->assign('last_update_date', $lastUpdateDate);
+
+        $this->design->assign('warehousesTypesDTO', $cacheHelper->getUpdatedWarehousesTypes());
 
         $this->response->setContent($this->design->fetch('novaposhta_cost.tpl'));
     }

@@ -13,14 +13,12 @@ use Okay\Modules\OkayCMS\NovaposhtaCost\DTO\NPWarehouseTypeDTO;
 
 class NPApiHelper
 {
-    private string $apiKey;
     private string $lastCallError = '';
     private Settings $settings;
 
     public function __construct(
         Settings $settings
     ) {
-        $this->apiKey = $settings->get('newpost_key');
         $this->settings = $settings;
     }
 
@@ -142,7 +140,7 @@ class NPApiHelper
         if (empty($requestParams)) {
             return false;
         }
-        $requestParams["apiKey"] = $this->apiKey;
+        $requestParams["apiKey"] = $this->settings->get('newpost_key');
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, 'https://api.novaposhta.ua/v2.0/json/');
@@ -166,7 +164,7 @@ class NPApiHelper
             $this->lastCallError = implode('<br>', $response->errors);
             // Запам'ятовуємо помилку по API key
             if (strpos($this->lastCallError, 'API key') !== false) {
-                $this->settings->set('np_api_key_is_incorrect', true);
+                $this->settings->set('np_api_key_error', $this->lastCallError);
             }
             return false;
         }

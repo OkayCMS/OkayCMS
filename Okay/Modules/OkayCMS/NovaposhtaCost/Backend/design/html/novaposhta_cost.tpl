@@ -49,6 +49,21 @@
     </div>
 </div>
 
+{if $settings->np_api_key_error}
+    <div class="row d_flex">
+        <div class="col-lg-12 col-md-12">
+            <div class="alert alert--center alert--icon alert--error">
+                <div class="alert__content">
+                    <div class="alert__title">
+                        {$btr->np_api_key_error|escape}
+                    </div>
+                    <p>{$settings->np_api_key_error|escape}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{/if}
+
 {*Главная форма страницы*}
 <form method="post" enctype="multipart/form-data">
     <input type=hidden name="session_id" value="{$smarty.session.id}">

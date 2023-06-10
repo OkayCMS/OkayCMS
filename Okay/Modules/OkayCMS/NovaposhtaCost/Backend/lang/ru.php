@@ -49,3 +49,4 @@ $lang['settings_np_include_assessed'] = 'Включить в расчет сто
 $lang['np_update_type_cities'] = 'Города';
 $lang['np_cancel_update_cache'] = 'Отменить';
 $lang['np_update_cache_finished'] = 'Завершено';
+$lang['np_api_key_error'] = 'Ошибка API ключа';

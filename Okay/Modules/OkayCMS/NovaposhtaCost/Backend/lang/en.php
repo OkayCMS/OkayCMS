@@ -50,3 +50,4 @@ $lang['settings_np_include_assessed'] = 'Include estimated cost in shipping cost
 $lang['np_update_type_cities'] = 'Cities';
 $lang['np_update_type_cities'] = 'Cancel';
 $lang['np_update_cache_finished'] = 'Finished';
+$lang['np_api_key_error'] = 'API key error';

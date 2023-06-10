@@ -6,6 +6,7 @@ namespace Okay\Modules\OkayCMS\NovaposhtaCost\Init;
 
 use Okay\Admin\Helpers\BackendExportHelper;
 use Okay\Admin\Helpers\BackendImportHelper;
+use Okay\Admin\Helpers\BackendMainHelper;
 use Okay\Admin\Helpers\BackendOrdersHelper;
 use Okay\Admin\Requests\BackendProductsRequest;
 use Okay\Core\EntityFactory;
@@ -143,9 +144,19 @@ class Init extends AbstractInit
             [ValidateHelper::class, 'getCartValidateError'],
             [FrontExtender::class, 'getCartValidateError']
         );
+
+        $this->registerQueueExtension(
+            [BackendMainHelper::class, 'evensCounters'],
+            [BackendExtender::class, 'updateEventCounters']
+        );
         
         $this->registerBackendController('NovaposhtaCostAdmin');
         $this->addBackendControllerPermission('NovaposhtaCostAdmin', 'okaycms__novaposhta_cost');
+
+        $this->addBackendBlock(
+            'notification_counters',
+            'counter_block.tpl'
+        );
 
         $this->registerSchedule(
             (new Schedule([NPCacheHelper::class, 'cronUpdateCitiesCache']))

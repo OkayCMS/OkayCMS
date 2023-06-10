@@ -36,6 +36,7 @@ return [
             new SR(EntityFactory::class),
             new SR(Design::class),
             new SR(Module::class),
+            new SR(Settings::class),
         ],
     ],
     NovaposhtaCost::class => [

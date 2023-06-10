@@ -10,6 +10,7 @@ use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Modules\Extender\ExtensionInterface;
 use Okay\Core\Modules\Module;
 use Okay\Core\Request;
+use Okay\Core\Settings;
 use Okay\Entities\DeliveriesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCostDeliveryDataEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Init\Init;
@@ -17,17 +18,24 @@ use Okay\Modules\OkayCMS\NovaposhtaCost\Init\Init;
 class BackendExtender implements ExtensionInterface
 {
     
-    private $request;
-    private $entityFactory;
-    private $design;
-    private $module;
-    
-    public function __construct(Request $request, EntityFactory $entityFactory, Design $design, Module $module)
-    {
+    private Request $request;
+    private EntityFactory $entityFactory;
+    private Design $design;
+    private Module $module;
+    private Settings $settings;
+
+    public function __construct(
+        Request $request,
+        EntityFactory $entityFactory,
+        Design $design,
+        Module $module,
+        Settings $settings
+    ) {
         $this->request = $request;
         $this->entityFactory = $entityFactory;
         $this->design = $design;
         $this->module = $module;
+        $this->settings = $settings;
     }
 
     public function parseVariantData($variant, $itemFromCsv)
@@ -42,7 +50,7 @@ class BackendExtender implements ExtensionInterface
     /**
      * @param $variants
      * @return mixed
-     * метод корректирует данные для поля volume, т.к. оно decimal, туда нельзя строку писать
+     * Метод корректирует данные для поля volume, т.к. оно decimal, туда нельзя строку писать
      */
     public function correctVariantsVolume(array $variants)
     {
@@ -145,5 +153,15 @@ class BackendExtender implements ExtensionInterface
         $preparedVariantData[Init::VOLUME_FIELD] = $variant->{Init::VOLUME_FIELD};
 
         return ExtenderFacade::execute(__METHOD__, $preparedVariantData, func_get_args());
+    }
+
+    public function updateEventCounters()
+    {
+        if ($this->settings->get('np_api_key_error')) {
+            $this->design->assign(
+                'all_counter',
+                $this->design->getVar('all_counter') + 1
+            );
+        }
     }
 }
