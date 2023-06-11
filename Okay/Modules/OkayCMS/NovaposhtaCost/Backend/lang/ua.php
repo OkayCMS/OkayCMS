@@ -51,3 +51,6 @@ $lang['np_update_type_cities'] = 'Міста';
 $lang['np_cancel_update_cache'] = 'Відмінити';
 $lang['np_update_cache_finished'] = 'Завершено';
 $lang['np_api_key_error'] = 'Помилка API ключа';
+$lang['np_delete_delivery_type'] = 'Видалити тип доставки';
+$lang['np_add_delivery_type'] = 'Додати тип доставки';
+$lang['np_delivery_types_head'] = 'Типи доставки';

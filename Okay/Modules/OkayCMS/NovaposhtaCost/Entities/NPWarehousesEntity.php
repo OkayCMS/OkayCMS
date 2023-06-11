@@ -67,4 +67,19 @@ class NPWarehousesEntity extends Entity
 
         $this->db->query($sql);
     }
+
+    public function countByTypes(): array
+    {
+        $this->setUp();
+        $this->select->cols([
+            'COUNT(DISTINCT id) AS count',
+            'type'
+        ]);
+        $this->select->groupBy([
+            'type',
+        ]);
+        $this->db->query($this->select);
+
+        return $this->getResults('count', 'type');
+    }
 }

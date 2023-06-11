@@ -8,6 +8,9 @@ use Okay\Admin\Controllers\IndexAdmin;
 use Okay\Core\BackendTranslations;
 use Okay\Core\Response;
 use Okay\Entities\PaymentsEntity;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Backend\Helpers\NPBackendHelper;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Backend\Requests\NPBackendRequest;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPDeliveryTypesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPWarehousesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPApiHelper;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPCacheHelper;
@@ -18,7 +21,10 @@ class NovaposhtaCostAdmin extends IndexAdmin
     public function fetch(
         PaymentsEntity $paymentsEntity,
         NPWarehousesEntity $warehousesEntity,
-        NPCacheHelper $cacheHelper
+        NPCacheHelper $cacheHelper,
+        NPBackendRequest $NPBackendRequest,
+        NPDeliveryTypesEntity $deliveryTypesEntity,
+        NPBackendHelper $backendHelper
     ) {
         if ($this->request->method('POST')) {
             $this->settings->set('newpost_key', $this->request->post('newpost_key'));
@@ -28,6 +34,10 @@ class NovaposhtaCostAdmin extends IndexAdmin
             $this->settings->set('newpost_volume', str_replace(',', '.', $this->request->post('newpost_volume')));
             $this->settings->set('newpost_use_volume', $this->request->post('newpost_use_volume'));
             $this->settings->set('newpost_use_assessed_value', $this->request->post('newpost_use_assessed_value'));
+
+            $deliveryTypes = $NPBackendRequest->postDeliveryTypes();
+            $backendHelper->updateDeliveryTypes($deliveryTypes);
+
             $this->design->assign('message_success', 'saved');
         }
 
@@ -38,6 +48,8 @@ class NovaposhtaCostAdmin extends IndexAdmin
         $this->design->assign('last_update_date', $lastUpdateDate);
 
         $this->design->assign('warehousesTypesDTO', $cacheHelper->getUpdatedWarehousesTypes());
+        $this->design->assign('deliveryTypes', $deliveryTypesEntity->find());
+        $this->design->assign('countWarehousesByTypes', $warehousesEntity->countByTypes());
 
         $this->response->setContent($this->design->fetch('novaposhta_cost.tpl'));
     }

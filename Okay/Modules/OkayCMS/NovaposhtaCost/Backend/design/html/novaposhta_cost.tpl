@@ -158,7 +158,103 @@
                                     <label class="switch_label mr-0">{$btr->settings_np_include_assessed}</label>
                                 </div>
                             </div>
-
+                        </div>
+                        <div class="col-lg-12 col-md-12 mt-1">
+                            <div class="heading_box">
+                                {$btr->np_delivery_types_head|escape}
+                            </div>
+                            <div class="variants_wrapper fn_card">
+                                <div class="okay_list variants_list scrollbar-variant">
+                                    <div class="okay_list_body sortable delivery_types_list_add">
+                                        {foreach $deliveryTypes as $key => $deliveryType}
+                                            <div class="okay_list_body_item variants_list_item delivery_types_list_item">
+                                                <div class="okay_list_row ">
+                                                    <div class="okay_list_boding variants_item_drag">
+                                                        <div class="heading_label"></div>
+                                                        <div class="move_zone">
+                                                            {include file='svg_icon.tpl' svgId='drag_vertical'}
+                                                        </div>
+                                                    </div>
+                                                    <div class="okay_list_boding">
+                                                        <div class="heading_label">{$btr->general_option_name|escape}</div>
+                                                        <input name="delivery_types[id][{$key}]" type="hidden" value="{$deliveryType->id|escape}" />
+                                                        <input class="variant_input" name="delivery_types[name][{$key}]" type="text" value="{$deliveryType->name|escape}" />
+                                                    </div>
+                                                    <div class="okay_list_boding">
+                                                        {foreach $warehousesTypesDTO as $warehouseKey => $warehouseTypesDTO}
+                                                            <div>
+                                                                <input id="delivery_type_{$key}_{$warehouseKey}" type="checkbox" name="delivery_types[warehouses_type_refs][{$key}][]" value="{$warehouseTypesDTO->getTypeRef()|escape}"{if in_array($warehouseTypesDTO->getTypeRef(), $deliveryType->warehouses_type_refs)} checked{/if}>
+                                                                <label for="delivery_type_{$key}_{$warehouseKey}">
+                                                                    {if $manager->lang == 'ru'}
+                                                                        {$warehouseTypesDTO->getNameRu()|escape}
+                                                                    {else}
+                                                                        {$warehouseTypesDTO->getName()|escape}
+                                                                    {/if}
+                                                                    {if isset($countWarehousesByTypes[$warehouseTypesDTO->getTypeRef()])}
+                                                                        ({$countWarehousesByTypes[$warehouseTypesDTO->getTypeRef()]})
+                                                                    {else}
+                                                                        (0)
+                                                                    {/if}
+                                                                </label>
+                                                            </div>
+                                                        {/foreach}
+                                                    </div>
+                                                    <div class="okay_list_boding okay_list_close remove_variant">
+                                                        <button data-hint="{$btr->np_delete_delivery_type|escape}" type="button" class="btn_close fn_remove_delivery_type hint-bottom-right-t-info-s-small-mobile  hint-anim">
+                                                            {include file='svg_icon.tpl' svgId='delete'}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {/foreach}
+                                        <div class="okay_list_body_item variants_list_item delivery_types_list_item fn_new_delivery_type hidden">
+                                            <div class="okay_list_row ">
+                                                <div class="okay_list_boding variants_item_drag">
+                                                    <div class="heading_label"></div>
+                                                    <div class="move_zone">
+                                                        {include file='svg_icon.tpl' svgId='drag_vertical'}
+                                                    </div>
+                                                </div>
+                                                <div class="okay_list_boding">
+                                                    <div class="heading_label">{$btr->general_option_name|escape}</div>
+                                                    <input name="" class="fn_field_id" type="hidden" value="" />
+                                                    <input class="variant_input fn_field_name" name="" type="text" value="" />
+                                                </div>
+                                                <div class="okay_list_boding">
+                                                    {foreach $warehousesTypesDTO as $key => $warehouseTypesDTO}
+                                                        <div>
+                                                            <input type="checkbox" class="fn_type_checkbox" name="" value="{$warehouseTypesDTO->getTypeRef()|escape}" data-key="{$key}">
+                                                            <label class="fn_type_label">
+                                                                {if $manager->lang == 'ru'}
+                                                                    {$warehouseTypesDTO->getNameRu()|escape}
+                                                                {else}
+                                                                    {$warehouseTypesDTO->getName()|escape}
+                                                                {/if}
+                                                                {if isset($countWarehousesByTypes[$warehouseTypesDTO->getTypeRef()])}
+                                                                    ({$countWarehousesByTypes[$warehouseTypesDTO->getTypeRef()]})
+                                                                {else}
+                                                                    (0)
+                                                                {/if}
+                                                            </label>
+                                                        </div>
+                                                    {/foreach}
+                                                </div>
+                                                <div class="okay_list_boding okay_list_close remove_variant">
+                                                    <button data-hint="{$btr->np_delete_delivery_type|escape}" type="button" class="btn_close fn_remove_delivery_type hint-bottom-right-t-info-s-small-mobile  hint-anim">
+                                                        {include file='svg_icon.tpl' svgId='delete'}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="box_btn_heading mt-1">
+                                    <button type="button" class="btn btn_mini btn-secondary fn_add_delivery_type">
+                                        {include file='svg_icon.tpl' svgId='plus'}
+                                        <span>{$btr->np_add_delivery_type|escape}</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-lg-12 col-md-12 mt-1">
                             <button type="submit" class="btn btn_small btn_blue float-md-right">
@@ -443,5 +539,41 @@
             }
         });
     });
+
+    $(document).on('click', '.fn_remove_delivery_type', function () {
+        $(this).closest('.delivery_types_list_item').fadeOut(200).remove();
+    });
+
+    // Додавання типу доставки
+    let delivery_type = $('.fn_new_delivery_type').clone(false).removeClass('hidden');
+    let lastDeliveryTypeIndex = {/literal}{$deliveryTypes|count}{literal};
+    $(".fn_new_delivery_type").remove();
+    $(document).on('click', '.fn_add_delivery_type', function () {
+        let delivery_type_clone = delivery_type.clone(true);
+        delivery_type_clone.removeClass('hidden').removeClass('fn_new_delivery_type');
+        delivery_type_clone.find('.fn_field_id').prop('name', 'delivery_types[id][' + lastDeliveryTypeIndex + ']')
+        delivery_type_clone.find('.fn_field_name').prop('name', 'delivery_types[name][' + lastDeliveryTypeIndex + ']')
+        delivery_type_clone.find('.fn_type_checkbox').each(function () {
+
+            let parent = $(this).parent();
+            let key = $(this).data('key');
+            $(this).prop(
+                'name',
+                'delivery_types[warehouses_type_refs][' + lastDeliveryTypeIndex + '][]'
+            ).prop(
+                'id',
+                'delivery_type_' + lastDeliveryTypeIndex + '_' + key
+            );
+            parent.find('.fn_type_label').prop(
+                'for',
+                'delivery_type_' + lastDeliveryTypeIndex + '_' + key
+            );
+        });
+
+        $(".delivery_types_list_add").append(delivery_type_clone);
+        lastDeliveryTypeIndex++;
+        return false;
+    });
+
 </script>
 {/literal}

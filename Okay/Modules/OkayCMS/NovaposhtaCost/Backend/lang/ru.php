@@ -1,4 +1,5 @@
 <?php
+
 $lang['np_update_all'] = 'Обновить все пункты выдачи';
 $lang['np_update'] = 'Обновить ';
 $lang['np_warehouses_data_info'] = 'Данные о точках выдачи';
@@ -50,3 +51,6 @@ $lang['np_update_type_cities'] = 'Города';
 $lang['np_cancel_update_cache'] = 'Отменить';
 $lang['np_update_cache_finished'] = 'Завершено';
 $lang['np_api_key_error'] = 'Ошибка API ключа';
+$lang['np_delete_delivery_type'] = 'Удалить тип доставки';
+$lang['np_add_delivery_type'] = 'Добавить тип доставки';
+$lang['np_delivery_types_head'] = 'Типы доставки';

@@ -51,3 +51,6 @@ $lang['np_update_type_cities'] = 'Cities';
 $lang['np_update_type_cities'] = 'Cancel';
 $lang['np_update_cache_finished'] = 'Finished';
 $lang['np_api_key_error'] = 'API key error';
+$lang['np_delete_delivery_type'] = 'Remove delivery type';
+$lang['np_add_delivery_type'] = 'Add delivery type';
+$lang['np_delivery_types_head'] = 'Delivery types';

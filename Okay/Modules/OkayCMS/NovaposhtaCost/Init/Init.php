@@ -22,6 +22,7 @@ use Okay\Helpers\OrdersHelper;
 use Okay\Helpers\ValidateHelper;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCitiesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCostDeliveryDataEntity;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPDeliveryTypesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPWarehousesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Extenders\BackendExtender;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Extenders\FrontExtender;
@@ -210,5 +211,12 @@ class Init extends AbstractInit
             NPCitiesEntity::class,
             (new EntityField('updated_at'))->setTypeTimestamp()
         );
+
+        $this->migrateEntityTable(NPDeliveryTypesEntity::class, [
+            (new EntityField('id'))->setIndexPrimaryKey()->setTypeInt(11, false)->setAutoIncrement(),
+            (new EntityField('name'))->setTypeVarchar(255)->setIsLang(),
+            (new EntityField('warehouses_type_refs'))->setTypeVarchar(255),
+            (new EntityField('position'))->setTypeInt(11, false),
+        ]);
     }
 }

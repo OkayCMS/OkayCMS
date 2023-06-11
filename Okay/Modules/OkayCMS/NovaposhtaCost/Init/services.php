@@ -14,6 +14,8 @@ use Okay\Core\OkayContainer\Reference\ParameterReference as PR;
 use Okay\Core\OkayContainer\Reference\ServiceReference as SR;
 use Okay\Core\Request;
 use Okay\Core\Settings;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Backend\Helpers\NPBackendHelper;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Backend\Requests\NPBackendRequest;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Extenders\BackendExtender;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Extenders\FrontExtender;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPApiHelper;
@@ -62,6 +64,18 @@ return [
             new SR(EntityFactory::class),
             new SR(Languages::class),
             new SR(Settings::class),
+        ],
+    ],
+    NPBackendRequest::class => [
+        'class' => NPBackendRequest::class,
+        'arguments' => [
+            new SR(Request::class),
+        ],
+    ],
+    NPBackendHelper::class => [
+        'class' => NPBackendHelper::class,
+        'arguments' => [
+            new SR(EntityFactory::class),
         ],
     ],
 ];
