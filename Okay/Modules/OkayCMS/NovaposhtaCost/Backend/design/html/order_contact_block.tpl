@@ -76,7 +76,6 @@
     $('.fn_np_recalc_price').on('click', function(e) {
         e.preventDefault();
         let selected_city = $('input[name="novaposhta_city_id"]').val();
-        let warehouse_ref = $('input[name="novaposhta_warehouse_id"]').val();
         let delivery_id = $('select[name="delivery_id"]').children(':selected').val();
         let redelivery = $('input[name="novaposhta_redelivery"]').is(':checked') ? 1 : 0;
         $.ajax({
@@ -84,7 +83,6 @@
             data: {
                 city: selected_city,
                 redelivery: redelivery,
-                warehouse: warehouse_ref,
                 delivery_id: delivery_id,
                 currency: '{/literal}{$currency->id}{literal}',
                 order_id: '{/literal}{$order->id}{literal}'
@@ -228,17 +226,29 @@
     {literal}
     
     function showWarehouses(cityRef) {
-        let selected_warehouse = $('input[name="novaposhta_warehouse_id"]').val();
+        let selectedWarehouseRef = $('input[name="novaposhta_warehouse_id"]').val();
+
         $.ajax({
             url: okay.router['OkayCMS_NovaposhtaCost_get_warehouses'],
-            data: {city: cityRef, warehouse: selected_warehouse},
+            data: {city: cityRef},
             dataType: 'json',
             success: function(data) {
-                if (data.warehouses_response.success) {
-                    $('select.warehouses_novaposhta').html(data.warehouses_response.warehouses).show();
-                    $('select.warehouses_novaposhta').selectpicker('refresh');
+                let warehousesSelect = $('select.warehouses_novaposhta');
+                warehousesSelect.html('');
+                if (data.success) {
+                    for (let warehouseKey in data.warehouses) {
+                        let warehouse = data.warehouses[warehouseKey];
+                        let option = $('<option value="' + warehouse.name + '" ' +
+                            'data-warehouse_ref="' + warehouse.ref + '"' +
+                            (selectedWarehouseRef && selectedWarehouseRef == warehouse.ref ? 'selected' : '') +
+                            '>' + warehouse.name + '</option>')
+                        warehousesSelect.append(option);
+                    }
+
+                    warehousesSelect.show();
+                    warehousesSelect.selectpicker('refresh');
                 } else {
-                    $('select.warehouses_novaposhta').html('').hide();
+                    warehousesSelect.html('').hide();
                 }
             }
         });
@@ -246,21 +256,7 @@
     
     $('select.warehouses_novaposhta').on('change', function() {
         if($(this).val() != ''){
-            let city_name = $('.fn_newpost_city_name').val(),
-                warehouse_name = $(this).val(),
-                delivery_address = city_name + ', ' + warehouse_name;
-
-            var msg = "";
-            if($('textarea[name="address"]').val().length <= 0){
-                $('textarea[name="address"]').val(delivery_address);
-                toastr.success(msg, "{/literal}{$btr->np_update_address|escape}{literal}", 10);
-            } else {
-                toastr.error(msg, "{/literal}{$btr->np_no_update_address|escape}{literal}", 10);
-            }
-
             $('input[name="novaposhta_warehouse_id"]').val($(this).children(':selected').data('warehouse_ref'));
-            let new_href = 'https://www.google.com/maps/search/'+ delivery_address +'?hl=ru';
-            $("a#google_map").attr("href", new_href);
         }
     });
 </script>

@@ -36,6 +36,7 @@ $('select.city_novaposhta').select2(configParamsObj);
 
 $(document).on('change', 'select.fn_select_warehouses_novaposhta', set_warehouse);
 $(document).on('change', 'input[name="novaposhta_redelivery"]', calc_delivery_price);
+$(document).on('click', '.np_delivery_types_heading a', changeDeliveryType);
 
 function init() {
 
@@ -45,10 +46,10 @@ function init() {
     $('select.city_novaposhta').closest('.delivery_wrap').find('span.deliver_price').text('');
 
     $(document).on('change', 'input[name="delivery_id"]', calc_delivery_price);
-    $(document).on('change', 'input[name="novaposhta_delivery_city_id"]', calc_delivery_price);
+    $(document).on('change', 'input[name="novaposhta_delivery_city_id"]', getWarehouses);
 
     if (city_ref) {
-        calc_delivery_price();
+        getWarehouses();
     }
     $('.np_preloader').remove();
 }
@@ -160,6 +161,107 @@ $('[name="delivery_id"]').on('change', function() {
     select_first_active_payment();
 });
 
+function getWarehouses(e)
+{
+    let active_delivery = $('input[name="delivery_id"]:checked');
+    let delivery_block = active_delivery.closest('.delivery__item');
+    let warehousesBlock = delivery_block.find('.warehouses_novaposhta');
+    let deliveryTypesBlock = delivery_block.find('.np_delivery_types_block');
+    let deliveryTypesHeading = deliveryTypesBlock.find('.np_delivery_types_heading');
+    let deliveryTypesContent = deliveryTypesBlock.find('.np_delivery_types_content');
+    let cityRef = delivery_block.find('input[name="novaposhta_delivery_city_id"]').val();
+    let selectedWarehouseRef = delivery_block.find('input[name="novaposhta_delivery_warehouse_id"]').val();
+    let selectedDeliveryType = deliveryTypesHeading.find('a.active').data('delivery_type');
+
+    $.ajax({
+        url: okay.router['OkayCMS_NovaposhtaCost_get_warehouses'],
+        data: {city: cityRef},
+        dataType: 'json',
+        success: function(data) {
+            if (data.hasOwnProperty('success') && data.success) {
+
+                deliveryTypesHeading.html('');
+                deliveryTypesContent.html('');
+
+                // Додаємо таби типів доставки
+                for (let deliveryTypeKey in data.delivery_types) {
+                    let deliveryType = data.delivery_types[deliveryTypeKey];
+
+                    let deliveryTypeButton = $('<a href="javascript:;" data-delivery_type="fn_delivery_type_' + deliveryTypeKey + '"><span>' + deliveryType.name + '</span></a>');
+                    deliveryTypeButton.appendTo(deliveryTypesHeading);
+                    let warehousesSelect = $('<select name="novaposhta_warehouses" tabindex="1" class="fn_select_warehouses_novaposhta" style="width: 100%;" disabled></select>');
+
+                    for (let warehouseKey in data.warehouses) {
+                        let warehouse = data.warehouses[warehouseKey];
+                        if (deliveryType.typeRefs.includes(warehouse.typeRef)) {
+                            let option = $('<option value="' + warehouse.name + '" ' +
+                                'data-warehouse_ref="' + warehouse.ref + '"' +
+                                (selectedWarehouseRef && selectedWarehouseRef == warehouse.ref ? 'selected' : '') +
+                                '>' + warehouse.name + '</option>')
+                            warehousesSelect.append(option);
+                            if (selectedWarehouseRef && selectedWarehouseRef == warehouse.ref) {
+                                selectedDeliveryType = 'fn_delivery_type_' + deliveryTypeKey;
+                            }
+                        }
+                    }
+                    let selectWrap = $('<div class="fn_delivery_type_' + deliveryTypeKey + '"></div>')
+
+                    selectWrap.hide();
+                    warehousesSelect.attr('disabled', false);
+
+                    warehousesSelect.appendTo(selectWrap)
+                        .select2(whsParams);
+
+                    selectWrap.appendTo(deliveryTypesContent);
+                }
+
+                // Відмічаємо активний таб типу доставки
+                // Перший таб, або який був вибраний для попереднього міста, якщо для нового він теж доступний
+                let selectedDeliveryTypeButton = deliveryTypesHeading.find('a[data-delivery_type="' + selectedDeliveryType + '"]');
+                if (selectedDeliveryTypeButton.length > 0) {
+                    selectedDeliveryTypeButton.trigger('click');
+                } else {
+                    deliveryTypesHeading.children('a').first().trigger('click');
+                }
+                if (deliveryTypesHeading.children().length > 1) {
+                    deliveryTypesHeading.show();
+                } else {
+                    deliveryTypesHeading.hide();
+                }
+            } else {
+                warehousesBlock.hide();
+                warehousesBlock.find('.fn_select_warehouses_novaposhta')
+                    .html('')
+                    .attr('disabled', true);
+            }
+
+            calc_delivery_price();
+        }
+    });
+}
+
+function changeDeliveryType()
+{
+    let activeDeliveryTypeButton = $(this);
+    let activeDelivery = $('input[name="delivery_id"]:checked');
+    let deliveryBlock = activeDelivery.closest('.delivery__item');
+    let deliveryTypesBlock = deliveryBlock.find('.np_delivery_types_block');
+    let deliveryTypesHeading = deliveryTypesBlock.find('.np_delivery_types_heading');
+    let deliveryTypesContent = deliveryTypesBlock.find('.np_delivery_types_content');
+    $('.fn_select_warehouses_novaposhta').attr('disabled', true);
+    deliveryTypesContent.children().hide();
+    deliveryTypesHeading.children().removeClass('active');
+
+    deliveryTypesContent.find('.' + activeDeliveryTypeButton.data('delivery_type'))
+        .show()
+        .find('select')
+        .attr('disabled', false)
+        .trigger('change');
+    activeDeliveryTypeButton.addClass('active');
+
+    return false;
+}
+
 function calc_delivery_price(e) {
     if (e !== undefined && e.target.name === 'novaposhta_redelivery') {
         update_np_payments();
@@ -176,7 +278,6 @@ function calc_delivery_price(e) {
     let delivery_block = active_delivery.closest('.delivery__item');
     let price_elem = delivery_block.find('.fn_delivery_price');
     let term_elem = delivery_block.find('.term_novaposhta span');
-    let warehouses_block = delivery_block.find('.warehouses_novaposhta');
     let delivery_id = active_delivery.val();
     let city_ref = delivery_block.find('input[name="novaposhta_delivery_city_id"]').val();
 
@@ -188,7 +289,6 @@ function calc_delivery_price(e) {
 
     if (city_ref) {
         delivery_block.find('input[name="novaposhta_delivery_city_id"]').val(city_ref);
-        let warehouse_ref = delivery_block.find('input[name="novaposhta_delivery_warehouse_id"]').val();
 
         price_elem.text(okay.np_cart_calculate);
         $('#fn_total_delivery_price').text(okay.np_cart_calculate);
@@ -198,7 +298,7 @@ function calc_delivery_price(e) {
         delivery_block.find('input[name="novaposhta_delivery_term"]').val('');
         $.ajax({
             url: okay.router['OkayCMS_NovaposhtaCost_calc'],
-            data: {city: city_ref, redelivery: redelivery, warehouse: warehouse_ref, delivery_id: delivery_id},
+            data: {city: city_ref, redelivery: redelivery, delivery_id: delivery_id},
             dataType: 'json',
             success: function(data) {
                 if (data.hasOwnProperty('price_response')) {
@@ -218,24 +318,6 @@ function calc_delivery_price(e) {
                     term_elem.parent().show();
                 } else {
                     term_elem.parent().hide();
-                }
-                if (data.hasOwnProperty('warehouses_response') && data.warehouses_response.success) {
-                    warehouses_block.show();
-                    selected_whref = $('.fn_select_warehouses_novaposhta').find(':selected').attr('data-warehouse_ref');
-                    if(!$('.fn_select_warehouses_novaposhta').find(':selected').val() || data.warehouses_response.warehouses.indexOf(selected_whref)== -1){
-                    warehouses_block.find('.fn_select_warehouses_novaposhta')
-                        .html(data.warehouses_response.warehouses)
-                        .attr('disabled', false)
-                        .select2(whsParams);
-                    }
-                    warehouses_block.find('.fn_select_warehouses_novaposhta').rules('add', {
-                        required: true,
-                    });
-                } else {
-                    warehouses_block.hide();
-                    warehouses_block.find('.fn_select_warehouses_novaposhta')
-                        .html('')
-                        .attr('disabled', true);
                 }
 
                 update_np_payments();
@@ -294,11 +376,6 @@ function get_np_payment_method_ids() {
 
 function set_warehouse() {
     if ($(this).val() != '') {
-        $('input[name="address"]').trigger('focus');
-        let city_name = $('.city_novaposhta').val(),
-            warehouse_name = $(this).val(),
-            delivery_address = city_name + ', ' + warehouse_name;
-        $('input[name="address"]').val(delivery_address);
         $('input[name="novaposhta_delivery_warehouse_id"]').val($(this).children(':selected').data('warehouse_ref'));
     }
 }

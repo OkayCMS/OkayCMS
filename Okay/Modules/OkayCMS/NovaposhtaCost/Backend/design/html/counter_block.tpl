@@ -1,4 +1,4 @@
-{if $settings->np_api_key_error}
+{if $settings->np_api_key_error || $uahCurrencyError}
     <div class="notif_item">
         <a href="index.php?controller=OkayCMS.NovaposhtaCost.NovaposhtaCostAdmin" class="l_notif">
             <span class="notif_icon boxed_notify">

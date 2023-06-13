@@ -9,11 +9,13 @@ use Okay\Admin\Helpers\BackendImportHelper;
 use Okay\Admin\Helpers\BackendMainHelper;
 use Okay\Admin\Helpers\BackendOrdersHelper;
 use Okay\Admin\Requests\BackendProductsRequest;
+use Okay\Core\Design;
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\AbstractInit;
 use Okay\Core\Modules\EntityField;
 use Okay\Core\Scheduler\Schedule;
 use Okay\Core\ServiceLocator;
+use Okay\Entities\CurrenciesEntity;
 use Okay\Entities\PaymentsEntity;
 use Okay\Entities\VariantsEntity;
 use Okay\Helpers\CartHelper;
@@ -156,7 +158,12 @@ class Init extends AbstractInit
 
         $this->addBackendBlock(
             'notification_counters',
-            'counter_block.tpl'
+            'counter_block.tpl',
+            function (Design $design, CurrenciesEntity $currenciesEntity) {
+                if (!$currenciesEntity->findOne(['code' => 'UAH'])) {
+                    $design->assign('uahCurrencyError', true);
+                }
+            }
         );
 
         $this->registerSchedule(
@@ -190,7 +197,7 @@ class Init extends AbstractInit
 
         $warehouses = $warehousesEntity->mappedBy('ref')->noLimit()->find();
         foreach ($warehouses as $ref => $warehouse) {
-            if(isset($warehousesTypesData[$ref])){
+            if (isset($warehousesTypesData[$ref])){
                 $warehousesEntity->update((int)$warehouse->id,['type' => $warehousesTypesData[$ref]]); 
             } 
         }

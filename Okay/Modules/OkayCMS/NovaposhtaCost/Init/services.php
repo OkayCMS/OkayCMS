@@ -20,6 +20,8 @@ use Okay\Modules\OkayCMS\NovaposhtaCost\Extenders\BackendExtender;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Extenders\FrontExtender;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPApiHelper;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPCacheHelper;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPCalcHelper;
+use Psr\Log\LoggerInterface;
 
 return [
     FrontExtender::class => [
@@ -39,16 +41,6 @@ return [
             new SR(Design::class),
             new SR(Module::class),
             new SR(Settings::class),
-        ],
-    ],
-    NovaposhtaCost::class => [
-        'class' => NovaposhtaCost::class,
-        'arguments' => [
-            new SR(Settings::class),
-            new SR(EntityFactory::class),
-            new SR(Money::class),
-            new SR(Languages::class),
-            new SR(FrontTranslations::class),
         ],
     ],
     NPApiHelper::class => [
@@ -76,6 +68,16 @@ return [
         'class' => NPBackendHelper::class,
         'arguments' => [
             new SR(EntityFactory::class),
+        ],
+    ],
+    NPCalcHelper::class => [
+        'class' => NPCalcHelper::class,
+        'arguments' => [
+            new SR(EntityFactory::class),
+            new SR(NPApiHelper::class),
+            new SR(Settings::class),
+            new SR(Money::class),
+            new SR(LoggerInterface::class),
         ],
     ],
 ];

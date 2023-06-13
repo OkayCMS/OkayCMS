@@ -64,6 +64,21 @@
     </div>
 {/if}
 
+{if !$uah_currency}
+    <div class="row d_flex">
+        <div class="col-lg-12 col-md-12">
+            <div class="alert alert--center alert--icon alert--error">
+                <div class="alert__content">
+                    <div class="alert__title">
+                        {$btr->np_uah_currency_not_exists|escape}
+                    </div>
+                    <p>{$btr->np_uah_currency_not_exists_text|escape}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{/if}
+
 {*Главная форма страницы*}
 <form method="post" enctype="multipart/form-data">
     <input type=hidden name="session_id" value="{$smarty.session.id}">
@@ -121,18 +136,6 @@
                                 <input type="text" name="newpost_volume" value="{$settings->newpost_volume|escape}" class="form-control">
                             </div>
                         </div>
-
-                        <!--TODO "Переделать валюты на автоопределение-->
-                        {*<div class="col-lg-12 col-md-12">
-                            <div class="heading_label">{$btr->settings_np_currency}*</div>
-                            <div class="mb-1">
-                                <select name="currency_id" class="selectpicker form-control" data-live-search="false">
-                                    {foreach $all_currencies as $c}
-                                    <option value="{$c->id}"{if $c->id == $settings->newpost_currency_id} selected{/if}>{$c->name|escape} ({$c->code|escape})</option>
-                                    {/foreach}
-                                </select>
-                            </div>
-                        </div>*}
                     </div>
                     <div class="row">
                         <div class="col-lg-12 col-md-12 mt-1">
@@ -299,7 +302,7 @@
 
                     <div class="alert alert--icon alert--warning mt-2 mb-0">
                         <div class="alert__content" style="line-height: 1.4">
-                            <div class="alert__title">Совет</div>
+                            <div class="alert__title">{$btr->np_cron_update_cache_title}</div>
                             {$btr->np_cron_update_cache_1}
                             "<a href=""  class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">php {$config->root_dir}ok scheduler:run</a>"
                             {$btr->np_cron_update_cache_2}

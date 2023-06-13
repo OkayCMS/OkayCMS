@@ -6,33 +6,35 @@ namespace Okay\Modules\OkayCMS\NovaposhtaCost\Controllers;
 
 use Okay\Core\Request;
 use Okay\Core\Response;
-use Okay\Core\Settings;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCitiesEntity;
-use Okay\Modules\OkayCMS\NovaposhtaCost\NovaposhtaCost;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPDeliveryTypesEntity;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPWarehousesEntity;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPApiHelper;
 
 class NovaposhtaCostSearchController
 {
-    
-    public function findStreet(Request $request, Response $response, Settings $settings, NovaposhtaCost $novaposhtaCost)
-    {
+    public function findStreet(
+        Request $request,
+        Response $response,
+        NPApiHelper $apiHelper
+    ) {
         $query = $request->get('query');
         $ref = $request->get('city_ref');
         $request = [
-            "apiKey" => $settings->get('newpost_key'),
-            "modelName" => "Address",
-            "calledMethod" => "searchSettlementStreets",
-            "methodProperties" => [
-                "StreetName"=> $query,
-                "SettlementRef" => $ref,
-                "Limit"=> 10,
+            'modelName' => 'Address',
+            'calledMethod' => 'searchSettlementStreets',
+            'methodProperties' => [
+                'StreetName'=> $query,
+                'SettlementRef' => $ref,
+                'Limit'=> 10,
             ],
         ];
         
-        $responseFromApi = $novaposhtaCost->npRequest(json_encode($request));
-        if($responseFromApi->success && $responseFromApi->data[0]){
+        $responseFromApi = $apiHelper->request($request);
+        if ($responseFromApi->success && $responseFromApi->data[0]){
             $result = new \stdClass;
-            $suggestions = array();
-            foreach($responseFromApi->data[0]->Addresses as $r) {
+            $suggestions = [];
+            foreach ($responseFromApi->data[0]->Addresses as $r) {
                 $suggestion = new \stdClass;
                 unset($r->postCodeArray);
                 $suggestion->value = $r->Present;
@@ -51,25 +53,27 @@ class NovaposhtaCostSearchController
     }
     
     // Метод ищет города, куда может быть осущствлена доставка курьером
-    public function findCityForDoor(Request $request, Response $response, Settings $settings, NovaposhtaCost $novaposhtaCost)
-    {
+    public function findCityForDoor(
+        Request $request,
+        Response $response,
+        NPApiHelper $apiHelper
+    ) {
         $query = $request->get('query');
         $request = [
-            "apiKey" => $settings->get('newpost_key'),
-            "modelName" => "Address",
-            "calledMethod" => "searchSettlements",
-            "methodProperties" => [
-                "CityName"=> $query,
-                "Limit"=> 25,
+            'modelName' => 'Address',
+            'calledMethod' => 'searchSettlements',
+            'methodProperties' => [
+                'CityName'=> $query,
+                'Limit'=> 25,
             ],
         ];
 
-        $responseFromApi = $novaposhtaCost->npRequest(json_encode($request));
+        $responseFromApi = $apiHelper->request($request);
 
-        if ($responseFromApi->success && $responseFromApi->data[0]){
+        if ($responseFromApi->success && $responseFromApi->data[0]) {
             $result = new \stdClass;
             $suggestions = [];
-            foreach($responseFromApi->data[0]->Addresses as $r) {
+            foreach ($responseFromApi->data[0]->Addresses as $r) {
                 $suggestion = new \stdClass;
                 unset($r->postCodeArray);
                 $suggestion->value = $r->Present;
@@ -90,8 +94,11 @@ class NovaposhtaCostSearchController
         }
     }
     
-    public function findCity(Request $request, Response $response, NPCitiesEntity $citiesEntity)
-    {
+    public function findCity(
+        Request $request,
+        Response $response,
+        NPCitiesEntity $citiesEntity
+    ) {
 
         $filter['keyword'] = $request->get('query');
         $filter['limit'] = 25;
@@ -104,7 +111,11 @@ class NovaposhtaCostSearchController
                 $suggestion = new \stdClass();
 
                 $suggestion->value = $city->name;
-                $suggestion->data = $city;
+                $suggestion->data = (object)[
+                    'id' => $city->id,
+                    'ref' => $city->ref,
+                    'name' => $city->name,
+                ];
                 $suggestions[] = $suggestion;
             }
         }
@@ -114,5 +125,65 @@ class NovaposhtaCostSearchController
         $res->suggestions = $suggestions;
 
         $response->setContent(json_encode($res), RESPONSE_JSON);
+    }
+
+    public function getWarehouses(
+        Request $request,
+        Response $response,
+        NPWarehousesEntity $warehousesEntity,
+        NPDeliveryTypesEntity $deliveryTypesEntity
+    ): Response
+    {
+        $cityRef = $request->get('city');
+
+        $deliveryTypes = $deliveryTypesEntity->find();
+        if (empty($cityRef) || empty($deliveryTypes)) {
+            return $response->setContent(json_encode([
+                'success' => false,
+            ]), RESPONSE_JSON);
+        }
+
+        $result['success'] = true;
+        $deliveryTypesRefs = [];
+        $deliveryTypesResponse = [];
+        foreach ($deliveryTypes as $deliveryType) {
+            foreach ($deliveryType->warehouses_type_refs as $typeRef) {
+                $deliveryTypesRefs[$typeRef] = $typeRef;
+            }
+
+            $deliveryTypesResponse[] = (object)[
+                'name' => $deliveryType->name,
+                'typeRefs' => $deliveryType->warehouses_type_refs,
+            ];
+        }
+
+        $filter = [
+            'city_ref' => $cityRef,
+            'type' => $deliveryTypesRefs,
+        ];
+        $warehouses = $warehousesEntity->find($filter);
+
+        $warehousesResponse = [];
+        $currentWarehousesTypes = [];
+        foreach ($warehouses as $warehouse) {
+            $currentWarehousesTypes[$warehouse->type] = $warehouse->type;
+            $warehousesResponse[] = (object)[
+                'name' => $warehouse->name,
+                'ref' => $warehouse->ref,
+                'typeRef' => $warehouse->type,
+            ];
+        }
+
+        // Прибираємо типи доставки, для яких немає пунктів видачі у вибраному місті
+        foreach ($deliveryTypesResponse as $key => $deliveryTypeResponse) {
+            if (!array_intersect($currentWarehousesTypes, $deliveryTypeResponse->typeRefs)) {
+                unset($deliveryTypesResponse[$key]);
+            }
+        }
+
+        $result['delivery_types'] = $deliveryTypesResponse;
+        $result['warehouses'] = $warehousesResponse;
+
+        return $response->setContent(json_encode($result), RESPONSE_JSON);
     }
 }

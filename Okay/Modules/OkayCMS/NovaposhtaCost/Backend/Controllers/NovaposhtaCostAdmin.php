@@ -7,6 +7,7 @@ namespace Okay\Modules\OkayCMS\NovaposhtaCost\Backend\Controllers;
 use Okay\Admin\Controllers\IndexAdmin;
 use Okay\Core\BackendTranslations;
 use Okay\Core\Response;
+use Okay\Entities\CurrenciesEntity;
 use Okay\Entities\PaymentsEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Backend\Helpers\NPBackendHelper;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Backend\Requests\NPBackendRequest;
@@ -20,6 +21,7 @@ class NovaposhtaCostAdmin extends IndexAdmin
 {
     public function fetch(
         PaymentsEntity $paymentsEntity,
+        CurrenciesEntity $currenciesEntity,
         NPWarehousesEntity $warehousesEntity,
         NPCacheHelper $cacheHelper,
         NPBackendRequest $NPBackendRequest,
@@ -43,6 +45,9 @@ class NovaposhtaCostAdmin extends IndexAdmin
 
         $paymentMethods = $paymentsEntity->find();
         $this->design->assign('payment_methods', $paymentMethods);
+
+        // Валюта, необхідна для роботи модуля
+        $this->design->assign('uah_currency', $currenciesEntity->findOne(['code' => 'UAH']));
 
         $lastUpdateDate = $warehousesEntity->order('updated_at_ASC')->cols(['updated_at'])->findOne();
         $this->design->assign('last_update_date', $lastUpdateDate);

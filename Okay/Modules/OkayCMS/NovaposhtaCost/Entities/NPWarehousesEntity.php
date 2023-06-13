@@ -12,6 +12,7 @@ class NPWarehousesEntity extends Entity
         'id',
         'ref',
         'city_ref',
+        'type',
         'updated_at',
     ];
 

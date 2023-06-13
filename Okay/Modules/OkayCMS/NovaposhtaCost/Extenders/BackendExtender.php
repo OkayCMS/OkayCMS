@@ -11,6 +11,7 @@ use Okay\Core\Modules\Extender\ExtensionInterface;
 use Okay\Core\Modules\Module;
 use Okay\Core\Request;
 use Okay\Core\Settings;
+use Okay\Entities\CurrenciesEntity;
 use Okay\Entities\DeliveriesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCostDeliveryDataEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Init\Init;
@@ -157,7 +158,9 @@ class BackendExtender implements ExtensionInterface
 
     public function updateEventCounters()
     {
-        if ($this->settings->get('np_api_key_error')) {
+        /** @var CurrenciesEntity $currenciesEntity */
+        $currenciesEntity = $this->entityFactory->get(CurrenciesEntity::class);
+        if ($this->settings->get('np_api_key_error') || !$currenciesEntity->findOne(['code' => 'UAH'])) {
             $this->design->assign(
                 'all_counter',
                 $this->design->getVar('all_counter') + 1

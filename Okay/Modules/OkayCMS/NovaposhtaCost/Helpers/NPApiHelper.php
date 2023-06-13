@@ -135,7 +135,7 @@ class NPApiHelper
         return $this->lastCallError;
     }
 
-    private function request(array $requestParams)
+    public function request(array $requestParams)
     {
         if (empty($requestParams)) {
             return false;
