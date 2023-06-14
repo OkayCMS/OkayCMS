@@ -5,6 +5,7 @@ namespace Okay\Core\Modules;
 
 
 use Okay\Core\DebugBar\DebugBar;
+use Okay\Core\Modules\DTO\ModificationDTO;
 use Okay\Core\Modules\DTO\ModuleParamsDTO;
 use Okay\Core\OkayContainer\OkayContainer;
 use Okay\Core\Router;
@@ -64,7 +65,7 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
      * @var ModuleParamsDTO[] параметры модулей из файла module.json
      */
     private $modulesParams = [];
-    private $modulesModifications = ['front' => [], 'backend' => []];
+    private array $modulesModifications = ['front' => [], 'backend' => []];
     private $modificationsInit = false;
 
     private $plugins;
@@ -195,13 +196,19 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
         return $this->expireModulesNum;
     }
 
-    public function getBackendModulesTplModifications()
+    /**
+     * @return ModificationDTO[]
+     */
+    public function getBackendModulesTplModifications(): array
     {
         $this->initModulesModifications();
         return $this->modulesModifications['backend'];
     }
 
-    public function getFrontModulesTplModifications()
+    /**
+     * @return ModificationDTO[]
+     */
+    public function getFrontModulesTplModifications(): array
     {
         $this->initModulesModifications();
         return $this->modulesModifications['front'];
@@ -214,21 +221,21 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
         }
 
         $allowedModifiers = [
-            'append',
-            'appendBefore',
-            'prepend',
-            'appendAfter',
-            'html',
-            'text',
-            'replace',
-            'remove',
+            'setAppend' => 'getAppend',
+            'setAppendBefore' => 'getAppendBefore',
+            'setPrepend' => 'getPrepend',
+            'setAppendAfter' => 'getAppendAfter',
+            'setHtml' => 'getHtml',
+            'setText' => 'getText',
+            'setReplace' => 'getReplace',
+            'setRemove' => 'isRemove',
         ];
 
         $frontModifications = [];
         $backendModifications = [];
         if (!empty($this->modulesParams)) {
             $modulesParams = array_reverse($this->modulesParams);
-            foreach ($modulesParams as $vendorModule => $params) {
+            foreach ($modulesParams as $vendorModule => $modulesParamDTO) {
 
                 // Для выключенных модулей не нужно инициализировать модификаторы
                 if (!isset($this->runningModules[$vendorModule]) || !$this->runningModules[$vendorModule]['is_active']) {
@@ -245,51 +252,46 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
                 $moduleDir = __DIR__ . '/../../Modules/' . $vendorModule . '/';
                 $themeModuleHtmlDir = dirname(__DIR__,3).'/design/'.$themeDir.'/modules/'.$vendorModule.'/';
 
-                foreach ($params->getFrontModifications() as $modification) {
-                    if (!empty($modification->changes)) {
-                        foreach ($modification->changes as $change) {
+                foreach ($modulesParamDTO->getFrontModifications() as $modificationDTO) {
+                    foreach ($modificationDTO->getChanges() as $changeDTO) {
 
-                            // Если не указали комментарий, добавим название модуля
-                            if (empty($change->comment)) {
-                                $change->comment = $vendorModule;
-                            }
+                        // Если не указали комментарий, добавим название модуля
+                        if (empty($changeDTO->getComment())) {
+                            $changeDTO->setComment($vendorModule);
+                        }
 
-                            foreach ($allowedModifiers as $modifier) {
-                                // Если в значении модификатора указано имя файла - значение считаем с самого файла
-                                if (property_exists($change, $modifier)) {
-                                    if (is_file($themeModuleHtmlDir . 'html/' . $change->{$modifier})) {
-                                        $change->{$modifier} = file_get_contents($themeModuleHtmlDir . 'html/' . $change->{$modifier});
-                                    } else if (is_file($moduleDir . 'design/html/' . $change->{$modifier})) {
-                                        $change->{$modifier} = file_get_contents($moduleDir . 'design/html/' . $change->{$modifier});
-                                    }
+                        foreach ($allowedModifiers as $setMethod => $getMethod) {
+                            // Если в значении модификатора указано имя файла - значение считаем с самого файла
+                            if (!empty($changeDTO->$getMethod())) {
+                                if (is_file($themeModuleHtmlDir . 'html/' . $changeDTO->$getMethod())) {
+                                    $changeDTO->$setMethod(file_get_contents($themeModuleHtmlDir . 'html/' . $changeDTO->$getMethod()));
+                                } else if (is_file($moduleDir . 'design/html/' . $changeDTO->$getMethod())) {
+                                    $changeDTO->$setMethod(file_get_contents($moduleDir . 'design/html/' . $changeDTO->$getMethod()));
                                 }
                             }
                         }
                     }
                 }
-                $frontModifications = array_merge($frontModifications, $params->getFrontModifications());
+                $frontModifications = array_merge($frontModifications, $modulesParamDTO->getFrontModifications());
 
-                foreach ($params->getBackendModifications() as $modification) {
-                    if (!empty($modification->changes)) {
-                        foreach ($modification->changes as $change) {
+                foreach ($modulesParamDTO->getBackendModifications() as $modification) {
+                    foreach ($modification->getChanges() as $changeDTO) {
+                        // Если не указали комментарий, добавим название модуля
+                        if (empty($changeDTO->getComment())) {
+                            $changeDTO->setComment($vendorModule);
+                        }
 
-                            // Если не указали комментарий, добавим название модуля
-                            if (empty($change->comment)) {
-                                $change->comment = $vendorModule;
-                            }
-
-                            foreach ($allowedModifiers as $modifier) {
-                                // Если в занчении модификатора указано имя файла, значение считаем с самого файла
-                                if (property_exists($change, $modifier)) {
-                                    if (is_file($moduleDir . 'Backend/design/html/' . $change->{$modifier})) {
-                                        $change->{$modifier} = file_get_contents($moduleDir . 'Backend/design/html/' . $change->{$modifier});
-                                    }
+                        foreach ($allowedModifiers as $setMethod => $getMethod) {
+                            // Если в значении модификатора указано имя файла - значение считаем с самого файла
+                            if (!empty($changeDTO->$getMethod())) {
+                                if (is_file($moduleDir . 'Backend/design/html/' . $changeDTO->$getMethod())) {
+                                    $changeDTO->$setMethod(file_get_contents($moduleDir . 'Backend/design/html/' . $changeDTO->$getMethod()));
                                 }
                             }
                         }
                     }
                 }
-                $backendModifications = array_merge($backendModifications, $params->getBackendModifications());
+                $backendModifications = array_merge($backendModifications, $modulesParamDTO->getBackendModifications());
             }
         }
 

@@ -4,16 +4,18 @@ namespace Okay\Core\Modules\DTO;
 
 class ModuleParamsDTO
 {
-    private $version = '1.0.0';
-    private $okayVersion;
-    private $daysToExpire = -1;
-    private $accessExpired = false;
-    private $addToCartUrl = '';
-    private $mathVersion ;
-    private $vendorEmail = '';
-    private $vendorSite = '';
-    private $frontModifications = [];
-    private $backendModifications = [];
+    private string $version = '1.0.0';
+    private string $okayVersion = '';
+    private int $daysToExpire = -1;
+    private bool $accessExpired = false;
+    private string $addToCartUrl = '';
+    private int $mathVersion;
+    private string $vendorEmail = '';
+    private string $vendorSite = '';
+    /** @var ModificationDTO[] */
+    private array $frontModifications = [];
+    /** @var ModificationDTO[] */
+    private array $backendModifications = [];
 
     /**
      * @param array $params
@@ -31,12 +33,6 @@ class ModuleParamsDTO
         }
         if (isset($params['vendor']['site'])) {
             $this->setVendorSite($params['vendor']['site']);
-        }
-        if (isset($params['modifications']['backend'])) {
-            $this->setBackendModifications($params['modifications']['backend']);
-        }
-        if (isset($params['modifications']['front'])) {
-            $this->setFrontModifications($params['modifications']['front']);
         }
         if (isset($params['Okay'])) {
             $this->setOkayVersion($params['Okay']);
@@ -167,11 +163,11 @@ class ModuleParamsDTO
     }
 
     /**
-     * @param array $frontModifications
+     * @param ModificationDTO $modificationDTO
      */
-    public function setFrontModifications(array $frontModifications): void
+    public function setFrontModification(ModificationDTO $modificationDTO): void
     {
-        $this->frontModifications = $frontModifications;
+        $this->frontModifications[] = $modificationDTO;
     }
 
     /**
@@ -183,25 +179,25 @@ class ModuleParamsDTO
     }
 
     /**
-     * @param array $backendModifications
+     * @param ModificationDTO $modificationDTO
      */
-    public function setBackendModifications(array $backendModifications): void
+    public function setBackendModification(ModificationDTO $modificationDTO): void
     {
-        $this->backendModifications = $backendModifications;
+        $this->backendModifications[] = $modificationDTO;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getOkayVersion()
+    public function getOkayVersion(): string
     {
         return $this->okayVersion;
     }
 
     /**
-     * @param mixed $okayVersion
+     * @param string $okayVersion
      */
-    public function setOkayVersion($okayVersion): void
+    public function setOkayVersion(string $okayVersion): void
     {
         $this->okayVersion = $okayVersion;
     }
