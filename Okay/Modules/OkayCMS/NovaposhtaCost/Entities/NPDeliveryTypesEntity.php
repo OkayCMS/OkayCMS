@@ -29,6 +29,7 @@ class NPDeliveryTypesEntity extends Entity
 
     public function add($object)
     {
+        $object = (object)$object;
         if (property_exists($object, 'warehouses_type_refs') && is_array($object->warehouses_type_refs)) {
             $object->warehouses_type_refs = implode(',', $object->warehouses_type_refs);
         }
@@ -37,6 +38,7 @@ class NPDeliveryTypesEntity extends Entity
     }
     public function update($ids, $object)
     {
+        $object = (object)$object;
         if (property_exists($object, 'warehouses_type_refs') && is_array($object->warehouses_type_refs)) {
             $object->warehouses_type_refs = implode(',', $object->warehouses_type_refs);
         }

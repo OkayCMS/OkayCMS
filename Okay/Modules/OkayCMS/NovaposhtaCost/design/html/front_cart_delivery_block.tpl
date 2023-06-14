@@ -49,7 +49,7 @@
             <input name="novaposhta_delivery_warehouse_id" type="hidden" value="{$request_data.novaposhta_delivery_warehouse_id}"/>
         {/if}
 
-        {if $np_redelivery_payments_ids}
+        {if $np_redelivery_payments_ids && $cart->total_price > 0}
             <div class="form__group">
                 <label for="redelivery_{$delivery->id}">
                     <input name="novaposhta_redelivery" id="redelivery_{$delivery->id}" value="1" type="checkbox" {if $request_data.novaposhta_redelivery == true}checked{/if} />

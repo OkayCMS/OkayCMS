@@ -6,7 +6,7 @@ use Okay\Core\Settings;
 
 class NPCalcVO
 {
-    private int $totalPrice = 0;
+    private int $totalPrice;
     private float $totalWeight = 0;
     private float $totalVolume = 0;
     private Settings $settings;

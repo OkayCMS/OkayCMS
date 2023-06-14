@@ -10,16 +10,20 @@ use Okay\Modules\OkayCMS\NovaposhtaCost\DTO\NPCityDTO;
 use Okay\Modules\OkayCMS\NovaposhtaCost\DTO\NPWarehouseDTO;
 use Okay\Modules\OkayCMS\NovaposhtaCost\DTO\NPWarehousesCollectionDTO;
 use Okay\Modules\OkayCMS\NovaposhtaCost\DTO\NPWarehouseTypeDTO;
+use Psr\Log\LoggerInterface;
 
 class NPApiHelper
 {
     private string $lastCallError = '';
     private Settings $settings;
+    private LoggerInterface $logger;
 
     public function __construct(
-        Settings $settings
+        Settings $settings,
+        LoggerInterface $logger
     ) {
         $this->settings = $settings;
+        $this->logger = $logger;
     }
 
     /**
@@ -155,22 +159,25 @@ class NPApiHelper
 
         if ($response === false) {
             $this->lastCallError = 'Error in API call';
+            $this->logger->warning('Novaposhta cost error: "' . $this->lastCallError . '"');
             return false;
         }
 
         $response = json_decode($response);
 
         if (!empty($response->errors)) {
-            $this->lastCallError = implode('<br>', $response->errors);
+            $this->lastCallError = implode('<br>', (array)$response->errors);
             // Запам'ятовуємо помилку по API key
             if (strpos($this->lastCallError, 'API key') !== false) {
                 $this->settings->set('np_api_key_error', $this->lastCallError);
             }
+            $this->logger->warning('Novaposhta cost error: "' . $this->lastCallError . '"');
             return false;
         }
         if (!empty($response->success)) {
             if (empty($response->data)) {
                 $this->lastCallError = 'Response data is empty';
+                $this->logger->warning('Novaposhta cost error: "' . $this->lastCallError . '"');
                 return false;
             }
             return $response;

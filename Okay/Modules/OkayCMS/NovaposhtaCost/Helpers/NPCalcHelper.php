@@ -101,8 +101,6 @@ class NPCalcHelper
 
         if ($response->success) {
             return (int)($response->data[0]->Cost + ($response->data[0]->CostRedelivery ?? 0));
-        } elseif (!empty($response->errors)) {
-            $this->logger->warning('Novaposhta cost ERRORS ' . implode(', ', $response->errors));
         }
 
         return null;
@@ -136,9 +134,6 @@ class NPCalcHelper
 
             //От НП приходит дата доставки, рассчитываем сколько это дней от сегодня
             return (int)ceil(($term - time()) / 86400);
-
-        } else {
-            $this->logger->warning('Novaposhta term ERRORS ' . implode(', ', $response->errors));
         }
 
         return null;

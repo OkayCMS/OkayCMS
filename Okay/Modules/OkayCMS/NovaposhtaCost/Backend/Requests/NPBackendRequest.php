@@ -17,12 +17,12 @@ class NPBackendRequest
     {
         $postFields = $this->request->post('delivery_types');
 
-
         $deliveryTypes = [];
         foreach ($postFields as $n=>$va) {
             foreach ($va as $i=>$v) {
                 if (empty($deliveryTypes[$i])) {
                     $deliveryTypes[$i] = new \stdClass();
+                    $deliveryTypes[$i]->warehouses_type_refs = [];
                 }
                 $deliveryTypes[$i]->$n = $v;
             }

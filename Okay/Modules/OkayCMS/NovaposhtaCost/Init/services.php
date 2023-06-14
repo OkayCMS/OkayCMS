@@ -47,6 +47,7 @@ return [
         'class' => NPApiHelper::class,
         'arguments' => [
             new SR(Settings::class),
+            new SR(LoggerInterface::class),
         ],
     ],
     NPCacheHelper::class => [
