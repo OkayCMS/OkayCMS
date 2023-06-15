@@ -266,5 +266,16 @@ class Init extends AbstractInit
             (new EntityField('warehouses_type_refs'))->setTypeVarchar(255),
             (new EntityField('position'))->setTypeInt(11, false),
         ]);
+
+        $SL = ServiceLocator::getInstance();
+        $entityFactory = $SL->getService(EntityFactory::class);
+
+        /** @var NPDeliveryTypesEntity $deliveryTypesEntity */
+        $deliveryTypesEntity = $entityFactory->get(NPDeliveryTypesEntity::class);
+
+        $deliveryTypesEntity->add([
+            'name' => 'Відділення',
+            'warehouses_type_refs' => '841339c7-591a-42e2-8233-7a0a00f0ed6f,9a68df70-0267-42a8-bb5c-37f427e36ee4'
+        ]);
     }
 }

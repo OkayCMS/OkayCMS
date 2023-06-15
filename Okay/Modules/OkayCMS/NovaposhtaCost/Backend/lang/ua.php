@@ -57,3 +57,4 @@ $lang['np_delivery_types_head'] = 'Типи доставки';
 $lang['np_uah_currency_not_exists'] = 'Не знайдено валюту UAH';
 $lang['np_uah_currency_not_exists_text'] = 'Для корректної роботи модуля необхідно створити валюту гривні з ISO кодом UAH';
 $lang['np_warehouse_not_selected'] = 'Оберіть пункт видачі';
+$lang['np_error_city_id'] = 'Пустий параметр city_id. Оберіть місто призначення з випадаючого списку.';

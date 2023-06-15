@@ -31,7 +31,7 @@ class NovaposhtaCostSearchController
         ];
         
         $responseFromApi = $apiHelper->request($request);
-        if ($responseFromApi->success && $responseFromApi->data[0]){
+        if (!empty($responseFromApi->success) && $responseFromApi->data[0]){
             $result = new \stdClass;
             $suggestions = [];
             foreach ($responseFromApi->data[0]->Addresses as $r) {
@@ -70,7 +70,7 @@ class NovaposhtaCostSearchController
 
         $responseFromApi = $apiHelper->request($request);
 
-        if ($responseFromApi->success && $responseFromApi->data[0]) {
+        if (!empty($responseFromApi->success) && $responseFromApi->data[0]) {
             $result = new \stdClass;
             $suggestions = [];
             foreach ($responseFromApi->data[0]->Addresses as $r) {

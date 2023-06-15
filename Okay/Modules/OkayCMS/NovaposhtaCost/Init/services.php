@@ -81,7 +81,6 @@ return [
             new SR(NPApiHelper::class),
             new SR(Settings::class),
             new SR(Money::class),
-            new SR(LoggerInterface::class),
         ],
     ],
     NPDeliveryDataHelper::class => [

@@ -244,7 +244,7 @@ class NPCacheHelper
      */
     public function rememberStartUpdateTime(): void
     {
-        $this->settings->set('np_start_update_datetime', $this->getDate(time() - 300));
+        $this->settings->set('np_start_update_datetime', $this->getDate());
     }
 
     public function getStartUpdateTime(): ?string
@@ -260,11 +260,8 @@ class NPCacheHelper
         return $startTime;
     }
 
-    private function getDate(int $timestamp = 0): string
+    private function getDate(): string
     {
-        if (!$timestamp) {
-            $timestamp = time();
-        }
-        return date('Y-m-d H:i:s', $timestamp);
+        return date('Y-m-d H:i:s', time());
     }
 }

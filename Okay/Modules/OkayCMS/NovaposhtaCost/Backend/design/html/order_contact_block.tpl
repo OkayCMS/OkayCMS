@@ -49,14 +49,21 @@
             <input type="checkbox" id="novaposhta_redelivery" name="novaposhta_redelivery" value="1" {if $novaposhta_delivery_data->redelivery}checked{/if}/>
             <label for="novaposhta_redelivery">{$btr->order_np_redelivery}</label>
         </div>
-        
     </div>
-    <div class="mb-1">
-        <div class="heading_label">
-            <span class="fn_np_term"{if !$novaposhta_delivery_data->delivery_term} style="display: none;"{/if}>{$btr->order_np_term}: <span>{$novaposhta_delivery_data->delivery_term|escape}</span></span>
-            <a href="#" class="fn_np_recalc_price">{$btr->order_np_calc}</a>
+    {if empty($novaposhta_delivery_data->city_id)}
+        <div class="mb-1 alert alert--error">
+            <div class="heading_label alert__content">
+                {$btr->np_error_city_id|escape}
+            </div>
         </div>
-    </div>
+    {else}
+        <div class="mb-1">
+            <div class="heading_label">
+                <span class="fn_np_term"{if !$novaposhta_delivery_data->delivery_term} style="display: none;"{/if}>{$btr->order_np_term}: <span>{$novaposhta_delivery_data->delivery_term|escape}</span></span>
+                <a href="#" class="fn_np_recalc_price">{$btr->order_np_calc}</a>
+            </div>
+        </div>
+    {/if}
 </div>
 
 {literal}
@@ -130,7 +137,6 @@
             $('input[name=novaposhta_city_name]').val(suggestion.city);
             $('input[name=novaposhta_area_name]').val(suggestion.area);
             $('input[name=novaposhta_region_name]').val(suggestion.region);
-            setDoorAddress();
             if (suggestion.streets_availability) {
                 setStreetAutocomplete(suggestion.ref);
             } else {
@@ -158,7 +164,6 @@
             },
             onSelect: function(suggestion){
                 $('input[name=novaposhta_street_name]').val(suggestion.street);
-                setDoorAddress()
             },
             formatResult: function(suggestion, currentValue) {
                 var reEscape = new RegExp( '(\\' + ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'].join( '|\\' ) + ')', 'g' );
@@ -166,32 +171,6 @@
                 return "<div style='text-align: left'>" + suggestion.value.replace( new RegExp( pattern, 'gi' ), '<strong>$1<\/strong>' ) + "<\/div>";
             }
         });
-    }
-
-    function setDoorAddress()
-    {
-        let address = '';
-        let val = '';
-        
-        if (val = $('input[name="novaposhta_city"]').val()) {
-            address += val;
-        }
-
-        if (val = $('input[name="novaposhta_street"]').val()) {
-            address += ', ' + val;
-        }
-
-        if (val = $('input[name="novaposhta_house"]').val()) {
-            address += ', д. ' + val;
-        }
-
-        if (val = $('input[name="novaposhta_apartment"]').val()) {
-            address += ', кв. ' + val;
-        }
-
-        if (address !== '') {
-            $('[name="address"]').val(address);
-        }
     }
     
     {/literal}

@@ -15,20 +15,17 @@ class NPCalcHelper
     private NPApiHelper $apiHelper;
     private Settings $settings;
     private Money $money;
-    private LoggerInterface $logger;
 
     public function __construct(
         EntityFactory $entityFactory,
         NPApiHelper   $apiHelper,
         Settings      $settings,
-        Money         $money,
-        LoggerInterface $logger
+        Money         $money
     ) {
         $this->entityFactory = $entityFactory;
         $this->apiHelper = $apiHelper;
         $this->settings = $settings;
         $this->money = $money;
-        $this->logger = $logger;
     }
 
     /**
@@ -99,7 +96,7 @@ class NPCalcHelper
 
         $response = $this->apiHelper->request($request);
 
-        if ($response->success) {
+        if (!empty($response->success)) {
             return (int)($response->data[0]->Cost + ($response->data[0]->CostRedelivery ?? 0));
         }
 
@@ -129,7 +126,7 @@ class NPCalcHelper
         ];
 
         $response = $this->apiHelper->request($request);
-        if ($response->success) {
+        if (!empty($response->success)) {
             $term = strtotime($response->data[0]->DeliveryDate->date);
 
             //От НП приходит дата доставки, рассчитываем сколько это дней от сегодня

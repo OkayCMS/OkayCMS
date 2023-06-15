@@ -123,8 +123,8 @@ class Module
                     ));
                 }
                 $changeDTO = new TplChangeDTO(
-                    (string)$change['find'],
-                    (string)$change['like']
+                    (string)($change['find'] ?? ''),
+                    (string)($change['like'] ?? '')
                 );
 
                 if (isset($change['parent'])) {

@@ -87,7 +87,6 @@ $( ".fn_delivery_novaposhta input.city_novaposhta_for_door" ).devbridgeAutocompl
         delivery_block.find('input[name=novaposhta_city_name]').val(suggestion.city);
         delivery_block.find('input[name=novaposhta_area_name]').val(suggestion.area);
         delivery_block.find('input[name=novaposhta_region_name]').val(suggestion.region);
-        setDoorAddress();
        // if (suggestion.streets_availability) { Новая Почта перестала присылать корректный параметр у некоторых городов
         if (true) {
             $(".fn_delivery_novaposhta input.fn_street").devbridgeAutocomplete({
@@ -99,7 +98,6 @@ $( ".fn_delivery_novaposhta input.city_novaposhta_for_door" ).devbridgeAutocompl
                 },
                 onSelect: function(suggestion){
                     delivery_block.find('input[name=novaposhta_street_name]').val(suggestion.street);
-                    setDoorAddress();
                 },
                 formatResult: function(suggestion, currentValue) {
                     var reEscape = new RegExp( '(\\' + ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'].join( '|\\' ) + ')', 'g' );
@@ -120,38 +118,6 @@ $( ".fn_delivery_novaposhta input.city_novaposhta_for_door" ).devbridgeAutocompl
         return "<div style='text-align: left'>" + suggestion.value.replace( new RegExp( pattern, 'gi' ), '<strong>$1<\/strong>' ) + "<\/div>";
     }
 });
-
-$(document).on('change', 'input[name="novaposhta_city"], input[name="novaposhta_street"], input[name="novaposhta_house"], input[name="novaposhta_apartment"]', function () {
-    setDoorAddress();
-});
-
-function setDoorAddress()
-{
-    let deliveryBlock = $('input[name="delivery_id"]:checked').closest('.fn_delivery_item');
-    let address = '';
-    let val = '';
-    
-    
-    if (val = deliveryBlock.find('input[name="novaposhta_city"]').val()) {
-        address += val;
-    }
-    
-    if (val = deliveryBlock.find('input[name="novaposhta_street"]').val()) {
-        address += ', ' + val;
-    }
-    
-    if (val = deliveryBlock.find('input[name="novaposhta_house"]').val()) {
-        address += ', д. ' + val;
-    }
-    
-    if (val = deliveryBlock.find('input[name="novaposhta_apartment"]').val()) {
-        address += ', кв. ' + val;
-    }
-    
-    if (address !== '') {
-        $('input[name="address"]').val(address);
-    }
-}
 
 $('[name="delivery_id"]').on('change', function() {
     if (Number($(this).data('module_id')) !== Number(okay.np_delivery_module_id)) {

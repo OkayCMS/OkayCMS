@@ -55,3 +55,4 @@ $lang['np_delete_delivery_type'] = 'Удалить тип доставки';
 $lang['np_add_delivery_type'] = 'Добавить тип доставки';
 $lang['np_delivery_types_head'] = 'Типы доставки';
 $lang['np_warehouse_not_selected'] = 'Выберите пункт выдачи';
+$lang['np_error_city_id'] = 'Пустой параметр city_id. Выберите город назначения с выпадающего списка.';
