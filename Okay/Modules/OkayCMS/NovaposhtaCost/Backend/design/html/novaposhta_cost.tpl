@@ -392,7 +392,7 @@
         }
         page = typeof(page) != 'undefined' ? page : 1;
         let data = {
-            page: page,
+            updatePage: page,
             updateType: importItem.updateType
         };
 

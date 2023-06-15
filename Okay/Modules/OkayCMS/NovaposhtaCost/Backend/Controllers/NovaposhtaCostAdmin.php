@@ -71,7 +71,7 @@ class NovaposhtaCostAdmin extends IndexAdmin
         NPApiHelper $apiHelper
     ): Response
     {
-        $page = $this->request->get('page', 'int', 1);
+        $page = $this->request->get('updatePage', 'int', 1);
         $perPage = 500;
         $updateType = $this->request->get('updateType', 'string');
         if (!$updateType || !in_array($updateType, [Init::UPDATE_TYPE_CITIES, Init::UPDATE_TYPE_WAREHOUSES])) {
