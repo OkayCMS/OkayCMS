@@ -67,7 +67,7 @@ class OrderController extends AbstractController
         }
         
         // Способ доставки
-        $delivery = $deliveriesEntity->get((int)$order->delivery_id);
+        $delivery = $ordersHelper->getOrderDelivery($order);
         $this->design->assign('delivery', $delivery);
         $orderStatuses = $orderStatusEntity->get(intval($order->status_id));
         $this->design->assign('order_status', $orderStatuses);
@@ -75,8 +75,8 @@ class OrderController extends AbstractController
         
         // Способ оплаты
         if (!empty($order->payment_method_id)) {
-            $payment_method = $paymentsEntity->get((int)$order->payment_method_id);
-            $this->design->assign('payment_method', $payment_method);
+            $paymentMethod = $ordersHelper->getOrderPaymentMethod($order);
+            $this->design->assign('payment_method', $paymentMethod);
         }
         
         // Варианты оплаты
