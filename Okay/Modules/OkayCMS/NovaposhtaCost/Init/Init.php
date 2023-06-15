@@ -20,6 +20,7 @@ use Okay\Entities\PaymentsEntity;
 use Okay\Entities\VariantsEntity;
 use Okay\Helpers\CartHelper;
 use Okay\Helpers\DeliveriesHelper;
+use Okay\Helpers\NotifyHelper;
 use Okay\Helpers\OrdersHelper;
 use Okay\Helpers\ValidateHelper;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCitiesEntity;
@@ -118,6 +119,10 @@ class Init extends AbstractInit
             [BackendOrdersHelper::class, 'findOrder'],
             [BackendExtender::class, 'getDeliveryDataProcedure']
         );
+        $this->registerQueueExtension(
+            [NotifyHelper::class, 'finalEmailOrderAdmin'],
+            [FrontExtender::class, 'getDeliveryDataProcedure']
+        );
 
         // В админке в заказе обновляем данные по доставке
         $this->registerQueueExtension(
@@ -152,6 +157,16 @@ class Init extends AbstractInit
             [BackendMainHelper::class, 'evensCounters'],
             [BackendExtender::class, 'updateEventCounters']
         );
+
+        $this->registerQueueExtension(
+            [OrdersHelper::class, 'getOrderPaymentMethodsList'],
+            [FrontExtender::class, 'getDeliveryDataProcedure']
+        );
+
+        $this->registerQueueExtension(
+            [NotifyHelper::class, 'finalEmailOrderUser'],
+            [FrontExtender::class, 'getDeliveryDataProcedure']
+        );
         
         $this->registerBackendController('NovaposhtaCostAdmin');
         $this->addBackendControllerPermission('NovaposhtaCostAdmin', 'okaycms__novaposhta_cost');
@@ -162,6 +177,32 @@ class Init extends AbstractInit
             function (Design $design, CurrenciesEntity $currenciesEntity) {
                 if (!$currenciesEntity->findOne(['code' => 'UAH'])) {
                     $design->assign('uahCurrencyError', true);
+                }
+            }
+        );
+
+        $this->addFrontBlock(
+            'front_email_order_user_contact_info',
+            'order_email_delivery_info.tpl',
+            function (Design $design) {
+                if ($delivery = $design->getVar('delivery')) {
+                    if (!is_array($delivery->settings)) {
+                        $delivery->settings = unserialize($delivery->settings);
+                        $design->assign('delivery', $delivery);
+                    }
+                }
+            }
+        );
+
+        $this->addBackendBlock(
+            'email_order_admin_contact_info',
+            'order_email_delivery_info.tpl',
+            function (Design $design) {
+                if ($delivery = $design->getVar('delivery')) {
+                    if (!is_array($delivery->settings)) {
+                        $delivery->settings = unserialize($delivery->settings);
+                        $design->assign('delivery', $delivery);
+                    }
                 }
             }
         );

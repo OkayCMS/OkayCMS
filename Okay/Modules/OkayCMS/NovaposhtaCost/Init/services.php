@@ -21,6 +21,7 @@ use Okay\Modules\OkayCMS\NovaposhtaCost\Extenders\FrontExtender;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPApiHelper;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPCacheHelper;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPCalcHelper;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPDeliveryDataHelper;
 use Psr\Log\LoggerInterface;
 
 return [
@@ -31,6 +32,7 @@ return [
             new SR(EntityFactory::class),
             new SR(FrontTranslations::class),
             new SR(Design::class),
+            new SR(NPDeliveryDataHelper::class),
         ],
     ],
     BackendExtender::class => [
@@ -41,6 +43,7 @@ return [
             new SR(Design::class),
             new SR(Module::class),
             new SR(Settings::class),
+            new SR(NPDeliveryDataHelper::class),
         ],
     ],
     NPApiHelper::class => [
@@ -79,6 +82,12 @@ return [
             new SR(Settings::class),
             new SR(Money::class),
             new SR(LoggerInterface::class),
+        ],
+    ],
+    NPDeliveryDataHelper::class => [
+        'class' => NPDeliveryDataHelper::class,
+        'arguments' => [
+            new SR(EntityFactory::class),
         ],
     ],
 ];

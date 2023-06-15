@@ -3,5 +3,18 @@
   "vendor": {
     "email": "info@okay-cms.com",
     "site": "https://okay-cms.com"
+  },
+  "modifications": {
+    "front": [
+      {
+        "file": "order.tpl",
+        "changes": [
+          {
+            "find": "{if $delivery}",
+            "appendAfter": "order_delivery_info.tpl"
+          }
+        ]
+      }
+    ]
   }
 }

@@ -14,6 +14,7 @@ use Okay\Core\Settings;
 use Okay\Entities\CurrenciesEntity;
 use Okay\Entities\DeliveriesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCostDeliveryDataEntity;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPDeliveryDataHelper;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Init\Init;
 
 class BackendExtender implements ExtensionInterface
@@ -24,19 +25,22 @@ class BackendExtender implements ExtensionInterface
     private Design $design;
     private Module $module;
     private Settings $settings;
+    private NPDeliveryDataHelper $deliveryDataHelper;
 
     public function __construct(
         Request $request,
         EntityFactory $entityFactory,
         Design $design,
         Module $module,
-        Settings $settings
+        Settings $settings,
+        NPDeliveryDataHelper $deliveryDataHelper
     ) {
         $this->request = $request;
         $this->entityFactory = $entityFactory;
         $this->design = $design;
         $this->module = $module;
         $this->settings = $settings;
+        $this->deliveryDataHelper = $deliveryDataHelper;
     }
 
     public function parseVariantData($variant, $itemFromCsv)
@@ -68,13 +72,12 @@ class BackendExtender implements ExtensionInterface
     {
         $moduleId = $this->module->getModuleIdByNamespace(__NAMESPACE__);
         $this->design->assign('novaposhta_module_id', $moduleId);
-        
-        if (!empty($order->id)) {
-            /** @var NPCostDeliveryDataEntity $npDdEntity */
-            $npDdEntity = $this->entityFactory->get(NPCostDeliveryDataEntity::class);
 
-            $npDeliveryData = $npDdEntity->getByOrderId($order->id);
-            $this->design->assign('novaposhta_delivery_data', $npDeliveryData);
+        if (!empty($order->id)) {
+            $this->design->assign(
+                'novaposhta_delivery_data',
+                $this->deliveryDataHelper->getFullDeliveryData((int)$order->id)
+            );
         }
     }
     

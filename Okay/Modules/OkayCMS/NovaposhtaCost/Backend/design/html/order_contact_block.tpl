@@ -235,6 +235,10 @@
             success: function(data) {
                 let warehousesSelect = $('select.warehouses_novaposhta');
                 warehousesSelect.html('');
+                let option = $('<option value="" data-warehouse_ref="" ' +
+                    (!selectedWarehouseRef ? 'selected' : '') +
+                '>{/literal}{$btr->np_warehouse_not_selected|escape}{literal}</option>')
+                warehousesSelect.append(option);
                 if (data.success) {
                     for (let warehouseKey in data.warehouses) {
                         let warehouse = data.warehouses[warehouseKey];
@@ -255,9 +259,7 @@
     }
     
     $('select.warehouses_novaposhta').on('change', function() {
-        if($(this).val() != ''){
-            $('input[name="novaposhta_warehouse_id"]').val($(this).children(':selected').data('warehouse_ref'));
-        }
+        $('input[name="novaposhta_warehouse_id"]').val($(this).children(':selected').data('warehouse_ref'));
     });
 </script>
 {/literal}
