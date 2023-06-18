@@ -2,19 +2,19 @@
 
 namespace Okay\Modules\OkayCMS\NovaposhtaCost\VO;
 
-use Okay\Core\Settings;
-
 class NPCalcVO
 {
     private int $totalPrice;
     private float $totalWeight = 0;
     private float $totalVolume = 0;
-    private Settings $settings;
+    private int $defaultWeight;
+    private int $defaultVolume;
 
-    public function __construct(Settings $settings, int $totalPrice)
+    public function __construct(int $totalPrice, int $defaultWeight, int $defaultVolume)
     {
-        $this->settings = $settings;
         $this->totalPrice = $totalPrice;
+        $this->defaultWeight = $defaultWeight;
+        $this->defaultVolume = $defaultVolume;
     }
 
     /**
@@ -24,7 +24,7 @@ class NPCalcVO
      */
     public function addPurchaseWeight(float $weight, int $amount = 1): void
     {
-        $this->totalWeight += ($weight > 0 ? $weight : $this->settings->get('newpost_weight')) * $amount;
+        $this->totalWeight += ($weight > 0 ? $weight : $this->defaultWeight) * $amount;
     }
 
     /**
@@ -36,8 +36,8 @@ class NPCalcVO
     {
         if ($volume > 0) {
             $vol = $volume;
-        } elseif (!empty($this->settings->get('newpost_volume'))) {
-            $vol = $this->settings->get('newpost_volume');
+        } elseif (!empty($this->defaultVolume)) {
+            $vol = $this->defaultVolume;
         } else {
             $vol = 0.001;
         }

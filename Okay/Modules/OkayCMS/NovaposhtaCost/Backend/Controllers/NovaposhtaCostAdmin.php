@@ -24,7 +24,7 @@ class NovaposhtaCostAdmin extends IndexAdmin
         CurrenciesEntity $currenciesEntity,
         NPWarehousesEntity $warehousesEntity,
         NPCacheHelper $cacheHelper,
-        NPBackendRequest $NPBackendRequest,
+        NPBackendRequest $backendRequest,
         NPDeliveryTypesEntity $deliveryTypesEntity,
         NPBackendHelper $backendHelper
     ) {
@@ -37,7 +37,7 @@ class NovaposhtaCostAdmin extends IndexAdmin
             $this->settings->set('newpost_use_volume', $this->request->post('newpost_use_volume'));
             $this->settings->set('newpost_use_assessed_value', $this->request->post('newpost_use_assessed_value'));
 
-            $deliveryTypes = $NPBackendRequest->postDeliveryTypes();
+            $deliveryTypes = $backendRequest->postDeliveryTypes();
             $backendHelper->updateDeliveryTypes($deliveryTypes);
 
             $this->design->assign('message_success', 'saved');
