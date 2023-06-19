@@ -1,0 +1,11 @@
+.df_delivery_item {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    border: none;
+    width: auto;
+    margin-left: -12px;
+}
+.df_deliveries_list {
+    width: calc(100% - 501px);
+}
