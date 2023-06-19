@@ -6,7 +6,6 @@ namespace Okay\Core;
 
 class Request
 {
-    
     private $langId;
     private $startTime;
 
@@ -182,6 +181,16 @@ class Request
             return strtolower($_SERVER['REQUEST_METHOD']) == strtolower($method);
         }
         return $_SERVER['REQUEST_METHOD'];
+    }
+
+    public function isPost()
+    {
+        return $this->method('post');
+    }
+
+    public function isGet()
+    {
+        return $this->method('get');
     }
     
     /**

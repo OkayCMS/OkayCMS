@@ -17,10 +17,10 @@ use Okay\Entities\UsersEntity;
 class ValidateHelper
 {
 
-    private $validator;
-    private $settings;
-    private $request;
-    private $frontTranslations;
+    private Validator $validator;
+    private Settings $settings;
+    private Request $request;
+    private FrontTranslations $frontTranslations;
 
     public function __construct(
         Validator $validator,
@@ -34,7 +34,7 @@ class ValidateHelper
         $this->frontTranslations = $frontTranslations;
     }
 
-    public function getUserError($user, $currentUserId)
+    public function getUserError($user, $currentUserId): ?string
     {
         $SL = ServiceLocator::getInstance();
         $entityFactory = $SL->getService(EntityFactory::class);
@@ -58,7 +58,7 @@ class ValidateHelper
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
     
-    public function getUserRegisterError($user)
+    public function getUserRegisterError($user): ?string
     {
         $SL = ServiceLocator::getInstance();
         $entityFactory = $SL->getService(EntityFactory::class);
@@ -89,7 +89,7 @@ class ValidateHelper
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
 
-    public function getUserLoginError($email, $password)
+    public function getUserLoginError($email, $password): ?string
     {
         $SL = ServiceLocator::getInstance();
         $entityFactory = $SL->getService(EntityFactory::class);
@@ -108,7 +108,7 @@ class ValidateHelper
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
     
-    public function getFeedbackValidateError($feedback)
+    public function getFeedbackValidateError($feedback): ?string
     {
         $captchaCode =  $this->request->post('captcha_code', 'string');
         
@@ -126,7 +126,7 @@ class ValidateHelper
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
 
-    public function getCartValidateError($order)
+    public function getCartValidateError($order): ?string
     {
         $captchaCode =  $this->request->post('captcha_code', 'string');
         
@@ -148,7 +148,7 @@ class ValidateHelper
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
     
-    public function getCallbackValidateError($callback)
+    public function getCallbackValidateError($callback): ?string
     {
         $captchaCode =  $this->request->post('captcha_code', 'string');
         
@@ -166,7 +166,7 @@ class ValidateHelper
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
     
-    public function getCommentValidateError($comment)
+    public function getCommentValidateError($comment): ?string
     {
         $captchaCode =  $this->request->post('captcha_code', 'string');
 
@@ -184,7 +184,7 @@ class ValidateHelper
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
     
-    public function getSubscribeValidateError($subscribe)
+    public function getSubscribeValidateError($subscribe): ?string
     {
         $SL = ServiceLocator::getInstance();
         $entityFactory = $SL->getService(EntityFactory::class);

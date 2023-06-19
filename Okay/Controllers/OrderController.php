@@ -6,10 +6,8 @@ namespace Okay\Controllers;
 
 use Okay\Entities\CouponsEntity;
 use Okay\Entities\CurrenciesEntity;
-use Okay\Entities\DeliveriesEntity;
 use Okay\Entities\OrdersEntity;
 use Okay\Entities\OrderStatusEntity;
-use Okay\Entities\PaymentsEntity;
 use Okay\Helpers\MetadataHelpers\OrderMetadataHelper;
 use Okay\Helpers\OrdersHelper;
 
@@ -19,8 +17,6 @@ class OrderController extends AbstractController
     public function render(
         OrdersEntity        $ordersEntity,
         CouponsEntity       $couponsEntity,
-        PaymentsEntity      $paymentsEntity,
-        DeliveriesEntity    $deliveriesEntity,
         OrderStatusEntity   $orderStatusEntity,
         CurrenciesEntity    $currenciesEntity,
         OrdersHelper        $ordersHelper,
