@@ -541,10 +541,6 @@
                             <input name="email" class="form-control" type="text" value="{$order->email|escape}" />
                         </div>
                         <div class="mb-1">
-                            <div class="heading_label">{$btr->general_adress|escape} <a href="https://www.google.com/maps/search/{$order->address|escape}?hl=ru" target="_blank"><i class="fa fa-map-marker"></i> {$btr->order_on_map|escape}</a></div>
-                            <textarea name="address" class="form-control short_textarea">{$order->address|escape}</textarea>
-                        </div>
-                        <div class="mb-1">
                             <div class="heading_label">{$btr->general_comment|escape}</div>
                             <textarea name="comment" class="form-control short_textarea">{$order->comment|escape}</textarea>
                         </div>

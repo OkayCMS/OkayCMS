@@ -51,8 +51,6 @@ class ValidateHelper
             $error = 'empty_email';
         } elseif (!$this->validator->isPhone($user->phone)) {
             $error = 'empty_phone';
-        } elseif (!$this->validator->isAddress($user->address)) {
-            $error = 'empty_address';
         }
 
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
@@ -78,8 +76,6 @@ class ValidateHelper
             $error = 'empty_email';
         } elseif (!$this->validator->isPhone($user->phone)) {
             $error = 'empty_phone';
-        } elseif (!$this->validator->isAddress($user->address)) {
-            $error = 'empty_address';
         } elseif (empty($user->password)) {
             $error = 'empty_password';
         } elseif ($this->settings->get('captcha_register') && !$this->validator->verifyCaptcha('captcha_register', $captchaCode)) {
@@ -137,8 +133,6 @@ class ValidateHelper
             $error = 'empty_email';
         } elseif (!$this->validator->isPhone($order->phone)) {
             $error = 'empty_phone';
-        } elseif (!$this->validator->isAddress($order->address)) {
-            $error = 'empty_address';
         } elseif (!$this->validator->isComment($order->comment)) {
             $error = 'empty_comment';
         } elseif ($this->settings->get('captcha_cart') && !$this->validator->verifyCaptcha('captcha_cart', $captchaCode)) {

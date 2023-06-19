@@ -369,20 +369,6 @@ class BackendOrderHistoryHelper
                     . " \"{$orderAfterUpdate->last_name}\"";
             }
 
-            // Изменил адрес
-            if (property_exists($orderBeforeUpdate, 'address')
-                && property_exists($orderAfterUpdate, 'address')
-                && $orderBeforeUpdate->address != $orderAfterUpdate->address) {
-                $changeOrderMessage[] = $this->BT->getTranslation('order_history_change')
-                    . " "
-                    . $this->BT->getTranslation('order_history_address')
-                    . " "
-                    . $this->BT->getTranslation('order_history_from')
-                    . " \"{$orderBeforeUpdate->address}\" "
-                    . $this->BT->getTranslation('order_history_to')
-                    . " \"{$orderAfterUpdate->address}\"";
-            }
-
             // Изменил телефон (Изменения сравниваются и выводятся с учетом форматирования)
             if (property_exists($orderBeforeUpdate, 'phone')
                 && property_exists($orderAfterUpdate, 'phone')

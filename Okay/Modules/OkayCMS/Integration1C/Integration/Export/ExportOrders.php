@@ -59,7 +59,7 @@ class ExportOrders extends AbstractExport
             $doc->addChild ( "Курс", "1" );
             $doc->addChild ( "Сумма", $order->total_price);
             $doc->addChild ( "Время",  $date->format('H:i:s'));
-            $doc->addChild ( "Комментарий", $order->comment. 'Адрес доставки: '.$order->address);
+            $doc->addChild ( "Комментарий", $order->comment);
 
             if ($this->integration1C->exportPurchasesDiscountsSeparate) {
                 $startingPrice = $order->undiscounted_total_price;
@@ -98,14 +98,14 @@ class ExportOrders extends AbstractExport
             $p1_4 = $p1_3->addChild ( "Наименование", $name);
 
             // Доп параметры
-            $addr = $k1_1->addChild ('АдресРегистрации');
-            $addr->addChild ( 'Представление', $order->address );
-            $addrField = $addr->addChild ( 'АдресноеПоле' );
-            $addrField->addChild ( 'Тип', 'Страна' );
-            $addrField->addChild ( 'Значение', 'УКРАИНА' );// Для России значение РОССИЯ
-            $addrField = $addr->addChild ( 'АдресноеПоле' );
-            $addrField->addChild ( 'Тип', 'Регион' );
-            $addrField->addChild ( 'Значение', $order->address );
+//            $addr = $k1_1->addChild ('АдресРегистрации');
+//            $addr->addChild ( 'Представление', $order->address );
+//            $addrField = $addr->addChild ( 'АдресноеПоле' );
+//            $addrField->addChild ( 'Тип', 'Страна' );
+//            $addrField->addChild ( 'Значение', 'УКРАИНА' );
+//            $addrField = $addr->addChild ( 'АдресноеПоле' );
+//            $addrField->addChild ( 'Тип', 'Регион' );
+//            $addrField->addChild ( 'Значение', $order->address );
 
             $contacts = $k1_1->addChild ( 'Контакты' );
             $cont = $contacts->addChild ( 'Контакт' );

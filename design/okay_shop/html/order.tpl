@@ -311,14 +311,6 @@
                                             <td>{$order->phone|phone}</td>
                                         </tr>
                                     {/if}
-                                    {if $order->address}
-                                        <tr>
-                                            <td>
-                                                <span data-language="order_address">{$lang->order_address}</span>
-                                            </td>
-                                            <td>{$order->address|escape}</td>
-                                        </tr>
-                                    {/if}
                                     {if $order->comment}
                                         <tr>
                                             <td>

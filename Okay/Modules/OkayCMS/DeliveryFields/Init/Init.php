@@ -63,6 +63,7 @@ class Init extends AbstractInit
         $this->addBackendControllerPermission('DeliveryFieldsAdmin', self::PERMISSION);
 
         $this->addBackendBlock('email_order_admin_contact_info','email_order_delivery_fields.tpl');
+        $this->addBackendBlock('order_print_user_info', 'order_print.tpl');
 
         $this->addFrontBlock('front_cart_delivery', 'cart_delivery_fields.tpl');
         $this->addFrontBlock('front_email_order_user_contact_info', 'email_order_delivery_fields.tpl');
@@ -111,7 +112,6 @@ class Init extends AbstractInit
         $queryFactory = $SL->getService(QueryFactory::class);
         $languages = $SL->getService(Languages::class);
         $deliveryFieldsEntity = $entityFactory->get(DeliveryFieldsEntity::class);
-        $deliveriesEntity = $entityFactory->get(DeliveriesEntity::class);
 
         if ($deliveryFieldsEntity->count() == 0) {
             $names = [

@@ -93,7 +93,6 @@ class PaymentForm extends AbstractModule implements PaymentFormInterface
         $this->design->assign('clientEmail', $order->email);
         $this->design->assign('clientPhone', $this->formatPhone($order->phone));
         //$this->design->assign('clientCity', $order->location);
-        $this->design->assign('clientAddress', $order->address);
 
         $currentLangId    = (int) $this->languages->getLangId();
         $currentLangLabel = $languagesEntity->get($currentLangId)->label;
