@@ -1,15 +1,19 @@
 {foreach $modules as $module}
     <div class="fn_row okay_list_body_item fn_sort_item{if $module->params->getDaysToExpire() >= 0} module_access_expire{elseif $module->params->isAccessExpired()} module_access_expired{/if}{if $now_downloaded} fn_now_downloaded{/if}"{if $now_downloaded} style="background-color: #ebffea; transition: background-color 1s linear;"{/if}>
         <div class="okay_list_row">
-            <input type="hidden" name="positions[{$module->id}]" value="{$module->position|escape}">
+            {if $module->status !== 'Not Installed'}
+                <input type="hidden" name="positions[{$module->id}]" value="{$module->position|escape}">
+            {/if}
 
             <div class="okay_list_boding okay_list_drag move_zone">
                 {if $module->status !== 'Not Installed'}{include file='svg_icon.tpl' svgId='drag_vertical'}{/if}
             </div>
 
             <div class="okay_list_boding okay_list_check">
-                <input class="hidden_check" type="checkbox" id="id_{$module->id}" name="check[]" value="{$module->id}"/>
-                <label class="okay_ckeckbox" for="id_{$module->id}"></label>
+                {if $module->status !== 'Not Installed'}
+                    <input class="hidden_check" type="checkbox" id="id_{$module->id}" name="check[]" value="{$module->id}"/>
+                    <label class="okay_ckeckbox" for="id_{$module->id}"></label>
+                {/if}
             </div>
 
             <div class="okay_list_boding okay_list_photo">

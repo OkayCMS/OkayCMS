@@ -204,7 +204,6 @@ class OrderAdmin extends IndexAdmin
                 $this->request->get('status', 'integer')
             );
 
-            $this->design->assign('delivery', $delivery);
             $this->design->assign('payment_method', $paymentMethod);
             $this->design->assign('user', $user);
             $this->design->assign('purchases', $purchases);

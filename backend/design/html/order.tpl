@@ -647,7 +647,9 @@
             <div class="checkbox_email float-sm-right text_dark mr-1 fn_step-5">
                 <input id="order_to_email" name="notify_user" type="checkbox" class="hidden_check_1"  value="1" />
                 <label for="order_to_email" class="checkbox_label mr-h"></label>
-                <span>{$btr->order_email|escape}</span>
+                <label for="order_to_email">
+                    <span>{$btr->order_email|escape}</span>
+                </label>
             </div>
         </div>
     </div>
