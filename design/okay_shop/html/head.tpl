@@ -158,14 +158,14 @@
         <meta property="og:url" content="{$canonical}">
         <meta property="og:type" content="website">
         <meta property="og:title" content="{$h1|escape}">
-        <meta property="og:description" content='{$annotation|strip_tags|escape}'>
+        <meta property="og:description" content="{if !empty($annotation)}{$annotation|strip_tags|escape|trim}{else}{$description|strip_tags|escape|trim}{/if}">
         <meta property="og:image" content="{$product->image->filename|resize:330:300}">
         <link rel="image_src" href="{$product->image->filename|resize:330:300}">
         <meta name="twitter:card" content="product"/>
         <meta name="twitter:url" content="{$canonical}">
         <meta name="twitter:site" content="{$settings->site_name|escape}">
         <meta name="twitter:title" content="{$h1|escape}">
-        <meta name="twitter:description" content="{$annotation|strip_tags|escape}">
+        <meta name="twitter:description" content="{if !empty($annotation)}{$annotation|strip_tags|escape|trim}{else}{$description|strip_tags|escape|trim}{/if}">
         <meta name="twitter:image" content="{$product->image->filename|resize:330:300}">
         <meta name="twitter:data1" content="{$lang->cart_head_price}">
         <meta name="twitter:label1" content="{$product->variant->price|convert:null:false} {$currency->code|escape}">
@@ -176,7 +176,7 @@
         <meta property="og:type" content="website">
         <meta property="og:url" content="{$canonical}">
         <meta property="og:site_name" content="{$settings->site_name|escape}">
-        <meta property="og:description" content="{$description|strip_tags|escape}">
+        <meta property="og:description" content="{if !empty($annotation)}{$annotation|strip_tags|escape|trim}{else}{$description|strip_tags|escape|trim}{/if}">
         {if $category->image}
             <meta property="og:image" content="{$category->image|resize:330:300:false:$config->resized_categories_dir}">
             <link rel="image_src" href="{$category->image|resize:330:300:false:$config->resized_categories_dir}">
@@ -189,13 +189,13 @@
         <meta name="twitter:url" content="{$canonical}">
         <meta name="twitter:site" content="{$settings->site_name|escape}">
         <meta name="twitter:title" content="{$h1|escape}">
-        <meta name="twitter:description" content="{$description|strip_tags|escape}">
+        <meta name="twitter:description" content="{if !empty($annotation)}{$annotation|strip_tags|escape|trim}{else}{$description|strip_tags|escape|trim}{/if}">
     {elseif $controller == "BrandController"} 
         <meta property="og:title" content="{$h1|escape}">
         <meta property="og:type" content="website">
         <meta property="og:url" content="{$canonical}">
         <meta property="og:site_name" content="{$settings->site_name|escape}">
-        <meta property="og:description" content="{$description|strip_tags|escape}">
+        <meta property="og:description" content="{if !empty($annotation)}{$annotation|strip_tags|escape|trim}{else}{$description|strip_tags|escape|trim}{/if}">
         {if $brand->image}
             <meta property="og:image" content="{$brand->image|resize:330:330:false:$config->resized_brands_dir}">
             <link rel="image_src" href="{$brand->image|resize:330:330:false:$config->resized_brands_dir}">
@@ -208,7 +208,7 @@
         <meta name="twitter:url" content="{$canonical}">
         <meta name="twitter:site" content="{$settings->site_name|escape}">
         <meta name="twitter:title" content="{$h1|escape}">
-        <meta name="twitter:description" content="{$description|strip_tags|escape}">
+        <meta name="twitter:description" content="{if !empty($annotation)}{$annotation|strip_tags|escape|trim}{else}{$description|strip_tags|escape|trim}{/if}">
     {elseif $controller == 'BlogController' && $post}
         <meta property="og:url" content="{$canonical}">
         <meta property="og:type" content="article">
@@ -222,10 +222,10 @@
             <link rel="image_src" href="{$rootUrl}/{$config->design_images}{$settings->site_logo}">
             <meta name="twitter:image" content="{$rootUrl}/{$config->design_images}{$settings->site_logo}">
         {/if}
-        <meta property="og:description" content='{$annotation|strip_tags|escape}'>
+        <meta property="og:description" content="{if !empty($annotation)}{$annotation|strip_tags|escape|trim}{else}{$description|strip_tags|escape|trim}{/if}">
         <meta name="twitter:card" content="summary">
         <meta name="twitter:title" content="{$post->name|escape}">
-        <meta name="twitter:description" content="{$annotation|strip_tags|escape}">
+        <meta name="twitter:description" content="{if !empty($annotation)}{$annotation|strip_tags|escape|trim}{else}{$description|strip_tags|escape|trim}{/if}">
     {else}
         <meta property="og:title" content="{$meta_title|escape}">
         <meta property="og:type" content="website">
@@ -310,7 +310,7 @@
         <script>
             var onloadReCaptchaInvisible = function() { };
         </script>
-        <script src='https://www.google.com/recaptcha/api.js?onload=onloadReCaptchaInvisible'></script>
+        <script src="https://www.google.com/recaptcha/api.js?onload=onloadReCaptchaInvisible"></script>
         <script>ut_tracker.end('render:recaptcha');</script>
     {/if}
 
