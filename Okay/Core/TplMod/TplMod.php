@@ -5,6 +5,7 @@ namespace Okay\Core\TplMod;
 
 
 use Okay\Core\Config;
+use Okay\Core\Modules\DTO\TplChangeDTO;
 use Okay\Core\ServiceLocator;
 use Okay\Core\TplMod\Nodes\BaseNode;
 use Okay\Core\TplMod\Nodes\HtmlCommentNode;
@@ -12,8 +13,8 @@ use Okay\Core\TplMod\Nodes\TextNode;
 
 class TplMod
 {
-    private $parser;
-    private $debug;
+    private Parser $parser;
+    private bool $debug;
     
     public function __construct(Parser $parser, Config $config)
     {
@@ -40,124 +41,129 @@ class TplMod
         
         return $this->build($res);
     }
-    
-    private function walkByFile(BaseNode &$node, array $mods)
+
+    /**
+     * @param BaseNode $node
+     * @param TplChangeDTO[] $changes
+     * @return void
+     */
+    private function walkByFile(BaseNode $node, array $changes)
     {
-        foreach ($mods as &$mod) {
-            if (!empty($mod->find) && strpos($node->getOriginalElement(), $mod->find) !== false) {
-                $this->applyMod($node, $mod);
-            } elseif (!empty($mod->like) && preg_match('~'.$mod->like.'~', $node->getOriginalElement())) {
-                $this->applyMod($node, $mod);
+        foreach ($changes as $changeDTO) {
+            if (!empty($changeDTO->getFind()) && strpos($node->getOriginalElement(), $changeDTO->getFind()) !== false) {
+                $this->applyMod($node, $changeDTO);
+            } elseif (!empty($changeDTO->getLike()) && preg_match('~'.$changeDTO->getLike().'~', $node->getOriginalElement())) {
+                $this->applyMod($node, $changeDTO);
             }
         }
         
         if ($node->children()) {
             foreach ($node->children() as $child) {
-                $this->walkByFile($child, $mods);
+                $this->walkByFile($child, $changes);
             }
         }
     }
 
-    private function applyMod(BaseNode $node, $mod)
+    private function applyMod(BaseNode $node, TplChangeDTO $changeDTO)
     {
         // Вдруг запросили относительную ноду
-        if (property_exists($mod, 'parent')) {
+        if ($changeDTO->isParent()) {
             $node = $node->parent();
         }
         
-        if (property_exists($mod, 'closestFind')) {
+        if (!empty($changeDTO->getClosestFind())) {
             while ($node = $node->parent()) {
-                if (strpos($node->getOriginalElement(), $mod->closestFind) !== false) {
+                if (strpos($node->getOriginalElement(), $changeDTO->getClosestFind()) !== false) {
                     break;
                 }
             }
-        } elseif (property_exists($mod, 'closestLike')) {
+        } elseif (!empty($changeDTO->getClosestLike())) {
             while ($node = $node->parent()) {
-                if (preg_match('~'.$mod->closestFind.'~', $node->getOriginalElement())) {
+                if (preg_match('~'.$changeDTO->getClosestLike().'~', $node->getOriginalElement())) {
                     break;
                 }
             }
         }
         
-        if (property_exists($mod, 'childrenFind')) {
-            if ($childNode = $this->findChildNode($node, $mod->childrenFind)) {
+        if (!empty($changeDTO->getChildrenFind())) {
+            if ($childNode = $this->findChildNode($node, $changeDTO->getChildrenFind())) {
                 $node = $childNode;
             } else {
                 return;
             }
-        } elseif (property_exists($mod, 'childrenLike')) {
-            if ($childNode = $this->likeChildNode($node, $mod->childrenLike)) {
+        } elseif (!empty($changeDTO->getChildrenLike())) {
+            if ($childNode = $this->likeChildNode($node, $changeDTO->getChildrenLike())) {
                 $node = $childNode;
             } else {
                 return;
             }
         }
         
-        if (property_exists($mod, 'append')) {
-            $userNode = new TextNode($mod->append);
-            if ($this->debug === true && !empty($mod->comment)) {
-                $node->append(new HtmlCommentNode("<!--{$mod->comment}-->"));
+        if (!empty($changeDTO->getAppend())) {
+            $userNode = new TextNode($changeDTO->getAppend());
+            if ($this->debug === true && !empty($changeDTO->getComment())) {
+                $node->append(new HtmlCommentNode("<!--{$changeDTO->getComment()}-->"));
             }
             $node->append($userNode);
-            if ($this->debug === true && !empty($mod->comment)) {
-                $node->append(new HtmlCommentNode("<!--/{$mod->comment}-->"));
+            if ($this->debug === true && !empty($changeDTO->getComment())) {
+                $node->append(new HtmlCommentNode("<!--/{$changeDTO->getComment()}-->"));
             }
         }
 
-        if (property_exists($mod, 'appendBefore')) {
-            $userNode = new TextNode($mod->appendBefore);
-            if ($this->debug === true && !empty($mod->comment)) {
-                $node->appendBefore(new HtmlCommentNode("<!--{$mod->comment}-->"));
+        if (!empty($changeDTO->getAppendBefore())) {
+            $userNode = new TextNode($changeDTO->getAppendBefore());
+            if ($this->debug === true && !empty($changeDTO->getComment())) {
+                $node->appendBefore(new HtmlCommentNode("<!--{$changeDTO->getComment()}-->"));
             }
             $node->appendBefore($userNode);
-            if ($this->debug === true && !empty($mod->comment)) {
-                $node->appendBefore(new HtmlCommentNode("<!--/{$mod->comment}-->"));
+            if ($this->debug === true && !empty($changeDTO->getComment())) {
+                $node->appendBefore(new HtmlCommentNode("<!--/{$changeDTO->getComment()}-->"));
             }
         }
         
-        if (property_exists($mod, 'prepend')) {
-            $userNode = new TextNode($mod->prepend);
-            if ($this->debug === true && !empty($mod->comment)) {
-                $node->prepend(new HtmlCommentNode("<!--/{$mod->comment}-->"));
+        if (!empty($changeDTO->getPrepend())) {
+            $userNode = new TextNode($changeDTO->getPrepend());
+            if ($this->debug === true && !empty($changeDTO->getComment())) {
+                $node->prepend(new HtmlCommentNode("<!--/{$changeDTO->getComment()}-->"));
             }
             $node->prepend($userNode);
-            if ($this->debug === true && !empty($mod->comment)) {
-                $node->prepend(new HtmlCommentNode("<!--{$mod->comment}-->"));
+            if ($this->debug === true && !empty($changeDTO->getComment())) {
+                $node->prepend(new HtmlCommentNode("<!--{$changeDTO->getComment()}-->"));
             }
         }
 
-        if (property_exists($mod, 'appendAfter')) {
-            $userNode = new TextNode($mod->appendAfter);
-            if ($this->debug === true && !empty($mod->comment)) {
-                $node->appendAfter(new HtmlCommentNode("<!--/{$mod->comment}-->"));
+        if (!empty($changeDTO->getAppendAfter())) {
+            $userNode = new TextNode($changeDTO->getAppendAfter());
+            if ($this->debug === true && !empty($changeDTO->getComment())) {
+                $node->appendAfter(new HtmlCommentNode("<!--/{$changeDTO->getComment()}-->"));
             }
             $node->appendAfter($userNode);
-            if ($this->debug === true && !empty($mod->comment)) {
-                $node->appendAfter(new HtmlCommentNode("<!--{$mod->comment}-->"));
+            if ($this->debug === true && !empty($changeDTO->getComment())) {
+                $node->appendAfter(new HtmlCommentNode("<!--{$changeDTO->getComment()}-->"));
             }
         }
 
-        if (property_exists($mod, 'html')) {
-            $userNode = new TextNode($mod->html);
+        if (!empty($changeDTO->getHtml())) {
+            $userNode = new TextNode($changeDTO->getHtml());
             $node->text($userNode);
-            if ($this->debug === true && !empty($mod->comment)) {
-                $node->prepend(new HtmlCommentNode("<!--replaced by {$mod->comment}-->"));
+            if ($this->debug === true && !empty($changeDTO->getComment())) {
+                $node->prepend(new HtmlCommentNode("<!--replaced by {$changeDTO->getComment()}-->"));
             }
         }
 
-        if (property_exists($mod, 'text')) {
-            $userNode = new TextNode($mod->text);
+        if (!empty($changeDTO->getText())) {
+            $userNode = new TextNode($changeDTO->getText());
             $node->text($userNode);
-            if ($this->debug === true && !empty($mod->comment)) {
-                $node->prepend(new HtmlCommentNode("<!--replaced by {$mod->comment}-->"));
+            if ($this->debug === true && !empty($changeDTO->getComment())) {
+                $node->prepend(new HtmlCommentNode("<!--replaced by {$changeDTO->getComment()}-->"));
             }
         }
 
-        if (property_exists($mod, 'replace')) {
-            $node->modifyElement($mod->replace);
+        if (!empty($changeDTO->getReplace())) {
+            $node->modifyElement($changeDTO->getReplace());
         }
 
-        if (property_exists($mod, 'remove')) {
+        if ($changeDTO->isRemove()) {
             $node->remove();
         }
         unset($node);
@@ -195,7 +201,7 @@ class TplMod
         return $result;
     }
     
-    private function build(BaseNode $node, $level = 0)
+    private function build(BaseNode $node, $level = 0): string
     {
         $resultString = '';
         /** @var BaseNode $child */

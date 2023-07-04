@@ -41,7 +41,7 @@ class CommentsAdmin extends IndexAdmin
         $commentsCount = $backendCommentsHelper->count($filter);
 
         if ($status = $backendCommentsHelper->matchStatus($filter)) {
-            $this->design->assign('type', $status);
+            $this->design->assign('status', $status);
         }
 
         if (isset($filter['type'])) {

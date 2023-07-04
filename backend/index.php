@@ -14,7 +14,7 @@ use Okay\Core\ManagerMenu;
 use Okay\Core\Config;
 use Okay\Core\Entity\Entity;
 use Okay\Core\Languages;
-use Okay\Entities\LanguagesEntity;
+use Okay\Admin\Helpers\BackendModulesHelper;
 
 ini_set('display_errors', 'off');
 
@@ -67,6 +67,11 @@ if (!empty($_SESSION['admin_lang_id'])) {
 } else {
     $_SESSION['admin_lang_id'] = $languages->getLangId();
 }
+
+// Оновлюємо кеш даних інформації по терміну доступу до оновлень модулів
+/** @var BackendModulesHelper $backendModulesHelper */
+$backendModulesHelper = $DI->get(BackendModulesHelper::class);
+$backendModulesHelper->updateModulesAccessExpiresCache();
 
 /** @var BackendTranslations $backendTranslations */
 $backendTranslations = $DI->get(BackendTranslations::class);

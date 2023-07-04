@@ -4,6 +4,7 @@ namespace Core\Modules;
 
 use \Exception;
 use Okay\Core\EntityFactory;
+use Okay\Core\Modules\DTO\ModuleParamsDTO;
 use Okay\Core\Modules\Installer;
 use Okay\Core\Modules\Module;
 use Okay\Entities\ModulesEntity;
@@ -106,12 +107,14 @@ class ModulesInstallerTest extends TestCase
         $moduleStub->method('getMathVersion')->will($this->returnValueMap($this->versionReturnMap));
 
         $newMathVersion = $moduleStub->getMathVersion($newVersion);
-        
+
+        $modulesParamsDTO = new ModuleParamsDTO();
+        $modulesParamsDTO->fromArray([
+            'version' => $newVersion,
+            'math_version' => $newMathVersion,
+        ]);
         $moduleStub->method('getModuleParams')
-            ->willReturn((object)[
-                'version' => $newVersion,
-                'math_version' => $newMathVersion,
-            ]);
+            ->willReturn($modulesParamsDTO);
         
         $moduleStub->method('getInitClassName')->willReturn(StubModuleInitClass::class);
         
@@ -203,12 +206,14 @@ class ModulesInstallerTest extends TestCase
         $moduleStub->method('getMathVersion')->will($this->returnValueMap($this->versionReturnMap));
 
         $newMathVersion = $moduleStub->getMathVersion($newInstalledVersion);
-        
+
+        $modulesParamsDTO = new ModuleParamsDTO();
+        $modulesParamsDTO->fromArray([
+            'version' => $newInstalledVersion,
+            'math_version' => $newMathVersion,
+        ]);
         $moduleStub->method('getModuleParams')
-            ->willReturn((object)[
-                'version' => $newInstalledVersion,
-                'math_version' => $newMathVersion,
-            ]);
+            ->willReturn($modulesParamsDTO);
         
         // настраиваем ModulesEntityStub
         $modulesEntityStub = $this->getMockBuilder(ModulesEntity::class)

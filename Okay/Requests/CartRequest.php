@@ -24,7 +24,6 @@ class CartRequest
         $order->name        = $this->request->post('name');
         $order->last_name   = $this->request->post('last_name');
         $order->email       = $this->request->post('email');
-        $order->address     = $this->request->post('address');
         $order->phone       = $this->request->post('phone');
         $order->comment     = $this->request->post('comment');
         $order->ip          = $_SERVER['REMOTE_ADDR'];

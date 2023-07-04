@@ -168,10 +168,10 @@ class Notify
             $to = $this->testInternalEmail;
         }
 
-        $headers = "MIME-Version: 1.0\n" ;
-        $headers .= "Content-type: text/html; charset=utf-8; \r\n";
+        $headers = "MIME-Version: 1.0\r\n";
+        $headers .= "Content-type: text/html; charset=utf-8;\r\n";
         $headers .= "From: $from\r\n";
-        if(!empty($replyTo)) {
+        if (!empty($replyTo)) {
             $headers .= "reply-to: $replyTo\r\n";
         }
         

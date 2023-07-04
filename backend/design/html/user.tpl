@@ -102,12 +102,6 @@
                                 </div>
                             </div>
                             <div class="mb-1">
-                                <div class="heading_label">{$btr->general_adress|escape}</div>
-                                <div class="">
-                                    <input name="address" class="form-control" type="text" value="{$user->address|escape}" />
-                                </div>
-                            </div>
-                            <div class="mb-1">
                                 <div class="heading_label">{$btr->general_registration_date|escape}</div>
                                 <div class="">
                                     <input name="" class="form-control" type="text" disabled value="{$user->created|date}" />

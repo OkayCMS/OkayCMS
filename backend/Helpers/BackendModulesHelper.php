@@ -6,6 +6,7 @@ namespace Okay\Admin\Helpers;
 
 use Okay\Core\Config;
 use Okay\Core\Request;
+use Okay\Core\Settings;
 
 class BackendModulesHelper
 {
@@ -13,13 +14,86 @@ class BackendModulesHelper
     private $apiBaseUrl;
     private $marketplaceUrl;
     private $config;
-    
-    public function __construct(Config $config)
-    {
+    private $settings;
+
+    public function __construct(
+        Config $config,
+        Settings $settings
+    ) {
         $this->config = $config;
-        
+        $this->settings = $settings;
+
         $this->marketplaceUrl = $config->get('marketplace_url');
-        $this->apiBaseUrl = $this->marketplaceUrl . 'api/v1/';
+        $this->apiBaseUrl = $this->marketplaceUrl . 'api/';
+    }
+
+    /**
+     * @return array
+     *
+     * Метод повертає інформацію з кешу про закінчення доступу до оновлень модулів
+     */
+    public function getModulesAccessExpiresFromCache(): array
+    {
+        if (($modulesExpires = $this->settings->get('modules_access_expires'))
+            && $this->settings->get('modules_access_check_date') == date('Y-m-d')) {
+            return $modulesExpires;
+        }
+        return [];
+    }
+
+    /**
+     * @return void
+     * Метод інвалідує кеш інформації про закінчення терміну доступу до оновлень модулів
+     */
+    public function resetModulesAccessExpiresCache(): void
+    {
+        $this->settings->set('modules_access_check_date', date('Y-m-d', time() - 86400));
+    }
+
+    /**
+     * @return void
+     *
+     * Метод оновлює кеш даних інформації по закінченню терміну доступу до оновлень модулів
+     */
+    public function updateModulesAccessExpiresCache(): void
+    {
+        // Перевіряємо чи валідний кеш
+        if ($this->getModulesAccessExpiresFromCache()) {
+            return;
+        }
+
+        $emails = sprintf('%s %s %s',
+            $this->settings->get('order_email'),
+            $this->settings->get('notify_from_email'),
+            $this->settings->get('comment_email')
+        );
+
+        preg_match_all(
+            '~([_a-z0-9-]+(?:\.[_a-z0-9-]+)*@[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,})~',
+            $emails,
+            $matches
+        );
+
+        if (!empty($matches[0])) {
+            $emailRequest = urlencode(base64_encode(implode('|', array_unique($matches[0]))));
+        }
+
+        $modulesExpiresResponse = $this->request(sprintf(
+            '%sv2/modules/access/expires/%s/list?email_request=%s',
+            $this->apiBaseUrl,
+            Request::getDomain(),
+            $emailRequest ?? ''
+        ));
+
+        $modulesExpires = [];
+        if ($modulesExpiresResponse && !empty($modulesExpiresResponse->data)) {
+            foreach ($modulesExpiresResponse->data as $moduleData) {
+                $modulesExpires[$moduleData->vendor . '/' . $moduleData->moduleName] = $moduleData;
+            }
+
+            $this->settings->set('modules_access_expires', $modulesExpires);
+            $this->settings->set('modules_access_check_date', date('Y-m-d'));
+        }
     }
 
     public function checkDownloadVersions($accessUrl)
@@ -37,7 +111,7 @@ class BackendModulesHelper
      * @throws \Exception
      * 
      */
-    public function downloadModule($downloadUrl)
+    public function downloadModule(string $downloadUrl)
     {
         if (!$tempFileToSave = tempnam($this->config->get('tmp_dir'), 'module_zip_')) {
             return false;
@@ -64,7 +138,7 @@ class BackendModulesHelper
         
     }
     
-    public function moveModule($moduleTmpDir, $moduleVendor, $moduleName)
+    public function moveModule($moduleTmpDir, $moduleVendor, $moduleName): bool
     {
         if (empty($moduleTmpDir) || empty($moduleVendor) || empty($moduleName)) {
             return false;
@@ -97,7 +171,7 @@ class BackendModulesHelper
             $query['page'] = $page;
         }
         
-        return $this->request($this->apiBaseUrl . 'modules/list?' . http_build_query($query));
+        return $this->request($this->apiBaseUrl . 'v1/modules/list?' . http_build_query($query));
     }
     
     public function request($url)
@@ -105,7 +179,7 @@ class BackendModulesHelper
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         $result = json_decode(curl_exec($ch));
 
         curl_close($ch);

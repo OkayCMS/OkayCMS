@@ -117,9 +117,7 @@ class ModulesEntity extends Entity
                 $module->status   = 'Not Installed';
 
                 $module->params = $moduleCore->getModuleParams($vendorName, $moduleName);
-                if (!empty($module->params->version)) {
-                    $module->version = $module->params->version;
-                }
+                $module->version = $module->params->getVersion();
                 
                 $notInstalledModules[] = $module;
             }

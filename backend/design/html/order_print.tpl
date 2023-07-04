@@ -226,15 +226,13 @@
         <tr>
             <td class="td_pr_1">{$btr->order_print_email|escape}:</td>
             <td class="small">{$order->email|escape}</td>
-        </tr>    
-        <tr>
-            <td class="td_pr_1">{$btr->order_print_adress|escape}:</td>
-            <td class="small">{$order->address|escape}</td>
-        </tr>    
-        <tr>
-            <td class="td_pr_1">{$btr->order_print_comment|escape}:</td>
-            <td class="small"><i>{$order->comment|escape|nl2br}</i></td>
         </tr>
+        {if $order->comment}
+            <tr>
+                <td class="td_pr_1">{$btr->order_print_comment|escape}:</td>
+                <td class="small"><i>{$order->comment|escape|nl2br}</i></td>
+            </tr>
+        {/if}
         {get_design_block block="order_print_user_info"}
     </table>
     

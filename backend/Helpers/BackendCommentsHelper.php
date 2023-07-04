@@ -227,9 +227,9 @@ class BackendCommentsHelper
     public function matchStatus($filter)
     {
         $status = '';
-        if (isset($filter['approved'])) {
+        if (($filter['approved'] ?? null) === 1) {
             $status = 'approved';
-        } elseif (isset($filter['unapproved'])) {
+        } elseif (($filter['approved'] ?? null) === 0) {
             $status = 'unapproved';
         }
 

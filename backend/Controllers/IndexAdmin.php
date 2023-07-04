@@ -202,7 +202,7 @@ class IndexAdmin
         $isNotLocalServer = !in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '0:0:0:0:0:0:0:1']);
         if (empty($supportInfo->public_key) && !empty($supportInfo->is_auto) && $isNotLocalServer) {
             $supportInfoEntity->updateInfo(['is_auto' => 0]);
-            if ($support->getNewKeys($this->manager->email) !== false) {
+            if (!empty($this->manager) && $support->getNewKeys($this->manager->email) !== false) {
                 $this->response->addHeader("Refresh:0");
                 $this->response->sendHeaders();
                 exit();

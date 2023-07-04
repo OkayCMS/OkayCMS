@@ -11,12 +11,12 @@ use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCitiesEntity;
 
 class NewpostCityPlugin extends Modifier
 {
-    protected $tag = 'newpost_city';
+    protected string $tag = 'newpost_city';
 
-    protected $design;
+    protected Design $design;
     
     /** @var NPCitiesEntity */
-    protected $citiesEntity;
+    protected NPCitiesEntity $citiesEntity;
 
     public function __construct(Design $design, EntityFactory $entityFactory)
     {

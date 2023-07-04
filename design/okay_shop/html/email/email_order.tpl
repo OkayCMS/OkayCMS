@@ -155,12 +155,6 @@
                                                             <td class="es-p5t es-p5b"><span>{$order->phone|phone}</span></td>
                                                         </tr>
                                                         {/if}
-                                                        {if $order->address}
-                                                        <tr valign="top">
-                                                            <td class="es-p5t es-p5b" width="180px"><span>{$lang->email_order_address|escape}:</span></td>
-                                                            <td class="es-p5t es-p5b"><span>{$order->address|escape}</span></td>
-                                                        </tr>
-                                                        {/if}
                                                         {if $order->comment}
                                                         <tr valign="top">
                                                             <td class="es-p5t es-p5b" width="180px"><span>{$lang->email_order_comment|escape}:</span></td>

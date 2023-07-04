@@ -6,6 +6,7 @@ namespace Okay\Core;
 
 use Monolog\Handler\ChromePHPHandler;
 use Monolog\Handler\RotatingFileHandler;
+use Okay\Admin\Helpers\BackendModulesHelper;
 use Okay\Core\Console\Application AS ConsoleApplication;
 use Okay\Core\Entity\UrlUniqueValidator;
 use Okay\Core\Modules\ModuleDesign;
@@ -387,6 +388,7 @@ $services = [
         'class' => Module::class,
         'arguments' => [
             new SR(LoggerInterface::class),
+            new SR(BackendModulesHelper::class),
         ],
     ],
     ModuleDesign::class => [
