@@ -78,6 +78,25 @@ class BackendExtender implements ExtensionInterface
                 'novaposhta_delivery_data',
                 $this->deliveryDataHelper->getFullDeliveryData((int)$order->id)
             );
+
+            // Визначаємо які варіанти доставки ведуть до двері або до складу
+            $deliveriesEntity = $this->entityFactory->get(DeliveriesEntity::class);
+            $doorsDeliveries = [];
+            $warehousesDeliveries = [];
+            foreach ($deliveriesEntity->find() as $delivery) {
+                if ($delivery->module_id == $moduleId) {
+                    $deliverySettings = unserialize($delivery->settings);
+                    if ($deliverySettings['service_type'] == 'DoorsDoors'
+                        || $deliverySettings['service_type'] == 'WarehouseDoors') {
+                        $doorsDeliveries[] = $delivery->id;
+                    } else {
+                        $warehousesDeliveries[] = $delivery->id;
+                    }
+                }
+            }
+
+            $this->design->assign('doorsDeliveries', $doorsDeliveries);
+            $this->design->assign('warehousesDeliveries', $warehousesDeliveries);
         }
     }
     

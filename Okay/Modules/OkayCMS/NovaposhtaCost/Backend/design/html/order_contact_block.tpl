@@ -1,38 +1,51 @@
 <div class="fn_delivery_novaposhta"{if $delivery->module_id != $novaposhta_module_id} style="display: none;"{/if}>
+    <div class="heading_box">
+        {$btr->left_setting_np_title|escape}
+    </div>
     <input name="novaposhta_city_id" type="hidden" value="{$novaposhta_delivery_data->city_id|escape}" />
     <input name="novaposhta_delivery_term" type="hidden" value="{$novaposhta_delivery_data->delivery_term|escape}" />
-    {if $delivery->settings['service_type'] == 'DoorsDoors' || $delivery->settings['service_type'] == 'WarehouseDoors'}
+
+    {$isDoorDelivery = $delivery->settings['service_type'] == 'DoorsDoors' || $delivery->settings['service_type'] == 'WarehouseDoors'}
+
+    <div class="fn_np_door_delivery_block"
+        {if !$isDoorDelivery}
+            style="display: none"
+        {/if}
+    >
         <div class="mb-1">
             <div class="heading_label">{$btr->order_np_city}</div>
-            <input type="text" name="novaposhta_city" class="fn_newpost_city_name form-control" autocomplete="off" value="{$novaposhta_delivery_data->city_name|escape}">
+            <input type="text" name="novaposhta_city" class="fn_newpost_city_name form-control" autocomplete="off" value="{$novaposhta_delivery_data->city_name|escape}"{if !$isDoorDelivery} disabled{/if}>
         </div>
         <div class="mb-1">
             <div class="heading_label">{$btr->order_np_street}</div>
-            <input type="text" name="novaposhta_street" class="fn_newpost_street form-control" autocomplete="off" value="{$novaposhta_delivery_data->street|escape}">
+            <input type="text" name="novaposhta_street" class="fn_newpost_street form-control" autocomplete="off" value="{$novaposhta_delivery_data->street|escape}"{if !$isDoorDelivery} disabled{/if}>
         </div>
         <div class="mb-1">
             <div class="heading_label">{$btr->order_np_house}</div>
-            <input type="text" name="novaposhta_house" class="form-control" autocomplete="off" value="{$novaposhta_delivery_data->house|escape}">
+            <input type="text" name="novaposhta_house" class="form-control" autocomplete="off" value="{$novaposhta_delivery_data->house|escape}"{if !$isDoorDelivery} disabled{/if}>
         </div>
         <div class="mb-1">
             <div class="heading_label">{$btr->order_np_apartment}</div>
-            <input type="text" name="novaposhta_apartment" class="form-control" autocomplete="off" value="{$novaposhta_delivery_data->apartment|escape}">
+            <input type="text" name="novaposhta_apartment" class="form-control" autocomplete="off" value="{$novaposhta_delivery_data->apartment|escape}"{if !$isDoorDelivery} disabled{/if}>
         </div>
 
-        <input name="novaposhta_city_name" class="fn_np_clear" type="hidden" value="{$novaposhta_delivery_data->city_name|escape}"/>
-        <input name="novaposhta_area_name" class="fn_np_clear" type="hidden" value="{$novaposhta_delivery_data->area_name|escape}"/>
-        <input name="novaposhta_region_name" class="fn_np_clear" type="hidden" value="{$novaposhta_delivery_data->region_name|escape}"/>
-        <input name="novaposhta_street_name" class="fn_np_clear" type="hidden" value="{$novaposhta_delivery_data->street|escape}"/>
+        <input name="novaposhta_city_name" class="fn_np_clear" type="hidden" value="{$novaposhta_delivery_data->city_name|escape}"{if !$isDoorDelivery} disabled{/if}/>
+        <input name="novaposhta_area_name" class="fn_np_clear" type="hidden" value="{$novaposhta_delivery_data->area_name|escape}"{if !$isDoorDelivery} disabled{/if}/>
+        <input name="novaposhta_region_name" class="fn_np_clear" type="hidden" value="{$novaposhta_delivery_data->region_name|escape}"{if !$isDoorDelivery} disabled{/if}/>
+        <input name="novaposhta_street_name" class="fn_np_clear" type="hidden" value="{$novaposhta_delivery_data->street|escape}"{if !$isDoorDelivery} disabled{/if}/>
 
-        <input name="novaposhta_door_delivery" type="hidden" value="1"/>
-        
-    {else}
-        
-        <input name="novaposhta_warehouse_id" type="hidden" value="{$novaposhta_delivery_data->warehouse_id|escape}" />
+        <input name="novaposhta_door_delivery" type="hidden" value="1"{if !$isDoorDelivery} disabled{/if}/>
+    </div>
+    <div class="fn_np_warehouse_delivery_block"
+        {if $isDoorDelivery}
+            style="display: none"
+        {/if}
+    >
+        <input name="novaposhta_warehouse_id" type="hidden" value="{$novaposhta_delivery_data->warehouse_id|escape}"{if $isDoorDelivery} disabled{/if}/>
         
         <div class="mb-1">
             <div class="heading_label">{$btr->order_np_city}</div>
-            <input type="text" class="fn_newpost_city_name form-control" autocomplete="off" value="{$novaposhta_delivery_data->city_id|newpost_city}">
+            <input type="text" class="fn_newpost_city_name form-control" autocomplete="off" value="{$novaposhta_delivery_data->city_id|newpost_city}"{if $isDoorDelivery} disabled{/if}>
         </div>
         <div class="mb-1">
             <div class="heading_label">{$btr->order_np_warehouse}
@@ -40,9 +53,9 @@
                     {include file='svg_icon.tpl' svgId='icon_tooltips'}
                 </i>
             </div>
-            <select name="novaposhta_warehouse" tabindex="1" class="selectpicker form-control warehouses_novaposhta" data-live-search="true"></select>
+            <select name="novaposhta_warehouse" tabindex="1" class="selectpicker form-control warehouses_novaposhta" data-live-search="true"{if $isDoorDelivery} disabled{/if}></select>
         </div>
-    {/if}
+    </div>
     
     <div class="mb-1">
         <div class="heading_label">
@@ -111,18 +124,27 @@
             }
         });
     });
-    
+
+    let doorsDeliveries = {/literal}{json_encode($doorsDeliveries)}{literal};
+    let warehousesDeliveries = {/literal}{json_encode($warehousesDeliveries)}{literal};
+
     $('select[name="delivery_id"]').on('change', function () {
         if ($(this).children(':selected').data('module_id') == '{/literal}{$novaposhta_module_id}{literal}') {
             $('.fn_delivery_novaposhta').show();
+            let deliveryId = $(this).children(':selected').val();
+            let doorDeliveryBlock = $('.fn_np_door_delivery_block');
+            let warehouseDeliveryBlock = $('.fn_np_warehouse_delivery_block');
+            if (doorsDeliveries.includes(deliveryId)) {
+                doorDeliveryBlock.show().find('input, select').attr('disabled', false);
+                warehouseDeliveryBlock.hide().find('input, select').attr('disabled', true);
+            } else if (warehousesDeliveries.includes(deliveryId)) {
+                doorDeliveryBlock.hide().find('input, select').attr('disabled', true);
+                warehouseDeliveryBlock.show().find('input, select').attr('disabled', false);
+            }
         } else {
             $('.fn_delivery_novaposhta').hide();
         }
     });
-
-    {/literal}
-    {if $delivery->settings['service_type'] == 'DoorsDoors' || $delivery->settings['service_type'] == 'WarehouseDoors'}
-    {literal}
 
     setStreetAutocomplete({/literal}'{$novaposhta_delivery_data->city_id|escape}'{literal});
     
@@ -173,10 +195,6 @@
         });
     }
     
-    {/literal}
-    {else}
-    {literal}
-    
     $( ".fn_newpost_city_name" ).devbridgeAutocomplete( {
         serviceUrl: okay.router['OkayCMS_NovaposhtaCost_find_city'],
         minChars: 1,
@@ -193,10 +211,6 @@
             return "<span>" + suggestion.value.replace( new RegExp( pattern, 'gi' ), '<strong>$1<\/strong>' ) + "<\/span>";
         }
     } );
-
-    {/literal}
-    {/if}
-    {literal}
     
     {/literal}
     {if !empty($novaposhta_delivery_data->city_id)}

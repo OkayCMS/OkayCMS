@@ -26,7 +26,8 @@ class NovaposhtaCostAdmin extends IndexAdmin
         NPCacheHelper $cacheHelper,
         NPBackendRequest $backendRequest,
         NPDeliveryTypesEntity $deliveryTypesEntity,
-        NPBackendHelper $backendHelper
+        NPBackendHelper $backendHelper,
+        NPApiHelper $apiHelper
     ) {
         if ($this->request->method('POST')) {
             $this->settings->set('newpost_key', $this->request->post('newpost_key'));
@@ -39,6 +40,8 @@ class NovaposhtaCostAdmin extends IndexAdmin
 
             $deliveryTypes = $backendRequest->postDeliveryTypes();
             $backendHelper->updateDeliveryTypes($deliveryTypes);
+
+            $apiHelper->checkApiKey();
 
             $this->design->assign('message_success', 'saved');
         }

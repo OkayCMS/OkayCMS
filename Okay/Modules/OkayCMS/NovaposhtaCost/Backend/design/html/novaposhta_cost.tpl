@@ -123,7 +123,7 @@
                                 </i>
                             </div>
                             <div class="mb-1">
-                                <input type="text" name="newpost_weight" value="{$settings->newpost_weight|escape}" class="form-control">
+                                <input type="number" name="newpost_weight" value="{$settings->newpost_weight|escape}" required min="0.1" max="1000" step="0.1" class="form-control">
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-12">
@@ -133,7 +133,7 @@
                                 </i>
                             </div>
                             <div class="mb-1">
-                                <input type="text" name="newpost_volume" value="{$settings->newpost_volume|escape}" class="form-control">
+                                <input type="number" name="newpost_volume" value="{$settings->newpost_volume|escape}" min="0.001" max="1000" step="any" class="form-control">
                             </div>
                         </div>
                     </div>

@@ -7,8 +7,7 @@ const configParamsObj = {
             return data;
         }
         if (data.text.toLowerCase().startsWith(params.term.toLowerCase())) {
-            var modifiedData = $.extend({}, data, true);
-            return modifiedData;
+            return $.extend({}, data, true);
         }
         return null;
     }
@@ -19,13 +18,27 @@ const whsParams = {
         if ($.trim(params.term) === '') {
             return data;
         }
-        if ($.isNumeric(params.term)){
-            if (~data.text.indexOf("№"+params.term)){
+        if ($.isNumeric(params.term)) {
+            // Шукаємо лише по першому входженню "№...", щоб по запиту "3" знайти лише "Відділення №3",
+            // а не "Відділення №1, під'їзд №3"
+            let warehouseNumSearch = ~data.text.indexOf("№"+params.term);
+            if (warehouseNumSearch && ~data.text.indexOf("№") === warehouseNumSearch){
                 return data;
             }
-        } else if (~data.text.toLowerCase().indexOf(params.term.toLowerCase())) {
-            var modifiedData = $.extend({}, data, true);
-            return modifiedData;
+        } else {
+            let words = params.term.toLowerCase().split(' ');
+            let isMatched = true;
+            for (let wordKey in words) {
+                let word = words[wordKey];
+                if (!~data.text.toLowerCase().indexOf(word)) {
+                    isMatched = false;
+                }
+            }
+            if (isMatched) {
+                return $.extend({}, data, true);
+            } else if (~data.text.toLowerCase().indexOf(params.term.toLowerCase())) {
+                return $.extend({}, data, true);
+            }
         }
         return null;
     }
@@ -52,6 +65,7 @@ function init() {
         getWarehouses();
     }
     $('.np_preloader').remove();
+    update_np_payments();
 }
 
 $( ".fn_delivery_novaposhta input.city_novaposhta" ).devbridgeAutocomplete({

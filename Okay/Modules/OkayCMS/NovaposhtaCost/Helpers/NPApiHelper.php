@@ -37,7 +37,7 @@ class NPApiHelper
             "calledMethod" => "getWarehouseTypes",
         ];
 
-        $response = $this->request($request);
+        $response = $this->request($request, false);
         if (!empty($response->success)) {
             $result = [];
             foreach ($response->data as $warehouseTypeData) {
@@ -54,6 +54,17 @@ class NPApiHelper
             return $result;
         }
         return [];
+    }
+
+    public function checkApiKey(): string
+    {
+        $request = [
+            "modelName" => "Address",
+            "calledMethod" => "getWarehouseTypes",
+        ];
+
+        $this->request($request);
+        return $this->getLastCallError();
     }
 
     public function getWarehouses(string $warehouseType, int $page, int $limit): ?NPWarehousesCollectionDTO
@@ -139,12 +150,14 @@ class NPApiHelper
         return $this->lastCallError;
     }
 
-    public function request(array $requestParams)
+    public function request(array $requestParams, bool $isUseApiKey = true)
     {
         if (empty($requestParams)) {
             return false;
         }
-        $requestParams["apiKey"] = $this->settings->get('newpost_key');
+        if ($isUseApiKey) {
+            $requestParams["apiKey"] = $this->settings->get('newpost_key');
+        }
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, 'https://api.novaposhta.ua/v2.0/json/');
