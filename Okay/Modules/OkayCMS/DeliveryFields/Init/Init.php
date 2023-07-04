@@ -125,7 +125,6 @@ class Init extends AbstractInit
             $select = $queryFactory->newSelect();
             $deliveriesIds = $select->cols(['id'])
                 ->from(DeliveriesEntity::getTable())
-                ->where('module_id = 0 OR module_id IS NULL')
                 ->results('id');
 
             $deliveryFieldId = $deliveryFieldsEntity->add([

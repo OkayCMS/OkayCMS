@@ -236,7 +236,7 @@
 
     // Додавання поля
     let field = $('.fn_new_field').clone(false).removeClass('hidden');
-    let lastFieldsIndex = {/literal}{$fields|count}{literal};
+    let lastFieldsIndex = {/literal}{$lastDeliveryFieldIndex}{literal};
     $(".fn_new_field").remove();
     $(document).on('click', '.fn_add_field', function () {
         let fieldClone = field.clone(true);

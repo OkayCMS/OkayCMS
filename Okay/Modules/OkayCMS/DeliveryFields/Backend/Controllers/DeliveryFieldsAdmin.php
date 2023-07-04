@@ -26,7 +26,13 @@ class DeliveryFieldsAdmin extends IndexAdmin
             $this->design->assign('message_success', 'saved');
         }
 
-        $this->design->assign('deliveryFields', $deliveryFieldsHelper->findDeliveryFields());
+        $deliveryFields = $deliveryFieldsHelper->findDeliveryFields();
+        $this->design->assign('deliveryFields', $deliveryFields);
+        $lastDeliveryFieldIndex = 0;
+        if (!empty($deliveryFields)) {
+            $lastDeliveryFieldIndex = max(array_keys($deliveryFields)) + 1;
+        }
+        $this->design->assign('lastDeliveryFieldIndex', $lastDeliveryFieldIndex);
 
         $this->response->setContent($this->design->fetch('delivery_fields.tpl'));
     }

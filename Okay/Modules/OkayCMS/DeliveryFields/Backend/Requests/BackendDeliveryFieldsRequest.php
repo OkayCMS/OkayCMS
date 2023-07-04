@@ -15,7 +15,7 @@ class BackendDeliveryFieldsRequest
 
     public function postDeliveryFields(): array
     {
-        $postFields = $this->request->post('delivery_fields');
+        $postFields = $this->request->post('delivery_fields', null, []);
 
         $deliveryFields = [];
         foreach ($postFields as $n => $va) {
