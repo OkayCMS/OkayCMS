@@ -37,23 +37,24 @@
             
         {else}
             <div class="form__group">
-                <input class="city_novaposhta form__input form__placeholder--focus" name="novaposhta_city" autocomplete="on" type="text" value="{$request_data.novaposhta_city|escape}" >
+                <input class="city_novaposhta form__input form__placeholder--focus" name="novaposhta_city" autocomplete="off" type="text" value="{$request_data.novaposhta_city|escape}" >
                 <span class="form__placeholder">{$lang->np_cart_city}*</span>
             </div>
-            
-            <div class="warehouses_novaposhta form__group">
-                <select name="novaposhta_warehouses" tabindex="1" class="fn_select_warehouses_novaposhta" style="width: 100%;"></select>
+
+            <div class="np_delivery_types_block">
+                <div class="np_delivery_types_heading"></div>
+                <div class="np_delivery_types_content"></div>
             </div>
 
             <input name="novaposhta_delivery_warehouse_id" type="hidden" value="{$request_data.novaposhta_delivery_warehouse_id}"/>
         {/if}
 
-        {if $np_redelivery_payments_ids}
+        {if $np_redelivery_payments_ids && $cart->total_price > 0}
             <div class="form__group">
                 <label for="redelivery_{$delivery->id}">
-                <input name="novaposhta_redelivery" id="redelivery_{$delivery->id}" value="1" type="checkbox" {if $request_data.novaposhta_redelivery == true}checked{/if} />
-                {$lang->np_cart_cod} 
-            </label>
+                    <input name="novaposhta_redelivery" id="redelivery_{$delivery->id}" value="1" type="checkbox" {if $request_data.novaposhta_redelivery == true}checked{/if} />
+                    {$lang->np_cart_cod}
+                </label>
             </div>
         {/if}
         

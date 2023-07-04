@@ -1,0 +1,32 @@
+{
+  "version": "1.0.0",
+  "vendor": {
+    "email": "info@okay-cms.com",
+    "site": "https://okay-cms.com"
+  },
+  "modifications": {
+    "front": [
+      {
+        "file": "order.tpl",
+        "changes": [
+          {
+            "find": "{if $delivery}",
+            "appendAfter": "order_delivery_fields.tpl"
+          }
+        ]
+      }
+    ],
+    "backend": [
+      {
+        "file": "order.tpl",
+        "changes": [
+          {
+            "find": "name=\"email\"",
+            "parent": "",
+            "appendAfter": "order_delivery_fields.tpl"
+          }
+        ]
+      }
+    ]
+  }
+}

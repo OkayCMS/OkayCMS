@@ -60,10 +60,9 @@ class Cart
     private $userCartItemsEntity;
 
 
-    /** @var array
-     * Cart purchases
+    /** @var Purchase[]
      */
-    public $purchases = [];
+    public array $purchases = [];
 
     /**
      * @var int
@@ -219,7 +218,7 @@ class Cart
         $this->updateTotals();
     }
 
-    public function get()
+    public function get(): self
     {
         return ExtenderFacade::execute(__METHOD__, $this, func_get_args());
     }

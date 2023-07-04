@@ -137,13 +137,6 @@
                                                             <span class="form__placeholder">{$lang->form_phone}</span>
                                                         </div>
                                                     </div>
-                                                    <div class="f_col-md-12 f_col-lg-6 f_col-xl-12">
-                                                        {* User's address *}
-                                                        <div class="form__group">
-                                                            <input class="form__input form__placeholder--focus" value="{$user->address|escape}" name="address" type="text" data-language="form_address" />
-                                                            <span class="form__placeholder">{$lang->form_address}</span>
-                                                        </div>
-                                                    </div>
                                                     <div class="f_col-md-12">
                                                         {* User's password *}
                                                         <div class="form__group">

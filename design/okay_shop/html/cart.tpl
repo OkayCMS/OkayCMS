@@ -172,14 +172,6 @@
                                                             </div>
                                                         </div>
 
-                                                        {* User's address *}
-                                                        <div class="f_col-md-12 f_col-lg-12 f_col-xl-12">
-                                                            <div class="form__group">
-                                                                <input class="form__input form__placeholder--focus" name="address" type="text" value="{$request_data.address|escape}" data-language="form_address" >
-                                                                <span class="form__placeholder">{$lang->form_address}</span>
-                                                            </div>
-                                                        </div>
-
                                                         {* User's message *}
                                                         <div class="f_col-xl-12">
                                                             <div class="form__group form__group--last">

@@ -24,7 +24,6 @@
     <input type="hidden" name="clientEmail"         value="{$clientEmail|escape}">
     <input type="hidden" name="clientPhone"         value="{$clientPhone|escape}">
     {*<input type="hidden" name="clientCity"          value="{$clientCity|escape}">*}
-    <input type="hidden" name="clientAddress"       value="{$clientAddress|escape}">
     <input type="hidden" name="language"            value="{$language|escape}">
     <input type="submit" class="button"             value="{$lang->form_to_pay}">
 </form>

@@ -22,12 +22,7 @@ class EntityFactory
         $this->logger = $logger;
     }
 
-    /**
-     * @param $class
-     * @return Entity
-     * @throws \Exception
-     */
-    public function get($class): Entity
+    public function get($class)
     {
         if (!class_exists($class)) {
             throw new \Exception("Class \"{$class}\" is not exists");

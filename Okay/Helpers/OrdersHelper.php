@@ -7,6 +7,7 @@ namespace Okay\Helpers;
 use Okay\Core\EntityFactory;
 use Okay\Core\Phone;
 use Okay\Core\UserReferer\UserReferer;
+use Okay\Entities\DeliveriesEntity;
 use Okay\Entities\DiscountsEntity;
 use Okay\Entities\OrdersEntity;
 use Okay\Entities\PaymentsEntity;
@@ -57,6 +58,33 @@ class OrdersHelper
     {
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
+
+    public function getOrderDelivery($order): ?object
+    {
+        /** @var DeliveriesEntity $deliveriesEntity */
+        $deliveriesEntity = $this->entityFactory->get(DeliveriesEntity::class);
+        $delivery = null;
+        if ($order->delivery_id) {
+            $delivery = $deliveriesEntity->get((int)$order->delivery_id);
+            $delivery->settings = unserialize($delivery->settings);
+        }
+
+        return ExtenderFacade::execute(__METHOD__, $delivery, func_get_args());
+    }
+
+    public function getOrderPaymentMethod($order): ?object
+    {
+        /** @var PaymentsEntity $paymentsEntity */
+        $paymentsEntity = $this->entityFactory->get(PaymentsEntity::class);
+        $paymentMethod = null;
+
+        if ($order->payment_method_id) {
+            $paymentMethod = $paymentsEntity->get((int)$order->payment_method_id);
+            $paymentMethod->settings = unserialize($paymentMethod->settings);
+        }
+
+        return ExtenderFacade::execute(__METHOD__, $paymentMethod, func_get_args());
+    }
     
     public function getOrderPaymentMethodsList($order)
     {
@@ -67,6 +95,10 @@ class OrdersHelper
             'delivery_id' => $order->delivery_id,
             'enabled' => 1,
         ]);
+
+        foreach ($paymentMethods as $paymentMethod) {
+            $paymentMethod->settings = unserialize($paymentMethod->settings);
+        }
 
         return ExtenderFacade::execute(__METHOD__, $paymentMethods, func_get_args());
     }

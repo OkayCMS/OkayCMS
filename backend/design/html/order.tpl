@@ -541,10 +541,6 @@
                             <input name="email" class="form-control" type="text" value="{$order->email|escape}" />
                         </div>
                         <div class="mb-1">
-                            <div class="heading_label">{$btr->general_adress|escape} <a href="https://www.google.com/maps/search/{$order->address|escape}?hl=ru" target="_blank"><i class="fa fa-map-marker"></i> {$btr->order_on_map|escape}</a></div>
-                            <textarea name="address" class="form-control short_textarea">{$order->address|escape}</textarea>
-                        </div>
-                        <div class="mb-1">
                             <div class="heading_label">{$btr->general_comment|escape}</div>
                             <textarea name="comment" class="form-control short_textarea">{$order->comment|escape}</textarea>
                         </div>
@@ -651,7 +647,9 @@
             <div class="checkbox_email float-sm-right text_dark mr-1 fn_step-5">
                 <input id="order_to_email" name="notify_user" type="checkbox" class="hidden_check_1"  value="1" />
                 <label for="order_to_email" class="checkbox_label mr-h"></label>
-                <span>{$btr->order_email|escape}</span>
+                <label for="order_to_email">
+                    <span>{$btr->order_email|escape}</span>
+                </label>
             </div>
         </div>
     </div>

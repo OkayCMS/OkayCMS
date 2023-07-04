@@ -17,7 +17,6 @@ class UsersEntity extends Entity
         'name',
         'last_name',
         'phone',
-        'address',
         'group_id',
         'last_ip',
         'created',

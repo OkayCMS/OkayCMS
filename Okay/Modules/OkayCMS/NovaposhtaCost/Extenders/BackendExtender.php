@@ -10,24 +10,37 @@ use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Modules\Extender\ExtensionInterface;
 use Okay\Core\Modules\Module;
 use Okay\Core\Request;
+use Okay\Core\Settings;
+use Okay\Entities\CurrenciesEntity;
 use Okay\Entities\DeliveriesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCostDeliveryDataEntity;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPDeliveryDataHelper;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Init\Init;
 
 class BackendExtender implements ExtensionInterface
 {
     
-    private $request;
-    private $entityFactory;
-    private $design;
-    private $module;
-    
-    public function __construct(Request $request, EntityFactory $entityFactory, Design $design, Module $module)
-    {
+    private Request $request;
+    private EntityFactory $entityFactory;
+    private Design $design;
+    private Module $module;
+    private Settings $settings;
+    private NPDeliveryDataHelper $deliveryDataHelper;
+
+    public function __construct(
+        Request $request,
+        EntityFactory $entityFactory,
+        Design $design,
+        Module $module,
+        Settings $settings,
+        NPDeliveryDataHelper $deliveryDataHelper
+    ) {
         $this->request = $request;
         $this->entityFactory = $entityFactory;
         $this->design = $design;
         $this->module = $module;
+        $this->settings = $settings;
+        $this->deliveryDataHelper = $deliveryDataHelper;
     }
 
     public function parseVariantData($variant, $itemFromCsv)
@@ -42,7 +55,7 @@ class BackendExtender implements ExtensionInterface
     /**
      * @param $variants
      * @return mixed
-     * метод корректирует данные для поля volume, т.к. оно decimal, туда нельзя строку писать
+     * Метод корректирует данные для поля volume, т.к. оно decimal, туда нельзя строку писать
      */
     public function correctVariantsVolume(array $variants)
     {
@@ -59,13 +72,31 @@ class BackendExtender implements ExtensionInterface
     {
         $moduleId = $this->module->getModuleIdByNamespace(__NAMESPACE__);
         $this->design->assign('novaposhta_module_id', $moduleId);
-        
-        if (!empty($order->id)) {
-            /** @var NPCostDeliveryDataEntity $npDdEntity */
-            $npDdEntity = $this->entityFactory->get(NPCostDeliveryDataEntity::class);
 
-            $npDeliveryData = $npDdEntity->getByOrderId($order->id);
-            $this->design->assign('novaposhta_delivery_data', $npDeliveryData);
+        if (!empty($order->id)) {
+            $this->design->assign(
+                'novaposhta_delivery_data',
+                $this->deliveryDataHelper->getFullDeliveryData((int)$order->id)
+            );
+
+            // Визначаємо які варіанти доставки ведуть до двері або до складу
+            $deliveriesEntity = $this->entityFactory->get(DeliveriesEntity::class);
+            $doorsDeliveries = [];
+            $warehousesDeliveries = [];
+            foreach ($deliveriesEntity->find() as $delivery) {
+                if ($delivery->module_id == $moduleId) {
+                    $deliverySettings = unserialize($delivery->settings);
+                    if ($deliverySettings['service_type'] == 'DoorsDoors'
+                        || $deliverySettings['service_type'] == 'WarehouseDoors') {
+                        $doorsDeliveries[] = $delivery->id;
+                    } else {
+                        $warehousesDeliveries[] = $delivery->id;
+                    }
+                }
+            }
+
+            $this->design->assign('doorsDeliveries', $doorsDeliveries);
+            $this->design->assign('warehousesDeliveries', $warehousesDeliveries);
         }
     }
     
@@ -145,5 +176,17 @@ class BackendExtender implements ExtensionInterface
         $preparedVariantData[Init::VOLUME_FIELD] = $variant->{Init::VOLUME_FIELD};
 
         return ExtenderFacade::execute(__METHOD__, $preparedVariantData, func_get_args());
+    }
+
+    public function updateEventCounters()
+    {
+        /** @var CurrenciesEntity $currenciesEntity */
+        $currenciesEntity = $this->entityFactory->get(CurrenciesEntity::class);
+        if ($this->settings->get('np_api_key_error') || !$currenciesEntity->findOne(['code' => 'UAH'])) {
+            $this->design->assign(
+                'all_counter',
+                $this->design->getVar('all_counter') + 1
+            );
+        }
     }
 }

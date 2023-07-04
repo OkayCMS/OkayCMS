@@ -6,32 +6,38 @@ namespace Okay\Modules\OkayCMS\NovaposhtaCost\Init;
 
 use Okay\Admin\Helpers\BackendExportHelper;
 use Okay\Admin\Helpers\BackendImportHelper;
+use Okay\Admin\Helpers\BackendMainHelper;
 use Okay\Admin\Helpers\BackendOrdersHelper;
 use Okay\Admin\Requests\BackendProductsRequest;
+use Okay\Core\Design;
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\AbstractInit;
 use Okay\Core\Modules\EntityField;
 use Okay\Core\Scheduler\Schedule;
 use Okay\Core\ServiceLocator;
-use Okay\Core\Settings;
+use Okay\Entities\CurrenciesEntity;
 use Okay\Entities\PaymentsEntity;
 use Okay\Entities\VariantsEntity;
 use Okay\Helpers\CartHelper;
 use Okay\Helpers\DeliveriesHelper;
+use Okay\Helpers\NotifyHelper;
 use Okay\Helpers\OrdersHelper;
 use Okay\Helpers\ValidateHelper;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCitiesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCostDeliveryDataEntity;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPDeliveryTypesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPWarehousesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Extenders\BackendExtender;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Extenders\FrontExtender;
-use Okay\Modules\OkayCMS\NovaposhtaCost\NovaposhtaCost;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPCacheHelper;
 
 class Init extends AbstractInit
 {
     
     const VOLUME_FIELD = 'volume';
     const CASH_ON_DELIVERY = 'novaposhta_cost__cash_on_delivery';
+    const UPDATE_TYPE_CITIES = 'cities';
+    const UPDATE_TYPE_WAREHOUSES = 'warehouses';
 
     public function install()
     {
@@ -113,6 +119,10 @@ class Init extends AbstractInit
             [BackendOrdersHelper::class, 'findOrder'],
             [BackendExtender::class, 'getDeliveryDataProcedure']
         );
+        $this->registerQueueExtension(
+            [NotifyHelper::class, 'finalEmailOrderAdmin'],
+            [FrontExtender::class, 'getDeliveryDataProcedure']
+        );
 
         // В админке в заказе обновляем данные по доставке
         $this->registerQueueExtension(
@@ -142,12 +152,63 @@ class Init extends AbstractInit
             [ValidateHelper::class, 'getCartValidateError'],
             [FrontExtender::class, 'getCartValidateError']
         );
+
+        $this->registerQueueExtension(
+            [BackendMainHelper::class, 'evensCounters'],
+            [BackendExtender::class, 'updateEventCounters']
+        );
+
+        $this->registerQueueExtension(
+            [OrdersHelper::class, 'getOrderPaymentMethodsList'],
+            [FrontExtender::class, 'getDeliveryDataProcedure']
+        );
+
+        $this->registerQueueExtension(
+            [NotifyHelper::class, 'finalEmailOrderUser'],
+            [FrontExtender::class, 'getDeliveryDataProcedure']
+        );
         
         $this->registerBackendController('NovaposhtaCostAdmin');
         $this->addBackendControllerPermission('NovaposhtaCostAdmin', 'okaycms__novaposhta_cost');
 
+        $this->addBackendBlock(
+            'notification_counters',
+            'counter_block.tpl',
+            function (Design $design, CurrenciesEntity $currenciesEntity) {
+                if (!$currenciesEntity->findOne(['code' => 'UAH'])) {
+                    $design->assign('uahCurrencyError', true);
+                }
+            }
+        );
+
+        $this->addFrontBlock(
+            'front_email_order_user_contact_info',
+            'order_email_delivery_info.tpl',
+            function (Design $design) {
+                if ($delivery = $design->getVar('delivery')) {
+                    if (!is_array($delivery->settings)) {
+                        $delivery->settings = unserialize($delivery->settings);
+                        $design->assign('delivery', $delivery);
+                    }
+                }
+            }
+        );
+
+        $this->addBackendBlock(
+            'email_order_admin_contact_info',
+            'order_email_delivery_info.tpl',
+            function (Design $design) {
+                if ($delivery = $design->getVar('delivery')) {
+                    if (!is_array($delivery->settings)) {
+                        $delivery->settings = unserialize($delivery->settings);
+                        $design->assign('delivery', $delivery);
+                    }
+                }
+            }
+        );
+
         $this->registerSchedule(
-            (new Schedule([NovaposhtaCost::class, 'parseCitiesToCache']))
+            (new Schedule([NPCacheHelper::class, 'cronUpdateCitiesCache']))
                 ->name('Parses NP cities to the db cache')
                 ->time('0 0 * * *')
                 ->overlap(false)
@@ -155,9 +216,9 @@ class Init extends AbstractInit
         );
 
         $this->registerSchedule(
-            (new Schedule([NovaposhtaCost::class, 'parseWarehousesToCache']))
+            (new Schedule([NPCacheHelper::class, 'cronUpdateWarehousesCache']))
                 ->name('Parses NP warehouses to the db cache')
-                ->time('0 0 * * *')
+                ->time('10 0 * * *')
                 ->overlap(false)
                 ->timeout(3600)
         );
@@ -166,18 +227,10 @@ class Init extends AbstractInit
     public function update_1_1_0()
     {
         $this->migrateEntityField(NPWarehousesEntity::class, (new EntityField('type'))->setTypeVarchar(100, true)->setDefault(''));
-        
-        $defaultWarehouseTypes = [
-            '841339c7-591a-42e2-8233-7a0a00f0ed6f',
-            '9a68df70-0267-42a8-bb5c-37f427e36ee4'
-        ];
 
         $SL = ServiceLocator::getInstance();
-        $settings = $SL->getService(Settings::class);
         $entityFactory = $SL->getService(EntityFactory::class);
-        
-        $settings->set('np_warehouses_types', $defaultWarehouseTypes);
-        
+
         $warehousesTypesData = (array)json_decode(file_get_contents(dirname(__FILE__,2).'/tempData/typeData.json'));
         
         /** @var NPWarehousesEntity $warehousesEntity */
@@ -185,10 +238,44 @@ class Init extends AbstractInit
 
         $warehouses = $warehousesEntity->mappedBy('ref')->noLimit()->find();
         foreach ($warehouses as $ref => $warehouse) {
-            if(isset($warehousesTypesData[$ref])){
+            if (isset($warehousesTypesData[$ref])){
                 $warehousesEntity->update((int)$warehouse->id,['type' => $warehousesTypesData[$ref]]); 
             } 
         }
-        $warehousesEntity->removeRedundant();
+    }
+
+    public function update_1_2_0()
+    {
+        $this->migrateEntityField(
+            NPWarehousesEntity::class,
+            (new EntityField('updated_at'))->setTypeTimestamp()
+        );
+
+        $this->migrateEntityField(
+            NPWarehousesEntity::class,
+            (new EntityField('number'))->setTypeInt(11)
+        );
+        $this->migrateEntityField(
+            NPCitiesEntity::class,
+            (new EntityField('updated_at'))->setTypeTimestamp()
+        );
+
+        $this->migrateEntityTable(NPDeliveryTypesEntity::class, [
+            (new EntityField('id'))->setIndexPrimaryKey()->setTypeInt(11, false)->setAutoIncrement(),
+            (new EntityField('name'))->setTypeVarchar(255)->setIsLang(),
+            (new EntityField('warehouses_type_refs'))->setTypeVarchar(255),
+            (new EntityField('position'))->setTypeInt(11, false),
+        ]);
+
+        $SL = ServiceLocator::getInstance();
+        $entityFactory = $SL->getService(EntityFactory::class);
+
+        /** @var NPDeliveryTypesEntity $deliveryTypesEntity */
+        $deliveryTypesEntity = $entityFactory->get(NPDeliveryTypesEntity::class);
+
+        $deliveryTypesEntity->add([
+            'name' => 'Відділення',
+            'warehouses_type_refs' => '841339c7-591a-42e2-8233-7a0a00f0ed6f,9a68df70-0267-42a8-bb5c-37f427e36ee4'
+        ]);
     }
 }

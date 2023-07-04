@@ -44,7 +44,6 @@ class FastOrderController extends AbstractController
         $order->last_name = $this->request->post('last_name');
         $order->phone   = Phone::toSave($this->request->post('phone'));
         $order->email   = '';
-        $order->address = '';
         $order->comment = $frontTranslations->getTranslation('fast_order');
         $order->lang_id = $languages->getLangId();
         $order->ip      = $_SERVER['REMOTE_ADDR'];

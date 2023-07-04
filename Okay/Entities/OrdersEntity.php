@@ -23,7 +23,6 @@ class OrdersEntity extends Entity
         'user_id',
         'name',
         'last_name',
-        'address',
         'phone',
         'email',
         'comment',
@@ -515,7 +514,6 @@ class OrdersEntity extends Entity
                 OR o.name LIKE :keyword_name_{$keyNum}
                 OR o.last_name LIKE :keyword_last_name_{$keyNum}
                 OR REPLACE(o.phone, '-', '') LIKE :keyword_phone_{$keyNum}
-                OR o.address LIKE :keyword_address_{$keyNum}
                 OR o.email LIKE :keyword_email_{$keyNum}
                 OR o.id IN (SELECT order_id FROM __purchases WHERE product_name LIKE :keyword_product_name_{$keyNum} OR variant_name LIKE :keyword_product_name_{$keyNum})
             )");
@@ -525,7 +523,6 @@ class OrdersEntity extends Entity
                 "keyword_name_{$keyNum}"         => '%' . $keyword . '%',
                 "keyword_last_name_{$keyNum}"         => '%' . $keyword . '%',
                 "keyword_phone_{$keyNum}"        => '%' . $keyword . '%',
-                "keyword_address_{$keyNum}"      => '%' . $keyword . '%',
                 "keyword_email_{$keyNum}"        => '%' . $keyword . '%',
                 "keyword_product_name_{$keyNum}" => '%' . $keyword . '%',
                 "keyword_product_name_{$keyNum}" => '%' . $keyword . '%',

@@ -17,31 +17,28 @@ use Okay\Entities\OrdersEntity;
 use Okay\Entities\PaymentsEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCitiesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCostDeliveryDataEntity;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPDeliveryDataHelper;
 
 class FrontExtender implements ExtensionInterface
 {
-    /** @var Request  */
-    private $request;
-
-    /** @var EntityFactory  */
-    private $entityFactory;
-
-    /** @var FrontTranslations */
-    private $frontTranslations;
-
-    /** @var Design $design */
-    private $design;
+    private Request $request;
+    private EntityFactory $entityFactory;
+    private FrontTranslations $frontTranslations;
+    private Design $design;
+    private NPDeliveryDataHelper $deliveryDataHelper;
 
     public function __construct(
         Request           $request,
         EntityFactory     $entityFactory,
         FrontTranslations $frontTranslations,
-        Design            $design
+        Design            $design,
+        NPDeliveryDataHelper $deliveryDataHelper
     ) {
         $this->request           = $request;
         $this->entityFactory     = $entityFactory;
         $this->frontTranslations = $frontTranslations;
         $this->design            = $design;
+        $this->deliveryDataHelper = $deliveryDataHelper;
     }
 
     /**
@@ -221,5 +218,15 @@ class FrontExtender implements ExtensionInterface
         }
 
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
+    }
+
+    public function getDeliveryDataProcedure($paymentMethods, $order)
+    {
+        if (!empty($order->id)) {
+            $this->design->assign(
+                'novaposhta_delivery_data',
+                $this->deliveryDataHelper->getFullDeliveryData((int)$order->id)
+            );
+        }
     }
 }
