@@ -59,7 +59,7 @@ class Image
     private $resizeObjects;
     
     private $originalsDir;
-    private $resizedDir;
+    private $productionDomain;
     
     public function __construct(
         Settings $settings,
@@ -137,7 +137,6 @@ class Image
         $originalsDir = $this->rootDir . $originalImagesDir;
         $previewDir   = $this->rootDir . $resizedImagesDir;
         $this->originalsDir = $originalImagesDir;
-        $this->resizedDir   = $resizedImagesDir;
         
         // Если файл удаленный (https?://), зальем его себе
         if (preg_match("~^https?://~", $sourceFile)) {
@@ -152,6 +151,28 @@ class Image
         $resizedFile = $this->addResizeParams($originalFile, $width, $height, $setWatermark, $cropParams);
         
         if (!file_exists($originalsDir . $originalFile)) {
+            // Намагаємось завантажити зображення з production сайта
+            if (!empty($this->productionDomain)) {
+                $ch = curl_init($this->productionDomain . $resizedImagesDir . $resizedFile);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                $file = curl_exec($ch);
+                $info = curl_getinfo($ch);
+                curl_close($ch);
+                $fileDestination = $previewDir . $resizedFile;
+                if ($pseudoWebp) {
+                    $fileDestination .= '.webp';
+                }
+
+                if ($info['http_code'] === 200 && $info['size_download'] > 0) {
+                    $fp = fopen($fileDestination, 'w+');
+                    fwrite($fp, $file);
+                    fclose($fp);
+                    return ExtenderFacade::execute(__METHOD__, $fileDestination, func_get_args());
+                }
+            }
+
             return ExtenderFacade::execute(__METHOD__, false, func_get_args());
         }
 
@@ -237,8 +258,6 @@ class Image
         if ($resizedDir === null) {
             $resizedDir = $this->config->get('resized_images_dir');
         }
-
-        $this->resizedDir = $resizedDir;
         
         $result = $this->request->getRootUrl() . '/' . $resizedDir . $resizedFilenameEncoded;
         return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
@@ -406,6 +425,20 @@ class Image
         }
 
         return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+    }
+
+    /**
+     * @param string $domain
+     * @return void
+     *
+     * Вказуємо production домен, щоб тягти зображення з нього
+     */
+    public function setProductionDomain(string $domain): void
+    {
+        if (!empty($domain)) {
+            $domain = rtrim($domain, '/') . '/';
+        }
+        $this->productionDomain = $domain;
     }
 
     /*Выборка параметров изображения для ресайза*/

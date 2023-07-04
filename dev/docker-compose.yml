@@ -1,0 +1,56 @@
+version: '3.8'
+services:
+  php74:
+    build: ./docker/php/7.4
+    container_name: ${APP_NAME:?err}-php
+    environment:
+      - TEST_INTERNAL_EMAIL=${TEST_INTERNAL_EMAIL:-}
+      - PRODUCTION_DOMAIN=${PRODUCTION_DOMAIN:-}
+    volumes:
+      - '..:/var/www/html'
+      - './config/php:/usr/local/etc/php'
+    links:
+      - mariadb
+    expose:
+      - 9001
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  nginx:
+    build: ./docker/nginx
+    container_name: ${APP_NAME:?err}-nginx
+    hostname: ${VIRTUAL_HOST:?err}
+    ports:
+      - '${HTTP_PORT:?err}:80'
+    links:
+      - php74
+    volumes:
+      - '..:/var/www/html'
+      - './config/nginx:/etc/nginx/conf.d'
+      - './config/nginx/templates:/etc/nginx/templates'
+    environment:
+      - FASTCGI=${APP_NAME:?err}-php
+      - VIRTUAL_HOST=${VIRTUAL_HOST:?err}
+
+  mariadb:
+    build: ./docker/mysql
+    container_name: ${APP_NAME:?err}-mariadb
+    restart: 'on-failure'
+    ports:
+      - '${MYSQL_PORT:?err}:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?err}
+      MYSQL_USER: mysql
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?err}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?err}
+    volumes:
+      - ./mysql/DB_data:/var/lib/mysql
+      - ./../1DB_changes/okay_clean.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./config/mysql/startup.sh:/always-initdb.d/startup.sh:ro
+      - ./config/mysql/entrypoint.sh:/custom-entrypoint.sh:ro
+    entrypoint: /custom-entrypoint.sh
+    command: ["mysqld"]
+
+networks:
+  default:
+    name: ${NETWORK_NAME:?err}

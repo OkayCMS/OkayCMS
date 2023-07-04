@@ -37,7 +37,8 @@ class Notify
     protected $notifyHelper;
     protected $rootDir;
     protected $logger;
-    
+    protected $testInternalEmail;
+
     public function __construct(
         Settings $settings,
         Languages $languages,
@@ -66,9 +67,24 @@ class Notify
         $this->rootDir = $rootDir;
     }
 
+    /**
+     * @param string $testInternalEmail
+     * @return void
+     * Для розробки на локальній машині підмінимо пошту отримувача всіх листів
+     */
+    public function setTestInternalEmail(string $testInternalEmail): void
+    {
+        $this->testInternalEmail = $testInternalEmail;
+    }
+
     /* SMTP отправка емейла*/
     public function SMTP($to, $subject, $message, $from = '', $replyTo = '', $debug = 0)
     {
+        // Якщо вказали пошту для тестування листів, підмінимо отримувача
+        if (!empty($this->testInternalEmail)) {
+            $to = $this->testInternalEmail;
+        }
+
         ob_start();
         $this->PHPMailer->IsSMTP(); // telling the class to use SMTP
         $this->PHPMailer->Host       = $this->settings->get('smtp_server');
@@ -147,6 +163,11 @@ class Notify
     /*Отправка емейла*/
     public function email($to, $subject, $message, $from = '', $replyTo = '')
     {
+        // Якщо вказали пошту для тестування листів, підмінимо отримувача
+        if (!empty($this->testInternalEmail)) {
+            $to = $this->testInternalEmail;
+        }
+
         $headers = "MIME-Version: 1.0\r\n";
         $headers .= "Content-type: text/html; charset=utf-8;\r\n";
         $headers .= "From: $from\r\n";

@@ -57,8 +57,8 @@ return [
     ],
     
     /**
-     * Настройки адапреров системы. Адапрер это по сути класс, который лежит в Okay\Core\Adapters\XXX
-     * Где XXX уже подвид адапреров
+     * Настройки адаптеров системы. Адаптер это по сути класс, который лежит в Okay\Core\Adapters\XXX
+     * Где XXX уже подвид адаптеров
      */
     'adapters' => [
         'resize' => [
@@ -116,4 +116,8 @@ return [
             'max_filter_depth' => '{%max_filter_depth%}',
         ],
     ],
+    'notify' => [
+        'test_internal_email' => $_ENV['TEST_INTERNAL_EMAIL'] ?? '',
+    ],
+    'production_domain' => $_ENV['PRODUCTION_DOMAIN'] ?? '',
 ];
