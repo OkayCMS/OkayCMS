@@ -18,7 +18,6 @@ $columnsNames = [
     'last_name'=>    'User last name',
     'phone'=>        'User phone',
     'email'=>        'User email',
-    'address'=>      'User address',
     'comment'=>      'User comment',
     'total_price'=>  'Total price',
     'currency'=>     'Currency'

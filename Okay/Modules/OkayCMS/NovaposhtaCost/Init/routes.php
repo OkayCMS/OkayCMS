@@ -27,19 +27,11 @@ return [
             'method' => 'findStreet',
         ],
     ],
-    'OkayCMS_NovaposhtaCost_get_cities' => [
-        'slug' => 'ajax/np/get_cities',
-        'to_front' => true,
-        'params' => [
-            'controller' => __NAMESPACE__ . '\Controllers\NovaposhtaCostController',
-            'method' => 'getCities',
-        ],
-    ],
     'OkayCMS_NovaposhtaCost_get_warehouses' => [
         'slug' => 'ajax/np/get_warehouses',
         'to_front' => true,
         'params' => [
-            'controller' => __NAMESPACE__ . '\Controllers\NovaposhtaCostController',
+            'controller' => __NAMESPACE__ . '\Controllers\NovaposhtaCostSearchController',
             'method' => 'getWarehouses',
         ],
     ],

@@ -31,6 +31,7 @@ use Okay\Admin\Helpers\BackendUsersHelper;
 use Okay\Admin\Helpers\BackendValidateHelper;
 use Okay\Admin\Requests\BackendOrdersRequest;
 use Okay\Core\Modules\Module;
+use Okay\Core\Modules\Modules;
 use Okay\Core\OkayContainer\Reference\ParameterReference as PR;
 use Okay\Core\OkayContainer\Reference\ServiceReference as SR;
 use Okay\Admin\Helpers\BackendProductsHelper;
@@ -95,6 +96,7 @@ return [
             new SR(EntityFactory::class),
             new SR(ManagerMenu::class),
             new SR(Design::class),
+            new SR(Modules::class),
         ]
     ],
     BackendProductsHelper::class => [
@@ -368,6 +370,7 @@ return [
         'class' => BackendModulesHelper::class,
         'arguments' => [
             new SR(Config::class),
+            new SR(Settings::class),
         ]
     ],
     MainHelper::class => [

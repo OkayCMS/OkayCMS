@@ -6,10 +6,8 @@ namespace Okay\Controllers;
 
 use Okay\Entities\CouponsEntity;
 use Okay\Entities\CurrenciesEntity;
-use Okay\Entities\DeliveriesEntity;
 use Okay\Entities\OrdersEntity;
 use Okay\Entities\OrderStatusEntity;
-use Okay\Entities\PaymentsEntity;
 use Okay\Helpers\MetadataHelpers\OrderMetadataHelper;
 use Okay\Helpers\OrdersHelper;
 
@@ -19,8 +17,6 @@ class OrderController extends AbstractController
     public function render(
         OrdersEntity        $ordersEntity,
         CouponsEntity       $couponsEntity,
-        PaymentsEntity      $paymentsEntity,
-        DeliveriesEntity    $deliveriesEntity,
         OrderStatusEntity   $orderStatusEntity,
         CurrenciesEntity    $currenciesEntity,
         OrdersHelper        $ordersHelper,
@@ -67,7 +63,7 @@ class OrderController extends AbstractController
         }
         
         // Способ доставки
-        $delivery = $deliveriesEntity->get((int)$order->delivery_id);
+        $delivery = $ordersHelper->getOrderDelivery($order);
         $this->design->assign('delivery', $delivery);
         $orderStatuses = $orderStatusEntity->get(intval($order->status_id));
         $this->design->assign('order_status', $orderStatuses);
@@ -75,8 +71,8 @@ class OrderController extends AbstractController
         
         // Способ оплаты
         if (!empty($order->payment_method_id)) {
-            $payment_method = $paymentsEntity->get((int)$order->payment_method_id);
-            $this->design->assign('payment_method', $payment_method);
+            $paymentMethod = $ordersHelper->getOrderPaymentMethod($order);
+            $this->design->assign('payment_method', $paymentMethod);
         }
         
         // Варианты оплаты

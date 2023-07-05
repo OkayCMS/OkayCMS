@@ -6,6 +6,7 @@ namespace Okay\Core;
 
 use Monolog\Handler\ChromePHPHandler;
 use Monolog\Handler\RotatingFileHandler;
+use Okay\Admin\Helpers\BackendModulesHelper;
 use Okay\Core\Console\Application AS ConsoleApplication;
 use Okay\Core\Entity\UrlUniqueValidator;
 use Okay\Core\Modules\ModuleDesign;
@@ -205,6 +206,14 @@ $services = [
             new SR(EntityFactory::class),
             new PR('root_dir'),
         ],
+        'calls' => [
+            [
+                'method' => 'setProductionDomain',
+                'arguments' => [
+                    new PR('production_domain'),
+                ]
+            ],
+        ],
     ],
     Notify::class => [
         'class' => Notify::class,
@@ -221,6 +230,14 @@ $services = [
             new SR(LoggerInterface::class),
             new SR(NotifyHelper::class),
             new PR('root_dir'),
+        ],
+        'calls' => [
+            [
+                'method' => 'setTestInternalEmail',
+                'arguments' => [
+                    new PR('notify.test_internal_email'),
+                ]
+            ],
         ],
     ],
     Money::class => [
@@ -371,6 +388,7 @@ $services = [
         'class' => Module::class,
         'arguments' => [
             new SR(LoggerInterface::class),
+            new SR(BackendModulesHelper::class),
         ],
     ],
     ModuleDesign::class => [

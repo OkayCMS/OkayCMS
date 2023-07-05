@@ -23,3 +23,25 @@
 .novaposhta_div select.error+.select2-container .select2-selection--single{
     border-color: rgb(231, 71, 71);
 }
+.np_delivery_types_heading,
+.np_delivery_types_content {
+    margin-bottom: 1rem;
+}
+.np_delivery_types_heading a {
+    padding: 5px;
+    display: inline-block;
+    text-decoration: none;
+    margin-right: 10px;
+    border: 1px solid transparent;
+}
+.np_delivery_types_heading a span {
+    border-bottom: 1px dashed;
+}
+.np_delivery_types_heading a.active {
+    border: 1px solid;
+    border-color: inherit;
+    border-radius: 3px;
+}
+.np_delivery_types_heading a.active span {
+    border: none;
+}

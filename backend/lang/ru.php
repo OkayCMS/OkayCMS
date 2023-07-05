@@ -482,6 +482,7 @@ $lang['robots_permissions'] = 'Установите права на запись
 $lang['robots_updated'] = 'Robots обновлен';
 $lang['scripts_scripts'] = 'Скрипты';
 $lang['seo_patterns_ajax_brand_name'] = 'Название бренда';
+$lang['seo_patterns_ajax_brand_route'] = 'Полный урл на страницу бренда';
 $lang['seo_patterns_ajax_cat_h1'] = 'Н1 заголовок категории';
 $lang['seo_patterns_ajax_cat_name'] = 'Название категории';
 $lang['seo_patterns_ajax_cat_url'] = 'URL категории';
@@ -1620,3 +1621,10 @@ $lang['license_text_all'] = '1. Программные продукты разр
 9. Разработчик не несет ответственность в случае привлечения Пользователя к административной или уголовной ответственности за использование Продуктов в противозаконных целях.
 
 10. Прекращение действия данного Соглашения допускается в случае удаления всех полученных файлов и документации, а также их копий. Прекращение действия данного Соглашения не обязывает Разработчика возвратить средства, потраченные Пользователем на приобретение Продуктов. ';
+$lang['module_access_expire_days'] = 'Доступ до обновлений модуля заканчивается через';
+$lang['module_access_expire_today'] = 'Доступ до обновлений модуля заканчивается сегодня';
+$lang['module_access_expire_plural_1'] = 'день';
+$lang['module_access_expire_plural_2'] = 'дня';
+$lang['module_access_expire_plural_5'] = 'дней';
+$lang['module_access_expired'] = 'Доступ до обновлений модуля закончился';
+$lang['module_access_continue_access'] = 'Продлить доступ';

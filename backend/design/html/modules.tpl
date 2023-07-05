@@ -78,6 +78,7 @@
                     </div>
                     <div class="okay_list_heading okay_list_photo">{$btr->general_photo|escape}</div>
                     <div class="okay_list_heading okay_list_module_name">{$btr->general_name|escape}</div>
+                    <div class="okay_list_heading okay_list_module_expire hidden-md-down"></div>
                     <div class="okay_list_heading okay_list_module_version hidden-md-down">{$btr->module_version|escape}</div>
                     <div class="okay_list_heading okay_list_module_type hidden-md-down">{$btr->module_type|escape}</div>
                     <div class="okay_list_heading okay_list_status">{$btr->general_enable|escape}</div>
@@ -158,8 +159,22 @@
                 if (data.hasOwnProperty('success') && data.success === true) {
                     $('.fn_modules_list').prepend(data.modules);
                 }
-                console.log(data);
             }
+        });
+    });
+    $(document).on('click', '.fn_continue_access', function () {
+        let destination = $(this).data('target')
+            + '?cite_return_url={urlencode($rootUrl)}{urlencode($smarty.server.REQUEST_URI)}'
+            + '&continue_modules_expire=1'
+            + '&checkout_domain={$domain}';
+        $.ajax({
+            url: '{url controller='ModulesAdmin@resetModulesAccessExpiresCache'}',
+            type: 'GET',
+            cache: false,
+            contentType: false,
+            processData: false
+        }).done(function(response) {
+            window.location.replace(destination);
         });
     });
 </script>

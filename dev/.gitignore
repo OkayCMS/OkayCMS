@@ -1,0 +1,5 @@
+.env
+config/nginx/okay.conf
+logs/application.error.log
+logs/application.access.log
+mysql/DB_data/

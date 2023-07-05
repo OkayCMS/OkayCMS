@@ -25,7 +25,6 @@ class BackendOrdersRequest
         $order->last_name = $this->request->post('last_name');
         $order->email = $this->request->post('email');
         $order->phone = Phone::toSave($this->request->post('phone'));
-        $order->address = $this->request->post('address');
         $order->comment = $this->request->post('comment');
         $order->note = $this->request->post('note');
         $order->delivery_id = $this->request->post('delivery_id', 'integer');

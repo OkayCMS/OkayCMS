@@ -108,6 +108,7 @@ class Design
         'pathinfo',
         'strtolower',
         'strpos',
+        'sprintf',
     ];
 
 
@@ -190,9 +191,9 @@ class Design
         }
         $fileModifications = [];
         if (!empty($modifications)) {
-            foreach ($modifications as $modification) {
-                if (DIRECTORY_SEPARATOR.ltrim($modification->file, DIRECTORY_SEPARATOR) == substr($currentFile, -strlen(DIRECTORY_SEPARATOR.$modification->file))) {
-                    $fileModifications = array_merge($fileModifications, $modification->changes);
+            foreach ($modifications as $modificationDTO) {
+                if (DIRECTORY_SEPARATOR.ltrim($modificationDTO->getFile(), DIRECTORY_SEPARATOR) == substr($currentFile, -strlen(DIRECTORY_SEPARATOR.$modificationDTO->getFile()))) {
+                    $fileModifications = array_merge($fileModifications, $modificationDTO->getChanges());
                 }
             }
         }

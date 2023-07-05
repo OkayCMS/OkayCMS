@@ -19,7 +19,6 @@ $columnsNames = [
     'last_name'  => 'Last name',
     'email'      => 'Email',
     'phone'      => 'Phone',
-    'address'    => 'Address',
     'group_name' => 'Group name',
     'discount'   => 'Discount',
     'created'    => 'Created',

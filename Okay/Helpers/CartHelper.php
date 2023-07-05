@@ -87,13 +87,11 @@ class CartHelper
                 $defaultData['last_name'] = $lastOrder->last_name;
                 $defaultData['email'] = $lastOrder->email;
                 $defaultData['phone'] = Phone::format($lastOrder->phone);
-                $defaultData['address'] = $lastOrder->address;
             } else {
                 $defaultData['name'] = $user->name;
                 $defaultData['last_name'] = $user->last_name;
                 $defaultData['email'] = $user->email;
                 $defaultData['phone'] = Phone::format($user->phone);
-                $defaultData['address'] = $user->address;
             }
         }
 

@@ -6,7 +6,6 @@ namespace Okay\Core;
 
 class Request
 {
-    
     private $langId;
     private $startTime;
 
@@ -183,6 +182,16 @@ class Request
         }
         return $_SERVER['REQUEST_METHOD'];
     }
+
+    public function isPost()
+    {
+        return $this->method('post');
+    }
+
+    public function isGet()
+    {
+        return $this->method('get');
+    }
     
     /**
      * Возвращает переменную _GET, отфильтрованную по заданному типу, если во втором параметре указан тип фильтра
@@ -328,7 +337,7 @@ class Request
     
     public static function getDomain()
     {
-        return !empty(self::$domain) ? self::$domain : rtrim($_SERVER['HTTP_HOST']);;
+        return !empty(self::$domain) ? self::$domain : rtrim($_SERVER['HTTP_HOST']);
     }
     
     public static function setDomain($domain)

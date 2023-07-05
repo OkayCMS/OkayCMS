@@ -68,12 +68,6 @@
                             <span class="form__placeholder">{$lang->form_phone}</span>
                         </div>
 
-                        {* User's  address *}
-                        <div class="form__group">
-                            <input class="form__input form__placeholder--focus" type="text" name="address" value="{$request_data.address|escape}" data-language="form_address" />
-                            <span class="form__placeholder">{$lang->form_address}</span>
-                        </div>
-
                         {* User's  password *}
                         <div class="form__group">
                             <input class="form__input form__placeholder--focus" type="password" name="password" value="" data-language="form_enter_password" />

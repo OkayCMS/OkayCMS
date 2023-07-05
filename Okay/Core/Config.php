@@ -14,20 +14,20 @@ class Config
 {
 
     /*Версия системы*/
-    public $version = '4.3.4';
+    public string $version = '4.4.0';
     /*Тип системы*/
-    public $version_type = 'pro';
+    public string $version_type = 'pro';
 
     /*Файл для хранения настроек*/
-    public $configFile;
-    public $configLocalFile;
+    public string $configFile;
+    public string $configLocalFile;
 
-    public $salt;
-    private $vars = [];
-    private $masterVars = [];
-    private $localVars = [];
+    public string $salt = '';
+    private array $vars = [];
+    private array $masterVars = [];
+    private array $localVars = [];
 
-    public function __construct($configFile, $configLocalFile)
+    public function __construct(string $configFile, string $configLocalFile)
     {
         $this->configFile = $configFile;
         $this->configLocalFile = $configLocalFile;
@@ -94,13 +94,13 @@ class Config
     }
 
     /*Формирование токена*/
-    public function token($text)
+    public function token($text): string
     {
         return md5($text.$this->salt);
     }
 
     /*Проверка токена*/
-    public function checkToken($text, $token)
+    public function checkToken($text, $token): bool
     {
         if(!empty($token) && $token === $this->token($text)) {
             return true;
@@ -144,7 +144,7 @@ class Config
 
         // Соль (разная для каждой копии сайта, изменяющаяся при изменении config-файла)
         $s = stat($this->configFile);
-        $this->vars['salt'] = md5(md5_file($this->configFile).$s['dev'].$s['ino'].$s['uid'].$s['mtime']);
+        $this->salt = $this->vars['salt'] = md5(md5_file($this->configFile).$s['dev'].$s['ino'].$s['uid'].$s['mtime']);
 
         // Часовой пояс
         if (!empty($this->vars['php_timezone'])) {
@@ -170,5 +170,4 @@ class Config
             }
         }
     }
-    
 }

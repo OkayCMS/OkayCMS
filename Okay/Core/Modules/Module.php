@@ -4,10 +4,14 @@
 namespace Okay\Core\Modules;
 
 
-use Monolog\Logger;
+use Okay\Admin\Helpers\BackendModulesHelper;
 use Okay\Core\EntityFactory;
+use Okay\Core\Modules\DTO\ModificationDTO;
+use Okay\Core\Modules\DTO\ModuleParamsDTO;
+use Okay\Core\Modules\DTO\TplChangeDTO;
 use Okay\Core\ServiceLocator;
 use Okay\Entities\ModulesEntity;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Module
@@ -22,32 +26,54 @@ class Module
     const COMMON_MODULE_NAMESPACE = 'Okay\\Modules';
     const COMMON_MODULE_DIRECTORY = 'Okay/Modules/';
 
-    /**
-     * @var Logger
-     */
-    protected $logger;
+    protected LoggerInterface $logger;
+    protected array $modulesExpires;
 
-    public function __construct(Logger $logger)
+    public function __construct(LoggerInterface $logger, BackendModulesHelper $modulesHelper)
     {
         $this->logger = $logger;
+        $this->modulesExpires = $modulesHelper->getModulesAccessExpiresFromCache();
     }
 
-    private static $modulesIds;
+    private static array $modulesIds;
 
     /**
      * Метод возвращает параметры модуля описанные в module.json
      * 
      * @param $vendor
      * @param $moduleName
-     * @return object|null
+     * @return ModuleParamsDTO
+     * @throws \Exception
      */
-    public function getModuleParams($vendor, $moduleName)
+    public function getModuleParams($vendor, $moduleName): ModuleParamsDTO
     {
         $moduleJsonFileFile = __DIR__ . '/../../Modules/' . $vendor . '/' . $moduleName . '/Init/module.json';
 
+        $moduleParamsDTO = new ModuleParamsDTO();
         if (file_exists($moduleJsonFileFile)) {
-            $moduleParams = json_decode(file_get_contents($moduleJsonFileFile));
-            if (JSON_ERROR_NONE !== $code = json_last_error()) {
+            $moduleParams = json_decode(file_get_contents($moduleJsonFileFile), true);
+            if (JSON_ERROR_NONE === $code = json_last_error()) {
+                if (isset($moduleParams['modifications']['front'])) {
+                    $this->initModifications(
+                        $moduleParams['modifications']['front'],
+                        $moduleParamsDTO,
+                        $vendor,
+                        $moduleName,
+                        true
+                    );
+                }
+                if (isset($moduleParams['modifications']['backend'])) {
+                    $this->initModifications(
+                        $moduleParams['modifications']['backend'],
+                        $moduleParamsDTO,
+                        $vendor,
+                        $moduleName,
+                        false
+                    );
+                }
+
+                $moduleParamsDTO->fromArray($moduleParams);
+            } else {
                 $this->logger->error(sprintf(
                     "Error %d when decoding module.json of %s/%s: %s",
                     $code, $vendor, $moduleName, json_last_error_msg()
@@ -55,19 +81,106 @@ class Module
             }
         }
 
-        if (empty($moduleParams)) {
-            $moduleParams = new \stdClass();
+        if (isset($this->modulesExpires[$vendor . '/' . $moduleName])) {
+            $moduleExpireInfo = $this->modulesExpires[$vendor . '/' . $moduleName];
+            if ($moduleExpireInfo->daysToExpire >= 0) {
+                $moduleParamsDTO->setDaysToExpire((int)$moduleExpireInfo->daysToExpire);
+            } else {
+                $moduleParamsDTO->setAccessExpired(true);
+            }
+            $moduleParamsDTO->setAddToCartUrl($moduleExpireInfo->addToCartUrl);
         }
+        $moduleParamsDTO->setMathVersion($this->getMathVersion($moduleParamsDTO->getVersion()));
 
-        if (empty($moduleParams->version)) {
-            $moduleParams->version = '1.0.0';
+        return $moduleParamsDTO;
+    }
+
+    /**
+     * @param array $modifications
+     * @param ModuleParamsDTO $moduleParamsDTO
+     * @param string $vendor
+     * @param string $moduleName
+     * @param bool $isFrontModification
+     * @return void
+     * @throws \Exception
+     */
+    private function initModifications(
+        array $modifications,
+        ModuleParamsDTO $moduleParamsDTO,
+        string $vendor,
+        string $moduleName,
+        bool $isFrontModification
+    ): void
+    {
+        foreach ($modifications as $modification) {
+            $changes = [];
+            foreach ($modification['changes'] as $change) {
+                if (empty($change['find']) && empty($change['like'])) {
+                    throw new \Exception(sprintf(
+                        'Change must have "find" or "like" param in module "%s/%s"',
+                        $vendor,
+                        $moduleName
+                    ));
+                }
+                $changeDTO = new TplChangeDTO(
+                    (string)($change['find'] ?? ''),
+                    (string)($change['like'] ?? '')
+                );
+
+                if (isset($change['parent'])) {
+                    $changeDTO->setParent();
+                }
+                if (!empty($change['closestFind'])) {
+                    $changeDTO->setClosestFind($change['closestFind']);
+                }
+                if (!empty($change['closestLike'])) {
+                    $changeDTO->setClosestLike($change['closestLike']);
+                }
+                if (!empty($change['childrenFind'])) {
+                    $changeDTO->setChildrenFind($change['childrenFind']);
+                }
+                if (!empty($change['childrenLike'])) {
+                    $changeDTO->setChildrenLike($change['childrenLike']);
+                }
+
+                if (!empty($change['append'])) {
+                    $changeDTO->setAppend($change['append']);
+                }
+                if (!empty($change['appendBefore'])) {
+                    $changeDTO->setAppendBefore($change['appendBefore']);
+                }
+                if (!empty($change['prepend'])) {
+                    $changeDTO->setPrepend($change['prepend']);
+                }
+                if (!empty($change['appendAfter'])) {
+                    $changeDTO->setAppendAfter($change['appendAfter']);
+                }
+                if (!empty($change['html'])) {
+                    $changeDTO->setHtml($change['html']);
+                }
+                if (!empty($change['text'])) {
+                    $changeDTO->setText($change['text']);
+                }
+                if (!empty($change['replace'])) {
+                    $changeDTO->setReplace($change['replace']);
+                }
+                if (!empty($change['comment'])) {
+                    $changeDTO->setComment($change['comment']);
+                }
+                if (isset($change['remove'])) {
+                    $changeDTO->setRemove();
+                }
+
+                $changes[] = $changeDTO;
+            }
+            $modificationDTO = new ModificationDTO($modification['file'], $changes);
+            if ($isFrontModification) {
+                $moduleParamsDTO->setFrontModification($modificationDTO);
+            } else {
+                $moduleParamsDTO->setBackendModification($modificationDTO);
+            }
+
         }
-
-        if ($mathVersion = $this->getMathVersion($moduleParams->version)) {
-            $moduleParams->math_version = $mathVersion;
-        }
-
-        return $moduleParams;
     }
     
     /**
@@ -76,7 +189,7 @@ class Module
      * @param string $moduleName
      * @return string
      */
-    public function getBaseNamespace($vendor, $moduleName)
+    public function getBaseNamespace(string $vendor, string $moduleName): string
     {
         return self::COMMON_MODULE_NAMESPACE . '\\' . $vendor . '\\' . $moduleName;
     }
@@ -87,7 +200,7 @@ class Module
      * @param string $moduleName
      * @return string
      */
-    public function getBackendControllersNamespace($vendor, $moduleName)
+    public function getBackendControllersNamespace(string $vendor, string $moduleName): string
     {
         return self::COMMON_MODULE_NAMESPACE . '\\' . $vendor . '\\' . $moduleName . '\\Backend\\Controllers';
     }
@@ -99,7 +212,7 @@ class Module
      * @return string
      * @throws \Exception
      */
-    public function getBackendControllersDirectory($vendor, $moduleName)
+    public function getBackendControllersDirectory(string $vendor, string $moduleName): string
     {
         return $this->getModuleDirectory($vendor, $moduleName) . 'Backend/Controllers/';
     }
@@ -110,7 +223,7 @@ class Module
      * @param string $moduleName
      * @return string
      */
-    public function getInitClassName($vendor, $moduleName)
+    public function getInitClassName(string $vendor, string $moduleName): string
     {
         $initClassName = $this->getBaseNamespace($vendor, $moduleName) . '\\Init\\Init';
         if (class_exists($initClassName)) {
@@ -127,7 +240,7 @@ class Module
      * @throws \Exception
      * @return string
      */
-    public function getModuleDirectory($vendor, $moduleName)
+    public function getModuleDirectory(string $vendor, string $moduleName): string
     {
         if (!preg_match('~^[\w]+$~', $vendor)) {
             throw new \Exception('"' . $vendor . '" is wrong name of vendor');
@@ -141,7 +254,7 @@ class Module
         return rtrim($dir, '/') . '/';
     }
 
-    public function moduleDirectoryNotExists($vendor, $moduleName)
+    public function moduleDirectoryNotExists(string $vendor, string $moduleName): bool
     {
         $moduleDir = $this->getModuleDirectory($vendor, $moduleName);
 
@@ -162,7 +275,7 @@ class Module
      * @throws \Exception
      * @return array
      */
-    public function getRoutes($vendor, $moduleName)
+    public function getRoutes(string $vendor, string $moduleName): array
     {
         $file = $this->getModuleDirectory($vendor, $moduleName) . '/Init/routes.php';
 
@@ -170,7 +283,10 @@ class Module
             return [];
         }
 
-        return include($file);
+        if (!($routes = include($file)) || !is_array($routes)) {
+            return [];
+        }
+        return $routes;
     }
 
     /**
@@ -180,15 +296,17 @@ class Module
      * @throws \Exception
      * @return array
      */
-    public function getServices($vendor, $moduleName)
+    public function getServices(string $vendor, string $moduleName): array
     {
         $file = $this->getModuleDirectory($vendor, $moduleName) . '/Init/services.php';
 
         if (!file_exists($file)) {
             return [];
         }
-
-        return include($file);
+        if (!($services = include($file)) || !is_array($services)) {
+            return [];
+        }
+        return $services;
     }
 
     /**
@@ -198,7 +316,7 @@ class Module
      * @throws \Exception
      * @return array
      */
-    public function getParameters($vendor, $moduleName)
+    public function getParameters(string $vendor, string $moduleName): array
     {
         $file = $this->getModuleDirectory($vendor, $moduleName) . '/Init/parameters.php';
 
@@ -206,7 +324,10 @@ class Module
             return [];
         }
 
-        return include($file);
+        if (!($parameters = include($file)) || !is_array($parameters)) {
+            return [];
+        }
+        return $parameters;
     }
 
     /**
@@ -216,7 +337,7 @@ class Module
      * @throws \Exception
      * @return array
      */
-    public function getSmartyPlugins($vendor, $moduleName)
+    public function getSmartyPlugins(string $vendor, string $moduleName): array
     {
         $file = $this->getModuleDirectory($vendor, $moduleName) . '/Init/SmartyPlugins.php';
 
@@ -224,7 +345,10 @@ class Module
             return [];
         }
 
-        return include($file);
+        if (!($smartyPlugins = include($file)) || !is_array($smartyPlugins)) {
+            return [];
+        }
+        return $smartyPlugins;
     }
 
     public function isModuleClass($className)
