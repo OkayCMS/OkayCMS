@@ -482,6 +482,7 @@ $lang['robots_permissions'] = 'Set permissions to write to the robots.txt file';
 $lang['robots_updated'] = 'Robots updated';
 $lang['scripts_scripts'] = 'Scripts';
 $lang['seo_patterns_ajax_brand_name'] = 'Brand name';
+$lang['seo_patterns_ajax_brand_route'] = 'Full url to brand page';
 $lang['seo_patterns_ajax_cat_h1'] = 'Category H1';
 $lang['seo_patterns_ajax_cat_name'] = 'Category name';
 $lang['seo_patterns_ajax_cat_url'] = 'Category URL';
