@@ -482,6 +482,7 @@ $lang['robots_permissions'] = 'Установите права на запись
 $lang['robots_updated'] = 'Robots обновлен';
 $lang['scripts_scripts'] = 'Скрипты';
 $lang['seo_patterns_ajax_brand_name'] = 'Название бренда';
+$lang['seo_patterns_ajax_brand_route'] = 'Полный урл на страницу бренда';
 $lang['seo_patterns_ajax_cat_h1'] = 'Н1 заголовок категории';
 $lang['seo_patterns_ajax_cat_name'] = 'Название категории';
 $lang['seo_patterns_ajax_cat_url'] = 'URL категории';

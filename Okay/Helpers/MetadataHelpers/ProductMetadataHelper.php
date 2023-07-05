@@ -5,6 +5,7 @@ namespace Okay\Helpers\MetadataHelpers;
 
 
 use Okay\Core\Modules\Extender\ExtenderFacade;
+use Okay\Core\Router;
 
 class ProductMetadataHelper extends CommonMetadataHelper
 {
@@ -147,8 +148,14 @@ class ProductMetadataHelper extends CommonMetadataHelper
         
         $currency = $this->mainHelper->getCurrentCurrency();
 
+        $brandRoute = '';
+        if ($this->brand) {
+            $brandRoute = ltrim(Router::generateUrl('brand', ['url' => $this->brand->url]), '/');
+        }
+
         $this->parts = [
             '{$brand}'         => ($this->brand ? $this->brand->name : ''),
+            '{$brand_route}'   => $brandRoute,
             '{$product}'       => ($this->product ? $this->product->name : ''),
             '{$price}'         => ($this->product->variant->price != null ? $this->money->convert($this->product->variant->price, $currency->id, false) . ' ' . $currency->sign : ''),
             '{$compare_price}' => ($this->product->variant->compare_price != null ? $this->money->convert($this->product->variant->compare_price, $currency->id, false) . ' ' . $currency->sign : ''),

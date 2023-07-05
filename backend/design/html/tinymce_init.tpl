@@ -3,6 +3,7 @@
 <script>
     $(function(){
         tinyMCE.init({literal}{{/literal}
+            document_base_url: '{$rootUrl}',
             selector: "textarea.editor_large, textarea.editor_small, textarea#format-custom",
             height: 600,
             relative_urls : false,
