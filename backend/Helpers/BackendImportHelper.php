@@ -185,7 +185,7 @@ class BackendImportHelper
             }
         }
 
-        if(!empty($variantId) && !empty($productId)) {
+        if (!empty($variantId) && !empty($productId)) {
             // Нужно вернуть обновленный товар
             $importedItem->variant = $variantsEntity->findOne(['id' => $variantId]);
             $importedItem->product = $productsEntity->findOne(['id' => $productId]);
@@ -203,6 +203,9 @@ class BackendImportHelper
                 foreach ($categoriesIds as $cId) {
                     $categoriesEntity->addProductCategory($productId, $cId, $pos++);
                 }
+
+                // Оновимо інформацію по наявності товарів в категоріях
+                $categoriesEntity->updateHasProducts($categoriesIds);
             }
 
             // Изображения товаров

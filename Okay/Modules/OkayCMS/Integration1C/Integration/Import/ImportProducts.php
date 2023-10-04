@@ -373,10 +373,10 @@ class ImportProducts extends AbstractImport
                 foreach ($productsCategoriesIds as $categoryId) {
                     $categoriesEntity->addProductCategory($productId, $categoryId);
                 }
+
+                // Оновимо інформацію по наявності товарів в категоріях
+                $categoriesEntity->updateHasProducts($productsCategoriesIds);
             }
-
-            // Импортируем изображения
-
         } else {
 
             // Обновляем товар
@@ -402,6 +402,9 @@ class ImportProducts extends AbstractImport
                     foreach ($productsCategoriesIds as $categoryId) {
                         $categoriesEntity->addProductCategory($productId, $categoryId);
                     }
+
+                    // Оновимо інформацію по наявності товарів в категоріях
+                    $categoriesEntity->updateHasProducts();
                 }
             }
         }

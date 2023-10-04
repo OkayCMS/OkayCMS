@@ -168,5 +168,10 @@ if (!empty($entity)) {
     $result = $entity->update($id, $values);
 }
 
+if ($object == 'product') {
+    $categoriesEntity = $entityFactory->get(\Okay\Entities\CategoriesEntity::class);
+    $categoriesEntity->updateHasProducts();
+}
+
 $response->setContent(json_encode($result), RESPONSE_JSON);
 $response->sendContent();

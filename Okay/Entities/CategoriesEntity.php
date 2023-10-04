@@ -27,6 +27,7 @@ class CategoriesEntity extends Entity
         'level_depth',
         'last_modify',
         'created',
+        'has_products',
     ];
 
     protected static $langFields = [
@@ -419,6 +420,40 @@ class CategoriesEntity extends Entity
         $this->filteredCategoryIds = array_unique($this->filteredCategoryIds);
     }
 
+    /**
+     * @param array|null $categoriesIds
+     * @return void
+     *
+     * Оновлення поля ok_categories.has_products
+     */
+    public function updateHasProducts(?array $categoriesIds = [])
+    {
+        $sql = $this->queryFactory->newSqlQuery();
+
+        $where = '';
+        $whereSubQuery = '';
+        if (!empty($categoriesIds)) {
+            $sql->bindValue('categories_ids', $categoriesIds);
+            $sql->bindValue('categories_ids_sub_query', $categoriesIds);
+            $where = 'WHERE c.id IN (:categories_ids)';
+            $whereSubQuery = 'AND pc.category_id IN (:categories_ids_sub_query)';
+        }
+
+        $sql->setStatement("UPDATE __categories c
+            LEFT JOIN (
+                SELECT pc.category_id, COUNT(DISTINCT p.id) > 0 AS has_products
+                FROM  __products_categories pc
+                LEFT JOIN __products p ON p.id = pc.product_id
+                WHERE p.visible {$whereSubQuery}
+                GROUP BY pc.category_id
+            ) AS products_count ON products_count.category_id = c.id
+            SET c.has_products = IFNULL(products_count.has_products, 0)
+            {$where}
+        ");
+
+        $sql->execute();
+    }
+
     public function initCategories()
     {
         $categories = $this->getAllCategoriesFromDb();
@@ -433,7 +468,7 @@ class CategoriesEntity extends Entity
         $pointers[0]->level = 0;
 
         $finish = false;
-        // Не кончаем, пока не кончатся категории, или пока ниодну из оставшихся некуда приткнуть
+        // Не кончаем, пока не кончатся категории, или пока ни одну из оставшихся некуда приткнуть
         while (!empty($categories) && !$finish) {
             $flag = false;
             // Проходим все выбранные категории
@@ -448,8 +483,11 @@ class CategoriesEntity extends Entity
 
                     // Путь к текущей категории в виде строки
                     $pathUrl = [];
-                    foreach ((array)$pointers[$category->id]->path as $singleCategoryInPath) {
-                        $pathUrl[] = $singleCategoryInPath->url;
+                    foreach ($pointers[$category->id]->path as $singleCategory) {
+                        if ($category->has_products == 1) {
+                            $singleCategory->has_products = $category->has_products;
+                        }
+                        $pathUrl[] = $singleCategory->url;
                     }
                     $pointers[$category->id]->path_url = implode('/', $pathUrl);
 
@@ -479,37 +517,6 @@ class CategoriesEntity extends Entity
         }
         unset($pointers[0]);
         unset($ids);
-
-        $categoriesIdsWithProducts = [];
-
-        $select = $this->queryFactory->newSelect()
-            ->cols(['category_id'])
-            ->from('__products_categories pc')
-            ->innerJoin(CategoriesEntity::getTable() . ' AS c', 'c.id=pc.category_id AND c.visible=1')
-            ->leftJoin(ProductsEntity::getTable() . ' AS p', 'p.id = pc.product_id')
-            ->where('p.visible = 1')
-            ->groupBy(['pc.category_id']);
-
-        foreach ($select->results('category_id') as $result) {
-            $categoriesIdsWithProducts[$result] = $result;
-        }
-
-        $hasProductsCategoriesIds = [];
-        foreach ($pointers as &$pointer) {
-
-            if (isset($categoriesIdsWithProducts[$pointer->id])) {
-                $hasProductsCategoriesIds[] = $pointer->id;
-            }
-            $pointer->has_products = false;
-        }
-        unset($pointer);
-
-        foreach ($hasProductsCategoriesIds as $id) {
-            foreach ($pointers[$id]->path as &$c) {
-                $c->has_products = true;
-            }
-        }
-        unset($c);
 
         $this->categoriesTree = $tree->subcategories;
         $this->allCategories = $pointers;

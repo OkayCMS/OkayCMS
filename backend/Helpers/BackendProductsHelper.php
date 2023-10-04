@@ -157,7 +157,7 @@ class BackendProductsHelper
         $this->db->query($delete);
         if (is_array($productCategories)) {
             $i = 0;
-            foreach($productCategories as $category) {
+            foreach ($productCategories as $category) {
                 $this->categoriesEntity->addProductCategory($product->id, $category->id, $i);
                 $i++;
             }
@@ -165,7 +165,10 @@ class BackendProductsHelper
         }
 
         $mainCategory = reset($productCategories);
-        $this->productsEntity->update($product->id, ['main_category_id'=>$mainCategory->id]);
+        $this->productsEntity->update($product->id, ['main_category_id' => $mainCategory->id]);
+
+        // Оновимо інформацію по наявності товарів в категоріях
+        $this->categoriesEntity->updateHasProducts();
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
@@ -525,7 +528,10 @@ class BackendProductsHelper
             }
             $this->categoriesEntity->addProductCategory($id, $categoryId, $productsCategoriesNum[$id]++);
         }
-        
+
+        // Оновимо інформацію по наявності товарів в категоріях
+        $this->categoriesEntity->updateHasProducts([$categoryId]);
+
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
@@ -533,9 +539,6 @@ class BackendProductsHelper
     {
         /*Переместить в категорию*/
         $categoryId = $this->request->post('target_category', 'integer');
-        $filter['page'] = 1;
-        $category = $this->categoriesEntity->get($categoryId);
-        $filter['category_id'] = $category->children;
 
         foreach($ids as $id) {
             $delete = $this->queryFactory->newDelete();
@@ -568,8 +571,10 @@ class BackendProductsHelper
                     ->set('product_id', $id);
                 $this->db->query($insert);
             }
-            
         }
+
+        // Оновимо інформацію по наявності товарів в категоріях
+        $this->categoriesEntity->updateHasProducts();
 
         if (!empty($ids)) {
             $this->productsEntity->update($ids, ['main_category_id' => $categoryId]);
@@ -655,13 +660,21 @@ class BackendProductsHelper
 
     public function disable($ids)
     {
-        $this->productsEntity->update($ids, ['visible'=>0]);
+        $this->productsEntity->update($ids, ['visible' => 0]);
+
+        // Оновимо інформацію по наявності товарів в категоріях
+        $this->categoriesEntity->updateHasProducts();
+
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
     public function enable($ids)
     {
-        $this->productsEntity->update($ids, ['visible'=>1]);
+        $this->productsEntity->update($ids, ['visible' => 1]);
+
+        // Оновимо інформацію по наявності товарів в категоріях
+        $this->categoriesEntity->updateHasProducts();
+
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
@@ -681,6 +694,9 @@ class BackendProductsHelper
     {
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
         $this->productsEntity->delete($ids);
+
+        // Оновимо інформацію по наявності товарів в категоріях
+        $this->categoriesEntity->updateHasProducts();
     }
 
 }
