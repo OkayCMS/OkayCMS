@@ -5,6 +5,7 @@ namespace Okay\Modules\OkayCMS\Integration1C\Integration\Import;
 
 
 use Okay\Entities\CurrenciesEntity;
+use Okay\Entities\ProductsEntity;
 use Okay\Entities\VariantsEntity;
 use Okay\Modules\OkayCMS\Integration1C\Integration\Integration1C;
 
@@ -93,6 +94,9 @@ class ImportOffers extends AbstractImport
         
         /** @var VariantsEntity $variantsEntity */
         $variantsEntity = $this->integration1C->entityFactory->get(VariantsEntity::class);
+
+        /** @var ProductsEntity $productsEntity */
+        $productsEntity = $this->integration1C->entityFactory->get(ProductsEntity::class);
         
         $variant = new \stdClass;
         
@@ -212,6 +216,10 @@ class ImportOffers extends AbstractImport
         } else {
             $variantsEntity->update($variantId, $variant);
         }
+
+        // Оновлюємо агреговане інфо товара
+        $productsEntity->updateVariantsAggregatedInfo([$variant->product_id]);
+
         return true;
     }
 

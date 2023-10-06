@@ -5,16 +5,19 @@ namespace Okay\Admin\Helpers;
 
 
 use Okay\Core\EntityFactory;
+use Okay\Entities\ProductsEntity;
 use Okay\Entities\VariantsEntity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 
 class BackendVariantsHelper
 {
     private $variantsEntity;
+    private $productsEntity;
 
     public function __construct(EntityFactory $entityFactory)
     {
         $this->variantsEntity = $entityFactory->get(VariantsEntity::class);
+        $this->productsEntity = $entityFactory->get(ProductsEntity::class);
     }
 
     public function prepareUpdateVariants($productVariants)
@@ -68,6 +71,9 @@ class BackendVariantsHelper
             $i++;
         }
 
+        // Оновимо агреговане інфо товара
+        $this->productsEntity->updateVariantsAggregatedInfo([$product->id]);
+
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
@@ -87,12 +93,21 @@ class BackendVariantsHelper
 
     public function updateStocksAndPrices($stocks, $prices)
     {
-        foreach($prices as $id=>$price) {
+        foreach ($prices as $id => $price) {
             $stock = $stocks[$id];
-            if($stock == '∞' || $stock == '') {
+            if ($stock == '∞' || $stock == '') {
                 $stock = null;
             }
-            $this->variantsEntity->update($id, ['price'=>str_replace(',', '.', $price), 'stock'=>$stock]);
+            $this->variantsEntity->update($id, [
+                'price' => str_replace(',', '.', $price),
+                'stock' => $stock
+            ]);
+        }
+
+        // Оновимо агреговане інфо товара
+        $productsIds = $this->variantsEntity->cols(['product_id'])->find(['id' => array_keys($prices)]);
+        if ($productsIds) {
+            $this->productsEntity->updateVariantsAggregatedInfo($productsIds);
         }
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());

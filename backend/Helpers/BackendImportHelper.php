@@ -183,6 +183,11 @@ class BackendImportHelper
                 $preparedVariant = $this->prepareUpdateVariant($variant);
                 $variantsEntity->update($variantId, $preparedVariant);
             }
+
+            if (!empty($productId)) {
+                // Оновлюємо агреговане інфо товара
+                $productsEntity->updateVariantsAggregatedInfo([$productId]);
+            }
         }
 
         if (!empty($variantId) && !empty($productId)) {

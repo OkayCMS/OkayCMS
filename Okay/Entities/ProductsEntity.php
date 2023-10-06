@@ -69,7 +69,43 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         
         return parent::find($filter);
     }
-    
+
+    /**
+     * @param array $productsIds
+     * @return void
+     *
+     * Метод оновлює в товарі агреговані дані товара з варіантів. Такі як мінімальна та максимальна ціна товара,
+     * признак, чи товар є в наявності (на основі наявності всіх варіантів) etc.
+     */
+    public function updateVariantsAggregatedInfo(array $productsIds)
+    {
+        $sql = $this->queryFactory->newSqlQuery();
+
+        $sql->setStatement("
+            UPDATE __products p
+                LEFT JOIN (
+                    SELECT
+                        v.product_id,
+                        floor(min(IF(v.currency_id=0 OR c.id is null, v.price, v.price*c.rate_to/c.rate_from))) AS min_price,
+                        ceil(max(IF(v.currency_id=0 OR c.id is null, v.price, v.price*c.rate_to/c.rate_from))) AS max_price
+                    FROM __products p
+                    LEFT JOIN __variants v ON v.product_id = p.id
+                    LEFT JOIN __currencies c on c.id = v.currency_id
+                    WHERE p.id IN (:products_ids_sub_query)
+                    GROUP BY p.id
+                ) AS prices ON prices.product_id = p.id
+                SET p.min_price = prices.min_price,
+                p.max_price = prices.max_price
+            WHERE p.id IN (:products_ids)
+        ");
+
+        $sql->bindValues([
+            'products_ids' => $productsIds,
+            'products_ids_sub_query' => $productsIds,
+        ]);
+        $sql->execute();
+    }
+
     public function getSelect(array $filter = [])
     {
         $this->select->leftJoin(RouterCacheEntity::getTable() . ' AS r', 'r.url=p.url AND r.type="product"');
@@ -515,7 +551,7 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
 
         // Дублируем варианты
         $variants = $variantsEntity->find(['product_id'=>$productId]);
-        foreach($variants as $variant) {
+        foreach ($variants as $variant) {
             $variant->product_id = $newProductId;
             unset($variant->sku);
             unset($variant->id);
@@ -531,7 +567,7 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
 
         // Дублируем значения свойств
         $values = $featuresValuesEntity->getProductValuesIds([$productId]);
-        foreach($values as $value) {
+        foreach ($values as $value) {
             $featuresValuesEntity->addProductValue($newProductId, $value->value_id);
         }
 
@@ -542,6 +578,10 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         }
 
         $this->multiDuplicateProduct($productId, $newProductId);
+
+        // Записуємо агреговане інфо товара
+        $this->updateVariantsAggregatedInfo([$newProductId]);
+
         ExtenderFacade::execute([static::class, __FUNCTION__], $newProductId, func_get_args());
     }
 

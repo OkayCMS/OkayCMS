@@ -428,6 +428,9 @@ class ImportProducts extends AbstractImport
             $variantsEntity->update($variantId, $variant);
         }
 
+        // Оновлюємо агреговане інфо товара
+        $productsEntity->updateVariantsAggregatedInfo([$productId]);
+
         // Определяем основную категорию товара
         $mainCategoryId = reset($productsCategoriesIds);
         
