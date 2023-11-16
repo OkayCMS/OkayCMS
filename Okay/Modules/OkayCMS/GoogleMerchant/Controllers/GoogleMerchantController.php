@@ -84,7 +84,19 @@ class GoogleMerchantController extends AbstractController
         $prevProductId = null;
         while ($product = $query->result()) {
             $product = $feedHelper->attachFeatures($product);
-            $product = $feedHelper->attachDescriptionByTemplate($product);
+            $metaParts = $feedHelper->getMetadataParts($product);
+            $product = $feedHelper->attachDescriptionByTemplate(
+                $product,
+                $metaParts,
+                $feedHelper->getDescriptionTemplate($product),
+                XmlFeedHelper::DESCRIPTION_FIELD
+            );
+            $product = $feedHelper->attachDescriptionByTemplate(
+                $product,
+                $metaParts,
+                $feedHelper->getAnnotationTemplate($product),
+                XmlFeedHelper::ANNOTATION_FIELD
+            );
             $product = $feedHelper->attachProductImages($product);
 
             $addVariantUrl = false;

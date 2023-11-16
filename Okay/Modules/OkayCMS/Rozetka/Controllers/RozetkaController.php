@@ -80,7 +80,19 @@ class RozetkaController extends AbstractController
         $prevProductId = null;
         while ($product = $query->result()) {
             $product = $feedHelper->attachFeatures($product);
-            $product = $feedHelper->attachDescriptionByTemplate($product);
+            $metaParts = $feedHelper->getMetadataParts($product);
+            $product = $feedHelper->attachDescriptionByTemplate(
+                $product,
+                $metaParts,
+                $feedHelper->getDescriptionTemplate($product),
+                XmlFeedHelper::DESCRIPTION_FIELD
+            );
+            $product = $feedHelper->attachDescriptionByTemplate(
+                $product,
+                $metaParts,
+                $feedHelper->getAnnotationTemplate($product),
+                XmlFeedHelper::ANNOTATION_FIELD
+            );
             $product = $feedHelper->attachProductImages($product);
 
             $addVariantUrl = false;
@@ -93,7 +105,7 @@ class RozetkaController extends AbstractController
                 'id' => $product->variant_id,
                 'available' => ($product->stock > 0 || $product->stock === null ? 'true' : 'false'),
             ]);
-            
+
             $this->response->sendStream($xmlProduct);
         }
 

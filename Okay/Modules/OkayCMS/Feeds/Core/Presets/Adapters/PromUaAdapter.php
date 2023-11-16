@@ -2,14 +2,30 @@
 
 namespace Okay\Modules\OkayCMS\Feeds\Core\Presets\Adapters;
 
+use Aura\Sql\ExtendedPdo;
+use Okay\Core\Database;
+use Okay\Core\Design;
+use Okay\Core\Image;
+use Okay\Core\Languages;
 use Okay\Core\Modules\Extender\ExtenderFacade;
+use Okay\Core\Money;
+use Okay\Core\QueryFactory;
 use Okay\Core\QueryFactory\Select;
+use Okay\Core\Response;
 use Okay\Core\Router;
 use Okay\Core\Routes\ProductRoute;
+use Okay\Core\Settings;
+use Okay\Entities\BrandsEntity;
+use Okay\Entities\CategoriesEntity;
 use Okay\Entities\CurrenciesEntity;
-use Okay\Entities\VariantsEntity;
+use Okay\Entities\FeaturesEntity;
+use Okay\Entities\FeaturesValuesEntity;
 use Okay\Entities\ProductsEntity;
+use Okay\Entities\VariantsEntity;
+use Okay\Helpers\XmlFeedHelper;
 use Okay\Modules\OkayCMS\Feeds\Core\Presets\AbstractPresetAdapter;
+use Okay\Modules\OkayCMS\Feeds\Entities\FeedsEntity;
+use Okay\Modules\OkayCMS\Feeds\Helpers\FeedsHelper;
 
 class PromUaAdapter extends AbstractPresetAdapter
 {
@@ -18,6 +34,64 @@ class PromUaAdapter extends AbstractPresetAdapter
 
     /** @var string */
     static protected $footerTemplate = 'presets/prom_ua/footer.tpl';
+
+    private $uaLang;
+
+    private string $siteNameUa;
+    private array $allCategoriesUa;
+    private object $defaultProductsSeoPatternUa;
+
+    public function __construct(
+        Money            $money,
+        Design           $design,
+        QueryFactory     $queryFactory,
+        Database         $database,
+        XmlFeedHelper    $xmlFeedHelper,
+        Response         $response,
+        ExtendedPdo      $pdo,
+        Settings         $settings,
+        Languages        $languages,
+        Image            $image,
+        CurrenciesEntity $currenciesEntity,
+        FeedsEntity      $feedsEntity,
+        CategoriesEntity $categoriesEntity,
+        FeedsHelper      $feedHelper
+    ) {
+        parent::__construct(
+            $money,
+            $design,
+            $queryFactory,
+            $database,
+            $xmlFeedHelper,
+            $response,
+            $pdo,
+            $settings,
+            $languages,
+            $image,
+            $currenciesEntity,
+            $feedsEntity,
+            $categoriesEntity,
+            $feedHelper
+        );
+
+        $this->uaLang = $this->feedHelper->checkIfUaMainLanguageIs();
+
+        // Отримуємо дані для української версії
+        if (!empty($this->uaLang) && !empty($uaLangId = $this->uaLang->id)) {
+            $currentLangId = $this->languages->getLangId();
+            $this->languages->setLangId($uaLangId);
+            $this->settings->initSettings();
+
+            $this->siteNameUa = $this->settings->get('site_name');
+            $this->defaultProductsSeoPatternUa = (object)$settings->get('default_products_seo_pattern');
+            $categoriesEntity->initCategories();
+            $this->allCategoriesUa = $categoriesEntity->find();
+
+            $this->languages->setLangId($currentLangId);
+            $this->settings->initSettings();
+            $categoriesEntity->initCategories();
+        }
+    }
 
     protected function buildCategories($feedId): array
     {
@@ -58,31 +132,29 @@ class PromUaAdapter extends AbstractPresetAdapter
     {
         $sql = parent::getQuery(...func_get_args());
 
-        $uaLang = $this->feedHelper->checkIfUaMainLanguageIs();
-
         //  получаем украинские данные
-        if (!empty($uaLang)
-            && !empty($uaLangId = $uaLang->id)
-        ) {
+        if (!empty($this->uaLang) && !empty($uaLangId = $this->uaLang->id)) {
             if ($this->feed->settings['use_full_description']) {
                 $sql->cols([
                     'lp.description AS description',
                     'lp_ua.name as product_name_ua',
                     'lp_ua.description as description_ua',
                     'lv_ua.name as variant_name_ua',
+                    'lb_ua.name as brand_name_ua',
                 ]);
             } else {
-                $sql->cols(['lp.annotation AS annotation']);
                 $sql->cols([
                     'lp.annotation AS annotation',
                     'lp_ua.name as product_name_ua',
                     'lp_ua.annotation as annotation_ua',
                     'lv_ua.name as variant_name_ua',
+                    'lb_ua.name as brand_name_ua',
                 ]);
             }
 
             $sql->leftJoin(ProductsEntity::getLangTable().' AS lp_ua', 'lp_ua.product_id = t.product_id and lp_ua.lang_id=' . $uaLangId);
             $sql->leftJoin(VariantsEntity::getLangTable().' AS lv_ua', 'lv_ua.variant_id = t.variant_id and lv_ua.lang_id=' . $uaLangId);
+            $sql->leftJoin(BrandsEntity::getLangTable().' AS lb_ua', 'lb_ua.brand_id = t.brand_id and lb_ua.lang_id=' . $uaLangId);
 
         } else {
             if ($this->feed->settings['use_full_description']) {
@@ -131,7 +203,108 @@ class PromUaAdapter extends AbstractPresetAdapter
                 ->bindValues(['filter_stock_value' => $value]);
         }
 
+        //  получаем украинские данные
+        if (!empty($this->uaLang) && !empty($uaLangId = $this->uaLang->id)) {
+            $sql->cols([
+                'GROUP_CONCAT(DISTINCT lf_ua.feature_id, "!-", lf_ua.name SEPARATOR "@|@") AS features_string_ua',
+                'GROUP_CONCAT(DISTINCT fv.feature_id, "!-", lfv_ua.value SEPARATOR "@|@") AS values_string_ua',
+            ])
+                ->leftJoin(FeaturesValuesEntity::getLangTable().' AS  lfv_ua', 'fv.id = lfv_ua.feature_value_id and lfv_ua.lang_id=' . $uaLangId)
+                ->leftJoin(FeaturesEntity::getLangTable().' AS  lf_ua', 'f.id = lf_ua.feature_id and lf_ua.lang_id=' . $uaLangId);
+
+        }
+
         return ExtenderFacade::execute(__METHOD__, $sql, func_get_args());
+    }
+
+    public function modifyItem(object $item): object
+    {
+        $item = parent::modifyItem($item);
+
+        //  получаем украинские данные
+        if (!empty($this->uaLang) && !empty($this->uaLang->id)) {
+            $item = $this->xmlFeedHelper->attachFeatures(
+                $item,
+                'features_string_ua',
+                'values_string_ua',
+                'features_ua'
+            );
+
+            // Застосовуємо шаблон опису товару на українській мові
+            $metaParts = $this->getMetadataPartsUa($item);
+
+            $item = $this->xmlFeedHelper->attachDescriptionByTemplate(
+                $item,
+                $metaParts,
+                $this->getDescriptionTemplateUa($item),
+                'description_ua'
+            );
+            $item = $this->xmlFeedHelper->attachDescriptionByTemplate(
+                $item,
+                $metaParts,
+                $this->getAnnotationTemplateUa($item),
+                'annotation_ua'
+            );
+        }
+        return $item;
+    }
+
+    protected function getDescriptionTemplateUa($product): string
+    {
+        $category = $this->allCategoriesUa[$product->main_category_id];
+        $descriptionTemplate = '';
+        if ($data = $this->xmlFeedHelper->getCategoryField($category, 'auto_description')) {
+            $descriptionTemplate = $data;
+        } elseif (!empty($this->defaultProductsSeoPatternUa->auto_description)) {
+            $descriptionTemplate = $this->defaultProductsSeoPatternUa->auto_description;
+        }
+        return $descriptionTemplate;
+    }
+    protected function getAnnotationTemplateUa($product): string
+    {
+        $category = $this->allCategoriesUa[$product->main_category_id];
+        $annotationTemplate = '';
+        if ($data = $this->xmlFeedHelper->getCategoryField($category, 'auto_annotation')) {
+            $annotationTemplate = $data;
+        } elseif (!empty($this->defaultProductsSeoPatternUa->auto_annotation)) {
+            $annotationTemplate = $this->defaultProductsSeoPatternUa->auto_annotation;
+        }
+        return $annotationTemplate;
+    }
+
+    protected function getMetadataPartsUa($product): array
+    {
+        $mataDataParts = $this->xmlFeedHelper->getMetadataParts($product);
+
+        if (!empty($product->brand_name_ua)) {
+            $mataDataParts['{$brand}'] = $product->brand_name_ua;
+        }
+
+        if (!empty($product->product_name_ua)) {
+            $mataDataParts['{$product}'] = $product->product_name_ua;
+        }
+
+        $mataDataParts['{$sitename}'] = $this->siteNameUa;
+
+        if (!empty($product->main_category_id) && isset($this->allCategoriesUa[$product->main_category_id])) {
+            $category = $this->allCategoriesUa[$product->main_category_id];
+            $mataDataParts['{$category}'] = ($category->name ?: '');
+            $mataDataParts['{$category_h1}'] = ($category->name_h1 ?: '');
+        }
+
+        if (!empty($product->features_ua)) {
+            foreach ($product->features_ua as $feature) {
+
+                if (!empty($feature['auto_name_id'])) {
+                    $mataDataParts['{$' . $feature['auto_name_id'] . '}'] = $feature['name'];
+                }
+                if (!empty($feature['auto_value_id'])) {
+                    $mataDataParts['{$' . $feature['auto_value_id'] . '}'] = $feature['values_string'];
+                }
+            }
+        }
+
+        return $mataDataParts; // No ExtenderFacade
     }
 
     public function getItem(object $product, bool $addVariantUrl = false): array
