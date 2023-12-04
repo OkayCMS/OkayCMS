@@ -54,6 +54,7 @@ return [
         'them_settings_filename' => 'theme-settings.css',
         'compile_css_dir' => 'cache/css/',
         'compile_js_dir' => 'cache/js/',
+        'compile_code_dir' => 'cache/codes/',
     ],
     
     /**

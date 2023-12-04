@@ -9,6 +9,7 @@ use Monolog\Handler\RotatingFileHandler;
 use Okay\Admin\Helpers\BackendModulesHelper;
 use Okay\Core\Console\Application AS ConsoleApplication;
 use Okay\Core\Entity\UrlUniqueValidator;
+use Okay\Core\Modules\LicenseModulesTemplates;
 use Okay\Core\Modules\ModuleDesign;
 use Okay\Core\Modules\ModulesEntitiesFilters;
 use Okay\Core\OkayContainer\Reference\ParameterReference as PR;
@@ -123,6 +124,7 @@ $services = [
         'arguments' => [
             new SR(Adapters\Response\AdapterManager::class),
             new PR('config.version'),
+            new SR(LicenseModulesTemplates::class),
         ],
     ],
     Languages::class => [
@@ -160,6 +162,7 @@ $services = [
             new PR('template_config.them_settings_filename'),
             new PR('template_config.compile_css_dir'),
             new PR('template_config.compile_js_dir'),
+            new PR('template_config.compile_code_dir'),
         ],
     ],
     BackendTemplateConfig::class => [
@@ -543,6 +546,16 @@ $services = [
         'arguments' => [
             new PR('logger.dir'),
         ]
+    ],
+    LicenseModulesTemplates::class => [
+        'class' => LicenseModulesTemplates::class,
+        'arguments' => [
+            new SR(Settings::class),
+            new SR(QueryFactory::class),
+            new SR(Database::class),
+            new SR(Config::class),
+            new SR(FrontTemplateConfig::class),
+        ],
     ],
 ];
 

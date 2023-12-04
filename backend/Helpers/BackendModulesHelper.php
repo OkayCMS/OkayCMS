@@ -63,9 +63,10 @@ class BackendModulesHelper
         }
 
         $emails = sprintf('%s %s %s',
-            $this->settings->get('order_email'),
+            $this->settings->get('email_for_module'),
+        /*  $this->settings->get('order_email'),
             $this->settings->get('notify_from_email'),
-            $this->settings->get('comment_email')
+          $this->settings->get('comment_email')*/
         );
 
         preg_match_all(

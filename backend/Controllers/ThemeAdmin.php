@@ -4,6 +4,8 @@
 namespace Okay\Admin\Controllers;
 
 
+use Okay\Core\Modules\LicenseModulesTemplates;
+use Okay\Core\Request;
 use Okay\Entities\ManagersEntity;
 
 class ThemeAdmin extends IndexAdmin
@@ -13,7 +15,7 @@ class ThemeAdmin extends IndexAdmin
     private $compiled_dir = 'compiled/';
 
     /*Работа с шаблонами сайта*/
-    public function fetch(ManagersEntity $managersEntity)
+    public function fetch(ManagersEntity $managersEntity, LicenseModulesTemplates $licenseModulesTemplates)
     {
         if ($this->request->method('post')) {
 
@@ -36,6 +38,7 @@ class ThemeAdmin extends IndexAdmin
                             $this->settings->set('admin_theme', $new_name);
                         }
                         if($this->settings->get('theme') == $old_name) {
+                            $licenseModulesTemplates->buildFullRequest();
                             $this->settings->set('theme', $new_name);
                         }
                     }
@@ -85,6 +88,8 @@ class ThemeAdmin extends IndexAdmin
         }
 
         $themes = $this->getThemes();
+
+        $licenseModulesTemplates->initCodes();
 
         // Если нет прав на запись - передаем в дизайн предупреждение
         if (!is_writable($this->themes_dir)) {

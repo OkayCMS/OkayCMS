@@ -22,7 +22,8 @@ class FrontTemplateConfig
 {
     const TYPE_JS = 'js';
     const TYPE_CSS = 'css';
-    
+    const TYPE_CODES = 'codes';
+
     private $rootDir;
     private $scriptsDefer;
     
@@ -32,12 +33,14 @@ class FrontTemplateConfig
     private $adminThemeManagers;
     private $compileCssDir;
     private $compileJsDir;
+    private $compileCodeDir;
     private $registeredTemplateFiles = false;
 
     private $modules;
     private $module;
     private $config;
     private $jsConfig;
+    private $codeConfig;
     private $cssConfig;
     
     private $headCssFilename;
@@ -58,7 +61,8 @@ class FrontTemplateConfig
         $scriptsDefer,
         $themeSettingsFileName,
         $compileCssDir,
-        $compileJsDir
+        $compileJsDir,
+        $compileCodeDir
     ) {
 
         $this->theme = $settings->get('theme');
@@ -70,6 +74,7 @@ class FrontTemplateConfig
         $this->module = $module;
         $this->config = $config;
         $this->jsConfig = new JsConfig();
+        $this->codeConfig = new CodeConfig();
         $this->cssConfig = new CssConfig($rootDir, $settingsFile);
         
         $this->rootDir = $rootDir;
@@ -77,6 +82,7 @@ class FrontTemplateConfig
         $this->themeSettingsFileName = $themeSettingsFileName;
         $this->compileCssDir = $compileCssDir;
         $this->compileJsDir = $compileJsDir;
+        $this->compileCodeDir = $compileCodeDir;
 
         if (!is_dir($this->compileCssDir)) {
             mkdir($this->compileCssDir, 0777, true);
@@ -86,8 +92,15 @@ class FrontTemplateConfig
             mkdir($this->compileJsDir, 0777, true);
         }
         
+        if (!is_dir($this->compileCodeDir)) {
+            mkdir($this->compileCodeDir, 0777, true);
     }
     
+    }
+    public function getCompileCodeDir()
+    {
+        return $this->compileCodeDir;
+    }
     public function __destruct()
     {
         // Инвалидация компилированных js и css файлов

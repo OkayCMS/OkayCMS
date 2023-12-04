@@ -1628,3 +1628,4 @@ $lang['module_access_expire_plural_2'] = 'дня';
 $lang['module_access_expire_plural_5'] = 'дней';
 $lang['module_access_expired'] = 'Доступ до обновлений модуля закончился';
 $lang['module_access_continue_access'] = 'Продлить доступ';
+$lang['settings_general_email_module'] = 'E-mail, указанный при покупке модуля';

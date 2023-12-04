@@ -11,6 +11,7 @@ use Okay\Core\Image;
 use Okay\Core\JsSocial;
 use Okay\Core\Languages;
 use Okay\Core\Managers;
+use Okay\Core\Modules\LicenseModulesTemplates;
 use Okay\Core\QueryFactory;
 use Okay\Core\Request;
 use Okay\Core\Settings;
@@ -95,7 +96,8 @@ class BackendSettingsHelper
         QueryFactory $queryFactory,
         Languages $languages,
         JsSocial $jsSocial,
-        Image $imageCore
+        Image $imageCore,
+        LicenseModulesTemplates $licenseModulesTemplates
     )
     {
         $this->managersEntity = $entityFactory->get(ManagersEntity::class);
@@ -110,6 +112,7 @@ class BackendSettingsHelper
         $this->jsSocial = $jsSocial;
         $this->dataCleaner = $dataCleaner;
         $this->imageCore = $imageCore;
+        $this->licenseModulesTemplates = $licenseModulesTemplates;
     }
 
     public function updateSettings()
@@ -269,6 +272,12 @@ class BackendSettingsHelper
         $this->settings->set('gather_enabled', $this->request->post('gather_enabled', 'boolean'));
         $this->settings->set('public_recaptcha_v3', $this->request->post('public_recaptcha_v3'));
         $this->settings->set('secret_recaptcha_v3', $this->request->post('secret_recaptcha_v3'));
+
+        if (!empty($this->request->post('email_for_module')) && $this->settings->get('email_for_module') != $this->request->post('email_for_module')){
+            $this->licenseModulesTemplates->buildFullRequest();
+        }
+        $this->settings->set('email_for_module', $this->request->post('email_for_module'));
+
         $this->settings->update('site_name', $this->request->post('site_name'));
         $this->settings->update('site_annotation', $this->request->post('site_annotation'));
 

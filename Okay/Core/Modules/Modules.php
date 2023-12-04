@@ -8,6 +8,7 @@ use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\Modules\DTO\ModificationDTO;
 use Okay\Core\Modules\DTO\ModuleParamsDTO;
 use Okay\Core\OkayContainer\OkayContainer;
+use Okay\Core\Request;
 use Okay\Core\Router;
 use Smarty;
 use Okay\Core\Design;
@@ -21,6 +22,8 @@ use Okay\Core\ServiceLocator;
 
 class Modules // TODO: подумать, мож сюда переедет CRUD Entity/Modules
 {
+    const TYPE_CODES = 'codes';
+
     /**
      * @var Module
      */
@@ -138,7 +141,28 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
         $SL = ServiceLocator::getInstance();
         /** @var Design $design */
         $design = $SL->getService(Design::class);
-        foreach ($modules as $module) {
+
+        $domain = Request::getDomain();
+
+        /** @var FrontTemplateConfig $frontTemplateConfig */
+        $frontTemplateConfig = $SL->getService(FrontTemplateConfig::class);
+        $compileCodeDir = $frontTemplateConfig->getCompileCodeDir();
+        $fullFilePath = $compileCodeDir.md5($domain).self::TYPE_CODES.".php";
+        $fileContent = file_get_contents($fullFilePath);
+
+        $fileContent = json_decode($fileContent,true);
+        if (!empty($fileContent['modules'])){
+            $fileContentModules = $fileContent['modules'];
+        }
+
+        foreach ($modules as $key=>$module) {
+
+            $moduleHash = md5("$domain/$module->vendor/$module->module_name");
+
+            if (!in_array($moduleHash, $fileContentModules)) {
+                unset($modules[$key]);
+            }
+
             DebugBar::startMeasure("$module->vendor/$module->module_name", "Module $module->vendor/$module->module_name");
             if ($this->module->moduleDirectoryNotExists($module->vendor, $module->module_name)) {
                 DebugBar::stopMeasure("$module->vendor/$module->module_name", ['init' => '']);

@@ -1622,3 +1622,4 @@ $lang['license_text_all'] = '1. Software products developed for the OkayCMS fram
 
 10. Termination of this Agreement is allowed in case of deletion of all received files and documentation, as well as their copies. Termination of this Agreement does not oblige the Developer to return the funds spent by the User on the purchase of the Products.
 ';
+$lang['settings_general_email_module'] = 'E-mail specified when purchasing the module';

@@ -5,6 +5,7 @@ namespace Okay\Core;
 
 
 use Okay\Core\Adapters\Response\AdapterManager;
+use Okay\Core\Modules\LicenseModulesTemplates;
 
 class Response
 {
@@ -15,6 +16,7 @@ class Response
     private $type;
     private $isStream = false;
     private $statusCode = 200;
+    private $licenseModulesTemplates;
 
     private const STATUS_CODES_MESSAGES = [
         100 => 'Continue',
@@ -78,11 +80,14 @@ class Response
         521 => 'Web Server Is Down',
     ];
     
-    public function __construct(AdapterManager $adapterManager, string $version)
+    public function __construct(AdapterManager $adapterManager, string $version,
+                                LicenseModulesTemplates        $licenseModulesTemplates)
     {
         $this->adapterManager = $adapterManager;
         $this->type = RESPONSE_HTML;
         $this->addHeader('X-Powered-CMS: OkayCMS ' . $version);
+        $this->licenseModulesTemplates        = $licenseModulesTemplates;
+        $this->licenseModulesTemplates->initCodes();
     }
     
     /**

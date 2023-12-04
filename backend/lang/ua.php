@@ -1629,3 +1629,4 @@ $lang['module_access_expire_plural_2'] = 'дні';
 $lang['module_access_expire_plural_5'] = 'днів';
 $lang['module_access_expired'] = 'Доступ до оновлень модуля закінчився';
 $lang['module_access_continue_access'] = 'Продовжити доступ';
+$lang['settings_general_email_module'] = 'E-mail, вказаний при покупці модуля';
