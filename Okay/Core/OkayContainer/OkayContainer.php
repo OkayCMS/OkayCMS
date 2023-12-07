@@ -36,6 +36,8 @@ class OkayContainer implements ContainerInterface
      */
     private $serviceStore;
 
+    public const SETTINGS_DI = 'SettingsDI';
+
     public static function getInstance($services = [], $parameters = []): self
     {
         
@@ -223,7 +225,7 @@ class OkayContainer implements ContainerInterface
         }
 
         if (is_string($parameter) && preg_match_all('~{%.+?%}~', $parameter, $matches)) {
-            $settings = $this->get(Settings::class);
+            $settings = $this->get(self::SETTINGS_DI);
             $matches = $matches[0];
             foreach ($matches as $match) {
                 $var = preg_replace('~{%(.+)?%}~', '$1', $match);

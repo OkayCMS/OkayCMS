@@ -13,6 +13,7 @@ use Okay\Core\Modules\LicenseModulesTemplates;
 use Okay\Core\Modules\LicenseStorage;
 use Okay\Core\Modules\ModuleDesign;
 use Okay\Core\Modules\ModulesEntitiesFilters;
+use Okay\Core\OkayContainer\OkayContainer;
 use Okay\Core\OkayContainer\Reference\ParameterReference as PR;
 use Okay\Core\OkayContainer\Reference\ServiceReference as SR;
 use Monolog\Logger;
@@ -144,6 +145,14 @@ $services = [
         ],
     ],
     Settings::class => [
+        'class' => Settings::class,
+        'arguments' => [
+            new SR(Database::class),
+            new SR(Languages::class),
+            new SR(QueryFactory::class),
+        ],
+    ],
+    OkayContainer::SETTINGS_DI => [
         'class' => Settings::class,
         'arguments' => [
             new SR(Database::class),
