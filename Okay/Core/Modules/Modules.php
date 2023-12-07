@@ -54,6 +54,8 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
      */
     private $smarty;
 
+    private LicenseModulesTemplates $licenseModulesTemplates;
+
     /**
      * @var array список контроллеров бекенда
      */
@@ -80,7 +82,8 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
         QueryFactory  $queryFactory,
         Database      $database,
         Config        $config,
-        Smarty        $smarty
+        Smarty        $smarty,
+        LicenseModulesTemplates $licenseModulesTemplates
     ) {
         $this->entityFactory = $entityFactory;
         $this->module        = $module;
@@ -88,6 +91,7 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
         $this->db            = $database;
         $this->config        = $config;
         $this->smarty        = $smarty;
+        $this->licenseModulesTemplates = $licenseModulesTemplates;
     }
 
     /**
@@ -120,7 +124,6 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
 
     private function startModules($activeOnly = true)
     {
-
         $select = $this->queryFactory->newSelect()
             ->from(ModulesEntity::getTable())
             ->cols(['id', 'vendor', 'module_name', 'enabled'])
@@ -130,6 +133,9 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
         $modules = $this->db->results();
 
         foreach ($modules as $module) {
+            if (!$this->licenseModulesTemplates->isLicensedModule($module->vendor, $module->module_name)) {
+                continue;
+            }
             // Запоминаем какие модули мы запустили, они понадобятся, чтобы активировать их js и css
             $this->runningModules[$module->vendor . '/' . $module->module_name] = [
                 'vendor' => $module->vendor,
@@ -141,28 +147,7 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
         $SL = ServiceLocator::getInstance();
         /** @var Design $design */
         $design = $SL->getService(Design::class);
-
-        $domain = Request::getDomain();
-
-        /** @var FrontTemplateConfig $frontTemplateConfig */
-        $frontTemplateConfig = $SL->getService(FrontTemplateConfig::class);
-        $compileCodeDir = $frontTemplateConfig->getCompileCodeDir();
-        $fullFilePath = $compileCodeDir.md5($domain).self::TYPE_CODES.".php";
-        $fileContent = file_get_contents($fullFilePath);
-
-        $fileContent = json_decode($fileContent,true);
-        if (!empty($fileContent['modules'])){
-            $fileContentModules = $fileContent['modules'];
-        }
-
-        foreach ($modules as $key=>$module) {
-
-            $moduleHash = md5("$domain/$module->vendor/$module->module_name");
-
-            if (!in_array($moduleHash, $fileContentModules)) {
-                unset($modules[$key]);
-            }
-
+        foreach ($modules as $module) {
             DebugBar::startMeasure("$module->vendor/$module->module_name", "Module $module->vendor/$module->module_name");
             if ($this->module->moduleDirectoryNotExists($module->vendor, $module->module_name)) {
                 DebugBar::stopMeasure("$module->vendor/$module->module_name", ['init' => '']);
@@ -170,7 +155,8 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
             }
 
             // TODO: подумать над тем, чтобы перенести этот код отсюда
-            if ($activeOnly === true && (int) $module->enabled !== 1) {
+            if (($activeOnly === true && (int)$module->enabled !== 1)
+                || !$this->licenseModulesTemplates->isLicensedModule($module->vendor, $module->module_name)) {
                 $plugins = $this->module->getSmartyPlugins($module->vendor, $module->module_name);
                 foreach ($plugins as $plugin) {
                     $reflector = new \ReflectionClass($plugin['class']);

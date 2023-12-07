@@ -37,8 +37,8 @@ class ThemeAdmin extends IndexAdmin
                         if($this->settings->get('admin_theme') == $old_name) {
                             $this->settings->set('admin_theme', $new_name);
                         }
-                        if($this->settings->get('theme') == $old_name) {
-                            $licenseModulesTemplates->buildFullRequest();
+                        if ($this->settings->get('theme') == $old_name) {
+                            $licenseModulesTemplates->updateLicenseInfo();
                             $this->settings->set('theme', $new_name);
                         }
                     }
@@ -89,7 +89,7 @@ class ThemeAdmin extends IndexAdmin
 
         $themes = $this->getThemes();
 
-        $licenseModulesTemplates->initCodes();
+//        $licenseModulesTemplates->initCodes();
 
         // Если нет прав на запись - передаем в дизайн предупреждение
         if (!is_writable($this->themes_dir)) {

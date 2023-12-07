@@ -5,71 +5,184 @@ namespace Okay\Core\Modules;
 
 use Okay\Core\Config;
 use Okay\Core\Database;
+use Okay\Core\Modules\DTO\LicenseDTO;
 use Okay\Core\QueryFactory;
 use Okay\Core\Request;
-use Okay\Core\ServiceLocator;
-use Okay\Core\Settings;
-use Okay\Core\TemplateConfig\FrontTemplateConfig;
 use Okay\Entities\ModulesEntity;
 
 
 class LicenseModulesTemplates
 {
+    private QueryFactory $queryFactory;
 
-    /**
-     * @var Settings
-     */
-    private $settings;
-    /**
-     * @var QueryFactory
-     */
-    private $queryFactory;
+    private Database $db;
 
-    /**
-     * @var Database
-     */
-    private $db;
+    private Config $config;
 
-    /**
-     * @var Config
-     */
-    private $config;
+    private LicenseStorage $licenseStorage;
 
-    private string $themes_dir = 'design'.DIRECTORY_SEPARATOR;
+    private string $themesDir;
 
-    public function __construct(Settings $settings,
-                                QueryFactory  $queryFactory,
-                                Database      $database,
-                                Config $config,
-                                FrontTemplateConfig $frontTemplateConfig
-                                )
-    {
-        $this->settings = $settings;
+    private ?LicenseDTO $licenseDTO = null;
+
+    private bool $isInitialized = false;
+
+    private string $themeName = '';
+
+    private string $licenseEmail = '';
+
+    // Кількість символів в кінці файлу, де ми маємо шукати ліцензію
+    private const END_FILE_LENGTH = 100;
+
+    private const REQUEST_TIMEOUT = 300;
+
+    public function __construct(
+        QueryFactory $queryFactory,
+        Database $database,
+        Config $config,
+        LicenseStorage $licenseStorage,
+        string $rootDir
+    ) {
         $this->queryFactory = $queryFactory;
         $this->db = $database;
         $this->config = $config;
-        $this->frontTemplateConfig = $frontTemplateConfig;
+        $this->licenseStorage = $licenseStorage;
+        $this->themesDir = $rootDir . 'design' . DIRECTORY_SEPARATOR;
     }
 
-
-    public function emailRequest()
+    public function setThemeName(string $themeName)
     {
-        return ['email' => $this->settings->get('email_for_module')];
+        $this->themeName = $themeName;
     }
 
-    public function domainRequest()
+    public function setLicenseEmail(string $licenseEmail)
+    {
+        $this->licenseEmail = $licenseEmail;
+    }
+
+    public function updateLicenseInfo(): ?LicenseDTO
+    {
+        $emailRequest = $this->emailRequest();
+        $domainRequest = $this->domainRequest();
+
+        $vendorNameRequest = $this->vendorNameRequest();
+        $templateRequest = $this->templateRequest();
+
+        $request = array_merge(
+            $emailRequest,
+            $domainRequest,
+            $vendorNameRequest,
+            $templateRequest
+        );
+        $url = $this->config->get('marketplace_url') . 'api/v2/modules/access/user';
+
+        if (time() > ($_SESSION['request_timeout'] ?? 0) && ($response = $this->request($url, $request))) {
+            $licenseDTO = new LicenseDTO();
+            if (!empty($response->modules)) {
+                $licenseDTO->setModulesLicenses($response->modules);
+            }
+            if (!empty($response->official_modules)) {
+                $licenseDTO->setOfficialModules($response->official_modules);
+            }
+            if (!empty($response->template)) {
+                $licenseDTO->setTemplateLicense($response->template);
+            }
+            if (!empty($response->official_template)) {
+                $licenseDTO->setTemplateLicense((bool)$response->official_template);
+            }
+            $this->licenseStorage->saveLicense($licenseDTO);
+            return $licenseDTO;
+        } elseif (($response ?? null) === false) {
+            $_SESSION['request_timeout'] = time() + self::REQUEST_TIMEOUT;
+        }
+        return null;
+    }
+
+    public function isLicensedModule(string $vendor, string $moduleName): bool
+    {
+        if ($this->licenseDTO && !is_null($this->licenseDTO->getModulesLicenses())) {
+            $moduleHash = md5(sprintf('%s/%s/%s',
+                Request::getDomain(),
+                $vendor,
+                $moduleName
+            ));
+
+            return in_array($moduleHash, $this->licenseDTO->getModulesLicenses());
+        } elseif ($this->isInitialized) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function isOfficialModule(string $vendor, string $moduleName): bool
+    {
+        if ($this->licenseDTO) {
+            $module = md5(sprintf('%s/%s',
+                $vendor,
+                $moduleName
+            ));
+
+            return in_array($module, $this->licenseDTO->getOfficialModules());
+        }
+
+        return false;
+    }
+
+    public function isLicensedTemplate(): bool
+    {
+        if ($this->licenseDTO && !is_null($this->licenseDTO->getTemplateLicense())) {
+            // todo тут треба зробити перевірку ліцензії згідно з її видачею. Покищо просто перевіряю чи вона взагалі є
+            return !empty($this->licenseDTO->getTemplateLicense());
+        } elseif ($this->isInitialized) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function isOfficialTemplate(): bool
+    {
+        if ($this->licenseDTO) {
+            return $this->licenseDTO->isOfficialTemplate();
+        } elseif ($this->isInitialized) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function initLicenseInfo()
+    {
+        if ($this->isInitialized === false && is_null($this->licenseDTO)) {
+            $this->licenseDTO = $this->licenseStorage->getLicense();
+            if (is_null($this->licenseDTO)) {
+                $this->licenseDTO = $this->updateLicenseInfo();
+            } else {
+                $select = $this->queryFactory->newSelect();
+                $modulesNum = $select->from(ModulesEntity::getTable())
+                    ->cols(['count(*) AS count'])
+                    ->result('count');
+                $modulesLicenses = $this->licenseDTO->getModulesLicenses();
+                if (!is_null($modulesLicenses) && $modulesNum != count($modulesLicenses)) {
+                    $this->licenseDTO = $this->updateLicenseInfo();
+                }
+            }
+            $this->isInitialized = true;
+        }
+    }
+
+    private function emailRequest(): array
+    {
+        return ['email' => $this->licenseEmail];
+    }
+
+    private function domainRequest(): array
     {
         return ['domain' => Request::getDomain()];
     }
 
-    public function signRequest()
-    {
-       // $sign = ['sign' => $this->sign];
-        $this->sign = 1;
-        return ['sign' => $this->sign];
-    }
-
-    public function vendorNameRequest()
+    private function vendorNameRequest(): array
     {
         $select = $this->queryFactory->newSelect()
             ->from(ModulesEntity::getTable())
@@ -78,41 +191,39 @@ class LicenseModulesTemplates
 
         $this->db->query($select);
         $modulesDb = $this->db->results();
-
+        $modules = [];
         foreach ($modulesDb as $module) {
-
-            $moduleCodeConfig  = $module->vendor."/".$module->module_name;
-            $modules[] = $moduleCodeConfig;
-
+            $modules[]  = $module->vendor . '/' . $module->module_name;
         }
 
         return ['modules' => $modules];
     }
 
-    public function templateRequest()
+    private function templateRequest(): array
     {
-        $rootDir = dirname(dirname(dirname(__DIR__))).DIRECTORY_SEPARATOR;
-        $theme = $this->settings->get('theme');
-        $theme = 'barbie';
-       // D:\OpenServer\OSPanel\domains\okay440l\design\barbie\html
-        $imagePath = $rootDir.$this->themes_dir.$theme.DIRECTORY_SEPARATOR.'preview.png';
-        $contentPng = base64_encode(file_get_contents($imagePath));
-        $templateRequestModules['preview.png'] = $contentPng;
-        //  $folderPath = $rootDir.$this->themes_dir.DIRECTORY_SEPARATOR.$this->settings->get('theme').DIRECTORY_SEPARATOR.'html';
-        $folderPath = $rootDir.$this->themes_dir/*.DIRECTORY_SEPARATOR*/.$theme.DIRECTORY_SEPARATOR.'html';
+        $templateRequestModules = [];
+
+        $imagePath = $this->themesDir . $this->themeName . DIRECTORY_SEPARATOR . 'preview.png';
+        if (is_file($imagePath)) {
+            $contentPng = base64_encode(file_get_contents($imagePath));
+            $templateRequestModules['preview.png'] = $contentPng;
+        }
+
+        $folderPath = $this->themesDir . $this->themeName . DIRECTORY_SEPARATOR . 'html';
         $templateFile = $this->getTplFiles($folderPath);
 
         foreach ($templateFile as $file) {
-            if (is_file($folderPath.DIRECTORY_SEPARATOR.$file)) {
-                $templateRequestModules[$file] = base64_encode($this->getLastCharacters($folderPath.DIRECTORY_SEPARATOR.$file));
+            if (is_file($folderPath . DIRECTORY_SEPARATOR . $file)) {
+                $templateRequestModules[$file] = base64_encode(
+                    $this->getLastCharacters($folderPath . DIRECTORY_SEPARATOR . $file)
+                );
             }
         }
-       // $tamplateRequestMpodules =  ['tamplate' => $tamplateRequestMpodules];
 
         return ['template' => $templateRequestModules];
     }
 
-    public function getTplFiles($folderPath, $subfolder = '')
+    private function getTplFiles($folderPath, $subFolder = ''): array
     {
         $tplFiles = [];
 
@@ -127,13 +238,13 @@ class LicenseModulesTemplates
                 // Проверка файла .tpl
                 if (is_file($filePath) && pathinfo($file, PATHINFO_EXTENSION) == 'tpl') {
                     //относительный путь с именем подпапки в качестве значения
-                    $tplFiles[] = $subfolder.DIRECTORY_SEPARATOR.$file;
+                    $tplFiles[] = $subFolder . DIRECTORY_SEPARATOR . $file;
                 }
 
                 // Проверка папки
                 if (is_dir($filePath)) {
                     //Рекурсивный вызов для вложенной папки с обновленным значением подпапки
-                    $nestedTplFiles = $this->getTplFiles($filePath, $subfolder.DIRECTORY_SEPARATOR.$file);
+                    $nestedTplFiles = $this->getTplFiles($filePath, $subFolder . DIRECTORY_SEPARATOR . $file);
 
                     //Добавление файлов из вложенной папки в общий список
                     $tplFiles = array_merge($tplFiles, $nestedTplFiles);
@@ -144,42 +255,20 @@ class LicenseModulesTemplates
         return $tplFiles;
     }
 
-
-    public function getLastCharacters($filePath)
+    private function getLastCharacters($filePath): string
     {
         // Отримання вмісту файлу
         $fileContent = file_get_contents($filePath);
 
-        // Видалення пробілів і символів нового рядка
-        $fileContentWithoutSpaces = str_replace([" ", "\n", "\r"], '', $fileContent);
-
         // Отримання останніх символів
-        $lastCharactersWithoutSpaces = substr($fileContentWithoutSpaces, -100);
+        $fileContent = substr($fileContent, -self::END_FILE_LENGTH);
 
-        // Повернення результату
-        return $lastCharactersWithoutSpaces;
-
-    }
-
-    public function buildFullRequest()
-    {
-        $emailRequest = $this->emailRequest();
-        $domainRequest = $this->domainRequest();
-
-        ///!!!
-        //$signRequest = $this->signRequest();
-        $vendorNameRequest = $this->vendorNameRequest();
-        $templateRequest = $this->templateRequest();
-
-        $request = array_merge($emailRequest,$domainRequest/*,$signRequest*/,$vendorNameRequest,$templateRequest);
-        $url = $this->config->get('marketplace_url')."api/v2/modules/access/user";
-
-        return $this->request($url,$request);
+        // Видалення пробілів і символів нового рядка
+        return str_replace([" ", "\n", "\r"], '', $fileContent);
     }
 
     private function request(string $url, array $request = [])
     {
-
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
@@ -191,76 +280,21 @@ class LicenseModulesTemplates
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($request));
         }
 
-       // !!!
-//        // Додаємо авторизацію по токену
-//        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-//            'Token: ' . $this->config->get('modules_api_auth_token'),
-//        ]);
-
         $result = curl_exec($ch);
-
-        curl_close ($ch);
-        ///!!!
-
-       $this->embedLicenseToFile($result);
-
-        return json_decode($result);
-    }
-
-    private function embedLicenseToFile($result){
-
-        $compileCodeDir = $this->frontTemplateConfig->getCompileCodeDir();
-
-        $domain = Request::getDomain();
-
-        $fullFilePath = $compileCodeDir.md5($domain)."codes.php";
-
-        file_put_contents($fullFilePath, '');
-
-        file_put_contents($fullFilePath, $result, LOCK_EX);
-    }
-
-    public function initCodes(){
-
-        $select = $this->queryFactory->newSelect()
-            ->from(ModulesEntity::getTable())
-            ->cols(['id', 'vendor', 'module_name', 'enabled'])
-            ->orderBy(['position ASC']);
-
-        $this->db->query($select);
-        $modulesDb = $this->db->results();
-        foreach ($modulesDb as $module) {
-
-            $moduleCodeConfig  = $module->vendor."/".$module->module_name;
-            $modules[] = $moduleCodeConfig;
-
+        if (curl_errno($ch)) {
+            curl_close($ch);
+            return false;
         }
 
-        $domain = Request::getDomain();
-        $compileCodeDir = $this->frontTemplateConfig->getCompileCodeDir();
+        curl_close($ch);
 
-        $filename = $compileCodeDir.md5($domain)."codes.php";
-
-        if (file_exists($filename)) {
-
-            $fileContents = file_get_contents($filename);
-
-            if (empty($fileContents)) {
-                $this->buildFullRequest();
-            } else {
-                if (strpos($fileContents, "\n") !== false) {
-                    $this->buildFullRequest();
-                }else{
-                    $fileContents = json_decode($fileContents,true);
-
-                    if (count($fileContents['modules']) != count($modules)){
-                        $this->buildFullRequest();
-                    }
-                }
+        $result = json_decode($result);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            if (!$result->success) {
+                return false;
             }
-        } else {
-            $this->buildFullRequest();
+            return $result;
         }
+        return false;
     }
-
 }
