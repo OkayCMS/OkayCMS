@@ -118,10 +118,10 @@ class LicenseModulesTemplates
     public function isOfficialModule(string $vendor, string $moduleName): bool
     {
         if ($this->licenseDTO) {
-            $module = md5(sprintf('%s/%s',
+            $module = sprintf('%s/%s',
                 $vendor,
                 $moduleName
-            ));
+            );
 
             return in_array($module, $this->licenseDTO->getOfficialModules());
         }
