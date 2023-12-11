@@ -42,7 +42,8 @@ class LicenseModulesTemplates
         Config $config,
         LicenseStorage $licenseStorage,
         string $rootDir
-    ) {
+    )
+    {
         $this->queryFactory = $queryFactory;
         $this->db = $database;
         $this->config = $config;
@@ -132,8 +133,9 @@ class LicenseModulesTemplates
     public function isLicensedTemplate(): bool
     {
         if ($this->licenseDTO && !is_null($this->licenseDTO->getTemplateLicense())) {
-            // todo тут треба зробити перевірку ліцензії згідно з її видачею. Покищо просто перевіряю чи вона взагалі є
-            return !empty($this->licenseDTO->getTemplateLicense());
+            if ($this->licenseDTO->getTemplateLicense() == md5(Request::getDomain())) {
+                return true;
+            }
         } elseif ($this->isInitialized) {
             return true;
         }
@@ -193,7 +195,7 @@ class LicenseModulesTemplates
         $modulesDb = $this->db->results();
         $modules = [];
         foreach ($modulesDb as $module) {
-            $modules[]  = $module->vendor . '/' . $module->module_name;
+            $modules[] = $module->vendor . '/' . $module->module_name;
         }
 
         return ['modules' => $modules];
@@ -272,7 +274,7 @@ class LicenseModulesTemplates
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
 
         if (!empty($request)) {
