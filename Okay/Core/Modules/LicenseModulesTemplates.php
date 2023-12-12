@@ -89,7 +89,7 @@ class LicenseModulesTemplates
                 $licenseDTO->setTemplateLicense($response->template);
             }
             if (!empty($response->official_template)) {
-                $licenseDTO->setTemplateLicense((bool)$response->official_template);
+                $licenseDTO->setIsOfficialTemplate((bool)$response->official_template);
             }
             $this->licenseStorage->saveLicense($licenseDTO);
             return $licenseDTO;
