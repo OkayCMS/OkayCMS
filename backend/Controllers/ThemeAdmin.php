@@ -5,7 +5,6 @@ namespace Okay\Admin\Controllers;
 
 
 use Okay\Core\Modules\LicenseModulesTemplates;
-use Okay\Core\Request;
 use Okay\Entities\ManagersEntity;
 
 class ThemeAdmin extends IndexAdmin
@@ -55,6 +54,8 @@ class ThemeAdmin extends IndexAdmin
                         $this->settings->set('admin_theme', '');
                     }
                     $this->settings->set('theme', $action_theme);
+                        $licenseModulesTemplates->setThemeName($this->settings->get('theme'));
+                        $licenseModulesTemplates->updateLicenseInfo();
                     break;
                 }
                 case 'clone_theme': {
@@ -88,8 +89,6 @@ class ThemeAdmin extends IndexAdmin
         }
 
         $themes = $this->getThemes();
-
-//        $licenseModulesTemplates->initCodes();
 
         // Если нет прав на запись - передаем в дизайн предупреждение
         if (!is_writable($this->themes_dir)) {
