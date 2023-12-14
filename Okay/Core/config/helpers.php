@@ -98,6 +98,7 @@ return [
             new SR(ManagerMenu::class),
             new SR(Design::class),
             new SR(Modules::class),
+            new SR(LicenseModulesTemplates::class),
         ]
     ],
     BackendProductsHelper::class => [

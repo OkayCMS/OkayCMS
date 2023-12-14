@@ -63,8 +63,10 @@ class Html extends AbstractResponse
 
         if (!empty($wrapper)) {
             print $this->design->fetch($wrapper);
-            if (!$this->licenseModulesTemplates->isLicensedTemplate()) {
-                print '<div style="color: red;text-align: center;font-size: 32px;">Template is not licensed!</div>';
+            if (!$this->licenseModulesTemplates->isLicensedTemplate()
+                && preg_match('~/design/\w+/html/~', $this->design->getTemplatesDir())
+            ) {
+                print $this->licenseModulesTemplates->getTemplateErrorHtml();
             }
         } else {
             print $resultContent;

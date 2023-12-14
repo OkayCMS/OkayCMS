@@ -62,23 +62,15 @@ class BackendModulesHelper
             return;
         }
 
-        $emails = $this->settings->get('email_for_module');
-
-        preg_match_all(
-            '~([_a-z0-9-]+(?:\.[_a-z0-9-]+)*@[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,})~',
-            $emails,
-            $matches
-        );
-
-        if (!empty($matches[0])) {
-            $emailRequest = urlencode(base64_encode(implode('|', array_unique($matches[0]))));
-        }
+        $emailRequest = urlencode(base64_encode(
+            $this->settings->get('email_for_module')
+        ));
 
         $modulesExpiresResponse = $this->request(sprintf(
             '%sv2/modules/access/expires/%s/list?email_request=%s',
             $this->apiBaseUrl,
             Request::getDomain(),
-            $emailRequest ?? ''
+            $emailRequest
         ));
 
         $modulesExpires = [];

@@ -22,8 +22,6 @@ use Okay\Core\ServiceLocator;
 
 class Modules // TODO: подумать, мож сюда переедет CRUD Entity/Modules
 {
-    const TYPE_CODES = 'codes';
-
     /**
      * @var Module
      */
@@ -74,7 +72,8 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
     private $modificationsInit = false;
 
     private $plugins;
-    private $expireModulesNum = 0;
+    private int $expireModulesNum = 0;
+    private int $notLicensedModulesNum = 0;
 
     public function __construct(
         EntityFactory $entityFactory,
@@ -134,6 +133,7 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
 
         foreach ($modules as $module) {
             if (!$this->licenseModulesTemplates->isLicensedModule($module->vendor, $module->module_name)) {
+                $this->notLicensedModulesNum++;
                 continue;
             }
             // Запоминаем какие модули мы запустили, они понадобятся, чтобы активировать их js и css
@@ -204,6 +204,11 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
     public function getExpireModulesNum(): int
     {
         return $this->expireModulesNum;
+    }
+
+    public function getNotLicensedModulesNum(): int
+    {
+        return $this->notLicensedModulesNum;
     }
 
     /**
@@ -627,5 +632,5 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
             }
         }
     }
-    
+
 }

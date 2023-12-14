@@ -401,6 +401,7 @@ $services = [
         'arguments' => [
             new SR(LoggerInterface::class),
             new SR(BackendModulesHelper::class),
+            new SR(LicenseModulesTemplates::class),
         ],
     ],
     ModuleDesign::class => [

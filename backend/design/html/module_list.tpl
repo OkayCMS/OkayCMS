@@ -45,6 +45,16 @@
                     {else}
                         {$module->vendor|escape}/{$module->module_name|escape}
                     {/if}
+                    {if $module->params->isOfficial()}
+                        Official
+                    {else}
+                        <span style="color: red">Not Official!!!</span>
+                    {/if}
+                    {if $module->params->isLicensed()}
+                        Licensed
+                    {else}
+                        <span style="color: red">Not Licensed!!!</span>
+                    {/if}
                 </div>
 
                 {if $module->params->getVendorEmail()}

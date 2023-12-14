@@ -133,9 +133,7 @@ class LicenseModulesTemplates
     public function isLicensedTemplate(): bool
     {
         if ($this->licenseDTO && !is_null($this->licenseDTO->getTemplateLicense())) {
-            if ($this->licenseDTO->getTemplateLicense() == md5(Request::getDomain())) {
-                return true;
-            }
+            return $this->licenseDTO->getTemplateLicense() === md5(Request::getDomain());
         } elseif ($this->isInitialized) {
             return true;
         }
@@ -152,6 +150,22 @@ class LicenseModulesTemplates
         }
 
         return false;
+    }
+
+    public function getTemplateErrorHtml(): string
+    {
+        return <<<HTML
+            <div style="
+                color: red;
+                text-align: center;
+                font-size: 32px;
+                border-bottom: 1px red solid;
+                position: fixed;
+                z-index: 9999;
+                width: 100%;
+                background: #fff;
+                ">Template is not licensed!</div>
+        HTML;
     }
 
     public function initLicenseInfo()
@@ -273,7 +287,7 @@ class LicenseModulesTemplates
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
 
@@ -292,7 +306,7 @@ class LicenseModulesTemplates
 
         $result = json_decode($result);
         if (json_last_error() === JSON_ERROR_NONE) {
-            if (!$result->success) {
+            if (!property_exists($result, 'success') || !$result->success) {
                 return false;
             }
             return $result;

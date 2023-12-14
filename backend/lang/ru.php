@@ -1629,3 +1629,4 @@ $lang['module_access_expire_plural_5'] = 'дней';
 $lang['module_access_expired'] = 'Доступ до обновлений модуля закончился';
 $lang['module_access_continue_access'] = 'Продлить доступ';
 $lang['settings_general_email_module'] = 'E-mail, указанный при покупке модуля';
+$lang['template_is_not_licensed'] = 'У вас установлен официальный шаблон с маркетплейса OkayCMS, но, к сожалению, мы не нашли лицензии данного шаблона для вашего домена.';

@@ -27,11 +27,16 @@ class Module
     const COMMON_MODULE_DIRECTORY = 'Okay/Modules/';
 
     protected LoggerInterface $logger;
+    protected LicenseModulesTemplates $licenseModulesTemplates;
     protected array $modulesExpires;
 
-    public function __construct(LoggerInterface $logger, BackendModulesHelper $modulesHelper)
-    {
+    public function __construct(
+        LoggerInterface $logger,
+        BackendModulesHelper $modulesHelper,
+        LicenseModulesTemplates $licenseModulesTemplates
+    ) {
         $this->logger = $logger;
+        $this->licenseModulesTemplates = $licenseModulesTemplates;
         $this->modulesExpires = $modulesHelper->getModulesAccessExpiresFromCache();
     }
 
@@ -91,6 +96,14 @@ class Module
             $moduleParamsDTO->setAddToCartUrl($moduleExpireInfo->addToCartUrl);
         }
         $moduleParamsDTO->setMathVersion($this->getMathVersion($moduleParamsDTO->getVersion()));
+
+        $moduleParamsDTO->setIsOfficial(
+            $this->licenseModulesTemplates->isOfficialModule($vendor, $moduleName)
+        );
+
+        $moduleParamsDTO->setIsLicensed(
+            $this->licenseModulesTemplates->isLicensedModule($vendor, $moduleName)
+        );
 
         return $moduleParamsDTO;
     }
