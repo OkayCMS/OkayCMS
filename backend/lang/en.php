@@ -1622,3 +1622,11 @@ $lang['license_text_all'] = '1. Software products developed for the OkayCMS fram
 
 10. Termination of this Agreement is allowed in case of deletion of all received files and documentation, as well as their copies. Termination of this Agreement does not oblige the Developer to return the funds spent by the User on the purchase of the Products.
 ';
+$lang['module_access_expire_days'] = 'Access to module updates expires in';
+$lang['module_access_expire_today'] = 'Access to module updates expires today';
+$lang['module_access_expire_plural_1'] = 'day';
+$lang['module_access_expire_plural_2'] = 'days';
+$lang['module_access_expire_plural_5'] = 'days';
+$lang['module_access_expired'] = 'Access to module updates has expired';
+$lang['module_access_continue_access'] = 'Continue access';
+$lang['category_on_main'] = 'Show on main';
