@@ -4,6 +4,7 @@
 namespace Okay\Modules\OkayCMS\Banners\Init;
 
 
+use Okay\Core\EntityFactory;
 use Okay\Core\Modules\AbstractInit;
 use Okay\Core\Modules\EntityField;
 use Okay\Core\QueryFactory;
@@ -14,6 +15,7 @@ use Okay\Helpers\MetadataHelpers\CategoryMetadataHelper;
 use Okay\Helpers\MetadataHelpers\CommonMetadataHelper;
 use Okay\Helpers\MetadataHelpers\PostMetadataHelper;
 use Okay\Helpers\MetadataHelpers\ProductMetadataHelper;
+use Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO;
 use Okay\Modules\OkayCMS\Banners\Entities\BannersEntity;
 use Okay\Modules\OkayCMS\Banners\Entities\BannersImagesEntity;
 use Okay\Modules\OkayCMS\Banners\Extenders\FrontExtender;
@@ -161,5 +163,38 @@ class Init extends AbstractInit
         
         $this->migrateEntityField(BannersImagesEntity::class, (new EntityField('is_lang_banner'))->setTypeTinyInt(1, true)->setDefault(1));
         
+    }
+
+    public function update_1_1_0()
+    {
+        $this->migrateEntityField(
+            BannersImagesEntity::class,
+            (new EntityField('image_mobile'))
+                ->setTypeVarchar(255)
+                ->setIsLang()
+                ->setDefault('')
+        );
+        $SL = ServiceLocator::getInstance();
+
+        $entityFactory = $SL->getService(EntityFactory::class);
+        $bannersImagesEntity = $entityFactory->get(BannersImagesEntity::class);
+
+        $bannersImages = $bannersImagesEntity->noLimit()->find();
+
+        foreach ($bannersImages as $bannerImage) {
+            $settings = unserialize($bannerImage->settings);
+            if (is_array($settings)) {
+                $slideSettingsDTO = new SlideSettingsDTO();
+                $slideSettingsDTO->setDesktopWidth((int)($settings['desktop']['w'] ?? SlideSettingsDTO::DEFAULT_DESKTOP_W));
+                $slideSettingsDTO->setDesktopHeight((int)($settings['desktop']['h'] ?? SlideSettingsDTO::DEFAULT_DESKTOP_H));
+                $slideSettingsDTO->setMobileWidth((int)($settings['mobile']['w'] ?? SlideSettingsDTO::DEFAULT_MOBILE_W));
+                $slideSettingsDTO->setMobileHeight((int)($settings['mobile']['h'] ?? SlideSettingsDTO::DEFAULT_MOBILE_H));
+                $slideSettingsDTO->setVariantShow($settings['variant_show'] ?? SlideSettingsDTO::SHOW_DEFAULT);
+
+                $bannersImagesEntity->update($bannerImage->id, [
+                    'settings' => serialize($slideSettingsDTO),
+                ]);
+            }
+        }
     }
 }

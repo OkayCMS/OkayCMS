@@ -73,3 +73,4 @@ $lang['admintooltip_add_banner'] = 'Add banner';
 $lang['admintooltip_edit_slide'] = 'Change banner image';
 $lang['admintooltip_add_slide'] = 'Add banner image';
 $lang['banner_image_is_lang_banner'] = 'Multilingual banner';
+$lang['banners_image_on_mobile'] = 'on mobile';

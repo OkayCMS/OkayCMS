@@ -10,13 +10,13 @@
                         <div class="banner_advantages__icon d-flex align-items-center justify-content-center">
                             <picture>
                                 {if $settings->support_webp}
-                                    <source type="image/webp" srcset="{$bi->image|resize:$bi->settings.mobile.w:$bi->settings.mobile.h:false:$config->resized_banners_images_dir|webp}" media="(max-width: 767px)">
-                                    <source type="image/webp" srcset="{$bi->image|resize:$bi->settings.desktop.w:$bi->settings.desktop.h:false:$config->resized_banners_images_dir:center:center|webp}">
+                                    <source type="image/webp" srcset="{$bi->image|resize:$bi->settings->getMobileWidth():$bi->settings->getMobileHeight():false:$config->resized_banners_images_dir|webp}" media="(max-width: 767px)">
+                                    <source type="image/webp" srcset="{$bi->image|resize:$bi->settings->getDesktopWidth():$bi->settings->getDesktopHeight():false:$config->resized_banners_images_dir:center:center|webp}">
                                 {/if}
-                                <source type="image/jpg" srcset="{$bi->image|resize:$bi->settings.mobile.w:$bi->settings.mobile.h:false:$config->resized_banners_images_dir}" media="(max-width: 767px)">
-                                <source type="image/jpg" srcset="{$bi->image|resize:$bi->settings.desktop.w:$bi->settings.desktop.h:false:$config->resized_banners_images_dir:center:center}">
-                                    
-                                <img src="{$bi->image|resize:$bi->settings.desktop.w:$bi->settings.desktop.h:false:$config->resized_banners_images_dir:center:center}" data-src-retina="{$bi->image|resize:$bi->settings.desktop.w:$bi->settings.desktop.h:false:$config->resized_banners_images_dir:center:center}" alt="{$bi->alt|escape}" title="{$bi->title|escape}"/>
+                                <source type="image/jpg" srcset="{$bi->image|resize:$bi->settings->getMobileWidth():$bi->settings->getMobileHeight():false:$config->resized_banners_images_dir}" media="(max-width: 767px)">
+                                <source type="image/jpg" srcset="{$bi->image|resize:$bi->settings->getDesktopWidth():$bi->settings->getDesktopHeight():false:$config->resized_banners_images_dir:center:center}">
+
+                                <img src="{$bi->image|resize:$bi->settings->getDesktopWidth():$bi->settings->getDesktopHeight():false:$config->resized_banners_images_dir:center:center}" data-src-retina="{$bi->image|resize:$bi->settings->getDesktopWidth():$bi->settings->getDesktopHeight():false:$config->resized_banners_images_dir:center:center}" alt="{$bi->alt|escape}" title="{$bi->title|escape}"/>
                             </picture>
                         </div>
                         {if $bi->title}
@@ -35,14 +35,26 @@
     <div class="fn_banner_{$banner_data->group_name|escape} banner_group banner_group--{$banner_data->id}  {if $banner_data->settings.as_slider}swiper-container{/if}">
         {if $banner_data->settings.as_slider}<div class="swiper-wrapper">{/if}
             {foreach $banner_data->items as $bi}
-                {if $bi->settings.variant_show == Okay\Modules\OkayCMS\Banners\Entities\BannersImagesEntity::SHOW_DEFAULT}
-                <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant1" data-slide="{$banner_data->id}:{$bi->id}">
-                {elseif $bi->settings.variant_show == Okay\Modules\OkayCMS\Banners\Entities\BannersImagesEntity::SHOW_DARK}
-                <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant2" data-slide="{$banner_data->id}:{$bi->id}">
-                {elseif $bi->settings.variant_show == Okay\Modules\OkayCMS\Banners\Entities\BannersImagesEntity::SHOW_IMAGE_LEFT}
-                <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant3" data-slide="{$banner_data->id}:{$bi->id}">
-                {elseif $bi->settings.variant_show == Okay\Modules\OkayCMS\Banners\Entities\BannersImagesEntity::SHOW_IMAGE_RIGHT}
-                <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant4" data-slide="{$banner_data->id}:{$bi->id}">
+                {if $is_mobile && $bi->image_mobile}
+                    {if $bi->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_DEFAULT}
+                    <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant1" data-slide="{$banner_data->id}:{$bi->id}">
+                    {elseif $bi->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_DARK}
+                    <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant2" data-slide="{$banner_data->id}:{$bi->id}">
+                    {elseif $bi->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_IMAGE_LEFT}
+                    <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant3" data-slide="{$banner_data->id}:{$bi->id}">
+                    {elseif $bi->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_IMAGE_RIGHT}
+                    <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant4" data-slide="{$banner_data->id}:{$bi->id}">
+                    {/if}
+                {else}
+                    {if $bi->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_DEFAULT}
+                    <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant1" data-slide="{$banner_data->id}:{$bi->id}">
+                    {elseif $bi->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_DARK}
+                    <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant2" data-slide="{$banner_data->id}:{$bi->id}">
+                    {elseif $bi->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_IMAGE_LEFT}
+                    <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant3" data-slide="{$banner_data->id}:{$bi->id}">
+                    {elseif $bi->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_IMAGE_RIGHT}
+                    <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant4" data-slide="{$banner_data->id}:{$bi->id}">
+                    {/if}
                 {/if}
                     {if $bi->url}
                     <a class="banner_group__link" aria-label="{$bi->title|escape}" href="{$bi->url|escape}" target="_blank"></a>
@@ -50,13 +62,13 @@
                     <div class="banner_group__image">
                         <picture>
                             {if $settings->support_webp}
-                                <source type="image/webp" srcset="{$bi->image|resize:$bi->settings.mobile.w:$bi->settings.mobile.h:false:$config->resized_banners_images_dir|webp}" media="(max-width: 767px)">
-                                <source type="image/webp" srcset="{$bi->image|resize:$bi->settings.desktop.w:$bi->settings.desktop.h:false:$config->resized_banners_images_dir:center:center|webp}">
+                                <source type="image/webp" srcset="{$bi->image|resize:$bi->settings->getMobileWidth():$bi->settings->getMobileHeight():false:$config->resized_banners_images_dir|webp}" media="(max-width: 767px)">
+                                <source type="image/webp" srcset="{$bi->image|resize:$bi->settings->getDesktopWidth():$bi->settings->getDesktopHeight():false:$config->resized_banners_images_dir:center:center|webp}">
                             {/if}
-                            <source type="image/jpg" srcset="{$bi->image|resize:$bi->settings.mobile.w:$bi->settings.mobile.h:false:$config->resized_banners_images_dir}" media="(max-width: 767px)">
-                            <source type="image/jpg" srcset="{$bi->image|resize:$bi->settings.desktop.w:$bi->settings.desktop.h:false:$config->resized_banners_images_dir:center:center}">
-                                
-                            <img src="{$bi->image|resize:$bi->settings.desktop.w:$bi->settings.desktop.h:false:$config->resized_banners_images_dir:center:center}" data-src-retina="{$bi->image|resize:$bi->settings.desktop.w:$bi->settings.desktop.h:false:$config->resized_banners_images_dir:center:center}" alt="{$bi->alt|escape}" title="{$bi->title|escape}"/>
+                            <source type="image/jpg" srcset="{$bi->image|resize:$bi->settings->getMobileWidth():$bi->settings->getMobileHeight():false:$config->resized_banners_images_dir}" media="(max-width: 767px)">
+                            <source type="image/jpg" srcset="{$bi->image|resize:$bi->settings->getDesktopWidth():$bi->settings->getDesktopHeight():false:$config->resized_banners_images_dir:center:center}">
+
+                            <img src="{$bi->image|resize:$bi->settings->getDesktopWidth():$bi->settings->getDesktopHeight():false:$config->resized_banners_images_dir:center:center}" data-src-retina="{$bi->image|resize:$bi->settings->getDesktopWidth():$bi->settings->getDesktopHeight():false:$config->resized_banners_images_dir:center:center}" alt="{$bi->alt|escape}" title="{$bi->title|escape}"/>
                         </picture>
                     </div>
                     <div class="banner_group__content">

@@ -6,6 +6,7 @@ namespace Okay\Modules\OkayCMS\Banners\Requests;
 
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Request;
+use Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO;
 
 class BannersImagesRequest
 {
@@ -31,7 +32,17 @@ class BannersImagesRequest
         $bannersImage->title = $this->request->post('title');
         $bannersImage->alt = $this->request->post('alt');
         $bannersImage->description = $this->request->post('description');
-        $bannersImage->settings = serialize($this->request->post('settings'));
+
+        $settings = $this->request->post('settings');
+        $slideSettingsDTO = new SlideSettingsDTO();
+        $slideSettingsDTO->setDesktopWidth((int)($settings['desktop_width'] ?? 0));
+        $slideSettingsDTO->setDesktopHeight((int)($settings['desktop_height'] ?? 0));
+        $slideSettingsDTO->setMobileWidth((int)($settings['mobile_width'] ?? 0));
+        $slideSettingsDTO->setMobileHeight((int)($settings['mobile_height'] ?? 0));
+        $slideSettingsDTO->setVariantShow($settings['variant_show'] ?? '');
+        $slideSettingsDTO->setMobileVariantShow($settings['mobile_variant_show'] ?? null);
+
+        $bannersImage->settings = serialize($slideSettingsDTO);
 
         return ExtenderFacade::execute(__METHOD__, $bannersImage, func_get_args());
     }
@@ -45,6 +56,12 @@ class BannersImagesRequest
     public function fileImage()
     {
         $image = $this->request->files('image');
+        return ExtenderFacade::execute(__METHOD__, $image, func_get_args());
+    }
+
+    public function mobileFileImage()
+    {
+        $image = $this->request->files('image_mobile');
         return ExtenderFacade::execute(__METHOD__, $image, func_get_args());
     }
     
