@@ -273,7 +273,8 @@ class BackendSettingsHelper
         $this->settings->set('public_recaptcha_v3', $this->request->post('public_recaptcha_v3'));
         $this->settings->set('secret_recaptcha_v3', $this->request->post('secret_recaptcha_v3'));
 
-        if (!empty($this->request->post('email_for_module')) && $this->settings->get('email_for_module') != $this->request->post('email_for_module')){
+        if (!empty($this->request->post('email_for_module')) && $this->settings->get('email_for_module') != $this->request->post('email_for_module')
+            || empty($this->request->post('email_for_module'))){
             $this->licenseModulesTemplates->updateLicenseInfo();
         }
         $this->settings->set('email_for_module', $this->request->post('email_for_module'));
