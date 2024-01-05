@@ -78,11 +78,10 @@
                     </div>
                     <div class="okay_list_heading okay_list_photo">{$btr->general_photo|escape}</div>
                     <div class="okay_list_heading okay_list_module_name">{$btr->general_name|escape}</div>
-                    <div class="okay_list_heading okay_list_module_expire hidden-md-down"></div>
+                    <div class="okay_list_heading okay_list_module_license_status hidden-md-down">{$btr->general_status|escape}</div>
                     <div class="okay_list_heading okay_list_module_version hidden-md-down">{$btr->module_version|escape}</div>
-                    <div class="okay_list_heading okay_list_module_type hidden-md-down">{$btr->module_type|escape}</div>
                     <div class="okay_list_heading okay_list_status">{$btr->general_enable|escape}</div>
-                    <div class="okay_list_heading okay_list_setting okay_list_products_setting">{$btr->modules_files|escape}</div>
+                    <div class="okay_list_heading okay_list_setting okay_list_products_setting">{$btr->general_activities|escape}</div>
                     <div class="okay_list_heading okay_list_close"></div>
                 </div>
 
@@ -162,6 +161,17 @@
             }
         });
     });
+    $(document).on("click", ".fn_switch", function (e) {
+    e.preventDefault();
+
+    $(this).next().slideToggle(300);
+
+    if ($(this).hasClass("active")) {
+      $(this).removeClass("active");
+    } else {
+      $(this).addClass("active");
+    }
+  });
     $(document).on('click', '.fn_continue_access', function () {
         let destination = $(this).data('target')
             + '?cite_return_url={urlencode($rootUrl)}{urlencode($smarty.server.REQUEST_URI)}'

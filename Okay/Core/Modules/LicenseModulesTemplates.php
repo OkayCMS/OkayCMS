@@ -156,14 +156,22 @@ class LicenseModulesTemplates
     {
         return <<<HTML
             <div style="
-                color: red;
+                color: #fff;
                 text-align: center;
-                font-size: 32px;
-                border-bottom: 1px red solid;
+                font-size: 18px;
+                font-weight:500;
+                transform: rotate(90deg);
+                border-radius:6px 6px 0 0;
                 position: fixed;
-                z-index: 9999;
-                width: 100%;
-                background: #fff;
+                z-index: 999999;
+                padding:5px 20px;
+                top:375px;
+                left:-105px;
+                min-width: 245px;
+                height: 38px;
+                white-space:nowrap;
+                background: #f1416c;
+                pointer-events: none;
                 ">Template is not licensed!</div>
         HTML;
     }
