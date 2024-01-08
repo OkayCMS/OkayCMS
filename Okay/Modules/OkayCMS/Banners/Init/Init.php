@@ -15,7 +15,8 @@ use Okay\Helpers\MetadataHelpers\CategoryMetadataHelper;
 use Okay\Helpers\MetadataHelpers\CommonMetadataHelper;
 use Okay\Helpers\MetadataHelpers\PostMetadataHelper;
 use Okay\Helpers\MetadataHelpers\ProductMetadataHelper;
-use Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO;
+use Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO;
+use Okay\Modules\OkayCMS\Banners\DTO\BannerSettingsDTO;
 use Okay\Modules\OkayCMS\Banners\Entities\BannersEntity;
 use Okay\Modules\OkayCMS\Banners\Entities\BannersImagesEntity;
 use Okay\Modules\OkayCMS\Banners\Extenders\FrontExtender;
@@ -177,22 +178,41 @@ class Init extends AbstractInit
         $SL = ServiceLocator::getInstance();
 
         $entityFactory = $SL->getService(EntityFactory::class);
+        $bannersEntity = $entityFactory->get(BannersEntity::class);
         $bannersImagesEntity = $entityFactory->get(BannersImagesEntity::class);
 
+        $banners = $bannersEntity->noLimit()->find();
         $bannersImages = $bannersImagesEntity->noLimit()->find();
+
+        foreach ($banners as $banner) {
+            $settings = unserialize($banner->settings);
+            if (is_array($settings)) {
+                $bannerSettingsDTO = new BannerSettingsDTO();
+                $bannerSettingsDTO->setAsSlider((bool)($settings['as_slider'] ?? true));
+                $bannerSettingsDTO->setAutoplay((bool)($settings['autoplay'] ?? true));
+                $bannerSettingsDTO->setLoop((bool)($settings['loop'] ?? false));
+                $bannerSettingsDTO->setNav((bool)($settings['nav'] ?? false));
+                $bannerSettingsDTO->setDots((bool)($settings['dots'] ?? false));
+                $bannerSettingsDTO->setRotationSpeed((int)($settings['rotation_speed'] ?? BannerSettingsDTO::DEFAULT_ROTATION_SPEED));
+
+                $bannersEntity->update($banner->id, [
+                    'settings' => serialize($bannerSettingsDTO),
+                ]);
+            }
+        }
 
         foreach ($bannersImages as $bannerImage) {
             $settings = unserialize($bannerImage->settings);
             if (is_array($settings)) {
-                $slideSettingsDTO = new SlideSettingsDTO();
-                $slideSettingsDTO->setDesktopWidth((int)($settings['desktop']['w'] ?? SlideSettingsDTO::DEFAULT_DESKTOP_W));
-                $slideSettingsDTO->setDesktopHeight((int)($settings['desktop']['h'] ?? SlideSettingsDTO::DEFAULT_DESKTOP_H));
-                $slideSettingsDTO->setMobileWidth((int)($settings['mobile']['w'] ?? SlideSettingsDTO::DEFAULT_MOBILE_W));
-                $slideSettingsDTO->setMobileHeight((int)($settings['mobile']['h'] ?? SlideSettingsDTO::DEFAULT_MOBILE_H));
-                $slideSettingsDTO->setVariantShow($settings['variant_show'] ?? SlideSettingsDTO::SHOW_DEFAULT);
+                $bannerImageSettingsDTO = new BannerImageSettingsDTO();
+                $bannerImageSettingsDTO->setDesktopWidth((int)($settings['desktop']['w'] ?? BannerImageSettingsDTO::DEFAULT_DESKTOP_W));
+                $bannerImageSettingsDTO->setDesktopHeight((int)($settings['desktop']['h'] ?? BannerImageSettingsDTO::DEFAULT_DESKTOP_H));
+                $bannerImageSettingsDTO->setMobileWidth((int)($settings['mobile']['w'] ?? BannerImageSettingsDTO::DEFAULT_MOBILE_W));
+                $bannerImageSettingsDTO->setMobileHeight((int)($settings['mobile']['h'] ?? BannerImageSettingsDTO::DEFAULT_MOBILE_H));
+                $bannerImageSettingsDTO->setVariantShow($settings['variant_show'] ?? BannerImageSettingsDTO::SHOW_DEFAULT);
 
                 $bannersImagesEntity->update($bannerImage->id, [
-                    'settings' => serialize($slideSettingsDTO),
+                    'settings' => serialize($bannerImageSettingsDTO),
                 ]);
             }
         }

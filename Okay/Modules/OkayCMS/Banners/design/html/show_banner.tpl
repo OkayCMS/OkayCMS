@@ -32,27 +32,27 @@
         </div>
     </div>
 {else}
-    <div class="fn_banner_{$banner_data->group_name|escape} banner_group banner_group--{$banner_data->id}  {if $banner_data->settings.as_slider}swiper-container{/if}">
-        {if $banner_data->settings.as_slider}<div class="swiper-wrapper">{/if}
+    <div class="fn_banner_{$banner_data->group_name|escape} banner_group banner_group--{$banner_data->id}  {if $banner_data->settings->isAsSlider()}swiper-container{/if}">
+        {if $banner_data->settings->isAsSlider()}<div class="swiper-wrapper">{/if}
             {foreach $banner_data->items as $bi}
                 {if $is_mobile && $bi->image_mobile}
-                    {if $bi->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_DEFAULT}
+                    {if $bi->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_DEFAULT}
                     <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant1" data-slide="{$banner_data->id}:{$bi->id}">
-                    {elseif $bi->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_DARK}
+                    {elseif $bi->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_DARK}
                     <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant2" data-slide="{$banner_data->id}:{$bi->id}">
-                    {elseif $bi->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_IMAGE_LEFT}
+                    {elseif $bi->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_IMAGE_LEFT}
                     <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant3" data-slide="{$banner_data->id}:{$bi->id}">
-                    {elseif $bi->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_IMAGE_RIGHT}
+                    {elseif $bi->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_IMAGE_RIGHT}
                     <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant4" data-slide="{$banner_data->id}:{$bi->id}">
                     {/if}
                 {else}
-                    {if $bi->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_DEFAULT}
+                    {if $bi->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_DEFAULT}
                     <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant1" data-slide="{$banner_data->id}:{$bi->id}">
-                    {elseif $bi->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_DARK}
+                    {elseif $bi->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_DARK}
                     <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant2" data-slide="{$banner_data->id}:{$bi->id}">
-                    {elseif $bi->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_IMAGE_LEFT}
+                    {elseif $bi->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_IMAGE_LEFT}
                     <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant3" data-slide="{$banner_data->id}:{$bi->id}">
-                    {elseif $bi->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_IMAGE_RIGHT}
+                    {elseif $bi->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_IMAGE_RIGHT}
                     <div class="banner_group__item swiper-slide block--border banner_group-{$banner_data->id}_id-{$bi->id} banner_group__variant4" data-slide="{$banner_data->id}:{$bi->id}">
                     {/if}
                 {/if}
@@ -84,38 +84,38 @@
                     </div>
                 </div>
             {/foreach}
-            {if $banner_data->settings.as_slider}
+            {if $banner_data->settings->isAsSlider()}
             </div>
-            {if isset($banner_data->settings.nav) && !empty($banner_data->settings.nav)}
+            {if $banner_data->settings->isNav()}
                 <div class="swiper-button-next "></div>
                 <div class="swiper-button-prev "></div>
             {/if}
-            {if isset($banner_data->settings.dots) && !empty($banner_data->settings.dots)}
+            {if $banner_data->settings->isDots()}
                 <div class="swiper-pagination"></div>
             {/if}
         {/if}
     </div>
 
 
-    {if $banner_data->settings.as_slider}
+    {if $banner_data->settings->isAsSlider()}
     <script>
         document.addEventListener('DOMContentLoaded', function(){
             $('.fn_banner_{$banner_data->group_name|escape}').each(function(){
                 var swiper = new Swiper(this, {
-                loop: {if isset($banner_data->settings.loop) && !empty($banner_data->settings.loop)}true{else}false{/if},
-                {if isset($banner_data->settings.autoplay) && !empty($banner_data->settings.autoplay)}
+                loop: {if $banner_data->settings->isLoop()}true{else}false{/if},
+                {if $banner_data->settings->isAutoplay()}
                     autoplay: {
-                        delay: {if isset($banner_data->settings.rotation_speed) && !empty($banner_data->settings.rotation_speed)}{$banner_data->settings.rotation_speed|intval}{else}2500{/if},
+                        delay: {$banner_data->settings->getRotationSpeed()},
                     },
                 {/if}
-                {if isset($banner_data->settings.nav) && !empty($banner_data->settings.nav)}
+                {if $banner_data->settings->isNav()}
                     navigation: {
                         nextEl: this.querySelector('.swiper-button-next'),
                         prevEl: this.querySelector('.swiper-button-prev'),
                     },
                 {/if}
 
-                {if isset($banner_data->settings.dots) && !empty($banner_data->settings.dots)}
+                {if $banner_data->settings->isDots()}
                 pagination: {
                     el: this.querySelector('.swiper-pagination'),
                     clickable: true,

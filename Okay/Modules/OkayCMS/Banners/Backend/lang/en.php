@@ -74,3 +74,7 @@ $lang['admintooltip_edit_slide'] = 'Change banner image';
 $lang['admintooltip_add_slide'] = 'Add banner image';
 $lang['banner_image_is_lang_banner'] = 'Multilingual banner';
 $lang['banners_image_on_mobile'] = 'on mobile';
+$lang['banners_make_backup'] = 'Download backup';
+$lang['banners_backup_error_unzip'] = 'Error unzipping the archive';
+$lang['banners_backup_error_wrong_config'] = 'The file "%s" is missing or has the wrong format';
+$lang['banners_backup_error_group_already_exists'] = 'Banner group "%s" already exists. Change group ID.';

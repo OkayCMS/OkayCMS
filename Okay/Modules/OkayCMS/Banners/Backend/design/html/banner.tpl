@@ -175,7 +175,7 @@
                         {if $banner->as_individual_shortcode}
                         <p>
                             {$btr->banner_instruction_shortcode_part_1|escape}
-                            <a href=""  class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{${/literal}{$banner->as_individual_shortcode|escape}{literal}}{/literal}</a>
+                            <a href="" class="fn_clipboard hint-bottom-middle-t-info-s-small-mobile" data-hint="Click to copy" data-hint-copied="✔ Copied to clipboard">{literal}{$banner_shortcode_{/literal}{$banner->group_name|escape}{literal}}{/literal}</a>
                             {$btr->banner_instruction_shortcode_part_2|escape}
                         </p>
                         <p>{$btr->banner_instruction_shortcode_part_3}</p>
@@ -324,7 +324,7 @@
                                 <div class="permission_box">
                                     <span class="switch_label" title="{$btr->banner_settings_as_slider|escape}">{$btr->banner_settings_as_slider|escape}</span>
                                     <label class="switch switch-default">
-                                        <input class="switch-input" name="settings[as_slider]" value='1' type="checkbox" {if (isset($banner->settings.as_slider) && !empty($banner->settings.as_slider)) || !$banner->id}checked=""{/if}/>
+                                        <input class="switch-input" name="settings[asSlider]" value='1' type="checkbox" {if $banner->settings->isAsSlider()}checked=""{/if}/>
                                         <span class="switch-label"></span>
                                         <span class="switch-handle"></span>
                                     </label>
@@ -334,7 +334,7 @@
                                 <div class="permission_box">
                                     <span class="switch_label" title="{$btr->banner_settings_autoplay|escape}">{$btr->banner_settings_autoplay|escape}</span>
                                     <label class="switch switch-default">
-                                        <input class="switch-input" name="settings[autoplay]" value='1' type="checkbox" {if (isset($banner->settings.autoplay) && !empty($banner->settings.autoplay)) || !$banner->id}checked=""{/if}/>
+                                        <input class="switch-input" name="settings[autoplay]" value='1' type="checkbox" {if $banner->settings->isAutoplay()}checked=""{/if}/>
                                         <span class="switch-label"></span>
                                         <span class="switch-handle"></span>
                                     </label>
@@ -344,7 +344,7 @@
                                 <div class="permission_box">
                                     <span class="switch_label" title="{$btr->banner_settings_loop|escape}">{$btr->banner_settings_loop|escape}</span>
                                     <label class="switch switch-default">
-                                        <input class="switch-input" name="settings[loop]" value='1' type="checkbox" {if isset($banner->settings.loop) && !empty($banner->settings.loop)}checked=""{/if}/>
+                                        <input class="switch-input" name="settings[loop]" value='1' type="checkbox" {if $banner->settings->isLoop()}checked=""{/if}/>
                                         <span class="switch-label"></span>
                                         <span class="switch-handle"></span>
                                     </label>
@@ -354,7 +354,7 @@
                                 <div class="permission_box">
                                     <span class="switch_label" title="{$btr->banner_settings_nav|escape}">{$btr->banner_settings_nav|escape}</span>
                                     <label class="switch switch-default">
-                                        <input class="switch-input" name="settings[nav]" value='1' type="checkbox" {if isset($banner->settings.nav) && !empty($banner->settings.nav)}checked=""{/if}/>
+                                        <input class="switch-input" name="settings[nav]" value='1' type="checkbox" {if $banner->settings->isNav()}checked=""{/if}/>
                                         <span class="switch-label"></span>
                                         <span class="switch-handle"></span>
                                     </label>
@@ -364,7 +364,7 @@
                                 <div class="permission_box">
                                     <span class="switch_label" title="{$btr->banner_settings_dots|escape}">{$btr->banner_settings_dots|escape}</span>
                                     <label class="switch switch-default">
-                                        <input class="switch-input" name="settings[dots]" value='1' type="checkbox" {if isset($banner->settings.dots) && !empty($banner->settings.dots)}checked=""{/if}/>
+                                        <input class="switch-input" name="settings[dots]" value='1' type="checkbox" {if $banner->settings->isDots()}checked=""{/if}/>
                                         <span class="switch-label"></span>
                                         <span class="switch-handle"></span>
                                     </label>
@@ -376,8 +376,8 @@
                                     <i class="fn_tooltips" title="{$btr->banner_settings_rotation_speed_title|escape}">
                                         {include file='svg_icon.tpl' svgId='icon_tooltips'}
                                     </i>
-                                    <input class="form-control" style="width: 80px;margin-left: 10px" name="settings[rotation_speed]" type="text" pattern="^[0-9]+$" required
-                                           value="{if isset($banner->settings.rotation_speed) && !empty($banner->settings.rotation_speed)}{$banner->settings.rotation_speed}{else}2500{/if}" />
+                                    <input class="form-control" style="width: 80px;margin-left: 10px" name="settings[rotationSpeed]" type="text" pattern="^[0-9]+$" required
+                                           value="{$banner->settings->getRotationSpeed()}" />
                                 </div>
                             </div>
                          </div>

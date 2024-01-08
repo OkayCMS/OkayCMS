@@ -2,7 +2,7 @@
 
 namespace Okay\Modules\OkayCMS\Banners\DTO;
 
-class SlideSettingsDTO
+class BannerImageSettingsDTO implements \JsonSerializable
 {
     const SHOW_DEFAULT = 'default';
     const SHOW_DARK = 'dark';
@@ -139,5 +139,20 @@ class SlideSettingsDTO
         if ($mobileHeight) {
             $this->mobileHeight = $mobileHeight;
         }
+    }
+
+    public function jsonSerialize()
+    {
+        return get_object_vars($this);
+    }
+
+    public function fromArray(array $array)
+    {
+        $this->setVariantShow($array['variantShow'] ?? self::SHOW_DEFAULT);
+        $this->setMobileVariantShow($array['mobileVariantShow'] ?? '');
+        $this->setDesktopWidth((int)($array['desktopWidth'] ?? self::DEFAULT_DESKTOP_W));
+        $this->setDesktopHeight((int)($array['desktopHeight'] ?? self::DEFAULT_DESKTOP_H));
+        $this->setMobileWidth((int)($array['mobileWidth'] ?? self::DEFAULT_MOBILE_W));
+        $this->setMobileHeight((int)($array['mobileHeight'] ?? self::DEFAULT_MOBILE_H));
     }
 }

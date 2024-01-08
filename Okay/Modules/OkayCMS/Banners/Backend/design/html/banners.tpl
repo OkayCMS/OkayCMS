@@ -8,14 +8,41 @@
                 {$btr->banners_groups|escape}
             </div>
             <div class="box_btn_heading">
-                    <a class="btn btn_small btn-info" href="{url controller=[OkayCMS,Banners,BannerAdmin] return=$smarty.server.REQUEST_URI}">
+                <a class="btn btn_small btn-info" href="{url controller=[OkayCMS,Banners,BannerAdmin] return=$smarty.server.REQUEST_URI}">
                     {include file='svg_icon.tpl' svgId='plus'}
                     <span>{$btr->banners_add|escape}</span>
                 </a>
+                <form method="post" enctype="multipart/form-data" style="display: inline;">
+                    <input type=hidden name="session_id" value="{$smarty.session.id}">
+                    <input type="file" name="banners" accept=".zip">
+                    <button type="submit" class="btn btn_small btn_blue">
+                        {include file='svg_icon.tpl' svgId='backup'}
+                        <span>{$btr->general_apply|escape}</span>
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
+{if $restore_backup_errors}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="alert alert--center alert--icon alert--error">
+                <div class="alert__content">
+                    <div class="alert__title">
+                        {foreach $restore_backup_errors as $restore_backup_error_VO}
+                            {vsprintf(
+                                $btr->getTranslation($restore_backup_error_VO->getErrorLangDirective()),
+                                $restore_backup_error_VO->getErrorTextParams()
+                            )}
+                        {/foreach}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{/if}
 
 {*Главная форма страницы*}
 <div class="boxed fn_toggle_wrap">
@@ -129,6 +156,7 @@
                                     <option value="enable">{$btr->general_do_enable|escape}</option>
                                     <option value="disable">{$btr->general_do_disable|escape}</option>
                                     <option value="delete">{$btr->general_delete|escape}</option>
+                                    <option value="backup">{$btr->banners_make_backup|escape}</option>
                                 </select>
                             </div>
                         </div>

@@ -16,6 +16,7 @@ use Okay\Core\OkayContainer\Reference\ServiceReference as SR;
 use Okay\Core\QueryFactory;
 use Okay\Core\Request;
 use Okay\Modules\OkayCMS\Banners\Extenders\FrontExtender;
+use Okay\Modules\OkayCMS\Banners\Helpers\BannersBackupHelper;
 use Okay\Modules\OkayCMS\Banners\Helpers\BannersHelper;
 use Okay\Modules\OkayCMS\Banners\Helpers\BannersImagesHelper;
 use Okay\Modules\OkayCMS\Banners\Requests\BannersImagesRequest;
@@ -62,6 +63,14 @@ return [
             new SR(Request::class),
             new SR(Design::class),
             new SR(Config::class),
+        ],
+    ],
+    BannersBackupHelper::class => [
+        'class' => BannersBackupHelper::class,
+        'arguments' => [
+            new SR(EntityFactory::class),
+            new SR(Languages::class),
+            new PR('banners.imagesDir'),
         ],
     ],
 ];

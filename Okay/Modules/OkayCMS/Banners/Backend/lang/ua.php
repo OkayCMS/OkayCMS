@@ -71,3 +71,7 @@ $lang['admintooltip_edit_slide'] = 'Змінити зображення бане
 $lang['admintooltip_add_slide'] = 'Додати зображення банера';
 $lang['banner_image_is_lang_banner'] = 'Багатомовний банер';
 $lang['banners_image_on_mobile'] = 'на мобільному';
+$lang['banners_make_backup'] = 'Скачати резервну копію';
+$lang['banners_backup_error_unzip'] = 'Помилка при розпаковці архіва';
+$lang['banners_backup_error_wrong_config'] = 'Файл "%s" відсутній або має невірний формат';
+$lang['banners_backup_error_group_already_exists'] = 'Група банерів "%s" вже існує. Змініть ID групи.';
