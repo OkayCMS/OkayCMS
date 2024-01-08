@@ -156,23 +156,27 @@ class LicenseModulesTemplates
     {
         return <<<HTML
             <div style="
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family:arial;
                 color: #fff;
                 text-align: center;
                 font-size: 18px;
-                font-weight:500;
+                line-height: 1;
+                font-weight:400;
                 transform: rotate(90deg);
                 border-radius:6px 6px 0 0;
                 position: fixed;
                 z-index: 999999;
-                padding:5px 20px;
-                top:375px;
-                left:-105px;
-                min-width: 245px;
+                top: 364px;
+                left: -94px;
+                width: 224px;
                 height: 38px;
                 white-space:nowrap;
                 background: #f1416c;
                 pointer-events: none;
-                ">Template is not licensed!</div>
+                ">Template is not verified!</div>
         HTML;
     }
 

@@ -4363,9 +4363,14 @@ label.switch_label i{
     height: 26px;
     width: 16px;
 }
+.okay_list_setting .setting_icon_extension{
+    background: #e88100;
+    border-color: #e88100;
+    color: #fff;
+}
 .okay_list_setting .setting_icon_extension:hover{
-    background: #7239EA;
-    border-color: #7239EA;
+    background: #cf7402;
+    border-color: #cf7402;
     color: #fff;
 }
 
@@ -4376,8 +4381,8 @@ label.switch_label i{
     width: 17px;
 }
 .okay_list_setting .setting_icon_setting:hover{
-    background: #F6C000;
-    border-color: #F6C000;
+    background: #7239EA;
+    border-color: #7239EA;
     color: #fff
 }
 .okay_list_setting .setting_icon_files:hover{
@@ -4390,7 +4395,6 @@ label.switch_label i{
     border-color: #ffc700;
     color: #fff
 }
-
 
 
 
