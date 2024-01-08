@@ -1,5 +1,8 @@
 <!-- The main page template -->
 
+{* Top categories *}
+{include "top_categories.tpl"}
+
 {* Featured products *}
 {get_featured_products var=featured_products limit=5}
 {if $featured_products}
