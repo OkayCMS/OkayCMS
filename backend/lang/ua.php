@@ -1629,4 +1629,5 @@ $lang['module_access_expire_plural_2'] = 'дні';
 $lang['module_access_expire_plural_5'] = 'днів';
 $lang['module_access_expired'] = 'Доступ до оновлень модуля закінчився';
 $lang['module_access_continue_access'] = 'Продовжити доступ';
-$lang['category_on_main'] = 'Виводити на головній';
+$lang['category_on_main'] = 'Популярна категорія';
+$lang['tooltip_category_on_main'] = 'Відображення на сайті як Популярна категорія';

@@ -3,7 +3,7 @@
     <div class="block block--boxed block--border">
         <div class="block__header block__header--promo">
             <div class="block__title">
-                <span data-language="main_news">Популярные категории{*$lang->main_news*}</span>
+                <span data-language="main_popular_categories">{$lang->main_popular_categories}</span>
             </div>
         </div>
 
@@ -14,7 +14,7 @@
                     {foreach $categories as $c}
                         {if $c->visible &&  ($c->has_products || $settings->show_empty_categories)}
                         {if $c->on_main}
-                            <div class="top_categories__item f_col-4 f_col-md-2 f_col-lg-4 f_col-xl-2">
+                            <div class="top_categories__item f_col-6 f_col-md-4 f_col-xl-2">
                                 <a class="top_categories__preview d-flex align-items-center flex-column" href="{url_generator route='category' url=$c->url}">
                                     <div class="top_categories__image d-flex align-items-center justify-content-center">
                                         {if $c->image}
@@ -30,9 +30,9 @@
                                             </picture>
                                             {/if}
                                         {else}
-                                        <div class="top_categories__no_image d-flex align-items-center justify-content-center" title="{$c->name|escape}">
-                                            {include file="svg.tpl" svgId="no_image"}
-                                        </div>
+                                            <div class="top_categories__no_image d-flex align-items-center justify-content-center" title="{$c->name|escape}">
+                                                {include file="svg.tpl" svgId="no_image"}
+                                            </div>
                                         {/if}
                                     </div>
                                     <div class="top_categories__name">

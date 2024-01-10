@@ -1834,7 +1834,7 @@ a.filter__catalog_link svg {
   height: 100%;
   border: 1px solid #dbdbdb;
   box-shadow: 0 0 0 #0000001a,0 0 0 #0000001a,0 0 0 #0000001a;
-  padding: 20px 10px;
+  padding: 10px 10px;
   position: relative;
   transition: .3s;
   width: 100%;
@@ -1855,23 +1855,18 @@ a.filter__catalog_link svg {
   height: 50px;
   flex-shrink: 0;
 }
-.top_categories__image img {
-
-}
 .banner_advantages__icon svg{
   width: 50px;
   height: 50px;
   color: var(--okay-basic-company);
 }
-.top_categories__no_image{
-
-}
 .top_categories__name{
   text-align: center;
-  color: #222; 
+  color: var(--okay-body-text);
   font-size: 14px;
   font-weight: 500;
   width: 100%;
+  transition: .3s;
 }
 
 

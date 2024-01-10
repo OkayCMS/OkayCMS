@@ -1,8 +1,5 @@
 <!-- The main page template -->
 
-{* Top categories *}
-{include "top_categories.tpl"}
-
 {* Featured products *}
 {get_featured_products var=featured_products limit=5}
 {if $featured_products}
@@ -31,6 +28,9 @@
         </div>
     </div>
 {/if}
+
+{* Top categories *}
+{include "top_categories.tpl"}
 
 {* New products *}
 {get_new_products var=new_products limit=5}

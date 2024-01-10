@@ -1629,4 +1629,5 @@ $lang['module_access_expire_plural_2'] = 'days';
 $lang['module_access_expire_plural_5'] = 'days';
 $lang['module_access_expired'] = 'Access to module updates has expired';
 $lang['module_access_continue_access'] = 'Continue access';
-$lang['category_on_main'] = 'Show on main';
+$lang['category_on_main'] = 'Popular category';
+$lang['tooltip_category_on_main'] = 'Display on the website as Popular Category';
