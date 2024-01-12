@@ -3,23 +3,24 @@
 {*Название страницы*}
 <div class="row">
     <div class="col-lg-12 col-md-12">
-        <div class="wrap_heading">
-            <div class="box_heading heading_page">
-                {$btr->banners_groups|escape}
+        <div class="wrap_heading main_header">
+            <div class="main_header__item">
+                <div class="box_heading heading_page">
+                    {$btr->banners_groups|escape}
+                </div>
+                <div class="box_btn_heading">
+                    <a class="btn btn_small btn-info" href="{url controller=[OkayCMS,Banners,BannerAdmin] return=$smarty.server.REQUEST_URI}">
+                        {include file='svg_icon.tpl' svgId='plus'}
+                        <span>{$btr->banners_add|escape}</span>
+                    </a>
+                </div>
             </div>
-            <div class="box_btn_heading">
-                <a class="btn btn_small btn-info" href="{url controller=[OkayCMS,Banners,BannerAdmin] return=$smarty.server.REQUEST_URI}">
-                    {include file='svg_icon.tpl' svgId='plus'}
-                    <span>{$btr->banners_add|escape}</span>
+            
+            <div class="main_header__item hidden-md-down">
+                <a class="fn_import_banner_open btn btn_blue btn_small add" href="#fn_import_banner">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5"/></svg>                     
+                    <span>{$btr->banners_import_button|escape}</span>
                 </a>
-                <form method="post" enctype="multipart/form-data" style="display: inline;">
-                    <input type=hidden name="session_id" value="{$smarty.session.id}">
-                    <input type="file" name="banners" accept=".zip">
-                    <button type="submit" class="btn btn_small btn_blue">
-                        {include file='svg_icon.tpl' svgId='backup'}
-                        <span>{$btr->general_apply|escape}</span>
-                    </button>
-                </form>
             </div>
         </div>
     </div>
@@ -179,4 +180,36 @@
         </div>
     {/if}
 </div>
+
+
+
+<div id="fn_import_banner" class="popup" style="display: none;">
+    <form method="post" enctype="multipart/form-data" class="popup__content">
+        <div class="popup__header">
+            <div class="popup__title">
+                <span data-language="callback_header">{$btr->banners_modal_title|escape}</span>
+            </div>
+        </div>
+        <div class="popup__body">
+            <p>{$btr->banners_modal_text1|escape}</p>
+            <div class="upload_file">
+                <input type=hidden name="session_id" value="{$smarty.session.id}">
+                <input type="file" name="banners" accept=".zip" title="{$btr->input_upload_title|escape}">
+            </div>
+            <span class="upload_file__note">{$btr->banners_modal_text2|escape}</span>
+        </div>
+        <div class="popup__footer">
+            <button type="submit" class="btn btn_small btn_blue add">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5"/></svg>                    
+                <span>{$btr->banners_upload_button|escape}</span>
+            </button>
+        </div>
+    </form>
+</div>
+
+{literal}
+<script>
+    $(".fn_import_banner_open").fancybox();
+</script>
+{/literal}
 
