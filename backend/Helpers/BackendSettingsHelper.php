@@ -275,6 +275,7 @@ class BackendSettingsHelper
 
         if (!empty($this->request->post('email_for_module')) && $this->settings->get('email_for_module') != $this->request->post('email_for_module')
             || empty($this->request->post('email_for_module'))){
+            $this->licenseModulesTemplates->setLicenseEmail($this->request->post('email_for_module'));
             $this->licenseModulesTemplates->updateLicenseInfo();
         }
         $this->settings->set('email_for_module', $this->request->post('email_for_module'));

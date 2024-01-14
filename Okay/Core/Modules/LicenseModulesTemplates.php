@@ -92,6 +92,8 @@ class LicenseModulesTemplates
                 $licenseDTO->setIsOfficialTemplate((bool)$response->official_template);
             }
             $this->licenseStorage->saveLicense($licenseDTO);
+            $this->licenseDTO = $licenseDTO;
+
             return $licenseDTO;
         } elseif (($response ?? null) === false) {
             $_SESSION['request_timeout'] = time() + self::REQUEST_TIMEOUT;

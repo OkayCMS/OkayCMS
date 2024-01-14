@@ -1641,3 +1641,7 @@ $lang['module_tooltip_not_licensed'] = 'Модуль не прошел пров�
 $lang['module_learn_more'] = 'Подробнее';
 $lang['module_unavailable'] = 'Не доступно';
 $lang['module_action_setting'] = 'Настройки модуля';
+$lang['modules_license_info_title'] = 'Важное уведомление о статусе ваших официальных модулей на OkayCms';
+$lang['modules_license_important'] = 'Важно!';
+$lang['modules_license_info_title_1'] = '<p>Тут будет инструкция нелицензионного модуля</p>';
+$lang['modules_license_info_title_2'] = '<p></p>';

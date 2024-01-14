@@ -67,6 +67,18 @@
 <div class="fn_toggle_wrap">
     {if $modules}
         <form class="fn_form_list" method="post">
+            <div class="row">
+                <div class="">
+                    <div class="col-md-4">
+                        <div class="heading_label">{$btr->settings_general_email_module|escape}</div>
+                        <div class="mb-1">
+                            <input name="email_for_module" class="form-control" type="text"
+                                   value="{$settings->email_for_module|escape}"/>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
             <div class="okay_list products_list bg_white mb-1 fn_sort_list">
                 <input type="hidden" name="session_id" value="{$smarty.session.id}">
                 {*Шапка таблицы*}

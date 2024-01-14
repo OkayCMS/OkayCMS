@@ -51,9 +51,15 @@
                 <div class="text_600 mr-1">
                     <div class="module_official__name">
                         {if $module->backend_main_controller}
+                        {if $module->params->isLicensed()}
                             <a href="{url controller=[{$module->vendor|escape},{$module->module_name|escape},{$module->backend_main_controller|escape}] id=null return=$smarty.server.REQUEST_URI}">
                                 {$module->vendor|escape}/{$module->module_name|escape}
                             </a>
+                        {else}
+                            <a href="index.php?controller=ModulesLicenseInfoAdmin">
+                                {$module->vendor|escape}/{$module->module_name|escape}
+                            </a>
+                        {/if}
                         {else}
                             {$module->vendor|escape}/{$module->module_name|escape}
                         {/if}
@@ -75,11 +81,13 @@
                 </div>
 
                 {if $module->params->isLicensed()}{else}
+                    {if $module->enabled == 1}
                     <div class="mt-q">
                         <span class="text_warning font_12 text_600">
                             {$btr->module_access_blocked}
                         </span>
                     </div>
+                {/if}
                 {/if}
 
                 {if !empty($module->params->getVersion()) && $module->params->getVersion() != $module->version}
@@ -154,7 +162,9 @@
                             {if $module->params->isLicensed()}
                                 <span data-hint="{$btr->module_tooltip_licensed}" class="tag tag-licensed hint-bottom-middle-t-info-s-small-mobile hint-anim">{$btr->module_status_licensed}</span>
                             {else}
+                                {if $module->enabled == 1}
                                 <span data-hint="{$btr->module_tooltip_not_licensed}" class="tag tag-not_licensed hint-bottom-middle-t-info-s-small-mobile hint-anim">{$btr->module_status_not_licensed}</span>
+                            {/if}
                             {/if}
                         </div>
                     </div>
@@ -165,7 +175,9 @@
                 {if $module->params->isLicensed()}
                     <span data-hint="{$btr->module_tooltip_licensed}" class="tag tag-licensed hint-bottom-middle-t-info-s-small-mobile hint-anim">{$btr->module_status_licensed}</span>
                 {else}
+                    {if $module->enabled == 1}
                     <span data-hint="{$btr->module_tooltip_not_licensed}" class="tag tag-not_licensed hint-bottom-middle-t-info-s-small-mobile hint-anim">{$btr->module_status_not_licensed}</span>
+                {/if}
                 {/if}
             </div>
 
@@ -197,26 +209,41 @@
                         </label>
                     {/if}
                 {else}
+                    {if $module->status === 'Not Installed'}
+                        <button class="btn btn_mini btn-info" name="install_module" value="{$module->vendor|escape}/{$module->module_name|escape}">{$btr->install_module}</button>
+                    {else}
                     <span class="btn btn_mini" disabled>{$btr->module_unavailable}</span>
+                {/if}
                 {/if}
             </div>
 
             <div class="okay_list_setting okay_list_products_setting">
                 {if $module->backend_main_controller}
-                    <a data-hint="{$btr->module_action_setting|escape}" class="setting_icon setting_icon_setting hint-bottom-middle-t-info-s-small-mobile hint-anim" href="{url controller=[{$module->vendor|escape},{$module->module_name|escape},{$module->backend_main_controller|escape}] id=null return=$smarty.server.REQUEST_URI}">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                        </svg>                          
-                    </a>
+                    {if $module->params->isLicensed()}
+                        <a data-hint="{$btr->module_action_setting|escape}" class="setting_icon setting_icon_setting hint-bottom-middle-t-info-s-small-mobile hint-anim" href="{url controller=[{$module->vendor|escape},{$module->module_name|escape},{$module->backend_main_controller|escape}] id=null return=$smarty.server.REQUEST_URI}">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                            </svg>
+                        </a>
+                    {else}
+                        <a data-hint="{$btr->module_action_setting|escape}" class="setting_icon setting_icon_setting hint-bottom-middle-t-info-s-small-mobile hint-anim" href="index.php?controller=ModulesLicenseInfoAdmin">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                            </svg>
+                        </a>
+                    {/if}
+
                 {/if}
-                
+                {if $module->params->isLicensed()}
                 {if $module->status !== 'Not Installed'}
                     <a data-hint="{$btr->files_list_module|escape}" class="setting_icon setting_icon_files hint-bottom-middle-t-info-s-small-mobile hint-anim" href="{url controller='ModuleDesignAdmin' vendor=$module->vendor module_name=$module->module_name}">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
                         </svg>                          
                     </a>
+                {/if}
                 {/if}
 
                 {if $module->params->getAddToCartUrl()}

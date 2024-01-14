@@ -1642,3 +1642,7 @@ $lang['module_tooltip_not_licensed'] = 'Module fails validation and is blocked';
 $lang['module_learn_more'] = 'Learn More';
 $lang['module_unavailable'] = 'Not available';
 $lang['module_action_setting'] = 'Module settings';
+$lang['modules_license_info_title'] = 'Important notice about the status of your official modules on OkayCms';
+$lang['modules_license_important'] = 'Important!';
+$lang['modules_license_info_title_1'] = '<p>Here will be the instruction of the unlicensed module</p>';
+$lang['modules_license_info_title_2'] = '<p></p>';
