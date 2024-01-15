@@ -2384,6 +2384,7 @@ label.switch_label i{
     padding: 4px 8px;
     background-color: #DFFFEA;
     color: #17C653;
+    text-transform: none;
 }
 .tag-not_licensed{
     font-weight: 600;
@@ -2391,6 +2392,7 @@ label.switch_label i{
     padding: 4px 8px;
     background-color: #FFEEF3;
     color: #F8285A;
+    text-transform: none;
 }
 
 

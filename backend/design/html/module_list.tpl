@@ -186,7 +186,9 @@
 
                 {if !empty($module->params->getVersion()) && $module->params->getVersion() != $module->version}
                     {if $module->params->getVersion() > $module->version}
+                        {if $module->params->isLicensed()}
                         <button type="button" class="fn_update_module btn btn-warning btn--update mt-q hint-top-middle-t-info-s-small-mobile hint-anim" data-hint="{$btr->module_need_update} {$module->params->getVersion()}">{include 'svg_icon.tpl' svgId='refresh_icon'} {$module->params->getVersion()}</button>
+                        {/if}
                     {/if}
                 {/if}
 
