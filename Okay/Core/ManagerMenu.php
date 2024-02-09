@@ -18,6 +18,7 @@ class ManagerMenu
     private $systemControllers = [
         'left_support'       => ['SupportAdmin', 'TopicAdmin'],
         'left_license_title' => ['LicenseAdmin'],
+        'left_open_ai' => ['OpenAiAdmin'],
     ];
 
     /**

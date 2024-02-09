@@ -126,8 +126,9 @@ server {
         fastcgi_param SCRIPT_FILENAME $request_filename;
         fastcgi_param DOCUMENT_ROOT $root_path;
         fastcgi_split_path_info ^((?U).+\.ph(?:p\d*|tml))(/?.+)$;
-        fastcgi_buffers 16 16k;
-        fastcgi_buffer_size 32k;
+        fastcgi_buffering off;
+        #fastcgi_buffers 16 16k;
+        #fastcgi_buffer_size 32k;
         include fastcgi_params;
     }
 }

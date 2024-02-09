@@ -61,6 +61,7 @@ class Managers
         'router',
         'system_modules',
         'settings_indexing',
+        'open_ai',
     ];
 
     // Соответствие модулей и названий соответствующих прав
@@ -139,6 +140,7 @@ class Managers
         'LearningAdmin'             => 'learning',
         'SettingsRouterAdmin'       => 'router',
         'SettingsIndexingAdmin'     => 'settings_indexing',
+        'OpenAiAdmin'     => 'open_ai',
     ];
     
     /**

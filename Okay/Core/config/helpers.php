@@ -49,6 +49,7 @@ use Okay\Helpers\BrandsHelper;
 use Okay\Helpers\CanonicalHelper;
 use Okay\Helpers\CartHelper;
 use Okay\Helpers\CategoriesHelper;
+use Okay\Helpers\OpenAiHelper;
 use Okay\Helpers\ComparisonHelper;
 use Okay\Helpers\CouponHelper;
 use Okay\Helpers\CommentsHelper;
@@ -79,6 +80,7 @@ use Okay\Helpers\ValidateHelper;
 use Okay\Helpers\WishListHelper;
 use Okay\Helpers\XmlFeedHelper;
 use Okay\Requests\CommonRequest;
+use Orhanerday\OpenAi\OpenAi;
 use Psr\Log\LoggerInterface;
 use Okay\Helpers\ProductsHelper;
 use Okay\Helpers\CatalogHelper;
@@ -684,6 +686,19 @@ return [
     ConsoleQuestionHelper::class => [
         'class' => ConsoleQuestionHelper::class,
         'arguments' => [
+        ]
+    ],
+    OpenAi::class => [
+        'class' => OpenAi::class,
+        'arguments' => [
+            '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',
+        ]
+    ],
+    OpenAiHelper::class => [
+        'class' => OpenAiHelper::class,
+        'arguments' => [
+            new SR(OpenAi::class),
+            new SR(Response::class),
         ]
     ],
 ];

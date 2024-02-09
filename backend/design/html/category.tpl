@@ -334,10 +334,10 @@
                 <div class="toggle_body_wrap on fn_card ">
                     <div class="tab_container">
                         <div id="tab1" class="tab">
-                            <textarea name="annotation" id="fn_editor" class="editor_small">{$category->annotation|escape}</textarea>
+                            <textarea name="annotation" id="fn_editor" class="editor_small" data-ai_entity="category">{$category->annotation|escape}</textarea>
                         </div>
                         <div id="tab2" class="tab">
-                            <textarea name="description" class="editor_large fn_editor_class">{$category->description|escape}</textarea>
+                            <textarea name="description" class="editor_large fn_editor_class" data-ai_entity="category">{$category->description|escape}</textarea>
                         </div>
                     </div>
                 </div>
@@ -360,7 +360,7 @@
 
 {* Learning script *}
 {include file='learning_hints.tpl' hintId='hint_category'}
-
+<script src="design/js/open_ai.js"></script>
 
 {* Подключаем Tiny MCE *}
 {include file='tinymce_init.tpl'}

@@ -691,6 +691,7 @@
                 </div>
                 <div class="toggle_body_wrap on fn_card row">
                     <div class="col-lg-6 col-md-6">
+                        <button type="button" class="fn_open_ai_generate_meta">Згенерувати meta title</button>
                         <div class="heading_label" >Meta-title <span id="fn_meta_title_counter"></span>
                             <i class="fn_tooltips" title="{$btr->tooltip_meta_title|escape}">
                                 {include file='svg_icon.tpl' svgId='icon_tooltips'}
@@ -750,10 +751,10 @@
                 <div class="toggle_body_wrap on fn_card">
                     <div class="tab_container">
                         <div id="tab1" class="tab">
-                            <textarea name="annotation" id="annotation" class="editor_small">{$product->annotation|escape}</textarea>
+                            <textarea name="annotation" id="annotation" data-ai_entity="product" class="editor_small">{$product->annotation|escape}</textarea>
                         </div>
                         <div id="tab2" class="tab">
-                            <textarea id="fn_editor" name="description" class="editor_large fn_editor_class">{$product->description|escape}</textarea>
+                            <textarea id="fn_editor" name="description" data-ai_entity="product" class="editor_large fn_editor_class">{$product->description|escape}</textarea>
                         </div>
                     </div>
                 </div>
@@ -783,6 +784,7 @@
 {literal}
     <script src="design/js/autocomplete/jquery.autocomplete-min.js"></script>
     <script src="design/js/chosen/chosen.jquery.js"></script>
+    <script src="design/js/open_ai.js"></script>
     <link rel="stylesheet" type="text/css" href="design/js/chosen/chosen.min.css" media="screen" />
 <script>
     $(window).on("load", function() {

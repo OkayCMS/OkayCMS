@@ -11,6 +11,7 @@ const RESPONSE_IMAGE_JPG  = 'ImageJpg';
 const RESPONSE_IMAGE_GIF  = 'ImageGif';
 const RESPONSE_IMAGE_WEBP  = 'ImageWebp';
 const RESPONSE_TEXT  = 'Text';
+const RESPONSE_GPT_STREAM  = 'GptStream';
 
 const MISSING_PRODUCTS_DEFAULT  = 'default';
 const MISSING_PRODUCTS_MOVE_END  = 'move_end';
