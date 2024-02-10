@@ -18,7 +18,11 @@ class OpenAiAdmin extends IndexAdmin
         $entity = $this->request->get('entity');
         $name = $this->request->get('name');
         $entityId = $this->request->get('entityId', 'int');
-        $openAiEntityHelper->getRequest($entity, $field);
-        $openAiHelper->streamMetadata();
+        $aiRequest = $openAiEntityHelper->getRequest($entity, $entityId, $name);
+        $openAiHelper->streamMetadata(
+            $aiRequest->getRequestText($field),
+            $aiRequest->getAdditionalInfo()
+        );
+//        var_dump($aiRequest->getRequestText($field));
     }
 }

@@ -49,6 +49,7 @@ use Okay\Helpers\BrandsHelper;
 use Okay\Helpers\CanonicalHelper;
 use Okay\Helpers\CartHelper;
 use Okay\Helpers\CategoriesHelper;
+use Okay\Helpers\OpenAiEntityHelper;
 use Okay\Helpers\OpenAiHelper;
 use Okay\Helpers\ComparisonHelper;
 use Okay\Helpers\CouponHelper;
@@ -691,7 +692,7 @@ return [
     OpenAi::class => [
         'class' => OpenAi::class,
         'arguments' => [
-            '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',
+            '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',
         ]
     ],
     OpenAiHelper::class => [
@@ -699,6 +700,11 @@ return [
         'arguments' => [
             new SR(OpenAi::class),
             new SR(Response::class),
+        ]
+    ],
+    OpenAiEntityHelper::class => [
+        'class' => OpenAiEntityHelper::class,
+        'arguments' => [
         ]
     ],
 ];
