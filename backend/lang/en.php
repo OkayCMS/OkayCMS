@@ -1622,3 +1622,36 @@ $lang['license_text_all'] = '1. Software products developed for the OkayCMS fram
 
 10. Termination of this Agreement is allowed in case of deletion of all received files and documentation, as well as their copies. Termination of this Agreement does not oblige the Developer to return the funds spent by the User on the purchase of the Products.
 ';
+$lang['module_access_expire_days'] = 'Access to module updates expires in';
+$lang['module_access_expire_today'] = 'Access to module updates ends today';
+$lang['module_access_expire_plural_1'] = 'day';
+$lang['module_access_expire_plural_2'] = 'day';
+$lang['module_access_expire_plural_5'] = 'days';
+$lang['module_access_expired'] = 'Access to module updates has expired';
+$lang['module_access_continue_access'] = 'Continue access';
+$lang['chatgpt_generate_title'] = 'Generate';
+$lang['chatgpt_generate_settings_title'] = 'Chat GPT Settings';
+$lang['chatgpt_generate_api_key'] = 'Chat GPT Api key';
+$lang['chatgpt_generate_no_api_key'] = 'You did not enter an API key. Please enter it, because... Without it, all Chat GPT functionality is not available.';
+$lang['chatgpt_generate_no_api_key2'] = 'To get the key you need to follow the following link';
+$lang['left_open_ai_manage_patterns'] = 'Chat GPT Patterns';
+$lang['settings_open_ai_manage_patterns_title'] = 'Chat GPT request templates for filling in the appropriate fields';
+$lang['settings_open_ai_manage_patterns_title_info'] = 'Please note that the templates are multilingual, i.e. individual for each language';
+$lang['settings_open_ai_manage_patterns_functionality_off'] = 'The template for this field is not specified, functionality is disabled. Go to the SEO->Chat GPT templates page and specify the template to activate the functionality';
+$lang['settings_open_ai_patterns_for_product'] = 'Patterns for product fields';
+$lang['settings_open_ai_patterns_for_brand'] = 'Patterns for brand fields';
+$lang['settings_open_ai_patterns_for_category'] = 'Patterns for category fields';
+$lang['settings_open_ai_patterns_for_meta_title'] = 'Pattern for Meta-title';
+$lang['settings_open_ai_patterns_for_meta_keywords'] = 'Pattern for Meta-keywords';
+$lang['settings_open_ai_patterns_for_meta_description'] = 'Pattern for Meta-description';
+$lang['settings_open_ai_patterns_for_meta_h1'] = 'Template for Heading H1';
+$lang['settings_open_ai_patterns_for_annotation'] = 'Pattern for short description';
+$lang['settings_open_ai_patterns_for_description'] = 'Pattern for full description';
+$lang['seo_patterns_ajax_brand_h1'] = 'H1 brand headline.';
+$lang['seo_patterns_ajax_brand_meta_title'] = 'Meta-title of the brand.';
+$lang['seo_patterns_ajax_brand_meta_keyword'] = 'Meta-keyword brand.';
+$lang['seo_patterns_ajax_brand_meta_description'] = 'Meta-description of the brand.';
+$lang['seo_patterns_ajax_category_url'] = 'Full URL to the category page.';
+$lang['seo_filter_patterns_message1'] = 'Using these fields, you can automatically generate data for inserting into templates.';
+$lang['seo_filter_patterns_message2'] = 'Type inserts';
+$lang['seo_filter_patterns_message3'] = 'will be replaced with the corresponding values from a specific entity.';

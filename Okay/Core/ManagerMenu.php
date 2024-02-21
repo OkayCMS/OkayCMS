@@ -18,7 +18,7 @@ class ManagerMenu
     private $systemControllers = [
         'left_support'       => ['SupportAdmin', 'TopicAdmin'],
         'left_license_title' => ['LicenseAdmin'],
-        'left_open_ai' => ['OpenAiAdmin'],
+        'left_open_ai'       => ['OpenAiAdmin'],
     ];
 
     /**
@@ -37,8 +37,8 @@ class ManagerMenu
             'left_log_title'             => ['ImportLogAdmin'],
         ],
         'left_orders' => [
-            'left_orders_title'                    => ['OrdersAdmin', 'OrderAdmin'],
-            'left_orders_settings_title'           => ['OrderSettingsAdmin'],
+            'left_orders_title'          => ['OrdersAdmin', 'OrderAdmin'],
+            'left_orders_settings_title' => ['OrderSettingsAdmin'],
         ],
         'left_users' => [
             'left_users_title'           => ['UsersAdmin', 'UserAdmin'],
@@ -66,13 +66,14 @@ class ManagerMenu
             'left_menus_title'           => ['MenusAdmin', 'MenuAdmin'],
         ],
         'left_seo' => [
-            'left_setting_indexing_title'  => ['SettingsIndexingAdmin'],
+            'left_setting_indexing_title'=> ['SettingsIndexingAdmin'],
             'left_setting_router_title'  => ['SettingsRouterAdmin'],
             'left_seo_filter_patterns_title' => ['SeoFilterPatternsAdmin'],
             'left_seo_patterns_title'    => ['SeoPatternsAdmin'],
-            'left_feature_aliases_title'     => ['FeaturesAliasesAdmin'],
+            'left_feature_aliases_title' => ['FeaturesAliasesAdmin'],
             'left_setting_counter_title' => ['SettingsCounterAdmin'],
             'left_robots_title'          => ['RobotsAdmin'],
+            'left_open_ai_manage_patterns' => ['SettingsOpenAiPatternsAdmin'],
         ],
         'left_design' => [
             'left_settings_theme_title'  => ['SettingsThemeAdmin'],

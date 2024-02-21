@@ -16,8 +16,8 @@
             toolbar_mode: 'floating',
             mobile: 'false',
             toolbar_items_size : 'small',
-            menubar:'file edit insert view format table tools',
-            toolbar1: "undo redo|styleselect| fontselect |fontsizeselect | OpenAiButton |forecolor backcolor blocks | bold italic underline strikethrough blockquote | alignleft aligncenter alignright | numlist bullist checklist | table | link unlink| image media emoticons  | fullscreen preview codesample code",
+            menubar: 'file edit insert view format table tools',
+            toolbar1: "undo redo|styleselect| fontselect |fontsizeselect |{if $settings->chatgpt_generate_api_key && in_array($smarty.get.controller, array('CategoryAdmin', 'ProductAdmin', 'BrandAdmin'))} OpenAiButton |{/if} forecolor backcolor blocks | bold italic underline strikethrough blockquote | alignleft aligncenter alignright | numlist bullist checklist | table | link unlink| image media emoticons  | fullscreen preview codesample code",
 
                 {literal}
             table_class_list:[
@@ -141,6 +141,5 @@
 
             {literal}}{/literal});
     });
-
 
 </script>

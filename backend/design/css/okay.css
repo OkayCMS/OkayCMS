@@ -8754,3 +8754,18 @@ input.error {
     flex: 0 0 105px;
     max-width: 105px;
 }
+
+.gpt_button {
+    margin: 0;
+    padding: 0!important;
+    border: 0;
+    outline: none;
+    background-color: transparent;
+    height: 35px;
+    width: 35px;
+    cursor: pointer;
+}
+
+.gpt_button_margin {
+    margin-left: 10px;
+}

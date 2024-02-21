@@ -7,7 +7,7 @@ use Okay\Core\ServiceLocator;
 use Okay\Core\Settings;
 use Okay\Helpers\OpenAiEntityHelper;
 
-class AiProductRequest extends AbstractAiRequest
+class AiCategoryRequest extends AbstractAiRequest
 {
     /* Settings $settings*/
     private Settings $settings;
@@ -27,7 +27,7 @@ class AiProductRequest extends AbstractAiRequest
             return;
         }
 
-        $this->parts    = $parts;
+        $this->parts = $parts;
         $this->entityId = $entityId;
 
         $this->setAdditionalInfo($additionalInfoData);
@@ -44,21 +44,26 @@ class AiProductRequest extends AbstractAiRequest
             return ExtenderFacade::execute(__METHOD__, '', func_get_args());
         }
 
+        $pattern = null;
+
         switch ($field) {
             case 'meta_title':
-                $pattern = $this->settings->get('settings_open_ai_patterns_product_meta_title', null, '');
+                $pattern = $this->settings->get('settings_open_ai_patterns_category_meta_title', null, '');
                 break;
             case 'meta_keywords':
-                $pattern = $this->settings->get('settings_open_ai_patterns_product_meta_keywords', null, '');
+                $pattern = $this->settings->get('settings_open_ai_patterns_category_meta_keywords', null, '');
                 break;
             case 'meta_description':
-                $pattern = $this->settings->get('settings_open_ai_patterns_product_meta_description', null, '');
+                $pattern = $this->settings->get('settings_open_ai_patterns_category_meta_description', null, '');
+                break;
+            case 'name_h1':
+                $pattern = $this->settings->get('settings_open_ai_patterns_category_meta_h1', null, '');
                 break;
             case 'annotation':
-                $pattern = $this->settings->get('settings_open_ai_patterns_product_annotation', null, '');
+                $pattern = $this->settings->get('settings_open_ai_patterns_category_annotation', null, '');
                 break;
             case 'description':
-                $pattern = $this->settings->get('settings_open_ai_patterns_product_description', null, '');
+                $pattern = $this->settings->get('settings_open_ai_patterns_category_description', null, '');
                 break;
         }
 
@@ -76,10 +81,11 @@ class AiProductRequest extends AbstractAiRequest
         return $this->additionalInfo;
     }
 
-    public function setAdditionalInfo($additionalInfoData): string
+    public function setAdditionalInfo($additionalInfoData = []): string
     {
         $this->additionalInfo = implode("\n", $additionalInfoData);
 
         return ExtenderFacade::execute(__METHOD__, $this->additionalInfo, func_get_args());
     }
+
 }

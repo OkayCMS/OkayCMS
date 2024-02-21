@@ -692,7 +692,7 @@ return [
     OpenAi::class => [
         'class' => OpenAi::class,
         'arguments' => [
-            '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',
+            new PR('openai.chatgpt_generate_api_key'),
         ]
     ],
     OpenAiHelper::class => [

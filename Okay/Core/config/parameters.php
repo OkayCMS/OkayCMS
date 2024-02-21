@@ -119,5 +119,8 @@ return [
     'notify' => [
         'test_internal_email' => $_ENV['TEST_INTERNAL_EMAIL'] ?? '',
     ],
+    'openai' => [
+        'chatgpt_generate_api_key' => '{%chatgpt_generate_api_key%}',
+    ],
     'production_domain' => $_ENV['PRODUCTION_DOMAIN'] ?? '',
 ];
