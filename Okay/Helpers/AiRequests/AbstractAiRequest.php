@@ -9,7 +9,7 @@ abstract class AbstractAiRequest
     protected ?string $name;
     protected ?array  $additionalInfoData;
 
-    public function __construct(int $entityId, ?array $parts, ?string $name, ?array $additionalInfoData)
+    public function __construct(?int $entityId, ?array $parts, ?string $name, ?array $additionalInfoData)
     {
         $this->entityId       = $entityId;
         $this->parts          = $parts;
