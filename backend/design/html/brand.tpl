@@ -225,30 +225,62 @@
                                 {include file='svg_icon.tpl' svgId='icon_tooltips'}
                             </i>
                         </div>
-                        <input name="meta_title" class="form-control fn_meta_field mb-h" type="text" value="{$brand->meta_title|escape}" />
+                        <div class="meta_data_block">
+                            <input name="meta_title" data-ai_entity="brand" class="form-control fn_meta_field mb-h feature_input" type="text" value="{$brand->meta_title|escape}" />
+                            <button type="button" {if !$settings->settings_open_ai_patterns_brand_meta_title} disabled{/if}
+                                    onclick="generateEditorMetaFields($(this).closest('div').find('input.fn_meta_field'));"
+                                    class="btn gpt_button feature_multi_values{if !$settings->settings_open_ai_patterns_brand_meta_title || !$settings->chatgpt_generate_api_key} disabled{/if}">
+                                <img src="/backend/design/images/сhat_gpt.svg" title="{if !$settings->settings_open_ai_patterns_brand_meta_title}{$btr->settings_open_ai_manage_patterns_functionality_off|escape}{else}{$btr->chatgpt_generate_title|escape} Meta-keywords{/if}"
+                                     alt="{$btr->chatgpt_generate_title|escape} Meta-keywords" class>
+                            </button>
+                        </div>
+
                         <div class="heading_label" >Meta-keywords
                             <i class="fn_tooltips" title="{$btr->tooltip_meta_keywords|escape}">
                                 {include file='svg_icon.tpl' svgId='icon_tooltips'}
                             </i>
                         </div>
-                        <input name="meta_keywords" class="form-control fn_meta_field mb-h" type="text" value="{$brand->meta_keywords|escape}" />
+                        <div class="meta_data_block">
+                            <input name="meta_keywords" data-ai_entity="brand" class="form-control fn_meta_field mb-h feature_input" type="text" value="{$brand->meta_keywords|escape}" />
+                            <button type="button" {if !$settings->settings_open_ai_patterns_brand_meta_keywords} disabled{/if}
+                                    onclick="generateEditorMetaFields($(this).closest('div').find('input.fn_meta_field'));"
+                                    class="btn gpt_button feature_multi_values{if !$settings->settings_open_ai_patterns_brand_meta_keywords || !$settings->chatgpt_generate_api_key} disabled{/if}">
+                                <img src="/backend/design/images/сhat_gpt.svg" title="{if !$settings->settings_open_ai_patterns_brand_meta_keywords}{$btr->settings_open_ai_manage_patterns_functionality_off|escape}{else}{$btr->chatgpt_generate_title|escape} Meta-keywords{/if}"
+                                     alt="{$btr->chatgpt_generate_title|escape} Meta-keywords" class>
+                            </button>
+                        </div>
                     </div>
+
                     <div class="col-lg-6 col-md-6 pl-0">
                         <div class="heading_label" >Meta-description <span id="fn_meta_description_counter"></span>
                             <i class="fn_tooltips" title="{$btr->tooltip_meta_description|escape}">
                                 {include file='svg_icon.tpl' svgId='icon_tooltips'}
                             </i>
+                            <button type="button" {if !$settings->settings_open_ai_patterns_brand_meta_description} disabled{/if}
+                                        onclick="generateEditorMetaFields($(this).closest('.fn_card').find('.okay_textarea'));"
+                                        class="btn gpt_button gpt_button_margin{if !$settings->settings_open_ai_patterns_brand_meta_description || !$settings->chatgpt_generate_api_key} disabled{/if}">
+                                <img src="/backend/design/images/сhat_gpt.svg" title="{if !$settings->settings_open_ai_patterns_brand_meta_description}{$btr->settings_open_ai_manage_patterns_functionality_off|escape}{else}{$btr->chatgpt_generate_title|escape} Meta-description{/if}"
+                                     alt="{$btr->chatgpt_generate_title|escape} Meta-description" class>
+                            </button>
                         </div>
-                        <textarea name="meta_description" class="form-control okay_textarea fn_meta_field">{$brand->meta_description|escape}</textarea>
+
+                        <textarea name="meta_description" data-ai_entity="brand" class="form-control okay_textarea fn_meta_field">{$brand->meta_description|escape}</textarea>
                     </div>
+
                     <div class="col-lg-12 col-md-12">
                         <div class="heading_label">{$btr->brand_h1|escape}
                             <i class="fn_tooltips" title="{$btr->tooltip_brand_h1|escape}">
                                 {include file='svg_icon.tpl' svgId='icon_tooltips'}
                             </i>
                         </div>
-                        <div>
-                            <input name="name_h1" class="form-control" type="text" value="{$brand->name_h1|escape}"/>
+                        <div class="meta_data_block">
+                            <input name="name_h1" data-ai_entity="brand" class="form-control feature_input" id="name_h1"  type="text" value="{$brand->name_h1|escape}"/>
+                            <button type="button" {if !$settings->settings_open_ai_patterns_brand_meta_h1} disabled{/if}
+                                    onclick="generateEditorMetaFields($(this).closest('div').find('input#name_h1'));"
+                                    class="btn gpt_button feature_multi_values{if !$settings->settings_open_ai_patterns_brand_meta_h1 || !$settings->chatgpt_generate_api_key} disabled{/if}">
+                                <img src="/backend/design/images/сhat_gpt.svg" title="{if !$settings->settings_open_ai_patterns_brand_meta_h1}{$btr->settings_open_ai_manage_patterns_functionality_off|escape}{else}{$btr->chatgpt_generate_title|escape} H1{/if}"
+                                     alt="{$btr->chatgpt_generate_title|escape} H1" class>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -280,10 +312,10 @@
                 <div class="toggle_body_wrap on fn_card">
                     <div class="tab_container">
                         <div id="tab1" class="tab">
-                            <textarea name="annotation" id="fn_editor" class="editor_small">{$brand->annotation|escape}</textarea>
+                            <textarea name="annotation" data-ai_entity="brand" id="fn_editor" class="editor_small">{$brand->annotation|escape}</textarea>
                         </div>
                         <div id="tab2" class="tab">
-                            <textarea name="description" class="editor_large fn_editor_class">{$brand->description|escape}</textarea>
+                            <textarea name="description" data-ai_entity="brand" class="editor_large fn_editor_class">{$brand->description|escape}</textarea>
                         </div>
                     </div>
                 </div>
@@ -309,3 +341,6 @@
 {* Подключаем Tiny MCE *}
 {include file='tinymce_init.tpl'}
 {* On document load *}
+{literal}
+    <script src="design/js/open_ai.js"></script>
+{/literal}

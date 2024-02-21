@@ -66,3 +66,34 @@ function removeCursor(text, cursor) {
 // $(window).on("unload", function(e) {
 //     eventSource.close();
 // });
+function generateEditorMetaFields(element)
+{
+    let field    = element.prop('name');
+    let entityId = element.closest('form').find('[name="id"]').val();
+    let name     = element.closest('form').find('[name="name"]').val();
+    let entity   = element.data('ai_entity');
+console.log(field, entityId, name, entity);
+    var eventSource = new EventSource('/backend/index.php?controller=OpenAiAdmin&field=' + field +
+        '&entity=' + entity +
+        '&entityId=' + entityId +
+        '&name=' + name
+    );
+
+    element.val('');
+
+    eventSource.addEventListener('message', function (e) {
+    element.insertContent( e.data );
+});
+
+    eventSource.addEventListener('stop', function (e) {
+        eventSource.close();
+    });
+    /* eventSource.addEventListener('message', function (e) {
+        element.val(removeCursor(element.val(), cursor) + e.data + cursor);
+    });
+
+    eventSource.addEventListener('stop', function (e) {
+        eventSource.close();
+        element.val(removeCursor(element.val(), cursor));
+    }); */
+}

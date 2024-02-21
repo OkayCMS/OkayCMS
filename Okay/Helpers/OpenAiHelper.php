@@ -17,14 +17,14 @@ class OpenAiHelper
     private int $maxTokens = 1000;
 
     public function __construct(
-        OpenAi $openAi,
-        Response $response
+        OpenAi      $openAi,
+        Response    $response
     ) {
-        $this->openAi = $openAi;
+        $this->openAi   = $openAi;
         $this->response = $response;
     }
 
-    public function getMetadata(): ?string
+    /*public function getMetadata(): ?string
     {
         return $this->aiChat(
             "Згенеруй мені унікальний текст для товару  на 800 символів\n 'Диван-ліжко Max 1,2 в сканині Кордрой' з такими ключовими словами.\nКупити у Дніпрі, найкраща ціна,безкоштовна доставка",
@@ -36,7 +36,7 @@ class OpenAiHelper
              - Высота сиденья: 160\n
              - Водонепронецаемый: да"
         );
-    }
+    }*/
 
     public function streamMetadata(string $userMessage, string $assistantMessage = '')
     {
@@ -44,6 +44,12 @@ class OpenAiHelper
         $this->response->sendHeaders();
         $this->response->sendStream('data: <p>');
         ignore_user_abort(true);
+
+        if (empty($userMessage)) {
+            $this->response->sendStream('data: </p>');
+            $this->response->sendStream("event: stop\ndata: empty user message\n\n");
+            return 0;
+        }
 
         $this->aiChat(
             $userMessage,
@@ -89,37 +95,37 @@ class OpenAiHelper
     {
         $messages = [
             [
-                "role" => "user",
+                "role"    => "user",
                 "content" => $userMessage
             ]
         ];
 
         if (!empty($assistantMessage)) {
             $messages[] = [
-                "role" => "assistant",
+                "role"    => "assistant",
                 "content" => $assistantMessage
             ];
         }
 
         $chat = $this->openAi->chat([
-            'model' => $this->model,
-            'messages' => $messages,
-
+            'model'             => $this->model,
+            'messages'          => $messages,
 //        [
 //            "role" => "system",
 //            "content" => "Пиши опис як наче ти пошукова система"
 //        ],
-            'temperature' => $this->temperature,
-            'max_tokens' => $this->maxTokens,
+            'temperature'       => $this->temperature,
+            'max_tokens'        => $this->maxTokens,
             'frequency_penalty' => $this->frequencyPenalty,
-            'presence_penalty' => $this->presencePenalty,
-            'stream' => !empty($stream),
+            'presence_penalty'  => $this->presencePenalty,
+            'stream'            => !empty($stream),
         ], $stream);
 
         if (empty($stream)) {
             $response = json_decode($chat);
             return $response->choices[0]->message->content ?? null;
         }
+
         return null;
     }
 }

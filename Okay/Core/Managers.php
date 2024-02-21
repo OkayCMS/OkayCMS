@@ -140,7 +140,8 @@ class Managers
         'LearningAdmin'             => 'learning',
         'SettingsRouterAdmin'       => 'router',
         'SettingsIndexingAdmin'     => 'settings_indexing',
-        'OpenAiAdmin'     => 'open_ai',
+        'OpenAiAdmin'               => 'open_ai',
+        'SettingsOpenAiPatternsAdmin' => 'open_ai',
     ];
     
     /**
