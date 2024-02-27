@@ -691,13 +691,19 @@
                 </div>
                 <div class="toggle_body_wrap on fn_card row">
                     <div class="col-lg-6 col-md-6">
-                        <button type="button" class="fn_open_ai_generate_meta">Згенерувати meta title</button>
+                        <button type="button" class="fn_open_ai_generate_meta" data-ai_field="{Okay\Helpers\AiRequests\AiProductRequest::FIELD_META_TITLE}" data-ai_entity="{Okay\Helpers\AiRequests\AiProductRequest::ENTITY_TYPE}">
+                            Gpt
+                        </button>
                         <div class="heading_label" >Meta-title <span id="fn_meta_title_counter"></span>
                             <i class="fn_tooltips" title="{$btr->tooltip_meta_title|escape}">
                                 {include file='svg_icon.tpl' svgId='icon_tooltips'}
                             </i>
                         </div>
                         <input name="meta_title" class="form-control fn_meta_field mb-h" type="text" value="{$product->meta_title|escape}" />
+
+                        <button type="button" class="fn_open_ai_generate_meta" data-ai_field="{Okay\Helpers\AiRequests\AiProductRequest::FIELD_META_KEYWORDS}" data-ai_entity="{Okay\Helpers\AiRequests\AiProductRequest::ENTITY_TYPE}">
+                            Gpt
+                        </button>
                         <div class="heading_label" >Meta-keywords
                             <i class="fn_tooltips" title="{$btr->tooltip_meta_keywords|escape}">
                                 {include file='svg_icon.tpl' svgId='icon_tooltips'}
@@ -707,6 +713,9 @@
                     </div>
 
                     <div class="col-lg-6 col-md-6 pl-0">
+                        <button type="button" class="fn_open_ai_generate_meta" data-ai_field="{Okay\Helpers\AiRequests\AiProductRequest::FIELD_META_DESCRIPTION}" data-ai_entity="{Okay\Helpers\AiRequests\AiProductRequest::ENTITY_TYPE}">
+                            Gpt
+                        </button>
                         <div class="heading_label" >Meta-description <span id="fn_meta_description_counter"></span>
                             <i class="fn_tooltips" title="{$btr->tooltip_meta_description|escape}">
                                 {include file='svg_icon.tpl' svgId='icon_tooltips'}
@@ -751,10 +760,10 @@
                 <div class="toggle_body_wrap on fn_card">
                     <div class="tab_container">
                         <div id="tab1" class="tab">
-                            <textarea name="annotation" id="annotation" data-ai_entity="product" class="editor_small">{$product->annotation|escape}</textarea>
+                            <textarea name="annotation" id="annotation" data-ai_entity="{Okay\Helpers\AiRequests\AiProductRequest::ENTITY_TYPE}" class="editor_small">{$product->annotation|escape}</textarea>
                         </div>
                         <div id="tab2" class="tab">
-                            <textarea id="fn_editor" name="description" data-ai_entity="product" class="editor_large fn_editor_class">{$product->description|escape}</textarea>
+                            <textarea id="fn_editor" name="description" data-ai_entity="{Okay\Helpers\AiRequests\AiProductRequest::ENTITY_TYPE}" class="editor_large fn_editor_class">{$product->description|escape}</textarea>
                         </div>
                     </div>
                 </div>

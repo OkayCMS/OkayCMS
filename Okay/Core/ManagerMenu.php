@@ -84,6 +84,7 @@ class ManagerMenu
         ],
         'left_settings' => [
             'left_setting_general_title' => ['SettingsGeneralAdmin'],
+            'left_setting_open_ai_title' => ['SettingsOpenAiAdmin'],
             'left_setting_notify_title'  => ['SettingsNotifyAdmin'],
             'left_setting_catalog_title' => ['SettingsCatalogAdmin'],
             'left_orders_discounts_settings_title' => ['DiscountsSettingsAdmin'],

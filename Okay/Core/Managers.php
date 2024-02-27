@@ -111,6 +111,7 @@ class Managers
         'SettingsCounterAdmin'  => 'settings_counter',
         'SettingsFeedAdmin'     => 'settings',
         'SystemAdmin'           => 'settings',
+        'SettingsOpenAiAdmin'   => 'settings',
         'CurrencyAdmin'         => 'currency',
         'DeliveriesAdmin'       => 'delivery',
         'DeliveryAdmin'         => 'delivery',

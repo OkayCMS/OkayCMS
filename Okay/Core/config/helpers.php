@@ -81,7 +81,6 @@ use Okay\Helpers\ValidateHelper;
 use Okay\Helpers\WishListHelper;
 use Okay\Helpers\XmlFeedHelper;
 use Okay\Requests\CommonRequest;
-use Orhanerday\OpenAi\OpenAi;
 use Psr\Log\LoggerInterface;
 use Okay\Helpers\ProductsHelper;
 use Okay\Helpers\CatalogHelper;
@@ -689,17 +688,11 @@ return [
         'arguments' => [
         ]
     ],
-    OpenAi::class => [
-        'class' => OpenAi::class,
-        'arguments' => [
-            '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',
-        ]
-    ],
     OpenAiHelper::class => [
         'class' => OpenAiHelper::class,
         'arguments' => [
-            new SR(OpenAi::class),
             new SR(Response::class),
+            new SR(Settings::class),
         ]
     ],
     OpenAiEntityHelper::class => [

@@ -9,6 +9,13 @@ use Okay\Entities\FeaturesValuesEntity;
 
 class AiProductRequest extends AbstractAiRequest
 {
+    public const ENTITY_TYPE = 'product';
+    public const FIELD_META_TITLE = 'meta_title';
+    public const FIELD_META_DESCRIPTION = 'meta_description';
+    public const FIELD_META_KEYWORDS= 'meta_keywords';
+    public const FIELD_ANNOTATION = 'annotation';
+    public const FIELD_DESCRIPTION = 'description';
+
     private string $additionalInfo = '';
 
     public function __construct(?int $entityId, ?string $name)
@@ -49,7 +56,26 @@ class AiProductRequest extends AbstractAiRequest
 
     public function getRequestText(string $field): string
     {
-        return "Згенеруй мені унікальний текст для товару на 800 символів\n '{$this->name}' з такими ключовими словами.\nКупити у Дніпрі, найкраща ціна, безкоштовна доставка";
+        $template = '';
+        switch ($field) {
+            case self::FIELD_META_TITLE:
+                $template = $this->settings->get('ai_product_title_template');
+                break;
+            case self::FIELD_META_DESCRIPTION:
+                $template = $this->settings->get('ai_product_meta_description_template');
+                break;
+            case self::FIELD_META_KEYWORDS:
+                $template = $this->settings->get('ai_product_keywords_template');
+                break;
+            case self::FIELD_ANNOTATION:
+                $template = $this->settings->get('ai_product_annotation_template');
+                break;
+            case self::FIELD_DESCRIPTION:
+                $template = $this->settings->get('ai_product_description_template');
+        }
+        return strtr($template, [
+            '{$product}' => "\n'{$this->name}'\n"
+        ]);
     }
 
     public function getAdditionalInfo(): string

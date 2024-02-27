@@ -3,6 +3,7 @@
 namespace Okay\Helpers;
 
 use Okay\Core\Response;
+use Okay\Core\Settings;
 use Orhanerday\OpenAi\OpenAi;
 
 class OpenAiHelper
@@ -15,40 +16,34 @@ class OpenAiHelper
     private int $frequencyPenalty = 0;
     private int $presencePenalty = 0;
     private int $maxTokens = 1000;
+    private Settings $settings;
 
     public function __construct(
-        OpenAi $openAi,
-        Response $response
+        Response $response,
+        Settings $settings
     ) {
-        $this->openAi = $openAi;
+        $this->settings = $settings;
         $this->response = $response;
+        $this->openAi = new OpenAi((string)$settings->get('open_ai_api_key'));
+        $this->maxTokens = ((int)$settings->get('open_ai_max_tokens')) ?: 1000;
+        $this->temperature = ((float)$settings->get('open_ai_temperature')) ?: 1.0;
+        $this->frequencyPenalty = ((float)$settings->get('open_ai_frequency_penalty')) ?: 0;
+        $this->presencePenalty = ((float)$settings->get('open_ai_presence_penalty')) ?: 0;
     }
 
-    public function getMetadata(): ?string
-    {
-        return $this->aiChat(
-            "Згенеруй мені унікальний текст для товару  на 800 символів\n 'Диван-ліжко Max 1,2 в сканині Кордрой' з такими ключовими словами.\nКупити у Дніпрі, найкраща ціна,безкоштовна доставка",
-            "- Вага: 90кг. UA\n
-             - Размеры: 150.9 х 115.2 х 87 cm\n
-             - Материал: Буковые ламели\n
-             - Производитель: Италия\n
-             - Количество мест: 2\n
-             - Высота сиденья: 160\n
-             - Водонепронецаемый: да"
-        );
-    }
-
-    public function streamMetadata(string $userMessage, string $assistantMessage = '')
+    public function streamMetadata(string $userMessage, string $assistantMessage = '', bool $format = false)
     {
         $this->response->setContentType(RESPONSE_GPT_STREAM);
         $this->response->sendHeaders();
-        $this->response->sendStream('data: <p>');
+        if ($format) {
+            $this->response->sendStream('data: <p>');
+        }
         ignore_user_abort(true);
 
         $this->aiChat(
             $userMessage,
             $assistantMessage,
-            function ($ch, $data) {
+            function ($ch, $data) use ($format) {
                 $deltas = explode("\n", $data);
                 foreach ($deltas as $data2) {
                     if (strpos($data2, 'data: ') !== 0) {
@@ -68,7 +63,7 @@ class OpenAiHelper
                         $content = '';
                     }
 
-                    if (!empty(trim($content)) && strpos($content, "\n") !== false) {
+                    if ($format && !empty(trim($content)) && strpos($content, "\n") !== false) {
                         $content = trim($content) . '</p><p>';
                     }
 
@@ -81,7 +76,9 @@ class OpenAiHelper
             }
         );
 
-        $this->response->sendStream('data: </p>');
+        if ($format) {
+            $this->response->sendStream('data: </p>');
+        }
         $this->response->sendStream("event: stop\ndata: stopped\n\n");
     }
 
@@ -89,8 +86,12 @@ class OpenAiHelper
     {
         $messages = [
             [
+                "role" => "system",
+                "content" => (string)$this->settings->get('ai_system_message'),
+            ],
+            [
                 "role" => "user",
-                "content" => $userMessage
+                "content" => $userMessage,
             ]
         ];
 
@@ -104,18 +105,14 @@ class OpenAiHelper
         $chat = $this->openAi->chat([
             'model' => $this->model,
             'messages' => $messages,
-
-//        [
-//            "role" => "system",
-//            "content" => "Пиши опис як наче ти пошукова система"
-//        ],
             'temperature' => $this->temperature,
             'max_tokens' => $this->maxTokens,
             'frequency_penalty' => $this->frequencyPenalty,
             'presence_penalty' => $this->presencePenalty,
             'stream' => !empty($stream),
         ], $stream);
-
+//        ]);
+//var_dump(($chat));
         if (empty($stream)) {
             $response = json_decode($chat);
             return $response->choices[0]->message->content ?? null;
