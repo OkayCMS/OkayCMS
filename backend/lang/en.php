@@ -276,7 +276,7 @@ $lang['languages_disable'] = 'Disable';
 $lang['languages_enable'] = 'Enable';
 $lang['languages_site'] = 'Site languages';
 $lang['languages_no_list'] = 'No langiages';
-$lang['languages_alert_text1'] = 'When adding a new language, translations of the standard system are created from the default language. You will need to be on the page <a href="{url controller=TranslationsAdmin}" target="_blank">Translations</a> transfer them manually.';
+$lang['languages_alert_text1'] = 'When adding a new language, translations of the standard system are created from the default language. You will need to be on the page <a href="%s" target="_blank">Translations</a> transfer them manually.';
 $lang['languages_alert_text2'] = 'In our community on <a href="https://github.com/OkayCMS/translations" target="_blank">github</a> already have translations into some languages.';
 $lang['manager_add'] = 'Add manager';
 $lang['manager_added'] = 'Manager added';
