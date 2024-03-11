@@ -12,10 +12,10 @@ class OpenAiHelper
     private Response $response;
 
     private string $model = 'gpt-3.5-turbo';
-    private float $temperature = 1.0;
-    private int $frequencyPenalty = 0;
-    private int $presencePenalty = 0;
-    private int $maxTokens = 1000;
+    private float $temperature;
+    private int $frequencyPenalty;
+    private int $presencePenalty;
+    private int $maxTokens;
     private Settings $settings;
 
     public function __construct(
@@ -111,8 +111,7 @@ class OpenAiHelper
             'presence_penalty' => $this->presencePenalty,
             'stream' => !empty($stream),
         ], $stream);
-//        ]);
-//var_dump(($chat));
+
         if (empty($stream)) {
             $response = json_decode($chat);
             return $response->choices[0]->message->content ?? null;
