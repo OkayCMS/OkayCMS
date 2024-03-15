@@ -341,3 +341,4 @@ $lang['user_comments_title'] = 'My comments';
 $lang['user_wishlist_title'] = 'Featured Products';
 $lang['user_browsed_title'] = 'Products viewed';
 $lang['general_messages_success'] = 'Saved successfully';
+$lang['product_info_validate'] = 'out of stock.';
