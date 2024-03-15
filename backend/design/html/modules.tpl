@@ -68,16 +68,21 @@
     {if $modules}
         <form class="fn_form_list" method="post">
             <div class="row">
-                <div class="">
-                    <div class="col-md-4">
-                        <div class="heading_label">{$btr->settings_general_email_module|escape}</div>
-                        <div class="mb-1">
-                            <input name="email_for_module" class="form-control" type="text"
-                                   value="{$settings->email_for_module|escape}"/>
-                        </div>
+                <div class="col-md-12 col-lg-12">
+                    <div class="heading_label">{$btr->settings_general_email_module|escape}</div>
+                </div>
+                <div class="col-md-6 col-lg-6">
+                    <div class="mb-1">
+                        <input name="email_for_module" class="form-control" type="text"
+                               value="{$settings->email_for_module|escape}"/>
                     </div>
                 </div>
-
+                <div class="col-md-6 col-lg-6">
+                    <button type="submit" class="btn btn_small btn_blue">
+                        {include file='svg_icon.tpl' svgId='checked'}
+                        <span>{$btr->general_apply|escape}</span>
+                    </button>
+                </div>
             </div>
             <div class="okay_list products_list bg_white mb-1 fn_sort_list">
                 <input type="hidden" name="session_id" value="{$smarty.session.id}">
@@ -188,7 +193,8 @@
         let destination = $(this).data('target')
             + '?cite_return_url={urlencode($rootUrl)}{urlencode($smarty.server.REQUEST_URI)}'
             + '&continue_modules_expire=1'
-            + '&checkout_domain={$domain}';
+            + '&checkout_domain={$domain}'
+            +'&checkout_email={$settings->email_for_module}';
         $.ajax({
             url: '{url controller='ModulesAdmin@resetModulesAccessExpiresCache'}',
             type: 'GET',

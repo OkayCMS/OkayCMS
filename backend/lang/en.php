@@ -1646,3 +1646,5 @@ $lang['modules_license_info_title'] = 'Important notice about the status of your
 $lang['modules_license_important'] = 'Important!';
 $lang['modules_license_info_title_1'] = '<p>Here will be the instruction of the unlicensed module</p>';
 $lang['modules_license_info_title_2'] = '<p></p>';
+$lang['index_btn_email_info'] = 'IMPORTANT';
+$lang['index_btn_email_info_hint'] = 'To receive product verification, you must fill in the E-mail field specified when purchasing the product';

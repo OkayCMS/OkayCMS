@@ -57,6 +57,10 @@ class BackendModulesHelper
      */
     public function updateModulesAccessExpiresCache(): void
     {
+        if (empty($this->settings->get('email_for_module'))){
+            $this->settings->set('modules_access_expires', '');
+        }
+
         // Перевіряємо чи валідний кеш
         if ($this->getModulesAccessExpiresFromCache()) {
             return;

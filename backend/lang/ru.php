@@ -1645,3 +1645,5 @@ $lang['modules_license_info_title'] = 'Важное уведомление о с
 $lang['modules_license_important'] = 'Важно!';
 $lang['modules_license_info_title_1'] = '<p>Тут будет инструкция нелицензионного модуля</p>';
 $lang['modules_license_info_title_2'] = '<p></p>';
+$lang['index_btn_email_info'] = 'ВАЖНО';
+$lang['index_btn_email_info_hint'] = 'Для получения верификации продуктов, обязательно к заполнению поле E-mail, указанный при покупки продукта';
