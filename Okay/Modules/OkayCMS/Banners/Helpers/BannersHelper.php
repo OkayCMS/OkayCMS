@@ -89,6 +89,10 @@ class BannersHelper
     {
         $banner = $this->bannersEntity->get($id);
 
+        if (!$banner) {
+            $banner = new \stdClass();
+        }
+
         if (!empty($banner->settings)) {
             $banner->settings = unserialize($banner->settings);
         } else {

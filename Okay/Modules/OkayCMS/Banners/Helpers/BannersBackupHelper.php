@@ -4,6 +4,7 @@ namespace Okay\Modules\OkayCMS\Banners\Helpers;
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Languages;
+use Okay\Entities\PagesEntity;
 use Okay\Modules\OkayCMS\Banners\DTO\BannerBackupDTO;
 use Okay\Modules\OkayCMS\Banners\DTO\BannerImageBackupDTO;
 use Okay\Modules\OkayCMS\Banners\DTO\BannerImageLangBackupDTO;
@@ -19,6 +20,7 @@ class BannersBackupHelper
 
     private BannersEntity $bannersEntity;
     private BannersImagesEntity $bannersImagesEntity;
+    private PagesEntity $pagesEntity;
     private Languages $languages;
     private string $bannersImagesDir;
 
@@ -31,6 +33,7 @@ class BannersBackupHelper
         $this->bannersImagesDir = $bannersImagesDir;
         $this->bannersEntity = $entityFactory->get(BannersEntity::class);
         $this->bannersImagesEntity = $entityFactory->get(BannersImagesEntity::class);
+        $this->pagesEntity = $entityFactory->get(PagesEntity::class);
     }
 
     /**
@@ -98,6 +101,11 @@ class BannersBackupHelper
                 $allLanguages[$language->label] = $language;
             }
 
+            $pages = [];
+            foreach ($this->pagesEntity->cols(['id', 'url'])->noLimit()->find() as $p) {
+                $pages[(string)$p->url] = $p;
+            }
+
             foreach ($bannerBackupDTOs as $bannerBackupDTO) {
                 if (empty($bannerBackupDTO->getGroupName())
                     || $this->bannersEntity->findOne(['group_name' => $bannerBackupDTO->getGroupName()]))
@@ -111,11 +119,21 @@ class BannersBackupHelper
                     continue;
                 }
 
+                $bannerPages = [];
+                if ($backupBannerPages = $bannerBackupDTO->getPages()) {
+                    foreach ($backupBannerPages as $pageUrl) {
+                        if (isset($pages[$pageUrl])) {
+                            $bannerPages[] = $pages[$pageUrl]->id;
+                        }
+                    }
+                }
+
                 $bannerId = $this->bannersEntity->add([
                     'name' => $bannerBackupDTO->getName(),
                     'group_name' => $bannerBackupDTO->getGroupName(),
                     'visible' => 1,
-                    'show_all_pages' => 1,
+                    'pages' => implode(',', $bannerPages),
+                    'show_all_pages' => $backupBannerPages === null,
                     'as_individual_shortcode' => $bannerBackupDTO->isAsIndividualShortcode(),
                     'settings' => serialize($bannerBackupDTO->getSettings()),
                 ]);
@@ -264,6 +282,7 @@ class BannersBackupHelper
     {
         $backup = [];
         $banners = $this->bannersEntity->mappedBy('id')->find(['id' => $bannersIds]);
+        $pages = $this->pagesEntity->mappedBy('id')->noLimit()->find();
         if (empty($banners)) {
             return [];
         }
@@ -275,6 +294,11 @@ class BannersBackupHelper
             $bannerBackupDTO->setName($banner->name);
             $bannerBackupDTO->setGroupName($banner->group_name);
             $bannerBackupDTO->setAsIndividualShortcode((bool)$banner->as_individual_shortcode);
+            foreach (explode(',', $banner->pages) as $pageId) {
+                if (isset($pages[$pageId])) {
+                    $bannerBackupDTO->setPage($pages[$pageId]->url);
+                }
+            }
             $settings = unserialize($banner->settings);
             if ($settings instanceof BannerSettingsDTO) {
                 $bannerBackupDTO->setSettings($settings);
