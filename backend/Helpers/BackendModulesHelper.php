@@ -71,9 +71,8 @@ class BackendModulesHelper
         ));
 
         $modulesExpiresResponse = $this->request(sprintf(
-            '%sv2/modules/access/expires/%s/list?email_request=%s',
+            '%sv2/modules/access/expires/email?email_request=%s',
             $this->apiBaseUrl,
-            Request::getDomain(),
             $emailRequest
         ));
 

@@ -30,6 +30,7 @@ class ModulesAdmin extends IndexAdmin
 
             if (!empty($this->request->post('email_for_module')) && $this->settings->get('email_for_module') != $this->request->post('email_for_module')
                 || empty($this->request->post('email_for_module'))){
+                $this->settings->set('modules_access_expires', '');
                 $licenseModulesTemplates->setLicenseEmail($this->request->post('email_for_module'));
                 $backendModulesHelper->updateModulesAccessExpiresCache();
                 $licenseModulesTemplates->updateLicenseInfo();
