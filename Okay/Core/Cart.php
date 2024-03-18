@@ -152,7 +152,7 @@ class Cart
                     }
                 }
                 if (!empty($items)) {
-                    $this->saveShoppingCart($_SESSION['shopping_cart']);
+                    $this->saveShoppingCart($_SESSION['shopping_cart'] ?? []);
                 }
             }
 
@@ -238,7 +238,7 @@ class Cart
                 $amount = min($amount, ($variant->stock > 0 ? $variant->stock : min($this->settings->get('max_order_amount'), $amount)));
                 $_SESSION['shopping_cart'][$variantId] = intval($amount);
                 if (!empty($_SESSION['shopping_cart'])) {
-                    $this->saveShoppingCart($_SESSION['shopping_cart']);
+                    $this->saveShoppingCart($_SESSION['shopping_cart'] ?? []);
                 }
                 $this->addPurchase($variantId, $amount);
                 if ($user = $this->mainHelper->getCurrentUser()) {
@@ -269,7 +269,7 @@ class Cart
                 $amount = min($amount, ($variant->stock > 0 ? $variant->stock : min($this->settings->get('max_order_amount'), $amount)));
                 $_SESSION['shopping_cart'][$variantId] = intval($amount);
                 if (!empty($_SESSION['shopping_cart'])) {
-                    $this->saveShoppingCart($_SESSION['shopping_cart']);
+                    $this->saveShoppingCart($_SESSION['shopping_cart'] ?? []);
                 }
                 $this->updatePurchase($variantId, $amount);
                 if ($user = $this->mainHelper->getCurrentUser()) {
@@ -292,7 +292,12 @@ class Cart
     public function deleteItem($variantId)
     {
         unset($_SESSION['shopping_cart'][$variantId]);
-        $this->saveShoppingCart($_SESSION['shopping_cart']);
+
+        if (!empty($_SESSION['shopping_cart'])) {
+            $this->saveShoppingCart($_SESSION['shopping_cart'] ?? []);
+
+        }
+
         if ($user = $this->mainHelper->getCurrentUser()) {
             $this->userCartItemsEntity->deleteByVariantId($user->id, $variantId);
         }
