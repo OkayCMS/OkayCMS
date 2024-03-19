@@ -120,16 +120,20 @@
                             {include file='svg_icon.tpl' svgId='yes_icon'}
                             <span class="">Version {$config->version|escape}</span>
                         </div>
-                        {if $settings->email_for_module}
-                        {else}
-                            <div class="btn_admin btn_email_info hint-bottom-middle-t-info-s-small-mobile  hint-anim" data-hint="{$btr->index_btn_email_info_hint|escape}">
-                                {include file='svg_icon.tpl' svgId='warn_icon'}
-                                <span class="">{$btr->index_btn_email_info|escape}</span>
-                            </div>
-                        {/if}
                     {/if}
                 </div>
             </div>
+            {if $settings->email_for_module}
+            {else}
+            <div class="admin_switches">
+                <div class="box_adswitch">
+                    <a class="btn_inner"  href="index.php?controller=ModulesAdmin">
+                        {include file='svg_icon.tpl' svgId='warn_icon'}
+                        <span class="">{$btr->index_btn_email_info|escape}</span>
+                    </a>
+                </div>
+            </div>
+            {/if}
             <div id="mobile_menu_right" class="fn_mobile_menu_right hidden-md-up  text_white float-xs-right">
                 {include file='svg_icon.tpl' svgId='mobile_menu2'}
             </div>

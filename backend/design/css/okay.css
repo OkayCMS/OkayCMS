@@ -8852,45 +8852,25 @@ input.error {
     flex: 0 0 105px;
     max-width: 105px;
 }
-.btn_email_info {
+
+.btn_inner{
     display: inline-block;
-    border: 1px solid transparent;
-    color: #b54843;
-    background-color: transparent;
-    margin-left: 5px;
-    margin-bottom: 5px;
-    cursor: inherit;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    border-radius: 3px;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid #b54843;
+    padding: 6px 10px;
+    transition: all 0.2s ease-in-out;
     color: #fff;
     background-color: #b54843;
-    border-color: #b54843;
 }
-
-.btn_email_info:focus,
-.btn_email_info:hover{
+.btn_inner:focus,
+.btn_inner:hover{
     color: #fff;
     background-color: #b76864;
-    border-color: #b54843;
-}
-.btn_version_old:before,
-.btn_email_info:before{
-    margin-top: 5px;
-}
-.btn_version_old:after,
-.btn_email_info:after{
-    margin-top: 15px;
-}
-
-.admin_switches .btn_email_info svg,
-.admin_switches a svg{
-    margin-right: 5px;
-    width: 20px;
-    height: 20px;
-}
-.admin_switches .btn_version_old svg,
-.admin_switches .btn_email_info svg{
-    vertical-align: inherit;
-}
-.admin_switches .btn_version_old span,
-.admin_switches .btn_email_info span{
-    vertical-align: inherit;
+    border-color: #b76864;
 }
