@@ -6,7 +6,7 @@ namespace Okay\Modules\OkayCMS\Banners\Requests;
 
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Request;
-use Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO;
+use Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO;
 
 class BannersImagesRequest
 {
@@ -34,15 +34,15 @@ class BannersImagesRequest
         $bannersImage->description = $this->request->post('description');
 
         $settings = $this->request->post('settings');
-        $slideSettingsDTO = new SlideSettingsDTO();
-        $slideSettingsDTO->setDesktopWidth((int)($settings['desktop_width'] ?? 0));
-        $slideSettingsDTO->setDesktopHeight((int)($settings['desktop_height'] ?? 0));
-        $slideSettingsDTO->setMobileWidth((int)($settings['mobile_width'] ?? 0));
-        $slideSettingsDTO->setMobileHeight((int)($settings['mobile_height'] ?? 0));
-        $slideSettingsDTO->setVariantShow($settings['variant_show'] ?? '');
-        $slideSettingsDTO->setMobileVariantShow($settings['mobile_variant_show'] ?? null);
+        $bannerImageSettingsDTO = new BannerImageSettingsDTO();
+        $bannerImageSettingsDTO->setDesktopWidth((int)($settings['desktop_width'] ?? 0));
+        $bannerImageSettingsDTO->setDesktopHeight((int)($settings['desktop_height'] ?? 0));
+        $bannerImageSettingsDTO->setMobileWidth((int)($settings['mobile_width'] ?? 0));
+        $bannerImageSettingsDTO->setMobileHeight((int)($settings['mobile_height'] ?? 0));
+        $bannerImageSettingsDTO->setVariantShow($settings['variant_show'] ?? '');
+        $bannerImageSettingsDTO->setMobileVariantShow($settings['mobile_variant_show'] ?? null);
 
-        $bannersImage->settings = serialize($slideSettingsDTO);
+        $bannersImage->settings = serialize($bannerImageSettingsDTO);
 
         return ExtenderFacade::execute(__METHOD__, $bannersImage, func_get_args());
     }

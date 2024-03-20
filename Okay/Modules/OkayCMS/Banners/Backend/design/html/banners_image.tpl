@@ -123,7 +123,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-lg-4 col-md-12 pr-0">
+        <div class="col-md-12 col-lg-4 pr-0">
             <div class="boxed fn_toggle_wrap min_height_230px">
                 <div class="heading_box">
                     {$btr->general_image|escape}
@@ -158,28 +158,28 @@
                 </div>
                 <div class="banner_type">
                     <div class="banner_type__item">
-                        <input id="banner-type_1" class="hidden_check" name="settings[variant_show]" type="radio" {if $banners_image->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_DEFAULT}checked{/if} value="{Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_DEFAULT}" />
+                        <input id="banner-type_1" class="hidden_check" name="settings[variant_show]" type="radio" {if $banners_image->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_DEFAULT}checked{/if} value="{Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_DEFAULT}" />
                         <label for="banner-type_1" class="okay_ckeckbox">
                             <span class="banner_type__img_wrap"></span>
                             <span class="banner_type__name_wrap">{$btr->banners_image_variant_1|escape}</span>
                         </label>
                     </div>
                     <div class="banner_type__item">
-                        <input id="banner-type_2" class="hidden_check" name="settings[variant_show]" type="radio" {if $banners_image->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_DARK}checked{/if} value="{Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_DARK}" />
+                        <input id="banner-type_2" class="hidden_check" name="settings[variant_show]" type="radio" {if $banners_image->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_DARK}checked{/if} value="{Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_DARK}" />
                         <label for="banner-type_2" class="okay_ckeckbox">
                             <span class="banner_type__img_wrap"></span>
                             <span class="banner_type__name_wrap">{$btr->banners_image_variant_2|escape}</span>
                         </label>
                     </div>
                     <div class="banner_type__item">
-                        <input id="banner-type_3" class="hidden_check" name="settings[variant_show]" type="radio" {if $banners_image->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_IMAGE_LEFT}checked{/if} value="{Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_IMAGE_LEFT}" />
+                        <input id="banner-type_3" class="hidden_check" name="settings[variant_show]" type="radio" {if $banners_image->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_IMAGE_LEFT}checked{/if} value="{Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_IMAGE_LEFT}" />
                         <label for="banner-type_3" class="okay_ckeckbox">
                             <span class="banner_type__img_wrap"></span>
                             <span class="banner_type__name_wrap">{$btr->banners_image_variant_3|escape}</span>
                         </label>
                     </div>
                     <div class="banner_type__item">
-                        <input id="banner-type_4" class="hidden_check" name="settings[variant_show]" type="radio" {if $banners_image->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_IMAGE_RIGHT}checked{/if} value="{Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_IMAGE_RIGHT}" />
+                        <input id="banner-type_4" class="hidden_check" name="settings[variant_show]" type="radio" {if $banners_image->settings->getVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_IMAGE_RIGHT}checked{/if} value="{Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_IMAGE_RIGHT}" />
                         <label for="banner-type_4" class="okay_ckeckbox">
                             <span class="banner_type__img_wrap"></span>
                             <span class="banner_type__name_wrap">{$btr->banners_image_variant_4|escape}</span>
@@ -201,37 +201,22 @@
                     <div class="banner_group__inputs mt-q">
                         <div class="banner_group__input">
                             <div class="input-group">
-                                <input name="settings[desktop_width]" class="form-control" type="text" value="{$banners_image->settings->getDesktopWidth()|escape}" placeholder="{Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::DEFAULT_DESKTOP_W}" />
+                                <input name="settings[desktop_width]" class="form-control" type="text" value="{$banners_image->settings->getDesktopWidth()|escape}" placeholder="{Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::DEFAULT_DESKTOP_W}" />
                                 <span class="input-group-addon">px</span>
                             </div>
 
                         </div>
                         <div class="banner_group__input">
                             <div class="input-group">
-                                <input name="settings[desktop_height]" class="form-control" type="text" value="{$banners_image->settings->getDesktopHeight()|escape}" placeholder="{Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::DEFAULT_DESKTOP_H}" />
+                                <input name="settings[desktop_height]" class="form-control" type="text" value="{$banners_image->settings->getDesktopHeight()|escape}" placeholder="{Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::DEFAULT_DESKTOP_H}" />
                                 <span class="input-group-addon">px</span>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="">
-                    <div class="heading_label">{$btr->banners_image_size_mobile|escape}</div>
-                    <div class="banner_group__inputs mt-q">
-                        <div class="banner_group__input">
-                            <div class="input-group">
-                                <input name="settings[mobile_width]" class="form-control" type="text" value="{$banners_image->settings->getMobileWidth()|escape}" placeholder="{Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::DEFAULT_MOBILE_W}" />
-                                <span class="input-group-addon">px</span>
-                            </div>
-
-                        </div>
-                        <div class="banner_group__input">
-                            <div class="input-group">
-                                <input name="settings[mobile_height]" class="form-control" type="text" value="{$banners_image->settings->getMobileHeight()|escape}" placeholder="{Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::DEFAULT_MOBILE_H}" />
-                                <span class="input-group-addon">px</span>
-                            </div>
-
-                        </div>
+                <div class="alert alert--info mb-0">
+                    <div class="alert__content">
+                        <p>{$btr->banners_image_size_desktop_text|escape}</p>
                     </div>
                 </div>
             </div>
@@ -239,7 +224,7 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-4 col-md-12 pr-0">
+        <div class="col-md-12 col-lg-4 pr-0">
             <div class="boxed fn_toggle_wrap min_height_230px">
                 <div class="heading_box">
                     {$btr->general_image|escape} {$btr->banners_image_on_mobile|escape}
@@ -264,7 +249,7 @@
                 {get_design_block block="banner_image_image_mobile_block"}
             </div>
         </div>
-        <div class="col-md-12 col-lg-8">
+        <div class="col-md-12 col-lg-4 pr-0">
             <div class="boxed fn_toggle_wrap min_height_230px">
                 <div class="heading_box">
                     {$btr->banners_image_variant_show|escape} {$btr->banners_image_on_mobile|escape}
@@ -274,32 +259,66 @@
                 </div>
                 <div class="banner_type">
                     <div class="banner_type__item">
-                        <input id="banner_mobile-type_1" class="hidden_check" name="settings[mobile_variant_show]" type="radio" {if $banners_image->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_DEFAULT}checked{/if} value="{Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_DEFAULT}" />
+                        <input id="banner_mobile-type_1" class="hidden_check" name="settings[mobile_variant_show]" type="radio" {if $banners_image->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_DEFAULT}checked{/if} value="{Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_DEFAULT}" />
                         <label for="banner_mobile-type_1" class="okay_ckeckbox">
                             <span class="banner_type__img_wrap"></span>
                             <span class="banner_type__name_wrap">{$btr->banners_image_variant_1|escape}</span>
                         </label>
                     </div>
                     <div class="banner_type__item">
-                        <input id="banner_mobile-type_2" class="hidden_check" name="settings[mobile_variant_show]" type="radio" {if $banners_image->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_DARK}checked{/if} value="{Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_DARK}" />
+                        <input id="banner_mobile-type_2" class="hidden_check" name="settings[mobile_variant_show]" type="radio" {if $banners_image->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_DARK}checked{/if} value="{Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_DARK}" />
                         <label for="banner_mobile-type_2" class="okay_ckeckbox">
                             <span class="banner_type__img_wrap"></span>
                             <span class="banner_type__name_wrap">{$btr->banners_image_variant_2|escape}</span>
                         </label>
                     </div>
                     <div class="banner_type__item">
-                        <input id="banner_mobile-type_3" class="hidden_check" name="settings[mobile_variant_show]" type="radio" {if $banners_image->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_IMAGE_LEFT}checked{/if} value="{Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_IMAGE_LEFT}" />
+                        <input id="banner_mobile-type_3" class="hidden_check" name="settings[mobile_variant_show]" type="radio" {if $banners_image->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_IMAGE_LEFT}checked{/if} value="{Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_IMAGE_LEFT}" />
                         <label for="banner_mobile-type_3" class="okay_ckeckbox">
                             <span class="banner_type__img_wrap"></span>
                             <span class="banner_type__name_wrap">{$btr->banners_image_variant_3|escape}</span>
                         </label>
                     </div>
                     <div class="banner_type__item">
-                        <input id="banner_mobile-type_4" class="hidden_check" name="settings[mobile_variant_show]" type="radio" {if $banners_image->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_IMAGE_RIGHT}checked{/if} value="{Okay\Modules\OkayCMS\Banners\DTO\SlideSettingsDTO::SHOW_IMAGE_RIGHT}" />
+                        <input id="banner_mobile-type_4" class="hidden_check" name="settings[mobile_variant_show]" type="radio" {if $banners_image->settings->getMobileVariantShow() == Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_IMAGE_RIGHT}checked{/if} value="{Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::SHOW_IMAGE_RIGHT}" />
                         <label for="banner_mobile-type_4" class="okay_ckeckbox">
                             <span class="banner_type__img_wrap"></span>
                             <span class="banner_type__name_wrap">{$btr->banners_image_variant_4|escape}</span>
                         </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-4">
+            <div class="boxed fn_toggle_wrap min_height_230px">
+                <div class="heading_box">
+                    {$btr->banner_resize_title|escape} {$btr->banners_image_on_mobile|escape}
+                    <div class="toggle_arrow_wrap fn_toggle_card text-primary">
+                        <a class="btn-minimize" href="javascript:;" ><i class="fa fn_icon_arrow fa-angle-down"></i></a>
+                    </div>
+                </div>
+                <div class="mb-1">
+                    <div class="heading_label">{$btr->banners_image_size_mobile|escape}</div>
+                    <div class="banner_group__inputs mt-q">
+                        <div class="banner_group__input">
+                            <div class="input-group">
+                                <input name="settings[mobile_width]" class="form-control" type="text" value="{$banners_image->settings->getMobileWidth()|escape}" placeholder="{Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::DEFAULT_MOBILE_W}" />
+                                <span class="input-group-addon">px</span>
+                            </div>
+
+                        </div>
+                        <div class="banner_group__input">
+                            <div class="input-group">
+                                <input name="settings[mobile_height]" class="form-control" type="text" value="{$banners_image->settings->getMobileHeight()|escape}" placeholder="{Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO::DEFAULT_MOBILE_H}" />
+                                <span class="input-group-addon">px</span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert--info mb-0">
+                    <div class="alert__content">
+                        <p>{$btr->banners_image_size_mobile_text|escape}</p>
                     </div>
                 </div>
             </div>
