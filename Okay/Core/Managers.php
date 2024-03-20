@@ -61,6 +61,7 @@ class Managers
         'router',
         'system_modules',
         'settings_indexing',
+        'open_ai',
     ];
 
     // Соответствие модулей и названий соответствующих прав
@@ -110,6 +111,7 @@ class Managers
         'SettingsCounterAdmin'  => 'settings_counter',
         'SettingsFeedAdmin'     => 'settings',
         'SystemAdmin'           => 'settings',
+        'SettingsOpenAiAdmin'   => 'settings',
         'CurrencyAdmin'         => 'currency',
         'DeliveriesAdmin'       => 'delivery',
         'DeliveryAdmin'         => 'delivery',
@@ -139,6 +141,7 @@ class Managers
         'LearningAdmin'             => 'learning',
         'SettingsRouterAdmin'       => 'router',
         'SettingsIndexingAdmin'     => 'settings_indexing',
+        'OpenAiAdmin'     => 'open_ai',
     ];
     
     /**

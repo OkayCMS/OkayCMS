@@ -49,6 +49,8 @@ use Okay\Helpers\BrandsHelper;
 use Okay\Helpers\CanonicalHelper;
 use Okay\Helpers\CartHelper;
 use Okay\Helpers\CategoriesHelper;
+use Okay\Helpers\OpenAiEntityHelper;
+use Okay\Helpers\OpenAiHelper;
 use Okay\Helpers\ComparisonHelper;
 use Okay\Helpers\CouponHelper;
 use Okay\Helpers\CommentsHelper;
@@ -683,6 +685,18 @@ return [
     ],
     ConsoleQuestionHelper::class => [
         'class' => ConsoleQuestionHelper::class,
+        'arguments' => [
+        ]
+    ],
+    OpenAiHelper::class => [
+        'class' => OpenAiHelper::class,
+        'arguments' => [
+            new SR(Response::class),
+            new SR(Settings::class),
+        ]
+    ],
+    OpenAiEntityHelper::class => [
+        'class' => OpenAiEntityHelper::class,
         'arguments' => [
         ]
     ],
