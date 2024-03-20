@@ -7,10 +7,10 @@ class NPCalcVO
     private int $totalPrice;
     private float $totalWeight = 0;
     private float $totalVolume = 0;
-    private int $defaultWeight;
-    private int $defaultVolume;
+    private float $defaultWeight;
+    private float $defaultVolume;
 
-    public function __construct(int $totalPrice, int $defaultWeight, int $defaultVolume)
+    public function __construct(int $totalPrice, float $defaultWeight, float $defaultVolume)
     {
         $this->totalPrice = $totalPrice;
         $this->defaultWeight = $defaultWeight;
