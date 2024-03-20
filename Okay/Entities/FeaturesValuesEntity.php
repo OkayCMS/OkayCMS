@@ -482,7 +482,7 @@ class FeaturesValuesEntity extends Entity
         $binds = [];
 
         foreach ($selectedFeatures as $featureId => $featureValuesTranslits) {
-            $statements[] = "fv.feature_id = ? AND fv.translit IN (?)";
+            $statements[] = "fv.feature_id = ? AND l.translit IN (?)";
             $binds = array_merge($binds, [
                 $featureId,
                 $featureValuesTranslits
