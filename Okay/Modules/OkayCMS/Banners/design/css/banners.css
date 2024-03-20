@@ -103,7 +103,7 @@
 }
 .banner_group__variant2 .banner_group__title,
 .banner_group__variant2 .banner_group__description{
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.6);
     padding: 10px 20px;
 }
 .banner_group__variant3,
@@ -251,24 +251,62 @@
     .banner_group__image img{
         width: 100% !important;
     }
+    .banner_group{
+        background-color: transparent;
+    }
+    .banner_group__item {
+        background-color: #fff;
+    }
     .banner_group__variant1 .banner_group__content, .banner_group__variant2 .banner_group__content {
-        left: 5%;
+        left: 10%;
         top: 5%;
-        right: 5%;
+        right: 10%;
         bottom: 5%;
     }
     .banner_group__variant2 .banner_group__title, .banner_group__variant2 .banner_group__description {
         padding: 5px 5px;
     }
+    .banner_group__variant3{
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: reverse;
+        -webkit-flex-direction: column-reverse;
+        -ms-flex-direction: column-reverse;
+        flex-direction: column-reverse;
+        height: 100%;
+    }
+    .banner_group__variant4{
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        height: 100%;
+    }
+    .banner_group__variant3 .banner_group__content,
+    .banner_group__variant3 .banner_group__image,
+    .banner_group__variant4 .banner_group__content,
+    .banner_group__variant4 .banner_group__image{
+        -webkit-flex: 0 0 100%;
+        -ms-flex: 0 0 100%;
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    .banner_group__variant3 .banner_group__content, 
+    .banner_group__variant4 .banner_group__content {
+        padding: 5% 5%;
+    }
+    .main_banner .swiper-wrapper{
+        align-items: stretch;
+    }
     .banner_group__title {
-        font-size: 16px;
+        font-size: 20px;
         line-height: 1.2;
-        font-weight: 500;
+        font-weight: 700;
         text-transform: initial;
         margin-bottom: 0;
     }
     .banner_group__description {
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 400;
     }
     .banner_advantages__title,

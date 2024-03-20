@@ -12,6 +12,7 @@ use Okay\Core\Languages;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\QueryFactory;
 use Okay\Core\Request;
+use Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO;
 use Okay\Modules\OkayCMS\Banners\Entities\BannersEntity;
 use Okay\Modules\OkayCMS\Banners\Entities\BannersImagesEntity;
 
@@ -117,6 +118,8 @@ class BannersImagesHelper
 
         if (!empty($bannerImage->settings)) {
             $bannerImage->settings = unserialize($bannerImage->settings);
+        } else {
+            $bannerImage->settings = new BannerImageSettingsDTO();
         }
         
         return ExtenderFacade::execute(__METHOD__, $bannerImage, func_get_args());

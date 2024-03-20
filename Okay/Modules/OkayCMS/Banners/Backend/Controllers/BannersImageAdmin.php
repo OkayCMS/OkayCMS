@@ -40,7 +40,10 @@ class BannersImageAdmin extends IndexAdmin
                         
                         foreach ($this->languages->getAllLanguages() as $lang) {
                             $this->languages->setLangId($lang->id);
-                            $bannersImagesHelper->update($bannersImage->id, ['image' => $currentBannersImage->image]);
+                            $bannersImagesHelper->update($bannersImage->id, [
+                                'image' => $currentBannersImage->image,
+                                'image_mobile' => $currentBannersImage->image_mobile,
+                            ]);
                         }
                         
                     }

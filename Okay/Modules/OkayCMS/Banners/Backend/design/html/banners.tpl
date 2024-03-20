@@ -3,19 +3,47 @@
 {*Название страницы*}
 <div class="row">
     <div class="col-lg-12 col-md-12">
-        <div class="wrap_heading">
-            <div class="box_heading heading_page">
-                {$btr->banners_groups|escape}
-            </div>
-            <div class="box_btn_heading">
+        <div class="wrap_heading main_header">
+            <div class="main_header__item">
+                <div class="box_heading heading_page">
+                    {$btr->banners_groups|escape}
+                </div>
+                <div class="box_btn_heading">
                     <a class="btn btn_small btn-info" href="{url controller=[OkayCMS,Banners,BannerAdmin] return=$smarty.server.REQUEST_URI}">
-                    {include file='svg_icon.tpl' svgId='plus'}
-                    <span>{$btr->banners_add|escape}</span>
+                        {include file='svg_icon.tpl' svgId='plus'}
+                        <span>{$btr->banners_add|escape}</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="main_header__item hidden-md-down">
+                <a class="fn_import_banner_open btn btn_blue btn_small add" href="#fn_import_banner">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5"/></svg>                     
+                    <span>{$btr->banners_import_button|escape}</span>
                 </a>
             </div>
         </div>
     </div>
 </div>
+
+{if $restore_backup_errors}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="alert alert--center alert--icon alert--error">
+                <div class="alert__content">
+                    <div class="alert__title">
+                        {foreach $restore_backup_errors as $restore_backup_error_VO}
+                            {vsprintf(
+                                $btr->getTranslation($restore_backup_error_VO->getErrorLangDirective()),
+                                $restore_backup_error_VO->getErrorTextParams()
+                            )}
+                        {/foreach}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{/if}
 
 {*Главная форма страницы*}
 <div class="boxed fn_toggle_wrap">
@@ -129,6 +157,7 @@
                                     <option value="enable">{$btr->general_do_enable|escape}</option>
                                     <option value="disable">{$btr->general_do_disable|escape}</option>
                                     <option value="delete">{$btr->general_delete|escape}</option>
+                                    <option value="backup">{$btr->banners_make_backup|escape}</option>
                                 </select>
                             </div>
                         </div>
@@ -151,4 +180,36 @@
         </div>
     {/if}
 </div>
+
+
+
+<div id="fn_import_banner" class="popup" style="display: none;">
+    <form method="post" enctype="multipart/form-data" class="popup__content">
+        <div class="popup__header">
+            <div class="popup__title">
+                <span data-language="callback_header">{$btr->banners_modal_title|escape}</span>
+            </div>
+        </div>
+        <div class="popup__body">
+            <p>{$btr->banners_modal_text1|escape}</p>
+            <div class="upload_file">
+                <input type=hidden name="session_id" value="{$smarty.session.id}">
+                <input type="file" name="banners" accept=".zip" title="{$btr->input_upload_title|escape}">
+            </div>
+            <span class="upload_file__note">{$btr->banners_modal_text2|escape}</span>
+        </div>
+        <div class="popup__footer">
+            <button type="submit" class="btn btn_small btn_blue add">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5"/></svg>                    
+                <span>{$btr->banners_upload_button|escape}</span>
+            </button>
+        </div>
+    </form>
+</div>
+
+{literal}
+<script>
+    $(".fn_import_banner_open").fancybox();
+</script>
+{/literal}
 
