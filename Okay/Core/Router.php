@@ -480,14 +480,16 @@ class Router {
         }
 
         $result = trim(strip_tags(htmlspecialchars($result)));
-
-        if ($query) {
-            $result = $result.'?'.http_build_query($query);
-        }
         
         // TODO здесь есть скрытая связь с FilterHelper. Это может привести к багам, подумать над тем, чтобы решить это
         if (is_object($route) && method_exists($route, 'hasSlashAtEnd') && $route->hasSlashAtEnd()) {
-            return ExtenderFacade::execute(__METHOD__, rtrim($result, '/').'/', func_get_args());
+            $result = rtrim($result, '/') . '/';
+            if ($query) {
+                $result = $result . '?' . http_build_query($query);
+            }
+            return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
+        } elseif ($query) {
+            $result = $result . '?' . http_build_query($query);
         }
 
         return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
