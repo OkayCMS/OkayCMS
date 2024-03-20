@@ -249,6 +249,7 @@ $lang['user_number_of_order'] = 'Order number';
 $lang['user_order_date'] = 'Date';
 $lang['user_order_number'] = 'Order #';
 $lang['user_order_status'] = 'Status';
+$lang['user_messages_success'] = 'Data saved';
 $lang['wishlist_empty'] = 'No favorites';
 $lang['wishlist_header'] = 'Favorites';
 $lang['wishlist_info_wishlist'] = 'Favorites';

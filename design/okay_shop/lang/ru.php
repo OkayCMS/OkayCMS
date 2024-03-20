@@ -249,6 +249,7 @@ $lang['user_number_of_order'] = 'Номер заказа';
 $lang['user_order_date'] = 'Дата';
 $lang['user_order_number'] = 'Заказ №';
 $lang['user_order_status'] = 'Статус';
+$lang['user_messages_success'] = 'Данные сохранены';
 $lang['wishlist_empty'] = 'В избранном пусто';
 $lang['wishlist_header'] = 'Избранное';
 $lang['wishlist_info_wishlist'] = 'Избранное';
