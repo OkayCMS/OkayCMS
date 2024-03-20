@@ -139,22 +139,6 @@ class BannersHelper
                             $bannersImage->settings = unserialize($bannersImage->settings);
                         }
 
-                        if (empty($bannersImage->settings['desktop']['w'])) {
-                            $bannersImage->settings['desktop']['w'] = BannersImagesEntity::DEFAULT_DESKTOP_W;
-                        }
-                        if (empty($bannersImage->settings['desktop']['h'])) {
-                            $bannersImage->settings['desktop']['h'] = BannersImagesEntity::DEFAULT_DESKTOP_H;
-                        }
-                        if (empty($bannersImage->settings['mobile']['w'])) {
-                            $bannersImage->settings['mobile']['w'] = BannersImagesEntity::DEFAULT_MOBILE_W;
-                        }
-                        if (empty($bannersImage->settings['mobile']['h'])) {
-                            $bannersImage->settings['mobile']['h'] = BannersImagesEntity::DEFAULT_MOBILE_H;
-                        }
-                        if (empty($bannersImage->settings['variant_show'])) {
-                            $bannersImage->settings['variant_show'] = BannersImagesEntity::SHOW_DEFAULT;
-                        }
-
                         // Убираем урл у баннеров на странице, на которой они выведены
                         if ($this->config->get('banners_hide_self_url')) {
                         

@@ -54,12 +54,21 @@ class BannersImageAdmin extends IndexAdmin
             }
 
             // Картинка
-            if ($bannersImagesRequest->postDeleteImage()) {
-                $bannersImagesHelper->deleteImage($bannersImage);
+            if ($deleteTypes = $bannersImagesRequest->postDeleteImage()) {
+                if (in_array('desktop', $deleteTypes)) {
+                    $bannersImagesHelper->deleteImage($bannersImage);
+                }
+                if (in_array('mobile', $deleteTypes)) {
+                    $bannersImagesHelper->deleteImage($bannersImage, 'image_mobile');
+                }
             }
 
             if ($image = $bannersImagesRequest->fileImage()) {
                 $bannersImagesHelper->uploadImage($image, $bannersImage, $isNewBannersImage);
+            }
+
+            if ($imageMobile = $bannersImagesRequest->mobileFileImage()) {
+                $bannersImagesHelper->uploadImage($imageMobile, $bannersImage, $isNewBannersImage, 'image_mobile');
             }
 
             $this->postRedirectGet->redirect();
