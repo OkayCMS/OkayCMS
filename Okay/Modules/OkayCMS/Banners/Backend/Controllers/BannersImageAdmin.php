@@ -40,7 +40,10 @@ class BannersImageAdmin extends IndexAdmin
                         
                         foreach ($this->languages->getAllLanguages() as $lang) {
                             $this->languages->setLangId($lang->id);
-                            $bannersImagesHelper->update($bannersImage->id, ['image' => $currentBannersImage->image]);
+                            $bannersImagesHelper->update($bannersImage->id, [
+                                'image' => $currentBannersImage->image,
+                                'image_mobile' => $currentBannersImage->image_mobile,
+                            ]);
                         }
                         
                     }
@@ -54,12 +57,21 @@ class BannersImageAdmin extends IndexAdmin
             }
 
             // Картинка
-            if ($bannersImagesRequest->postDeleteImage()) {
-                $bannersImagesHelper->deleteImage($bannersImage);
+            if ($deleteTypes = $bannersImagesRequest->postDeleteImage()) {
+                if (in_array('desktop', $deleteTypes)) {
+                    $bannersImagesHelper->deleteImage($bannersImage);
+                }
+                if (in_array('mobile', $deleteTypes)) {
+                    $bannersImagesHelper->deleteImage($bannersImage, 'image_mobile');
+                }
             }
 
             if ($image = $bannersImagesRequest->fileImage()) {
                 $bannersImagesHelper->uploadImage($image, $bannersImage, $isNewBannersImage);
+            }
+
+            if ($imageMobile = $bannersImagesRequest->mobileFileImage()) {
+                $bannersImagesHelper->uploadImage($imageMobile, $bannersImage, $isNewBannersImage, 'image_mobile');
             }
 
             $this->postRedirectGet->redirect();

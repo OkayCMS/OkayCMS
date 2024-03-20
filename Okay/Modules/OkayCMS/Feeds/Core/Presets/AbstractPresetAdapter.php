@@ -456,7 +456,19 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
     protected function modifyItem(object $item): object
     {
         $item = $this->xmlFeedHelper->attachFeatures($item);
-        $item = $this->xmlFeedHelper->attachDescriptionByTemplate($item);
+        $metaParts = $this->xmlFeedHelper->getMetadataParts($item);
+        $item = $this->xmlFeedHelper->attachDescriptionByTemplate(
+            $item,
+            $metaParts,
+            $this->xmlFeedHelper->getDescriptionTemplate($item),
+            XmlFeedHelper::DESCRIPTION_FIELD
+        );
+        $item = $this->xmlFeedHelper->attachDescriptionByTemplate(
+            $item,
+            $metaParts,
+            $this->xmlFeedHelper->getAnnotationTemplate($item),
+            XmlFeedHelper::ANNOTATION_FIELD
+        );
         $item = $this->xmlFeedHelper->attachProductImages($item);
 
         return $this->inheritedExtender(__FUNCTION__, $item, func_get_args());

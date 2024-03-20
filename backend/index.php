@@ -97,6 +97,13 @@ $design = $DI->get(Design::class);
 /** @var Module $module */
 $module = $DI->get(Module::class);
 
+/** @var BackendModulesHelper $modulesHelper */
+$modulesHelper = $DI->get(BackendModulesHelper::class);
+
+$module->setModulesExpires(
+    $modulesHelper->getModulesAccessExpiresFromCache()
+);
+
 // Запускаем все модули
 $modules->startAllModules();
 

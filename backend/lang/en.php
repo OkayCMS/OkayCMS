@@ -276,7 +276,7 @@ $lang['languages_disable'] = 'Disable';
 $lang['languages_enable'] = 'Enable';
 $lang['languages_site'] = 'Site languages';
 $lang['languages_no_list'] = 'No langiages';
-$lang['languages_alert_text1'] = 'When adding a new language, translations of the standard system are created from the default language. You will need to be on the page <a href="{url controller=TranslationsAdmin}" target="_blank">Translations</a> transfer them manually.';
+$lang['languages_alert_text1'] = 'When adding a new language, translations of the standard system are created from the default language. You will need to be on the page <a href="%s" target="_blank">Translations</a> transfer them manually.';
 $lang['languages_alert_text2'] = 'In our community on <a href="https://github.com/OkayCMS/translations" target="_blank">github</a> already have translations into some languages.';
 $lang['manager_add'] = 'Add manager';
 $lang['manager_added'] = 'Manager added';
@@ -1622,6 +1622,15 @@ $lang['license_text_all'] = '1. Software products developed for the OkayCMS fram
 
 10. Termination of this Agreement is allowed in case of deletion of all received files and documentation, as well as their copies. Termination of this Agreement does not oblige the Developer to return the funds spent by the User on the purchase of the Products.
 ';
+$lang['module_access_expire_days'] = 'Access to module updates expires in';
+$lang['module_access_expire_today'] = 'Access to module updates expires today';
+$lang['module_access_expire_plural_1'] = 'day';
+$lang['module_access_expire_plural_2'] = 'days';
+$lang['module_access_expire_plural_5'] = 'days';
+$lang['module_access_expired'] = 'Access to module updates has expired';
+$lang['module_access_continue_access'] = 'Continue access';
+$lang['category_on_main'] = 'Popular category';
+$lang['tooltip_category_on_main'] = 'Display on the website as Popular Category';
 $lang['settings_open_ai_title'] = 'ChatGPT Settings';
 $lang['settings_open_ai_products_title'] = 'Product Request Template';
 $lang['left_setting_open_ai_title'] = 'ChatGPT';

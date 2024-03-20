@@ -1,3 +1,4 @@
+ALTER TABLE `ok_categories`  ADD `on_main` INT(2) NOT NULL DEFAULT '0'  AFTER `visible`;
 INSERT INTO `ok_settings` (`param`, `value`) VALUES
  ('open_ai_temperature', '1'),
  ('open_ai_presence_penalty', '0'),

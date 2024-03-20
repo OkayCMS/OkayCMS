@@ -378,6 +378,9 @@
   .form__button--coupon:hover {
     opacity: 1;
   }
+  .top_categories__name:hover{
+    color: var(--okay-basic-company);
+  }
 }
 
 @media only screen and (max-width: 991px) {

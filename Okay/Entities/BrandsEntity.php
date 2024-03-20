@@ -6,7 +6,6 @@ namespace Okay\Entities;
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
-use Okay\Core\Money;
 use Okay\Core\Translit;
 use Okay\Core\Image;
 
@@ -103,7 +102,7 @@ class BrandsEntity extends Entity
         }
 
         if (in_array("discounted", $filters)) {
-            $otherFilter[] = '(SELECT 1 FROM __variants pv WHERE pv.product_id=p.id AND pv.compare_price>0 LIMIT 1) = 1';
+            $otherFilter[] = '(SELECT 1 FROM __variants pv WHERE pv.product_id=p.id AND pv.compare_price>pv.price LIMIT 1) = 1';
         }
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], $otherFilter, func_get_args());

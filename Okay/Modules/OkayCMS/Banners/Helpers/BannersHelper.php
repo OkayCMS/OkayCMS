@@ -12,6 +12,8 @@ use Okay\Core\Request;
 use Okay\Entities\BrandsEntity;
 use Okay\Entities\CategoriesEntity;
 use Okay\Entities\PagesEntity;
+use Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO;
+use Okay\Modules\OkayCMS\Banners\DTO\BannerSettingsDTO;
 use Okay\Modules\OkayCMS\Banners\Entities\BannersEntity;
 use Okay\Modules\OkayCMS\Banners\Entities\BannersImagesEntity;
 
@@ -86,6 +88,17 @@ class BannersHelper
     public function getBanner($id)
     {
         $banner = $this->bannersEntity->get($id);
+
+        if (!$banner) {
+            $banner = new \stdClass();
+        }
+
+        if (!empty($banner->settings)) {
+            $banner->settings = unserialize($banner->settings);
+        } else {
+            $banner->settings = new BannerSettingsDTO();
+        }
+
         return ExtenderFacade::execute(__METHOD__, $banner, func_get_args());
     }
 
@@ -130,29 +143,14 @@ class BannersHelper
         /** @var BannersImagesEntity $bannersImagesEntity */
         $bannersImagesEntity = $this->entityFactory->get(BannersImagesEntity::class);
         if ($banners = $bannersEntity->mappedBy('id')->find($bannersFilter)) {
-
             if ($bannersImages = $bannersImagesEntity->find(['banner_id' => array_keys($banners), 'visible' => true])) {
                 foreach ($bannersImages as $bannersImage) {
                     if (isset($banners[$bannersImage->banner_id])) {
 
                         if (!empty($bannersImage->settings)) {
                             $bannersImage->settings = unserialize($bannersImage->settings);
-                        }
-
-                        if (empty($bannersImage->settings['desktop']['w'])) {
-                            $bannersImage->settings['desktop']['w'] = BannersImagesEntity::DEFAULT_DESKTOP_W;
-                        }
-                        if (empty($bannersImage->settings['desktop']['h'])) {
-                            $bannersImage->settings['desktop']['h'] = BannersImagesEntity::DEFAULT_DESKTOP_H;
-                        }
-                        if (empty($bannersImage->settings['mobile']['w'])) {
-                            $bannersImage->settings['mobile']['w'] = BannersImagesEntity::DEFAULT_MOBILE_W;
-                        }
-                        if (empty($bannersImage->settings['mobile']['h'])) {
-                            $bannersImage->settings['mobile']['h'] = BannersImagesEntity::DEFAULT_MOBILE_H;
-                        }
-                        if (empty($bannersImage->settings['variant_show'])) {
-                            $bannersImage->settings['variant_show'] = BannersImagesEntity::SHOW_DEFAULT;
+                        } else {
+                            $bannersImage->settings = new BannerImageSettingsDTO();
                         }
 
                         // Убираем урл у баннеров на странице, на которой они выведены

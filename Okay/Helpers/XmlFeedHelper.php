@@ -24,6 +24,9 @@ use Okay\Entities\ImagesEntity;
 
 class XmlFeedHelper
 {
+    public const DESCRIPTION_FIELD = 'description';
+    public const ANNOTATION_FIELD = 'annotation';
+
     /** @var Languages */
     private $languages;
     
@@ -156,7 +159,7 @@ class XmlFeedHelper
      * @param Select $select
      * @return Select
      */
-    public function joinFeatures(Select $select)
+    public function joinFeatures(Select $select): Select
     {
         $select->cols([
             'GROUP_CONCAT(DISTINCT lf.feature_id, "!-", lf.name SEPARATOR "@|@") AS features_string',
@@ -208,14 +211,22 @@ class XmlFeedHelper
      * ]
      *
      * @param object $product строка выборки из базы данных
+     * @param string $featuresParamName назва параметра в об'єкті $product де зберігаються властивості
+     * @param string $valuesParamName назва параметра в об'єкті $product де зберігаються значення властивостей
+     * @param string $saveToProperty назва параметра в об'єкті $product в який зберегти розпаршені властивості
      * @return object
      */
-    public function attachFeatures($product)
+    public function attachFeatures(
+        object $product,
+        string $featuresParamName = 'features_string',
+        string $valuesParamName = 'values_string',
+        string $saveToProperty = 'features'
+    ): object
     {
-        if (!empty($product->features_string) && !empty($product->values_string)) {
-            $features = explode('@|@', $product->features_string);
+        if (!empty($product->{$featuresParamName}) && !empty($product->{$valuesParamName})) {
+            $features = explode('@|@', $product->{$featuresParamName});
             $values = [];
-            foreach (explode('@|@', $product->values_string) as $value) {
+            foreach (explode('@|@', $product->{$valuesParamName}) as $value) {
                 list($featureId, $val) = explode('!-', $value, 2);
                 $values[$featureId][] = $val;
             }
@@ -239,7 +250,7 @@ class XmlFeedHelper
                 list($featureId, $featureName) = explode('!-', $feature, 2);
                 
                 if (isset($values[$featureId])) {
-                    $product->features[$featureId] = [
+                    $product->{$saveToProperty}[$featureId] = [
                         'id' => $featureId,
                         'name' => $featureName,
                         'values' => $values[$featureId],
@@ -248,11 +259,11 @@ class XmlFeedHelper
                 }
 
                 if (isset($autoNameIds[$featureId])) {
-                    $product->features[$featureId]['auto_name_id'] = $autoNameIds[$featureId];
+                    $product->{$saveToProperty}[$featureId]['auto_name_id'] = $autoNameIds[$featureId];
                 }
 
                 if (isset($autoValueIds[$featureId])) {
-                    $product->features[$featureId]['auto_value_id'] = $autoValueIds[$featureId];
+                    $product->{$saveToProperty}[$featureId]['auto_value_id'] = $autoValueIds[$featureId];
                 }
             }
         }
@@ -260,44 +271,61 @@ class XmlFeedHelper
         return $product; // No ExtenderFacade
     }
 
-    public function attachDescriptionByTemplate($product)
-    {
-        if (!empty($product->main_category_id)) {
-            $category = $this->allCategories[$product->main_category_id];
-
-            if (isset($product->description) && empty($product->description)) {
-                if ($data = $this->getCategoryField($category, 'auto_description')) {
-                    $descriptionTemplate = $data;
-                } elseif (!empty($this->defaultProductsSeoPattern->auto_description)) {
-                    $descriptionTemplate = $this->defaultProductsSeoPattern->auto_description;
-                }
-
-                if (!empty($descriptionTemplate)) {
-                    $metaData = strtr($descriptionTemplate, $this->getMetadataParts($product));
-                    $product->description = trim(preg_replace('/{\$[^$]*}/', '', $metaData));
-                }
-            }
-
-            if (isset($product->annotation) && empty($product->annotation)) {
-                if ($data = $this->getCategoryField($category, 'auto_annotation')) {
-                    $annotationTemplate = $data;
-                } elseif (!empty($this->defaultProductsSeoPattern->auto_annotation)) {
-                    $annotationTemplate = $this->defaultProductsSeoPattern->auto_annotation;
-                }
-
-                if (!empty($annotationTemplate)) {
-                    $metaData = strtr($annotationTemplate, $this->getMetadataParts($product));
-                    $product->annotation = trim(preg_replace('/{\$[^$]*}/', '', $metaData));
-                }
-            }
+    public function attachDescriptionByTemplate(
+        $product,
+        array $metaParts,
+        string $descriptionTemplate,
+        string $descriptionFieldName
+    ) {
+        if (!empty($descriptionTemplate)
+            && isset($product->{$descriptionFieldName})
+            && empty($product->{$descriptionFieldName})
+        ) {
+            $metaData = strtr($descriptionTemplate, $metaParts);
+            $product->{$descriptionFieldName} = trim(preg_replace('/{\$[^$]*}/', '', $metaData));
         }
         
         return $product; // No ExtenderFacade
     }
-    
-    protected function getMetadataParts($product)
-    {
 
+    /**
+     * @param $product
+     * @return string
+     *
+     * Метод повертає шаблон повного опису товару
+     */
+    public function getDescriptionTemplate($product): string
+    {
+        $category = $this->allCategories[$product->main_category_id];
+        $descriptionTemplate = '';
+        if ($data = $this->getCategoryField($category, 'auto_description')) {
+            $descriptionTemplate = $data;
+        } elseif (!empty($this->defaultProductsSeoPattern->auto_description)) {
+            $descriptionTemplate = $this->defaultProductsSeoPattern->auto_description;
+        }
+        return $descriptionTemplate;
+    }
+
+    /**
+     * @param $product
+     * @return string
+     *
+     * Метод повертає шаблон короткого опису товару
+     */
+    public function getAnnotationTemplate($product): string
+    {
+        $category = $this->allCategories[$product->main_category_id];
+        $annotationTemplate = '';
+        if ($data = $this->getCategoryField($category, 'auto_annotation')) {
+            $annotationTemplate = $data;
+        } elseif (!empty($this->defaultProductsSeoPattern->auto_annotation)) {
+            $annotationTemplate = $this->defaultProductsSeoPattern->auto_annotation;
+        }
+        return $annotationTemplate;
+    }
+    
+    public function getMetadataParts($product): array
+    {
         $price = round($product->price, 2);
         $comparePrice = null;
         if (isset($this->allCurrencies[$product->currency_id])) {
@@ -310,7 +338,7 @@ class XmlFeedHelper
                 }
             }
         }
-        
+
         $mataDataParts = [
             '{$brand}'         => $product->brand_name,
             '{$product}'       => $product->product_name,
@@ -341,7 +369,7 @@ class XmlFeedHelper
         return $mataDataParts; // No ExtenderFacade
     }
 
-    protected function getCategoryField($category, $fieldName)
+    public function getCategoryField($category, $fieldName)
     {
         if (empty($category)) {
             return false;
