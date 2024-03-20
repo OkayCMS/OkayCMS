@@ -394,6 +394,36 @@ class BackendSettingsHelper
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    public function updateOpenAiSettings()
+    {
+        $this->settings->set('open_ai_api_key', $this->request->post('open_ai_api_key'));
+        $this->settings->update('ai_system_message', $this->request->post('ai_system_message'));
+        $this->settings->set('open_ai_temperature', $this->request->post('open_ai_temperature'));
+        $this->settings->set('open_ai_presence_penalty', $this->request->post('open_ai_presence_penalty'));
+        $this->settings->set('open_ai_frequency_penalty', $this->request->post('open_ai_frequency_penalty'));
+        $this->settings->set('open_ai_max_tokens', $this->request->post('open_ai_max_tokens'));
+
+        $this->settings->update('ai_product_title_template', $this->request->post('ai_product_title_template'));
+        $this->settings->update('ai_product_meta_description_template', $this->request->post('ai_product_meta_description_template'));
+        $this->settings->update('ai_product_keywords_template', $this->request->post('ai_product_keywords_template'));
+        $this->settings->update('ai_product_annotation_template', $this->request->post('ai_product_annotation_template'));
+        $this->settings->update('ai_product_description_template', $this->request->post('ai_product_description_template'));
+
+        $this->settings->update('ai_category_title_template', $this->request->post('ai_category_title_template'));
+        $this->settings->update('ai_category_meta_description_template', $this->request->post('ai_category_meta_description_template'));
+        $this->settings->update('ai_category_keywords_template', $this->request->post('ai_category_keywords_template'));
+        $this->settings->update('ai_category_annotation_template', $this->request->post('ai_category_annotation_template'));
+        $this->settings->update('ai_category_description_template', $this->request->post('ai_category_description_template'));
+
+        $this->settings->update('ai_brand_title_template', $this->request->post('ai_brand_title_template'));
+        $this->settings->update('ai_brand_meta_description_template', $this->request->post('ai_brand_meta_description_template'));
+        $this->settings->update('ai_brand_keywords_template', $this->request->post('ai_brand_keywords_template'));
+        $this->settings->update('ai_brand_annotation_template', $this->request->post('ai_brand_annotation_template'));
+        $this->settings->update('ai_brand_description_template', $this->request->post('ai_brand_description_template'));
+
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
     public function getDesignImagesDir()
     {
         $designImagesDir = $this->config->root_dir . '/' . $this->config->design_images;
