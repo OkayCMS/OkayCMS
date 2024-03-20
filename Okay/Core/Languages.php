@@ -116,6 +116,20 @@ class Languages
         $currentLanguage = $this->languagesList[$langId];
         return $currentLanguage->label;
     }
+
+    public function getHrefLang($langId = null)
+    {
+        if ($langId === null) {
+            $langId = $this->getLangId();
+        }
+
+        if (!isset($this->languagesList[$langId])) {
+            return false;
+        }
+
+        $currentLanguage = $this->languagesList[$langId];
+        return $currentLanguage->href_lang;
+    }
     
     public function getLangLink($langId = null)
     {

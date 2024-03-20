@@ -49,8 +49,8 @@ class NovaposhtaCostController extends AbstractController
             }
             $calcVO = new NPCalcVO(
                 (int)$totalPrice,
-                (int)$settings->get('newpost_weight'),
-                (int)$settings->get('newpost_volume')
+                (float)$settings->get('newpost_weight'),
+                (float)$settings->get('newpost_volume')
             );
             foreach ($backendOrdersHelper->findOrderPurchases($order) as $purchase) {
                 $calcVO->addPurchaseWeight((float)$purchase->variant->weight, $purchase->amount);
@@ -59,8 +59,8 @@ class NovaposhtaCostController extends AbstractController
         } else {
             $calcVO = new NPCalcVO(
                 $cart->total_price,
-                (int)$settings->get('newpost_weight'),
-                (int)$settings->get('newpost_volume')
+                (float)$settings->get('newpost_weight'),
+                (float)$settings->get('newpost_volume')
             );
             foreach ($cart->purchases as $purchase) {
                 $calcVO->addPurchaseWeight((float)$purchase->variant->weight, $purchase->amount);

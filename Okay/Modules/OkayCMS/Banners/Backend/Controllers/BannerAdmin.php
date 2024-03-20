@@ -63,10 +63,6 @@ class BannerAdmin extends IndexAdmin
         $this->design->assign('categories', $categories);
         $this->design->assign('brands',     $brands);
         $this->design->assign('pages',      $pages);
-
-        if (!empty($banner->settings)) {
-            $banner->settings = unserialize($banner->settings);
-        }
         
         $this->response->setContent($this->design->fetch('banner.tpl'));
     }

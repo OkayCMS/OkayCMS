@@ -91,23 +91,23 @@
                             <div class="okay_list_heading okay_list_status">{$btr->general_enable|escape}</div>
                             <div class="okay_list_heading okay_list_close"></div>
                         </div>
-    
+
                         {*Параметры элемента*}
                         <div class="banners_wrap okay_list_body features_wrap sortable">
                             {foreach $banners_images as $banners_image}
                             <div class="fn_row okay_list_body_item fn_sort_item">
                                 <div class="okay_list_row">
                                     <input type="hidden" name="positions[{$banners_image->id}]" value="{$banners_image->position|escape}">
-    
+
                                     <div class="okay_list_boding okay_list_drag move_zone">
                                         {include file='svg_icon.tpl' svgId='drag_vertical'}
                                     </div>
-    
+
                                     <div class="okay_list_boding okay_list_check">
                                         <input class="hidden_check" type="checkbox" id="id_{$banners_image->id}" name="check[]" value="{$banners_image->id}"/>
                                         <label class="okay_ckeckbox" for="id_{$banners_image->id}"></label>
                                     </div>
-    
+
                                     <div class="okay_list_boding okay_list_brands_photo">
                                         {if $banners_image->image}
                                         <a href="{url controller=[OkayCMS,Banners,BannersImageAdmin] id=$banners_image->id return=$smarty.server.REQUEST_URI}">
@@ -117,7 +117,7 @@
                                         <img height="100" width="100" src="design/images/no_image.png"/>
                                         {/if}
                                     </div>
-    
+
                                     <div class="okay_list_boding okay_list_bransimages_name">
                                         <a class="link" href="{url controller=[OkayCMS,Banners,BannersImageAdmin] id=$banners_image->id return=$smarty.server.REQUEST_URI}">
                                             {$banners_image->name|escape}
@@ -127,7 +127,7 @@
                                         </div>
                                         {get_design_block block="banners_images_list_name" vars=['banners_image' => $banners_image]}
                                     </div>
-    
+
                                     <div class="okay_list_boding okay_list_brands_group">
                                         {if $banners}
                                         <select class="selectpicker form-control" name=image_banners[{$banners_image->id}]">
@@ -137,7 +137,7 @@
                                         </select>
                                         {/if}
                                     </div>
-    
+
                                     <div class="okay_list_boding okay_list_status">
                                         {*visible*}
                                         <label class="switch switch-default">
@@ -156,7 +156,7 @@
                             </div>
                             {/foreach}
                         </div>
-    
+
                         {*Блок массовых действий*}
                         <div class="okay_list_footer fn_action_block">
                             <div class="okay_list_foot_left">

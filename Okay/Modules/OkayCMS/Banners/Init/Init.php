@@ -4,6 +4,7 @@
 namespace Okay\Modules\OkayCMS\Banners\Init;
 
 
+use Okay\Core\EntityFactory;
 use Okay\Core\Modules\AbstractInit;
 use Okay\Core\Modules\EntityField;
 use Okay\Core\QueryFactory;
@@ -14,6 +15,8 @@ use Okay\Helpers\MetadataHelpers\CategoryMetadataHelper;
 use Okay\Helpers\MetadataHelpers\CommonMetadataHelper;
 use Okay\Helpers\MetadataHelpers\PostMetadataHelper;
 use Okay\Helpers\MetadataHelpers\ProductMetadataHelper;
+use Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO;
+use Okay\Modules\OkayCMS\Banners\DTO\BannerSettingsDTO;
 use Okay\Modules\OkayCMS\Banners\Entities\BannersEntity;
 use Okay\Modules\OkayCMS\Banners\Entities\BannersImagesEntity;
 use Okay\Modules\OkayCMS\Banners\Extenders\FrontExtender;
@@ -161,5 +164,57 @@ class Init extends AbstractInit
         
         $this->migrateEntityField(BannersImagesEntity::class, (new EntityField('is_lang_banner'))->setTypeTinyInt(1, true)->setDefault(1));
         
+    }
+
+    public function update_1_1_0()
+    {
+        $this->migrateEntityField(
+            BannersImagesEntity::class,
+            (new EntityField('image_mobile'))
+                ->setTypeVarchar(255)
+                ->setIsLang()
+                ->setDefault('')
+        );
+        $SL = ServiceLocator::getInstance();
+
+        $entityFactory = $SL->getService(EntityFactory::class);
+        $bannersEntity = $entityFactory->get(BannersEntity::class);
+        $bannersImagesEntity = $entityFactory->get(BannersImagesEntity::class);
+
+        $banners = $bannersEntity->noLimit()->find();
+        $bannersImages = $bannersImagesEntity->noLimit()->find();
+
+        foreach ($banners as $banner) {
+            $settings = unserialize($banner->settings);
+            if (is_array($settings)) {
+                $bannerSettingsDTO = new BannerSettingsDTO();
+                $bannerSettingsDTO->setAsSlider((bool)($settings['as_slider'] ?? true));
+                $bannerSettingsDTO->setAutoplay((bool)($settings['autoplay'] ?? true));
+                $bannerSettingsDTO->setLoop((bool)($settings['loop'] ?? false));
+                $bannerSettingsDTO->setNav((bool)($settings['nav'] ?? false));
+                $bannerSettingsDTO->setDots((bool)($settings['dots'] ?? false));
+                $bannerSettingsDTO->setRotationSpeed((int)($settings['rotation_speed'] ?? BannerSettingsDTO::DEFAULT_ROTATION_SPEED));
+
+                $bannersEntity->update($banner->id, [
+                    'settings' => serialize($bannerSettingsDTO),
+                ]);
+            }
+        }
+
+        foreach ($bannersImages as $bannerImage) {
+            $settings = unserialize($bannerImage->settings);
+            if (is_array($settings)) {
+                $bannerImageSettingsDTO = new BannerImageSettingsDTO();
+                $bannerImageSettingsDTO->setDesktopWidth((int)($settings['desktop']['w'] ?? BannerImageSettingsDTO::DEFAULT_DESKTOP_W));
+                $bannerImageSettingsDTO->setDesktopHeight((int)($settings['desktop']['h'] ?? BannerImageSettingsDTO::DEFAULT_DESKTOP_H));
+                $bannerImageSettingsDTO->setMobileWidth((int)($settings['mobile']['w'] ?? BannerImageSettingsDTO::DEFAULT_MOBILE_W));
+                $bannerImageSettingsDTO->setMobileHeight((int)($settings['mobile']['h'] ?? BannerImageSettingsDTO::DEFAULT_MOBILE_H));
+                $bannerImageSettingsDTO->setVariantShow($settings['variant_show'] ?? BannerImageSettingsDTO::SHOW_DEFAULT);
+
+                $bannersImagesEntity->update($bannerImage->id, [
+                    'settings' => serialize($bannerImageSettingsDTO),
+                ]);
+            }
+        }
     }
 }
