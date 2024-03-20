@@ -654,7 +654,7 @@ class FilterHelper
             return ExtenderFacade::execute(__METHOD__, false, func_get_args());
         }
 
-        $resultArray = $this->getCurrentUrlParams($uriArray, $currentFeaturesValues, $resultArray, $featuresAltLang);
+        $resultArray = $this->getCurrentUrlParams($uriArray, $currentFeaturesValues, $resultArray);
         $resultArray = $this->getNewUrlParams($this->features, $params, $resultArray);
         $resultString = $this->filterChpuUrlBuild($resultArray, $smarty);
 
@@ -667,10 +667,9 @@ class FilterHelper
      * @param $uriArray
      * @param $currentFeaturesValues
      * @param $resultArray
-     * @param array $featuresAltLang
      * @return array|mixed
      */
-    private function getCurrentUrlParams($uriArray, $currentFeaturesValues, $resultArray, array $featuresAltLang = [])
+    private function getCurrentUrlParams($uriArray, $currentFeaturesValues, $resultArray)
     {
         if (!empty($this->filtersUrl)) {
             foreach ($uriArray as $k => $v) {
