@@ -341,3 +341,4 @@ $lang['user_comments_title'] = 'My comments';
 $lang['user_wishlist_title'] = 'Featured Products';
 $lang['user_browsed_title'] = 'Products viewed';
 $lang['general_messages_success'] = 'Saved successfully';
+$lang['main_popular_categories'] = 'Popular categories';
