@@ -4,7 +4,6 @@
 namespace Okay\Core\Modules;
 
 
-use Okay\Admin\Helpers\BackendModulesHelper;
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\DTO\ModificationDTO;
 use Okay\Core\Modules\DTO\ModuleParamsDTO;
@@ -29,13 +28,23 @@ class Module
     protected LoggerInterface $logger;
     protected array $modulesExpires;
 
-    public function __construct(LoggerInterface $logger, BackendModulesHelper $modulesHelper)
+    public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
-        $this->modulesExpires = $modulesHelper->getModulesAccessExpiresFromCache();
     }
 
     private static array $modulesIds;
+
+    /**
+     * @param array $modulesExpires
+     * @return void
+     *
+     * Метод встановлює інформацію по закінченню терміну доступу до оновлень модулів
+     */
+    public function setModulesExpires(array $modulesExpires)
+    {
+        $this->modulesExpires = $modulesExpires;
+    }
 
     /**
      * Метод возвращает параметры модуля описанные в module.json
