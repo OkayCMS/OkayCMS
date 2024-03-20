@@ -276,7 +276,7 @@ $lang['languages_disable'] = 'Выключить';
 $lang['languages_enable'] = 'Включить';
 $lang['languages_site'] = 'Языки сайта';
 $lang['languages_no_list'] = 'Нет языков';
-$lang['languages_alert_text1'] = 'При добавление нового языка, переводы стандартной системы создаются из языка по умолчанию. Вам нужно будет на странице <a href="{url controller=TranslationsAdmin}" target="_blank">Переводы</a> перевести их в ручную.';
+$lang['languages_alert_text1'] = 'При добавление нового языка, переводы стандартной системы создаются из языка по умолчанию. Вам нужно будет на странице <a href="%s" target="_blank">Переводы</a> перевести их в ручную.';
 $lang['languages_alert_text2'] = 'В нашем сообществе на <a href="https://github.com/OkayCMS/translations" target="_blank">github</a> уже есть переводы на некоторые языки.';
 $lang['manager_add'] = 'Добавление менеджера';
 $lang['manager_added'] = 'Менеджер добавлен';
