@@ -137,6 +137,7 @@ class Managers
         'TopicAdmin'                => 'support',
         'FeaturesAliasesAdmin'      => 'features_aliases',
         'ModulesAdmin'              => 'modules',
+        'ModulesLicenseInfoAdmin'   => 'modules',
         'ModuleDesignAdmin'         => 'modules',
         'LearningAdmin'             => 'learning',
         'SettingsRouterAdmin'       => 'router',

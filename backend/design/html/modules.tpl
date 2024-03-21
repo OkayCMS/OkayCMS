@@ -67,6 +67,23 @@
 <div class="fn_toggle_wrap">
     {if $modules}
         <form class="fn_form_list" method="post">
+            <div class="row">
+                <div class="col-md-12 col-lg-12">
+                    <div class="heading_label">{$btr->settings_general_email_module|escape}</div>
+                </div>
+                <div class="col-md-6 col-lg-6">
+                    <div class="mb-1">
+                        <input name="email_for_module" class="form-control" type="text"
+                               value="{$settings->email_for_module|escape}"/>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6">
+                    <button type="submit" class="btn btn_small btn_blue">
+                        {include file='svg_icon.tpl' svgId='checked'}
+                        <span>{$btr->general_apply|escape}</span>
+                    </button>
+                </div>
+            </div>
             <div class="okay_list products_list bg_white mb-1 fn_sort_list">
                 <input type="hidden" name="session_id" value="{$smarty.session.id}">
                 {*Шапка таблицы*}
@@ -78,11 +95,10 @@
                     </div>
                     <div class="okay_list_heading okay_list_photo">{$btr->general_photo|escape}</div>
                     <div class="okay_list_heading okay_list_module_name">{$btr->general_name|escape}</div>
-                    <div class="okay_list_heading okay_list_module_expire hidden-md-down"></div>
+                    <div class="okay_list_heading okay_list_module_license_status hidden-md-down">{$btr->general_status|escape}</div>
                     <div class="okay_list_heading okay_list_module_version hidden-md-down">{$btr->module_version|escape}</div>
-                    <div class="okay_list_heading okay_list_module_type hidden-md-down">{$btr->module_type|escape}</div>
                     <div class="okay_list_heading okay_list_status">{$btr->general_enable|escape}</div>
-                    <div class="okay_list_heading okay_list_setting okay_list_products_setting">{$btr->modules_files|escape}</div>
+                    <div class="okay_list_heading okay_list_setting okay_list_products_setting">{$btr->general_activities|escape}</div>
                     <div class="okay_list_heading okay_list_close"></div>
                 </div>
 
@@ -162,11 +178,23 @@
             }
         });
     });
+    $(document).on("click", ".fn_switch", function (e) {
+    e.preventDefault();
+
+    $(this).next().slideToggle(300);
+
+    if ($(this).hasClass("active")) {
+      $(this).removeClass("active");
+    } else {
+      $(this).addClass("active");
+    }
+  });
     $(document).on('click', '.fn_continue_access', function () {
         let destination = $(this).data('target')
             + '?cite_return_url={urlencode($rootUrl)}{urlencode($smarty.server.REQUEST_URI)}'
             + '&continue_modules_expire=1'
-            + '&checkout_domain={$domain}';
+            + '&checkout_domain={$domain}'
+            +'&checkout_email={$settings->email_for_module}';
         $.ajax({
             url: '{url controller='ModulesAdmin@resetModulesAccessExpiresCache'}',
             type: 'GET',

@@ -5,6 +5,7 @@ namespace Okay\Core;
 
 
 use Okay\Core\Adapters\Response\AdapterManager;
+use Okay\Core\Modules\LicenseModulesTemplates;
 
 class Response
 {
@@ -189,7 +190,7 @@ class Response
         $this->sendHeaders();
         
         $adapter->send($this->content);
-        
+
         return $this;
     }
     
