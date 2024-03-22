@@ -1,0 +1,20 @@
+{
+  "version": "1.0.0",
+  "vendor": {
+    "email": "altimon@proton.me",
+    "site": "https://rozetkapay.com/"
+  },
+  "modifications": {
+    "backend": [
+      {
+        "file": "order.tpl",
+        "changes": [
+          {
+            "find": "{*Метки заказа*}",
+            "appendAfter": "refund.tpl"
+          }
+        ]
+      }
+    ]
+  }
+}

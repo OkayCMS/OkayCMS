@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+    <name>
+        RozetkaPay
+    </name>
+    <settings>
+        <variable>rozetkapay_merchant</variable>
+        <name>{$lang->rozetka_pay_merchant}</name>
+    </settings>
+    <settings>
+        <variable>rozetkapay_secretkey</variable>
+        <name>{$lang->rozetka_pay_secret_key}</name>
+    </settings>
+</module>
