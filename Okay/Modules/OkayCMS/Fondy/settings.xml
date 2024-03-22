@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+    <name>
+        Fondy
+    </name>
+    <settings>
+        <variable>fondy_merchantid</variable>
+        <name>{$lang->fondy_merchantid}</name>
+    </settings>
+    <settings>
+        <variable>fondy_secret</variable>
+        <name>{$lang->fondy_secret}</name>
+    </settings>
+    <settings>
+        <variable>fondy_paymode</variable>
+        <name>{$lang->fondy_paymode}</name>
+    </settings>
+    <settings>
+        <variable>fondy_lang</variable>
+        <name>{$lang->fondy_lang}</name>
+    </settings>
+</module>
