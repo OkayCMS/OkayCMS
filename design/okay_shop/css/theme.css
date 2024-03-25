@@ -1818,6 +1818,62 @@ a.filter__catalog_link svg {
   display: none;
 }
 
+/***** #Main top categories *********************************************************/
+.top_categories{
+  margin-bottom: -15px;
+}
+.top_categories__item{
+  -webkit-align-content: stretch;
+  -ms-flex-line-pack: stretch;
+  align-content: stretch;
+  margin-bottom: 15px;
+}
+.top_categories__preview{
+  gap: 10px;
+  min-height: 70px;
+  height: 100%;
+  border: 1px solid #dbdbdb;
+  box-shadow: 0 0 0 #0000001a,0 0 0 #0000001a,0 0 0 #0000001a;
+  padding: 10px 10px;
+  position: relative;
+  transition: .3s;
+  width: 100%;
+  background: #fff;
+  text-decoration: none;
+}
+.top_categories__item:hover .top_categories__preview {
+  background: #fff;
+  border-color: transparent;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 5px 15px #00000059;
+  -moz-box-shadow: 0 5px 15px rgba(0,0,0,0.35);
+  box-shadow: 0 5px 15px #00000059;
+  z-index: 3;
+}
+.top_categories__image{
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+}
+.banner_advantages__icon svg{
+  width: 50px;
+  height: 50px;
+  color: var(--okay-basic-company);
+}
+.top_categories__name{
+  text-align: center;
+  color: var(--okay-body-text);
+  font-size: 14px;
+  font-weight: 500;
+  width: 100%;
+  transition: .3s;
+}
+
+
+
+
+
+
 /***** #Main brands *****************************************************************/
 .main_brands {
   border-left: 1px solid;

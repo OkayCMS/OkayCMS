@@ -341,3 +341,4 @@ $lang['purchase_discount__total'] = 'Цена со скидкой';
 $lang['purchase_discount__popup_title'] = 'Скидки на товар';
 $lang['purchase_discount__tooltip'] = 'Скидки на товар';
 $lang['general_messages_success'] = 'Успешно сохранено';
+$lang['main_popular_categories'] = 'Популярные категории';

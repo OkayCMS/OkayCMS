@@ -27,6 +27,7 @@ class CategoriesEntity extends Entity
         'level_depth',
         'last_modify',
         'created',
+        'on_main',
     ];
 
     protected static $langFields = [

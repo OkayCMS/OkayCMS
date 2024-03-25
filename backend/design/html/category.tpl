@@ -170,6 +170,22 @@
                                 </label>
                             </div>
                         </div>
+
+                        <div class="activity_of_switch_item"> {* row block *}
+                            <div class="okay_switch clearfix">
+                                <label class="switch_label">
+                                    {$btr->category_on_main|escape}
+                                    <i class="fn_tooltips" title="{$btr->tooltip_category_on_main|escape}">
+                                        {include file='svg_icon.tpl' svgId='icon_tooltips'}
+                                    </i>
+                                </label>
+                                <label class="switch switch-default">
+                                    <input class="switch-input" name="on_main" value='1' type="checkbox" {if $category->on_main}checked=""{/if}/>
+                                    <span class="switch-label"></span>
+                                    <span class="switch-handle"></span>
+                                </label>
+                            </div>
+                        </div>
                         {get_design_block block="category_switch_checkboxes"}
                     </div>
                 </div>
