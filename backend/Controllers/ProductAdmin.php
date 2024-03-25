@@ -96,7 +96,12 @@ class ProductAdmin extends IndexAdmin
 
                 //  сохранить и выход в список
                 $buttonRedirectToList = $this->request->post('apply_and_quit', 'integer', 0);
-                if (($buttonRedirectToList == 1) && !empty($urlRedirectToList = $this->request->getRootUrl() . '/backend/index.php?controller=ProductsAdmin')) {
+                if ($buttonRedirectToList == 1) {
+                    $urlRedirectToList = htmlspecialchars_decode($this->request->getRootUrl() . urldecode($this->request->get(
+                            'return',
+                            null,
+                            '/backend/index.php?controller=ProductsAdmin'
+                        )));
                     $this->postRedirectGet->redirect($urlRedirectToList);
                 }
 
