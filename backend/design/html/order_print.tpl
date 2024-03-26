@@ -276,6 +276,22 @@
                         {$purchase->sku|escape})
                     {/if}
                     {get_design_block block="order_print_purchase_name" vars=['purchase'=>$purchase]}
+                    {if $purchase->discounts}
+                        {foreach $purchase->discounts as $discount}
+                            <br>
+                            {$discount->name|escape}
+                            {if $discount->description}
+                                ({$discount->description|escape})
+                            {/if}
+                            {$discount->value|escape}{strip}
+                            {if $discount->type == "absolute"}
+                                &nbsp;{$currency->code|escape}
+                            {else}
+                                %
+                            {/if}
+                            {/strip}
+                        {/foreach}
+                    {/if}
                 </div>
             </td>
             <td class="td_pr_1"  width="100px">
@@ -319,18 +335,25 @@
 
 <div id="total">
     <table>
-        {if $order->discount>0}
+        {foreach $discounts as $discount}
         <tr>
-            <th>{$btr->general_discount|escape}</th>
-            <td>{$order->discount|escape} %</td>
+            <th>
+                {$discount->name|escape}
+                {if $discount->description}
+                    ({$discount->description|escape})
+                {/if}
+            </th>
+            <td>
+                {$discount->value|escape}{strip}
+                    {if $discount->type == "absolute"}
+                        &nbsp;{$currency->code|escape}
+                    {else}
+                        %
+                    {/if}
+                {/strip}
+            </td>
         </tr>
-        {/if}
-        {if $order->coupon_discount>0}
-        <tr>
-            <th>{$btr->general_coupon|escape} {if $order->coupon_code} ({$order->coupon_code|escape}){/if}</th>
-            <td>{$order->coupon_discount|escape}&nbsp;{$currency->sign|escape}</td>
-        </tr>
-        {/if}
+        {/foreach}
         <tr>
             <th>{$btr->general_total|escape}</th>
             <td class="total">{$order->total_price|convert:$currency->id}&nbsp;{$currency->sign|escape}</td>
