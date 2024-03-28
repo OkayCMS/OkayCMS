@@ -1644,3 +1644,6 @@ $lang['settings_open_ai_api_key'] = 'API ключ';
 $lang['settings_open_ai_system_message'] = 'Системное сообщение';
 $lang['settings_open_ai_categories_title'] = 'Шаблон запросов категорий';
 $lang['settings_open_ai_brands_title'] = 'Шаблон запросов брендов';
+
+$lang['button_open_ai_text'] = 'GPT';
+$lang['button_open_ai_tooltip'] = 'После нажатия, будет автоматически сгенерирован текст с помощью ChatGPT AI. Для этого необходимо зайти в Настройки сайта - ChatGPT и настроить Шаблоны запросов.';

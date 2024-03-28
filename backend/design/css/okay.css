@@ -465,6 +465,47 @@ body:not(.top-nav) header.navbar {
     font-weight: 600;
     vertical-align: bottom;
 }
+.heading_label--flex{
+    display: flex;
+    justify-content: space-between;
+    align-items:flex-end;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+.heading_label__start{
+    width: 100%;
+}
+.button_meta__open_ai{
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap:2px;
+    font-weight: 600;
+    position: relative;
+    height: 26px;
+    padding: 0 6px;
+    background: rgb(240, 240, 240);
+    color: #333;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    line-height: inherit;
+    vertical-align: middle;
+    font-size: 13px;
+}
+.button_meta__open_ai:hover {
+    background: #8A7DBE;
+    border-color: #8A7DBE;
+    color: #fff;
+}
+.button_meta__open_ai svg{
+    width: 15px;
+    height: 15px;
+}
+.button_meta__open_ai[class*="hint-"][class*="-s-small"]:after {
+    width: 260px;
+    line-height: 18px;
+}
 .heading_normal{
     font-family: 'Open Sans', sans-serif;
     font-weight: normal;
