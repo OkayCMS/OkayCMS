@@ -1,4 +1,23 @@
+{assign var=has_main_categories value = false scope="global"}
+{function name=categories_has_main}
+    {if $categories}
+        {foreach $categories as $c}
+            {if $c->visible &&  ($c->has_products || $settings->show_empty_categories)}
+                {if $c->on_main}
+                    {assign var=has_main_categories value = true scope="global"}
+                    {break}
+                {/if}
+                {categories_has_main categories=$c->subcategories level=$level + 1}
+            {/if}
+            {if $has_main_categories}
+                {break}
+            {/if}
+        {/foreach}
+    {/if}
+{/function}
+{categories_has_main categories=$categories level=1}
 
+{if $has_main_categories}
 <section class="container section_top_categories"> 
     <div class="block block--boxed block--border">
         <div class="block__header block__header--promo">
@@ -9,7 +28,7 @@
 
         <div class="block__body">
             <div class="f_row top_categories">
-                {function name=categories_tree5}
+                {function name=has_main_categories}
                 {if $categories}
                     {foreach $categories as $c}
                         {if $c->visible &&  ($c->has_products || $settings->show_empty_categories)}
@@ -41,13 +60,14 @@
                                 </a>
                             </div>
                         {/if}
-                        {categories_tree5 categories=$c->subcategories level=$level + 1}
+                        {has_main_categories categories=$c->subcategories level=$level + 1}
                         {/if}
                     {/foreach}
                 {/if}
             {/function}
-            {categories_tree5 categories=$categories level=1}
+            {has_main_categories categories=$categories level=1}
             </div>
         </div>
     </div>
 </section> 
+{/if}
