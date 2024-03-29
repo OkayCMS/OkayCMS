@@ -57,7 +57,7 @@
                     {else}
                         {if $module->checkout_url}
                             <form method="get" action="{$module->checkout_url|escape}" target="_blank">
-                                <input type="hidden" name="checkout_email" value="{$manager->email|escape}">
+                                <input type="hidden" name="checkout_email" value="{$settings->email_for_module|escape}">
                                 <button class="btn btn-info mb-q" type="submit">{$btr->m_module_checkout}</button>
                             </form>
                         {/if}

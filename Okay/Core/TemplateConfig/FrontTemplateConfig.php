@@ -22,7 +22,7 @@ class FrontTemplateConfig
 {
     const TYPE_JS = 'js';
     const TYPE_CSS = 'css';
-    
+
     private $rootDir;
     private $scriptsDefer;
     
@@ -85,9 +85,8 @@ class FrontTemplateConfig
         if (!is_dir($this->compileJsDir)) {
             mkdir($this->compileJsDir, 0777, true);
         }
-        
     }
-    
+
     public function __destruct()
     {
         // Инвалидация компилированных js и css файлов

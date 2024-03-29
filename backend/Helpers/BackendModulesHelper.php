@@ -57,32 +57,23 @@ class BackendModulesHelper
      */
     public function updateModulesAccessExpiresCache(): void
     {
+        if (empty($this->settings->get('email_for_module'))){
+            $this->settings->set('modules_access_expires', '');
+        }
+
         // Перевіряємо чи валідний кеш
         if ($this->getModulesAccessExpiresFromCache()) {
             return;
         }
 
-        $emails = sprintf('%s %s %s',
-            $this->settings->get('order_email'),
-            $this->settings->get('notify_from_email'),
-            $this->settings->get('comment_email')
-        );
-
-        preg_match_all(
-            '~([_a-z0-9-]+(?:\.[_a-z0-9-]+)*@[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,})~',
-            $emails,
-            $matches
-        );
-
-        if (!empty($matches[0])) {
-            $emailRequest = urlencode(base64_encode(implode('|', array_unique($matches[0]))));
-        }
+        $emailRequest = urlencode(base64_encode(
+            $this->settings->get('email_for_module')
+        ));
 
         $modulesExpiresResponse = $this->request(sprintf(
-            '%sv2/modules/access/expires/%s/list?email_request=%s',
+            '%sv2/modules/access/expires/email?email_request=%s',
             $this->apiBaseUrl,
-            Request::getDomain(),
-            $emailRequest ?? ''
+            $emailRequest
         ));
 
         $modulesExpires = [];

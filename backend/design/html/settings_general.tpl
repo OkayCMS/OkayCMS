@@ -100,6 +100,14 @@
                                 </select>
                             </div>
                         </div>
+                        {*license*}
+                        <div class="col-md-6">
+                            <div class="heading_label">{$btr->settings_general_email_module|escape}</div>
+                            <div class="mb-1">
+                                <input name="email_for_module" class="form-control" type="text" value="{$settings->email_for_module|escape}" />
+                            </div>
+                        </div>
+                        {*license*}
                         <div class="col-xs-12">
                             <div class="heading_label">{$btr->settings_general_tech_message|escape}</div>
                             <div class="">

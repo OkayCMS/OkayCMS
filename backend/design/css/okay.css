@@ -177,6 +177,7 @@ body:not(.top-nav) header.navbar {
 .text_green{color: green;}
 .text-danger,
 .text_warning{color:  #F55753!important;}
+.text_attention{color:  #e88100!important;}
 .text-primary,
 .text-info,
 .text_primary{color: RGB(39, 133, 226);}
@@ -184,7 +185,7 @@ body:not(.top-nav) header.navbar {
 .text-white,
 .text_white{color: #fff;}
 .text-muted,
-.text_grey{color: #b4b4b4!important;}
+.text_grey{color: #8d8d8d!important;}
 .text_white__bg{
     background-color: rgb(43, 48, 59);
 }
@@ -2481,6 +2482,23 @@ label.switch_label i{
     font-weight: 500;
     text-align: left;
 }
+.tag-licensed{
+    font-weight: 600;
+    font-size: 13px;
+    padding: 4px 8px;
+    background-color: #DFFFEA;
+    color: #17C653;
+    text-transform: none;
+}
+.tag-not_licensed{
+    font-weight: 600;
+    font-size: 13px;
+    padding: 4px 8px;
+    background-color: #FFEEF3;
+    color: #F8285A;
+    text-transform: none;
+}
+
 
 .watermark_image{max-width: 200px;}
 
@@ -3088,17 +3106,38 @@ label.switch_label i{
 }
 
 .okay_list .okay_list_body_item.module_access_expire{
-    background-color: rgba(250, 250, 142, 0.3);
+    border-left: 5px solid #FFAD0F;
 }
-.okay_list .okay_list_body_item.module_access_expire:hover{
-    background-color: rgba(250, 250, 142, 0.35);
-}
+
 .okay_list .okay_list_body_item.module_access_expired{
-    background-color: rgba(250, 142, 142, 0.3);
+    border-left: 5px solid #F55753;
 }
-.okay_list .okay_list_body_item.module_access_expired:hover{
-    background-color: rgba(250, 142, 142, 0.35);
+
+.module_official__name{
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 5px;
+    flex-wrap: wrap;
 }
+.module_official__name svg{
+    width: 22px;
+    height: 22px;
+}
+
+.params_official,
+.params_not_official{
+    height: 22px;
+    position: relative;
+    top: -3px;
+}
+
+.params_official{
+    color: #1B84FF;
+}
+.params_not_official{
+    color: #F55753;
+}
+
 .okay_list .okay_list_row{
     width: 100%;
     height: auto;
@@ -3270,15 +3309,11 @@ label.switch_label i{
     width: 140px;
     text-align: center!important;
 }
-.okay_list .okay_list_module_expire{
-    width: 200px;
+.okay_list .okay_list_module_license_status{
+    width: 180px;
     text-align: center!important;
 }
 .okay_list .okay_list_module_version{
-    width: 140px;
-    text-align: center!important;
-}
-.okay_list .okay_list_module_type{
     width: 140px;
     text-align: center!important;
 }
@@ -3313,17 +3348,44 @@ label.switch_label i{
 .fn_switch_add_module.active .minus{display: inline-block;}
 .okay_list .okay_list_boding.okay_list_module_name .okay_list_module_name_link,
 .okay_list .okay_list_boding.okay_list_comments_name a{
-    color: #02bcf2;
+    color: #2b303b;
     display: inline-block;
     text-decoration: underline;
     word-break: break-all;
+    transition: 0.15s ease-out;
 }
 .okay_list .okay_list_boding a:not(.btn):hover{
-    color:  #2b303b;
+    color: #2b303b;
     text-decoration: none;
 }
 .okay_list .okay_list_boding.okay_list_comments_name a:hover{
-    color: #02bcf2;
+    color: #2b303b;
+}
+.for_developer_toggle{
+    cursor: pointer;
+    color: #2b303b;
+    opacity: 0.6;
+    font-size: 12px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: 3px;
+    font-weight: 500;
+    transition: 0.15s ease-out;
+}
+.for_developer_toggle:hover{
+    opacity: 1;
+}
+.for_developer_toggle.active{
+    color: #2b303b;
+    opacity: 1;
+}
+.for_developer_toggle i{
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+}
+.for_developer_toggle.active i{
+    -webkit-transform: rotate(180deg);
+    transform: rotate(180deg);
 }
 /*.okay_list .okay_list_photo a{*/
     /*border: 1px solid #eee;*/
@@ -3358,9 +3420,12 @@ label.switch_label i{
     margin: 0 auto;
     background: #fff
 }
-.okay_list .okay_list_photo a img{
-    max-width: 100%;
-    max-height: 60px;
+.okay_list .okay_list_photo svg,
+.okay_list .okay_list_photo img{
+    max-width: 50px;
+    max-height: 50px;
+    height: auto;
+    width: auto;
 }
 .okay_list .okay_list_brands_photo a img{
     max-width: 100%;
@@ -3400,7 +3465,7 @@ label.switch_label i{
     text-align: left;
 }
 .okay_list .okay_list_module_name{
-    width: calc(100% - 900px);
+    width: calc(100% - 740px);
     position: relative;
     text-align: left;
 }
@@ -4378,10 +4443,7 @@ label.switch_label i{
 .okay_list_setting .setting_icon_open:hover{
     background: #8A7DBE;
     border-color: #8A7DBE;
-    color: #fff
-}
-.okay_list_setting .setting_icon_copy{
-
+    color: #fff;
 }
 .okay_list_setting .setting_icon_copy:hover{
     background: #2B6A94;
@@ -4389,6 +4451,42 @@ label.switch_label i{
     color: #fff
 }
 
+.okay_list_setting .setting_icon_extension svg{
+    height: 26px;
+    width: 16px;
+}
+.okay_list_setting .setting_icon_extension{
+    background: #e88100;
+    border-color: #e88100;
+    color: #fff;
+}
+.okay_list_setting .setting_icon_extension:hover{
+    background: #cf7402;
+    border-color: #cf7402;
+    color: #fff;
+}
+
+.okay_list_setting .setting_icon_setting svg,
+.okay_list_setting .setting_icon_files svg,
+.okay_list_setting .setting_icon_extend svg{
+    height: 26px;
+    width: 17px;
+}
+.okay_list_setting .setting_icon_setting:hover{
+    background: #7239EA;
+    border-color: #7239EA;
+    color: #fff
+}
+.okay_list_setting .setting_icon_files:hover{
+    background: #009ef7;
+    border-color: #009ef7;
+    color: #fff
+}
+.okay_list_setting .setting_icon_extend:hover{
+    background: #ffc700;
+    border-color: #ffc700;
+    color: #fff
+}
 
 
 
@@ -8863,4 +8961,26 @@ input.error {
     -ms-flex: 0 0 105px;
     flex: 0 0 105px;
     max-width: 105px;
+}
+
+.btn_inner{
+    display: inline-block;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    border-radius: 3px;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid #b54843;
+    padding: 6px 10px;
+    transition: all 0.2s ease-in-out;
+    color: #fff;
+    background-color: #b54843;
+}
+.btn_inner:focus,
+.btn_inner:hover{
+    color: #fff;
+    background-color: #b76864;
+    border-color: #b76864;
 }

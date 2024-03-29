@@ -30,6 +30,7 @@ use Okay\Admin\Helpers\BackendUserGroupsHelper;
 use Okay\Admin\Helpers\BackendUsersHelper;
 use Okay\Admin\Helpers\BackendValidateHelper;
 use Okay\Admin\Requests\BackendOrdersRequest;
+use Okay\Core\Modules\LicenseModulesTemplates;
 use Okay\Core\Modules\Module;
 use Okay\Core\Modules\Modules;
 use Okay\Core\OkayContainer\Reference\ParameterReference as PR;
@@ -99,6 +100,7 @@ return [
             new SR(ManagerMenu::class),
             new SR(Design::class),
             new SR(Modules::class),
+            new SR(LicenseModulesTemplates::class),
         ]
     ],
     BackendProductsHelper::class => [
@@ -273,6 +275,7 @@ return [
             new SR(Languages::class),
             new SR(JsSocial::class),
             new SR(Image::class),
+            new SR(LicenseModulesTemplates::class),
         ]
     ],
     BackendValidateHelper::class => [

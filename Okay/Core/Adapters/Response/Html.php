@@ -6,6 +6,7 @@ namespace Okay\Core\Adapters\Response;
 
 use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\Design;
+use Okay\Core\Modules\LicenseModulesTemplates;
 use Okay\Core\ServiceLocator;
 
 class Html extends AbstractResponse
@@ -13,11 +14,14 @@ class Html extends AbstractResponse
 
     /** @var Design */
     private $design;
+
+    private LicenseModulesTemplates $licenseModulesTemplates;
     
     public function __construct()
     {
         $serviceLocator = ServiceLocator::getInstance();
         $this->design = $serviceLocator->getService(Design::class);
+        $this->licenseModulesTemplates = $serviceLocator->getService(LicenseModulesTemplates::class);
     }
 
     public function getSpecialHeaders()
@@ -59,6 +63,11 @@ class Html extends AbstractResponse
 
         if (!empty($wrapper)) {
             print $this->design->fetch($wrapper);
+            if (!$this->licenseModulesTemplates->isLicensedTemplate()
+                && preg_match('~/design/\w+/html/~', $this->design->getTemplatesDir())
+            ) {
+                print $this->licenseModulesTemplates->getTemplateErrorHtml();
+            }
         } else {
             print $resultContent;
         }
