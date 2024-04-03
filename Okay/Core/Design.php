@@ -109,6 +109,7 @@ class Design
         'strtolower',
         'strpos',
         'sprintf',
+        'vsprintf',
     ];
 
 

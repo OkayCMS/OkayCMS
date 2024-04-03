@@ -8,8 +8,7 @@ use Okay\Core\Design;
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\Extender\ExtensionInterface;
 use Okay\Core\Modules\Module;
-use Okay\Modules\OkayCMS\Banners\Entities\BannersEntity;
-use Okay\Modules\OkayCMS\Banners\Entities\BannersImagesEntity;
+use Okay\Modules\OkayCMS\Banners\DTO\BannerSettingsDTO;
 use Okay\Modules\OkayCMS\Banners\Helpers\BannersHelper;
 
 class FrontExtender implements ExtensionInterface
@@ -75,10 +74,12 @@ class FrontExtender implements ExtensionInterface
 
         $banners = $this->bannersHelper->getBanners($bannersFilter);
 
-        if(!empty($banners)) {
+        if (!empty($banners)) {
             foreach ($banners as $banner) {
                 if (!empty($banner->settings)) {
                     $banner->settings = unserialize($banner->settings);
+                } else {
+                    $banner->settings = new BannerSettingsDTO();
                 }
                 $this->design->assign('banner_data', $banner);
                 // Если баннер отмечен как шорткод, передадим такую переменную в дизайн

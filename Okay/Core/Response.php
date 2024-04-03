@@ -196,6 +196,7 @@ class Response
     
     public function sendHeaders(): self
     {
+//        return $this;
         $this->commitStatusCode();
         
         /** @var Adapters\Response\AbstractResponse $adapter */

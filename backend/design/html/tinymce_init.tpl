@@ -17,7 +17,7 @@
             mobile: 'false',
             toolbar_items_size : 'small',
             menubar:'file edit insert view format table tools',
-            toolbar1: "undo redo|styleselect| fontselect |fontsizeselect |forecolor backcolor blocks | bold italic underline strikethrough blockquote | alignleft aligncenter alignright | numlist bullist checklist | table | link unlink| image media emoticons  | fullscreen preview codesample code",
+            toolbar1: "undo redo|styleselect| fontselect |fontsizeselect | OpenAiButton |forecolor backcolor blocks | bold italic underline strikethrough blockquote | alignleft aligncenter alignright | numlist bullist checklist | table | link unlink| image media emoticons  | fullscreen preview codesample code",
 
                 {literal}
             table_class_list:[
@@ -108,13 +108,37 @@
              force_p_newlines : false,
              forced_root_block : '',
              */
-            {if $smarty.get.controller != "SeoPatternsAdmin"}
-                setup : function(ed) {
-                    ed.on('keyup change', (function() {
+
+            setup : function(editor) {
+                {if $smarty.get.controller != "SeoPatternsAdmin"}
+                    editor.on('keyup change', (function() {
                         set_meta();
                     }));
+                {/if}
+
+                let textarea = $('#' + editor.id);
+                if (!textarea.size()) {
+                    textarea = $('[name="' + editor.id + '"]');
                 }
-            {/if}
+
+                if (textarea.data('ai_entity')) {
+                    editor.ui.registry.addButton('OpenAiButton', {
+                        text: 'Gpt',
+                        onAction: function (_) {
+                            let name = textarea.closest('form').find('[name="name"]').val();
+                            let entityId = textarea.closest('form').find('[name="id"]').val();
+                            generateEditorMeta(
+                                editor,
+                                textarea.prop('name'),
+                                textarea.data('ai_entity'),
+                                name,
+                                entityId
+                            );
+                        }
+                    });
+                }
+            }
+
             {literal}}{/literal});
     });
 
