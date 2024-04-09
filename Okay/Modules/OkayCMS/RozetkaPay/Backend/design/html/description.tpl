@@ -26,7 +26,7 @@
     <div class="col-xs-12">
         <div class="boxed">
             <div>
-                <img src="{$rootUrl}/Okay/Modules/RozetkaPay/RozetkaPay/Backend/design/images/rozetka-pay.svg">
+                <img src="{$rootUrl}/Okay/Modules/OkayCMS/RozetkaPay/Backend/design/images/rozetka-pay.svg">
             </div>
         </div>
     </div>
