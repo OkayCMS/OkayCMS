@@ -3156,6 +3156,10 @@ label.switch_label i{
     width: auto;
     margin-left: 10px;
 }
+.okay_list_option .bootstrap-select.btn-group .dropdown-menu{
+    max-width: inherit;
+    width: max-content;
+}
 .okay_list .okay_list_loc_pos{
     float: right;
 }
@@ -7525,7 +7529,8 @@ base::-moz-progress-bar,
     z-index: 1000;
 }
 .fn_fast_save button {
-    display: inline-block;
+    display: inline-flex;
+    gap: 5px;
     float: none;
 }
 .fn_fast_action_block {
