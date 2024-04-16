@@ -21,12 +21,12 @@
                     <div class="alert alert--icon alert--error">
                         <div class="alert__content">
                             <div class="alert__title">{$btr->modules_license_important}</div>
-                            <p> {$btr->modules_license_info_title_1}
-                            <a href="index.php?controller=ModulesAdmin@marketplace"">
-                                {include file="svg_icon.tpl" svgId="logout"}
-                            </a>
+                            <p> {$btr->modules_license_info_text}
+                                <br>
+                                <a href="index.php?controller=ModulesAdmin@marketplace"">
+                                    {include file="svg_icon.tpl" svgId="logout"}
+                                </a>
                             </p>
-                            <p>{$btr->modules_license_info_title_2}</p>
                         </div>
                     </div>
                 </div>

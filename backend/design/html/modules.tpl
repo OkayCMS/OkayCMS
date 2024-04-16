@@ -73,7 +73,7 @@
                 </div>
                 <div class="col-md-6 col-lg-6">
                     <div class="mb-1">
-                        <input name="email_for_module" class="form-control" type="text"
+                        <input name="email_for_module" class="form-control" type="email" required
                                value="{$settings->email_for_module|escape}"/>
                     </div>
                 </div>
