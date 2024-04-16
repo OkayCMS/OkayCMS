@@ -8,6 +8,7 @@ use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\Modules\DTO\ModificationDTO;
 use Okay\Core\Modules\DTO\ModuleParamsDTO;
 use Okay\Core\OkayContainer\OkayContainer;
+use Okay\Core\Request;
 use Okay\Core\Router;
 use Smarty;
 use Okay\Core\Design;
@@ -51,6 +52,8 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
      */
     private $smarty;
 
+    private LicenseModulesTemplates $licenseModulesTemplates;
+
     /**
      * @var array список контроллеров бекенда
      */
@@ -69,7 +72,8 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
     private $modificationsInit = false;
 
     private $plugins;
-    private $expireModulesNum = 0;
+    private int $expireModulesNum = 0;
+    private int $notLicensedModulesNum = 0;
 
     public function __construct(
         EntityFactory $entityFactory,
@@ -77,7 +81,8 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
         QueryFactory  $queryFactory,
         Database      $database,
         Config        $config,
-        Smarty        $smarty
+        Smarty        $smarty,
+        LicenseModulesTemplates $licenseModulesTemplates
     ) {
         $this->entityFactory = $entityFactory;
         $this->module        = $module;
@@ -85,6 +90,7 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
         $this->db            = $database;
         $this->config        = $config;
         $this->smarty        = $smarty;
+        $this->licenseModulesTemplates = $licenseModulesTemplates;
     }
 
     /**
@@ -117,7 +123,6 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
 
     private function startModules($activeOnly = true)
     {
-
         $select = $this->queryFactory->newSelect()
             ->from(ModulesEntity::getTable())
             ->cols(['id', 'vendor', 'module_name', 'enabled'])
@@ -127,6 +132,10 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
         $modules = $this->db->results();
 
         foreach ($modules as $module) {
+            if (!$this->licenseModulesTemplates->isLicensedModule($module->vendor, $module->module_name)) {
+                $this->notLicensedModulesNum++;
+                continue;
+            }
             // Запоминаем какие модули мы запустили, они понадобятся, чтобы активировать их js и css
             $this->runningModules[$module->vendor . '/' . $module->module_name] = [
                 'vendor' => $module->vendor,
@@ -146,7 +155,8 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
             }
 
             // TODO: подумать над тем, чтобы перенести этот код отсюда
-            if ($activeOnly === true && (int) $module->enabled !== 1) {
+            if (($activeOnly === true && (int)$module->enabled !== 1)
+                || !$this->licenseModulesTemplates->isLicensedModule($module->vendor, $module->module_name)) {
                 $plugins = $this->module->getSmartyPlugins($module->vendor, $module->module_name);
                 foreach ($plugins as $plugin) {
                     $reflector = new \ReflectionClass($plugin['class']);
@@ -194,6 +204,11 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
     public function getExpireModulesNum(): int
     {
         return $this->expireModulesNum;
+    }
+
+    public function getNotLicensedModulesNum(): int
+    {
+        return $this->notLicensedModulesNum;
     }
 
     /**
@@ -617,5 +632,5 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
             }
         }
     }
-    
+
 }

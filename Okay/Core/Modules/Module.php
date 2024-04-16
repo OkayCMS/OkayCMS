@@ -4,7 +4,6 @@
 namespace Okay\Core\Modules;
 
 
-use Okay\Admin\Helpers\BackendModulesHelper;
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\DTO\ModificationDTO;
 use Okay\Core\Modules\DTO\ModuleParamsDTO;
@@ -27,15 +26,29 @@ class Module
     const COMMON_MODULE_DIRECTORY = 'Okay/Modules/';
 
     protected LoggerInterface $logger;
+    protected LicenseModulesTemplates $licenseModulesTemplates;
     protected array $modulesExpires;
 
-    public function __construct(LoggerInterface $logger, BackendModulesHelper $modulesHelper)
-    {
+    public function __construct(
+        LoggerInterface $logger,
+        LicenseModulesTemplates $licenseModulesTemplates
+    ) {
         $this->logger = $logger;
-        $this->modulesExpires = $modulesHelper->getModulesAccessExpiresFromCache();
+        $this->licenseModulesTemplates = $licenseModulesTemplates;
     }
 
     private static array $modulesIds;
+
+    /**
+     * @param array $modulesExpires
+     * @return void
+     *
+     * Метод встановлює інформацію по закінченню терміну доступу до оновлень модулів
+     */
+    public function setModulesExpires(array $modulesExpires)
+    {
+        $this->modulesExpires = $modulesExpires;
+    }
 
     /**
      * Метод возвращает параметры модуля описанные в module.json
@@ -91,6 +104,14 @@ class Module
             $moduleParamsDTO->setAddToCartUrl($moduleExpireInfo->addToCartUrl);
         }
         $moduleParamsDTO->setMathVersion($this->getMathVersion($moduleParamsDTO->getVersion()));
+
+        $moduleParamsDTO->setIsOfficial(
+            $this->licenseModulesTemplates->isOfficialModule($vendor, $moduleName)
+        );
+
+        $moduleParamsDTO->setIsLicensed(
+            $this->licenseModulesTemplates->isLicensedModule($vendor, $moduleName)
+        );
 
         return $moduleParamsDTO;
     }

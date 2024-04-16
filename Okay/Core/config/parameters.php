@@ -90,6 +90,7 @@ return [
         'smarty_cache_lifetime' => '{$smarty_cache_lifetime}',
         'smarty_force_compile'  => '{$smarty_force_compile}',
         'debug_translation'     => '{$debug_translation}',
+        'theme'                 => '{%theme%}',
     ],
     'seo' => [
         'canonical' => [
@@ -120,4 +121,8 @@ return [
         'test_internal_email' => $_ENV['TEST_INTERNAL_EMAIL'] ?? '',
     ],
     'production_domain' => $_ENV['PRODUCTION_DOMAIN'] ?? '',
+    'license' => [
+        'compile_code_dir' => 'cache/codes/',
+        'email' => '{%email_for_module%}',
+    ]
 ];

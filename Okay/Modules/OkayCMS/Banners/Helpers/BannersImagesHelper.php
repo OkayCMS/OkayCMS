@@ -12,6 +12,7 @@ use Okay\Core\Languages;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\QueryFactory;
 use Okay\Core\Request;
+use Okay\Modules\OkayCMS\Banners\DTO\BannerImageSettingsDTO;
 use Okay\Modules\OkayCMS\Banners\Entities\BannersEntity;
 use Okay\Modules\OkayCMS\Banners\Entities\BannersImagesEntity;
 
@@ -117,16 +118,18 @@ class BannersImagesHelper
 
         if (!empty($bannerImage->settings)) {
             $bannerImage->settings = unserialize($bannerImage->settings);
+        } else {
+            $bannerImage->settings = new BannerImageSettingsDTO();
         }
         
         return ExtenderFacade::execute(__METHOD__, $bannerImage, func_get_args());
     }
 
-    public function deleteImage($bannerImage)
+    public function deleteImage($bannerImage, string $field = 'image')
     {
         $this->imageCore->deleteImage(
             $bannerImage->id,
-            'image',
+            $field,
             BannersImagesEntity::class,
             $this->config->get('banners_images_dir'),
             $this->config->get('resized_banners_images_dir'),
@@ -137,12 +140,12 @@ class BannersImagesHelper
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
-    public function uploadImage($image, $bannerImage, $isNewBannersImage = false)
+    public function uploadImage($image, $bannerImage, $isNewBannersImage = false, string $field = 'image')
     {
         if (!empty($image['name']) && ($filename = $this->imageCore->uploadImage($image['tmp_name'], $image['name'], $this->config->get('banners_images_dir')))) {
             $this->imageCore->deleteImage(
                 $bannerImage->id,
-                'image',
+                $field,
                 BannersImagesEntity::class,
                 $this->config->get('banners_images_dir'),
                 $this->config->get('resized_banners_images_dir'),
@@ -154,11 +157,11 @@ class BannersImagesHelper
                 $currentLangId = $this->languages->getLangId();
                 foreach ($this->languages->getAllLanguages() as $lang) {
                     $this->languages->setLangId($lang->id);
-                    $this->bannersImagesEntity->update($bannerImage->id, ['image'=>$filename]);
+                    $this->bannersImagesEntity->update($bannerImage->id, [$field => $filename]);
                 }
                 $this->languages->setLangId($currentLangId);
             } else {
-                $this->bannersImagesEntity->update($bannerImage->id, ['image' => $filename]);
+                $this->bannersImagesEntity->update($bannerImage->id, [$field => $filename]);
             }
         }
 

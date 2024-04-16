@@ -99,9 +99,9 @@
             </div>
             <div class="admin_switches">
                 <div class="box_adswitch">
-                    <a class="btn_admin" href="{url_generator route="main" absolute=1}">
+                    <a class="btn_admin" href="{url_generator route='main' absolute=1}">
                     {include file='svg_icon.tpl' svgId='icon_desktop'}
-                    <span class="">{$btr->index_go_to_site|escape}</span>
+                    <span class="hidden-md-down">{$btr->index_go_to_site|escape}</span>
                     </a>
                 </div>
             </div>
@@ -123,6 +123,17 @@
                     {/if}
                 </div>
             </div>
+            {if $settings->email_for_module}
+            {else}
+            <div class="admin_switches">
+                <div class="box_adswitch  hint-bottom-middle-t-info-s-small-mobile  hint-anim" data-hint="{$btr->index_btn_email_info_hint|escape}">
+                    <a class="btn_inner"  href="index.php?controller=ModulesAdmin">
+                        {include file='svg_icon.tpl' svgId='warn_icon'}
+                        <span class="">{$btr->index_btn_email_info|escape}</span>
+                    </a>
+                </div>
+            </div>
+            {/if}
             <div id="mobile_menu_right" class="fn_mobile_menu_right hidden-md-up  text_white float-xs-right">
                 {include file='svg_icon.tpl' svgId='mobile_menu2'}
             </div>
@@ -213,6 +224,28 @@
                                     <span class="notif_count">{$modules_access_expire_counter}</span>
                                 </div>
                             {/if}
+                            {if $not_licensed_modules_counter > 0}
+                                <div class="notif_item">
+                                    <a href="index.php?controller=ModulesAdmin" class="l_notif">
+                                        <span class="notif_icon boxed_notify">
+                                            {include file='svg_icon.tpl' svgId='left_modules'}
+                                        </span>
+                                        <span class="notif_title">{$btr->left_modules|escape}</span>
+                                    </a>
+                                    <span class="notif_count">{$not_licensed_modules_counter}</span>
+                                </div>
+                            {/if}
+                            {if $template_error_counter > 0}
+                                <div class="notif_item">
+                                    <a href="index.php?controller=ThemeAdmin" class="l_notif">
+                                        <span class="notif_icon boxed_notify">
+                                            {include file='svg_icon.tpl' svgId='left_design'}
+                                        </span>
+                                        <span class="notif_title">{$btr->left_theme_title|escape}</span>
+                                    </a>
+                                    <span class="notif_count">{$template_error_counter}</span>
+                                </div>
+                            {/if}
                             {get_design_block block="notification_counters"}
                             {if !$all_counter}
                                 <div class="notif_item">
@@ -293,7 +326,7 @@
                                         <div class="fn_backend_menu_section" data-section_name="{$section}">{$section}</div>
                                     {/if}
 
-                                    <a class="fn_learning_{$section} nav-link {if $items|count > 1}fn_item_switch nav-dropdown-toggle{/if}{if $section == 'left_modules' && $modules_access_expire_counter > 0} danger_counter{/if}" href="{if $items|count > 1}javascript:;{else}index.php?controller={$items|reset|reset}{/if}">
+                                    <a class="fn_learning_{$section} nav-link {if $items|count > 1}fn_item_switch nav-dropdown-toggle{/if}{if $section == 'left_modules' && ($modules_access_expire_counter > 0 || $not_licensed_modules_counter > 0)} danger_counter{elseif $section == 'left_design' && $template_error_counter} danger_counter{/if}" href="{if $items|count > 1}javascript:;{else}index.php?controller={$items|reset|reset}{/if}">
                                         <span class="{$section} title">{$btr->getTranslation({$section})}</span>
                                         <span class="icon-thumbnail">
                                             {if !empty($additional_section_icons[$section])}

@@ -11,6 +11,7 @@ use Okay\Core\Image;
 use Okay\Core\JsSocial;
 use Okay\Core\Languages;
 use Okay\Core\Managers;
+use Okay\Core\Modules\LicenseModulesTemplates;
 use Okay\Core\QueryFactory;
 use Okay\Core\Request;
 use Okay\Core\Settings;
@@ -95,7 +96,8 @@ class BackendSettingsHelper
         QueryFactory $queryFactory,
         Languages $languages,
         JsSocial $jsSocial,
-        Image $imageCore
+        Image $imageCore,
+        LicenseModulesTemplates $licenseModulesTemplates
     )
     {
         $this->managersEntity = $entityFactory->get(ManagersEntity::class);
@@ -110,6 +112,7 @@ class BackendSettingsHelper
         $this->jsSocial = $jsSocial;
         $this->dataCleaner = $dataCleaner;
         $this->imageCore = $imageCore;
+        $this->licenseModulesTemplates = $licenseModulesTemplates;
     }
 
     public function updateSettings()
@@ -269,6 +272,15 @@ class BackendSettingsHelper
         $this->settings->set('gather_enabled', $this->request->post('gather_enabled', 'boolean'));
         $this->settings->set('public_recaptcha_v3', $this->request->post('public_recaptcha_v3'));
         $this->settings->set('secret_recaptcha_v3', $this->request->post('secret_recaptcha_v3'));
+
+        if (!empty($this->request->post('email_for_module')) && $this->settings->get('email_for_module') != $this->request->post('email_for_module')
+            || empty($this->request->post('email_for_module'))){
+            $this->settings->set('modules_access_expires', '');
+            $this->licenseModulesTemplates->setLicenseEmail($this->request->post('email_for_module'));
+            $this->licenseModulesTemplates->updateLicenseInfo();
+        }
+        $this->settings->set('email_for_module', $this->request->post('email_for_module'));
+
         $this->settings->update('site_name', $this->request->post('site_name'));
         $this->settings->update('site_annotation', $this->request->post('site_annotation'));
 
@@ -378,6 +390,36 @@ class BackendSettingsHelper
             }
         }
         $this->settings->set('site_phones', $phones);
+
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    public function updateOpenAiSettings()
+    {
+        $this->settings->set('open_ai_api_key', $this->request->post('open_ai_api_key'));
+        $this->settings->update('ai_system_message', $this->request->post('ai_system_message'));
+        $this->settings->set('open_ai_temperature', $this->request->post('open_ai_temperature'));
+        $this->settings->set('open_ai_presence_penalty', $this->request->post('open_ai_presence_penalty'));
+        $this->settings->set('open_ai_frequency_penalty', $this->request->post('open_ai_frequency_penalty'));
+        $this->settings->set('open_ai_max_tokens', $this->request->post('open_ai_max_tokens'));
+
+        $this->settings->update('ai_product_title_template', $this->request->post('ai_product_title_template'));
+        $this->settings->update('ai_product_meta_description_template', $this->request->post('ai_product_meta_description_template'));
+        $this->settings->update('ai_product_keywords_template', $this->request->post('ai_product_keywords_template'));
+        $this->settings->update('ai_product_annotation_template', $this->request->post('ai_product_annotation_template'));
+        $this->settings->update('ai_product_description_template', $this->request->post('ai_product_description_template'));
+
+        $this->settings->update('ai_category_title_template', $this->request->post('ai_category_title_template'));
+        $this->settings->update('ai_category_meta_description_template', $this->request->post('ai_category_meta_description_template'));
+        $this->settings->update('ai_category_keywords_template', $this->request->post('ai_category_keywords_template'));
+        $this->settings->update('ai_category_annotation_template', $this->request->post('ai_category_annotation_template'));
+        $this->settings->update('ai_category_description_template', $this->request->post('ai_category_description_template'));
+
+        $this->settings->update('ai_brand_title_template', $this->request->post('ai_brand_title_template'));
+        $this->settings->update('ai_brand_meta_description_template', $this->request->post('ai_brand_meta_description_template'));
+        $this->settings->update('ai_brand_keywords_template', $this->request->post('ai_brand_keywords_template'));
+        $this->settings->update('ai_brand_annotation_template', $this->request->post('ai_brand_annotation_template'));
+        $this->settings->update('ai_brand_description_template', $this->request->post('ai_brand_description_template'));
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }

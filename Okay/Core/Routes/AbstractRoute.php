@@ -132,7 +132,10 @@ abstract class AbstractRoute
     private function removeLangPrefix($uri)
     {
         $langLink = $this->languages->getLangLink($this->languages->getLangId());
-        return str_replace($langLink, '', $uri);
+        if (!empty($langLink)) {
+            return mb_substr($uri, mb_strlen($langLink));
+        }
+        return $uri;
     }
 
     abstract public function hasSlashAtEnd();

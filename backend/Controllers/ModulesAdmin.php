@@ -8,9 +8,8 @@ use Okay\Admin\Helpers\BackendModulesHelper;
 use Okay\Core\BackendTranslations;
 use Okay\Core\Managers;
 use Okay\Core\Modules\Installer;
-use Okay\Core\Modules\Modules;
+use Okay\Core\Modules\LicenseModulesTemplates;
 use Okay\Core\Request;
-use Okay\Core\Validator;
 use Okay\Entities\ManagersEntity;
 use Okay\Entities\ModulesEntity;
 use Okay\Core\Modules\Module;
@@ -22,10 +21,22 @@ class ModulesAdmin extends IndexAdmin
         Installer      $modulesInstaller,
         Module         $moduleCore,
         ManagersEntity $managersEntity,
-        Managers       $managersCore
+        Managers       $managersCore,
+        LicenseModulesTemplates $licenseModulesTemplates,
+        BackendModulesHelper $backendModulesHelper
     ) {
         // Обработка действий
         if ($this->request->method('post')) {
+
+            if (!empty($this->request->post('email_for_module')) && $this->settings->get('email_for_module') != $this->request->post('email_for_module')
+                || empty($this->request->post('email_for_module'))){
+                $this->settings->set('modules_access_expires', '');
+                $licenseModulesTemplates->setLicenseEmail($this->request->post('email_for_module'));
+                $backendModulesHelper->updateModulesAccessExpiresCache();
+                $licenseModulesTemplates->updateLicenseInfo();
+            }
+            $this->settings->set('email_for_module', $this->request->post('email_for_module'));
+
             if (!empty($this->request->post('install_module'))) {
                 if ($modulesInstaller->install($this->request->post('install_module'))) {
                     $this->design->clearCompiled();

@@ -21,7 +21,8 @@
 <div class="alert alert--icon alert--warning">
     <div class="alert__content">
         <div class="alert__title">{$btr->alert_warning|escape}</div>
-        <p>{$btr->languages_alert_text1}</p>
+        {assign var='translationsAdmin' value="{url controller=TranslationsAdmin}"}
+        <p>{sprintf($btr->languages_alert_text1, $translationsAdmin)}</p>
         <p>{$btr->languages_alert_text2}</p>
     </div>
 </div>

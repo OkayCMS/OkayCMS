@@ -6,11 +6,13 @@ namespace Okay\Core;
 
 use Monolog\Handler\ChromePHPHandler;
 use Monolog\Handler\RotatingFileHandler;
-use Okay\Admin\Helpers\BackendModulesHelper;
 use Okay\Core\Console\Application AS ConsoleApplication;
 use Okay\Core\Entity\UrlUniqueValidator;
+use Okay\Core\Modules\LicenseModulesTemplates;
+use Okay\Core\Modules\LicenseStorage;
 use Okay\Core\Modules\ModuleDesign;
 use Okay\Core\Modules\ModulesEntitiesFilters;
+use Okay\Core\OkayContainer\OkayContainer;
 use Okay\Core\OkayContainer\Reference\ParameterReference as PR;
 use Okay\Core\OkayContainer\Reference\ServiceReference as SR;
 use Monolog\Logger;
@@ -123,6 +125,7 @@ $services = [
         'arguments' => [
             new SR(Adapters\Response\AdapterManager::class),
             new PR('config.version'),
+            new SR(LicenseModulesTemplates::class),
         ],
     ],
     Languages::class => [
@@ -141,6 +144,14 @@ $services = [
         ],
     ],
     Settings::class => [
+        'class' => Settings::class,
+        'arguments' => [
+            new SR(Database::class),
+            new SR(Languages::class),
+            new SR(QueryFactory::class),
+        ],
+    ],
+    OkayContainer::SETTINGS_DI => [
         'class' => Settings::class,
         'arguments' => [
             new SR(Database::class),
@@ -388,7 +399,7 @@ $services = [
         'class' => Module::class,
         'arguments' => [
             new SR(LoggerInterface::class),
-            new SR(BackendModulesHelper::class),
+            new SR(LicenseModulesTemplates::class),
         ],
     ],
     ModuleDesign::class => [
@@ -408,7 +419,7 @@ $services = [
             new SR(Database::class),
             new SR(Config::class),
             new SR(Smarty::class),
-            new SR(Smarty::class),
+            new SR(LicenseModulesTemplates::class),
         ],
     ],
     Installer::class => [
@@ -543,6 +554,41 @@ $services = [
         'arguments' => [
             new PR('logger.dir'),
         ]
+    ],
+    LicenseModulesTemplates::class => [
+        'class' => LicenseModulesTemplates::class,
+        'arguments' => [
+            new SR(QueryFactory::class),
+            new SR(Database::class),
+            new SR(Config::class),
+            new SR(LicenseStorage::class),
+            new PR('root_dir'),
+        ],
+        'calls' => [
+            [
+                'method' => 'setThemeName',
+                'arguments' => [
+                    new PR('design.theme'),
+                ]
+            ],
+            [
+                'method' => 'setLicenseEmail',
+                'arguments' => [
+                    new PR('license.email'),
+                ]
+            ],
+            [
+                'method' => 'initLicenseInfo',
+                'arguments' => [
+                ]
+            ],
+        ],
+    ],
+    LicenseStorage::class => [
+        'class' => LicenseStorage::class,
+        'arguments' => [
+            new PR('license.compile_code_dir'),
+        ],
     ],
 ];
 

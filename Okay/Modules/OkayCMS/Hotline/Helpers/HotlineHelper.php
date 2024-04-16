@@ -105,7 +105,7 @@ class HotlineHelper
             't.*',
             'lp.name as product_name',
             'lv.name as variant_name',
-            'lb.name as vendor',
+            'lb.name as brand_name',
             $descriptionField . ' AS description',
         ])->fromSubSelect($subSelect, 't')
             ->leftJoin(ProductsEntity::getLangTable().' AS lp', 'lp.product_id = t.product_id and lp.lang_id=' . $this->languages->getLangId())
@@ -190,8 +190,8 @@ class HotlineHelper
             $result['code']['data'] = $this->feedHelper->escape($product->sku);
         }
         $result['name']['data'] = $this->feedHelper->escape($product->product_name . (!empty($product->variant_name) ? ' ' . $product->variant_name : ''));
-        if (!empty($product->vendor)) {
-            $result['vendor']['data'] = $this->feedHelper->escape($product->vendor);
+        if (!empty($product->brand_name)) {
+            $result['vendor']['data'] = $this->feedHelper->escape($product->brand_name);
         }
         $result['description']['data'] = $this->feedHelper->escape($product->description);
         
