@@ -14,7 +14,7 @@ class Config
 {
 
     /*Версия системы*/
-    public string $version = '4.4.0';
+    public string $version = '4.5.0';
     /*Тип системы*/
     public string $version_type = 'pro';
 
