@@ -177,7 +177,7 @@ $(document).on("change", ".fn_variant", function () {
 
 /* Количество товара в карточке и корзине */
 $(document).on("click", ".fn_product_amount span", function () {
-  var input = $(this).parent().find("input"),
+  var input = $(this).parent().find("input.amount__input"),
     action;
   if ($(this).hasClass("fn_plus")) {
     action = "plus";
