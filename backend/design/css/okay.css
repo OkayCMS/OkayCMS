@@ -4915,7 +4915,7 @@ header.navbar .container-fluid{
 .admin_exit a{
     display: block;
     height: 40px;
-    padding: 10px 15px;
+    padding: 10px 8px;
     font-size: 14px;
     font-weight: 500;
     position: relative;
@@ -5006,6 +5006,9 @@ header.navbar .container-fluid{
 .admin_exit a{
     color: #fff;
     padding-right: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 .admin_exit a:hover {
     color: #f82828;
@@ -5030,9 +5033,11 @@ header.navbar .container-fluid{
 }
 .admin_name a span{
     max-width: 85px;
+    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    padding-top: 2px;
 }
 .admin_name a svg,
 .admin_exit a svg,
@@ -5200,11 +5205,11 @@ body.menu-pin .menu_switch .menu_hamburger::after {
 .notification_toggle .notif_item .l_notif{
     display: flex;
     align-items: center;
-    display: -moz-flex;
-    align-items: -moz-center;
-    display: -webkit-flex;
-    align-items: -webkit-center;
     width: calc(100% - 35px);
+    color: rgb(35, 40, 48);
+}
+.notification_toggle .notif_item .l_notif:hover{
+    opacity: 0.8;
 }
 .notification_toggle .notif_item:last-child{
     border-bottom: none;

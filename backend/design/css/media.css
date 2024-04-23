@@ -68,7 +68,7 @@
     .page-container {padding-left: 0px;}
     .admin_notification .notification_title,
     .admin_techsupport a,
-    .admin_exit a {padding: 10px 20px;}
+    .admin_exit a {padding: 10px 8px;}
     #quickview .sidebar_header,
     #admin_catalog .sidebar_header {padding-left: 15px;}
     .admin_languages .languages_inner{padding: 0px 20px;}
@@ -79,6 +79,7 @@
         cursor: pointer;
         float: left;
         margin-top: 13px;
+        margin-right: 8px;
     }
     #okay_logo {
         position: relative;
@@ -157,7 +158,6 @@
     .variants_listadd{min-width: 900px;}
     .admin_switches {margin-left: 15px;}
     .okay_list.variants_list{overflow-x: auto !important;overflow-y: visible !important;}
-    .quickview_hidden{display: none!important;}
     .okay_list .okay_list_body .okay_list_menu_name{
         -webkit-box-orient: vertical !important;
         -webkit-box-direction: normal !important;
@@ -321,6 +321,7 @@
         font-size: 22px;
         line-height: 26px;
         margin: 10px 0px;
+        margin-right: 10px;
     }
     .order_toolbar__heading.heading_page {
         font-size: 28px;
@@ -753,15 +754,20 @@
         border-top: 1px solid rgba(0, 0, 0, 0.07);
         text-transform: uppercase;
         font-size: 12px;
+        font-weight: 600;
     }
+
+    .quickview_hidden{padding-top: 5px;}
     
     .admin_languages .languages_title {
-        padding: 10px 20px;
+        padding: 10px 10px;
+        line-height: 1.6;
         height: 40px;
         font-weight: 500;
         position: relative;
         display: block;
         margin-bottom: 10px;
+        font-weight: 600;
     }
     
     .admin_languages .languages_inner {
