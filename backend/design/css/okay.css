@@ -3285,6 +3285,7 @@ label.switch_label i{
     width: auto;
     margin-left: 10px;
 }
+.additional_params .bootstrap-select.btn-group .dropdown-menu,
 .okay_list_option .bootstrap-select.btn-group .dropdown-menu{
     max-width: inherit;
     width: max-content;
@@ -7721,6 +7722,31 @@ base::-moz-progress-bar,
 .fn_fast_save .additional_params>div {
     width: 100% !important;
 }
+.fn_fast_save .action,
+.fn_fast_save .additional_params,
+.fn_fast_save .fast_save_button{
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+@media only screen and (max-width: 768px) {
+    .fn_fast_save .action,
+    .fn_fast_save .additional_params,
+    .fn_fast_save .fast_save_button{
+        width: 100%;
+        max-width: 100%;
+        margin: 5px 0;
+    }
+    .fn_fast_action_block {
+        display: block;
+    }
+    .fn_fast_save .additional_params .fn_move_to_page,
+    .fn_fast_save .additional_params .fn_move_to_category,
+    .fn_fast_save .additional_params .fn_add_second_category,
+    .fn_fast_save .additional_params .fn_move_to_brand{
+        padding: 0px!important;
+    }
+}
+
 .fn_delete_social,
 .fn_disable_url{cursor:pointer;}
 .fn_delete_social svg{width: 14px;height:14px;}
