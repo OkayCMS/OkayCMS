@@ -293,10 +293,7 @@ class Cart
     {
         unset($_SESSION['shopping_cart'][$variantId]);
 
-        if (!empty($_SESSION['shopping_cart'])) {
-            $this->saveShoppingCart($_SESSION['shopping_cart'] ?? []);
-
-        }
+        $this->saveShoppingCart($_SESSION['shopping_cart'] ?? []);
 
         if ($user = $this->mainHelper->getCurrentUser()) {
             $this->userCartItemsEntity->deleteByVariantId($user->id, $variantId);
