@@ -7680,6 +7680,15 @@ base::-moz-progress-bar,
     border: 1px solid #cfd8dc;
 }
 .card-block {padding: 20px;}
+.card-block img {max-width: 100%;}
+.card-block--version{
+    text-align: center;
+    color: #626262;
+    font-size: 14px;
+}
+.card-inverse .card-block--version{
+    color: #fff;
+}
 .okay_bg {background: RGB(9, 26, 51);}
 .card-group {
         display: table;

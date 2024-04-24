@@ -92,6 +92,9 @@
 
                                 <button type="button" value="recovery" class="btn btn_border_blue fn_ajax_recover">Напомнить</button>
                             </div>
+                            <div class="mt-2 hidden-lg-up">
+                                <div class="card-block--version">OkayCMS v.{$config->version|escape}</div>
+                            </div>
                         </div>
                     </div>
                     <div class="card card-inverse okay_bg py-3 hidden-md-down" style="width:50%">
@@ -100,6 +103,7 @@
                                 <p>
                                     <img src="design/images/system_logo.png" alt="OkayCMS" />
                                 </p>
+                                <div class="card-block--version">Version {$config->version|escape}</div>
                             </div>
                         </div>
                     </div>
