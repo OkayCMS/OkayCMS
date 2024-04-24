@@ -125,7 +125,7 @@
             </div>
             {if $settings->email_for_module}
             {else}
-            <div class="admin_switches">
+            <div class="admin_switches hidden-md-down">
                 <div class="box_adswitch  hint-bottom-middle-t-info-s-small-mobile  hint-anim" data-hint="{$btr->index_btn_email_info_hint|escape}">
                     <a class="btn_inner"  href="index.php?controller=ModulesAdmin">
                         {include file='svg_icon.tpl' svgId='warn_icon'}
@@ -154,15 +154,15 @@
                 </div>
                 <div class="admin_name hint-bottom-middle-t-info-s-small-mobile  hint-anim" data-hint="{$manager->login|escape}">
                     <a href="index.php?controller=ManagerAdmin&id={$manager->id}">
-                        {*<span class="">{$manager->login|escape}</span>*}
                         {include file='svg_icon.tpl' svgId='user2_icon'}
+                        <span class="hidden-md-up">{$manager->login|escape}</span>
                     </a>
                 </div>
                 {*Счетчики уведомлений*}
                 <div class="admin_notification">
                     <div class="notification_inner">
                         <span class="notification_title" href="">
-                            {*<span class="quickview_hidden">{$btr->index_notifications|escape}</span>*}
+                            <span class="quickview_hidden hidden-md-up">{$btr->index_notifications|escape}</span>
                             {include file='svg_icon.tpl' svgId='notify'}
                             {if $all_counter}
                                 <span class="counter">{$all_counter}</span>
@@ -259,7 +259,7 @@
                 <div class="admin_techsupport">
                     <div class="techsupport_inner">
                         <a {if $support_info->public_key} data-hint="{$support_info->balance|balance}"{else} data-hint="Not active" {/if}  class="hint-bottom-middle-t-info-s-small-mobile  hint-anim"  href="index.php?controller=SupportAdmin">
-                            <span class="quickview_hidden">{$btr->index_support|escape}</span>
+                            <span class="quickview_hidden hidden-lg-down">{$btr->index_support|escape}</span>
                             {include file='svg_icon.tpl' svgId='techsupport'}
                             {if $support_info->public_key}
                             <span class="counter">{$support_info->new_messages|escape}</span>
