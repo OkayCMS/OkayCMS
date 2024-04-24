@@ -1,4 +1,4 @@
-OkayCMS v4.3.4
+OkayCMS v4.5.1
 ----------------------
 
 OkayCMS is a PHP CMS for creating backend and frontend applications.
@@ -9,4 +9,4 @@ OkayCMS is a PHP CMS for creating backend and frontend applications.
 
 OkayCMS is released under the LGPL license.
 
-Copyright 2015-2023 OkayCMS
+Copyright 2015-2024 OkayCMS
