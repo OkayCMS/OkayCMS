@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\RozetkaPay\Controllers;
 
 use Okay\Core\Money;
@@ -56,7 +55,7 @@ class CallbackController extends AbstractController
         }
 
         $method = $paymentsEntity->get((int) $order->payment_method_id);
-        if (empty($method) && $method->module !== "RozetkaPay/RozetkaPay") {
+        if (empty($method) && $method->module !== "OkayCMS/RozetkaPay") {
             $logger->warning("RozetkaPay notice: 'Invalid payment method'. Order №{$orderId}");
             $this->response->setContent("Invalid payment method")->setStatusCode(400);
             $this->response->sendContent();

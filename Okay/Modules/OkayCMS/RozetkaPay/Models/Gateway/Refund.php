@@ -54,7 +54,7 @@ class Refund
         $paymentCurrency = $currenciesEntity->get(intval($paymentMethod->currency_id));
         $orderArray = (array)$order;
         if($settings['rozetkapay_secretkey'] === 'XChz3J8qrr') {
-            $postfix = \Okay\Modules\RozetkaPay\RozetkaPay\Models\Gateway\CreatePayment::POSTFIX_FOR_TEST;
+            $postfix = \Okay\Modules\OkayCMS\RozetkaPay\Models\Gateway\CreatePayment::POSTFIX_FOR_TEST;
             $orderArray['id'] = $order->id . $postfix;
         }
         $orderArray['currency'] = (array)$paymentCurrency;
@@ -81,7 +81,7 @@ class Refund
 
     private function getPaymentDetails($id, $queryFactory, $table)
     {
-        $postfix = \Okay\Modules\RozetkaPay\RozetkaPay\Models\Gateway\CreatePayment::POSTFIX_FOR_TEST;
+        $postfix = \Okay\Modules\OkayCMS\RozetkaPay\Models\Gateway\CreatePayment::POSTFIX_FOR_TEST;
         $originalId = str_replace($postfix, '', (string)$id);
         $select = $queryFactory->newSelect();
         $data = $select->from($table)
