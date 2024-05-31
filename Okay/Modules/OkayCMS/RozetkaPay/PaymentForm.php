@@ -5,7 +5,9 @@ namespace Okay\Modules\OkayCMS\RozetkaPay;
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\AbstractModule;
 use Okay\Core\Modules\Interfaces\PaymentFormInterface;
+use Okay\Core\Money;
 use Okay\Core\Router;
+use Okay\Core\Languages;
 use Okay\Entities\CurrenciesEntity;
 use Okay\Entities\OrdersEntity;
 use Okay\Entities\PaymentsEntity;
@@ -21,6 +23,16 @@ class PaymentForm extends AbstractModule implements PaymentFormInterface
     private $entityFactory;
 
     /**
+     * @var Languages
+     */
+    private $languages;
+
+    /**
+     * @var Money
+     */
+    private $money;
+
+    /**
      * @var CreatePayment
      */
     private $createPayment;
@@ -32,17 +44,23 @@ class PaymentForm extends AbstractModule implements PaymentFormInterface
 
     /**
      * @param EntityFactory $entityFactory
+     * @param Languages $languages
+     * @param Money $money
      * @param CreatePayment $createPayment
      * @param QueryFactory $queryFactory
      */
     public function __construct(
         EntityFactory $entityFactory,
+        Languages $languages,
+        Money $money,
         CreatePayment $createPayment,
         QueryFactory $queryFactory
     )
     {
         parent::__construct();
         $this->entityFactory = $entityFactory;
+        $this->languages     = $languages;
+        $this->money         = $money;
         $this->createPayment = $createPayment;
         $this->queryFactory  = $queryFactory;
     }

@@ -38,6 +38,11 @@ return [
         'arguments' => [
         ],
     ],
+    OrdersEntity::class => [
+        'class' => OrdersEntity::class,
+        'arguments' => [
+        ],
+    ],
     RefundAdmin::class => [
         'class' => RefundAdmin::class,
         'arguments' => [

@@ -4,7 +4,6 @@ namespace Okay\Modules\OkayCMS\RozetkaPay\Backend\Controllers;
 
 use Okay\Admin\Controllers\IndexAdmin;
 use Okay\Entities\OrdersEntity;
-use Okay\Core\EntityFactory;
 use Okay\Modules\OkayCMS\RozetkaPay\Models\Gateway\Refund;
 
 class RefundAdmin extends IndexAdmin
