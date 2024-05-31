@@ -256,7 +256,7 @@ class CartController extends AbstractController
                 $pNotStock[$p->variant_id] = $p->variant_id;
             }
         }
-        if ($pNotStock){
+        if (!empty($pNotStock)){
             $result['product_empty'] =  $pNotStock;
         }else{
             $result['product_empty'] = 0;
