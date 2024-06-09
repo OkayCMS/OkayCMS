@@ -52,7 +52,7 @@
 
                         {* User's  last name *}
                         <div class="form__group">
-                            <input class="form__input form__placeholder--focus" type="text" name="last_name" value="{$request_data.name|escape}" data-language="form_last_name" />
+                            <input class="form__input form__placeholder--focus" type="text" name="last_name" value="{$request_data.last_name|escape}" data-language="form_last_name" />
                             <span class="form__placeholder">{$lang->form_last_name}</span>
                         </div>
 
