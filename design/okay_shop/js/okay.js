@@ -214,6 +214,34 @@ $(document).on("submit", ".fn_subscribe_form", function (e) {
   });
 });
 
+/* Reaction to an attempt to subscribe from the blog page */
+$(document).on("submit", ".fn_subscribe_form_blog", function (e) {
+  e.preventDefault();
+
+  let successBlock = $(".fn_subscribe_success_blog"),
+      errorBlock = $(".fn_subscribe_error_blog"),
+      form = $(this),
+      formData = form.serialize();
+
+  $.ajax({
+    url: okay.router["ajax_subscribe"],
+    data: formData,
+    type: "post",
+    dataType: "json",
+    success: function (data) {
+      if (data.hasOwnProperty("success")) {
+        errorBlock.hide();
+        successBlock.show();
+        form.find('[name="subscribe_email"]').val("");
+      } else if (data.hasOwnProperty("error")) {
+        successBlock.hide();
+        errorBlock.children(".fn_error_text_blog").text(data.error);
+        errorBlock.show();
+      }
+    },
+  });
+});
+
 /* Функция добавления / удаления в папку сравнения */
 $(document).on("click", ".fn_comparison", function (e) {
   e.preventDefault();
