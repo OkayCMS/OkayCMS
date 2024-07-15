@@ -32,11 +32,11 @@
                     {elseif $message_error == 'required_fields'}
                         {$btr->import_required|escape}
                     {elseif $message_error == 'duplicated_columns'}
-                        {$btr->import_duplicated|escape}: {implode($duplicated_columns, ", ")}
+                        {$btr->import_duplicated|escape}: {implode(", ", $duplicated_columns)}
                     {elseif $message_error == 'duplicated_columns_pairs'}
                         {$btr->import_duplicated_pairs}:<BR>
                         {foreach $duplicated_columns_pairs as $pair}
-                            {implode($pair, ", ")}
+                            {implode(", ", $pair)}
                             {if !$pair@last}<BR>{/if}
                         {/foreach}
                     {else}
