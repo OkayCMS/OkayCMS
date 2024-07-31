@@ -149,7 +149,7 @@ $(document).on("change", ".fn_variant", function () {
     sku.parent().addClass("hidden-xs-up");
   }
   /* Наличие на складе */
-  if (stock == 0) {
+  if (stock < 1) {
     parent.find(".fn_not_stock").removeClass("hidden-xs-up");
     parent.find(".fn_in_stock").addClass("hidden-xs-up");
   } else {
@@ -157,10 +157,10 @@ $(document).on("change", ".fn_variant", function () {
     parent.find(".fn_not_stock").addClass("hidden-xs-up");
   }
   /* Предзаказ */
-  if (stock == 0 && okay.is_preorder) {
+  if (stock < 1 && okay.is_preorder) {
     parent.find(".fn_is_preorder").removeClass("hidden-xs-up");
     parent.find(".fn_is_stock, .fn_not_preorder").addClass("hidden-xs-up");
-  } else if (stock == 0 && !okay.is_preorder) {
+  } else if (stock < 1 && !okay.is_preorder) {
     parent.find(".fn_not_preorder").removeClass("hidden-xs-up");
     parent.find(".fn_is_stock, .fn_is_preorder").addClass("hidden-xs-up");
   } else {
@@ -174,6 +174,7 @@ $(document).on("change", ".fn_variant", function () {
     parent.find(".fn_units").text("");
   }
 });
+
 
 /* Количество товара в карточке и корзине */
 $(document).on("click", ".fn_product_amount span", function () {
