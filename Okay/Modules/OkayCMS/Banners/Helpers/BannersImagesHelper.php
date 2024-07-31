@@ -114,17 +114,16 @@ class BannersImagesHelper
 
     public function getBannerImage($id)
     {
-        $bannerImage = $this->bannersImagesEntity->get($id);
-
+        $bannerImage = $this->bannersImagesEntity->get($id) ?? new \stdClass();
+        
         if (!empty($bannerImage->settings)) {
             $bannerImage->settings = unserialize($bannerImage->settings);
         } else {
             $bannerImage->settings = new BannerImageSettingsDTO();
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $bannerImage, func_get_args());
     }
-
     public function deleteImage($bannerImage, string $field = 'image')
     {
         $this->imageCore->deleteImage(
