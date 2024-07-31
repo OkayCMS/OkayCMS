@@ -69,7 +69,8 @@ class PostAdmin extends IndexAdmin
 
                 //  сохранить и выход в список
                 $buttonRedirectToList = $this->request->post('apply_and_quit', 'integer', 0);
-                if (($buttonRedirectToList == 1) && !empty($urlRedirectToList = $this->request->getRootUrl() . '/backend/index.php?controller=BlogAdmin')) {
+                if ($buttonRedirectToList == 1) {
+                    $urlRedirectToList = $this->postRedirectGet->getUrlRedirectToList('BlogAdmin');
                     $this->postRedirectGet->redirect($urlRedirectToList);
                 }
 
