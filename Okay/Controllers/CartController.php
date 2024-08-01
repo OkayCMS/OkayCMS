@@ -6,7 +6,7 @@ namespace Okay\Controllers;
 
 use Okay\Core\Design;
 use Okay\Core\SmartyPlugins\Plugins\CheckoutPaymentForm;
-use Okay\Core\TemplateConfig;
+use Okay\Core\FrontTemplateConfig;
 use Okay\Entities\PaymentsEntity;
 use Okay\Entities\ProductsEntity;
 use Okay\Helpers\CartHelper;
@@ -239,7 +239,7 @@ class CartController extends AbstractController
     public function cartAjaxValidate(
         Cart $cart,
         Design $design,
-        TemplateConfig $templateConfig,
+        FrontTemplateConfig $templateConfig,
         ProductsEntity $productsEntity
     )
     {
