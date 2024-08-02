@@ -1651,6 +1651,7 @@ $lang['tooltip_settings_open_ai_presence_penalty'] = 'A number from -2.0 to 2.0.
 $lang['tooltip_settings_open_ai_frequency_penalty'] = 'Number from -2.0 to 2.0. Positive values penalize new tokens based on their existing frequency in the current text, reducing the likelihood that the model will repeat the same line verbatim.';
 $lang['tooltip_settings_open_ai_max_tokens'] = 'Maximum number of tokens for response.';
 $lang['settings_open_ai_api_key'] = 'API Key';
+$lang['settings_open_ai_model'] = 'Model';
 $lang['settings_open_ai_system_message'] = 'System message';
 $lang['settings_open_ai_categories_title'] = 'Categories Request Template';
 $lang['settings_open_ai_brands_title'] = 'Brands Request Template';
