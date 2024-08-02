@@ -402,6 +402,7 @@ class BackendSettingsHelper
         $this->settings->set('open_ai_presence_penalty', $this->request->post('open_ai_presence_penalty'));
         $this->settings->set('open_ai_frequency_penalty', $this->request->post('open_ai_frequency_penalty'));
         $this->settings->set('open_ai_max_tokens', $this->request->post('open_ai_max_tokens'));
+        $this->settings->set('open_ai_model', $this->request->post('open_ai_model'));
 
         $this->settings->update('ai_product_title_template', $this->request->post('ai_product_title_template'));
         $this->settings->update('ai_product_meta_description_template', $this->request->post('ai_product_meta_description_template'));

@@ -11,7 +11,7 @@ class OpenAiHelper
     private OpenAi $openAi;
     private Response $response;
 
-    private string $model = 'gpt-3.5-turbo';
+    private string $model;
     private float $temperature;
     private int $frequencyPenalty;
     private int $presencePenalty;
@@ -25,6 +25,7 @@ class OpenAiHelper
         $this->settings = $settings;
         $this->response = $response;
         $this->openAi = new OpenAi((string)$settings->get('open_ai_api_key'));
+        $this->model = ((string)$settings->get('open_ai_model')) ?:'gpt-3.5-turbo';
         $this->maxTokens = ((int)$settings->get('open_ai_max_tokens')) ?: 1000;
         $this->temperature = ((float)$settings->get('open_ai_temperature')) ?: 1.0;
         $this->frequencyPenalty = ((float)$settings->get('open_ai_frequency_penalty')) ?: 0;
@@ -117,5 +118,31 @@ class OpenAiHelper
             return $response->choices[0]->message->content ?? null;
         }
         return null;
+    }
+
+    private function getModels(): ?array
+    {
+        $response = $this->openAi->listModels();
+
+        $models = json_decode($response, true);
+        if (json_last_error() === JSON_ERROR_NONE && isset($models['data'])) {
+            return $models['data'];
+        }
+
+        return null;
+    }
+
+    public function getTextModels(): ?array
+    {
+        $models = $this->getModels();
+        if ($models === null) {
+            return null;
+        }
+
+        $textModels = array_filter($models, function ($model) {
+            return strpos($model['id'], 'gpt-') !== false;
+        });
+
+        return $textModels;
     }
 }
