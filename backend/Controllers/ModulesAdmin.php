@@ -99,6 +99,7 @@ class ModulesAdmin extends IndexAdmin
                 $module->preview = $preview;
             }
             $module->params = $moduleCore->getModuleParams($module->vendor, $module->module_name);
+            $module->module_versions_compare = version_compare($module->params->getVersion(), $module->version); //1 - версия модуля в файлах выше, чем в базе. 0 - одинаковые. -1 - в файлах ниже, чем в базе.
         }
 
         $this->design->assign('modules', $modulesList);
