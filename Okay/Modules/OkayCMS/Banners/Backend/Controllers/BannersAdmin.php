@@ -59,13 +59,17 @@ class BannersAdmin extends IndexAdmin
                         /*Створюємо бекап обраних груп баннерів*/
                         $backupFilename = $bannersBackupHelper->backup($ids);
                         $archiveName = "backup.zip";
-                        $this->response->addHeader("Content-type: application/force-download");
+                        $this->response->addHeader("Content-type: application/zip");
                         $this->response->addHeader("Content-Disposition: attachment; filename=\"{$archiveName}\"");
                         $this->response->addHeader("Content-Length: " . filesize($backupFilename));
+                        $this->response->addHeader("Pragma: public");
+                        $this->response->addHeader("Cache-Control: must-revalidate");
+                        $this->response->addHeader("Expires: 0");
+
                         $this->response->sendHeaders();
                         readfile($backupFilename);
                         unlink($backupFilename);
-                        break;
+                        exit();
                     }
                 }
             }
