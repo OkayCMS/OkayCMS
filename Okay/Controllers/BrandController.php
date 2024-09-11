@@ -34,7 +34,7 @@ class BrandController extends AbstractController
     ) {
         $brandRoute = $routeFactory->create('brand');
         $this->design->assign('url', $brandRoute->generateSlugUrl($url), true);
-        $this->design->assign('filtersUrl', !empty($filtersUrl) ? '/'.$filtersUrl : '', true);
+        $this->design->assign('filtersUrl', !empty($filtersUrl) ? $filtersUrl : '', true);
         $this->design->assign('ajax_filter_route', 'brand_features', true);
 
         $brand = $brandsEntity->get((string)$url);

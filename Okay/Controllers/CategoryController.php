@@ -34,7 +34,7 @@ class CategoryController extends AbstractController
     ) {
         $categoryRoute = $routeFactory->create('category');
         $this->design->assign('url', $categoryRoute->generateSlugUrl($url), true);
-        $this->design->assign('filtersUrl', !empty($filtersUrl) ? '/'.$filtersUrl : '', true);
+        $this->design->assign('filtersUrl', !empty($filtersUrl) ? $filtersUrl : '', true);
         $this->design->assign('ajax_filter_route', 'category_features', true);
 
         $category = $categoriesEntity->get((string)$url);

@@ -38,7 +38,7 @@ class DefaultStrategy extends AbstractRouteStrategy
 
         $this->mockRouteParams = [
             '/'.$prefix.'/{$url}/?{$filtersUrl}', [
-                '{$url}' => ' ', '{$filtersUrl}' => '(.*)'
+                '{$filtersUrl}' => '(.*)'
             ],
             []
         ];
