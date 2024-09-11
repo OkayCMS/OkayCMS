@@ -16,7 +16,7 @@ class NoPrefixStrategy extends AbstractRouteStrategy
      */
     private $brandsEntity;
 
-    private $mockRouteParams = ['{$url}', ['{$url}' => ''], ['{$url}' => '']];
+    private $mockRouteParams = ['/{$url}/?{$filtersUrl}', ['{$url}' => '', '{$filtersUrl}' => ''], ['{$url}' => '', '{$filtersUrl}' => '']];
 
     public function __construct()
     {
@@ -28,30 +28,31 @@ class NoPrefixStrategy extends AbstractRouteStrategy
 
     public function generateRouteParams($url)
     {
-        $brandUrl = $this->matchCategoryUrl($url);
+        $brandUrl = $this->matchBrandUrl($url);
         $brand    = $this->brandsEntity->get((string) $brandUrl);
 
         if (empty($brand)) {
             return $this->mockRouteParams;
         }
 
+        $filterUrl = $this->matchFiltersUrl($brandUrl, $url);
+
         return [
             '/{$url}/?{$filtersUrl}',
             [
                 '{$url}' => $brandUrl,
-                '{$filtersUrl}' => $this->matchFiltersUrl($brandUrl, $url)
+                '{$filtersUrl}' => $filterUrl
             ],
             [
                 '{$url}' => $brandUrl,
-                '{$filtersUrl}' => $this->matchFiltersUrl($brandUrl, $url)
+                '{$filtersUrl}' => $filterUrl
             ]
         ];
     }
 
-    private function matchCategoryUrl($url)
+    private function matchBrandUrl($url)
     {
-        preg_match("/([^\/]+)/ui", $url, $matches);
-
+        preg_match("~(?:brand_features/?)?([^/]+)~ui", $url, $matches);
         if (isset($matches[1])) {
             return $matches[1];
         }
@@ -61,6 +62,10 @@ class NoPrefixStrategy extends AbstractRouteStrategy
 
     private function matchFiltersUrl($brandUrl, $url)
     {
+        if (strpos($url, 'brand_features') !== false) {
+            $url = substr($url, strlen('brand_features') + 1);
+        }
+
         return substr($url, strlen($brandUrl) + 1);
     }
 }
