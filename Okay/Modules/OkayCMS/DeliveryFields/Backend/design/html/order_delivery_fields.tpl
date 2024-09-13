@@ -1,6 +1,6 @@
 {foreach $deliveryFields as $field}
     <div class="mb-1 fn_delivery_field{foreach $field->deliveries as $deliveryId} fn_delivery_field_{$deliveryId}{/foreach}"
-        {if !in_array($order->delivery_id, $field->deliveries)}style="display: none"{/if}
+        {if !empty($field->deliveries) && !in_array($order->delivery_id, $field->deliveries)}style="display: none"{/if}
     >
         <div class="heading_label">
             {$field->name|escape}
@@ -14,13 +14,13 @@
                class="form-control"
                type="text"
                value="{$field->value|escape}"
-               {if !in_array($order->delivery_id, $field->deliveries)}disabled{/if}
+               {if !empty($field->deliveries) && !in_array($order->delivery_id, $field->deliveries)}disabled{/if}
         />
         {if $field->value_id}
             <input name="delivery_fields_values_ids[{$field->id}]"
                    value="{$field->value_id|escape}"
                    type="hidden"
-                   {if !in_array($order->delivery_id, $field->deliveries)}disabled{/if}
+                   {if !empty($field->deliveries) && !in_array($order->delivery_id, $field->deliveries)}disabled{/if}
             />
         {/if}
     </div>
