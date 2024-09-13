@@ -98,18 +98,27 @@ class Comparison
                 }
 
                 if ($featuresValues = $this->featuresValuesEntity->mappedBy('id')->find(['product_id'=>$products_ids])) {
-                    $productsValues = [];
-                    foreach ($this->featuresValuesEntity->getProductValuesIds($products_ids) as $pv) {
-                        $productsValues[$pv->product_id][$pv->value_id] = $pv->value_id;
-                    }
-                    
                     foreach ($featuresValues as $fv) {
                         $featuresIds[] = $fv->feature_id;
                     }
                 }
                 
                 if (!empty($featuresIds)) {
-                    $features = $this->featuresEntity->mappedBy('id')->find(['id' => $featuresIds]);
+                    $features = $this->featuresEntity->mappedBy('id')->find(['id' => $featuresIds, 'visible'=>1, 'show_in_product'=>1]);
+
+                    $productsValues = [];
+                    if (!empty($visibleFeaturesIds = array_keys($features))) {
+                        $featuresValues = array_filter($featuresValues, function ($fv) use ($visibleFeaturesIds) {
+                            return in_array($fv->feature_id, $visibleFeaturesIds);
+                        });
+
+                        foreach ($this->featuresValuesEntity->getProductValuesIds($products_ids) as $pv) {
+                            if (isset($featuresValues[$pv->value_id]) && in_array($featuresValues[$pv->value_id]->feature_id, $visibleFeaturesIds)) {
+                                $productsValues[$pv->product_id][$pv->value_id] = $pv->value_id;
+                            }
+                        }
+                    }
+
                     foreach ($featuresValues as $fv) {
                         if (isset($features[$fv->feature_id])) {
                             $features[$fv->feature_id]->value = $fv->value;
@@ -146,7 +155,7 @@ class Comparison
                     $productFeatures = [];
                     if (isset($productsValues[$product->id])) {
                         foreach ($productsValues[$product->id] as $valueId) {
-                            if ($featureValue = $featuresValues[$valueId]) {
+                            if (isset($featuresValues[$valueId]) && $featureValue = $featuresValues[$valueId]) {
                                 $productFeatures[$featureValue->feature_id][] = $featureValue->value;
                             }
                         }
