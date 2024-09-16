@@ -271,7 +271,7 @@ class Router {
         $mainLanguage = self::$languages->getMainLanguage();
         $pattern = '/' . $mainLanguage->label . '(\/.*)?';
         $router->all($pattern, function() use ($mainLanguage) {
-            $uri = preg_replace('~/?'.$mainLanguage->label.'/?~', '', Request::getRequestUri());
+            $uri = preg_replace('~^/?'.$mainLanguage->label.'/?~', '', Request::getRequestUri());
             Response::redirectTo(Request::getRootUrl() . '/' . $uri, 301);
         });
         
