@@ -4,7 +4,6 @@
 namespace Okay\Helpers\MetadataHelpers;
 
 
-use Okay\Core\Design;
 use Okay\Core\EntityFactory;
 use Okay\Core\FrontTranslations;
 use Okay\Core\Languages;
@@ -13,7 +12,6 @@ use Okay\Core\Router;
 use Okay\Entities\FeaturesAliasesValuesEntity;
 use Okay\Entities\FeaturesEntity;
 use Okay\Entities\FeaturesValuesAliasesValuesEntity;
-use Okay\Entities\ProductsEntity;
 use Okay\Entities\SEOFilterPatternsEntity;
 use Okay\Helpers\MetaRobotsHelper;
 
@@ -341,13 +339,11 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         }
         
         $this->parts = [
-            '{$category}' => ($this->category->name ? $this->category->name : ''),
-            '{$category_h1}' => ($this->category->name_h1 ? $this->category->name_h1 : ''),
-            '{$category_url}' => ltrim(Router::generateUrl('category', ['url' => $this->category->url], true), '/'),
+            '{$category}' => ($this->category->name ?: ''),
+            '{$category_h1}' => ($this->category->name_h1 ?: ''),
+            '{$category_url}' => Router::generateUrl('category', ['url' => $this->category->url], true),
             '{$sitename}' => ($this->settings->get('site_name') ? $this->settings->get('site_name') : ''),
         ];
-
-        $rangeFilter['category_id'] = $this->category->children;
 
         /** @var EntityFactory $entityFactory */
         $entityFactory = $this->SL->getService(EntityFactory::class);
@@ -379,8 +375,6 @@ class CategoryMetadataHelper extends CommonMetadataHelper
                     }
                 }
             }
-
-            $rangeFilter['features'] = $this->selectedFilters;
 
             //Если паттерн свойство+свойство
             if (!empty($aliasesValuesFilter['feature_value_id']) && count($aliasesValuesFilter['feature_value_id']) == 2) {
@@ -433,27 +427,16 @@ class CategoryMetadataHelper extends CommonMetadataHelper
 
         if (!empty($this->metaArray['brand']) && count($this->metaArray['brand']) == 1) {
             $this->parts['{$brand}'] = reset($this->metaArray['brand']);
-            $rangeFilter['brand_id'] = array_key_first($this->metaArray['brand']);
         }
 
-        if (!empty($rangeFilter)) {
-            $rangeFilter['in_stock'] = 1;
-            /** @var ProductsEntity $productsEntity */
-            $productsEntity = $entityFactory->get(ProductsEntity::class);
-            $catalogPrices = $productsEntity->getPriceRange($rangeFilter);
+        $catalogPrices = $this->design->getVar('catalog_prices');
 
-            if (isset($catalogPrices) && isset($catalogPrices->min)) {
-                $this->parts['{$product_min_price}'] = $catalogPrices->min;    //  Минимальная цена в рамках фильтра
-            }
-
-            if (isset($catalogPrices) && isset($catalogPrices->max)) {
-                $this->parts['{$product_max_price}'] = $catalogPrices->max;    //  Максимальная цена в рамках фильтра
-            }
+        if (is_object($catalogPrices)) {
+            $this->parts['{$product_min_price}'] = $catalogPrices->min ?? '';
+            $this->parts['{$product_max_price}'] = $catalogPrices->max ?? '';
         }
 
-        /** @var Design $design */
-        $design = $this->SL->getService(Design::class);
-        $this->parts['{$products_count}'] = $design->getVar('total_products_num');
+        $this->parts['{$products_count}'] = $this->design->getVar('total_products_num') ?? '';
 
         if (!empty($this->metaArray['features_values']) && count($this->metaArray['features_values']) == 1) {
 
