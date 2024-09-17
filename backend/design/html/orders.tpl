@@ -242,7 +242,7 @@
                                     </div>
 
                                     <div class="okay_list_boding okay_list_order_number">
-                                        <a class="text_600 mb-h" href="{url controller=OrderAdmin id=$order->id return=$smarty.server.REQUEST_URI}">{$btr->orders_order|escape} #{$order->id}</a>
+                                        <a class="text_600 mb-h" href="{url controller=OrderAdmin id=$order->id return=$smarty.server.REQUEST_URI}"><span class="hidden-sm-down">{$btr->orders_order|escape}</span> #{$order->id}</a>
                                         {if $order->last_update}
                                             <span class="tag tag-update fn_history_toggle">{$btr->order_history_changed} {$order->last_update->date|date} {$order->last_update->date|time} <i class="fn_icon_arrow fa fa-angle-down fa-lg m-t-2 "></i></span>
                                         {else}
