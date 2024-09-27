@@ -26,13 +26,21 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
     {
         $sql = parent::getQuery(...func_get_args());
 
-        if ($this->feed->settings['use_full_description']) {
+        if ($this->isSettingParamTrue('use_full_description')) {
             $sql->cols(['lp.description AS description']);
+        } elseif($this->isSettingParamTrue('use_full_description_if_not_exist_annotation')) {
+            $sql->cols(['lp.description AS description']);
+            $sql->cols(['lp.annotation AS annotation']);
         } else {
             $sql->cols(['lp.annotation AS annotation']);
         }
 
         return ExtenderFacade::execute(__METHOD__, $sql, func_get_args());
+    }
+
+    protected function isSettingParamTrue($param): bool
+    {
+        return isset($this->feed->settings[$param]) && $this->feed->settings[$param];
     }
 
     protected function getSubSelect($feedId): Select
@@ -96,16 +104,28 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
             $result['link']['data'] = Router::generateUrl('product', ['url' => $product->url], true);
         }
 
-        //  добавляем описание
-        if (!empty($this->feed->settings['description_in_html']) && $this->feed->settings['description_in_html'] == 1) {    //  передаем html текст полностью в CDATA
-            if (empty($product->description) && empty($product->annotation)) {
-                $result['description']['data'] = '';
-            } else {
-                $result['description']['data'] = '<![CDATA['. ($product->description ?? $product->annotation) .']]>';
-            }
-        } else {
-            $result['description']['data'] = $this->xmlFeedHelper->escape($product->description ?? $product->annotation);
+        $description = '';
+        $canUseCdata = false;
+        if (
+            ($this->isSettingParamTrue('use_full_description_if_not_exist_annotation') && !empty($product->description) && empty($product->annotation))
+            || ($this->isSettingParamTrue('use_full_description') && !empty($product->description))
+        ) {
+            $description = $product->description;
+            $canUseCdata = true;
+        } elseif (!empty($product->annotation)) {
+            $description = $product->annotation;
+            $canUseCdata = true;
+        } elseif ($this->isSettingParamTrue('replace_description_by_name_if_empty')) {
+            $description = $result['title']['data'];
         }
+
+        if ($canUseCdata && $this->isSettingParamTrue('description_in_html')) {
+            $description = '<![CDATA[' . $description . ']]>';
+        } else {
+            $description = $this->xmlFeedHelper->escape($description);
+        }
+
+        $result['description']['data'] = $description;
 
         $result['g:id']['data'] = $this->xmlFeedHelper->escape($product->variant_id);
 
