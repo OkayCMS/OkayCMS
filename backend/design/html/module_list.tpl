@@ -90,14 +90,12 @@
                 {/if}
                 {/if}
 
-                {if !empty($module->params->getVersion()) && $module->params->getVersion() != $module->version}
-                    {if $module->params->getVersion() > $module->version}{else}
+                {if $module->versionControl->greaterThan($module->version, $module->params->getVersion())}
                     <div class="mt-q">
                         <span class="text_attention font_12 text_600">
                             {$btr->module_downgrade_warning} {$module->params->getVersion()}
                         </span>
                     </div>
-                    {/if}
                 {/if}
 
                 {if $module->params->getDaysToExpire() >= 0}
@@ -184,11 +182,9 @@
             <div class="okay_list_boding okay_list_module_version hidden-md-down">
                 <div class="text_700">{$module->version|escape}</div>
 
-                {if !empty($module->params->getVersion()) && $module->params->getVersion() != $module->version}
-                    {if $module->params->getVersion() > $module->version}
-                        {if $module->params->isLicensed()}
+                {if $module->versionControl->lessThan($module->version, $module->params->getVersion())}
+                    {if $module->params->isLicensed()}
                         <button type="button" class="fn_update_module btn btn-warning btn--update mt-q hint-top-middle-t-info-s-small-mobile hint-anim" data-hint="{$btr->module_need_update} {$module->params->getVersion()}">{include 'svg_icon.tpl' svgId='refresh_icon'} {$module->params->getVersion()}</button>
-                        {/if}
                     {/if}
                 {/if}
 
