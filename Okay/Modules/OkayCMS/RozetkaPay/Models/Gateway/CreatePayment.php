@@ -5,13 +5,12 @@ namespace Okay\Modules\OkayCMS\RozetkaPay\Models\Gateway;
 
 use Okay\Core\EntityFactory;
 use Okay\Modules\OkayCMS\RozetkaPay\Models\Gateway\Client\HttpCurl;
-use Okay\Entities\OrdersEntity;
 
 class CreatePayment
 {
     const CREATE_PAYMENT = 'new';
 
-    const POSTFIX_FOR_TEST = '777888333222';
+    const POSTFIX_FOR_TEST = '20249OKAY';
 
     private $client;
 
@@ -20,12 +19,12 @@ class CreatePayment
 
     /**
      * @param HttpCurl $client
-     * @param OrdersEntity $entityFactory
+     * @param EntityFactory $entityFactory
      * @return void
      */
     public function __construct(
         HttpCurl $client,
-        OrdersEntity $entityFactory
+        EntityFactory $entityFactory
     )
     {
         $this->client = $client;
@@ -36,7 +35,7 @@ class CreatePayment
     {
         $data = $this->prepareRequest($order);
         if($order['settings']['rozetkapay_secretkey'] === 'XChz3J8qrr') {
-            $data['external_id'] = $data['external_id'] . self::POSTFIX_FOR_TEST;
+            $data['external_id'] = $data['external_id'] .'-'.date('YmdHis'). self::POSTFIX_FOR_TEST;
         }
         $data = json_encode($data);
         return $this->client->request('post', 'new', $data, $order['settings']);
