@@ -141,7 +141,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
 
     private function getMockRouteParams($prefix) : array
     {
-        return [$prefix.'/{$url}/?{$variantId}', ['{$url}' => '', '{$variantId}' => '(\d*)'], []];
+        return [$prefix.'/{$url}/?{$variantId}', ['{$url}' => '', '{$variantId}' => ''], []];
     }
 
     private function matchProductUrlFromUri($url, $categoryPathUrl)
