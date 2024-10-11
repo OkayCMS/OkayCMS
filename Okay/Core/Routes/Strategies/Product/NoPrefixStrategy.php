@@ -15,7 +15,7 @@ class NoPrefixStrategy extends AbstractRouteStrategy
     /** @var ProductsEntity */
     private $productsEntity;
     
-    private $mockRouteParams = ['{$url}/?{$variantId}', ['{$url}' => '', '{$variantId}' => '(\d*)'], []];
+    private $mockRouteParams = ['{$url}/?{$variantId}', ['{$url}' => '', '{$variantId}' => ''], []];
 
     public function __construct()
     {
