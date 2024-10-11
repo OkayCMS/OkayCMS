@@ -546,4 +546,9 @@ class Module
         unset($part);
         return (int)implode('' , $parts);
     }
+
+    public function getVersionControl(): VersionControl
+    {
+        return new VersionControl();
+    }
 }
