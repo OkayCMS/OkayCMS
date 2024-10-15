@@ -307,6 +307,16 @@
             }
         });
     }
+    if($(".fn_validate_subscribe_blog").length>0) {
+        $(".fn_validate_subscribe_blog").validate({
+            rules: {
+                subscribe_email: "required",
+            },
+            messages: {
+                subscribe_email: form_enter_email
+            }
+        });
+    }
     if($(".fn_validate_post").length>0) {
         $(".fn_validate_post").validate({
             rules: {
