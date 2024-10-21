@@ -76,12 +76,18 @@
         <div class="sidebar_subscribe__title">
             <span data-language="subscribe_promotext">{$lang->subscribe_promotext}</span>
         </div>
-        <form class="sidebar_subscribe__form fn_validate_subscribe" method="post">
+        <form class="sidebar_subscribe__form fn_subscribe_form_blog fn_validate_subscribe_blog" method="post">
             <div class="sidebar_subscribe__group">
                 <input type="hidden" name="subscribe" value="1"/>
                 <input class="form__input form__input--aside_subscribe" aria-label="subscribe" type="email" name="subscribe_email" value="" data-format="email" placeholder="{$lang->form_email}"/>
             </div>
             <button class="button button--basic button--aside_subscribe" type="submit" title="{$lang->subscribe_button}">{include file='svg.tpl' svgId='subscribe_image'}</button>
+            <div class="fn_subscribe_success_blog subscribe_success hidden">
+                <span data-language="subscribe_sent">{$lang->index_subscribe_sent}</span>
+            </div>
+            <div class="fn_subscribe_error_blog subscribe_error hidden">
+                <span class="fn_error_text_blog"></span>
+            </div>
         </form>
     </div>
 </div>
