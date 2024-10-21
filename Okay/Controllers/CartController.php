@@ -5,9 +5,7 @@ namespace Okay\Controllers;
 
 
 use Okay\Core\Design;
-use Okay\Core\SmartyPlugins\Plugins\CheckoutPaymentForm;
-use Okay\Core\FrontTemplateConfig;
-use Okay\Entities\PaymentsEntity;
+use Okay\Core\TemplateConfig\FrontTemplateConfig;
 use Okay\Entities\ProductsEntity;
 use Okay\Helpers\CartHelper;
 use Okay\Helpers\CouponHelper;
