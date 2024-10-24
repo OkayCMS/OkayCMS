@@ -2827,6 +2827,7 @@ select {
   -webkit-backface-visibility: visible;
   transition: opacity 200ms ease;
   border-radius: 2px;
+  margin: 0 3px;
 }
 button.swiper-pagination-bullet {
   border: none;
