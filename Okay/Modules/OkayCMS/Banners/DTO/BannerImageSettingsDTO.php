@@ -14,7 +14,7 @@ class BannerImageSettingsDTO implements \JsonSerializable
     const DEFAULT_MOBILE_H = 320;
 
     private string $variantShow = self::SHOW_DEFAULT;
-    private ?string $mobileVariantShow = null;
+    private ?string $mobileVariantShow = self::SHOW_DEFAULT;
     private int $desktopWidth = self::DEFAULT_DESKTOP_W;
     private int $desktopHeight = self::DEFAULT_DESKTOP_H;
     private int $mobileWidth = self::DEFAULT_MOBILE_W;

@@ -367,12 +367,14 @@
         </div>
     {/if}
 
-    <div class="row">
-       <div class="col-lg-12 col-md-12 ">
-            <button type="submit" class="btn btn_small btn_blue float-md-right">
-                {include file='svg_icon.tpl' svgId='checked'}
-                <span>{$btr->general_apply|escape}</span>
-            </button>
+    <div class="boxed">
+        <div class="row">
+        <div class="col-lg-12 col-md-12">
+                <button type="submit" class="btn btn_small btn_blue float-md-right">
+                    {include file='svg_icon.tpl' svgId='checked'}
+                    <span>{$btr->general_apply|escape}</span>
+                </button>
+            </div>
         </div>
     </div>
 </form>
