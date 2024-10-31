@@ -341,11 +341,11 @@
                         <div class="col-lg-3 col-md-3 col-sm-12">
                             <div class="pull-right">
                                 <select onchange="location = this.value;" class="selectpicker form-control">
-                                    <option value="{url limit=5}" {if $current_limit == 5}selected{/if}>{$btr->general_show_by|escape} 5</option>
-                                    <option value="{url limit=10}" {if $current_limit == 10}selected{/if}>{$btr->general_show_by|escape} 10</option>
-                                    <option value="{url limit=25}" {if $current_limit == 25}selected{/if}>{$btr->general_show_by|escape} 25</option>
-                                    <option value="{url limit=50}" {if $current_limit == 50}selected{/if}>{$btr->general_show_by|escape} 50</option>
-                                    <option value="{url limit=100}" {if $current_limit == 100}selected=""{/if}>{$btr->general_show_by|escape} 100</option>
+                                    <option value="{url limit=5 page=null}" {if $current_limit == 5}selected{/if}>{$btr->general_show_by|escape} 5</option>
+                                    <option value="{url limit=10 page=null}" {if $current_limit == 10}selected{/if}>{$btr->general_show_by|escape} 10</option>
+                                    <option value="{url limit=25 page=null}" {if $current_limit == 25}selected{/if}>{$btr->general_show_by|escape} 25</option>
+                                    <option value="{url limit=50 page=null}" {if $current_limit == 50}selected{/if}>{$btr->general_show_by|escape} 50</option>
+                                    <option value="{url limit=100 page=null}" {if $current_limit == 100}selected=""{/if}>{$btr->general_show_by|escape} 100</option>
                                 </select>
                             </div>
                         </div>

@@ -162,7 +162,7 @@ trait CRUD
         }
 
         $update = $this->queryFactory->newUpdate();
-        if (in_array('position', $this->getFields())) {
+        if (in_array('position', $this->getFields()) && (!isset($object->position) || empty($object->position))) {
             $update->table($this->getTable())
                 ->set('position', $id)
                 ->where('id=:id')

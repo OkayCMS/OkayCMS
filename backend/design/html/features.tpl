@@ -73,6 +73,13 @@
         </div>
     </div>
 
+    <div id="analyze_feature_values_issues_alert" class="alert alert--icon alert--error" style="display: none;">
+        <div class="alert__content">
+            <div class="alert__title">{$btr->issues_with_features_or_feature_values_have_been_detected} <span class="counter"></span></div>
+            <a href="#" id="analyze_feature_values_issues">{$btr->general_more_details}</a>
+        </div>
+    </div>
+
     {$block = {get_design_block block="features_custom_block"}}
     {if !empty($block)}
         <div class="row custom_block">
@@ -253,6 +260,54 @@
                     $('.fn_' + elem).removeClass('hidden');
                 }
             });
+
+            loadFeatureIssues();
         });
+
+        function loadFeatureIssues() {
+            $(document).on('click', '#analyze_feature_values_issues', function (e) {
+                e.preventDefault();
+                $.ajax( {
+                    url: {/literal}"{url controller='FeatureAdmin@analyzeFeatureValuesIssues'}"{literal},
+                    data: {},
+                    method : 'get',
+                    dataType: 'json',
+                    success: function(data) {
+                        $.fancybox.open({
+                            src  : '<div>'+data.html+'</div>',
+                            type : 'html',
+                            touch: false
+                        });
+                    }
+                })
+            });
+
+            const errorBlock = $('#analyze_feature_values_issues_alert');
+
+            $.ajax( {
+                url: {/literal}"{url controller='FeatureAdmin@analyzeFeatureValuesIssuesCounter'}"{literal},
+                data: {},
+                method : 'get',
+                dataType: 'json',
+                success: function(data) {
+                    if (data.success && data.hasOwnProperty('counter')) {
+                        if (data.counter > 0) {
+                            errorBlock.find('span.counter').text(`(${data.counter})`);
+                            errorBlock.fadeIn(200);
+                        } else {
+                            errorBlock.find('span.counter').text('');
+                            errorBlock.fadeOut(200);
+                        }
+                    } else {
+                        errorBlock.find('span.counter').text('');
+                        errorBlock.fadeIn(200);
+                    }
+                },
+                error: function () {
+                    errorBlock.find('span.counter').text('');
+                    errorBlock.fadeOut(200);
+                }
+            })
+        }
     </script>
 {/literal}
