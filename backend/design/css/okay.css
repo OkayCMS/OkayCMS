@@ -3280,12 +3280,38 @@ label.switch_label i{
     width: auto;
     margin-left: 10px;
 }
-.feature_values_duplicate_boding{
+.okay_list_feature_issues_table .okay_list_row{
+    align-items: start!important;
+}
+.okay_list_feature_issues_lang,
+.okay_list_feature_issues_id_first,
+.okay_list_feature_issues_id{
+    padding: 15px 10px!important;
+    text-align: left;
+    max-width: 110px;
     width: 100%;
 }
-.okay_list_row.feature_values_duplicate_row, .okay_list_body_item.feature_values_duplicate_item{
-    min-height: 3em;
-    height: 3em;;
+.okay_list_feature_issues_id_first{
+    padding-left: 20px!important;
+}
+.okay_list_feature_issues_name,
+.okay_list_feature_issues_value,
+.okay_list_feature_issues_translit{
+    padding: 15px 10px!important;
+    text-align: left;
+    width: 100%;
+}
+.okay_list_feature_issues_container{
+    width: 100%;
+    overflow-x: auto;
+}
+.okay_list_feature_issues_table{
+    width: 100%;
+    min-width: 1200px;
+}
+.okay_list_row.feature_values_duplicate_row, 
+.okay_list_body_item.feature_values_duplicate_item{
+    min-height: 2em;
 }
 .okay_list_body_item.feature_values_duplicate_item:hover {
     background-color: #e1e1e1;
