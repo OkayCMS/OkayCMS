@@ -23,3 +23,7 @@ DROP TEMPORARY TABLE temp_positions;
 UPDATE `ok_lang_features_values` `lfv` INNER JOIN `ok_features_values` `fv` ON `lfv`.`feature_value_id` = `fv`.`id` SET `lfv`.`position` = `fv`.`position`;
 
 ALTER TABLE `ok_lang_features_values` DROP INDEX `translit_feature_id_lang_id`, ADD UNIQUE `lang_id_feature_value_id_translit` (`lang_id`, `feature_value_id`, `translit`) USING BTREE;
+
+ALTER TABLE `ok_managers` CHANGE `permissions` `permissions` TEXT NULL DEFAULT NULL;
+
+ALTER TABLE `ok_okaycms__banners` CHANGE `categories` `categories` TEXT NOT NULL DEFAULT '', CHANGE `pages` `pages` TEXT NOT NULL DEFAULT '', CHANGE `brands` `brands` TEXT NOT NULL DEFAULT '';
