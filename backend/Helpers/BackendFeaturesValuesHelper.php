@@ -464,19 +464,19 @@ class BackendFeaturesValuesHelper
                 fv_inner.feature_id as feature_id,
                 lfv_inner.translit as translit,
                 lfv_inner.feature_value_id as feature_value_id
-            FROM ok_lang_features_values lfv_inner
-            JOIN ok_features_values fv_inner ON lfv_inner.feature_value_id = fv_inner.id
+            FROM __lang_features_values lfv_inner
+            JOIN __features_values fv_inner ON lfv_inner.feature_value_id = fv_inner.id
             WHERE (lfv_inner.lang_id, fv_inner.feature_id, lfv_inner.translit) 
               IN (SELECT lfv_inner.lang_id, fv_inner.feature_id, lfv_inner.translit
-                FROM ok_lang_features_values lfv_inner
-                JOIN ok_features_values fv_inner ON lfv_inner.feature_value_id = fv_inner.id
+                FROM __lang_features_values lfv_inner
+                JOIN __features_values fv_inner ON lfv_inner.feature_value_id = fv_inner.id
                 GROUP BY lfv_inner.lang_id, fv_inner.feature_id, lfv_inner.translit
                 HAVING COUNT(*) > 1
               );
         ")->execute();
 
         $this->queryFactory->newSqlQuery()->setStatement("
-        UPDATE ok_lang_features_values lfv
+        UPDATE __lang_features_values lfv
         JOIN (SELECT
                 lang_id,
                 translit,
