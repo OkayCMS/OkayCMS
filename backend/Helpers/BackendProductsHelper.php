@@ -417,7 +417,7 @@ class BackendProductsHelper
                     foreach ($values as $i=>$value) {
 
                         $select = $this->queryFactory->newSelect();
-                        $select->from('ok_products_features_values')
+                        $select->from('__products_features_values')
                             ->cols(['product_id'])
                             ->where('value_id=:value_id')
                             ->bindValues(['value_id' => $value->id]);
