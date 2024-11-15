@@ -682,10 +682,10 @@ class ImportProducts extends AbstractImport
         $imagesIds = [];
         // Обновляем основное изображение товара
         if (isset($xmlProduct->ОсновнаяКартинка)) {
-            $image = basename($xmlProduct->ОсновнаяКартинка);
+            $image = (string)$xmlProduct->ОсновнаяКартинка;
             if (!empty($image) && is_file($this->integration1C->getTmpDir() . $image) && is_writable($this->integration1C->config->original_images_dir)) {
 
-                $filename = basename((string)$image);
+                $filename = basename($image);
                 
                 $imgId = $imagesEntity->cols(['id'])->find([
                     'limit' => 1,
