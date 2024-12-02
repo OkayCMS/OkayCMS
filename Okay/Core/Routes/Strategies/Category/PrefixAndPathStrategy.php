@@ -119,7 +119,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
 
     private function getMockRouteParams($prefix)
     {
-        return [$prefix.'/{$url}/?{$filtersUrl}', ['{$url}' => '', '{$filtersUrl}' => ''], []];
+        return ['/'.$prefix.'/{$url}/?{$filtersUrl}', ['{$url}' => '', '{$filtersUrl}' => ''], []];
     }
 
     private function compareUrlStartsNoSuccess($categoryPathUrl, $url)
