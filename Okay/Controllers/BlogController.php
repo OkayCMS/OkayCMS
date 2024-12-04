@@ -91,7 +91,13 @@ class BlogController extends AbstractController
         $filter = $blogHelper->getPostsFilter();
 
         $category = null;
-        if (!empty($url) && ($url != 'all-posts')) {
+
+        $prefixRoute = $this->settings->get('all_blog_routes_template__default');
+        if (empty($prefix)) {
+            $prefixRoute = 'all-posts';
+        }
+
+        if (!empty($url) && ($url != $prefixRoute)) {
             $category = $blogCategoriesEntity->findOne(['url' => $url]);
             if (($setCategory = $blogHelper->setBlogCategory($category)) !== null) {
                 return $setCategory;
