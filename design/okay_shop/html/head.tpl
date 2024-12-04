@@ -317,8 +317,12 @@
     <link rel="search" type="application/opensearchdescription+xml" title="{$rootUrl} Search" href="{url_generator route='opensearch' absolute=1}" />
 
     {* Favicon *}
-    <link href="{$rootUrl}/{$config->design_images|escape}{$settings->site_favicon|escape}?v={$settings->site_favicon_version|escape}" type="image/x-icon" rel="icon">
-    <link href="{$rootUrl}/{$config->design_images|escape}{$settings->site_favicon|escape}?v={$settings->site_favicon_version|escape}" type="image/x-icon" rel="shortcut icon">
+    {$faviconTypes = ['svg' => 'image/svg+xml', 'png' => 'image/png', 'gif' => 'image/gif', 'jpeg' => 'image/jpeg', 'jpg' => 'image/jpeg']}
+    {$extensionFavicon = pathinfo($settings->site_favicon|escape, PATHINFO_EXTENSION)}
+    {if isset($faviconTypes[$extensionFavicon])}{$faviconType = $faviconTypes[$extensionFavicon]}{else}{$faviconType = 'image/x-icon'}{/if}
+
+    <link href="{$rootUrl}/{$config->design_images|escape}{$settings->site_favicon|escape}?v={$settings->site_favicon_version|escape}" type="{$faviconType}" rel="icon">
+    <link href="{$rootUrl}/{$config->design_images|escape}{$settings->site_favicon|escape}?v={$settings->site_favicon_version|escape}" type="{$faviconType}" rel="shortcut icon">
 
     {* JQuery *}
     <script>ut_tracker.start('parsing:page');</script>
