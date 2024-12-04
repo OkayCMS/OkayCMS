@@ -29,7 +29,7 @@ class DefaultStrategy extends AbstractRouteStrategy
         return [
             '{$url}',
             ['{$url}' => $prefix],
-            ['{$url}' => $prefix]
+            []
         ];
     }
 }
