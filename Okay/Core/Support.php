@@ -8,6 +8,9 @@ use Okay\Entities\SupportInfoEntity;
 
 class Support
 {
+    private const REQUEST_TIMEOUT = 10;
+    private const MAX_RETRY = 4;
+
     /**
      * @var Config
      */
@@ -127,6 +130,10 @@ class Support
     }
 
     private function supportRequest($params = []) {
+        if (time() < ($_SESSION['support_request_timeout'] ?? 0)) {
+            return false;
+        }
+
         if (empty($params) || empty($params['action'])) {
             return false;
         }
@@ -147,9 +154,23 @@ class Support
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=UTF-8'));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
         curl_setopt($ch, CURLOPT_POST, 1);
         $response = curl_exec($ch);
+
+        $retryCnt = $_SESSION['support_request_timeout_try_cnt'] ?? 0;
+        if (curl_errno($ch)) {
+            if ($retryCnt < self::MAX_RETRY) {
+                $retryCnt++;
+            }
+
+            $_SESSION['support_request_timeout'] = time() + pow(self::REQUEST_TIMEOUT, $retryCnt);
+
+        } else {
+            $retryCnt = 0;
+        }
+        $_SESSION['support_request_timeout_try_cnt'] = $retryCnt;
 
         curl_close($ch);
         $response = json_decode($response);

@@ -34,7 +34,8 @@ class LicenseModulesTemplates
     // Кількість символів в кінці файлу, де ми маємо шукати ліцензію
     private const END_FILE_LENGTH = 100;
 
-    private const REQUEST_TIMEOUT = 300;
+    private const REQUEST_TIMEOUT = 1200;
+    private const MAX_RETRY = 5;
 
     public function __construct(
         QueryFactory $queryFactory,
@@ -76,6 +77,7 @@ class LicenseModulesTemplates
             $templateRequest
         );
         $url = $this->config->get('marketplace_url') . 'api/v2/modules/access/user';
+        $retryCnt = $_SESSION['request_timeout_try_cnt'] ?? 0;
 
         if (time() > ($_SESSION['request_timeout'] ?? 0) && ($response = $this->request($url, $request))) {
             $licenseDTO = new LicenseDTO();
@@ -93,12 +95,24 @@ class LicenseModulesTemplates
             }
             $this->licenseStorage->saveLicense($licenseDTO);
             $this->licenseDTO = $licenseDTO;
+            $_SESSION['request_timeout_try_cnt'] = 0;
 
             return $licenseDTO;
         } elseif (($response ?? null) === false) {
-            $_SESSION['request_timeout'] = time() + self::REQUEST_TIMEOUT;
+            if ($retryCnt < self::MAX_RETRY) {
+                $retryCnt++;
+            }
+            $_SESSION['request_timeout'] = time() + (self::REQUEST_TIMEOUT * $_SESSION['request_timeout_try_cnt']);
+            $_SESSION['request_timeout_try_cnt'] = $retryCnt;
         }
+
         return null;
+    }
+
+    public function clearRequestRetry()
+    {
+        unset($_SESSION['request_timeout_try_cnt']);
+        unset($_SESSION['request_timeout']);
     }
 
     public function isLicensedModule(string $vendor, string $moduleName): bool
@@ -301,6 +315,7 @@ class LicenseModulesTemplates
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);

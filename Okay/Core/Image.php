@@ -155,6 +155,7 @@ class Image
             if (!empty($this->productionDomain)) {
                 $ch = curl_init($this->productionDomain . $resizedImagesDir . $resizedFile);
                 curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
                 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 $file = curl_exec($ch);
@@ -363,6 +364,8 @@ class Image
 
         $ch = curl_init($filename);
         curl_setopt($ch, CURLOPT_TIMEOUT, 1000);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_ENCODING, "");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

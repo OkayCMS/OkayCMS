@@ -147,19 +147,19 @@ class IndexAdmin
 
         $this->design->assign('rootUrl', $this->request->getRootUrl());
 
-        $modulesEntity = $this->entityFactory->get(ModulesEntity::class);
-        $modules = $modulesEntity->cols(['module_name'])->find();
-        if(is_dir('design/')){
-        $dirs = scandir('design/');
-        $themes = [];
-        foreach($dirs as $dir){
-            if($dir != '.' && $dir != '..' && $dir != '.htaccess'){
-                $themes [] = $dir;
-            }
-        }
-        }
-
         if (!isset($_SESSION['last_version_data'])) {
+            $modulesEntity = $this->entityFactory->get(ModulesEntity::class);
+            $modules = $modulesEntity->cols(['module_name'])->find();
+            $themes = [];
+            if(is_dir('design/')){
+                $dirs = scandir('design/');
+                foreach($dirs as $dir){
+                    if($dir != '.' && $dir != '..' && $dir != '.htaccess'){
+                        $themes [] = $dir;
+                    }
+                }
+            }
+
             $query = http_build_query([
                 'domain'  => Request::getDomain(),
                 'version' => $config->version,
@@ -173,7 +173,8 @@ class IndexAdmin
             curl_setopt($ch, CURLOPT_HEADER, 0);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
             $versionData = curl_exec($ch);
             curl_close($ch);
             
