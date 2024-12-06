@@ -10,7 +10,8 @@ use Okay\Core\Settings;
 
 class BackendModulesHelper
 {
-
+    private const REQUEST_TIMEOUT = 10;
+    private const MAX_RETRY = 4;
     private $apiBaseUrl;
     private $marketplaceUrl;
     private $config;
@@ -83,6 +84,9 @@ class BackendModulesHelper
             }
 
             $this->settings->set('modules_access_expires', $modulesExpires);
+            $this->settings->set('modules_access_check_date', date('Y-m-d'));
+        } else {
+            $this->settings->set('modules_access_expires', [true]);
             $this->settings->set('modules_access_check_date', date('Y-m-d'));
         }
     }
@@ -167,11 +171,26 @@ class BackendModulesHelper
     
     public function request($url)
     {
+        if (time() < ($_SESSION['modules_request_timeout'] ?? 0)) {
+            return false;
+        }
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
         $result = json_decode(curl_exec($ch));
+
+        $retryCnt = $_SESSION['modules_request_timeout_try_cnt'] ?? 0;
+        if (curl_errno($ch)) {
+            if ($retryCnt < self::MAX_RETRY) {
+                $retryCnt++;
+            }
+            $_SESSION['modules_request_timeout'] = time() + pow(self::REQUEST_TIMEOUT, $retryCnt);
+        } else {
+            $retryCnt = 0;
+        }
+        $_SESSION['modules_request_timeout_try_cnt'] = $retryCnt;
 
         curl_close($ch);
         return $result;

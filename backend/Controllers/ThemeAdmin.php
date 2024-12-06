@@ -19,7 +19,7 @@ class ThemeAdmin extends IndexAdmin
         LicenseModulesTemplates $licenseModulesTemplates
     ) {
         if ($this->request->method('post')) {
-
+            $licenseModulesTemplates->clearRequestRetry();
             if (isset($_POST['admin_theme']) && $_POST['admin_theme'] != $this->settings->get('theme')) {
                 $this->settings->set('admin_theme', $this->request->post('admin_theme'));
             }
