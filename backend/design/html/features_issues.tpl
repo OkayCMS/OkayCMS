@@ -21,16 +21,13 @@
         <div class="okay_list products_list okay_list_feature_issues_table fn_sort_list">
             <div class="okay_list_head">
                 <div class="okay_list_heading okay_list_feature_issues_id_first">
-                    {$btr->general_resolve_issue_lang_id|escape}
-                </div>
-                <div class="okay_list_heading okay_list_feature_issues_id">
                     {$btr->general_resolve_issue_feature_id|escape}
                 </div>
                 <div class="okay_list_heading okay_list_feature_issues_id">
                     {$btr->general_resolve_issue_feature_value_id|escape}
                 </div>
                 <div class="okay_list_heading okay_list_feature_issues_lang">
-                    {$btr->general_resolve_issue_lang|escape}
+                    {$btr->general_resolve_issue_lang|escape} (id)
                 </div>
                 <div class="okay_list_heading okay_list_feature_issues_name">
                     {$btr->general_resolve_issue_feature_name|escape}
@@ -54,16 +51,13 @@
                     <div class="okay_list_body_item feature_values_duplicate_item{if $changeFvdBackground} feature_values_duplicate_item_match{/if}">
                         <div class="okay_list_row feature_values_duplicate_row">
                             <div class="okay_list_boding okay_list_feature_issues_id_first">
-                                {$fvd->lang_id}
-                            </div>
-                            <div class="okay_list_boding okay_list_feature_issues_id">
                                 {$fvd->feature_id}
                             </div>
                             <div class="okay_list_boding okay_list_feature_issues_id">
                                 {$fvd->feature_value_id}
                             </div>
                             <div class="okay_list_boding okay_list_feature_issues_lang">
-                                {$fvd->lang}
+                                {$fvd->lang} ({$fvd->lang_id})
                             </div>
                             <div class="okay_list_boding okay_list_feature_issues_name">
                                 {$fvd->feature_name}
@@ -85,12 +79,12 @@
                     <button type="button" data-fancybox-close class="ml-1 btn btn_small btn-return">
                         <span>{$btr->general_cancel|escape}</span>
                     </button>
-                </div>
-                <button type="button" class="btn btn_small btn_blue" onclick="resolveFeatureValuesDuplicate()">
-                    {include file='svg_icon.tpl' svgId='checked'}
-                    <span>{$btr->general_resolve_issue_automatically|escape}</span>
+                    <button type="button" class="btn btn_small btn_blue" onclick="resolveFeatureValuesDuplicate()">
+                        {include file='svg_icon.tpl' svgId='checked'}
+                        <span>{$btr->general_resolve_issue_automatically|escape}</span>
                     </button>
                 </div>
+            </div>
         </div>
     </div>
 </div>

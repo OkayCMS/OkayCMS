@@ -336,6 +336,19 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="float-lg-left mt-q feature_to_index_new_value">
+                                <div class="heading_label boxes_inline">{$btr->sort_feature_values_individually_each_lang|escape}</div>
+                                <div class="boxes_inline">
+                                    <div class="okay_switch clearfix">
+                                        <label class="switch switch-default">
+                                            <input class="switch-input" name="sort_feature_values_individually_each_lang" value="1" type="checkbox" {if $settings->sort_feature_values_individually_each_lang}checked=""{/if}/>
+                                            <span class="switch-label"></span>
+                                            <span class="switch-handle"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="col-lg-3 col-md-3 col-sm-12">

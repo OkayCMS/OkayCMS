@@ -6,6 +6,7 @@ namespace Okay\Admin\Helpers;
 
 use Okay\Core\Languages;
 use Okay\Core\Request;
+use Okay\Core\Settings;
 use Okay\Core\Translit;
 use Okay\Core\Database;
 use Okay\Core\QueryFactory;
@@ -51,13 +52,19 @@ class BackendFeaturesValuesHelper
      */
     private $languages;
 
+    /**
+     * @var Settings
+     */
+    private $settings;
+
     public function __construct(
         EntityFactory $entityFactory,
         QueryFactory  $queryFactory,
         Translit      $translit,
         Database      $db,
         Request       $request,
-        Languages     $languages
+        Languages     $languages,
+        Settings      $settings
     ) {
         $this->featuresValuesEntity = $entityFactory->get(FeaturesValuesEntity::class);
         $this->featuresEntity       = $entityFactory->get(FeaturesEntity::class);
@@ -66,6 +73,7 @@ class BackendFeaturesValuesHelper
         $this->db                   = $db;
         $this->request              = $request;
         $this->languages            = $languages;
+        $this->settings             = $settings;
     }
 
     public function moveToPage($ids, $page, $feature, $featuresValuesFilter)
@@ -285,6 +293,7 @@ class BackendFeaturesValuesHelper
         }
 
         $this->updateValuesPositions($feature->id, $this->languages->getLangId(), $position-1, $addedIds);
+        $this->sortAllFeatureValuesTranslationsProcedure($feature->id);
 
         ExtenderFacade::execute(__METHOD__, $featureValuesIds, func_get_args());
     }
@@ -405,6 +414,8 @@ class BackendFeaturesValuesHelper
             $this->featuresValuesEntity->update($id, ['position'=>$position+1]);
         }
 
+        $this->sortAllFeatureValuesTranslationsProcedure($feature->id);
+
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
@@ -496,5 +507,38 @@ class BackendFeaturesValuesHelper
         $this->queryFactory->newSqlQuery()->setStatement('DROP TEMPORARY TABLE IF EXISTS temp_duplicates;')->execute();
 
         return !$this->checkValuesDuplicatesCount();
+    }
+
+    /**
+     * @param int $featureId
+     */
+    public function sortAllFeatureValuesTranslationsProcedure($featureId)
+    {
+        if ($this->settings->get('sort_feature_values_individually_each_lang') != 1) {
+            $this->sortAllFeatureValuesTranslationsByLang($featureId, $this->languages->getLangId());
+        }
+    }
+
+    /**
+     * @param int $featureId
+     * @param int|null $langId
+     */
+    public function sortAllFeatureValuesTranslationsByLang($featureId, $langId=null)
+    {
+        if (!empty($featureId = (int)$featureId)) {
+
+            if (empty($langId)) {
+                $langId = $this->languages->getLangId();
+            }
+
+            $update = $this->queryFactory->newSqlQuery();
+            $update->setStatement(
+                'UPDATE `ok_lang_features_values` origin_lfv
+                INNER JOIN `ok_features_values` fv ON origin_lfv.feature_value_id = fv.id
+                LEFT JOIN `ok_lang_features_values` sub ON origin_lfv.feature_value_id = sub.feature_value_id AND sub.lang_id = :lang_id
+                SET origin_lfv.`position`= sub.position WHERE fv.`feature_id` = :feature_id')
+                ->bindValues(['feature_id'=>$featureId, 'lang_id'=>$langId])
+                ->execute();
+        }
     }
 }

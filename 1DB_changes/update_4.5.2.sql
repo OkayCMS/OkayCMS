@@ -27,3 +27,5 @@ ALTER TABLE `ok_lang_features_values` DROP INDEX `translit_feature_id_lang_id`, 
 ALTER TABLE `ok_managers` CHANGE `permissions` `permissions` TEXT NULL DEFAULT NULL;
 
 ALTER TABLE `ok_okaycms__banners` CHANGE `categories` `categories` VARCHAR (1024) NOT NULL DEFAULT '', CHANGE `pages` `pages` VARCHAR (1024) NOT NULL DEFAULT '', CHANGE `brands` `brands` VARCHAR (1024) NOT NULL DEFAULT '';
+
+INSERT INTO `ok_settings` (`param`, `value`) VALUES ('sort_feature_values_individually_each_lang', '1');
