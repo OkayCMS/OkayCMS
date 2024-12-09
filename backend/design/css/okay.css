@@ -3307,7 +3307,7 @@ label.switch_label i{
 }
 .okay_list_feature_issues_table{
     width: 100%;
-    min-width: 1200px;
+    min-width: 800px;
 }
 .okay_list_row.feature_values_duplicate_row, 
 .okay_list_body_item.feature_values_duplicate_item{

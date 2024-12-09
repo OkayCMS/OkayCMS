@@ -49,6 +49,10 @@ class FeatureAdmin extends IndexAdmin
                 $neededPostRedirectGet = true;
             }
 
+            $this->settings->set('sort_feature_values_individually_each_lang',
+                $this->request->post('sort_feature_values_individually_each_lang', 'bool')
+            );
+
             $toIndexAllValues = $featuresValuesRequest->postToIndexAllValues();
             if (isset($toIndexAllValues) && $feature->id) {
                 $backendFeaturesValuesHelper->toIndexAllValues($feature);
