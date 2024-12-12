@@ -41,6 +41,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
 
     // Сообщаем что данная стратегия может использовать sql для формирования урла
     protected $isUsesSqlToGenerate = true;
+    protected $cacheInitFromDb = false;
 
     public function __construct()
     {
@@ -65,9 +66,16 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
             $this->logger->notice('For generate route to product "'.$url.'" need execute SQL query. Or set url through "Okay\Core\Routes\ProductRoute::setUrlSlugAlias()"');
             return '';
         }
-        
-        if ($slug = $this->cacheEntity->cols(['slug_url'])->findOne(['type' => 'product', 'url' => $url])) {
-            return $slug;
+
+        if (!$this->cacheInitFromDb) {
+            ProductRoute::mergeUrlSlugAlias(
+                $this->cacheEntity->cols(['slug_url', 'url'])->find(['type' => 'product'])
+            );
+            $this->cacheInitFromDb = true;
+        }
+
+        if ($route = ProductRoute::getUrlSlugAlias($url)) {
+            return $route;
         }
         
         $product = $this->productsEntity->get((string) $url);

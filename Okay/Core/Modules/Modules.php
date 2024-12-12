@@ -130,6 +130,7 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
 
         $this->db->query($select);
         $modules = $this->db->results();
+        ModuleCache::set($modules);
 
         foreach ($modules as $module) {
             if (!$this->licenseModulesTemplates->isLicensedModule($module->vendor, $module->module_name)) {
@@ -199,6 +200,7 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
             $this->backendControllersList = array_merge($this->backendControllersList, $this->startModule($module->id, $module->vendor, $module->module_name));
             DebugBar::stopMeasure("$module->vendor/$module->module_name", ['init' => '']);
         }
+        ModuleCache::flush();
     }
 
     public function getExpireModulesNum(): int
@@ -338,6 +340,10 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
      */
     public function isActiveModule($vendor, $moduleName)
     {
+        if ($module = ModuleCache::get($vendor, $moduleName)) {
+            return $module->enabled;
+        }
+
         $this->db->query(
             $this->queryFactory->newSelect()
                 ->from(ModulesEntity::getTable())
