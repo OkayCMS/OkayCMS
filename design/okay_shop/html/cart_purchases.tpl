@@ -93,7 +93,6 @@
                     </div>
                     <div class="fn_product_amount purchase__group_content{if $settings->is_preorder} fn_is_preorder{/if} amount">
                         <span class="fn_minus amount__minus">&minus;</span>
-                        <input class="hidden" name="stok[{$purchase->variant->id}]" value="{$purchase->variant->stock}">
                         <input class="amount__input" type="text" data-id="{$purchase->variant->id}" name="amounts[{$purchase->variant->id}]" value="{$purchase->amount}" onblur="ajax_change_amount(this, {$purchase->variant->id});" data-max="{$purchase->variant->stock}">
                         <span class="fn_plus amount__plus">&plus;</span>
                     </div>

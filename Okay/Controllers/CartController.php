@@ -4,9 +4,6 @@
 namespace Okay\Controllers;
 
 
-use Okay\Core\Design;
-use Okay\Core\TemplateConfig\FrontTemplateConfig;
-use Okay\Entities\ProductsEntity;
 use Okay\Helpers\CartHelper;
 use Okay\Helpers\CouponHelper;
 use Okay\Helpers\MetadataHelpers\CartMetadataHelper;
@@ -232,41 +229,5 @@ class CartController extends AbstractController
     {
         $cart->addItem($variantId);
         $this->response->redirectTo(Router::generateUrl('cart', [], true));
-    }
-
-    public function cartAjaxValidate(
-        Cart $cart,
-        Design $design,
-        FrontTemplateConfig $templateConfig,
-        ProductsEntity $productsEntity
-    )
-    {
-        $cart = $cart->get();
-
-        $design->assign('cart', $cart);
-        if (is_file('design/' . $templateConfig->getTheme() . '/html/cart_purchases.tpl')) {
-            $result['cart_purchases'] = $design->fetch('cart_purchases.tpl');
-        }
-        $postPurchases = $this->request->post('stok');
-
-        foreach ($cart->purchases as $p){
-            if ($p->variant->stock < 1 && $postPurchases[$p->variant_id] >0){
-                $pNotStock[$p->variant_id] = $p->variant_id;
-            }
-        }
-        if (!empty($pNotStock)){
-            $result['product_empty'] =  $pNotStock;
-        }else{
-            $result['product_empty'] = 0;
-        }
-        foreach ($cart->purchases as $p){
-            if (empty($p->variant->name)){
-                $p->variant->name = $productsEntity->col('name')->findOne(['id'=>$p->product_id]);
-            }
-        }
-        if (is_file('design/' . $templateConfig->getTheme() . '/html/popup_validate_purcases.tpl')) {
-            $result['cart_popup_validate_stok_purcases'] = $this->design->fetch('popup_validate_purcases.tpl');
-        }
-        $this->response->setContent(json_encode($result), RESPONSE_JSON);
     }
 }
