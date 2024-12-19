@@ -29,6 +29,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
 
     // Сообщаем что данная стратегия может использовать sql для формирования урла
     protected $isUsesSqlToGenerate = true;
+    protected $cacheInitFromDb = false;
 
     public function __construct()
     {
@@ -51,9 +52,17 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
             return '';
         }
 
-        if ($slug = $this->cacheEntity->cols(['slug_url'])->findOne(['type' => 'blog_category', 'url' => $url])) {
-            return $slug;
+        if (!$this->cacheInitFromDb) {
+            BlogCategoryRoute::mergeUrlSlugAlias(
+                $this->cacheEntity->cols(['slug_url', 'url'])->find(['type' => 'blog_category'])
+            );
+            $this->cacheInitFromDb = true;
         }
+
+        if ($route = BlogCategoryRoute::getUrlSlugAlias($url)) {
+            return $route;
+        }
+
         $category = $this->categoriesEntity->get((string) $url);
         $slug = trim($category->path_url, '/');
 

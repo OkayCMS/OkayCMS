@@ -336,16 +336,29 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="float-lg-left mt-q">
+                                <div class="heading_label boxes_inline">{$btr->sort_feature_values_individually_each_lang|escape}</div>
+                                <div class="boxes_inline">
+                                    <div class="okay_switch clearfix">
+                                        <label class="switch switch-default">
+                                            <input class="switch-input" name="sort_feature_values_individually_each_lang" value="1" type="checkbox" {if $settings->sort_feature_values_individually_each_lang}checked=""{/if}/>
+                                            <span class="switch-label"></span>
+                                            <span class="switch-handle"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="col-lg-3 col-md-3 col-sm-12">
                             <div class="pull-right">
                                 <select onchange="location = this.value;" class="selectpicker form-control">
-                                    <option value="{url limit=5}" {if $current_limit == 5}selected{/if}>{$btr->general_show_by|escape} 5</option>
-                                    <option value="{url limit=10}" {if $current_limit == 10}selected{/if}>{$btr->general_show_by|escape} 10</option>
-                                    <option value="{url limit=25}" {if $current_limit == 25}selected{/if}>{$btr->general_show_by|escape} 25</option>
-                                    <option value="{url limit=50}" {if $current_limit == 50}selected{/if}>{$btr->general_show_by|escape} 50</option>
-                                    <option value="{url limit=100}" {if $current_limit == 100}selected=""{/if}>{$btr->general_show_by|escape} 100</option>
+                                    <option value="{url limit=5 page=null}" {if $current_limit == 5}selected{/if}>{$btr->general_show_by|escape} 5</option>
+                                    <option value="{url limit=10 page=null}" {if $current_limit == 10}selected{/if}>{$btr->general_show_by|escape} 10</option>
+                                    <option value="{url limit=25 page=null}" {if $current_limit == 25}selected{/if}>{$btr->general_show_by|escape} 25</option>
+                                    <option value="{url limit=50 page=null}" {if $current_limit == 50}selected{/if}>{$btr->general_show_by|escape} 50</option>
+                                    <option value="{url limit=100 page=null}" {if $current_limit == 100}selected=""{/if}>{$btr->general_show_by|escape} 100</option>
                                 </select>
                             </div>
                         </div>

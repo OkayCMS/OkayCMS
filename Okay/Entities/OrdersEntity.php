@@ -86,25 +86,47 @@ class OrdersEntity extends Entity
             $order = (array)$order;
         }
 
+        $changePaidColumnOrderIds = [];
         if (isset($order['paid'])) {
-            $currentPaid = $this->col('paid')->findOne(['id' => $ids]);
-            if ($order['paid'] != $currentPaid) {
-                $this->markedPaid($ids, (bool)$order['paid']);
-                $order['payment_date'] = 'now()';
+            $mappedCurrentPaidOrders = $this->cols(['id', 'paid'])->mappedBy('id')->find(['id' => $ids]);
+
+            foreach ($mappedCurrentPaidOrders as $currentPaidOrder) {
+                if ($order['paid'] != $currentPaidOrder->paid) {
+                    $changePaidColumnOrderIds[] = $currentPaidOrder->id;
+                }
+            }
+
+            if (!empty($changePaidColumnOrderIds)) {
+                $this->markedPaid($changePaidColumnOrderIds, (bool)$order['paid']);
+                parent::update($changePaidColumnOrderIds, ['payment_date' => (bool)$order['paid'] == true ? 'now()' : null]);
             }
         }
         
         parent::update($ids, $order);
+
+        if (!empty($changePaidColumnOrderIds)) {
+            $this->afterMarkedPaidUpdate($changePaidColumnOrderIds, (bool)$order['paid']);
+        }
+
         return $ids;
     }
 
     /**
-     * Метод вызывается при отметке заказов как оплаченых.
-     * 
-     * @param array $ids
-     * @param bool $state
+     * Метод вызывается при отметке или снятии отметки заказов как оплаченных перед обновлением в БД
+     * @param array $ids массив айди заказов только при изменении статуса оплаты
+     * @param bool $state содержит true в случае смены заказов в "оплачен", false при снятии отметки "оплачен"
      */
     private function markedPaid(array $ids, $state)
+    {
+        ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    /**
+     * Метод вызывается при отметке или снятии отметки заказов как оплаченных после обновления всей информации в БД
+     * @param array $ids массив айди заказов только при изменении статуса оплаты
+     * @param bool $state содержит true в случае смены заказов в "оплачен", false при снятии отметки "оплачен"
+     */
+    private function afterMarkedPaidUpdate(array $ids, $state)
     {
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }

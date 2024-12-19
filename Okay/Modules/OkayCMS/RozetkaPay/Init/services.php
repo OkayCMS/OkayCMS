@@ -5,7 +5,6 @@ namespace Okay\Modules\OkayCMS\RozetkaPay;
 
 
 use Okay\Core\EntityFactory;
-use Okay\Entities\OrdersEntity;
 use Okay\Core\Languages;
 use Okay\Core\Money;
 use Okay\Modules\OkayCMS\RozetkaPay\Models\Gateway\CreatePayment;
@@ -30,7 +29,7 @@ return [
         'class' => CreatePayment::class,
         'arguments' => [
             new SR(HttpCurl::class),
-            new SR(OrdersEntity::class),
+            new SR(EntityFactory::class),
         ],
     ],
     HttpCurl::class => [

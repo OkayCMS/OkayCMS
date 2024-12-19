@@ -66,6 +66,16 @@
                                             </div>
                                         </div>
                                         <div class="col-md-12">
+                                            <div class="heading_label">{$btr->settings_open_ai_model|escape}</div>
+                                            <div class="mb-1">
+                                                <select name="open_ai_model" class="selectpicker form-control">
+                                                    {foreach $open_ai_models as $model}
+                                                        <option value='{$model['id']}' {if ($settings->open_ai_model == '' && $model['id'] == 'gpt-3.5-turbo') || $settings->open_ai_model == $model['id']}selected{/if}>{$model['id']}</option>
+                                                    {/foreach}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
                                             <div class="heading_label">{$btr->settings_open_ai_system_message|escape}</div>
                                             <div class="mb-1">
                                                 <input name="ai_system_message" class="form-control" type="text" value="{$settings->ai_system_message|escape}" />

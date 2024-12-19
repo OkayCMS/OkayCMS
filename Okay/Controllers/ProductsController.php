@@ -28,7 +28,7 @@ class ProductsController extends AbstractController
         MetaRobotsHelper          $metaRobotsHelper,
                                   $filtersUrl = ''
     ) {
-        $this->design->assign('filtersUrl', !empty($filtersUrl) ? '/'.$filtersUrl : '', true);
+        $this->design->assign('filtersUrl', !empty($filtersUrl) ? $filtersUrl : '', true);
         $this->design->assign('ajax_filter_route', 'products_features', true);
 
         $catalogFeatures = $productsHelper->getCatalogFeatures();

@@ -146,6 +146,8 @@ return [
             new SR(Translit::class),
             new SR(Database::class),
             new SR(Request::class),
+            new SR(Languages::class),
+            new SR(Settings::class),
         ]
     ],
     BackendSpecialImagesHelper::class => [

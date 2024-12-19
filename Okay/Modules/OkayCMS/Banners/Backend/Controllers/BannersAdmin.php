@@ -8,6 +8,7 @@ use Okay\Admin\Controllers\IndexAdmin;
 use Okay\Modules\OkayCMS\Banners\Entities\BannersEntity;
 use Okay\Modules\OkayCMS\Banners\Helpers\BannersBackupHelper;
 use Okay\Modules\OkayCMS\Banners\Helpers\BannersHelper;
+use Okay\Modules\OkayCMS\Banners\VO\RestoreBackupErrorVO;
 
 class BannersAdmin extends IndexAdmin
 {
@@ -23,8 +24,16 @@ class BannersAdmin extends IndexAdmin
             if ($backupZipFile['error'] == UPLOAD_ERR_OK
                 && pathinfo($backupZipFile['name'], PATHINFO_EXTENSION) == 'zip'
             ) {
-                $errors = $bannersBackupHelper->restoreBackup($backupZipFile['tmp_name']);
-                $this->design->assign('restore_backup_errors', $errors);
+                $destination = sys_get_temp_dir() . '/backup_' . uniqid() . '.zip';
+                if (move_uploaded_file($backupZipFile['tmp_name'], $destination)) {
+                    $errors = $bannersBackupHelper->restoreBackup($destination);
+                     if (file_exists($destination)) {
+                         unlink($destination);
+                     }
+                     $this->design->assign('restore_backup_errors', $errors);
+                } else {
+                    $this->design->assign('restore_backup_errors', [new RestoreBackupErrorVO(RestoreBackupErrorVO::UNZIP_ERROR)]);
+                }
             }
 
         } elseif ($this->request->method('post')) {
@@ -50,13 +59,17 @@ class BannersAdmin extends IndexAdmin
                         /*Створюємо бекап обраних груп баннерів*/
                         $backupFilename = $bannersBackupHelper->backup($ids);
                         $archiveName = "backup.zip";
-                        $this->response->addHeader("Content-type: application/force-download");
+                        $this->response->addHeader("Content-type: application/zip");
                         $this->response->addHeader("Content-Disposition: attachment; filename=\"{$archiveName}\"");
                         $this->response->addHeader("Content-Length: " . filesize($backupFilename));
+                        $this->response->addHeader("Pragma: public");
+                        $this->response->addHeader("Cache-Control: must-revalidate");
+                        $this->response->addHeader("Expires: 0");
+
                         $this->response->sendHeaders();
                         readfile($backupFilename);
                         unlink($backupFilename);
-                        break;
+                        exit();
                     }
                 }
             }

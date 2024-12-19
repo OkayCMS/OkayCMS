@@ -29,6 +29,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
 
     // Сообщаем что данная стратегия может использовать sql для формирования урла
     protected $isUsesSqlToGenerate = true;
+    protected $cacheInitFromDb = false;
 
     public function __construct()
     {
@@ -51,9 +52,17 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
             return '';
         }
 
-        if ($slug = $this->cacheEntity->cols(['slug_url'])->findOne(['type' => 'category', 'url' => $url])) {
-            return $slug;
+        if (!$this->cacheInitFromDb) {
+            CategoryRoute::mergeUrlSlugAlias(
+                $this->cacheEntity->cols(['slug_url', 'url'])->find(['type' => 'category'])
+            );
+            $this->cacheInitFromDb = true;
         }
+
+        if ($route = CategoryRoute::getUrlSlugAlias($url)) {
+            return $route;
+        }
+
         $category = $this->categoriesEntity->get((string) $url);
         $slug = trim($category->path_url, '/');
 
@@ -119,7 +128,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
 
     private function getMockRouteParams($prefix)
     {
-        return [$prefix.'/{$url}/?{$filtersUrl}', ['{$url}' => '', '{$filtersUrl}' => ''], []];
+        return ['/'.$prefix.'/{$url}/?{$filtersUrl}', ['{$url}' => '', '{$filtersUrl}' => ''], []];
     }
 
     private function compareUrlStartsNoSuccess($categoryPathUrl, $url)

@@ -245,6 +245,4 @@
             </div>
         </div>
     </div>
-
-    <div id="fn_pop_up_validate_stok"></div>
 </div>

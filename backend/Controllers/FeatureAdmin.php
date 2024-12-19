@@ -49,6 +49,10 @@ class FeatureAdmin extends IndexAdmin
                 $neededPostRedirectGet = true;
             }
 
+            $this->settings->set('sort_feature_values_individually_each_lang',
+                $this->request->post('sort_feature_values_individually_each_lang', 'bool')
+            );
+
             $toIndexAllValues = $featuresValuesRequest->postToIndexAllValues();
             if (isset($toIndexAllValues) && $feature->id) {
                 $backendFeaturesValuesHelper->toIndexAllValues($feature);
@@ -60,10 +64,22 @@ class FeatureAdmin extends IndexAdmin
                 $featuresValues = $backendFeaturesValuesHelper->deleteSelectedValues($valuesToDelete, $featuresValues);
             }
 
-            $backendFeaturesValuesHelper->sortFeatureValuePositions($feature, $featuresValues);
+            $featuresValuesFilter = $backendFeaturesValuesHelper->buildValuesFilter($feature);
+            $featuresValuesFilter = $backendFeaturesValuesHelper->showAllValuesIfSelected($featuresValuesFilter);
+            $featuresValuesFilter = $backendFeaturesValuesHelper->makePagination($featuresValuesFilter);
+
+            $action = $featuresValuesRequest->postAction();
+            $ids    = $featuresValuesRequest->postCheck();
+
+            if ($action == 'move_to_page' && !empty($ids)) {
+                $targetPage = $featuresValuesRequest->postTargetPage();
+                $backendFeaturesValuesHelper->moveToPage($ids, $targetPage, $feature, $featuresValuesFilter);
+            }
 
             if ($this->request->post('alphabet_sort_values')) {
-                $backendFeaturesValuesHelper->sortFeatureValuePositionsAlphabet($feature);
+                $backendFeaturesValuesHelper->sortFeatureValuePositionsAlphabet($feature, $featuresValuesFilter);
+            } else {
+                $backendFeaturesValuesHelper->sortFeatureValuePositions($feature, $featuresValues, $featuresValuesFilter);
             }
 
             $unionMainValueId   = $featuresRequest->postUnionMainValueId();
@@ -75,10 +91,11 @@ class FeatureAdmin extends IndexAdmin
             if ($neededPostRedirectGet) {
                 //  сохранить и выход в список
                 $buttonRedirectToList = $this->request->post('apply_and_quit', 'integer', 0);
-                if (($buttonRedirectToList == 1) && !empty($urlRedirectToList = $this->request->getRootUrl() . '/backend/index.php?controller=FeaturesAdmin')) {
+                if ($buttonRedirectToList == 1) {
+                    $urlRedirectToList = $this->postRedirectGet->getUrlRedirectToList('FeaturesAdmin');
                     $this->postRedirectGet->redirect($urlRedirectToList);
                 }
-
+                
                 $this->postRedirectGet->redirect();
             }
         } else {
@@ -92,13 +109,6 @@ class FeatureAdmin extends IndexAdmin
 
             $featuresValuesFilter = $backendFeaturesValuesHelper->showAllValuesIfSelected($featuresValuesFilter);
             $featuresValuesFilter = $backendFeaturesValuesHelper->makePagination($featuresValuesFilter);
-
-            $action = $featuresValuesRequest->postAction();
-            $ids    = $featuresValuesRequest->postCheck();
-            if ($action == 'move_to_page' && !empty($ids)) {
-                $targetPage = $featuresValuesRequest->postTargetPage();
-                $backendFeaturesValuesHelper->moveToPage($ids, $targetPage, $feature, $featuresValuesFilter);
-            }
 
             $featuresValues = $backendFeaturesValuesHelper->findFeaturesValues($featuresValuesFilter);
             $productsCounts = $backendFeaturesValuesHelper->getProductsCountsByValues($featuresValuesFilter, $featuresValues);
@@ -120,4 +130,30 @@ class FeatureAdmin extends IndexAdmin
         $this->response->setContent($this->design->fetch('feature.tpl'));
     }
 
+    public function analyzeFeatureValuesIssuesCounter(BackendFeaturesValuesHelper $backendFeaturesValuesHelper)
+    {
+        $result = [
+            'success'=> true,
+            'counter'=> $backendFeaturesValuesHelper->checkValuesDuplicatesCount()
+        ];
+
+        $this->response->setContent(json_encode($result), RESPONSE_JSON);
+    }
+
+    public function analyzeFeatureValuesIssues(BackendFeaturesValuesHelper $backendFeaturesValuesHelper)
+    {
+        $this->design->assign('feature_values_duplicates', $backendFeaturesValuesHelper->checkValuesDuplicates());
+
+        $result = [
+            'success'=> true,
+            'html'=> $this->design->fetch('features_issues.tpl')
+        ];
+
+        $this->response->setContent(json_encode($result), RESPONSE_JSON);
+    }
+
+    public function resolveFeatureValuesIssues(BackendFeaturesValuesHelper $backendFeaturesValuesHelper)
+    {
+        $this->response->setContent(json_encode(['success'=> $backendFeaturesValuesHelper->resolveDuplicateFeatureValues()]),RESPONSE_JSON);
+    }
 }

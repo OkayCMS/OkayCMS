@@ -52,7 +52,7 @@ function show_tooltip()
     tooltip.css('top',  $(this).outerHeight() + 8 + $(this).offset().top + 'px');
     tooltip.css('left', ($(this).offset().left + $(this).outerWidth()*0.1 - (flip ? tooltip.width()-40 : 0)  + 0) + 'px');
 
-    from = encodeURIComponent(window.location);
+    from = encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
     tooltipcontent = '';
     var lang = '&lang_id={$front_lang_id}';
     if(typeof  lang_id != 'undefined') {

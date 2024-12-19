@@ -8,6 +8,7 @@ use Okay\Core\EntityFactory;
 use Okay\Core\FrontTranslations;
 use Okay\Core\Languages;
 use Okay\Core\Modules\Extender\ExtenderFacade;
+use Okay\Core\Router;
 use Okay\Entities\FeaturesAliasesValuesEntity;
 use Okay\Entities\FeaturesEntity;
 use Okay\Entities\FeaturesValuesAliasesValuesEntity;
@@ -338,11 +339,12 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         }
         
         $this->parts = [
-            '{$category}' => ($this->category->name ? $this->category->name : ''),
-            '{$category_h1}' => ($this->category->name_h1 ? $this->category->name_h1 : ''),
+            '{$category}' => ($this->category->name ?: ''),
+            '{$category_h1}' => ($this->category->name_h1 ?: ''),
+            '{$category_url}' => Router::generateUrl('category', ['url' => $this->category->url], true),
             '{$sitename}' => ($this->settings->get('site_name') ? $this->settings->get('site_name') : ''),
         ];
-        
+
         /** @var EntityFactory $entityFactory */
         $entityFactory = $this->SL->getService(EntityFactory::class);
         
@@ -426,6 +428,16 @@ class CategoryMetadataHelper extends CommonMetadataHelper
         if (!empty($this->metaArray['brand']) && count($this->metaArray['brand']) == 1) {
             $this->parts['{$brand}'] = reset($this->metaArray['brand']);
         }
+
+        $catalogPrices = $this->design->getVar('catalog_prices');
+
+        if (is_object($catalogPrices)) {
+            $this->parts['{$product_min_price}'] = $catalogPrices->min ?? '';
+            $this->parts['{$product_max_price}'] = $catalogPrices->max ?? '';
+        }
+
+        $this->parts['{$products_count}'] = $this->design->getVar('total_products_num') ?? '';
+
         if (!empty($this->metaArray['features_values']) && count($this->metaArray['features_values']) == 1) {
 
             /** @var FeaturesEntity $featuresEntity */

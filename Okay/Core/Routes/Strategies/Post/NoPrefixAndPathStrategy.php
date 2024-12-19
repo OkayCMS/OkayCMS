@@ -40,6 +40,7 @@ class NoPrefixAndPathStrategy extends AbstractRouteStrategy
 
     // Сообщаем что данная стратегия может использовать sql для формирования урла
     protected $isUsesSqlToGenerate = true;
+    protected $cacheInitFromDb = false;
 
     private $mockRouteParams = ['{$url}', ['{$url}' => ''], []];
 
@@ -67,8 +68,15 @@ class NoPrefixAndPathStrategy extends AbstractRouteStrategy
             return '';
         }
 
-        if ($slug = $this->cacheEntity->cols(['slug_url'])->findOne(['type' => 'post', 'url' => $url])) {
-            return $slug;
+        if (!$this->cacheInitFromDb) {
+            PostRoute::mergeUrlSlugAlias(
+                $this->cacheEntity->cols(['slug_url', 'url'])->find(['type' => 'post'])
+            );
+            $this->cacheInitFromDb = true;
+        }
+
+        if ($route = PostRoute::getUrlSlugAlias($url)) {
+            return $route;
         }
 
         $post = $this->blogEntity->findOne(['url' => $url]);

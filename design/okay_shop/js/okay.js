@@ -41,56 +41,6 @@ $(document).on("submit", ".fn_variants", function (e) {
   });
 });
 
-$(document).ready(function() {
-  let submitted_cart = false;
-
-  $(document).on('click', 'form[name="cart"] button[type=submit]', function (e) {
-    e.preventDefault();
-
-    if ($('.fn_validate_cart').valid()) {
-      if (submitted_cart) {
-        return false;
-      } else {
-        const form_data = $("#captcha_id").serialize();
-
-        $.ajax({
-          url: okay.router["cart_ajax_validate"],
-          data: form_data,
-          method: "POST",
-          dataType: 'json',
-          success: function (data) {
-            if (data.product_empty) {
-              submitted_cart = false;
-              $('#fn_pop_up_validate_stok').html(data.cart_popup_validate_stok_purcases);
-              $.fancybox.open({
-                src: '#fn_pop_up_validate_stok_purchases',
-                type: 'inline',
-              });
-              $('#fn_purchases').html(data.cart_purchases);
-              return false;
-            } else if (data.product_empty === 0) {
-              submitted_cart = true;
-              submit_order();
-            }
-          },
-          error: function (xhr, status, error) {
-            console.error("AJAX checkCart Error: " + status + " - " + error);
-          }
-        });
-
-        return submitted_cart;
-      }
-    }
-  });
-
-  $(document).on('click', '.fn_pop_up_validate_submit', function() {
-    submit_order();
-  });
-
-  function submit_order() {
-    $('form[name="cart"]').submit();
-  }
-});
 /* Смена варианта в превью товара и в карточке */
 $(document).on("change", ".fn_variant", function () {
   var selected = $(this).children(":selected"),
@@ -149,7 +99,7 @@ $(document).on("change", ".fn_variant", function () {
     sku.parent().addClass("hidden-xs-up");
   }
   /* Наличие на складе */
-  if (stock == 0) {
+  if (stock < 1) {
     parent.find(".fn_not_stock").removeClass("hidden-xs-up");
     parent.find(".fn_in_stock").addClass("hidden-xs-up");
   } else {
@@ -157,10 +107,10 @@ $(document).on("change", ".fn_variant", function () {
     parent.find(".fn_not_stock").addClass("hidden-xs-up");
   }
   /* Предзаказ */
-  if (stock == 0 && okay.is_preorder) {
+  if (stock < 1 && okay.is_preorder) {
     parent.find(".fn_is_preorder").removeClass("hidden-xs-up");
     parent.find(".fn_is_stock, .fn_not_preorder").addClass("hidden-xs-up");
-  } else if (stock == 0 && !okay.is_preorder) {
+  } else if (stock < 1 && !okay.is_preorder) {
     parent.find(".fn_not_preorder").removeClass("hidden-xs-up");
     parent.find(".fn_is_stock, .fn_is_preorder").addClass("hidden-xs-up");
   } else {
@@ -174,6 +124,7 @@ $(document).on("change", ".fn_variant", function () {
     parent.find(".fn_units").text("");
   }
 });
+
 
 /* Количество товара в карточке и корзине */
 $(document).on("click", ".fn_product_amount span", function () {
@@ -208,6 +159,34 @@ $(document).on("submit", ".fn_subscribe_form", function (e) {
       } else if (data.hasOwnProperty("error")) {
         successBlock.hide();
         errorBlock.children(".fn_error_text").text(data.error);
+        errorBlock.show();
+      }
+    },
+  });
+});
+
+/* Reaction to an attempt to subscribe from the blog page */
+$(document).on("submit", ".fn_subscribe_form_blog", function (e) {
+  e.preventDefault();
+
+  let successBlock = $(".fn_subscribe_success_blog"),
+      errorBlock = $(".fn_subscribe_error_blog"),
+      form = $(this),
+      formData = form.serialize();
+
+  $.ajax({
+    url: okay.router["ajax_subscribe"],
+    data: formData,
+    type: "post",
+    dataType: "json",
+    success: function (data) {
+      if (data.hasOwnProperty("success")) {
+        errorBlock.hide();
+        successBlock.show();
+        form.find('[name="subscribe_email"]').val("");
+      } else if (data.hasOwnProperty("error")) {
+        successBlock.hide();
+        errorBlock.children(".fn_error_text_blog").text(data.error);
         errorBlock.show();
       }
     },

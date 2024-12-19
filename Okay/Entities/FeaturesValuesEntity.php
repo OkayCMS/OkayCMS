@@ -22,6 +22,7 @@ class FeaturesValuesEntity extends Entity
     protected static $langFields = [
         'value',
         'translit',
+        'position',
     ];
 
     protected static $defaultOrderFields = [

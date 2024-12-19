@@ -142,6 +142,18 @@
                 <div class="activity_of_switch_item">
                     <div class="okay_switch clearfix">
                         <label class="switch_label">
+                            <span>{$btr->okay_cms__feeds__feed__settings__google_merchant__full_description_if_not_exist_annotation|escape}</span>
+                        </label>
+                        <label class="switch switch-default">
+                            <input class="switch-input" name="settings[use_full_description_if_not_exist_annotation]" value='1' type="checkbox" {if $feed->settings['use_full_description_if_not_exist_annotation']}checked=""{/if}/>
+                            <span class="switch-label"></span>
+                            <span class="switch-handle"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="activity_of_switch_item">
+                    <div class="okay_switch clearfix">
+                        <label class="switch_label">
                            <span>{$btr->okay_cms__feeds__feed__settings__google_merchant__use_full_description|escape}</span>
                         </label>
                         <label class="switch switch-default">
@@ -161,6 +173,18 @@
                         </label>
                         <label class="switch switch-default">
                             <input class="switch-input" name="settings[description_in_html]" value='1' type="checkbox" {if $feed->settings['description_in_html']}checked=""{/if}/>
+                            <span class="switch-label"></span>
+                            <span class="switch-handle"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="activity_of_switch_item">
+                    <div class="okay_switch clearfix">
+                        <label class="switch_label">
+                            <span>{$btr->okay_cms__feeds__feed__settings__google_merchant__replace_description_by_name_if_empty|escape}</span>
+                        </label>
+                        <label class="switch switch-default">
+                            <input class="switch-input" name="settings[replace_description_by_name_if_empty]" value='1' type="checkbox" {if $feed->settings['replace_description_by_name_if_empty']}checked=""{/if}/>
                             <span class="switch-label"></span>
                             <span class="switch-handle"></span>
                         </label>

@@ -594,12 +594,7 @@ body:not(.top-nav) header.navbar {
 .okay_list_heading a svg{
     width: 12px;
     height: 12px;
-    margin-left: 5px;
-    -webkit-box-flex: 0;
-    -webkit-flex: 0 0 20px;
-    -ms-flex: 0 0 20px;
-    flex: 0 0 20px;
-    max-width: 20px;
+    flex-shrink: 0;
     position: relative;
     top: 0;
     fill: #ccc;
@@ -2855,7 +2850,7 @@ label.switch_label i{
 }
 
 .autocomplete-suggestions span {
-    white-space: nowrap;
+    white-space: pre-wrap;
     width: calc(100% - 55px);
 }
 
@@ -3285,10 +3280,50 @@ label.switch_label i{
     width: auto;
     margin-left: 10px;
 }
+.okay_list_feature_issues_table .okay_list_row{
+    align-items: start!important;
+}
+.okay_list_feature_issues_lang,
+.okay_list_feature_issues_id_first,
+.okay_list_feature_issues_id{
+    padding: 15px 10px!important;
+    text-align: left;
+    max-width: 110px;
+    width: 100%;
+}
+.okay_list_feature_issues_id_first{
+    padding-left: 20px!important;
+}
+.okay_list_feature_issues_name,
+.okay_list_feature_issues_value,
+.okay_list_feature_issues_translit{
+    padding: 15px 10px!important;
+    text-align: left;
+    width: 100%;
+}
+.okay_list_feature_issues_container{
+    width: 100%;
+    overflow-x: auto;
+}
+.okay_list_feature_issues_table{
+    width: 100%;
+    min-width: 800px;
+}
+.okay_list_row.feature_values_duplicate_row, 
+.okay_list_body_item.feature_values_duplicate_item{
+    min-height: 2em;
+}
+.okay_list_body_item.feature_values_duplicate_item:hover {
+    background-color: #e1e1e1;
+}
+.feature_values_duplicate_item_match {
+    background-color: #d2d2d2;
+}
 .additional_params .bootstrap-select.btn-group .dropdown-menu,
-.okay_list_option .bootstrap-select.btn-group .dropdown-menu{
-    max-width: inherit;
-    width: max-content;
+.okay_list_option .bootstrap-select.btn-group .dropdown-menu,
+.bootstrap-select.btn-group .dropdown-menu{
+    max-width: inherit!important;
+    width: max-content!important;
 }
 .okay_list .okay_list_loc_pos{
     float: right;
@@ -3425,7 +3460,6 @@ label.switch_label i{
     margin: 0 auto;
     background: #fff
 }
-.okay_list .okay_list_photo svg,
 .okay_list .okay_list_photo img{
     max-width: 50px;
     max-height: 50px;
@@ -3788,7 +3822,7 @@ label.switch_label i{
 }
 .okay_list .okay_list_order_number{
     text-align: left;
-    width: 115px;
+    width: 165px;
 }
 .okay_list .okay_list_order_number a{
     font-weight: 600;
@@ -3841,7 +3875,7 @@ label.switch_label i{
     vertical-align: middle;
 }
 .okay_list .okay_list_orders_name{
-    width: calc(100% - 720px);
+    width: calc(100% - 770px);
     position: relative;
     text-align: left;
 }
@@ -5345,9 +5379,7 @@ body.menu-pin .menu_switch .menu_hamburger::after {
     border: dashed 1px #cfd8dc;
     margin-bottom: 15px;
 }
-.wrap_order_label .box_order_label{
 
-}
 .box_border_buyer{
     border-top: 1px solid #cfd8dc;
     padding-top: 15px;
@@ -5358,11 +5390,15 @@ body.menu-pin .menu_switch .menu_hamburger::after {
     margin-bottom: 0;
 }
 .checkbox_email{
-    width: 300px;
+    width: 310px;
     margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
 }
 .checkbox_email label {
     cursor: pointer;
+    margin: 0;
 }
 .checkbox_email .checkbox_label span{
     display: inline-block;
@@ -5553,11 +5589,12 @@ body.menu-pin .menu_switch .menu_hamburger::after {
 .fn_history_toggle{
     position: relative;
     cursor: pointer;
+    padding-right: 15px;
 }
 .fn_history_toggle .fn_icon_arrow{
     position: absolute;
-    top: 3px;
-    right: 3px;
+    top: 6px;
+    right: 4px;
     color: #333;
 }
 .fn_discounted_toggle {

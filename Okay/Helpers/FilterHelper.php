@@ -910,19 +910,23 @@ class FilterHelper
         return ExtenderFacade::execute(__METHOD__, $featuresValues);
     }
     
-    private function sortBrands($brandsUrls = []) // todo проверить
+    private function sortBrands($brandsUrls = [])
     {
         if (empty($brandsUrls)) {
             return ExtenderFacade::execute(__METHOD__, false);
         }
-        
-        $brandsEntity = $this->entityFactory->get(BrandsEntity::class);
-        $sortedBrandsUrls = $brandsEntity->cols(['url'])
-            ->order('position')
-            ->find(['url' => $brandsUrls]);
+
+        if (count($brandsUrls) > 1) {
+            $brandsEntity = $this->entityFactory->get(BrandsEntity::class);
+            $sortedBrandsUrls = $brandsEntity->cols(['url'])
+                ->order('position')
+                ->find(['url' => $brandsUrls]);
+        } else {
+            $sortedBrandsUrls = $brandsUrls;
+        }
 
         if (empty($sortedBrandsUrls)) {
-            return ExtenderFacade::execute(__METHOD__, false);
+            return ExtenderFacade::execute(__METHOD__, false, func_get_args());
         }
 
         return ExtenderFacade::execute(__METHOD__, $sortedBrandsUrls, func_get_args());

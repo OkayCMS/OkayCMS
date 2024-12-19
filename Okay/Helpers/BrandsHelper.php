@@ -214,12 +214,11 @@ class BrandsHelper implements GetListInterface
         return ExtenderFacade::execute(__METHOD__, $page, func_get_args());
     }
 
-
     public function getBrandsAjaxFilterData()
     {
         $result = new \stdClass;
         $result->products_content = $this->design->fetch('brands_content.tpl');
-        $result->products_pagination = '';
+        $result->products_pagination = $this->design->fetch('chpu_pagination.tpl');
         $result->products_sort = '';
         $result->features = $this->design->fetch('features.tpl');
         $result->selected_features = $this->design->fetch('selected_features.tpl');

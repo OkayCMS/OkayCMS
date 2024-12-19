@@ -102,6 +102,20 @@ abstract class AbstractRoute
         self::$routeAliases[$url] = $routeAlias;
     }
 
+    /**
+     * @param \StdClass[] $mappedCacheUrlSlugByUrl Массив объектов, каждый из которых содержит два свойства: `url` и `slug_url`.
+     *
+     * @property string $url
+     * @property string $slug_url
+     */
+
+    public static function mergeUrlSlugAlias($mappedCacheUrlSlugByUrl)
+    {
+        foreach ($mappedCacheUrlSlugByUrl ?? [] as $item) {
+            self::setUrlSlugAlias($item->url, $item->slug_url);
+        }
+    }
+
     public static function getUrlSlugAlias($url)
     {
         if (!empty(self::$routeAliases[$url])) {

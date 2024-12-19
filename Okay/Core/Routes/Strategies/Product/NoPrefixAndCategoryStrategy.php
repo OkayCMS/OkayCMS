@@ -29,8 +29,9 @@ class NoPrefixAndCategoryStrategy extends AbstractRouteStrategy
 
     // Сообщаем что данная стратегия может использовать sql для формирования урла
     protected $isUsesSqlToGenerate = true;
+    protected $cacheInitFromDb = false;
 
-    private $mockRouteParams = ['{$url}/?{$variantId}', ['{$url}' => '', '{$variantId}' => '(\d*)'], []];
+    private $mockRouteParams = ['{$url}/?{$variantId}', ['{$url}' => '', '{$variantId}' => ''], []];
 
     public function __construct()
     {
@@ -53,8 +54,15 @@ class NoPrefixAndCategoryStrategy extends AbstractRouteStrategy
             return '';
         }
 
-        if ($slug = $this->cacheEntity->cols(['slug_url'])->findOne(['type' => 'product', 'url' => $url])) {
-            return $slug;
+        if (!$this->cacheInitFromDb) {
+            ProductRoute::mergeUrlSlugAlias(
+                $this->cacheEntity->cols(['slug_url', 'url'])->find(['type' => 'product'])
+            );
+            $this->cacheInitFromDb = true;
+        }
+
+        if ($route = ProductRoute::getUrlSlugAlias($url)) {
+            return $route;
         }
 
         $product  = $this->productsEntity->get((string) $url);

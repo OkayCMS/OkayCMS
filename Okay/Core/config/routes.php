@@ -98,14 +98,6 @@ return [
         ],
         'to_front' => true,
     ],
-    'cart_ajax_validate' => [
-        'slug' => '/ajax/cart_ajax_validate',
-        'params' => [
-            'controller' => 'CartController',
-            'method' => 'cartAjaxValidate',
-        ],
-        'to_front' => true,
-    ],
     'ajax_subscribe' => [
         'slug' => '/ajax/subscribe',
         'params' => [

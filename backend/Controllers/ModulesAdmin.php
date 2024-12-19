@@ -9,6 +9,7 @@ use Okay\Core\BackendTranslations;
 use Okay\Core\Managers;
 use Okay\Core\Modules\Installer;
 use Okay\Core\Modules\LicenseModulesTemplates;
+use Okay\Core\Modules\ModuleVersionControl;
 use Okay\Core\Request;
 use Okay\Entities\ManagersEntity;
 use Okay\Entities\ModulesEntity;
@@ -33,6 +34,7 @@ class ModulesAdmin extends IndexAdmin
                 $this->settings->set('modules_access_expires', '');
                 $licenseModulesTemplates->setLicenseEmail($this->request->post('email_for_module'));
                 $backendModulesHelper->updateModulesAccessExpiresCache();
+                $licenseModulesTemplates->clearRequestRetry();
                 $licenseModulesTemplates->updateLicenseInfo();
             }
             $this->settings->set('email_for_module', $this->request->post('email_for_module'));
@@ -99,6 +101,7 @@ class ModulesAdmin extends IndexAdmin
                 $module->preview = $preview;
             }
             $module->params = $moduleCore->getModuleParams($module->vendor, $module->module_name);
+            $module->versionControl = $moduleCore->getVersionControl();
         }
 
         $this->design->assign('modules', $modulesList);

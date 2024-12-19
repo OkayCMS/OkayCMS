@@ -163,7 +163,7 @@ class TranslationsHelper
     {
         if ($result = $this->initOneLocalTranslation($langLabel)) {
             foreach ($result as $label => $translation) {
-                if ($translations[$label]) {
+                if (isset($translations[$label])) {
                     $translations[$label]->value = $translation->value;
                     $translations[$label]->type  = self::TRANS_T_LOCAL;
                 } else {

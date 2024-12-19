@@ -25,6 +25,7 @@ class NoPrefixAndPathStrategy extends AbstractRouteStrategy
 
     // Сообщаем что данная стратегия может использовать sql для формирования урла
     protected $isUsesSqlToGenerate = true;
+    protected $cacheInitFromDb = false;
 
     private $mockRouteParams = ['/{$url}/?{$filtersUrl}', ['{$url}' => '', '{$filtersUrl}' => ''], []];
 
@@ -47,9 +48,16 @@ class NoPrefixAndPathStrategy extends AbstractRouteStrategy
             $this->logger->notice('For generate route to category "'.$url.'" need execute SQL query. Or set url through "Okay\Core\Routes\CategoryRoute::setUrlSlugAlias()"');
             return '';
         }
-        
-        if ($slug = $this->cacheEntity->cols(['slug_url'])->findOne(['type' => 'category', 'url' => $url])) {
-            return $slug;
+
+        if (!$this->cacheInitFromDb) {
+            CategoryRoute::mergeUrlSlugAlias(
+                $this->cacheEntity->cols(['slug_url', 'url'])->find(['type' => 'category'])
+            );
+            $this->cacheInitFromDb = true;
+        }
+
+        if ($route = CategoryRoute::getUrlSlugAlias($url)) {
+            return $route;
         }
         
         $category = $this->categoriesEntity->get((string) $url);

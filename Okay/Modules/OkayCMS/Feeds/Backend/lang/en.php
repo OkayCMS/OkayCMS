@@ -94,6 +94,8 @@ $lang['okay_cms__feeds__feed__settings__google_merchant__color_notify'] = "Selec
 $lang['okay_cms__feeds__feed__settings__google_merchant__gtin'] = "Code GTIN (gtin)";
 $lang['okay_cms__feeds__feed__settings__google_merchant__gender'] = "Gender (gender)";
 $lang['okay_cms__feeds__feed__settings__google_merchant__material'] = "Material (material)";
+$lang['okay_cms__feeds__feed__settings__google_merchant__full_description_if_not_exist_annotation'] = "Send the full product description to the feed only if there is no short description";
+$lang['okay_cms__feeds__feed__settings__google_merchant__replace_description_by_name_if_empty'] = "If the description is empty, replace it with the product name";
 
 // Настройки Rozetka
 $lang['okay_cms__feeds__feed__settings__rozetka__upload_without_images'] = "Upload products without images";
