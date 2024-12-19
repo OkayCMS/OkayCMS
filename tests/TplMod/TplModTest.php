@@ -66,8 +66,7 @@ class TplModTest extends \PHPUnit\Framework\TestCase
         $resultHtml = $methodBuild->invokeArgs($tplMod, [
             $baseNode
         ]);
-        $resultHtml = ltrim($resultHtml, "\n");
-        
+        $resultHtml = ltrim($resultHtml, PHP_EOL);
         $this->assertEquals($expectedResult, $resultHtml);
     }
     
@@ -76,196 +75,196 @@ class TplModTest extends \PHPUnit\Framework\TestCase
         return [
             [
                 (new TplChangeDTO('<div class="foo">', ''))->setRemove(),
-                "<html>\n" .
-                "    <body>\n" .
-                "        <div class=\"bar\"></div>\n" .
-                "    </body>\n" .
+                "<html>" .PHP_EOL.
+                "    <body>" .PHP_EOL.
+                "        <div class=\"bar\"></div>" .PHP_EOL.
+                "    </body>" .PHP_EOL.
                 "</html>"
             ],
             [
                 (new TplChangeDTO('<div class="foo">', ''))->setHtml('<span>test</span>'),
-                "<html>\n" .
-                "    <body>\n" .
-                "        <div class=\"foo\">\n" .
-                "            <span>test</span>\n" .
-                "        </div>\n" .
-                "        <div class=\"bar\"></div>\n" .
-                "    </body>\n" .
+                "<html>" .PHP_EOL.
+                "    <body>" .PHP_EOL.
+                "        <div class=\"foo\">" .PHP_EOL.
+                "            <span>test</span>" .PHP_EOL.
+                "        </div>" .PHP_EOL.
+                "        <div class=\"bar\"></div>" .PHP_EOL.
+                "    </body>" .PHP_EOL.
                 "</html>"
             ],
             [
                 (new TplChangeDTO('<body>', ''))->setAppend('<span>test</span>'),
-                "<html>\n" .
-                "    <body>\n" .
-                "        <div class=\"foo\"></div>\n" .
-                "        <div class=\"bar\"></div>\n" .
-                "        <span>test</span>\n" .
-                "    </body>\n" .
+                "<html>" .PHP_EOL.
+                "    <body>" .PHP_EOL.
+                "        <div class=\"foo\"></div>" .PHP_EOL.
+                "        <div class=\"bar\"></div>" .PHP_EOL.
+                "        <span>test</span>" .PHP_EOL.
+                "    </body>" .PHP_EOL.
                 "</html>"
             ],
             [
                 (new TplChangeDTO('<body>', ''))->setAppendBefore('<head></head>'),
-                "<html>\n" .
-                "    <head></head>\n" .
-                "    <body>\n" .
-                "        <div class=\"foo\"></div>\n" .
-                "        <div class=\"bar\"></div>\n" .
-                "    </body>\n" .
+                "<html>" .PHP_EOL.
+                "    <head></head>" .PHP_EOL.
+                "    <body>" .PHP_EOL.
+                "        <div class=\"foo\"></div>" .PHP_EOL.
+                "        <div class=\"bar\"></div>" .PHP_EOL.
+                "    </body>" .PHP_EOL.
                 "</html>"
             ],
             [
                 (new TplChangeDTO('', '.*?ass="bar"'))->setAppendBefore('<span>test</span>'),
-                "<html>\n" .
-                "    <body>\n" .
-                "        <div class=\"foo\"></div>\n" .
-                "        <span>test</span>\n" .
-                "        <div class=\"bar\"></div>\n" .
-                "    </body>\n" .
+                "<html>" .PHP_EOL.
+                "    <body>" .PHP_EOL.
+                "        <div class=\"foo\"></div>" .PHP_EOL.
+                "        <span>test</span>" .PHP_EOL.
+                "        <div class=\"bar\"></div>" .PHP_EOL.
+                "    </body>" .PHP_EOL.
                 "</html>"
             ],
             [
                 (new TplChangeDTO('<body>', ''))->setPrepend('<span>test</span>'),
-                "<html>\n" .
-                "    <body>\n" .
-                "        <span>test</span>\n" .
-                "        <div class=\"foo\"></div>\n" .
-                "        <div class=\"bar\"></div>\n" .
-                "    </body>\n" .
+                "<html>" .PHP_EOL.
+                "    <body>" .PHP_EOL.
+                "        <span>test</span>" .PHP_EOL.
+                "        <div class=\"foo\"></div>" .PHP_EOL.
+                "        <div class=\"bar\"></div>" .PHP_EOL.
+                "    </body>" .PHP_EOL.
                 "</html>"
             ],
             [
                 (new TplChangeDTO('', '.*?s="foo"'))->setAppendAfter('<span>test</span>'),
-                "<html>\n" .
-                "    <body>\n" .
-                "        <div class=\"foo\"></div>\n" .
-                "        <span>test</span>\n" .
-                "        <div class=\"bar\"></div>\n" .
-                "    </body>\n" .
+                "<html>" .PHP_EOL.
+                "    <body>" .PHP_EOL.
+                "        <div class=\"foo\"></div>" .PHP_EOL.
+                "        <span>test</span>" .PHP_EOL.
+                "        <div class=\"bar\"></div>" .PHP_EOL.
+                "    </body>" .PHP_EOL.
                 "</html>"
             ],
             [
                 (new TplChangeDTO('', '.*?s="foo"'))->setHtml('<span>test</span>'),
-                "<html>\n" .
-                "    <body>\n" .
-                "        <div class=\"foo\">\n" .
-                "            <span>test</span>\n" .
-                "        </div>\n" .
-                "        <div class=\"bar\"></div>\n" .
-                "    </body>\n" .
+                "<html>" .PHP_EOL.
+                "    <body>" .PHP_EOL.
+                "        <div class=\"foo\">" .PHP_EOL.
+                "            <span>test</span>" .PHP_EOL.
+                "        </div>" .PHP_EOL.
+                "        <div class=\"bar\"></div>" .PHP_EOL.
+                "    </body>" .PHP_EOL.
                 "</html>"
             ],
             [
                 (new TplChangeDTO('class="foo"', ''))->setText('Hello world'),
-                "<html>\n" .
-                "    <body>\n" .
-                "        <div class=\"foo\">\n" .
-                "            Hello world\n" .
-                "        </div>\n" .
-                "        <div class=\"bar\"></div>\n" .
-                "    </body>\n" .
+                "<html>" .PHP_EOL.
+                "    <body>" .PHP_EOL.
+                "        <div class=\"foo\">" .PHP_EOL.
+                "            Hello world" .PHP_EOL.
+                "        </div>" .PHP_EOL.
+                "        <div class=\"bar\"></div>" .PHP_EOL.
+                "    </body>" .PHP_EOL.
                 "</html>"
             ],
             [
                 (new TplChangeDTO('class="foo"', ''))->setReplace('<div class="foo" data-text="success">'),
-                "<html>\n" .
-                "    <body>\n" .
-                "        <div class=\"foo\" data-text=\"success\"></div>\n" .
-                "        <div class=\"bar\"></div>\n" .
-                "    </body>\n" .
+                "<html>" .PHP_EOL.
+                "    <body>" .PHP_EOL.
+                "        <div class=\"foo\" data-text=\"success\"></div>" .PHP_EOL.
+                "        <div class=\"bar\"></div>" .PHP_EOL.
+                "    </body>" .PHP_EOL.
                 "</html>"
             ],
             [
                 (new TplChangeDTO('', '.*?s="foo"'))->setComment('myModule')
                     ->setAppend('<span>test</span>'),
-                "<html>\n" .
-                "    <body>\n" .
-                "        <div class=\"foo\">\n" .
-                "            <!--myModule-->\n" .
-                "            <span>test</span>\n" .
-                "            <!--/myModule-->\n" .
-                "        </div>\n" .
-                "        <div class=\"bar\"></div>\n" .
-                "    </body>\n" .
+                "<html>" .PHP_EOL.
+                "    <body>" .PHP_EOL.
+                "        <div class=\"foo\">" .PHP_EOL.
+                "            <!--myModule-->" .PHP_EOL.
+                "            <span>test</span>" .PHP_EOL.
+                "            <!--/myModule-->" .PHP_EOL.
+                "        </div>" .PHP_EOL.
+                "        <div class=\"bar\"></div>" .PHP_EOL.
+                "    </body>" .PHP_EOL.
                 "</html>",
                 true, // debug comment
             ],
             [
                 (new TplChangeDTO('class="foo"', ''))->setComment('myModule')
                     ->setAppend('<span>test</span>'),
-                "<html>\n" .
-                "    <body>\n" .
-                "        <div class=\"foo\">\n" .
-                "            <span>test</span>\n" .
-                "        </div>\n" .
-                "        <div class=\"bar\"></div>\n" .
-                "    </body>\n" .
+                "<html>" .PHP_EOL.
+                "    <body>" .PHP_EOL.
+                "        <div class=\"foo\">" .PHP_EOL.
+                "            <span>test</span>" .PHP_EOL.
+                "        </div>" .PHP_EOL.
+                "        <div class=\"bar\"></div>" .PHP_EOL.
+                "    </body>" .PHP_EOL.
                 "</html>",
                 false, // debug comment
             ],
             [
                 (new TplChangeDTO('', '.*?s="foo"'))->setParent()->setAppend('<span>test</span>'),
-                "<html>\n" .
-                "    <body>\n" .
-                "        <div class=\"foo\"></div>\n" .
-                "        <div class=\"bar\"></div>\n" .
-                "        <span>test</span>\n" .
-                "    </body>\n" .
+                "<html>" .PHP_EOL.
+                "    <body>" .PHP_EOL.
+                "        <div class=\"foo\"></div>" .PHP_EOL.
+                "        <div class=\"bar\"></div>" .PHP_EOL.
+                "        <span>test</span>" .PHP_EOL.
+                "    </body>" .PHP_EOL.
                 "</html>",
             ],
             [
                 (new TplChangeDTO('class="foo"', ''))->setParent()->setPrepend('<span>test</span>'),
-                "<html>\n" .
-                "    <body>\n" .
-                "        <span>test</span>\n" .
-                "        <div class=\"foo\"></div>\n" .
-                "        <div class=\"bar\"></div>\n" .
-                "    </body>\n" .
+                "<html>" .PHP_EOL.
+                "    <body>" .PHP_EOL.
+                "        <span>test</span>" .PHP_EOL.
+                "        <div class=\"foo\"></div>" .PHP_EOL.
+                "        <div class=\"bar\"></div>" .PHP_EOL.
+                "    </body>" .PHP_EOL.
                 "</html>",
             ],
             [
                 (new TplChangeDTO('class="foo"', ''))->setClosestFind('html')
                     ->setPrepend('<head></head>'),
-                "<html>\n" .
-                "    <head></head>\n" .
-                "    <body>\n" .
-                "        <div class=\"foo\"></div>\n" .
-                "        <div class=\"bar\"></div>\n" .
-                "    </body>\n" .
+                "<html>" .PHP_EOL.
+                "    <head></head>" .PHP_EOL.
+                "    <body>" .PHP_EOL.
+                "        <div class=\"foo\"></div>" .PHP_EOL.
+                "        <div class=\"bar\"></div>" .PHP_EOL.
+                "    </body>" .PHP_EOL.
                 "</html>",
             ],
             [
                 (new TplChangeDTO('', '.*?s="foo"'))->setClosestLike('.*?ml>')
                     ->setPrepend('<head></head>'),
-                "<html>\n" .
-                "    <head></head>\n" .
-                "    <body>\n" .
-                "        <div class=\"foo\"></div>\n" .
-                "        <div class=\"bar\"></div>\n" .
-                "    </body>\n" .
+                "<html>" .PHP_EOL.
+                "    <head></head>" .PHP_EOL.
+                "    <body>" .PHP_EOL.
+                "        <div class=\"foo\"></div>" .PHP_EOL.
+                "        <div class=\"bar\"></div>" .PHP_EOL.
+                "    </body>" .PHP_EOL.
                 "</html>",
             ],
             [
                 (new TplChangeDTO('body', ''))->setChildrenFind('class="foo"')
                     ->setAppend('<span>test</span>'),
-                "<html>\n" .
-                "    <body>\n" .
-                "        <div class=\"foo\">\n" .
-                "            <span>test</span>\n" .
-                "        </div>\n" .
-                "        <div class=\"bar\"></div>\n" .
-                "    </body>\n" .
+                "<html>" .PHP_EOL.
+                "    <body>" .PHP_EOL.
+                "        <div class=\"foo\">" .PHP_EOL.
+                "            <span>test</span>" .PHP_EOL.
+                "        </div>" .PHP_EOL.
+                "        <div class=\"bar\"></div>" .PHP_EOL.
+                "    </body>" .PHP_EOL.
                 "</html>",
             ],
             [
                 (new TplChangeDTO('body', ''))->setChildrenLike('.*?"foo"')
                     ->setAppend('<span>test</span>'),
-                "<html>\n" .
-                "    <body>\n" .
-                "        <div class=\"foo\">\n" .
-                "            <span>test</span>\n" .
-                "        </div>\n" .
-                "        <div class=\"bar\"></div>\n" .
-                "    </body>\n" .
+                "<html>" .PHP_EOL.
+                "    <body>" .PHP_EOL.
+                "        <div class=\"foo\">" .PHP_EOL.
+                "            <span>test</span>" .PHP_EOL.
+                "        </div>" .PHP_EOL.
+                "        <div class=\"bar\"></div>" .PHP_EOL.
+                "    </body>" .PHP_EOL.
                 "</html>",
             ],
         ];
