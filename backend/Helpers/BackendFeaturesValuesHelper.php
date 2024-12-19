@@ -293,7 +293,7 @@ class BackendFeaturesValuesHelper
         }
 
         $this->updateValuesPositions($feature->id, $this->languages->getLangId(), $position-1, $addedIds);
-        $this->sortAllFeatureValuesTranslationsProcedure($feature->id);
+        $this->sortAllFeatureValuesTranslationsProcedure($feature->id, $addedIds);
 
         ExtenderFacade::execute(__METHOD__, $featureValuesIds, func_get_args());
     }
@@ -510,12 +510,15 @@ class BackendFeaturesValuesHelper
     }
 
     /**
-     * @param int $featureId
+     * @param $featureId
+     * @param $addedValueIds
      */
-    public function sortAllFeatureValuesTranslationsProcedure($featureId)
+    public function sortAllFeatureValuesTranslationsProcedure($featureId, $addedValueIds = [])
     {
         if ($this->settings->get('sort_feature_values_individually_each_lang') != 1) {
             $this->sortAllFeatureValuesTranslationsByLang($featureId, $this->languages->getLangId());
+        } elseif(!empty($addedValueIds)) {
+            $this->sortAddedFeatureValuesPosition($featureId, $addedValueIds);
         }
     }
 
@@ -533,12 +536,40 @@ class BackendFeaturesValuesHelper
 
             $update = $this->queryFactory->newSqlQuery();
             $update->setStatement(
-                'UPDATE `ok_lang_features_values` origin_lfv
-                INNER JOIN `ok_features_values` fv ON origin_lfv.feature_value_id = fv.id
-                LEFT JOIN `ok_lang_features_values` sub ON origin_lfv.feature_value_id = sub.feature_value_id AND sub.lang_id = :lang_id
+                'UPDATE `__lang_features_values` origin_lfv
+                INNER JOIN `__features_values` fv ON origin_lfv.feature_value_id = fv.id
+                LEFT JOIN `__lang_features_values` sub ON origin_lfv.feature_value_id = sub.feature_value_id AND sub.lang_id = :lang_id
                 SET origin_lfv.`position`= sub.position WHERE fv.`feature_id` = :feature_id')
                 ->bindValues(['feature_id'=>$featureId, 'lang_id'=>$langId])
                 ->execute();
+        }
+    }
+
+    /**
+     * @param int $featureId
+     * @param int[] $addedValueIds
+     * @param int|null $langId
+     */
+    public function sortAddedFeatureValuesPosition($featureId, $addedValueIds, $langId=null)
+    {
+        if (!empty($featureId = (int)$featureId)
+            && !empty($addedValueIds = (array)$addedValueIds)) {
+
+            if (empty($langId)) {
+                $langId = $this->languages->getLangId();
+            }
+
+            $update = $this->queryFactory->newSqlQuery();
+            $update->setStatement(
+                'UPDATE `__lang_features_values` lfv
+                INNER JOIN `__features_values` fv ON lfv.feature_value_id = fv.id
+                SET lfv.`position`= lfv.feature_value_id  
+                WHERE fv.`feature_id` = :feature_id AND lfv.feature_value_id in (:value_ids) AND lfv.lang_id != :lang_id;'
+            )->bindValues([
+                'feature_id'=>$featureId,
+                'lang_id'=>$langId,
+                'value_ids'=>$addedValueIds
+            ])->execute();
         }
     }
 }

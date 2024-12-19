@@ -28,4 +28,4 @@ ALTER TABLE `ok_managers` CHANGE `permissions` `permissions` TEXT NULL DEFAULT N
 
 ALTER TABLE `ok_okaycms__banners` CHANGE `categories` `categories` VARCHAR (1024) NOT NULL DEFAULT '', CHANGE `pages` `pages` VARCHAR (1024) NOT NULL DEFAULT '', CHANGE `brands` `brands` VARCHAR (1024) NOT NULL DEFAULT '';
 
-INSERT INTO `ok_settings` (`param`, `value`) VALUES ('sort_feature_values_individually_each_lang', '1');
+INSERT INTO `ok_settings` (`param`, `value`) VALUES ('sort_feature_values_individually_each_lang', '0');
