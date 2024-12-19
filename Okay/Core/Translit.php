@@ -7,17 +7,21 @@ namespace Okay\Core;
 class Translit
 {
     private static $translitPairs = [
-        // русский
+        // Cyrillic
         [
             'from'  => "А-а-Б-б-В-в-Ґ-ґ-Г-г-Д-д-Е-е-Ё-ё-Є-є-Ж-ж-З-з-И-и-І-і-Ї-ї-Й-й-К-к-Л-л-М-м-Н-н-О-о-П-п-Р-р-С-с-Т-т-У-у-Ф-ф-Х-х-Ц-ц-Ч-ч-Ш-ш-Щ-щ-Ъ-ъ-Ы-ы-Ь-ь-Э-э-Ю-ю-Я-я",
             'to'    => "A-a-B-b-V-v-G-g-G-g-D-d-E-e-E-e-E-e-ZH-zh-Z-z-I-i-I-i-I-i-J-j-K-k-L-l-M-m-N-n-O-o-P-p-R-r-S-s-T-t-U-u-F-f-H-h-TS-ts-CH-ch-SH-sh-SCH-sch---Y-y---E-e-YU-yu-YA-ya"
         ],
-        // грузинский
+        // Georgian
         [
             'from'  => "ა-ბ-გ-დ-ე-ვ-ზ-თ-ი-კ-ლ-მ-ნ-ო-პ-ჟ-რ-ს-ტ-უ-ფ-ქ-ღ-ყ-შ-ჩ-ც-ძ-წ-ჭ-ხ-ჯ-ჰ",
             'to'    => "a-b-g-d-e-v-z-th-i-k-l-m-n-o-p-zh-r-s-t-u-ph-q-gh-qh-sh-ch-ts-dz-ts-tch-kh-j-h"
         ],
-
+        // Polish
+        [
+            'from'  => "Ą-ą-Ć-ć-Ę-ę-ẽ-Ł-ł-Ń-ń-Ó-ó-Ś-ś-Ź-ź-Ż-ż",
+            'to'    => "A-a-C-c-E-e-e-L-l-N-n-O-o-S-s-Z-z-Z-z"
+        ],
     ];
 
     private static $specPairs = [
