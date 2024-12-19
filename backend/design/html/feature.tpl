@@ -337,7 +337,7 @@
                                 </div>
                             </div>
 
-                            <div class="float-lg-left mt-q feature_to_index_new_value">
+                            <div class="float-lg-left mt-q">
                                 <div class="heading_label boxes_inline">{$btr->sort_feature_values_individually_each_lang|escape}</div>
                                 <div class="boxes_inline">
                                     <div class="okay_switch clearfix">
