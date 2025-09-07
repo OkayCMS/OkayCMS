@@ -39,9 +39,23 @@ class CallbackController extends AbstractController
             $this->response->sendContent();
             exit;
         }
-        $orderId = $data->orderReference;
 
-        $order = $ordersEntity->get((int) $orderId);
+        $orderId = null;
+        $orderIdData = $data->orderReference;
+        $parts = explode('_', $orderIdData);
+        if (!empty($parts[0])) {
+            $orderId = (int)$parts[0];
+        }
+
+        if (empty($orderIdData) || (!empty($orderIdData) && empty($orderId))
+        ) {
+            $logger->warning("WayForPay notice: 'Order id not found");
+            $this->response->setContent("Order id not found")->setStatusCode(400);
+            $this->response->sendContent();
+            exit;
+        }
+
+        $order = $ordersEntity->get($orderId);
         if (empty($order)) {
             $logger->warning("WayForPay notice: 'Order not found'. Order №{$orderId}");
             $this->response->setContent("Order not found")->setStatusCode(400);
@@ -71,13 +85,14 @@ class CallbackController extends AbstractController
 
         $sign = array();
         foreach ($keysForSignature as $dataKey) {
-            if (array_key_exists($dataKey, $data)) {
-                $sign [] = $data->$dataKey;
+            if (!empty($dataKey) && !empty($data) && property_exists($data, $dataKey)) {
+                $sign [] = $data->{$dataKey};
             }
         }
 
         $sign = implode(';', $sign);
         $sign = hash_hmac('md5', $sign, $settings['wayforpay_secretkey']);
+
         if (!empty($data->merchantSignature) && $data->merchantSignature != $sign) {
             $logger->warning("WayForPay notice: 'Invalid merchant signature'. Order №{$orderId}");
             $this->response->setContent("Invalid merchant signature")->setStatusCode(400);
