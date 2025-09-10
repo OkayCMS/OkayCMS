@@ -63,8 +63,8 @@
             <label for="novaposhta_redelivery">{$btr->order_np_redelivery}</label>
         </div>
     </div>
-    {if empty($novaposhta_delivery_data->city_id)}
-        <div class="mb-1 alert alert--error">
+    {if $order->id && empty($novaposhta_delivery_data->city_id)}
+        <div class="mb-1 alert alert--error fn_np_error_city_id">
             <div class="heading_label alert__content">
                 {$btr->np_error_city_id|escape}
             </div>
@@ -159,6 +159,7 @@
             $('input[name=novaposhta_city_name]').val(suggestion.city);
             $('input[name=novaposhta_area_name]').val(suggestion.area);
             $('input[name=novaposhta_region_name]').val(suggestion.region);
+            $('.fn_np_error_city_id').hide();
             if (suggestion.streets_availability) {
                 setStreetAutocomplete(suggestion.ref);
             } else {
@@ -203,6 +204,7 @@
         onSelect: function(suggestion) {
             $('input[name="novaposhta_warehouse_id"]').val(''); //  очищаем выбранное отделение другого города
             $('input[name="novaposhta_city_id"]').val(suggestion.data.ref);
+            $('.fn_np_error_city_id').hide();
             showWarehouses(suggestion.data.ref);
         },
         formatResult: function(suggestion, currentValue) {
