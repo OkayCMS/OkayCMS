@@ -260,7 +260,8 @@ class OrderAdmin extends IndexAdmin
     
     public function addOrderProduct(BackendOrdersHelper  $backendOrdersHelper, Image $imagesCore)
     {
-        $keyword = $this->request->get('query', 'string');
+        $keyword = $this->request->get('query');
+        $keyword = strval(preg_replace('/[^\p{L}\p{Nd}\d\s_\-,.%\"\'\/]/ui', '', $keyword));
 
         $products = $backendOrdersHelper->findOrderProducts($keyword);
 
