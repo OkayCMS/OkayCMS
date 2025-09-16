@@ -14,7 +14,7 @@
     >
         <div class="mb-1">
             <div class="heading_label">{$btr->order_np_city}</div>
-            <input type="text" name="novaposhta_city" class="fn_newpost_city_name form-control" autocomplete="off" value="{$novaposhta_delivery_data->city_name|escape}"{if !$isDoorDelivery} disabled{/if}>
+            <input type="text" name="novaposhta_city" class="fn_newpost_city_name_door form-control" autocomplete="off" value="{$novaposhta_delivery_data->city_name|escape}"{if !$isDoorDelivery} disabled{/if}>
         </div>
         <div class="mb-1">
             <div class="heading_label">{$btr->order_np_street}</div>
@@ -45,7 +45,7 @@
         
         <div class="mb-1">
             <div class="heading_label">{$btr->order_np_city}</div>
-            <input type="text" class="fn_newpost_city_name form-control" autocomplete="off" value="{$novaposhta_delivery_data->city_id|newpost_city}"{if $isDoorDelivery} disabled{/if}>
+            <input type="text" class="fn_newpost_city_name_warehouse form-control" autocomplete="off" value="{$novaposhta_delivery_data->city_id|newpost_city}"{if $isDoorDelivery} disabled{/if}>
         </div>
         <div class="mb-1">
             <div class="heading_label">{$btr->order_np_warehouse}
@@ -150,17 +150,19 @@
     
     // Автокомплит адреса из справочника Новой Почты
     let streetAutocomplete = false;
-    $( ".fn_newpost_city_name" ).devbridgeAutocomplete({
+    $( ".fn_newpost_city_name_door" ).devbridgeAutocomplete({
         serviceUrl: okay.router['OkayCMS_NovaposhtaCost_find_city_for_door'],
-        minChars:1,
+        minChars: 2,
         noCache: false,
+        preventBadQueries: false,
         onSelect: function(suggestion) {
             $('input[name="novaposhta_city_id"]').val(suggestion.ref).trigger('change');
             $('input[name=novaposhta_city_name]').val(suggestion.city);
             $('input[name=novaposhta_area_name]').val(suggestion.area);
             $('input[name=novaposhta_region_name]').val(suggestion.region);
             $('.fn_np_error_city_id').hide();
-            if (suggestion.streets_availability) {
+            // if (suggestion.streets_availability) { Новая Почта перестала присылать корректный параметр у некоторых городов
+            if (true) {
                 setStreetAutocomplete(suggestion.ref);
             } else {
                 if(streetAutocomplete) {
@@ -180,8 +182,9 @@
     {
         $(".fn_newpost_street").devbridgeAutocomplete({
             serviceUrl: okay.router['OkayCMS_NovaposhtaCost_find_street'] + "?city_ref=" + cityRef,
-            minChars:1,
+            minChars:2,
             noCache: false,
+            preventBadQueries: false,
             onSearchStart: function(params) {
                 streetAutocomplete = true;
             },
@@ -196,7 +199,7 @@
         });
     }
     
-    $( ".fn_newpost_city_name" ).devbridgeAutocomplete( {
+    $( ".fn_newpost_city_name_warehouse" ).devbridgeAutocomplete( {
         serviceUrl: okay.router['OkayCMS_NovaposhtaCost_find_city'],
         minChars: 1,
         maxHeight: 320,
