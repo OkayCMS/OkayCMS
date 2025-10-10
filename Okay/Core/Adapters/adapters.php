@@ -20,6 +20,7 @@ return [
                     new PR('adapters.resize.watermark'),
                     new PR('adapters.resize.watermark_offset_x'),
                     new PR('adapters.resize.watermark_offset_y'),
+                    new PR('adapters.resize.image_quality'),
                 ]
             ],
         ]
