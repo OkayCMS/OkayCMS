@@ -1,0 +1,1700 @@
+---
+description: OkayCMS module development patterns, common pitfalls, and best practices
+globs: Okay/Modules/**/*
+alwaysApply: true
+---
+
+# OkayCMS Module Development Guide
+
+This rule documents critical patterns, common pitfalls, and best practices for developing OkayCMS modules based on real debugging experience.
+
+## Critical Module Development Rules
+
+### 1. Settings Class - Array Serialization
+
+**❌ WRONG:**
+```php
+// Saving
+$minOrderAmounts = $this->request->post('min_order_amount');
+$this->settings->set('maxit__min_order_amount', serialize($minOrderAmounts));
+
+// Reading
+$minOrderAmounts = $this->settings->get('maxit__min_order_amount');
+$minOrderAmounts = unserialize($minOrderAmounts); // ERROR: array given, string expected
+```
+
+**✅ CORRECT:**
+```php
+// Saving - Settings automatically serializes arrays
+$minOrderAmounts = $this->request->post('min_order_amount');
+$this->settings->set('maxit__min_order_amount', $minOrderAmounts);
+
+// Reading - Settings automatically unserializes arrays
+$minOrderAmounts = $this->settings->get('maxit__min_order_amount');
+if (!is_array($minOrderAmounts)) {
+    $minOrderAmounts = [];
+}
+```
+
+**Rule**: `Settings::set()` automatically serializes arrays, and `Settings::get()` automatically unserializes them. **Never manually serialize/unserialize** when working with `Settings` class.
+
+### 2. Chain Extensions Must Return Values
+
+**❌ WRONG:**
+```php
+public function extendAddItem($cart)
+{
+    $this->checkMinOrderAmount($cart);
+    // Missing return - breaks chain execution
+}
+```
+
+**✅ CORRECT:**
+```php
+public function extendAddItem($cart)
+{
+    $this->checkMinOrderAmount($cart);
+    return $cart; // Always return the object (modified or original)
+}
+```
+
+**Rule**: Chain extensions (`registerChainExtension`) **MUST return the object** they receive (modified or original). Returning `null` or nothing breaks the extension chain and causes fatal errors.
+
+### 3. Extenders with Dependencies Require Service Registration
+
+**❌ WRONG:**
+```php
+// CartExtender.php
+class CartExtender implements ExtensionInterface
+{
+    public function __construct(
+        Settings $settings,
+        EntityFactory $entityFactory,
+        Design $design,
+        FrontTranslations $frontTranslations
+    ) {
+        // ...
+    }
+}
+
+// Init.php - only registration, no services.php
+$this->registerChainExtension(
+    [Cart::class, 'addItem'],
+    [CartExtender::class, 'extendAddItem']
+);
+// ERROR: Too few arguments to function __construct(), 0 passed
+```
+
+**✅ CORRECT:**
+```php
+// Init/services.php - REQUIRED for extenders with constructor dependencies
+use Okay\Core\OkayContainer\Reference\ServiceReference as SR;
+
+return [
+    CartExtender::class => [
+        'class' => CartExtender::class,
+        'arguments' => [
+            new SR(Settings::class),
+            new SR(EntityFactory::class),
+            new SR(Design::class),
+            new SR(FrontTranslations::class),
+        ],
+    ],
+];
+```
+
+**Rule**: If an extender class has constructor dependencies, **you MUST create `Init/services.php`** and register the class with all its dependencies using `ServiceReference` (SR).
+
+### 4. Validation Timing - Checkout vs Add to Cart
+
+**❌ WRONG:**
+```php
+public function extendGetCartValidateError($error): ?string
+{
+    // Validates delivery fields even when just adding to cart
+    $deliveryId = $this->request->post('delivery_id');
+    // ... validation logic
+}
+```
+
+**✅ CORRECT:**
+```php
+public function extendGetCartValidateError($error): ?string
+{
+    if (!empty($error)) {
+        return $error;
+    }
+
+    // Only validate during checkout, not when adding to cart
+    if (!$this->request->post('checkout')) {
+        return $error;
+    }
+
+    $deliveryId = $this->request->post('delivery_id');
+    // ... validation logic
+}
+```
+
+**Rule**: Validation of delivery method fields should **only occur during checkout** (when `checkout` POST parameter is present), not when adding items to cart. Users haven't selected delivery method yet during add-to-cart.
+
+### 5. Module Logic When All Limits Are Zero
+
+**❌ WRONG:**
+```php
+private function checkMinOrderAmount($cart)
+{
+    $minOrderAmounts = $this->settings->get('maxit__min_order_amount');
+    // ... checks even when all amounts are 0
+}
+```
+
+**✅ CORRECT:**
+```php
+private function checkMinOrderAmount($cart)
+{
+    $minOrderAmounts = $this->settings->get('maxit__min_order_amount');
+    if (empty($minOrderAmounts) || !is_array($minOrderAmounts)) {
+        return; // No limits configured
+    }
+
+    // Check if ANY delivery has a limit > 0
+    $hasLimits = false;
+    foreach ($activeDeliveries as $delivery) {
+        $limit = isset($minOrderAmounts[$delivery->id]) ? (float)$minOrderAmounts[$delivery->id] : 0;
+        if ($limit > 0) {
+            $hasLimits = true;
+            break;
+        }
+    }
+
+    // If all limits are 0, module should not interfere
+    if (!$hasLimits) {
+        return;
+    }
+
+    // ... validation logic
+}
+```
+
+**Rule**: If all configured limits are `0` (or empty), the module should **not interfere** with normal cart operations. Early return prevents unnecessary processing.
+
+### 6. Extender Method Arguments Order (1+N Pattern)
+
+**❌ WRONG:**
+```php
+// Helper method signature
+public function getCartValidateError($order): ?string
+
+// Extender - wrong argument order
+public function extendGetCartValidateError($order, $error): ?string
+{
+    // Wrong: $order is first, but should be $error
+}
+```
+
+**✅ CORRECT:**
+```php
+// Helper method signature
+public function getCartValidateError($order): ?string
+
+// Extender - correct argument order (1+N pattern)
+public function extendGetCartValidateError($error, $order): ?string
+{
+    // Correct: first argument is helper's return value ($error)
+    // Second argument is helper's first argument ($order)
+    if (!empty($error)) {
+        return $error;
+    }
+    // ... validation logic
+    return $error;
+}
+```
+
+**Rule**: Extender arguments follow **1+N pattern**:
+- **1st argument**: The value returned by the helper method (result)
+- **2nd argument**: The first argument passed to the helper method
+- **3rd argument**: The second argument passed to the helper method, etc.
+
+If helper argument is optional, extender argument should also be optional.
+
+### 7. Database Migrations - Entity Fields Registration
+
+**❌ WRONG:**
+```php
+public function install()
+{
+    // Adding field to existing Entity
+    $this->migrateEntityField(VariantsEntity::class, 
+        (new EntityField('volume'))->setTypeDecimal('10,5')
+    );
+    // Missing: registerEntityField() call
+}
+
+public function init()
+{
+    // Field not registered - won't be included in SELECT queries
+}
+```
+
+**✅ CORRECT:**
+```php
+public function install()
+{
+    // Adding field to existing Entity
+    $this->migrateEntityField(VariantsEntity::class, 
+        (new EntityField('volume'))->setTypeDecimal('10,5')
+    );
+}
+
+public function init()
+{
+    // REQUIRED: Register field so it's included in Entity queries
+    $this->registerEntityField(VariantsEntity::class, 'volume');
+}
+```
+
+**Rule**: When adding fields to existing Entities via `migrateEntityField()`, **always register them** in `init()` using `registerEntityField()` so they're included in SELECT queries and filtering.
+
+### 8. Template Blocks - Callback Functions
+
+**✅ CORRECT:**
+```php
+// Simple block registration
+$this->addFrontBlock('front_cart_delivery', 'cart_delivery_fields.tpl');
+
+// Block with callback for data preparation
+$this->addBackendBlock(
+    'notification_counters',
+    'counter_block.tpl',
+    function (Design $design, CurrenciesEntity $currenciesEntity) {
+        if (!$currenciesEntity->findOne(['code' => 'UAH'])) {
+            $design->assign('uahCurrencyError', true);
+        }
+    }
+);
+```
+
+**Rule**: Use callback functions in `addFrontBlock()` or `addBackendBlock()` when you need to prepare data before template rendering. Callback receives services via dependency injection.
+
+### 9. JavaScript Files Location
+
+**❌ WRONG:**
+```php
+// JavaScript file placed in wrong directory
+// File: design/js/my_script.js
+
+// Init.php
+$this->addFrontBlock('front_scripts_after_validate', 'my_script.js');
+// ERROR: File Okay/Modules/Vendor/Module/design/html/my_script.js not found
+```
+
+**✅ CORRECT:**
+```php
+// JavaScript file MUST be in design/html/ directory
+// File: design/html/my_script.js
+
+// Init.php
+$this->addFrontBlock('front_scripts_after_validate', 'my_script.js');
+// Works correctly
+```
+
+**Rule**: JavaScript files registered via `addFrontBlock()` **MUST be placed in `design/html/` directory**, not in `design/js/`. The system looks for files in `design/html/` when using `addFrontBlock()`.
+
+### 10. Custom Smarty Plugins
+
+**✅ CORRECT:**
+```php
+// Plugins/FastOrderPlugin.php
+namespace Okay\Modules\YourModule\Plugins;
+
+use Okay\Core\Design;
+use Okay\Core\SmartyPlugins\Func;
+
+class FastOrderPlugin extends Func
+{
+    protected $tag = 'fast_order_btn'; // Smarty tag name: {fast_order_btn product=$product}
+    
+    protected $design;
+    
+    public function __construct(Design $design)
+    {
+        $this->design = $design;
+    }
+    
+    public function run($vars)
+    {
+        // $vars contains parameters passed to Smarty tag
+        $this->design->assign('product', $vars['product']);
+        return $this->design->fetch('fast_order_btn.tpl');
+    }
+}
+
+// Init/SmartyPlugins.php
+use Okay\Core\Design;
+use Okay\Modules\YourModule\Plugins\FastOrderPlugin;
+use Okay\Core\OkayContainer\Reference\ServiceReference as SR;
+
+return [
+    FastOrderPlugin::class => [
+        'class' => FastOrderPlugin::class,
+        'arguments' => [
+            new SR(Design::class),
+        ],
+    ],
+];
+```
+
+**Rule**: 
+- Plugin class must extend `Okay\Core\SmartyPlugins\Func` for functions or `Okay\Core\SmartyPlugins\Block` for blocks
+- Set `protected $tag` property to define Smarty tag name
+- Implement `run($vars)` method where `$vars` contains tag parameters
+- Register plugin in `Init/SmartyPlugins.php` with all dependencies
+- Use in templates: `{fast_order_btn product=$product}`
+
+### 11. Template Modifications (modifications.json)
+
+**✅ CORRECT:**
+```json
+{
+  "version": "1.0.0",
+  "vendor": {
+    "email": "info@example.com",
+    "site": "https://example.com"
+  },
+  "modifications": {
+    "backend": [
+      {
+        "file": "order.tpl",
+        "changes": [
+          {
+            "find": "name=\"email\"",
+            "parent": "",
+            "appendAfter": "order_delivery_fields.tpl"
+          }
+        ]
+      }
+    ],
+    "front": [
+      {
+        "file": "order.tpl",
+        "changes": [
+          {
+            "find": "{if $delivery}",
+            "appendAfter": "order_delivery_fields.tpl"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Modification Operations**:
+- `find`: Text to find in template
+- `closestFind`: Find closest parent element matching pattern
+- `appendBefore`: Insert template before found text
+- `appendAfter`: Insert template after found text
+- `html`: Template file to insert (from `design/html/` or `Backend/design/html/`)
+- `parent`: Parent element selector (empty string = direct parent)
+
+**Rule**: 
+- Modifications are defined in `Init/module.json` under `modifications` key
+- Use `backend` for admin templates, `front` for frontend templates
+- Template files referenced in `html` must exist in module's `design/html/` directory
+- Use `find` to locate insertion point, `appendAfter`/`appendBefore` to insert content
+- Modifications are applied automatically during module installation/update
+
+### 12. CSS and JS Files Registration
+
+**✅ CORRECT:**
+```php
+// design/css.php
+use Okay\Core\TemplateConfig\Css;
+
+return [
+    (new Css('module_styles.css')),
+    (new Css('another_stylesheet.css')),
+];
+
+// design/js.php
+use Okay\Core\TemplateConfig\Js;
+
+return [
+    (new Js('module_script.js')),
+    (new Js('another_script.js')),
+];
+```
+
+**Rule**: 
+- CSS files must be in `design/css/` directory
+- JS files must be in `design/js/` directory (for legacy, use `design/html/` for `addFrontBlock`)
+- Register files in `design/css.php` and `design/js.php` using `Css` and `Js` classes
+- Files are automatically included when module is active
+
+## Module Structure Checklist
+
+### Complete Module Directory Structure
+
+```
+Okay/Modules/Vendor/ModuleName/
+├── Init/
+│   ├── Init.php              # REQUIRED: Module initialization class
+│   ├── module.json           # REQUIRED: Module metadata, version, modifications
+│   ├── services.php          # REQUIRED if extenders have dependencies
+│   ├── routes.php            # Optional: Module routes
+│   └── SmartyPlugins.php     # Optional: Custom Smarty plugins registration
+├── Backend/
+│   ├── Controllers/          # Backend controllers (extend IndexAdmin)
+│   ├── design/
+│   │   ├── html/            # Backend templates (*.tpl)
+│   │   ├── css/             # Backend stylesheets
+│   │   ├── js/              # Backend JavaScript
+│   │   ├── images/          # Backend images
+│   │   ├── css.php          # CSS files registration
+│   │   └── js.php           # JS files registration
+│   └── lang/                # Backend translations (en.php, ru.php, ua.php)
+├── Controllers/              # Frontend controllers (extend AbstractController)
+├── Entities/                 # Database entities (extend Entity)
+├── Extenders/               # Extension classes (implement ExtensionInterface)
+├── Helpers/                 # Business logic helpers (*Helper suffix)
+├── design/
+│   ├── html/                # Frontend templates (*.tpl) and JavaScript files
+│   ├── css/                 # Frontend stylesheets
+│   ├── js/                   # Frontend JavaScript (legacy, use html/ for addFrontBlock)
+│   ├── images/               # Frontend images
+│   ├── lang/                 # Frontend translations (en.php, ru.php, ua.php)
+│   ├── css.php               # CSS files registration
+│   └── js.php                # JS files registration
+├── settings.xml              # REQUIRED for payment/delivery modules
+└── preview.(jpeg|jpg|png|gif|svg)  # Optional: Module preview image
+```
+
+**Rule**: Module must be located in `Okay/Modules/Vendor/ModuleName/` directory. Use PascalCase for Vendor and ModuleName.
+
+### Required Files
+
+1. **`Init/Init.php`** - Module initialization class (extends `AbstractInit`)
+2. **`Init/module.json`** - Module metadata (version, vendor info, modifications)
+3. **`Init/services.php`** - **REQUIRED** if any extenders/helpers/plugins have constructor dependencies
+4. **`Init/routes.php`** - (Optional) Module routes
+5. **`Init/SmartyPlugins.php`** - (Optional) Custom Smarty plugins registration
+6. **`settings.xml`** - **REQUIRED** for payment/delivery modules (defines settings form)
+
+### Module.json Structure
+
+**✅ CORRECT:**
+```json
+{
+  "version": "1.0.0",
+  "vendor": {
+    "email": "info@example.com",
+    "site": "https://example.com"
+  },
+  "modifications": {
+    "backend": [
+      {
+        "file": "order.tpl",
+        "changes": [
+          {
+            "find": "name=\"email\"",
+            "appendAfter": "order_fields.tpl"
+          }
+        ]
+      }
+    ],
+    "front": [
+      {
+        "file": "product.tpl",
+        "changes": [
+          {
+            "find": "{if $product}",
+            "appendAfter": "product_custom.tpl"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Required Fields**:
+- `version`: Module version (format: MAJOR.MINOR.PATCH, default: "1.0.0")
+- `vendor.email`: Developer contact email
+- `vendor.site`: Developer website
+
+**Optional Fields**:
+- `modifications`: Template modifications (see Template Modifications section above)
+
+**Rule**: 
+- Version must follow semantic versioning (MAJOR.MINOR.PATCH)
+- Start with version `1.0.0` for new modules
+- All vendor fields are required
+
+### Module Initialization Methods
+
+#### install() Method
+Called once during module installation. Use for:
+- `setBackendMainController()` - Set admin controller
+- `setModuleType()` - Set module type (MODULE_TYPE_PAYMENT, MODULE_TYPE_DELIVERY, MODULE_TYPE_XML)
+- `migrateEntityTable()` - Create new Entity tables
+- `migrateEntityField()` - Add fields to existing Entities
+- `migrateCustomTable()` - Create relation tables
+- Initial data seeding
+
+#### init() Method
+Called on every system startup. Use for:
+- `registerBackendController()` - Register admin controllers
+- `addBackendControllerPermission()` - Set permissions
+- `addPermission()` - Add module permissions
+- `registerChainExtension()` / `registerQueueExtension()` - Register extenders
+- `registerEntityField()` - Register fields added to existing Entities
+- `addFrontBlock()` / `addBackendBlock()` - Register template blocks
+- `registerEntityFilter()` - Register custom Entity filters
+- `extendBackendMenu()` - Add menu items
+- `extendUpdateObject()` - Extend admin object editing
+- `registerSchedule()` - Register cron tasks
+
+#### update_X_Y_Z() Methods
+Called when module version changes. Use for:
+- Additional migrations
+- Data transformations
+- Field additions/removals
+
+**Example:**
+```php
+public function update_1_1_0()
+{
+    $this->migrateEntityField(
+        NPWarehousesEntity::class,
+        (new EntityField('type'))->setTypeVarchar(100, true)->setDefault('')
+    );
+}
+```
+
+### Module Types
+
+```php
+// Payment module
+$this->setModuleType(MODULE_TYPE_PAYMENT);
+
+// Delivery module
+$this->setModuleType(MODULE_TYPE_DELIVERY);
+
+// XML export module
+$this->setModuleType(MODULE_TYPE_XML);
+```
+
+**Rule**: Module type affects behavior:
+- Payment/Delivery modules show settings in admin delivery/payment configuration
+- XML modules appear in export section
+- **REQUIRES `settings.xml` file** for payment/delivery modules (defines settings form structure)
+
+### Module Versioning
+
+**✅ CORRECT:**
+```json
+{
+  "version": "1.0.0",
+  "vendor": {
+    "email": "info@example.com",
+    "site": "https://example.com"
+  }
+}
+```
+
+**Version Format**: Three integers separated by dots: `MAJOR.MINOR.PATCH`
+
+**Version Increment Rules**:
+- **PATCH** (1.0.0 → 1.0.1): Small bug fixes, no logic changes
+- **MINOR** (1.0.0 → 1.1.0): Logic changes, new features, may break compatibility
+- **MAJOR** (1.0.0 → 2.0.0): Complete module rewrite, major breaking changes
+
+**Rule**: 
+- Always start with version `1.0.0`
+- When incrementing MINOR or MAJOR, reset lower numbers to 0
+- Version is required in `module.json` (defaults to `1.0.0` if missing)
+
+### Required Files
+
+1. **`Init/Init.php`** - Module initialization, extension registration
+2. **`Init/services.php`** - **REQUIRED** if any extenders have constructor dependencies
+3. **`Init/module.json`** - Module metadata
+
+### Extension Registration Patterns
+
+```php
+// Chain Extension - modifies and returns object
+$this->registerChainExtension(
+    [Cart::class, 'addItem'],
+    [CartExtender::class, 'extendAddItem'] // MUST return $cart
+);
+
+// Queue Extension - executes after, doesn't need return
+$this->registerQueueExtension(
+    [OrdersHelper::class, 'finalCreateOrderProcedure'],
+    [OrdersHelperExtender::class, 'extendFinalCreateOrderProcedure']
+);
+
+// Entity Filter - custom filter for existing Entity
+$this->registerEntityFilter(
+    ProductsEntity::class,
+    'okaycms__google_merchant__only', // Filter name
+    \Okay\Modules\OkayCMS\GoogleMerchant\ExtendsEntities\ProductsEntity::class,
+    'okaycms__google_merchant__only' // Method name
+);
+```
+
+### Entity Filters from Modules
+
+To add custom filters to existing Entities without modifying core files:
+
+**✅ CORRECT:**
+```php
+// ExtendsEntities/ProductsEntity.php
+namespace Okay\Modules\YourModule\ExtendsEntities;
+
+use Okay\Core\Modules\AbstractModuleEntityFilter;
+
+class ProductsEntity extends AbstractModuleEntityFilter
+{
+    public function your_module__custom_filter($value, $filter)
+    {
+        // Work with $this->select (Aura SQLQuery Select object)
+        $this->select->where('p.some_field = :value')
+            ->bindValue('value', $value);
+    }
+}
+
+// Init.php
+$this->registerEntityFilter(
+    ProductsEntity::class,
+    'your_module__custom_filter',
+    \Okay\Modules\YourModule\ExtendsEntities\ProductsEntity::class,
+    'your_module__custom_filter'
+);
+```
+
+**Rule**: Entity filter methods must be **public** and work with `$this->select` object. Filter name should follow pattern `vendor__module__filter_name`.
+
+## Common Error Patterns to Avoid
+
+### Error 1: Manual Serialization with Settings
+- **Symptom**: `ArgumentCountError: Too few arguments` or `to be string, array given`
+- **Cause**: Manual `serialize()`/`unserialize()` with `Settings` class
+- **Fix**: Remove manual serialization, use `Settings` directly with arrays
+
+### Error 2: Missing Return in Chain Extension
+- **Symptom**: AJAX requests fail silently, cart operations don't complete
+- **Cause**: Chain extension doesn't return the object
+- **Fix**: Always return the object parameter
+
+### Error 3: Unregistered Extender Dependencies
+- **Symptom**: `Fatal error: Too few arguments to function __construct(), 0 passed`
+- **Cause**: Extender has constructor dependencies but no `services.php`
+- **Fix**: Create `Init/services.php` and register all dependencies
+
+### Error 4: Validation at Wrong Time
+- **Symptom**: "Add to Cart" button doesn't work, no popup appears
+- **Cause**: Validation runs during add-to-cart instead of checkout
+- **Fix**: Check for `checkout` POST parameter before validating
+
+### Error 5: JavaScript Files in Wrong Directory
+- **Symptom**: `Fatal error: File Okay/Modules/Vendor/Module/design/html/script.js not found`
+- **Cause**: JavaScript file placed in `design/js/` instead of `design/html/`
+- **Fix**: Move JavaScript files to `design/html/` directory
+
+### Error 6: Incorrect Controller Namespace in Routes
+- **Symptom**: `Class "Vendor.Module.Controller" uses in route "route_name" is not exists`
+- **Cause**: Using dot notation (`Vendor.Module.Controller`) instead of full namespace
+- **Fix**: Use full namespace with `::class` constant
+
+### Error 7: Non-Standard Backend UI Design
+- **Symptom**: Backend page looks inconsistent with other OkayCMS admin pages, missing standard elements.
+- **Cause**: Not following OkayCMS backend design guidelines (missing page title, description block, standard form structure, or using custom CSS instead of predefined classes).
+- **Fix**: Follow the standard backend page structure:
+  1. Page title with `heading_page` class
+  2. Description block with `alert alert--icon`
+  3. Settings block with `boxed fn_toggle_wrap`
+  4. Use predefined classes from `backend/design/css/okay.css`
+  5. Localize all text via `$btr->`
+  6. Include "Apply" button with standard styling
+
+### Error 8: Incorrect Admin Language Detection
+- **Symptom**: Admin panel translations don't update when switching language via flags. Module-specific translations always show in one language regardless of admin language selection.
+- **Cause**: Using `$this->manager->lang` directly instead of `BackendTranslations::getLangLabel()`. The `$manager->lang` is stored in database and doesn't update when user switches language via flags. The system uses `$_SESSION['admin_lang_id']` for current language, which is correctly handled in `backend/index.php`.
+- **Fix**: 
+  1. Always use `BackendTranslations::getLangLabel()` to get current admin language label
+  2. When loading default values from language files, use `include` (not `require_once`) and reset `$lang = []` before each include to prevent variable caching
+  3. Never rely on `$this->manager->lang` for current language - it's only a fallback stored in DB
+  4. The system (`backend/index.php`) already handles language switching: uses session language if set, otherwise falls back to manager's language from DB
+
+**Example Fix:**
+```php
+// ❌ WRONG
+$currentLang = $this->manager->lang; // From DB, doesn't update!
+require_once("design/lang/{$currentLang}.php"); // Caching issues
+
+// ✅ CORRECT
+$currentLang = $backendTranslations->getLangLabel(); // From session
+if (empty($currentLang)) {
+    $currentLang = !empty($this->manager->lang) ? $this->manager->lang : 'en';
+}
+$lang = []; // Reset to prevent caching
+include "design/lang/{$currentLang}.php"; // Fresh load
+```
+
+### Error 9: Incorrect Language Detection in AJAX Controllers
+- **Symptom**: Translations always show in one language (usually main language) in AJAX responses, regardless of current page language. Language is determined incorrectly from session instead of current page.
+- **Cause**: AJAX requests may not have language prefix in URL (`/ajax/...` instead of `/ru/ajax/...`), so `Router::resolveCurrentLanguage()` can't determine language from URL. `FrontTranslations` may use cached language from session, which may be outdated.
+- **Fix**: 
+  1. Determine language from HTTP referrer (contains language prefix from current page)
+  2. Use `TranslationsEntity::find()` with `force=true` to load translations for current language
+  3. Don't rely on `FrontTranslations::init()` - it may use cached language
+  4. Extract language label from referrer URL pattern: `/([a-z]{2})(/|$)` (e.g., `/ru/cart` → `ru`)
+
+**❌ WRONG:**
+```php
+// AJAX controller - wrong approach
+public function checkSomething(
+    FrontTranslations $frontTranslations,
+    Languages $languages
+) {
+    // Language may be wrong if AJAX request has no language prefix
+    $currentLangLabel = $languages->getLangLabel(); // May return cached/wrong language
+    
+    // FrontTranslations was initialized before language was updated
+    $frontTranslations->init(); // May still use old cached language
+    
+    $errorMsg = $frontTranslations->getTranslation('module__error');
+    // Always shows in one language
+}
+```
+
+**✅ CORRECT:**
+```php
+// AJAX controller - correct approach
+public function checkSomething(
+    Languages $languages,
+    TranslationsEntity $translationsEntity
+) {
+    // Determine language from referrer (AJAX requests may not have language prefix in URL)
+    $currentLangLabel = null;
+    $currentLangId = null;
+    
+    $refererLangLabel = null;
+    if (!empty($_SERVER['HTTP_REFERER'])) {
+        $referer = $_SERVER['HTTP_REFERER'];
+        // Extract language prefix from referrer (e.g., /ru/cart -> ru)
+        if (preg_match('#/([a-z]{2})(/|$)#', $referer, $matches)) {
+            $refererLangLabel = $matches[1];
+        }
+    }
+    
+    // If found language in referrer, use it
+    if (!empty($refererLangLabel)) {
+        $allLanguages = $languages->getAllLanguages();
+        foreach ($allLanguages as $lang) {
+            if ($lang->label === $refererLangLabel) {
+                $languages->setLangId($lang->id);
+                $currentLangLabel = $refererLangLabel;
+                $currentLangId = $lang->id;
+                break;
+            }
+        }
+    }
+    
+    // Fallback: use language from $this->language or Languages
+    if (empty($currentLangLabel)) {
+        if (!empty($this->language)) {
+            $currentLanguage = $this->language;
+            $currentLangLabel = $currentLanguage->label;
+            $currentLangId = $currentLanguage->id;
+        } else {
+            $currentLangId = $languages->getLangId();
+            $currentLangLabel = $languages->getLangLabel();
+        }
+    }
+    
+    // Load translations for current language using TranslationsEntity
+    // Use force=true to bypass cache and load fresh translations including module translations
+    $translations = $translationsEntity->find(['lang' => $currentLangLabel, 'force' => true]);
+    
+    // Get translation value (TranslationsEntity::find() returns array of objects with 'value' property)
+    $errorMsg = isset($translations['module__error']) 
+        ? (is_object($translations['module__error']) && isset($translations['module__error']->value)
+            ? $translations['module__error']->value
+            : (is_string($translations['module__error']) ? $translations['module__error'] : 'Error'))
+        : 'Error';
+    
+    // Replace variables in translation string
+    $errorMsg = str_replace('{$variable}', $value, $errorMsg);
+}
+```
+
+**Rule**: 
+- **Always determine language from referrer** for AJAX controllers - referrer contains language prefix from current page
+- **Use `TranslationsEntity::find(['lang' => $langLabel, 'force' => true])`** to load translations for current language (automatically includes module translations via `initOneModulesTranslation()`)
+- **Don't use `FrontTranslations::init()`** in AJAX controllers - it may use cached language from constructor
+- **Access translation values** from `TranslationsEntity::find()` result: `$translations['key']->value` (result is array of objects with `value` property)
+
+## Service Registration Template
+
+```php
+<?php
+
+namespace Okay\Modules\YourNamespace\YourModule;
+
+use Okay\Core\OkayContainer\Reference\ServiceReference as SR;
+// ... other imports
+
+return [
+    YourExtender::class => [
+        'class' => YourExtender::class,
+        'arguments' => [
+            new SR(Settings::class),
+            new SR(EntityFactory::class),
+            new SR(Design::class),
+            // ... all constructor dependencies
+        ],
+    ],
+];
+```
+
+## Module Helpers
+
+Module helpers should be registered in `Init/services.php` and follow same patterns as core helpers:
+
+**✅ CORRECT:**
+```php
+// Helpers/YourModuleHelper.php
+namespace Okay\Modules\YourModule\Helpers;
+
+use Okay\Core\Modules\Extender\ExtenderFacade;
+
+class YourModuleHelper
+{
+    public function getSomeData($filter = [])
+    {
+        // ... business logic
+        $result = []; // Your data
+        
+        // Always return through ExtenderFacade
+        return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
+    }
+}
+
+// Init/services.php
+return [
+    YourModuleHelper::class => [
+        'class' => YourModuleHelper::class,
+        'arguments' => [
+            new SR(EntityFactory::class),
+            // ... other dependencies
+        ],
+    ],
+];
+```
+
+**Rule**: Module helpers must:
+- Return results through `ExtenderFacade::execute(__METHOD__, $result, func_get_args())`
+- Be registered in `Init/services.php` if they have dependencies
+- Follow naming convention: `*Helper` suffix
+
+## Language Files
+
+Module language files should be placed in:
+- Frontend: `design/lang/{lang_code}.php`
+- Backend: `Backend/lang/{lang_code}.php`
+
+**✅ CORRECT:**
+```php
+// design/lang/en.php
+$lang['your_module__setting_name'] = 'Setting Name';
+$lang['your_module__error_message'] = 'Error occurred';
+
+// Backend/lang/en.php
+$btr['your_module__admin_title'] = 'Module Title';
+```
+
+**Rule**: 
+- Use prefix pattern: `vendor__module__key_name` (double underscore)
+- Access in templates: `{$lang->your_module__setting_name}`
+- Access in backend: `{$btr->your_module__admin_title}`
+
+## Backend Controllers
+
+**✅ CORRECT:**
+```php
+// Backend/Controllers/YourModuleAdmin.php
+namespace Okay\Modules\YourModule\Backend\Controllers;
+
+use Okay\Admin\Controllers\IndexAdmin;
+
+class YourModuleAdmin extends IndexAdmin
+{
+    public function fetch(
+        EntityFactory $entityFactory,
+        Request $request
+    ) {
+        // Default method called automatically
+        // Use dependency injection for services
+    }
+    
+    public function customMethod(
+        EntityFactory $entityFactory
+    ) {
+        // Access via: ?controller=YourVendor.YourModule.YourModuleAdmin@customMethod
+    }
+}
+```
+
+**Rule**:
+- Must extend `Okay\Admin\Controllers\IndexAdmin`
+- Default method is `fetch()`
+- Access format: `Vendor.Module.ControllerName` or `Vendor.Module.ControllerName@method`
+- Register in `init()`: `$this->registerBackendController('YourModuleAdmin')`
+- Set permissions: `$this->addBackendControllerPermission('YourModuleAdmin', 'permission_name')`
+
+### Getting Current Admin Language
+
+**✅ CORRECT:**
+```php
+// Backend/Controllers/YourModuleAdmin.php
+use Okay\Core\BackendTranslations;
+use Okay\Entities\LanguagesEntity;
+
+class YourModuleAdmin extends IndexAdmin
+{
+    public function fetch(
+        BackendTranslations $backendTranslations,
+        LanguagesEntity $languagesEntity
+    ) {
+        // Get current admin language label (from session, not from manager DB)
+        $currentAdminLangLabel = $backendTranslations->getLangLabel();
+        
+        // If empty, fallback to manager's language from DB
+        if (empty($currentAdminLangLabel)) {
+            $currentAdminLangLabel = !empty($this->manager->lang) ? $this->manager->lang : 'en';
+        }
+        
+        // Use $currentAdminLangLabel for language-specific operations
+        // For example, loading default values from language files:
+        $langFile = "Okay/Modules/YourModule/design/lang/{$currentAdminLangLabel}.php";
+        if (file_exists($langFile)) {
+            $lang = [];
+            include $langFile;
+            // Use $lang array
+        }
+    }
+}
+```
+
+**Rule**: 
+- **Always use `BackendTranslations::getLangLabel()`** to get the current admin language label
+- This method returns the language from session (`$_SESSION['admin_lang_id']`), which updates when user switches language via flags
+- **Never rely on `$this->manager->lang`** directly for current language - it's stored in DB and doesn't update on language switch
+- The system (`backend/index.php`) already handles language switching correctly: it uses session language if set, otherwise falls back to manager's language from DB
+- When loading default values from language files, use `include` (not `require_once`) and reset `$lang = []` before each include to prevent variable caching issues
+
+**❌ WRONG:**
+```php
+// DON'T: Using manager->lang directly
+$currentLang = $this->manager->lang; // This is from DB, doesn't update on switch!
+
+// DON'T: Using require_once for language files (causes caching)
+require_once($langFile); // Variable $lang may be cached from previous includes
+```
+
+**✅ CORRECT:**
+```php
+// DO: Use BackendTranslations to get current language
+$currentLang = $backendTranslations->getLangLabel();
+
+// DO: Use include and reset $lang variable
+$lang = [];
+include $langFile; // Fresh load each time
+```
+
+## Backend Templates & UI Design
+
+### Standard Backend Page Structure
+
+**✅ CORRECT:**
+```smarty
+{* Title *}
+{$meta_title = $btr->module_title|escape scope=global}
+
+{*Название страницы*}
+<div class="row">
+    <div class="col-lg-12 col-md-12">
+        <div class="heading_page">{$btr->module_title|escape}</div>
+    </div>
+</div>
+
+{*Вывод успешных сообщений*}
+{if $message_success && empty($message_error)}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="alert alert--center alert--icon alert--success">
+                <div class="alert__content">
+                    <div class="alert__title">
+                        {if $message_success == 'saved'}
+                        {$btr->general_settings_saved|escape}
+                        {/if}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{/if}
+
+{*Блок Описание*}
+<div class="row d_flex">
+    <div class="col-lg-12 col-md-12">
+        <div class="alert alert--icon">
+            <div class="alert__content">
+                <div class="alert__title">{$btr->alert_description|escape}</div>
+                <p>{$btr->module_description|escape}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{*Главная форма страницы*}
+<form method="post" enctype="multipart/form-data">
+    <input type="hidden" name="session_id" value="{$smarty.session.id}">
+
+    <div class="row">
+        <div class="col-lg-12 col-md-12">
+            <div class="boxed fn_toggle_wrap">
+                <div class="heading_box">
+                    {$btr->module_settings|escape}
+                    <div class="toggle_arrow_wrap fn_toggle_card text-primary">
+                        <a class="btn-minimize" href="javascript:;" ><i class="fa fn_icon_arrow fa-angle-down"></i></a>
+                    </div>
+                </div>
+                <div class="toggle_body_wrap on fn_card">
+                    {* Content here *}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12 col-md-12">
+            <button type="submit" class="btn btn_small btn_blue float-md-right">
+                {include file='svg_icon.tpl' svgId='checked'}
+                <span>{$btr->general_apply|escape}</span>
+            </button>
+        </div>
+    </div>
+</form>
+```
+
+**Rule**: Backend pages must follow this structure:
+1. **Page Title**: Use `heading_page` class
+2. **Description Block**: Use `alert alert--icon` for module description
+3. **Settings Block**: Use `boxed fn_toggle_wrap` with `heading_box` and `toggle_body_wrap`
+4. **Apply Button**: Use `btn btn_small btn_blue float-md-right` with SVG icon
+
+### Form Elements
+
+**✅ CORRECT:**
+```smarty
+{* Single-line input *}
+<div class="heading_label">{$btr->setting_label|escape}</div>
+<div class="mb-1">
+    <input name="setting_name" class="form-control" type="text" value="{$settings->setting_name|escape}" />
+</div>
+
+{* Multi-line textarea *}
+<div class="heading_label">{$btr->setting_label|escape}</div>
+<div class="mb-1">
+    <textarea name="setting_name" class="okay_textarea" rows="3">{$settings->setting_name|escape}</textarea>
+</div>
+
+{* Select dropdown *}
+<div class="heading_label">{$btr->setting_label|escape}</div>
+<div class="mb-1">
+    <select name="setting_name" class="selectpicker form-control">
+        <option value="value1" {if $settings->setting_name == 'value1'}selected{/if}>Option 1</option>
+        <option value="value2" {if $settings->setting_name == 'value2'}selected{/if}>Option 2</option>
+    </select>
+</div>
+
+{* Information block *}
+<div class="alert alert--icon alert--info mt-1">
+    <div class="alert__content">
+        <div class="alert__title">{$btr->information_text|escape}</div>
+    </div>
+</div>
+```
+
+**Rule**: 
+- Always use `heading_label` for field labels
+- Use `form-control` class for inputs
+- Use `okay_textarea` class for textareas
+- Use `alert alert--icon alert--info` for informational messages
+- Always escape output: `{$variable|escape}`
+
+### Tables (okay_list)
+
+**✅ CORRECT:**
+```smarty
+<div class="okay_list">
+    {*Шапка таблицы*}
+    <div class="okay_list_head">
+        <div class="okay_list_heading okay_list_name">{$btr->column_name|escape}</div>
+        <div class="okay_list_heading okay_list_price">{$btr->column_price|escape}</div>
+    </div>
+
+    {*Параметры элемента*}
+    <div class="okay_list_body">
+        {foreach $items as $item}
+            <div class="okay_list_body_item">
+                <div class="okay_list_row">
+                    <div class="okay_list_boding okay_list_name">
+                        {$item->name|escape}
+                    </div>
+                    <div class="okay_list_boding okay_list_price">
+                        <input name="price[{$item->id}]" class="form-control" type="text" value="{$item->price|escape}" />
+                    </div>
+                </div>
+            </div>
+        {/foreach}
+    </div>
+</div>
+```
+
+**Rule**: 
+- Use `okay_list` structure for tables
+- `okay_list_head` for table header
+- `okay_list_heading` for column headers
+- `okay_list_body` for table body
+- `okay_list_body_item` for each row
+- `okay_list_row` for row content
+- `okay_list_boding` for cell content
+
+### Localization in Backend
+
+**✅ CORRECT:**
+```smarty
+{* All text must be localized *}
+<div class="heading_page">{$btr->module_title|escape}</div>
+<div class="heading_label">{$btr->setting_label|escape}</div>
+<span>{$btr->button_text|escape}</span>
+
+{* Currency sign from main currency *}
+{$main_currency->sign|escape}
+```
+
+**Rule**: 
+- **ALL** text in backend templates must be localized via `$btr->`
+- Use `|escape` modifier for all output
+- Access main currency: `{$main_currency->sign|escape}`
+- Never hardcode text in templates
+
+### Success/Error Messages
+
+**✅ CORRECT:**
+```smarty
+{* Success message *}
+{if $message_success && empty($message_error)}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="alert alert--center alert--icon alert--success">
+                <div class="alert__content">
+                    <div class="alert__title">
+                        {if $message_success == 'saved'}
+                        {$btr->general_settings_saved|escape}
+                        {/if}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{/if}
+
+{* Error message *}
+{if $message_error}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="alert alert--center alert--icon alert--error">
+                <div class="alert__content">
+                    <div class="alert__title">{$btr->error_message|escape}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+{/if}
+```
+
+**Rule**: 
+- Use `alert alert--center alert--icon alert--success` for success
+- Use `alert alert--center alert--icon alert--error` for errors
+- Use `alert alert--icon alert--info` for information
+- Use `alert alert--icon alert--warning` for warnings
+
+### Multilingual Settings
+
+**✅ CORRECT:**
+```php
+// In controller - Settings::update() automatically saves for current language
+if ($this->request->method('post')) {
+    $this->settings->update('module__setting_name', $this->request->post('setting_name'));
+}
+
+// In template - Settings::get() automatically retrieves for current language
+{$settings->module__setting_name|escape}
+```
+
+**Rule**: 
+- Use `Settings::update()` for multilingual settings (saves to `__settings_lang` table)
+- Use `Settings::get()` to retrieve (automatically gets current language version)
+- Use `Settings::set()` for non-multilingual settings (saves to `__settings` table)
+
+### Localized Input Fields
+
+**✅ CORRECT:**
+```smarty
+{* Localized textarea with language tabs *}
+<div class="heading_label">{$btr->setting_label|escape}</div>
+<div class="mb-1">
+    {foreach $languages as $lang}
+        <div class="{if $languages|count > 1}tab_item{/if}">
+            <textarea name="module__setting_{$lang->label}" class="form-control mb-1" rows="3">
+                {$settings->{'module__setting_' . $lang->label}|escape}
+            </textarea>
+        </div>
+    {/foreach}
+</div>
+
+{* In controller - save localized values *}
+if ($this->request->method('post')) {
+    foreach ($languagesEntity->find() as $lang) {
+        $this->settings->update(
+            'module__setting_' . $lang->label,
+            $this->request->post('module__setting_' . $lang->label)
+        );
+    }
+}
+```
+
+**Rule**: 
+- Use `{foreach $languages as $lang}` to iterate languages
+- Use `tab_item` class when multiple languages exist
+- Access settings: `{$settings->{'module__setting_' . $lang->label}|escape}`
+- Save settings: `$this->settings->update('module__setting_' . $lang->label, $value)`
+
+### Using Standard Backend Styles
+
+**✅ CORRECT:**
+```smarty
+{* Use predefined classes from backend/design/css/okay.css *}
+<div class="boxed fn_toggle_wrap">          {* Collapsible block *}
+<div class="heading_box">                   {* Block header *}
+<div class="toggle_body_wrap on fn_card">   {* Block body *}
+<div class="heading_label">                 {* Field label *}
+<div class="form-control">                  {* Input field *}
+<div class="okay_textarea">                 {* Textarea *}
+<div class="okay_list">                     {* Table container *}
+<div class="btn btn_small btn_blue">        {* Blue button *}
+<div class="alert alert--icon alert--info"> {* Info message *}
+```
+
+**Rule**: 
+- **Always** use predefined classes from `backend/design/css/okay.css`
+- Do not create custom CSS classes unless absolutely necessary
+- Follow existing OkayCMS backend design patterns
+- Check existing backend pages for reference (e.g., `backend/design/html/`)
+
+## Frontend Controllers
+
+**✅ CORRECT:**
+```php
+// Controllers/YourModuleController.php
+namespace Okay\Modules\YourModule\Controllers;
+
+use Okay\Controllers\AbstractController;
+
+class YourModuleController extends AbstractController
+{
+    public function render(
+        EntityFactory $entityFactory,
+        Design $design
+    ) {
+        // Use dependency injection
+        // Set content: $this->response->setContent('template.tpl');
+    }
+}
+```
+
+**Rule**:
+- Can extend `AbstractController` (recommended) or be standalone
+- Register routes in `Init/routes.php`
+- Use dependency injection for all services
+
+### AJAX Controllers - Getting Translations for Current Language
+
+**✅ CORRECT:**
+```php
+// Controllers/YourAjaxController.php
+namespace Okay\Modules\YourModule\Controllers;
+
+use Okay\Controllers\AbstractController;
+use Okay\Core\Languages;
+use Okay\Entities\TranslationsEntity;
+
+class YourAjaxController extends AbstractController
+{
+    public function ajaxMethod(
+        Languages $languages,
+        TranslationsEntity $translationsEntity
+    ) {
+        // Determine language from referrer (AJAX requests may not have language prefix)
+        $currentLangLabel = null;
+        
+        if (!empty($_SERVER['HTTP_REFERER'])) {
+            $referer = $_SERVER['HTTP_REFERER'];
+            if (preg_match('#/([a-z]{2})(/|$)#', $referer, $matches)) {
+                $refererLangLabel = $matches[1];
+                $allLanguages = $languages->getAllLanguages();
+                foreach ($allLanguages as $lang) {
+                    if ($lang->label === $refererLangLabel) {
+                        $languages->setLangId($lang->id);
+                        $currentLangLabel = $refererLangLabel;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Fallback to $this->language or Languages
+        if (empty($currentLangLabel)) {
+            if (!empty($this->language)) {
+                $currentLangLabel = $this->language->label;
+            } else {
+                $currentLangLabel = $languages->getLangLabel();
+            }
+        }
+        
+        // Load translations for current language (includes module translations)
+        $translations = $translationsEntity->find(['lang' => $currentLangLabel, 'force' => true]);
+        
+        // Get translation value
+        $errorMsg = isset($translations['module__error']) 
+            ? (is_object($translations['module__error']) && isset($translations['module__error']->value)
+                ? $translations['module__error']->value
+                : (is_string($translations['module__error']) ? $translations['module__error'] : 'Error'))
+            : 'Error';
+        
+        // Replace variables in translation
+        $errorMsg = str_replace('{$variable}', $value, $errorMsg);
+        
+        return $this->response->setContent(json_encode(['message' => $errorMsg]), RESPONSE_JSON);
+    }
+}
+```
+
+**Rule**:
+- **Always determine language from referrer** for AJAX controllers - referrer contains language prefix from current page URL
+- **Use `TranslationsEntity::find(['lang' => $langLabel, 'force' => true])`** to load translations (automatically includes module translations)
+- **Don't use `FrontTranslations::init()`** in AJAX controllers - it may use cached language
+- **Access translation values**: `$translations['key']->value` (result is array of objects with `value` property)
+
+### Frontend Controller Routes
+
+**❌ WRONG:**
+```php
+// Init/routes.php
+return [
+    'my_route' => [
+        'slug' => '/ajax/my_action',
+        'params' => [
+            'controller' => 'Vendor.Module.MyController', // ERROR: dot notation
+            'method' => 'myMethod',
+        ],
+        'to_front' => true,
+    ],
+];
+```
+
+**✅ CORRECT:**
+```php
+// Init/routes.php
+return [
+    'my_route' => [
+        'slug' => '/ajax/my_action',
+        'params' => [
+            'controller' => \Okay\Modules\Vendor\Module\Controllers\MyController::class,
+            'method' => 'myMethod',
+        ],
+        'to_front' => true,
+    ],
+];
+```
+
+**Rule**: Always use **full namespace with `::class` constant** for module controllers in routes. Never use dot notation (`Vendor.Module.Controller`).
+
+## Database Migrations Best Practices
+
+### Creating New Entity Tables
+
+**✅ CORRECT:**
+```php
+public function install()
+{
+    $this->migrateEntityTable(YourEntity::class, [
+        (new EntityField('id'))
+            ->setIndexPrimaryKey()
+            ->setTypeInt(11, false)
+            ->setAutoIncrement(),
+        (new EntityField('name'))
+            ->setTypeVarchar(255)
+            ->setIsLang(), // For multilingual fields
+        (new EntityField('visible'))
+            ->setTypeTinyInt(1),
+        (new EntityField('position'))
+            ->setTypeInt(11),
+    ]);
+}
+```
+
+### Adding Fields to Existing Entities
+
+**✅ CORRECT:**
+```php
+public function install()
+{
+    $this->migrateEntityField(
+        VariantsEntity::class,
+        (new EntityField('volume'))
+            ->setTypeDecimal('10,5')
+            ->setNullable() // If field can be NULL
+    );
+}
+
+public function init()
+{
+    // REQUIRED: Register field for Entity queries
+    $this->registerEntityField(VariantsEntity::class, 'volume');
+}
+```
+
+### Composite Indexes
+
+**✅ CORRECT:**
+```php
+$cityIdField = (new EntityField('city_id'))->setTypeVarchar(255, true);
+
+$this->migrateEntityTable(YourEntity::class, [
+    (new EntityField('id'))
+        ->setIndexPrimaryKey()
+        ->setTypeInt(11, false)
+        ->setAutoIncrement(),
+    (new EntityField('order_id'))
+        ->setTypeInt(11)
+        ->setIndex(null, $cityIdField), // Composite index
+    $cityIdField,
+]);
+```
+
+## Cron Tasks (Scheduler)
+
+**✅ CORRECT:**
+```php
+use Okay\Core\Scheduler\Schedule;
+
+public function init()
+{
+    $this->registerSchedule(
+        (new Schedule([YourHelper::class, 'cronMethod']))
+            ->name('Task description')
+            ->time('0 0 * * *') // Cron expression
+            ->overlap(false) // Prevent overlapping executions
+            ->timeout(3600) // Timeout in seconds
+    );
+}
+```
+
+**Rule**: Use `Schedule` class for cron tasks. Method must be static or accessible via class name.
+
+## Testing Checklist
+
+Before deploying a module:
+
+- [ ] All extenders with dependencies are registered in `services.php`
+- [ ] Chain extensions return the object parameter
+- [ ] No manual `serialize()`/`unserialize()` with `Settings`
+- [ ] Validation only runs during checkout (check `checkout` parameter)
+- [ ] Module gracefully handles empty/zero configuration (early returns)
+- [ ] AJAX operations work correctly (test add-to-cart, update cart)
+- [ ] No fatal errors in PHP error logs
+- [ ] Entity fields added via `migrateEntityField()` are registered in `init()`
+- [ ] Extender methods follow 1+N argument pattern
+- [ ] Language keys use proper prefix pattern (`vendor__module__key`)
+- [ ] Backend controllers registered and permissions set
+- [ ] Template blocks registered if needed
+- [ ] Database migrations tested (install/update methods)
+- [ ] JavaScript files placed in `design/html/` (not `design/js/`) for `addFrontBlock()`
+- [ ] Frontend controller routes use full namespace with `::class`
+- [ ] AJAX controllers determine language from referrer, not from session
+- [ ] AJAX controllers use `TranslationsEntity::find()` with `force=true` for translations
+- [ ] Backend pages follow standard OkayCMS design structure
+- [ ] All backend text is localized via `$btr->`
+- [ ] Backend uses predefined CSS classes from `okay.css`
+- [ ] Backend includes page title, description, settings block, and Apply button
+- [ ] Module version follows semantic versioning (MAJOR.MINOR.PATCH)
+- [ ] `module.json` contains required fields: version, vendor.email, vendor.site
+- [ ] Template modifications (if any) are defined in `module.json` modifications section
+- [ ] Smarty plugins (if any) are registered in `Init/SmartyPlugins.php`
+- [ ] CSS/JS files are registered in `design/css.php` and `design/js.php`
+- [ ] Payment/Delivery modules have `settings.xml` file
+- [ ] Module preview image (preview.*) is provided (optional but recommended)
+
+## Naming Conventions
+
+### Module Structure
+- **Namespace**: `Okay\Modules\Vendor\ModuleName`
+- **Directory**: `Okay/Modules/Vendor/ModuleName/`
+- **Extenders**: `Extenders/FrontExtender.php`, `Extenders/BackendExtender.php`
+- **Entities**: `Entities/YourEntity.php` (must extend `Okay\Core\Entity\Entity`)
+- **Helpers**: `Helpers/YourHelper.php` (must end with `Helper` suffix)
+- **Controllers**: 
+  - Frontend: `Controllers/YourController.php`
+  - Backend: `Backend/Controllers/YourAdmin.php`
+
+### Permission Names
+**✅ CORRECT:**
+```php
+// Format: vendor__module__permission_name
+const PERMISSION = 'maxit__min_order_amount'; // Double underscore
+$this->addPermission('maxit__min_order_amount');
+```
+
+**Rule**: Permission names follow the same naming pattern: `vendor__module__permission_name` (double underscore between parts)
+
+### Language Keys
+**✅ CORRECT:**
+```php
+// In language files - format: vendor__module__variable_name
+$lang['maxit__min_order__error'] = 'Error message';
+$lang['maxit__min_order__error_title'] = 'Error';
+$lang['maxit__min_order__title'] = 'Module Title';
+
+// In templates
+{$lang->maxit__min_order__error}
+{$lang->maxit__min_order__error_title}
+```
+
+**❌ WRONG:**
+```php
+// Wrong: single underscore, no vendor prefix, wrong format
+$lang['min_order_error'] = 'Error'; // Missing vendor__module prefix
+$lang['maxit_min_order_error'] = 'Error'; // Single underscore instead of double
+$lang['MaxIT__MinOrder__Error'] = 'Error'; // PascalCase instead of lowercase
+```
+
+**Rule**: 
+- **Format**: `vendor__module__variable_name` (lowercase, double underscore between parts)
+- **Parts**: `vendor` (lowercase vendor name) + `__` + `module` (lowercase module name) + `__` + `variable_name` (snake_case)
+- **Example**: `maxit__min_order__error_title` where:
+  - `maxit` = vendor (MaxIT)
+  - `min_order` = module (MinOrderAmount → min_order)
+  - `error_title` = variable name
+- Use **double underscore** (`__`) to separate vendor, module, and variable parts
+- Use **single underscore** (`_`) within variable name parts (e.g., `error_title`, not `errortitle`)
+- All parts must be **lowercase**
+
+### Settings Keys
+**✅ CORRECT:**
+```php
+// Use same format: vendor__module__setting_name
+$this->settings->set('maxit__min_order_amount', $value);
+$this->settings->set('maxit__min_order__error', $errorText);
+$value = $this->settings->get('maxit__min_order_amount');
+```
+
+**Rule**: Settings keys follow the same naming pattern as language keys: `vendor__module__setting_name`
+
+## Common Patterns
+
+### Extending Backend Menu
+
+**✅ CORRECT:**
+```php
+public function init()
+{
+    $this->extendBackendMenu('left_menu_title', [
+        'left_menu_title' => ['Controller1Admin', 'Controller2Admin'],
+    ]);
+}
+```
+
+### Extending Object Update in Admin
+
+**✅ CORRECT:**
+```php
+public function init()
+{
+    $this->extendUpdateObject(
+        'Vendor.Module.EntityName', // Full entity name
+        'permission_name',
+        YourEntity::class
+    );
+}
+```
+
+### Working with Multilingual Data
+
+**✅ CORRECT:**
+```php
+use Okay\Core\Languages;
+
+$languages = $SL->getService(Languages::class);
+$currentLangId = $languages->getLangId();
+
+// Switch language for operations
+foreach ($languages->getAllLanguages() as $lang) {
+    $languages->setLangId($lang->id);
+    $entity->update($id, ['name' => $translatedName]);
+}
+
+// Restore original language
+$languages->setLangId($currentLangId);
+```
+
+## Performance Considerations
+
+1. **Entity Queries**: Use `cols()` to limit selected columns when possible
+2. **No Limit**: Use `noLimit()` carefully - can cause performance issues with large datasets
+3. **Mapped Results**: Use `mappedBy('id')` instead of manual array building
+4. **Early Returns**: Check conditions early to avoid unnecessary processing
+5. **Caching**: Consider caching for frequently accessed data (like delivery settings)
+
+## Security Best Practices
+
+1. **Input Validation**: Always validate user input in extenders
+2. **SQL Injection**: Entity methods handle this automatically, but be careful with custom queries
+3. **Permissions**: Always set proper permissions for backend controllers
+4. **Settings**: Never expose sensitive data in settings (use separate secure storage)
+5. **XSS Prevention**: Use Smarty escaping in templates: `{$variable|escape}`
+
+## Debugging Tips
+
+1. **Entity Queries**: Use `->debug()` or `->debugPrint()` to see SQL queries
+2. **Error Logs**: Check `Okay/log/` directory for errors
+3. **Extender Execution**: Use `ExtenderFacade::execute()` return values to trace execution
+4. **Service Locator**: Use `ServiceLocator::getInstance()` when DI is not available
+5. **Settings Values**: Check database `__settings` table to verify saved values
+
+## References
+
+- Settings class: [Okay/Core/Settings.php](mdc:Okay/Core/Settings.php)
+- Chain Extender: [Okay/Core/Modules/Extender/ChainExtender.php](mdc:Okay/Core/Modules/Extender/ChainExtender.php)
+- Example services: [Okay/Modules/OkayCMS/DeliveryFields/Init/services.php](mdc:Okay/Modules/OkayCMS/DeliveryFields/Init/services.php)
+- Backend styles: [backend/design/css/okay.css](mdc:backend/design/css/okay.css)
+- Backend templates: [backend/design/html/](mdc:backend/design/html/)
+- Entity documentation: [docs/entities.md](mdc:docs/entities.md)
+- Module documentation: [docs/modules/README.md](mdc:docs/modules/README.md)
+- Extenders documentation: [docs/modules/extenders.md](mdc:docs/modules/extenders.md)

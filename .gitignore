@@ -1,37 +1,83 @@
-compiled/*/*.php
-Okay/xml/compiled/*.php
+######################################
+# 1. СИСТЕМНЫЕ ПАПКИ И КЭШ (КОРЕНЬ)
+#######################################
 /vendor/
-backend/design/compiled/*.php
-backend/files/*/*.*
-!backend/files/*/.keep_folder
+/.ddev/
+/.devcontainer/
+.phpunit.result.cache
 
-files/**/*.*
-!files/**/*.phtml
-!files/**/*.php*
-!files/**/*.cgi
-!files/**/*.exe
-!files/**/*.pl
-!files/**/*.asp
-!files/**/*.aspx
-!files/**/*.shtml
-!files/**/*.shtm
-!files/**/*.fcgi
-!files/**/*.fpl
-!files/**/*.jsp
-!files/**/*.htm
-!files/**/*.html
-!files/**/*.wml
-!files/originals/payments/*.png
-!files/**/.gitignore
-!files/lang/*.*
-files/thumbs/*
+# Кэши
 cache/
+# Игнорировать любые файлы .php прямо внутри любой папки 'compiled'
+compiled/*.php
+compiled/*/*.php
 
+#######################################
+# 2. КОНФИГИ И ЛОКАЛЬНЫЕ НАСТРОЙКИ
+#######################################
+/config/config.php
+# /robots.txt - Обычно его держат в Git, раскомментируй если он уникален для дева
+
+#######################################
+# 3. МОДУЛИ
+#######################################
+# Игнорируем всё в Modules
+/Okay/Modules/*
+# Исключение: Родные модули ядра
+!/Okay/Modules/OkayCMS/
+
+#######################################
+# 4. ЛОГИ
+#######################################
+# Игнорируем всё содержимое
 /Okay/log/*
-config/config.local.php
-design/*/lang/local.*.php
-#design/*/css/theme-settings.css
+# Разрешаем структуру папок
+!/Okay/log/**/
+
+#######################################
+# 5. ФАЙЛЫ ПОЛЬЗОВАТЕЛЯ (BACKEND)
+#######################################
+# Игнорируем файлы внутри подпапок backend/files
+/backend/files/*/*
+###backend/files/*/*.*
+
+# Оставляем заглушки для сохранения структуры
+!/backend/files/*/.keep_folder
+
+#######################################
+# 6. ФАЙЛЫ ПОЛЬЗОВАТЕЛЯ (FRONTEND FILES)
+#######################################
+# 6.1. Закрываем всё
+/files/*
+
+# 6.2. Разрешаем структуру папок
+!/files/**/
+
+# 6.3. Разрешаем служебные файлы внутри files
+!/files/**/.htaccess
+!/files/**/.keep_folder
+!/files/**/.gitignore
+
+# 6.4. Разрешаем КАРТИНКИ
+!/files/**/*.jpg
+!/files/**/*.jpeg
+!/files/**/*.png
+!/files/**/*.gif
+!/files/**/*.webp
+!/files/**/*.svg
+!/files/**/*.ico
+
+# 6.5. Исключение для миниатюр (thumbs)
+# Снова игнорируем содержимое thumbs, даже если там картинки
+/files/thumbs/*
+/files/resized/*
+# Но оставляем саму папку
+!/files/thumbs/.keep_folder
+
+#######################################
+# 7. ГЛОБАЛЬНЫЕ РАЗРЕШЕНИЯ (В самом низу!)
+# Гарантируем, что эти файлы не пропадут нигде
+#######################################
 !*.keep_folder
 !*.htaccess
-.phpunit.result.cache
-robots.txt
+!*.gitignore

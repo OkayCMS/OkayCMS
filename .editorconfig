@@ -1,0 +1,32 @@
+# https://editorconfig.org
+root = true
+
+# --- Базовые настройки для всех файлов ---
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 4
+end_of_line = lf              # Важно для Docker/DDEV! Принудительно ставим Linux-переводы строк.
+insert_final_newline = true   # Git любит пустую строку в конце файла
+trim_trailing_whitespace = true # Удаляет лишние пробелы в конце строк при сохранении
+
+# --- Настройки для WEB (Frontend) ---
+# Для JSON, YAML, JS, HTML часто удобнее 2 пробела (экономит место на экране ноутбука)
+[*.{json,yaml,yml,js,css,scss,html,md,mdc}]
+indent_size = 2
+
+# --- Настройки для PHP (Backend) ---
+# Стандарт PSR-12 требует 4 пробела
+[*.php]
+indent_size = 4
+
+# --- Настройки для Smarty ---
+# Обычно в CMS используют 4 пробела (как в PHP) или табы.
+# Ставим 4 пробела для совместимости.
+[*.{tpl,tpl.php}]
+indent_size = 4
+
+# --- Настройки для Bash скриптов (DDEV hooks) ---
+[*.sh]
+end_of_line = lf
+indent_size = 2

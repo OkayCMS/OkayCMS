@@ -3,16 +3,16 @@
 [database]
 
 ;Сервер базы данных
-db_server = localhost
+db_server = db
 
 ;Пользователь базы данных
-db_user = root
+db_user = db
 
 ;Пароль к базе
-db_password = ""
+db_password = "db"
 
 ;Имя базы
-db_name = okaycms-git
+db_name = db
 
 ;Драйвер базы данных
 db_driver = mysql
@@ -42,7 +42,7 @@ php_locale_monetary = ru_RU
 php_locale_numeric = ru_RU
 php_locale_time = ru_RU
 ;php_timezone = Europe/Moscow
-debug_mode = false
+debug_mode = true
 tmp_dir = tmp/
 
 [smarty]

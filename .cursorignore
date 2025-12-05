@@ -1,0 +1,12 @@
+.ddev/
+.git/
+.vscode/
+vendor/
+cache/
+compiled/
+files/
+**/*.log
+**/*.lock
+**/*.map
+**/.keep_folder
+.phpstorm.meta.php

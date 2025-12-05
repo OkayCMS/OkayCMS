@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "Context7": {
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {}
+    },
+    "browser-tools": {
+      "command": "npx @agentdeskai/browser-tools-mcp@latest",
+      "env": {},
+      "args": []
+    }
+  }
+}

@@ -1,0 +1,185 @@
+---
+description: The STRICT SOURCE OF TRUTH for .mdc rule syntax, metadata, naming, and file organization. Activates when the user wants to create, format, validate, or organize rules to ensure compliance with project standards
+globs:
+  - "**/*.mdc"
+alwaysApply: false
+---
+
+# Cursor Rules Management Guide
+
+## When to use this rule
+
+- Use this rule whenever you create or update .mdc files in .cursor/rules
+
+- Apply it as Agent Requested or via @Cursor Rules when asking the agent to generate or refactor rules
+
+## Rule Structure Format
+
+Every cursor rule must follow this exact metadata and content structure:
+
+````markdown
+---
+description: Short description of the rule's purpose
+globs: optional/path/pattern/**/*
+alwaysApply: false
+---
+
+# Rule Title
+
+Main content explaining the rule with markdown formatting
+
+1. Step-by-step instructions
+2. Code examples
+3. Guidelines
+
+Example:
+
+```typescript
+// Good
+function goodExample() {
+  // Correct implementation
+}
+
+// Bad example
+function badExample() {
+  // Incorrect implementation
+}
+```
+````
+
+## File Organization
+
+### Allowed Locations
+
+Cursor rules can be placed in the project root or scoped to specific directories:
+
+1. **Global Rules:** `PROJECT_ROOT/.cursor/rules/` (apply to the whole project)
+2. **Scoped Rules:** `path/to/module/.cursor/rules/` (apply to specific modules/folders)
+
+### Directory Structure Example
+
+```
+PROJECT_ROOT/
+├── .cursor/
+│ └── rules/ # Global standards
+│     ├── cursor-rules.mdc
+│     ├── self-improve.mdc
+│     ├── another-rule.mdc
+│     └── ...
+├── backend/
+│ └── .cursor/
+│     └── rules/ # Backend specific
+│         ├── symfony-best-practices.mdc
+│         ├── your-rule-name.mdc
+│         ├── another-rule.mdc
+│         └── ...
+├── frontend/
+│ └── .cursor/
+│     └── rules/ # Frontend specific
+│         ├── smarty-templates.mdc
+│         ├── your-rule-name.mdc
+│         ├── another-rule.mdc
+│         └── ...
+└── ...
+```
+
+### Naming Conventions
+
+- Use **kebab-case** for all filenames
+- Always use **.mdc** extension
+- Make names **descriptive** of the rule's purpose
+- Examples: `typescript-style.mdc`, `tailwind-styling.mdc`, `mdx-documentation.mdc`
+
+## Content Guidelines
+
+### Scoping & Globs
+
+- **Global Rules:** Use strict globs if needed, or leave empty to apply everywhere.
+- **Nested Rules:** - Ideally, set `globs` to match the directory scope: `backend/**/*.php`
+  - Or rely on Cursor's implicit directory scoping if supported
+  - **Best Practice:** Explicitly define `globs` relative to the project root to avoid ambiguity
+
+### Writing Effective Rules
+
+1. **Keep rules under 500 lines** - Split large rules into multiple, composable rules
+2. **Avoid vague guidance** - Write rules like clear internal docs
+3. **Create concise rules** that capture the most important information while minimizing token usage
+4. **Be specific and actionable** - Provide clear instructions
+5. **Include code examples** - Show both good and bad practices
+6. **Reference existing files** - Use `@filename.ext` format
+7. **Keep it focused** - One rule per concern/pattern
+8. **Add context** - Explain why the rule exists
+
+### Code Examples Format
+
+```typescript
+// ✅ Good: Clear and follows conventions
+function processUser({ id, name }: { id: string; name: string }) {
+  return { id, displayName: name };
+}
+
+// ❌ Bad: Unclear parameter passing
+function processUser(id: string, name: string) {
+  return { id, displayName: name };
+}
+```
+
+### File References
+
+When referencing project files in rules, always use the `@` symbol
+
+**Correct:**
+
+- `@filename.ext` (if unique)
+- `@folder/filename.ext` (if strictly necessary for disambiguation)
+
+**Incorrect:**
+
+- `filename.ext` (Missing `@` symbol)
+- `[filename.ext](folder/filename.ext)` (Markdown link)
+
+## Forbidden Locations
+
+**Never** place rule files in:
+
+- Arbitrary folders without a `.cursor/rules/` parent directory (e.g., directly in `src/`)
+- Hidden system folders (except `.cursor/`)
+- `node_modules` or `vendor` directories
+
+### Singleton Rules (Root Only)
+
+The following meta-rules must **ONLY** exist in the global root directory (`.cursor/rules/`) and never in subdirectories:
+
+- `cursor-rules.mdc`
+- `self-improve.mdc`
+
+## Rule Categories
+
+Organize rules by purpose:
+
+- **Code Style**: `typescript-style.mdc`, `css-conventions.mdc`
+- **Architecture**: `component-patterns.mdc`, `folder-structure.mdc`
+- **Documentation**: `mdx-documentation.mdc`, `readme-format.mdc`
+- **Tools**: `testing-patterns.mdc`, `build-config.mdc`
+- **Meta**: `cursor-rules.mdc`, `self-improve.mdc`
+
+## Best Practices
+
+### Rule Creation Checklist
+
+- [ ] File placed in `.cursor/rules/` directory
+- [ ] Filename uses kebab-case with `.mdc` extension
+- [ ] Includes proper metadata section
+- [ ] Contains clear title and sections
+- [ ] Keep rules under 500 lines, Split large rules into multiple, composable rules
+- [ ] Create concise rules that capture the most important information while minimizing token usage
+- [ ] Provides both good and bad examples
+- [ ] References relevant project files
+- [ ] Follows consistent formatting
+
+### Maintenance
+
+- **Review regularly** - Keep rules up to date with codebase changes
+- **Update examples** - Ensure code samples reflect current patterns
+- **Cross-reference** - Link related rules together
+- **Document changes** - Update rules when patterns evolve

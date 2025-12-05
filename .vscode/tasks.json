@@ -1,0 +1,74 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "DDEV: Enable Xdebug",
+      "type": "shell",
+      "command": "ddev xdebug on",
+      "presentation": {
+        "reveal": "silent",
+        "close": true
+      }
+    },
+    {
+      "label": "DDEV: Disable Xdebug",
+      "type": "shell",
+      "command": "ddev xdebug off",
+      "presentation": {
+        "reveal": "silent",
+        "close": true
+      }
+    },
+    {
+      "label": "Tests: PHPUnit",
+      "type": "shell",
+      "command": "vendor/bin/phpunit",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      // Вместо "$phpunit" пишем вот это определение:
+      "problemMatcher": {
+        "owner": "php",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": {
+          // Регулярка для захвата ошибки: "1) Tests\Unit\ExampleTest::testBasicTest"
+          // Обычно достаточно стандартного php паттерна, но для PHPUnit он сложнее.
+          // Самый простой вариант для 8GB - использовать базовый php (он иногда ловит)
+          // или "$gcc" (иногда подходит).
+          // Но лучше всего просто оставить [] если регулярка пугает.
+
+          // НО! Есть встроенный хак. Часто подходит "$gcc" для схожих форматов,
+          // однако для PHPUnit лучше всего использовать пустоту, если нет расширения.
+          // Ниже - попытка универсального матчера, если очень хочется:
+          "regexp": "^(.*):(\\d+)$",
+          "file": 1,
+          "line": 2
+        }
+      }
+    },
+    {
+      "label": "Composer: Install",
+      "type": "shell",
+      "command": "composer install",
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "Composer: Update",
+      "type": "shell",
+      "command": "composer update",
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "Cache: Clear",
+      "type": "shell",
+      "command": "rm -rf var/cache/*", // Быстрая очистка для CMS
+      "problemMatcher": []
+    }
+  ]
+}

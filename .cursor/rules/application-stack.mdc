@@ -1,0 +1,504 @@
+---
+description: OkayCMS application stack, dependencies, versions, and best practices
+alwaysApply: true
+---
+
+# OkayCMS Application Stack
+
+This rule documents the complete technology stack, dependency versions, and best practices for the OkayCMS application.
+
+## Application Overview
+
+**OkayCMS v4.5.2** - PHP-based e-commerce CMS
+- **License**: LGPL-3.0-or-later
+- **Type**: PHP Project (Composer-managed)
+- **Homepage**: https://okay-cms.com
+
+## Core Runtime Stack
+
+### PHP Runtime
+
+**Constraint**: `^7.4 || ^8.0`  
+**Current Usage**: PHP 7.4+ or 8.0+
+
+⚠️ **CRITICAL SECURITY WARNING**:
+- **PHP 7.4 EOL**: November 28, 2022 (no security updates)
+- **PHP 8.0 EOL**: November 26, 2023 (no security updates)
+- **Recommendation**: Upgrade to PHP 8.1+ (8.1 EOL: Dec 31, 2025) or PHP 8.2+ (EOL: Dec 31, 2026)
+
+**Best Practices**:
+- Use PHP 8.1+ in production for security support
+- Test thoroughly when upgrading PHP versions
+- Monitor deprecation warnings in PHP 8.x
+- Use `composer.json` constraint `^8.1` or `^8.2` for new projects
+
+**Required PHP Extensions**:
+- `ext-SimpleXML`: XML parsing
+- `ext-XMLReader`: XML reading
+- `ext-pdo`: Database abstraction (PDO)
+- `ext-json`: JSON encoding/decoding
+- `ext-curl`: HTTP client functionality
+- `ext-mbstring`: Multibyte string handling
+- `ext-zip`: ZIP archive handling
+
+### Database
+
+**Database**: MySQL/MariaDB (via PDO)  
+**Query Builder**: Aura SQLQuery + Aura SQL  
+**Connection**: PDO with Aura.Sql extension
+
+## Template Engine
+
+### Smarty
+
+**Package**: `smarty/smarty`  
+**Constraint**: `~3.1`  
+**Installed Version**: `v3.1.40`
+
+**Best Practices**:
+- Smarty 3.1 is stable but older (released 2011)
+- Consider migrating to Smarty 4.x for modern features (requires testing)
+- Template files use `.tpl` extension
+- Templates located in `design/` (frontend) and `backend/design/html/` (admin)
+- Use Smarty plugins in `Okay/Core/SmartyPlugins/`
+
+**Usage Pattern**:
+```php
+// Template assignment
+$design->assign('variable', $value);
+
+// Template rendering
+$design->fetch('template.tpl');
+```
+
+## HTTP & Routing
+
+### Bramus Router
+
+**Package**: `bramus/router`  
+**Constraint**: `^1.4`  
+**Installed Version**: `1.6`
+
+**Best Practices**:
+- Lightweight routing library (last updated 2021)
+- Route definitions in `Okay/Core/Routes/` (37 *.php files)
+- Use named routes for URL generation
+- Supports route parameters and middleware
+
+**Usage Pattern**:
+```php
+$router->get('/products/{id}', function($id) {
+    // Handle product route
+});
+```
+
+## Dependency Injection
+
+### PSR-11 Container
+
+**Package**: `psr/container`  
+**Constraint**: `^1.1`  
+**Installed Version**: `1.1.1`
+
+**Implementation**: Custom container in `Okay/Core/OkayContainer/`  
+**Configuration**: `Okay/Core/config/container.php`
+
+**Best Practices**:
+- Use dependency injection for all services
+- Register services in `container.php`
+- Avoid service locator pattern where possible
+- Use constructor injection
+
+## Logging
+
+### Monolog
+
+**Package**: `monolog/monolog`  
+**Constraint**: `^1.24`  
+**Installed Version**: `1.26.1`
+
+**PSR-3 Interface**: `psr/log` v1.1.4
+
+**Best Practices**:
+- Use PSR-3 LoggerInterface for all logging
+- Configure log handlers in container
+- Use appropriate log levels (DEBUG, INFO, WARNING, ERROR)
+- Log files in `Okay/log/` directory
+- Consider structured logging for production
+
+**Usage Pattern**:
+```php
+/** @var LoggerInterface $logger */
+$logger = $DI->get(LoggerInterface::class);
+$logger->info('User action', ['user_id' => $userId]);
+```
+
+## Email
+
+### PHPMailer
+
+**Package**: `phpmailer/phpmailer`  
+**Constraint**: `~6.0`  
+**Installed Version**: `v6.5.1`
+
+**Best Practices**:
+- PHPMailer 6.x is stable and well-maintained
+- Use SMTP authentication for production
+- Configure email settings in `config/config.php`
+- Use HTML email templates for better formatting
+- Validate email addresses before sending
+- Handle exceptions properly
+
+**Security Notes**:
+- Always use TLS/SSL for SMTP connections
+- Never expose SMTP credentials in version control
+- Use environment variables for sensitive config
+
+## Database Layer
+
+### Aura SQL & SQLQuery
+
+**Packages**:
+- `aura/sql`: `^3.0` → Installed: `3.0.0`
+- `aura/sqlquery`: `^2.7` → Installed: `2.7.1`
+
+**Best Practices**:
+- Aura SQL extends PDO with lazy connections and query profiling
+- Use Aura SQLQuery for building queries programmatically
+- Entity classes in `Okay/Entities/` use Aura SQL
+- Always use prepared statements (Aura handles this)
+- Enable query profiling in development
+
+**Usage Pattern**:
+```php
+// Query building
+$select = $queryFactory->newSelect();
+$select->from('products')
+       ->where('active = ?', 1)
+       ->orderBy(['id DESC']);
+
+// Execution
+$products = $db->fetchAll($select);
+```
+
+**Security**:
+- All queries use parameter binding automatically
+- Never concatenate user input into SQL
+- Use entity methods for database operations
+
+## Image Processing
+
+### Gregwar Image
+
+**Package**: `gregwar/image`  
+**Constraint**: `2.*`  
+**Installed Version**: `v2.1.0`
+
+**Best Practices**:
+- Used for image resizing and manipulation
+- Helper class: `Okay/Helpers/ResizeHelper.php`
+- Original images in `files/originals/`
+- Thumbnails in `files/thumbs/`
+- Always validate image types and sizes
+- Use WebP conversion for modern browsers
+
+### WebP Convert
+
+**Package**: `rosell-dk/webp-convert`  
+**Constraint**: `^2.3`  
+**Installed Version**: `v2.4.0`
+
+**Best Practices**:
+- Convert images to WebP format for better performance
+- Fallback to original format if WebP unavailable
+- Use in conjunction with Gregwar Image
+
+## Console & CLI
+
+### Symfony Console
+
+**Package**: `symfony/console`  
+**Constraint**: `^5.3`  
+**Installed Version**: `v5.3.7`
+
+**CLI Entry Point**: `ok` (Symfony Console application)
+
+**Best Practices**:
+- Symfony Console 5.3 is LTS (supported until Nov 2023)
+- Commands defined in `Okay/Core/Console/`
+- Use command classes extending Symfony Command
+- Document commands with descriptions and help text
+
+**Related Packages**:
+- `symfony/process`: `^5.3` → `v5.3.7` (process execution)
+- `symfony/lock`: `^5.3` → `v5.3.7` (locking mechanism)
+- `dragonmantank/cron-expression`: `^3.1` → `v3.1.0` (cron parsing)
+
+**Usage**:
+```bash
+php ok database:deploy
+php ok [command] [options]
+```
+
+## Frontend Assets
+
+### Minification
+
+**Package**: `matthiasmullie/minify`  
+**Constraint**: `^1.3`  
+**Installed Version**: `1.3.66`
+
+**Best Practices**:
+- Minify CSS and JavaScript in production
+- Keep source maps for debugging
+- Use `axy/sourcemap` (`^0.1.4` → `0.1.5`) for source map generation
+
+### CSS Parsing
+
+**Package**: `sabberworm/php-css-parser`  
+**Constraint**: `*` (any version)  
+**Installed Version**: `8.3.1`
+
+**Best Practices**:
+- Used for CSS manipulation and parsing
+- Validate CSS before processing
+- Handle parsing errors gracefully
+
+## Utilities
+
+### Mobile Detection
+
+**Package**: `mobiledetect/mobiledetectlib`  
+**Constraint**: `^2.8`  
+**Installed Version**: `2.8.37`
+
+**Best Practices**:
+- Detect mobile devices for responsive behavior
+- Use for mobile-specific templates or features
+- Consider using CSS media queries as primary method
+- Mobile detection as fallback/enhancement
+
+### Phone Number Validation
+
+**Package**: `giggsey/libphonenumber-for-php`  
+**Constraint**: `^8.12`  
+**Installed Version**: `8.12.36`
+
+**Best Practices**:
+- Validate and format phone numbers
+- Support international formats
+- Use for user registration and contact forms
+
+### Referer Parsing
+
+**Package**: `snowplow/referer-parser`  
+**Constraint**: `^0.2.0`  
+**Installed Version**: `0.2.0`
+
+**Best Practices**:
+- Parse HTTP referer headers
+- Used in `Okay/Core/UserReferer/`
+- Track traffic sources
+
+### Class Finder
+
+**Package**: `haydenpierce/class-finder`  
+**Constraint**: `^0.3.3`  
+**Installed Version**: `0.3.3`
+
+**Best Practices**:
+- Find classes by namespace or pattern
+- Used for module discovery
+- Cache results in production
+
+## AI Integration
+
+### OpenAI PHP SDK
+
+**Package**: `orhanerday/open-ai`  
+**Constraint**: `^5.0`  
+**Installed Version**: `5.0`
+
+**Best Practices**:
+- Used for AI-powered features (product descriptions, etc.)
+- Helpers in `Okay/Helpers/AiRequests/`
+- Store API keys securely (environment variables)
+- Implement rate limiting
+- Handle API errors gracefully
+- Cache AI responses when appropriate
+
+**Security**:
+- Never commit API keys to version control
+- Use environment variables or secure config
+- Validate and sanitize AI-generated content
+
+## Development Dependencies
+
+### PHPUnit
+
+**Package**: `phpunit/phpunit`  
+**Constraint**: `^9.5`  
+**Installed Version**: `9.5.10`
+
+**Best Practices**:
+- PHPUnit 9.5 is EOL (last release 2021)
+- Consider upgrading to PHPUnit 10.x for PHP 8.1+ support
+- Tests in `tests/` directory
+- Configuration in `phpunit.xml`
+- Write unit tests for critical business logic
+- Use test doubles for external dependencies
+
+**Upgrade Path**:
+- PHPUnit 10.x requires PHP 8.1+
+- Update test syntax (assertions, setUp/tearDown)
+- Review breaking changes in migration guide
+
+### Debug Bar
+
+**Package**: `maximebf/debugbar`  
+**Constraint**: `^1.16`  
+**Installed Version**: `v1.17.2`
+
+**Best Practices**:
+- Development-only debugging toolbar
+- Disable in production (`debug_mode = false`)
+- Use for profiling and debugging
+- Located in `Okay/Core/DebugBar/`
+
+### Symfony Var Dumper
+
+**Package**: `symfony/var-dumper`  
+**Constraint**: `^5.4.6`  
+**Installed Version**: `v5.4.6`
+
+**Best Practices**:
+- Better `var_dump()` alternative
+- Use `dump()` function for debugging
+- Disable in production
+
+## Version Management Strategy
+
+### Composer Constraints
+
+**Current Strategy**: Mixed (some loose, some strict)
+
+**Recommendations**:
+- Use `^` (caret) for minor updates: `^8.1` allows 8.1.x but not 9.0
+- Use `~` (tilde) for patch updates: `~3.1` allows 3.1.x but not 3.2
+- Avoid `*` (wildcard) - too permissive
+- Pin exact versions for critical dependencies in production
+
+**Example Improvements**:
+```json
+// Current
+"phpmailer/phpmailer": "~6.0"  // Allows 6.0.x, 6.1.x, etc.
+
+// Better
+"phpmailer/phpmailer": "^6.5"  // Allows 6.5.x, 6.6.x, but not 7.0
+```
+
+### Security Updates
+
+**Best Practices**:
+- Run `composer update` regularly for security patches
+- Use `composer audit` (Composer 2.4+) to check vulnerabilities
+- Monitor security advisories for dependencies
+- Set up Dependabot or similar for automated updates
+- Test updates in staging before production
+
+## Dependency Categories Summary
+
+### Core Framework
+- **Routing**: Bramus Router 1.6
+- **Templates**: Smarty 3.1.40
+- **DI Container**: PSR-11 (custom implementation)
+- **Logging**: Monolog 1.26.1 (PSR-3)
+
+### Database
+- **Query Builder**: Aura SQLQuery 2.7.1
+- **PDO Extension**: Aura SQL 3.0.0
+
+### Utilities
+- **Email**: PHPMailer 6.5.1
+- **Images**: Gregwar Image 2.1.0, WebP Convert 2.4.0
+- **Mobile**: MobileDetect 2.8.37
+- **Phone**: libphonenumber 8.12.36
+- **Minification**: Minify 1.3.66
+
+### Console & Process
+- **CLI**: Symfony Console 5.3.7
+- **Process**: Symfony Process 5.3.7
+- **Locking**: Symfony Lock 5.3.7
+- **Cron**: Cron Expression 3.1.0
+
+### Development
+- **Testing**: PHPUnit 9.5.10
+- **Debugging**: DebugBar 1.17.2, Var Dumper 5.4.6
+
+### AI & Modern Features
+- **OpenAI**: OpenAI PHP SDK 5.0
+
+## Critical Upgrade Recommendations
+
+### High Priority (Security)
+
+1. **PHP Runtime**: Upgrade to PHP 8.1+ or 8.2+
+   - PHP 7.4 and 8.0 are EOL
+   - Test thoroughly before upgrading
+   - Update `composer.json` constraint
+
+2. **PHPUnit**: Upgrade to PHPUnit 10.x
+   - Requires PHP 8.1+
+   - Update test syntax
+   - Better PHP 8.x support
+
+### Medium Priority (Maintenance)
+
+1. **Smarty**: Consider Smarty 4.x migration
+   - Modern features and performance
+   - Requires template testing
+   - Breaking changes possible
+
+2. **Symfony Components**: Upgrade to Symfony 6.x
+   - Better PHP 8.x support
+   - Improved performance
+   - LTS versions available
+
+### Low Priority (Optional)
+
+1. **Bramus Router**: Consider modern alternatives
+   - Last updated 2021
+   - Consider FastRoute or Symfony Routing
+
+2. **Monolog**: Already on latest 1.x
+   - Consider Monolog 2.x for PHP 8.1+ (breaking changes)
+
+## Security Best Practices
+
+1. **Never commit secrets**: Use environment variables or `config.local.php` (gitignored)
+2. **Keep dependencies updated**: Regular `composer update` and security audits
+3. **Use prepared statements**: Aura SQL handles this automatically
+4. **Validate all input**: User input, file uploads, API responses
+5. **Sanitize output**: Use Smarty escaping, HTML sanitization
+6. **Enable HTTPS**: Especially for admin panel and user data
+7. **Rate limiting**: For API endpoints and forms
+8. **Error handling**: Don't expose sensitive information in errors
+
+## Performance Best Practices
+
+1. **Enable OPcache**: For PHP bytecode caching
+2. **Use query caching**: For frequently accessed data
+3. **Minify assets**: CSS/JS minification in production
+4. **Image optimization**: WebP conversion, proper sizing
+5. **Database indexing**: Ensure proper indexes on frequently queried columns
+6. **Lazy loading**: Use Aura SQL lazy connections
+7. **Template caching**: Smarty template compilation caching
+
+## References
+
+- Composer config: [composer.json](mdc:composer.json)
+- Composer lock: [composer.lock](mdc:composer.lock)
+- PHP version info: https://www.php.net/supported-versions.php
+- Composer documentation: https://getcomposer.org/doc/
+alwaysApply: true
+---

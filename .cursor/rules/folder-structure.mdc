@@ -1,0 +1,323 @@
+---
+description: OkayCMS project directory structure and important files reference
+alwaysApply: true
+---
+
+# OkayCMS Directory Structure
+
+This rule documents the complete directory structure and important files in the OkayCMS project.
+
+## Project Overview
+
+**OkayCMS v4.5.2** - PHP-based CMS for e-commerce and content management.
+- **PHP Version**: ^7.4
+- **Template Engine**: Smarty ~3.1
+- **Namespace**: `Okay\` (PSR-4 autoloaded from `Okay/`)
+- **Admin Namespace**: `Okay\Admin\` (PSR-4 autoloaded from `backend/`)
+
+## Root Directory Structure
+
+```markdown:/root/.cursor/worktrees/html__Container_DDEV_Web_Container__8623d640b8fa__/kcg/.cursor/rules/folder-structure.mdc
+<code_block_to_apply_changes_from>
+kcg/
+├── .cursor/rules/          # Cursor IDE rules
+├── .github/                # GitHub templates
+├── 1DB_changes/            # Database migrations (52 *.sql, 1 *.php)
+├── backend/                # Admin panel backend
+├── config/                 # Application configuration
+├── design/                 # Frontend theme templates
+├── dev/                    # Development tools
+├── docs/                   # Documentation (29 *.md)
+├── files/                  # User-uploaded files
+├── js_libraries/           # Third-party JS libraries
+├── Okay/                   # Core framework (PSR-4: Okay\)
+├── tests/                  # PHPUnit tests
+├── composer.json           # PHP dependencies
+├── index.php               # Frontend entry point
+└── phpunit.xml             # PHPUnit configuration
+```
+
+## Core Framework (`Okay/`)
+
+### `Okay/Core/` - Framework Core
+- **`Adapters/`** (21 *.php): Adapter pattern implementations
+- **`Classes/`** (2 *.php): Core utility classes
+- **`config/`**: Core configuration files
+  - `container.php`: Dependency injection container setup
+  - `routes.php`: Route definitions
+  - `services.php`: Service definitions
+  - `constants.php`: System constants
+  - `functions.php`: Global functions
+  - `helpers.php`: Helper functions
+  - `parameters.php`: System parameters
+  - `requests.php`: Request configuration
+- **`Console/`** (18 files): CLI commands (Symfony Console)
+- **`DebugBar/`** (4 files): Debug toolbar integration
+- **`Entity/`** (11 *.php): Base entity classes
+- **`Modules/`** (26 *.php): Module system core
+- **`OkayContainer/`** (9 *.php): Dependency injection container
+- **`QueryFactory/`** (6 *.php): Query builder factory
+- **`Routes/`** (37 *.php): Route handler classes
+- **`Scheduler/`** (3 *.php): Cron scheduler system
+- **`SmartyPlugins/`**: Custom Smarty plugins
+- **`TemplateConfig/`**: Template configuration classes
+- **`TplMod/`**: Template modifier system (parser, nodes)
+- **`UserReferer/`**: User referer tracking
+
+### `Okay/Entities/` - Database Entities (46 *.php)
+Core database entity classes:
+- `ProductsEntity.php`, `VariantsEntity.php`, `CategoriesEntity.php`
+- `OrdersEntity.php`, `PurchasesEntity.php`, `OrderStatusEntity.php`
+- `UsersEntity.php`, `UserCartItemsEntity.php`, `UserWishlistItemsEntity.php`
+- `BrandsEntity.php`, `FeaturesEntity.php`, `FeaturesValuesEntity.php`
+- `BlogEntity.php`, `BlogCategoriesEntity.php`, `CommentsEntity.php`
+- `PagesEntity.php`, `MenuEntity.php`, `MenuItemsEntity.php`
+- `CurrenciesEntity.php`, `DeliveriesEntity.php`, `PaymentsEntity.php`
+- `CouponsEntity.php`, `DiscountsEntity.php`
+- `TranslationsEntity.php`, `LanguagesEntity.php`
+- And more...
+
+### `Okay/Helpers/` - Business Logic Helpers (48 *.php)
+- **`AiRequests/`**: AI request helpers (AbstractAiRequest, AiBrandRequest, AiCategoryRequest, AiProductRequest)
+- **`MetadataHelpers/`**: SEO metadata helpers (CartMetadataHelper, CategoryMetadataHelper, ProductMetadataHelper, etc.)
+- `ProductsHelper.php`: Product business logic
+- `OrdersHelper.php`: Order processing
+- `CartHelper.php`: Shopping cart logic
+- `CategoriesHelper.php`: Category management
+- `FilterHelper.php`: Product filtering
+- `UserHelper.php`: User management
+- `MoneyHelper.php`: Currency/money formatting
+- `ResizeHelper.php`: Image resizing
+- `SiteMapHelper.php`: Sitemap generation
+- `XmlFeedHelper.php`: XML feed generation
+- And more...
+
+### `Okay/Controllers/` - Frontend Controllers (23 *.php)
+Frontend MVC controllers handling HTTP requests.
+
+### `Okay/Modules/` - Installed Modules (443 files)
+- **`OkayCMS/`**: Official OkayCMS modules (291 files)
+  - Modules like Rozetka, Hotline, GoogleMerchant, Feeds, FAQ, Banners, etc.
+- Each module can contain:
+  - `Entities/`: Module-specific entities
+  - `Controllers/`: Module controllers
+  - `Helpers/`: Module helpers
+  - `design/`: Module templates (*.tpl)
+  - `init.php`: Module initialization
+
+### `Okay/Requests/` - Request Classes (3 *.php)
+- `CartRequest.php`: Cart request handling
+- `CommonRequest.php`: Common request utilities
+- `UserRequest.php`: User request handling
+
+### `Okay/lang_general/` - General Translations
+- `en.php`, `ru.php`, `ua.php`: General language files
+
+## Backend Admin (`backend/`)
+
+### `backend/Controllers/` - Admin Controllers (77 *.php)
+Admin panel MVC controllers:
+- `ProductsAdmin.php`, `ProductAdmin.php`: Product management
+- `OrdersAdmin.php`, `OrderAdmin.php`: Order management
+- `CategoriesAdmin.php`, `CategoryAdmin.php`: Category management
+- `UsersAdmin.php`, `UserAdmin.php`: User management
+- `BrandsAdmin.php`, `BrandAdmin.php`: Brand management
+- `BlogAdmin.php`, `PostAdmin.php`: Blog management
+- `SettingsGeneralAdmin.php`, `SettingsCatalogAdmin.php`: Settings
+- And more...
+
+### `backend/ajax/` - AJAX Handlers (20 *.php)
+AJAX endpoints for admin operations.
+
+### `backend/design/` - Admin UI Assets
+- **`compiled/`**: Compiled templates
+- **`css/`**: Admin stylesheets (11 *.css)
+- **`fonts/`**: Web fonts (11 files)
+- **`html/`**: Admin templates (109 *.tpl)
+- **`images/`**: Admin images (96 files)
+- **`js/`**: Admin JavaScript libraries
+  - `jquery/`, `tinymce_jq/`, `highcharts/`, `codemirror/`, `colorpicker/`, etc.
+
+### `backend/Helpers/` - Admin Helpers (33 *.php)
+Admin-specific helper classes.
+
+### `backend/lang/` - Admin Translations
+- `en.php`, `ru.php`, `ua.php`: Admin language files
+- `languages_list.php`: Available languages
+
+### `backend/Requests/` - Admin Request Classes (23 *.php)
+Admin request handling classes.
+
+### `backend/files/` - Admin File Storage
+- `export/`: Export files
+- `import/`: Import files
+- `license/`: License files
+- `watermark/`: Watermark images
+
+## Configuration (`config/`)
+
+### `config/config.php` - Main Configuration
+INI-style configuration file:
+- **`[database]`**: Database connection settings
+- **`[modules]`**: Module marketplace URL
+- **`[php]`**: PHP settings (error_reporting, charset, locale, timezone, debug_mode)
+- **`[smarty]`**: Smarty template engine settings
+- **`[design]`**: Design/theme settings
+- **`[js]`**: JavaScript settings
+- **`[css]`**: CSS settings
+
+**Note**: Local overrides should be in `config/config.local.php` (gitignored).
+
+## Frontend (`design/`)
+
+Frontend theme directory (110 files):
+- **Templates**: `*.tpl` (Smarty templates)
+- **Stylesheets**: `*.css`
+- **JavaScript**: `*.js`
+- **Assets**: Images, fonts, etc.
+
+## File Storage (`files/`)
+
+### `files/originals/` - Original Images (645 files)
+- Original uploaded images (440 *.jpg, 191 *.png)
+
+### `files/thumbs/` - Generated Thumbnails
+- Auto-generated thumbnail images
+
+### `files/uploads/` - User Uploads
+- User-uploaded files
+
+### `files/special/` - Special Badges
+- `akciya.png`: Sale badge
+- `garant.png`: Guarantee badge
+- `hit.png`: Bestseller badge
+- `new.png`: New product badge
+
+### `files/images/` - System Images
+- System image files
+
+## Development & Testing
+
+### `tests/` - PHPUnit Tests
+- **`Core/`**: Core framework tests
+  - `Modules/Extender/AbstractExtenderTest.php`
+  - `ModulesInstallerTest.php`
+- **`Seo/`**: SEO helper tests
+  - `CanonicalHelperTest.php`
+  - `MetaRobotsHelperTest.php`
+- **`TplMod/`**: Template modifier tests
+  - `TplModParserTest.php`
+  - `TplModTest.php`
+
+### `docs/` - Documentation (33 files)
+- 29 Markdown documentation files
+- Project documentation and guides
+
+### `dev/` - Development Tools (17 files)
+- Development configuration and tools
+
+### `1DB_changes/` - Database Migrations
+- 52 SQL migration files
+- 1 PHP migration file
+
+## Entry Points
+
+### `index.php` - Frontend Entry Point
+Main application entry point:
+- Initializes DI container from `Okay/Core/config/container.php`
+- Sets up Router, Config, Request, Response
+- Handles language resolution
+- Processes routes and renders templates
+
+### `backend/index.php` - Admin Entry Point
+Admin panel entry point (similar initialization for admin).
+
+### `ok` - CLI Command Runner
+Symfony Console-based CLI tool for:
+- Database migrations: `ok database:deploy`
+- Other console commands
+
+## Third-Party Libraries
+
+### `js_libraries/` - JavaScript Libraries
+- `js_socials/`: Social sharing library
+
+### Composer Dependencies (`vendor/`)
+Managed via `composer.json`:
+- **Core**: Smarty, PHPMailer, Monolog, PSR standards
+- **Database**: Aura SQL, Query Factory
+- **Image**: Gregwar Image, WebP Convert
+- **Routing**: Bramus Router
+- **Console**: Symfony Console, Process, Lock
+- **AI**: OpenAI PHP SDK
+- **Other**: MobileDetect, CSS Parser, Minify, etc.
+
+## Important File Patterns
+
+### PHP Files
+- **Entities**: `*Entity.php` in `Okay/Entities/` or `Okay/Modules/*/Entities/`
+- **Helpers**: `*Helper.php` in `Okay/Helpers/` or `backend/Helpers/`
+- **Controllers**: `*Controller.php` or `*Admin.php` in respective Controllers directories
+- **Requests**: `*Request.php` in `Okay/Requests/` or `backend/Requests/`
+
+### Templates
+- **Frontend**: `*.tpl` in `design/`
+- **Admin**: `*.tpl` in `backend/design/html/`
+- **Module Templates**: `*.tpl` in `Okay/Modules/*/design/`
+
+### Configuration
+- **Main Config**: `config/config.php`
+- **Local Overrides**: `config/config.local.php` (gitignored)
+- **Core Config**: `Okay/Core/config/*.php`
+
+## Key Conventions
+
+1. **PSR-4 Autoloading**:
+   - `Okay\` namespace → `Okay/` directory
+   - `Okay\Admin\` namespace → `backend/` directory
+
+2. **Module Structure**:
+   - Modules in `Okay/Modules/ModuleName/`
+   - Each module can have: `Entities/`, `Controllers/`, `Helpers/`, `design/`, `init.php`
+
+3. **Entity Pattern**:
+   - All entities extend base entity classes
+   - Entities handle database operations
+   - Located in `Okay/Entities/` or module-specific `Entities/` directories
+
+4. **Helper Pattern**:
+   - Helpers contain business logic
+   - Separate from entities (data layer)
+   - Located in `Okay/Helpers/` or `backend/Helpers/`
+
+5. **Template System**:
+   - Smarty template engine
+   - Frontend templates in `design/`
+   - Admin templates in `backend/design/html/`
+   - Module templates in module `design/` directories
+
+## File Location Guidelines
+
+When working with this codebase:
+
+- **Add new entities**: `Okay/Entities/` or module `Entities/` directory
+- **Add new helpers**: `Okay/Helpers/` or module `Helpers/` directory
+- **Add new controllers**: `Okay/Controllers/` (frontend) or `backend/Controllers/` (admin)
+- **Add new modules**: `Okay/Modules/YourModuleName/`
+- **Add frontend templates**: `design/`
+- **Add admin templates**: `backend/design/html/`
+- **Add database migrations**: `1DB_changes/` (SQL files)
+- **Add tests**: `tests/` (mirror source structure)
+- **Modify configuration**: `config/config.php` or `config/config.local.php`
+
+## References
+
+- Main entry point: [index.php](mdc:index.php)
+- Configuration: [config/config.php](mdc:config/config.php)
+- Composer config: [composer.json](mdc:composer.json)
+- Core container: [Okay/Core/config/container.php](mdc:Okay/Core/config/container.php)
+```
+
+Save this as `.cursor/rules/folder-structure.mdc`. It documents the directory structure and important files for the OkayCMS project.
+alwaysApply: true
+---
