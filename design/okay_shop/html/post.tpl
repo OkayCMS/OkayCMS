@@ -135,9 +135,13 @@
                         <div class="post_share_boxed">
                             <div class="share">
                                 {*<div class="share__text post_share__text">
-                                <span data-language="product_share">{$lang->product_share}:</span>
-                            </div>*}
-                                <div class="fn_share jssocials share__icons"></div>
+                                    <span data-language="product_share">{$lang->product_share}:</span>
+                                </div>*}
+
+                                {include file='share_links.tpl'
+                                    share_url=$canonical
+                                    share_title=$h1
+                                }
                             </div>
                         </div>
                     </div>
