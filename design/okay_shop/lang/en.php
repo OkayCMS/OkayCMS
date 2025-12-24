@@ -343,3 +343,5 @@ $lang['user_wishlist_title'] = 'Featured Products';
 $lang['user_browsed_title'] = 'Products viewed';
 $lang['general_messages_success'] = 'Saved successfully';
 $lang['main_popular_categories'] = 'Popular categories';
+$lang['messanger_telegram'] = 'Write on Telegram';
+$lang['messanger_viber'] = 'Write on Viber';

@@ -185,6 +185,133 @@
             {$block}
         </div>
     {/if}
+    
+    <div class="row">
+        <div class="col-lg-6 col-md-12">
+            <div class="boxed fn_toggle_wrap">
+                <div class="heading_box">
+                    {$btr->settings_theme_contact|escape}
+                    <i class="fn_tooltips" title="{$btr->tooltip_settings_theme_contact|escape}">
+                        {include file='svg_icon.tpl' svgId='icon_tooltips'}
+                    </i>
+                    <div class="toggle_arrow_wrap fn_toggle_card text-primary">
+                        <a class="btn-minimize" href="javascript:;" ><i class="fa fn_icon_arrow fa-angle-down"></i></a>
+                    </div>
+                </div>
+                {*Параметры элемента*}
+                <div class="toggle_body_wrap on fn_card">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="heading_label">{$btr->settings_theme_email|escape}</div>
+                            <div class="mb-1">
+                                <input name="site_email" class="form-control" type="text" value="{$settings->site_email|escape}" />
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="heading_label">{$btr->settings_theme_phones|escape}
+                                <i class="fn_tooltips" title="{$btr->tooltip_settings_theme_phones|escape}">
+                                    {include file='svg_icon.tpl' svgId='icon_tooltips'}
+                                </i>
+                            </div>
+                            <div class="mb-1">
+                                <input name="site_phones" class="form-control" type="text" value="{$site_phones|escape}" />
+                            </div>
+                        </div>
+
+
+                        <div class="col-xs-12">
+                            <div class="heading_label">{$btr->settings_theme_telegram|escape}
+                                <i class="fn_tooltips" title="{$btr->tooltip_settings_theme_telegram|escape}">
+                                    {include file='svg_icon.tpl' svgId='icon_tooltips'}
+                                </i>
+                            </div>
+                            <div class="mb-1">
+                                <input name="site_telegram" class="form-control" type="text" value="{$site_telegram|escape}" placeholder="@username"/>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="heading_label">{$btr->settings_theme_viber|escape}
+                                <i class="fn_tooltips" title="{$btr->tooltip_settings_theme_viber|escape}">
+                                    {include file='svg_icon.tpl' svgId='icon_tooltips'}
+                                </i>
+                            </div>
+                            <div class="mb-1">
+                                <input name="site_viber" class="form-control" type="text" value="{$site_viber|escape}" placeholder="+380XXXXXXXXX"/>
+                            </div>
+                        </div>
+
+
+                        <div class="col-xs-12">
+                            <div class="heading_label">{$btr->settings_theme_working_hours|escape}</div>
+                            <div class="mb-1">
+                                <textarea name="site_working_hours" class="form-control okay_textarea editor_small">{$settings->site_working_hours}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {get_design_block block="settings_theme_contacts"}
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-12">
+            <div class="boxed fn_toggle_wrap">
+                <div class="heading_box">
+                    {$btr->settings_theme_general_settings|escape}
+                    <div class="toggle_arrow_wrap fn_toggle_card text-primary">
+                        <a class="btn-minimize" href="javascript:;" ><i class="fa fn_icon_arrow fa-angle-down"></i></a>
+                    </div>
+                </div>
+                {*Параметры элемента*}
+                <div class="toggle_body_wrap on fn_card">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="heading_label">{$btr->settings_theme_iframe_map|escape}
+                                <i class="fn_tooltips" title="{$btr->tooltip_settings_theme_iframe_map|escape}">
+                                    {include file='svg_icon.tpl' svgId='icon_tooltips'}
+                                </i>
+                            </div>
+                            <div class="mb-1">
+                                <textarea name="iframe_map_code" class="form-control okay_textarea" style="height: 150px;">{$settings->iframe_map_code}</textarea>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="heading_label">{$btr->settings_theme_social|escape}</div>
+                            <div class="mb-1">
+                                <textarea name="site_social_links" class="form-control okay_textarea" style="height: 150px;">{$site_social_links}</textarea>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="heading_label">{$btr->settings_theme_social_share|escape}</div>
+                            <div class="mb-1">
+                                <div class="">
+                                    <select name="social_share_theme" class="fn_social_share_theme selectpicker form-control">
+                                        <option value=""{if !$settings->social_share_theme} selected{/if}>default</option>
+                                        <option value="flat"{if $settings->social_share_theme == 'flat'} selected{/if}>flat</option>
+                                        <option value="classic"{if $settings->social_share_theme == 'classic'} selected{/if}>classic</option>
+                                        <option value="minima"{if $settings->social_share_theme == 'minima'} selected{/if}>minima</option>
+                                        <option value="plain"{if $settings->social_share_theme == 'plain'} selected{/if}>plain</option>
+                                    </select>
+                                    <div class="fn_share"></div>
+
+                                    <div style="display: none;">
+                                    {foreach $js_socials as $soc}
+                                        <input type="checkbox" class="fn_{$soc}" name="sj_shares[]"{if in_array($soc, $settings->sj_shares)} checked{/if} value="{$soc}" />
+                                    {/foreach}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-12 ">
+                            <button type="submit" class="btn btn_small btn_blue float-md-right">
+                                {include file='svg_icon.tpl' svgId='checked'}
+                                <span>{$btr->general_apply|escape}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {get_design_block block="settings_theme_general"}
+            </div>
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-lg-6 col-md-12">
@@ -233,105 +360,6 @@
                     </div>
                 </div>
                 {get_design_block block="settings_theme_payments"}
-            </div>
-        </div>
-    </div>
-    
-    <div class="row">
-        <div class="col-lg-6 col-md-12">
-            <div class="boxed fn_toggle_wrap">
-                <div class="heading_box">
-                    {$btr->settings_theme_contact|escape}
-                    <i class="fn_tooltips" title="{$btr->tooltip_settings_theme_contact|escape}">
-                        {include file='svg_icon.tpl' svgId='icon_tooltips'}
-                    </i>
-                    <div class="toggle_arrow_wrap fn_toggle_card text-primary">
-                        <a class="btn-minimize" href="javascript:;" ><i class="fa fn_icon_arrow fa-angle-down"></i></a>
-                    </div>
-                </div>
-                {*Параметры элемента*}
-                <div class="toggle_body_wrap on fn_card">
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <div class="heading_label">{$btr->settings_theme_email|escape}</div>
-                            <div class="mb-1">
-                                <input name="site_email" class="form-control" type="text" value="{$settings->site_email|escape}" />
-                            </div>
-                        </div>
-                        <div class="col-xs-12">
-                            <div class="heading_label">{$btr->settings_theme_phones|escape}</div>
-                            <div class="mb-1">
-                                <input name="site_phones" class="form-control" type="text" value="{$site_phones|escape}" />
-                            </div>
-                        </div>
-                        <div class="col-xs-12">
-                            <div class="heading_label">{$btr->settings_theme_working_hours|escape}</div>
-                            <div class="mb-1">
-                                <textarea name="site_working_hours" class="form-control okay_textarea editor_small">{$settings->site_working_hours}</textarea>
-                            </div>
-                        </div>
-                        <div class="col-xs-12">
-                            <div class="heading_label">{$btr->settings_theme_social|escape}</div>
-                            <div class="mb-1">
-                                <textarea name="site_social_links" class="form-control okay_textarea">{$site_social_links}</textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {get_design_block block="settings_theme_contacts"}
-            </div>
-        </div>
-        <div class="col-lg-6 col-md-12">
-            <div class="boxed fn_toggle_wrap">
-                <div class="heading_box">
-                    {$btr->settings_theme_general_settings|escape}
-                    <div class="toggle_arrow_wrap fn_toggle_card text-primary">
-                        <a class="btn-minimize" href="javascript:;" ><i class="fa fn_icon_arrow fa-angle-down"></i></a>
-                    </div>
-                </div>
-                {*Параметры элемента*}
-                <div class="toggle_body_wrap on fn_card">
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <div class="heading_label">{$btr->settings_theme_iframe_map|escape}
-                                <i class="fn_tooltips" title="{$btr->tooltip_settings_theme_iframe_map|escape}">
-                                    {include file='svg_icon.tpl' svgId='icon_tooltips'}
-                                </i>
-                            </div>
-                            <div class="mb-1">
-                                <textarea name="iframe_map_code" class="form-control okay_textarea">{$settings->iframe_map_code}</textarea>
-                            </div>
-                        </div>
-                        <div class="col-xs-12">
-                            <div class="heading_label">{$btr->settings_theme_social_share|escape}</div>
-                            <div class="mb-1">
-                                <div class="">
-                                    <select name="social_share_theme" class="fn_social_share_theme selectpicker form-control">
-                                        <option value=""{if !$settings->social_share_theme} selected{/if}>default</option>
-                                        <option value="flat"{if $settings->social_share_theme == 'flat'} selected{/if}>flat</option>
-                                        <option value="classic"{if $settings->social_share_theme == 'classic'} selected{/if}>classic</option>
-                                        <option value="minima"{if $settings->social_share_theme == 'minima'} selected{/if}>minima</option>
-                                        <option value="plain"{if $settings->social_share_theme == 'plain'} selected{/if}>plain</option>
-                                    </select>
-                                    <div class="fn_share"></div>
-
-                                    <div style="display: none;">
-                                    {foreach $js_socials as $soc}
-                                        <input type="checkbox" class="fn_{$soc}" name="sj_shares[]"{if in_array($soc, $settings->sj_shares)} checked{/if} value="{$soc}" />
-                                    {/foreach}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-12 col-md-12 ">
-                            <button type="submit" class="btn btn_small btn_blue float-md-right">
-                                {include file='svg_icon.tpl' svgId='checked'}
-                                <span>{$btr->general_apply|escape}</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                {get_design_block block="settings_theme_general"}
             </div>
         </div>
     </div>
