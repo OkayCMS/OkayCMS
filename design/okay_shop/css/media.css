@@ -178,6 +178,8 @@
   .header-contact__inner:hover .header-contact__item--visible a:hover {
     color: var(--okay-basic-company);
   }
+  .header-contact--telegram a:hover,
+  .header-contact--viber a:hover,
   .header-contact--phone a:hover,
   .header-contact--email a:hover {
     color: var(--okay-basic-company);

@@ -77,6 +77,21 @@
                                     </div>
                                 {/foreach}
                             {/if}
+
+                            <div class="header-contact__item header-contact--telegram {if !$settings->site_phones} header-contact__item--visible{/if}">
+                                <a class="d-flex align-items-center header-contact__section" href="" title="{$lang->messanger_telegram}" aria-label="{$lang->messanger_telegram}">
+                                    {include file="svg.tpl" svgId="messanger_telegram"}
+                                    <span data-language="messanger_telegram">{$lang->messanger_telegram}</span>
+                                </a>
+                            </div>
+
+                            <div class="header-contact__item header-contact--viber {if !$settings->site_phones} header-contact__item--visible{/if}">
+                                <a class="d-flex align-items-center header-contact__section" href="" title="{$lang->messanger_viber}" aria-label="{$lang->messanger_viber}">
+                                    {include file="svg.tpl" svgId="messanger_viber"}
+                                    <span data-language="messanger_viber">{$lang->messanger_viber}</span>
+                                </a>
+                            </div>
+
                             {if $settings->site_email}
                                 <div class="header-contact__item header-contact--email {if !$settings->site_phones} header-contact__item--visible{/if}">
                                     <a class="d-flex align-items-center header-contact__section" href="mailto:{$settings->site_email|escape}" >
@@ -84,6 +99,7 @@
                                     </a>
                                 </div>
                             {/if}
+
                             {if $settings->site_working_hours}
                                 <div class="header-contact__item header-contact--time {if !$settings->site_phones && !$settings->site_email} header-contact__item--visible{/if}">
                                     <div class="d-flex align-items-center header-contact__section">

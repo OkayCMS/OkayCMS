@@ -343,3 +343,5 @@ $lang['purchase_discount__popup_title'] = 'Скидки на товар';
 $lang['purchase_discount__tooltip'] = 'Скидки на товар';
 $lang['general_messages_success'] = 'Успішно збережено';
 $lang['main_popular_categories'] = 'Популярні категорії';
+$lang['messanger_telegram'] = 'Написати в Telegram';
+$lang['messanger_viber'] = 'Написати в Viber';

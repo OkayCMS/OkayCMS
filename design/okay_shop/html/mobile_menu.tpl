@@ -144,6 +144,24 @@
 
 {/foreach}
 {/if}
+
+<ul>
+    <li>
+        <a class="" href="">
+            <span>{$lang->messanger_telegram}</span>
+        </a>
+    </li>
+</ul>
+
+
+<ul>
+    <li>
+        <a class="" href="">
+            <span>{$lang->messanger_viber}</span>
+        </a>
+    </li>
+</ul>
+
 {if $settings->site_email}
 <ul>
     <li>

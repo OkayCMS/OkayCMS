@@ -254,6 +254,15 @@ header {
   margin-right: 10px;
   line-height: 1;
 }
+.header-contact--telegram svg,
+.header-contact--viber svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    line-height: 1;
+}
+.header-contact--telegram,
+.header-contact--viber,
 .header-contact--phone,
 .header-contact--email,
 .header-contact--time {
@@ -261,12 +270,15 @@ header {
   font-size: 16px;
   font-weight: 600;
   text-decoration: none;
-  margin-bottom: 13px;
+  margin-bottom: 10px;
   line-height: 1.2;
   word-break: break-all;
 }
+.header-contact--telegram,
+.header-contact--viber,
 .header-contact--email {
   font-size: 14px;
+  font-weight: 500;
 }
 .header-contact--time,
 .header-contact--time p,
@@ -277,6 +289,8 @@ header {
 .header-contact__item--visible.header-contact--phone a,
 .header-contact--phone a,
 .header-contact--email a,
+.header-contact--telegram a,
+.header-contact--viber a,
 .header-contact--time {
   text-decoration: none;
   color: var(--okay-body-text);
