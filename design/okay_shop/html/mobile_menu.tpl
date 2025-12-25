@@ -157,17 +157,16 @@
 
 
 <ul class="bottom-nav social">
-    {*Домен некоторых соц. сетей не соответствует стилям font-awesome, для них сделаны эти алиасы*}
-    {$social_aliases.ok = 'odnoklassniki'}
-
-    {foreach $settings->site_social_links as $social_link}
-    {$social_domain = preg_replace('~(https?://)?(www\.)?([^\.]+)?\..*~', '$3', $social_link)}
-    {if isset($social_aliases.$social_domain) || $social_domain}
-    <li class="">
-        <a class="{if isset($social_aliases.$social_domain)}{$social_aliases.$social_domain}{else}{$social_domain}{/if}" href="{if !preg_match('~^https?://.*$~', $social_link)}https://{/if}{$social_link|escape}" target="_blank" title="{$social_domain}">
-            <i class="fa fa-{if isset($social_aliases.$social_domain)}{$social_aliases.$social_domain}{else}{$social_domain}{/if}"></i>
-        </a>
-    </li>
-    {/if}
+    {foreach $site_social as $social}
+        {assign var="svgId" value="social_`$social.domain|trim|lower`"}
+        <li class="">
+            <a class="{if isset($social_aliases.$social_domain)}{$social_aliases.$social_domain}{else}{$social_domain}{/if}" rel="noreferrer" aria-label="{$social.domain|escape}" href="{if !preg_match('~^https?://.*$~', $social.url)}https://{/if}{$social.url|escape}" target="_blank" title="{$social.domain|escape}">
+                {if preg_match('~^social_(tiktok|facebook|instagram|youtube|telegram|t|wa|viber|twitter|linkedin|pinterest|github)$~', $svgId)}
+                    {include file="svg.tpl" svgId=$svgId}
+                {else}
+                    {include file="svg.tpl" svgId="social_link"}
+                {/if}
+            </a>
+        </li>
     {/foreach}
 </ul>

@@ -3,7 +3,7 @@
         <div class="filters filters_catalog">
             <div class="fn_switch filter__name d-flex align-items-center justify-content-between">
                 <span data-language="features_catalog">{$lang->features_catalog}</span>
-                <span class="d-flex align-items-center filter__name_arrow fa fa-chevron-down"></span>
+                <svg class="filter__name_arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
             </div>
             <div class="filter__group">
                 {function name=categories_tree_sidebar}
@@ -59,7 +59,7 @@
             {if $catalog_prices->min != '' && $catalog_prices->max != '' && $catalog_prices->min != $catalog_prices->max}
                 <div class="fn_switch filter__name d-flex align-items-center justify-content-between">
                     <span data-language="features_price">{$lang->features_price}</span>
-                    <span class="d-flex align-items-center filter__name_arrow fa fa-chevron-down"></span>
+                    <svg class="filter__name_arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                 </div>
 
                 <div class="filter__group">
@@ -85,7 +85,7 @@
             {if $catalog_other_filters}
                 <div class="fn_switch filter__name d-flex align-items-center justify-content-between">
                     <span data-language="features_other_filter">{$lang->features_other_filter}</span>
-                    <span class="d-flex align-items-center filter__name_arrow icon fa fa-chevron-down"></span>
+                    <svg class="filter__name_arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                 </div>
                 <div class="filter__group">
                     {* Display all brands *}
@@ -136,7 +136,7 @@
             {if $catalog_brands}
                 <div class="fn_switch filter__name d-flex align-items-center justify-content-between">
                     <span data-language="features_manufacturer">{$lang->features_manufacturer}</span>
-                    <span class="d-flex align-items-center filter__name_arrow fa fa-chevron-down"></span>
+                    <svg class="filter__name_arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                 </div>
                 
                 <div class="fn_view_content filter__group feature_content">
@@ -195,7 +195,7 @@
                 {foreach $catalog_features as $key=>$f}
                     <div class="fn_switch filter__name d-flex align-items-center justify-content-between">
                         <span data-feature="{$f->id}">{$f->name|escape}</span>
-                        <span class="d-flex align-items-center filter__name_arrow fa fa-chevron-down"></span>
+                        <svg class="filter__name_arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                     </div>
                     <div class="fn_view_content filter__group feature_content">
                         {* Display all features *}

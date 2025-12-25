@@ -238,22 +238,22 @@
                                     {* Wishlist *}
                                     {if is_array($wishlist->ids) && in_array($product->id, $wishlist->ids)}
                                         <a href="#" data-id="{$product->id}" class="fn_wishlist product-page__wishlist selected" title="{$lang->product_remove_favorite}" data-result-text="{$lang->product_add_favorite}" data-language="product_remove_favorite">
-                                            <i class="fa fa-heart"></i>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></svg>
                                         </a>
                                     {else}
                                         <a href="#" data-id="{$product->id}" class="fn_wishlist product-page__wishlist" title="{$lang->product_add_favorite}" data-result-text="{$lang->product_remove_favorite}" data-language="product_add_favorite">
-                                            <i class="fa fa-heart-o"></i>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></svg>
                                         </a>
                                     {/if}
 
                                     {* Comparison *}
                                     {if is_array($comparison->ids) && in_array($product->id, $comparison->ids)}
                                         <a class="fn_comparison product-page__compare selected" href="#" data-id="{$product->id}" title="{$lang->remove_comparison}" data-result-text="{$lang->product_add_comparison}" data-language="product_remove_comparison">
-                                            <i class="fa fa-balance-scale"></i>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m19 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1"/><path d="m5 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M7 21h10"/></svg>
                                         </a>
                                     {else}
                                         <a class="fn_comparison product-page__compare" href="#" data-id="{$product->id}" title="{$lang->product_add_comparison}" data-result-text="{$lang->remove_comparison}" data-language="product_add_comparison">
-                                            <i class="fa fa-balance-scale"></i>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m19 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1"/><path d="m5 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M7 21h10"/></svg>
                                         </a>
                                     {/if}
                                 </div>
@@ -270,7 +270,7 @@
                             <div class="accordion__title active">
                                 <div class="accordion__header d-flex justify-content-between align-items-center">
                                     <span data-language="product_delivery">{$lang->product_delivery}</span>
-                                    <span class="accordion__arrow fa fa-chevron-down"></span>
+                                    <svg class="accordion__arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                                 </div>
                             </div>
                             <div class="accordion__content" style="display: block;">
@@ -286,7 +286,7 @@
                             <div class="accordion__title">
                                 <div class="accordion__header d-flex justify-content-between align-items-center">
                                     <span data-language="product_payment">{$lang->product_payment}</span>
-                                    <span class="accordion__arrow fa fa-chevron-down"></span>
+                                    <svg class="accordion__arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                                 </div>
                             </div>
                             <div class="accordion__content">

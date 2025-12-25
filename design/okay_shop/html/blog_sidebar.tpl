@@ -12,7 +12,7 @@
 <div class="sidebar__boxed">
     <div class="fn_switch sidebar_heading d-flex align-items-center justify-content-between">
         <span data-language="blog_catalog">{$lang->blog_catalog}</span>
-        <span class="d-flex align-items-center filter__name_arrow fa fa-chevron-down"></span>
+        <svg class="filter__name_arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
     </div>
     <nav class="blog_catalog">
         {function name=categories_article}
@@ -99,7 +99,7 @@
     <div class="sidebar__boxed">
         <div class="fn_switch sidebar_heading d-flex align-items-center justify-content-between">
             <span data-language="main_recommended_products">{$lang->main_recommended_products}</span>
-            <span class="d-flex align-items-center sidebar_heading_arrow icon fa fa-chevron-down"></span>
+            <svg class="filter__name_arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </div>
         <div class="sidebar_card f_row">
             {foreach $featured_products as $product}

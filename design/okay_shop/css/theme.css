@@ -296,21 +296,13 @@ header {
   text-decoration: none;
 }
 .header_informers__item.icon-search,
+.header_informers__link svg,
 .header_informers__link i {
-  width: 32px;
-  height: 32px;
-}
-.header_informers__link i:before {
-  font-size: 30px;
-  line-height: 1;
-}
-.header_informers__link i.fa-balance-scale:before {
-  font-size: 26px;
+  width: 30px;
+  height: 30px;
   line-height: 1;
 }
 .header_informers__item.icon-search {
-  font-size: 32px;
-  min-width: 45px;
   padding: 0 5px;
 }
 .header_informers__item .compare_counter,
@@ -369,13 +361,9 @@ header {
   opacity: 0.8;
   transition: all 0.2s;
 }
-.search__button:before {
-  content: "\f002";
-  display: inline-block;
-  font: normal normal normal 18px/1 FontAwesome;
-  text-rendering: auto;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.search__button svg {
+ width: 22px;
+ height: 22px;
 }
 
 /****** #Header catalog ************************************************************/
@@ -410,10 +398,9 @@ header {
   pointer-events: none;
 }
 .catalog_button .catalog_icon {
-  margin-right: 10px;
-}
-.catalog_button .catalog_icon:before {
-  font-size: 20px;
+  margin-right: 8px;
+  width: 18px;
+  height: 18px;
 }
 .catalog_button .catalog_button__arrow {
   position: absolute;
@@ -683,13 +670,11 @@ header {
   top: 0;
 }
 .hover_scroll:before {
-  display: inline-block;
-  font: normal normal normal 14px/1 FontAwesome;
-  font-size: 20px;
-  text-rendering: auto;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  content: "\f107";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  content: ""; 
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="%23fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>');
   position: absolute;
   width: 25px;
   height: 25px;
@@ -705,7 +690,7 @@ header {
   background-color: var(--okay-basic-company);
 }
 .hover_scroll.hover_scroll_up:before {
-  content: "\f106";
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="%23fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up-icon lucide-chevron-up"><path d="m18 15-6-6-6 6"/></svg>');
 }
 .hover_scroll.hover_scroll_down {
   bottom: 0;
@@ -879,11 +864,16 @@ header {
   position: relative;
   color: var(--okay-body-text);
 }
-.sidebar_heading:before {
-  font-size: 14px;
+.sidebar_heading_arrow{
+  width: 22px;
+  height: 22px;
+  transition: all 0.2s ease-in-out;
 }
-.sidebar_heading.active .sidebar_heading_arrow:before {
-  content: "\f077";
+.sidebar_heading.active .sidebar_heading_arrow{
+  transform: rotate(-180deg);
+}
+.sidebar_heading.active .filter__name_arrow{
+  transform: rotate(-180deg);
 }
 
 .blog_catalog {
@@ -1261,8 +1251,11 @@ header {
 .post_author__social .social__link {
   width: 26px;
   height: 26px;
-  line-height: 24px;
-  font-size: 13px;
+  line-height: 1;
+}
+.post_author__social .social__link svg{
+  width: 18px;
+  height: 18px;
 }
 .filter__tag_menu {
   display: -webkit-box;
@@ -1326,11 +1319,13 @@ header {
   position: relative;
   color: var(--okay-body-text);
 }
-.filter__name_arrow:before {
-  font-size: 14px;
+.filter__name_arrow{
+  width: 22px;
+  height: 22px;
+  transition: all 0.2s ease-in-out;
 }
-.filter__name.active .filter__name_arrow:before {
-  content: "\f077";
+.filter__name.active .filter__name_arrow{
+  transform: rotate(-180deg);
 }
 .filters .filter__group {
   border-bottom: 1px solid rgb(219, 219, 219);
@@ -1752,12 +1747,12 @@ a.filter__catalog_link svg {
 }
 .breadcrumbs .breadcrumbs__item + .breadcrumbs__item:before {
   padding: 0 5px;
-  content: "\f101";
-  font: normal normal normal 16px/1 "FontAwesome";
-  font-size: inherit;
-  text-rendering: auto;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  content: "";
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  vertical-align: middle;
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 17 5-5-5-5"/><path d="m13 17 5-5-5-5"/></svg>');
 }
 .breadcrumbs svg {
   width: 18px;
@@ -2171,17 +2166,15 @@ a.filter__catalog_link svg {
   color: var(--okay-button-color);
   opacity: 0.7;
 }
-.product_preview__center .wishlist_button::before {
-  font-size: 26px;
+.product_preview__center .wishlist_button svg{
+  width: 26px;
+  height: 26px;
   line-height: 1;
 }
-.product_preview__center .wishlist_button::before {
-  content: "\f08a" !important;
+.product_preview__center .wishlist_button.selected svg{
+  fill: var(--okay-button-color);
 }
-.product_preview__center .wishlist_button.selected::before {
-  content: "\f004" !important;
-}
-.product_preview__center .wishlist_button__remove::before {
+.product_preview__center .wishlist_button__remove{
   color: #b10707 !important;
   font-size: 23px;
   line-height: 1;
@@ -2209,14 +2202,12 @@ a.filter__catalog_link svg {
   max-width: 100%;
   height: 30px;
 }
-.product_preview__buttons .product_preview__button:before {
-  font-family: FontAwesome;
-  text-rendering: auto;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-size: 16px;
+.product_preview__buttons .product_preview__button svg {
+  height: 16px;
+  width: 16px;
   line-height: 1;
-  padding: 0 5px;
+  padding: 0;
+  margin-right: 5px;
 }
 .product_preview__buttons .remove_link {
   color: #b10707 !important;
@@ -2346,18 +2337,18 @@ a.filter__catalog_link svg {
   width: 35px;
   margin-left: 5px;
 }
-.product_preview__buttons .comparison_button::before {
-  font-size: 16px;
+.product_preview__buttons .comparison_button svg {
+  height: 23px;
+  width: 23px;
   line-height: 1;
 }
-.product_preview__buttons .fast_order_button::before {
-  font-size: 16px;
+.product_preview__buttons .fast_order_button svg {
+  height: 21px;
+  width: 21px;
   line-height: 1;
 }
-.product_preview__buttons .comparison_button.selected {
+.product_preview__buttons .comparison_button.selected svg{
   position: relative;
-  opacity: 0.8;
-  border-color: var(--okay-button-color);
   color: var(--okay-button-color);
 }
 .product_preview__annotation {
@@ -3724,22 +3715,10 @@ footer {
   text-decoration: none;
   font-size: 12px;
   transition: color 0.1s ease 0s;
-  padding: 0 0 0 20px;
+  padding: 0;
 }
 .menu_group--footer .menu_group__link {
-  padding: 0 0 0 20px;
-}
-.menu_group--footer .menu_group__link:before,
-.footer__menu_link:before {
-  content: "\f192";
-  display: inline-block;
-  font: normal normal normal 10px/1 FontAwesome;
-  text-rendering: auto;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  position: absolute;
-  top: 3px;
-  left: 0;
+  padding: 0;
 }
 .subscribe_form__group {
   position: relative;
@@ -3794,6 +3773,16 @@ footer {
   float: left;
   text-decoration: none;
   transition: all 400ms;
+}
+.social__link  svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    transition: all 400ms;
 }
 .footer__payments {
   text-align: right;
@@ -4590,14 +4579,9 @@ table.order_details {
   z-index: 100;
   left: 2%;
   bottom: 40px;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  -ms-flex-align: center;
   align-items: center;
+  justify-content: center;
   width: 40px;
   height: 40px;
   cursor: pointer;
@@ -4616,15 +4600,9 @@ table.order_details {
   visibility: visible;
   opacity: 0.8;
 }
-.to_top:before {
-  content: "\f077";
-  display: inline-block;
-  font: normal normal normal 18px/1 FontAwesome;
-  text-rendering: auto;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  width: 100%;
-  text-align: center;
+.to_top svg {
+  width: 28px;
+  height: 28px;
 }
 .to_top:hover {
   opacity: 1;
