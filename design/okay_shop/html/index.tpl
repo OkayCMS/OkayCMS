@@ -104,14 +104,14 @@
                         {* Mobile menu button*}
                         <div class="fn_menu_switch menu_switcher hidden-lg-up">
                             <div class="menu_switcher__heading d-flex align-items-center">
-                                <i class="fa fa-bars catalog_icon"></i>
+                                <svg class="catalog_icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h16"/></svg>
                                 <span class="" data-language="index_mobile_menu">{$lang->index_mobile_menu}</span>
                             </div>
                         </div>
                         {* Catalog heading *}
                         <div class="{if $controller != 'MainController' || empty($global_banners)}fn_catalog_switch button--blick{/if} catalog_button d-lg-flex hidden-md-down ">
                             <div class="catalog_button__heading d-flex align-items-center ">
-                                <i class="fa fa-bars catalog_icon"></i>
+                                <svg class="catalog_icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h16"/></svg>
                                 <span class="" data-language="index_categories">{$lang->index_categories}</span>
                                 {if $controller != 'MainController' || empty($global_banners)}
                                     <span class="catalog_button__arrow">{include file="svg.tpl" svgId="arrow_right"}</span>
@@ -121,7 +121,9 @@
                         {* Search form *}
                         <form id="fn_search" class="fn_search_mob search d-md-flex" action="{url_generator route='products'}">
                             <input class="fn_search search__input" type="text" name="keyword" value="{$keyword|escape}" aria-label="search" data-language="index_search" placeholder="{$lang->index_search}"/>
-                            <button class="search__button d-flex align-items-center justify-content-center" aria-label="search" type="submit"></button>
+                            <button class="search__button d-flex align-items-center justify-content-center" aria-label="search" type="submit">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+                            </button>
                         </form>
                         <div class="header_informers d-flex align-items-center">
                             {* Mobile search toggle *}
@@ -180,7 +182,9 @@
     </div>
 
     {* Кнопка на верх *}
-    <div class="fn_to_top to_top"></div>
+    <div class="fn_to_top to_top">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+    </div>
 
     <div>
         {get_design_block block="front_before_footer_content"}
@@ -300,8 +304,13 @@
                         </div>
                         <div class="footer__content footer__social social footer__hidden">
                             {foreach $site_social as $social}
-                                <a class="social__link {$social.domain|escape}" rel="noreferrer" aria-label="{$social_domain}" href="{if !preg_match('~^https?://.*$~', $social.url)}https://{/if}{$social.url|escape}" target="_blank" title="{$social.domain|escape}">
-                                    <i class="fa fa-{$social.domain|escape}"></i>
+                                {assign var="svgId" value="social_`$social.domain|trim|lower`"}
+                                <a class="social__link {$social.domain|escape|lower}" rel="noreferrer" aria-label="{$social.domain|escape}" href="{if !preg_match('~^https?://.*$~', $social.url)}https://{/if}{$social.url|escape}" target="_blank" title="{$social.domain|escape}">
+                                    {if preg_match('~^social_(tiktok|facebook|instagram|youtube|telegram|t|wa|viber|twitter|linkedin|pinterest|github)$~', $svgId)}
+                                        {include file="svg.tpl" svgId=$svgId}
+                                    {else}
+                                        {include file="svg.tpl" svgId="social_link"}
+                                    {/if}
                                 </a>
                             {/foreach}
                         </div>

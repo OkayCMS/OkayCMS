@@ -171,9 +171,14 @@
                             {if is_array($post->author->socials)}
                             <div class="post_author__social">
                                 {foreach $post->author->socials as $social}
-                                <a class="fn_social_image social__link {$social.domain|escape}" rel="noreferrer" aria-label="{$social_domain}" href="{if !preg_match('~^https?://.*$~', $social.url)}https://{/if}{$social.url|escape}" target="_blank" title="{$social.domain|escape}">
-                                    <i class="fa fa-{$social.domain|escape}"></i>
-                                </a>
+                                    {assign var="svgId" value="social_`$social.domain|trim|lower`"}
+                                    <a class="social__link {$social.domain|escape|lower}" rel="noreferrer" aria-label="{$social.domain|escape}" href="{if !preg_match('~^https?://.*$~', $social.url)}https://{/if}{$social.url|escape}" target="_blank" title="{$social.domain|escape}">
+                                        {if preg_match('~^social_(tiktok|facebook|instagram|youtube|telegram|t|wa|viber|twitter|linkedin|pinterest|github)$~', $svgId)}
+                                            {include file="svg.tpl" svgId=$svgId}
+                                        {else}
+                                            {include file="svg.tpl" svgId="social_link"}
+                                        {/if}
+                                    </a>
                                 {/foreach}
                             </div>
                             {/if}

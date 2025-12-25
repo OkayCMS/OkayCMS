@@ -53,13 +53,19 @@
                 {* Wishlist *}
                 {if $controller != "WishListController"}
                     {if is_array($wishlist->ids) && in_array($product->id, $wishlist->ids)}
-                        <a href="#" data-id="{$product->id}" class="fn_wishlist wishlist_button fa fa-heart selected" title="{$lang->remove_favorite}" data-result-text="{$lang->add_favorite}"></a>
+                        <a href="#" data-id="{$product->id}" class="fn_wishlist wishlist_button selected" title="{$lang->remove_favorite}" data-result-text="{$lang->add_favorite}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></svg>
+                        </a>
                     {else}
-                        <a href="#" data-id="{$product->id}" class="fn_wishlist fa fa-heart-o wishlist_button" title="{$lang->add_favorite}" data-result-text="{$lang->remove_favorite}"></a>
+                        <a href="#" data-id="{$product->id}" class="fn_wishlist wishlist_button" title="{$lang->add_favorite}" data-result-text="{$lang->remove_favorite}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></svg>
+                        </a>
                     {/if}
                 {/if}
                 {if $controller == "WishListController"}
-                    <a href="#" class="fn_wishlist selected fa fa-times wishlist_button__remove" title="{$lang->remove_favorite}" data-id="{$product->id}"></a>
+                    <a href="#" class="fn_wishlist selected wishlist_button__remove" title="{$lang->remove_favorite}" data-id="{$product->id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                    </a>
                 {/if}
 
              </div>
@@ -83,7 +89,7 @@
             </div>
         </div>
         <div class="product_preview__bottom">
-            <form class="fn_variants preview_form" action="{url_generator route="cart"}">
+            <form class="fn_variants preview_form" action="{url_generator route='cart'}">
                 <div class="d-flex align-items-center justify-content-between product_preview__buttons">
                     {if !$settings->is_preorder}
                             {* Out of stock *}
@@ -97,7 +103,8 @@
                         </button>
                     {/if}
                     {* Submit cart button *}
-                    <button class="product_preview__button product_preview__button--buy button--blick fa fa-shopping-cart fn_is_stock{if $product->variant->stock < 1} hidden-xs-up{/if}" type="submit">
+                    <button class="product_preview__button product_preview__button--buy button--blick fn_is_stock{if $product->variant->stock < 1} hidden-xs-up{/if}" type="submit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
                         <span class="product_preview__button_text" data-language="add_to_cart">{$lang->add_to_cart}</span>
                     </button>
 
@@ -106,14 +113,20 @@
                     {* Comparison *}
                     {if $controller != "ComparisonController"}
                         {if is_array($comparison->ids) && in_array($product->id, $comparison->ids)}
-                            <a class="fn_comparison comparison_button fa fa-balance-scale selected" href="#" data-id="{$product->id}" title="{$lang->remove_comparison}" data-result-text="{$lang->add_comparison}"></a>
+                            <a class="fn_comparison comparison_button selected" href="#" data-id="{$product->id}" title="{$lang->remove_comparison}" data-result-text="{$lang->add_comparison}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m19 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1"/><path d="m5 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M7 21h10"/></svg>
+                            </a>
                         {else}
-                            <a class="fn_comparison fa fa-balance-scale comparison_button" href="#" data-id="{$product->id}" title="{$lang->add_comparison}" data-result-text="{$lang->remove_comparison}"></a>
+                            <a class="fn_comparison comparison_button" href="#" data-id="{$product->id}" title="{$lang->add_comparison}" data-result-text="{$lang->remove_comparison}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m19 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1"/><path d="m5 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M7 21h10"/></svg>
+                            </a>
                         {/if}
                     {/if}
 
                     {if $controller == "ComparisonController"}
-                        <a href="#" class="fn_comparison selected fa fa-times comparison_button remove_link" title="{$lang->remove_comparison}" data-id="{$product->id}"></a>
+                        <a href="#" class="fn_comparison selected comparison_button remove_link" title="{$lang->remove_comparison}" data-id="{$product->id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                        </a>
                     {/if}
 
                 </div>

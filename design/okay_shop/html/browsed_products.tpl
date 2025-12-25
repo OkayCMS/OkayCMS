@@ -4,7 +4,7 @@
     <div class="sidebar__boxed browsed">
         <div class="fn_switch sidebar_heading d-flex align-items-center justify-content-between">
             <span data-language="features_browsed">{$lang->features_browsed}</span>
-            <span class="d-flex align-items-center sidebar_heading_arrow icon fa fa-chevron-down"></span>
+            <svg class="sidebar_heading_arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </div>
 
         <div class="browsed__content f_row">
