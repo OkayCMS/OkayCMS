@@ -164,6 +164,26 @@ class Cart
         }
     }
 
+    private $deferCookieSave = false;
+
+    /**
+     * Defer setcookie() calls until endBatchUpdate() is called.
+     * Use around loops that call updateItem()/addItem()/deleteItem()
+     * to avoid emitting one Set-Cookie header per iteration.
+     */
+    public function beginBatchUpdate()
+    {
+        $this->deferCookieSave = true;
+    }
+
+    public function endBatchUpdate()
+    {
+        $this->deferCookieSave = false;
+        if (isset($_SESSION['shopping_cart'])) {
+            $this->saveShoppingCart($_SESSION['shopping_cart'] ?? []);
+        }
+    }
+
     /**
      * We save the data of the selected products in a cookie
      *
@@ -171,6 +191,10 @@ class Cart
      */
     public function saveShoppingCart(array $items)
     {
+        if ($this->deferCookieSave) {
+            return;
+        }
+
         if (!empty($items)) {
             $_COOKIE['shopping_cart'] = json_encode($items);
             setcookie('shopping_cart', $_COOKIE['shopping_cart'], time() + 30 * 24 * 3600, '/');   //  на месяц

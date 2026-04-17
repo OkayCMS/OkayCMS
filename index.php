@@ -13,6 +13,8 @@ use Psr\Log\LoggerInterface;
 
 ini_set('display_errors', 'off');
 
+ob_start();
+
 require_once('vendor/autoload.php');
 
 if (!empty($_SERVER['HTTP_USER_AGENT'])) {

@@ -101,9 +101,12 @@ class Response
         if (!in_array($responseCode, [301, 302, 303, 307, 308])) {
             throw new \Exception("$responseCode is not a valid redirect response code.");
         }
-        
-        $headerContent = 'Location: ' . $resource;
-        header($headerContent, false, $responseCode);
+
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
+        header('Location: ' . $resource, true, $responseCode);
         exit;
     }
     
