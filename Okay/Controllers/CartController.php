@@ -52,9 +52,11 @@ class CartController extends AbstractController
 
         // Если нам запостили amounts, обновляем их
         if ($amounts = $request->post('amounts')) {
+            $cart->beginBatchUpdate();
             foreach ($amounts as $variantId => $amount) {
                 $cart->updateItem($variantId, $amount);
             }
+            $cart->endBatchUpdate();
         }
         
         $this->setMetadataHelper($cartMetadataHelper);
