@@ -437,44 +437,80 @@ class BackendImportHelper
         /** @var ImagesEntity $imagesEntity */
         $imagesEntity = $this->entityFactory->get(ImagesEntity::class);
         $imagesIds = [];
+        $maxFilenameLength = $this->imageCore->getFilenameMaxLength();
+
         if (!empty($itemImages)) {
             // Изображений может быть несколько, через запятую
             $images = explode(',', $itemImages);
             foreach ($images as $image) {
                 $image = trim($image);
-                if (!empty($image)) {
-                    // Имя файла
-                    $imageFilename = pathinfo($image, PATHINFO_BASENAME);
+                if ($image === '') {
+                    continue;
+                }
 
-                    if (preg_match("~^https?://~", $image)) {
-                        $imageFilename = $this->imageCore->correctFilename($imageFilename);
-                        $image = rawurlencode($image);
-                    }
+                $storedFilename = $image;
+                $basename = pathinfo($image, PATHINFO_BASENAME);
+                $legacyEncodedUrl = null;
 
-                    // Добавляем изображение только если такого еще нет в этом товаре
-                    $select = $this->queryFactory->newSelect();
-                    $result = $select->cols(['id', 'filename'])
-                        ->from('__images')
-                        ->where('product_id=:product_id')
-                        ->where('(filename=:image_filename OR filename=:image)')
-                        ->limit(1)
-                        ->bindValue('product_id', $productId)
-                        ->bindValue('image_filename', $imageFilename)
-                        ->bindValue('image', $image)
-                        ->result();
+                if (preg_match('~^https?://~i', $image)) {
+                    // Keep original URL (do not rawurlencode the whole string — it grows and breaks matching).
+                    $legacyEncodedUrl = rawurlencode($image);
+                    $basename = $this->imageCore->correctFilename($basename);
+                }
 
-                    if (empty($result->filename)) {
-                        $newImage = new \stdClass();
-                        $newImage->product_id = $productId;
-                        $newImage->filename = $image;
-                        $imagesIds[] = $imagesEntity->add($newImage);
-                    } else {
-                        $imagesIds[] = $result->id;
-                    }
+                if (strlen($storedFilename) > $maxFilenameLength) {
+                    $this->logImportImageSkip(
+                        $productId,
+                        $image,
+                        'filename exceeds ok_images.filename limit (' . $maxFilenameLength . ')'
+                    );
+                    continue;
+                }
+
+                // Добавляем изображение только если такого еще нет в этом товаре
+                $select = $this->queryFactory->newSelect();
+                $select->cols(['id', 'filename'])
+                    ->from('__images')
+                    ->where('product_id=:product_id')
+                    ->bindValue('product_id', $productId);
+
+                if ($legacyEncodedUrl !== null) {
+                    $select->where('(filename=:stored OR filename=:basename OR filename=:legacy_encoded)')
+                        ->bindValue('stored', $storedFilename)
+                        ->bindValue('basename', $basename)
+                        ->bindValue('legacy_encoded', $legacyEncodedUrl);
+                } else {
+                    $select->where('(filename=:stored OR filename=:basename)')
+                        ->bindValue('stored', $storedFilename)
+                        ->bindValue('basename', $basename);
+                }
+
+                $result = $select->limit(1)->result();
+
+                if (empty($result->filename)) {
+                    $newImage = new \stdClass();
+                    $newImage->product_id = $productId;
+                    $newImage->filename = $storedFilename;
+                    $imagesIds[] = $imagesEntity->add($newImage);
+                } else {
+                    $imagesIds[] = $result->id;
                 }
             }
         }
         return ExtenderFacade::execute(__METHOD__, $imagesIds, func_get_args());
+    }
+
+    /**
+     * Log skipped import images (check PHP error_log / server logs).
+     */
+    private function logImportImageSkip($productId, $imageSource, $reason)
+    {
+        error_log(sprintf(
+            'OkayCMS import: skip image for product #%d: %s — %s',
+            (int)$productId,
+            $reason,
+            mb_substr((string)$imageSource, 0, 300)
+        ));
     }
     
     private function isFeature($importColumnName)
