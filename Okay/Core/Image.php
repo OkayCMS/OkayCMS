@@ -14,6 +14,9 @@ class Image
     
     private $allowedExtensions = ['png', 'gif', 'jpg', 'jpeg', 'ico', 'svg', 'webp'];
 
+    /** Must match ok_images.filename / ok_spec_img.filename column length (see update_4.5.3.sql). */
+    private const FILENAME_MAX_LENGTH = 1024;
+
     private $rootDir;
     
     /**
@@ -478,6 +481,14 @@ class Image
         $res = preg_replace("/[^a-zA-Z0-9.\-_]+/ui", '', $res);
         $res = strtolower($res);
         return ExtenderFacade::execute(__METHOD__, $res, func_get_args());
+    }
+
+    /**
+     * Max length for values stored in ok_images.filename (local names or remote URLs).
+     */
+    public function getFilenameMaxLength()
+    {
+        return self::FILENAME_MAX_LENGTH;
     }
 
     /**
