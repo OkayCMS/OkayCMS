@@ -74,14 +74,31 @@ class Import
     public function initColumns()
     {
         $f = fopen($this->importFilesDir.$this->import_file, 'r');
-        $this->columns = fgetcsv($f, null, $this->columnDelimiter);
+        $columns = fgetcsv($f, null, $this->columnDelimiter);
         fclose($f);
+        $this->columns = is_array($columns) ? $this->normalizeCsvColumns($columns) : [];
+    }
+
+    /**
+     * Excel and other tools often save CSV as UTF-8 with BOM (utf-8-sig).
+     * BOM on the first header cell breaks column name matching (e.g. Category).
+     */
+    private function normalizeCsvColumnName($name)
+    {
+        $name = preg_replace('/^\xEF\xBB\xBF/', '', (string)$name);
+
+        return trim($name);
+    }
+
+    private function normalizeCsvColumns(array $columns)
+    {
+        return array_map([$this, 'normalizeCsvColumnName'], $columns);
     }
 
     // Возвращает внутренние название колонки по названию колонки в файле
     private function internalColumnName($name)
     {
-        $name = trim($name);
+        $name = $this->normalizeCsvColumnName($name);
         $name = str_replace('/', '', $name);
         $name = str_replace('\/', '', $name);
         foreach($this->columnsNames as $i=>$names) {
@@ -105,7 +122,7 @@ class Import
      */
     public function setColumns($columns)
     {
-        $this->columns = $columns;
+        $this->columns = is_array($columns) ? $this->normalizeCsvColumns($columns) : [];
     }
 
     /**
