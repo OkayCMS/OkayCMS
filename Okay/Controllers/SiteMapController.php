@@ -4,15 +4,26 @@
 namespace Okay\Controllers;
 
 
+use Okay\Core\Languages;
+use Okay\Entities\LanguagesEntity;
 use Okay\Helpers\SiteMapHelper;
 
 class SiteMapController extends AbstractController
 {
     
-    public function renderXml(SiteMapHelper $siteMapHelper)
+    public function renderXml(SiteMapHelper $siteMapHelper,
+                              Languages   $languages,
+                              LanguagesEntity $languagesEntity)
     {
 
         chdir(dirname(dirname(__DIR__)));
+
+        $languagesList   = $languagesEntity->mappedBy('id')->find();
+        $currentLanguage = $languagesList[$languages->getLangId()];
+
+        if (empty($currentLanguage->enabled) && empty($_SESSION['admin'])) {
+            return false;
+        }
 
         /*
          * параметры с крона в виде key=val
