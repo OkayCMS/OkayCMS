@@ -21,7 +21,7 @@ class FeedController extends AbstractController
         $currentLanguage = $languagesList[$languages->getLangId()];
 
         $feed = $feedsEntity->findOne(['url' => $url]);
-        if (empty($feed) || empty($currentLanguage->enabled) || (!$feed->enabled && empty($_SESSION['admin']))) {
+        if (empty($feed) || (empty($currentLanguage->enabled)&& empty($_SESSION['admin'])) || (!$feed->enabled && empty($_SESSION['admin']))) {
             return false;
         }
 
