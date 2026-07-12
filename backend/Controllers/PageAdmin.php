@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Admin\Helpers\BackendPagesHelper;
 use Okay\Admin\Helpers\BackendValidateHelper;
@@ -11,16 +9,18 @@ use Okay\Entities\PagesEntity;
 
 class PageAdmin extends IndexAdmin
 {
-    
     public function fetch(
-        PagesEntity           $pagesEntity,
-        BackendPagesRequest   $pagesRequest,
+        PagesEntity $pagesEntity,
+        BackendPagesRequest $pagesRequest,
         BackendValidateHelper $backendValidateHelper,
-        BackendPagesHelper    $backendPagesHelper
-    ){
+        BackendPagesHelper $backendPagesHelper
+    ) {
         /*Прием информации о страницу*/
         if ($this->request->method('POST')) {
             $page = $pagesRequest->postPage();
+            /** @var object{id: int|string|null, url: string}&\stdClass $page */
+            $page->id = $page->id ?? '';
+            /** @var object{id: int|string, name?: string, url: string}&\stdClass $page */
 
             if ($error = $backendValidateHelper->getPageValidateError($page)) {
                 $this->design->assign('message_error', $error);
@@ -36,6 +36,7 @@ class PageAdmin extends IndexAdmin
                     // Запретим изменение системных url.
                     if ($error = $backendValidateHelper->getChangeSystemUrlValidateErrors($page)) {
                         $checkPage = $pagesEntity->get((int) $page->id);
+                        /** @var object{url: string}&\stdClass $checkPage */
                         $page->url = $checkPage->url;
                         $this->design->assign('message_error', $error);
                     }
@@ -59,9 +60,8 @@ class PageAdmin extends IndexAdmin
             $id = $pagesRequest->getId();
             $page = $backendPagesHelper->getPage((int)$id);
         }
-        
+
         $this->design->assign('page', $page);
         $this->response->setContent($this->design->fetch('page.tpl'));
     }
-    
 }

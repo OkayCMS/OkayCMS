@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Controllers;
-
 
 use Okay\Helpers\CartHelper;
 use Okay\Helpers\CouponHelper;
@@ -15,8 +13,10 @@ use Okay\Entities\CurrenciesEntity;
 use Okay\Entities\CouponsEntity;
 use Okay\Entities\OrdersEntity;
 use Okay\Core\Request;
+use Okay\Core\Response;
 use Okay\Core\Cart;
 use Okay\Core\Languages;
+use Okay\Core\Security\CheckoutToken;
 use Okay\Helpers\DeliveriesHelper;
 use Okay\Helpers\PaymentsHelper;
 use Okay\Helpers\ValidateHelper;
@@ -24,93 +24,118 @@ use Okay\Helpers\OrdersHelper;
 
 class CartController extends AbstractController
 {
-    /*Отображение заказа*/
+    private const CART_AJAX_MUTATING_ACTIONS = [
+        'update_citem' => true,
+        'remove_citem' => true,
+        'add_citem' => true,
+        'coupon_apply' => true,
+    ];
+
+    /* Cart page */
     public function render(
-        DeliveriesEntity   $deliveriesEntity,
-        OrdersEntity       $ordersEntity,
-        CouponsEntity      $couponsEntity,
-        CurrenciesEntity   $currenciesEntity,
-        Languages          $languages,
-        Request            $request,
-        Notify             $notify,
-        Cart               $cart,
-        DeliveriesHelper   $deliveriesHelper,
-        PaymentsHelper     $paymentsHelper,
-        OrdersHelper       $ordersHelper,
-        CartRequest        $cartRequest,
-        CartHelper         $cartHelper,
-        ValidateHelper     $validateHelper,
-        CouponHelper       $couponHelper,
+        DeliveriesEntity $deliveriesEntity,
+        OrdersEntity $ordersEntity,
+        CouponsEntity $couponsEntity,
+        CurrenciesEntity $currenciesEntity,
+        Languages $languages,
+        Request $request,
+        Notify $notify,
+        Cart $cart,
+        DeliveriesHelper $deliveriesHelper,
+        PaymentsHelper $paymentsHelper,
+        OrdersHelper $ordersHelper,
+        CartRequest $cartRequest,
+        CartHelper $cartHelper,
+        ValidateHelper $validateHelper,
+        CouponHelper $couponHelper,
         CartMetadataHelper $cartMetadataHelper
     ) {
+        $cartCsrfError = null;
+        if ($request->isPost() && $this->hasAnyPostField(['variant', 'amounts', 'checkout'])) {
+            $cartCsrfError = $this->getCustomerCsrfError($validateHelper);
+            if ($cartCsrfError !== null) {
+                $this->design->assign('error', $cartCsrfError);
+            }
+        }
 
-        // Если передан id варианта, добавим его в корзину
-        if ($variantId = $request->get('variant', 'integer')) {
-            $cart->addItem($variantId, $request->get('amount', 'integer'));
+        // Add a posted variant to the cart.
+        if ($cartCsrfError === null && $request->isPost() && ($variantId = $request->post('variant', 'integer'))) {
+            $cart->addItem($variantId, $request->post('amount', 'integer'));
             $this->response->redirectTo(Router::generateUrl('cart', [], true), 301);
         }
 
-        // Если нам запостили amounts, обновляем их
-        if ($amounts = $request->post('amounts')) {
+        // Update posted cart amounts.
+        if ($cartCsrfError === null && ($amounts = $request->post('amounts'))) {
             foreach ($amounts as $variantId => $amount) {
                 $cart->updateItem($variantId, $amount);
             }
         }
-        
+
         $this->setMetadataHelper($cartMetadataHelper);
-        
+
         $cart = $cart->get();
-        /*Оформление заказа*/
-        if (isset($_POST['checkout'])) {
-            $order = $cartRequest->postOrder();
-            $order = $ordersHelper->attachUserIfLogin($order, $this->user);
-
-            if ($error = $validateHelper->getCartValidateError($order)) {
-                $this->design->assign('error', $error);
+        /* Checkout */
+        if ($this->hasPostField('checkout')) {
+            if ($cartCsrfError !== null) {
+                $this->design->assign('error', $cartCsrfError);
             } else {
-                // Добавляем заказ в базу
-                $order->lang_id = $languages->getLangId();
-                $preparedOrder  = $ordersHelper->prepareAdd($order);
-                $orderId        = $ordersHelper->add($preparedOrder);
+                $order = $cartRequest->postOrder();
+                $order = $ordersHelper->attachUserIfLogin($order, $this->user);
 
-                if (isset($_SESSION['coupon_code'])){
-                    $couponHelper->registerUseIfExists($_SESSION['coupon_code']);
-                }
-
-                $preparedCart = $cartHelper->prepareCart($cart, $orderId);
-                $preparedCart = $cartHelper->cartToOrder($preparedCart, $orderId);
-                $preparedCart = $cartHelper->prepareDiscounts($preparedCart, $orderId);
-                $cartHelper->discountsToDB($preparedCart);
-
-                $order = $ordersEntity->get((int) $orderId);
-                if (!empty($order->delivery_id)) {
-                    $delivery          = $deliveriesEntity->get((int) $order->delivery_id);
-                    $deliveryPriceInfo = $deliveriesHelper->prepareDeliveryPriceInfo($delivery, $order);
-                    $deliveriesHelper->updateDeliveryPriceInfo($deliveryPriceInfo, $order);
-                }
-
-                $ordersEntity->updateTotalPrice($order->id);
-                $ordersHelper->finalCreateOrderProcedure($order);
-                
-                // Отправляем письмо пользователю
-                $notify->emailOrderUser($order->id);
-
-                // Отправляем письмо администратору
-                $notify->emailOrderAdmin($order->id);
-
-                $cart->clear();
-
-                // Перенаправляем на страницу заказа или отправляем форму для автосабмита или урл заказа
-                if ($this->request->post('ajax')) {
-                    $content = $cartHelper->getAjaxOrderContent($order);
-                    return $this->response->setContent(json_encode($content, JSON_UNESCAPED_SLASHES), RESPONSE_JSON);
+                if ($error = $validateHelper->getCartValidateError($order)) {
+                    $this->design->assign('error', $error);
+                } elseif (!$this->acceptCheckoutSubmission($order, $cart)) {
+                    $this->design->assign('error', 'csrf');
                 } else {
-                    $this->response->redirectTo(Router::generateUrl('order', ['url' => $order->url], true));
+                    // Add the order to the database.
+                    $order->lang_id = $languages->getLangId();
+                    $preparedOrder  = $ordersHelper->prepareAdd($order);
+                    $orderId        = $ordersHelper->add($preparedOrder);
+
+                    if (isset($_SESSION['coupon_code'])) {
+                        $couponHelper->registerUseIfExists($_SESSION['coupon_code']);
+                    }
+
+                    $preparedCart = $cartHelper->prepareCart($cart, $orderId);
+                    $preparedCart = $cartHelper->cartToOrder($preparedCart, $orderId);
+                    $preparedCart = $cartHelper->prepareDiscounts($preparedCart, $orderId);
+                    $cartHelper->discountsToDB($preparedCart);
+
+                    /** @var object{id: string|int, delivery_id?: string|int|null, total_price: string|int|float, url: string}&\stdClass $order */
+                    $order = $ordersEntity->get((int) $orderId);
+                    if (!empty($order->delivery_id)) {
+                        $delivery          = $deliveriesEntity->get((int) $order->delivery_id);
+                        $deliveryPriceInfo = $deliveriesHelper->prepareDeliveryPriceInfo($delivery, $order);
+                        $deliveriesHelper->updateDeliveryPriceInfo($deliveryPriceInfo, $order);
+                    }
+
+                    $ordersEntity->updateTotalPrice($order->id);
+                    $ordersHelper->finalCreateOrderProcedure($order);
+
+                    // Send the customer notification.
+                    $notify->emailOrderUser($order->id);
+
+                    // Send the administrator notification.
+                    $notify->emailOrderAdmin($order->id);
+
+                    $cart->clear();
+
+                    // Redirect to the order page or return the AJAX order content.
+                    if ($this->request->post('ajax')) {
+                        $content = $cartHelper->getAjaxOrderContent($order);
+                        return $this->response->setContent(
+                            json_encode($content, JSON_UNESCAPED_SLASHES),
+                            RESPONSE_JSON
+                        );
+                    } else {
+                        $this->response->redirectTo(
+                            Router::generateUrl('order', ['url' => $order->url], true)
+                        );
+                    }
                 }
             }
         } else {
-            
-            if ($request->post('amounts')) {
+            if ($cartCsrfError === null && $request->post('amounts')) {
                 $couponCode = $cartRequest->postCoupon();
                 if (empty($couponCode)) {
                     $cart->applyCoupon('');
@@ -127,44 +152,58 @@ class CartController extends AbstractController
                 }
             }
 
-            // Данные пользователя по умолчанию
+            // Default user data.
             $this->design->assign('request_data', $cartHelper->getDefaultCartData($this->user));
         }
 
-        // Способы доставки и оплаты
+        // Deliveries and payments.
         $paymentMethods = $paymentsHelper->getCartPaymentsList($cart);
         $deliveries     = $deliveriesHelper->getCartDeliveriesList($cart, $paymentMethods);
         $activeDelivery = $deliveriesHelper->getActiveDeliveryMethod($deliveries, $this->user);
-        $activePayment  = $paymentsHelper->getActivePaymentMethod($paymentMethods, $activeDelivery, $this->user);
+        $activePayment  = $paymentsHelper->getActivePaymentMethod($paymentMethods, $activeDelivery, $this->user ?? new \stdClass());
 
         $this->design->assign('all_currencies', $currenciesEntity->mappedBy('id')->find());
         $this->design->assign('deliveries', $deliveries);
         $this->design->assign('payment_methods', $paymentMethods);
         $this->design->assign('active_delivery', $activeDelivery);
         $this->design->assign('active_payment', $activePayment);
-        
-        if ($couponsEntity->count(['valid'=>1])>0) {
+
+        if ($couponsEntity->count(['valid' => 1]) > 0) {
             $this->design->assign('coupon_request', true);
         }
 
         $this->design->assign('noindex_follow', true);
-        
+
         $this->response->setContent('cart.tpl');
     }
-    
+
     public function cartAjax(
-        CouponsEntity    $couponsEntity,
+        CouponsEntity $couponsEntity,
         CurrenciesEntity $currenciesEntity,
-        Request          $request,
-        Cart             $cart,
+        Request $request,
+        Cart $cart,
         DeliveriesHelper $deliveriesHelper,
-        PaymentsHelper   $paymentsHelper,
-        CartHelper       $cartHelper
+        PaymentsHelper $paymentsHelper,
+        CartHelper $cartHelper,
+        ValidateHelper $validateHelper
     ) {
-        $action     = $request->get('action');
-        $variantId  = $request->get('variant_id', 'integer');
-        $amount     = $request->get('amount', 'integer');
-        
+        $action = (string)($request->isPost() ? $request->post('action') : $request->get('action'));
+        $isMutation = $this->isCartAjaxMutation($action);
+        if ($isMutation && !$request->isPost()) {
+            return $this->rejectCartAjaxMutation(405, 'method_not_allowed');
+        }
+
+        if ($isMutation && ($error = $this->getCustomerCsrfError($validateHelper))) {
+            return $this->rejectCartAjaxMutation(403, $error);
+        }
+
+        $variantId = $request->isPost()
+            ? $request->post('variant_id', 'integer')
+            : $request->get('variant_id', 'integer');
+        $amount = $request->isPost()
+            ? $request->post('amount', 'integer')
+            : $request->get('amount', 'integer');
+
         switch ($action) {
             case 'update_citem':
                 $cart->updateItem($variantId, $amount);
@@ -184,13 +223,13 @@ class CartController extends AbstractController
 
         $this->design->assign('all_currencies', $currenciesEntity->mappedBy('id')->find());
 
-        /*Рабтаем с товарами в корзине*/
+        /* Cart items */
         if ($cart->isEmpty === false) {
-            if (isset($_GET['coupon_code'])) {
-                $couponCode = trim($request->get('coupon_code', 'string'));
+            if ($request->isPost() && $this->hasPostField('coupon_code')) {
+                $couponCode = trim($request->post('coupon_code', 'string'));
                 if (empty($couponCode)) {
                     $cart->applyCoupon('');
-                    if ($this->request->get('action') == 'coupon_apply') {
+                    if ($action == 'coupon_apply') {
                         $this->design->assign('coupon_error', 'empty');
                     }
                 } else {
@@ -204,7 +243,7 @@ class CartController extends AbstractController
                 }
             }
 
-            if ($couponsEntity->count(['valid'=>1])>0) {
+            if ($couponsEntity->count(['valid' => 1]) > 0) {
                 $this->design->assign('coupon_request', true);
             }
 
@@ -213,21 +252,139 @@ class CartController extends AbstractController
 
         $paymentMethods = $paymentsHelper->getCartPaymentsList($cart);
         $deliveries = $deliveriesHelper->getCartDeliveriesList($cart, $paymentMethods);
-        
-        $result = $cartHelper->getAjaxCartResult($cart, $this->currency, $paymentMethods, $deliveries, $action, $variantId, $amount);
-        
+
+        $result = $cartHelper->getAjaxCartResult(
+            $cart,
+            $this->currency,
+            $paymentMethods,
+            $deliveries,
+            $action,
+            $variantId,
+            $amount
+        );
+
         $this->response->setContent(json_encode($result), RESPONSE_JSON);
     }
 
-    public function removeItem(Cart $cart, $variantId)
+    /**
+     * @param string $variantId Numeric route parameter.
+     */
+    public function removeItem(Cart $cart, ValidateHelper $validateHelper, $variantId)
     {
-        $cart->deleteItem($variantId);
+        if (!$this->request->isPost()) {
+            $this->response->setStatusCode(405)->sendHeaders();
+            return;
+        }
+
+        if ($this->getCustomerCsrfError($validateHelper) !== null) {
+            $this->response->setStatusCode(403)->sendHeaders();
+            return;
+        }
+
+        $cart->deleteItem((int)$variantId);
         $this->response->redirectTo(Router::generateUrl('cart', [], true));
     }
 
-    public function addItem(Cart $cart, $variantId)
+    /**
+     * @param string $variantId Numeric route parameter.
+     */
+    public function addItem(Cart $cart, ValidateHelper $validateHelper, $variantId)
     {
-        $cart->addItem($variantId);
+        if (!$this->request->isPost()) {
+            $this->response->setStatusCode(405)->sendHeaders();
+            return;
+        }
+
+        if ($this->getCustomerCsrfError($validateHelper) !== null) {
+            $this->response->setStatusCode(403)->sendHeaders();
+            return;
+        }
+
+        $cart->addItem((int)$variantId, $this->request->post('amount', 'integer'));
         $this->response->redirectTo(Router::generateUrl('cart', [], true));
+    }
+
+    private function getCustomerCsrfError(ValidateHelper $validateHelper): ?string
+    {
+        return $validateHelper->getCustomerCsrfError($this->request->post('customer_csrf_token'));
+    }
+
+    private function acceptCheckoutSubmission(object $order, Cart $cart): bool
+    {
+        $checkoutToken = $this->request->post('checkout_token');
+        if (is_string($checkoutToken) && $checkoutToken !== '') {
+            return CheckoutToken::consume($checkoutToken);
+        }
+
+        return CheckoutToken::consumeFingerprint($this->getCheckoutSubmissionFingerprint($order, $cart));
+    }
+
+    private function getCheckoutSubmissionFingerprint(object $order, Cart $cart): string
+    {
+        $purchases = [];
+        foreach ($cart->purchases as $purchase) {
+            $purchases[] = [
+                'variant_id' => (string) $purchase->variant_id,
+                'amount' => (int) $purchase->amount,
+            ];
+        }
+
+        usort(
+            $purchases,
+            static fn (array $first, array $second): int => $first['variant_id'] <=> $second['variant_id']
+        );
+
+        $payload = json_encode([
+            'purchases' => $purchases,
+            'delivery_id' => (string) ($order->delivery_id ?? ''),
+            'payment_method_id' => (string) ($order->payment_method_id ?? ''),
+            'name' => (string) ($order->name ?? ''),
+            'last_name' => (string) ($order->last_name ?? ''),
+            'email' => (string) ($order->email ?? ''),
+            'phone' => (string) ($order->phone ?? ''),
+            'comment' => (string) ($order->comment ?? ''),
+            'total_price' => (string) $cart->total_price,
+            'coupon_code' => (string) ($_SESSION['coupon_code'] ?? ''),
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
+
+        return hash('sha256', is_string($payload) ? $payload : '');
+    }
+
+    /**
+     * @param list<string> $names
+     */
+    private function hasAnyPostField(array $names): bool
+    {
+        foreach ($names as $name) {
+            if ($this->hasPostField($name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasPostField(string $name): bool
+    {
+        return array_key_exists($name, $_POST);
+    }
+
+    private function hasRequestField(string $name): bool
+    {
+        return array_key_exists($name, $_POST) || array_key_exists($name, $_GET);
+    }
+
+    private function isCartAjaxMutation(string $action): bool
+    {
+        return isset(self::CART_AJAX_MUTATING_ACTIONS[$action]) || $this->hasRequestField('coupon_code');
+    }
+
+    private function rejectCartAjaxMutation(int $statusCode, string $error): Response
+    {
+        $this->response->setStatusCode($statusCode);
+        return $this->response->setContent(json_encode([
+            'result' => 0,
+            'error' => $error,
+        ]), RESPONSE_JSON);
     }
 }

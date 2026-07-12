@@ -9,12 +9,15 @@ use Okay\Core\ServiceLocator;
 
 class PresetAdapterFactory
 {
-    /** @var array */
+    /** @var array<string, array<string, string>> */
     private $presets;
 
-    /** @var array */
+    /** @var array<string, PresetAdapterInterface> */
     private $presetAdapters = [];
 
+    /**
+     * @param array<string, array<string, string>> $presets
+     */
     public function __construct(
         array $presets
     ) {
@@ -42,18 +45,28 @@ class PresetAdapterFactory
     {
         if (empty($this->presets[$presetName]['frontend_adapter'])) {
             throw new \Exception("Preset {$presetName} doesn't have frontend adapter.");
-        } else if (!class_exists($this->presets[$presetName]['frontend_adapter'])) {
-            throw new \Exception("The frontend adapter for {$presetName} preset is not a class.");
         }
 
-        $arguments = $this->getMethodArguments(new \ReflectionMethod($this->presets[$presetName]['frontend_adapter'], '__construct'));
+        $frontendAdapterClass = $this->presets[$presetName]['frontend_adapter'];
+        if (!class_exists($frontendAdapterClass)) {
+            throw new \Exception("The frontend adapter for {$presetName} preset is not a class.");
+        } elseif (!is_subclass_of($frontendAdapterClass, PresetAdapterInterface::class)) {
+            throw new \Exception("The frontend adapter for {$presetName} preset must implement PresetAdapterInterface.");
+        }
 
-        $reflector = new \ReflectionClass($this->presets[$presetName]['frontend_adapter']);
+        /** @var class-string<PresetAdapterInterface> $frontendAdapterClass */
+        $arguments = $this->getMethodArguments(new \ReflectionMethod($frontendAdapterClass, '__construct'));
+
+        /** @var \ReflectionClass<PresetAdapterInterface> $reflector */
+        $reflector = new \ReflectionClass($frontendAdapterClass);
         $this->presetAdapters[$presetName] = $reflector->newInstanceArgs($arguments);
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    /**
+     * @return list<mixed>
+     */
     private function getMethodArguments(\ReflectionFunctionAbstract $reflectionFunction): array
     {
         $serviceLocator = ServiceLocator::getInstance();
@@ -61,16 +74,16 @@ class PresetAdapterFactory
         /** @var EntityFactory $entityFactory */
         $entityFactory = $serviceLocator->getService(EntityFactory::class);
 
-        return array_reduce($reflectionFunction->getParameters(), function($arguments, $parameter) use ($serviceLocator, $entityFactory, $reflectionFunction) {
+        return array_reduce($reflectionFunction->getParameters(), function ($arguments, $parameter) use ($serviceLocator, $entityFactory, $reflectionFunction) {
             /** @var \ReflectionParameter $parameter */
-            if (($type = $parameter->getType()) !== null) {
+            if (($type = $parameter->getType()) instanceof \ReflectionNamedType) {
                 $typeName = $type->getName();
                 if ($serviceLocator->hasService($typeName)) {
                     $arguments[] = $serviceLocator->getService($typeName);
                 } elseif (is_subclass_of($typeName, Entity::class)) {
                     $arguments[] = $entityFactory->get($typeName);
                 } elseif (class_exists($typeName)) {
-                    $arguments[] = new $typeName;
+                    $arguments[] = new $typeName();
                 } elseif ($parameter->isDefaultValueAvailable()) {
                     $arguments[] = $parameter->getDefaultValue();
                 } else {
@@ -86,6 +99,9 @@ class PresetAdapterFactory
         }, []);
     }
 
+    /**
+     * @return array<string, array<string, string>>
+     */
     public function getPresets(): array
     {
         return ExtenderFacade::execute(__METHOD__, $this->presets, func_get_args());

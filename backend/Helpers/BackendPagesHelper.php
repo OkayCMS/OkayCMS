@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Helpers;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\Extender\ExtenderFacade;
@@ -47,10 +45,10 @@ class BackendPagesHelper
         $page = $this->pagesEntity->findOne(['id' => $id]);
 
         if (empty($page)) {
-            $page = new \stdClass;
+            $page = new \stdClass();
             $page->visible = 1;
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $page, func_get_args());
     }
 
@@ -58,8 +56,8 @@ class BackendPagesHelper
     {
         $ids = array_keys($positions);
         sort($positions);
-        foreach ($positions as $i=>$position) {
-            $this->pagesEntity->update($ids[$i], ['position'=>$position]);
+        foreach ($positions as $i => $position) {
+            $this->pagesEntity->update($ids[$i], ['position' => $position]);
         }
 
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
@@ -67,13 +65,13 @@ class BackendPagesHelper
 
     public function disable($ids)
     {
-        $this->pagesEntity->update($ids, ['visible'=>0]);
+        $this->pagesEntity->update($ids, ['visible' => 0]);
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
     public function enable($ids)
     {
-        $this->pagesEntity->update($ids, ['visible'=>1]);
+        $this->pagesEntity->update($ids, ['visible' => 1]);
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
@@ -91,7 +89,7 @@ class BackendPagesHelper
 
     public function duplicate($ids)
     {
-        foreach($ids as $id) {
+        foreach ($ids as $id) {
             $this->pagesEntity->duplicate((int)$id);
         }
         ExtenderFacade::execute(__METHOD__, null, func_get_args());

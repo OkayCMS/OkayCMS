@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Helpers;
-
 
 use Okay\Core\Design;
 use Okay\Core\Request;
@@ -65,11 +63,11 @@ class BackendFeaturesHelper
 
     public function __construct(
         EntityFactory $entityFactory,
-        QueryFactory  $queryFactory,
-        Translit      $translit,
-        Database      $db,
-        Request       $request,
-        Design        $design
+        QueryFactory $queryFactory,
+        Translit $translit,
+        Database $db,
+        Request $request,
+        Design $design
     ) {
         $this->featuresValuesEntity = $entityFactory->get(FeaturesValuesEntity::class);
         $this->featuresEntity       = $entityFactory->get(FeaturesEntity::class);
@@ -88,7 +86,6 @@ class BackendFeaturesHelper
         if (!empty($featuresValues)) {
             foreach ($featuresValues as $featureId => $feature_values) {
                 foreach ($feature_values as $k => $valueId) {
-
                     $value = trim($featuresValuesText[$featureId][$k]);
                     if (!empty($value)) {
                         if (!empty($valueId)) {
@@ -183,12 +180,17 @@ class BackendFeaturesHelper
         return ExtenderFacade::execute(__METHOD__, $featuresValues, func_get_args());
     }
 
+    /**
+     * @param array<int, object> $productCategories
+     * @param array<int, object> $categoriesTree
+     */
     public function findCategoryFeatures(array $productCategories, array $categoriesTree)
     {
         $features = [];
 
         $category = reset($productCategories);
         if (is_object($category)) {
+            /** @var object{id: int|string}&\stdClass $category */
             $features = $this->featuresEntity->find(['category_id' => $category->id]);
         }
 
@@ -226,7 +228,7 @@ class BackendFeaturesHelper
             $feature = new \stdClass();
             $feature->visible = 1;
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $feature, func_get_args());
     }
 
@@ -276,8 +278,8 @@ class BackendFeaturesHelper
     {
         $ids = array_keys($positions);
         sort($positions);
-        foreach ($positions as $i=>$position) {
-            $this->featuresEntity->update($ids[$i], ['position'=>$position]);
+        foreach ($positions as $i => $position) {
+            $this->featuresEntity->update($ids[$i], ['position' => $position]);
         }
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
@@ -286,14 +288,17 @@ class BackendFeaturesHelper
     public function delete($ids)
     {
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
-        
+
         $currentCategoryId = $this->request->get('category_id', 'integer');
         foreach ($ids as $id) {
             // текущие категории
             $featureCategories = $this->featuresEntity->getFeatureCategories($id);
 
             // В каких категориях оставлять
-            $diffCategoriesIds = array_diff($featureCategories, (array)$currentCategoryId); // todo протестить
+            $diffCategoriesIds = array_values(array_map(
+                'intval',
+                array_diff($featureCategories, (array)$currentCategoryId)
+            )); // todo протестить
             if (!empty($currentCategoryId) && !empty($diffCategoriesIds)) {
                 $this->featuresEntity->updateFeatureCategories($id, $diffCategoriesIds);
             } else {
@@ -332,15 +337,15 @@ class BackendFeaturesHelper
         $filter['page'] = $targetPage;
 
         // До какого свойства перемещать
-        $limit = $filter['limit']*($targetPage-1);
+        $limit = $filter['limit'] * ($targetPage - 1);
         if ($targetPage > $this->request->get('page', 'integer')) {
-            $limit += count($ids)-1;
+            $limit += count($ids) - 1;
         } else {
             $ids = array_reverse($ids, true);
         }
 
         $tempFilter = $filter;
-        $tempFilter['page'] = $limit+1;
+        $tempFilter['page'] = $limit + 1;
         $tempFilter['limit'] = 1;
         $tmp = $this->featuresEntity->find($tempFilter);
         $targetFeature = array_pop($tmp);
@@ -417,8 +422,8 @@ class BackendFeaturesHelper
             $filter['limit'] = $featuresCount;
         }
 
-        if ($filter['limit']>0) {
-            $pagesCount = ceil($featuresCount/$filter['limit']);
+        if ($filter['limit'] > 0) {
+            $pagesCount = ceil($featuresCount / $filter['limit']);
         } else {
             $pagesCount = 0;
         }

@@ -15,7 +15,7 @@ class ModuleCreateCommand extends Command
     {
         $this->setHelp('This command allows you to create a file structure for a new module.');
 
-        $this->modulesDirectory = dirname(__DIR__, 4).'/Modules';
+        $this->modulesDirectory = dirname(__DIR__, 4) . '/Modules';
     }
 
     protected function handle(): int
@@ -63,8 +63,8 @@ class ModuleCreateCommand extends Command
 
     private function getModuleName(string $vendor): string
     {
-        if (is_dir($this->modulesDirectory.'/'.$vendor)) {
-            $modules = array_diff(scandir($this->modulesDirectory.'/'.$vendor), ['.', '..']);
+        if (is_dir($this->modulesDirectory . '/' . $vendor)) {
+            $modules = array_diff(scandir($this->modulesDirectory . '/' . $vendor), ['.', '..']);
         } else {
             $modules = [];
         }
@@ -94,48 +94,61 @@ class ModuleCreateCommand extends Command
     private function formatCamelCase(string $name): string
     {
         $name = ucwords($name, ' _');
-        return preg_replace('/[ |_]+/', '', $name);
+        $formatted = preg_replace('/[ |_]+/', '', $name);
+        return is_string($formatted) ? $formatted : $name;
     }
 
     private function formatSnakeCase(string $name): string
     {
-        return strtolower(preg_replace('/([a-z])([A-Z]+)/', '$1_$2', $name));
+        $formatted = preg_replace('/([a-z])([A-Z]+)/', '$1_$2', $name);
+        return strtolower(is_string($formatted) ? $formatted : $name);
     }
 
     private function createModuleFiles(string $vendor, string $module)
     {
-        if (!is_dir($this->modulesDirectory.'/'.$vendor)) {
-            mkdir($this->modulesDirectory.'/'.$vendor);
+        if (!is_dir($this->modulesDirectory . '/' . $vendor)) {
+            mkdir($this->modulesDirectory . '/' . $vendor);
         }
 
-        $moduleDir = $this->modulesDirectory.'/'.$vendor.'/'.$module;
+        $moduleDir = $this->modulesDirectory . '/' . $vendor . '/' . $module;
         $replacements = [
             '%namespace_vendor%' => $vendor,
             '%namespace_module%' => $module,
-            '%permission%' => $this->formatSnakeCase($vendor).'__'.$this->formatSnakeCase($module),
-            '%lang%' => $this->formatSnakeCase($vendor).'__'.$this->formatSnakeCase($module),
+            '%permission%' => $this->formatSnakeCase($vendor) . '__' . $this->formatSnakeCase($module),
+            '%lang%' => $this->formatSnakeCase($vendor) . '__' . $this->formatSnakeCase($module),
         ];
 
-        $this->recursiveCopy(__DIR__.'/ModuleCreateCommand/module', $moduleDir, $replacements);
+        $this->recursiveCopy(__DIR__ . '/ModuleCreateCommand/module', $moduleDir, $replacements);
     }
 
+    /**
+     * @param array<string, string> $replacements
+     */
     private function recursiveCopy(string $source, string $destination, array $replacements): void
     {
         $dir = opendir($source);
+        if ($dir === false) {
+            return;
+        }
+
         mkdir($destination);
-        while(( $file = readdir($dir)) ) {
+        while (($file = readdir($dir)) !== false) {
             if (( $file != '.' ) && ( $file != '..' )) {
-                if ( is_dir($source . '/' . $file) ) {
-                    $this->recursiveCopy($source .'/'. $file, $destination .'/'. $file, $replacements);
+                if (is_dir($source . '/' . $file)) {
+                    $this->recursiveCopy($source . '/' . $file, $destination . '/' . $file, $replacements);
                 } else {
-                    $content = file_get_contents($source .'/'. $file);
+                    $content = file_get_contents($source . '/' . $file);
+                    if (!is_string($content)) {
+                        continue;
+                    }
+
                     $content = str_replace(array_keys($replacements), array_values($replacements), $content);
 
                     if (mb_substr($file, -4, 4) === 'tplm') {
                         $file = mb_substr($file, 0, -5);
                     }
 
-                    file_put_contents($destination .'/'. $file, $content);
+                    file_put_contents($destination . '/' . $file, $content);
                 }
             }
         }

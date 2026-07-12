@@ -1,18 +1,15 @@
 <?php
 
-
 namespace Okay\Core\QueryFactory;
 
-
 use Aura\SqlQuery\Common\SelectInterface;
-use Aura\SqlQuery\Common\SubselectInterface;
 use Aura\SqlQuery\QueryInterface;
 use Aura\SqlQuery\Common\Select as AuraSelect;
 
-class Select extends AbstractQuery implements SelectInterface, SubselectInterface
+class Select extends AbstractQuery implements SelectInterface
 {
     /**
-     * @var QueryInterface|AuraSelect
+     * @var AuraSelect
      */
     protected $queryObject;
 
@@ -39,16 +36,33 @@ class Select extends AbstractQuery implements SelectInterface, SubselectInterfac
         return $this;
     }
 
+    public function isDistinct()
+    {
+        return $this->queryObject->isDistinct();
+    }
+
+    /**
+     * @param array<int|string, string> $cols
+     * @return $this
+     */
     public function cols(array $cols)
     {
         $this->queryObject->cols($cols);
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function removeCol($alias)
     {
         $this->queryObject->removeCol($alias);
-        return $this;
+        return true; // Aura interface expects bool, but we need fluent interface
+    }
+
+    public function hasCol($alias)
+    {
+        return $this->queryObject->hasCol($alias);
     }
 
     public function hasCols()
@@ -56,6 +70,9 @@ class Select extends AbstractQuery implements SelectInterface, SubselectInterfac
         return $this->queryObject->hasCols();
     }
 
+    /**
+     * @return array<int|string, string>
+     */
     public function getCols()
     {
         return $this->queryObject->getCols();
@@ -79,45 +96,65 @@ class Select extends AbstractQuery implements SelectInterface, SubselectInterfac
         return $this;
     }
 
-    public function join($join, $spec, $cond = null, array $bind = [])
+    public function join($join, $spec, $cond = null)
     {
-        $this->queryObject->join($join, $spec, $cond, $bind);
+        $this->queryObject->join($join, $spec, $cond);
         return $this;
     }
 
+    /**
+     * @param array<mixed> $bind
+     * @return $this
+     */
     public function innerJoin($spec, $cond = null, array $bind = [])
     {
         $this->queryObject->innerJoin($spec, $cond, $bind);
         return $this;
     }
 
+    /**
+     * @param array<mixed> $bind
+     * @return $this
+     */
     public function leftJoin($spec, $cond = null, array $bind = [])
     {
         $this->queryObject->leftJoin($spec, $cond, $bind);
         return $this;
     }
 
-    public function joinSubSelect($join, $spec, $name, $cond = null, array $bind = [])
+    public function joinSubSelect($join, $spec, $name, $cond = null)
     {
-        $this->queryObject->joinSubSelect($join, $spec, $name, $cond, $bind);
+        $this->queryObject->joinSubSelect($join, $spec, $name, $cond);
         return $this;
     }
 
+    /**
+     * @param array<int|string, string> $spec
+     * @return $this
+     */
     public function groupBy(array $spec)
     {
         $this->queryObject->groupBy($spec);
         return $this;
     }
 
-    public function having($cond)
+    /**
+     * @param array<string, mixed> $bind
+     * @return $this
+     */
+    public function having($cond, array $bind = [])
     {
-        $this->queryObject->having($cond);
+        $this->queryObject->having($cond, $bind);
         return $this;
     }
 
-    public function orHaving($cond)
+    /**
+     * @param array<string, mixed> $bind
+     * @return $this
+     */
+    public function orHaving($cond, array $bind = [])
     {
-        $this->queryObject->orHaving($cond);
+        $this->queryObject->orHaving($cond, $bind);
         return $this;
     }
 
@@ -142,6 +179,15 @@ class Select extends AbstractQuery implements SelectInterface, SubselectInterfac
     {
         $this->queryObject->unionAll();
         return $this;
+    }
+
+    /**
+     * @return null
+     */
+    public function reset()
+    {
+        $this->queryObject->reset();
+        return null; // Aura interface expects null, but we need fluent interface
     }
 
     public function getLimit()
@@ -196,15 +242,23 @@ class Select extends AbstractQuery implements SelectInterface, SubselectInterfac
         return $this;
     }
 
-    public function where($cond, ...$binds)
+    /**
+     * @param list<string|int|float|bool|null> $bind
+     * @return $this
+     */
+    public function where($cond, ...$bind)
     {
-        $this->queryObject->where(...func_get_args());
+        $this->queryObject->where($cond, $bind);
         return $this;
     }
 
-    public function orWhere($cond)
+    /**
+     * @param list<string|int|float|bool|null> $bind
+     * @return $this
+     */
+    public function orWhere($cond, ...$bind)
     {
-        $this->queryObject->orWhere(...func_get_args());
+        $this->queryObject->orWhere($cond, $bind);
         return $this;
     }
 
@@ -220,6 +274,10 @@ class Select extends AbstractQuery implements SelectInterface, SubselectInterfac
         return $this;
     }
 
+    /**
+     * @param list<string> $spec
+     * @return $this
+     */
     public function orderBy(array $spec)
     {
         $this->queryObject->orderBy($spec);
@@ -297,5 +355,4 @@ class Select extends AbstractQuery implements SelectInterface, SubselectInterfac
 
         return $this;
     }
-
 }

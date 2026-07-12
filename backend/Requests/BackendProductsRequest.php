@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Requests;
-
 
 use Okay\Core\Request;
 use Okay\Core\Modules\Extender\ExtenderFacade;
@@ -34,7 +32,7 @@ class BackendProductsRequest
         $product->description = $this->request->post('description');
         $product->rating      = $this->request->post('rating', 'float');
         $product->votes       = $this->request->post('votes', 'integer');
-        $product->special     = $this->request->post('special','string');
+        $product->special     = $this->request->post('special', 'string');
 
         return ExtenderFacade::execute(__METHOD__, $product, func_get_args());
     }
@@ -48,8 +46,8 @@ class BackendProductsRequest
         }
 
         $productVariants = [];
-        foreach ($postFields as $n=>$va) {
-            foreach ($va as $i=>$v) {
+        foreach ($postFields as $n => $va) {
+            foreach ($va as $i => $v) {
                 if (empty($productVariants[$i])) {
                     $productVariants[$i] = new \stdClass();
                 }
@@ -60,8 +58,9 @@ class BackendProductsRequest
             }
         }
 
-        foreach($productVariants as $key => $variant) {
-            if (empty($variant->name)         &&
+        foreach ($productVariants as $key => $variant) {
+            if (
+                empty($variant->name)         &&
                 empty($variant->sku)          &&
                 trim($variant->price)         === "" &&
                 trim($variant->compare_price) === ""
@@ -102,7 +101,7 @@ class BackendProductsRequest
     {
         if (is_array($this->request->post('related_products'))) {
             $rp = [];
-            foreach($this->request->post('related_products') as $p) {
+            foreach ($this->request->post('related_products') as $p) {
                 $rp[$p] = new \stdClass();
                 $rp[$p]->product_id = $this->request->post('id', 'integer');
                 $rp[$p]->related_id = $p;

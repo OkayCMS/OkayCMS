@@ -13,6 +13,7 @@
         <div class="f_row flex-lg-row align-items-md-start">
             <div class="form_wrap f_col-lg-7 f_col-xl-6">
                 <form id="captcha_id" method="post" class="fn_validate_register form form--boxed">
+                    <input type="hidden" name="customer_csrf_token" value="{$customer_csrf_token|escape}">
                     {if $settings->captcha_type == "v3"}
                         <input type="hidden" class="fn_recaptcha_token fn_recaptchav3" name="recaptcha_token" />
                     {/if}
@@ -27,7 +28,7 @@
                     <div class="form__body">
                         {* Form error messages *}
                         {if $error}
-                        <div class="message_error">
+                        <div class="message_error" role="alert">
                             {if $error == 'empty_name'}
                                 <span data-language="form_enter_name">{$lang->form_enter_name}</span>
                             {elseif $error == 'empty_email'}
@@ -38,6 +39,8 @@
                                 <span data-language="register_user_registered">{$lang->register_user_registered}</span>
                             {elseif $error == 'captcha'}
                                 <span data-language="form_error_captcha">{$lang->form_error_captcha}</span>
+                            {elseif $error == 'csrf'}
+                                <span data-language="form_error_csrf">{$lang->form_error_csrf}</span>
                             {else}
                                 {$error|escape}
                             {/if}
@@ -58,7 +61,7 @@
 
                         {* User's  email *}
                         <div class="form__group">
-                            <input class="form__input form__placeholder--focus" type="text" name="email" value="{$request_data.email|escape}" data-language="form_email"/>
+                            <input class="form__input form__placeholder--focus" type="text" name="email" value="{$request_data.email|escape}" autocomplete="email" data-language="form_email"/>
                             <span class="form__placeholder">{$lang->form_email}*</span>
                         </div>
 
@@ -70,7 +73,7 @@
 
                         {* User's  password *}
                         <div class="form__group">
-                            <input class="form__input form__placeholder--focus" type="password" name="password" value="" data-language="form_enter_password" />
+                            <input class="form__input form__placeholder--focus" type="password" name="password" value="" autocomplete="new-password" data-language="form_enter_password" />
                             <span class="form__placeholder">{$lang->form_enter_password}*</span>
                         </div>
                     </div>

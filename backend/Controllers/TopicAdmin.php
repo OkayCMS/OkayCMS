@@ -1,16 +1,15 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Entities\SupportInfoEntity;
 use Okay\Core\Support;
 use Okay\Core\Request;
 
-class TopicAdmin extends IndexAdmin {
-
-    public function fetch(SupportInfoEntity $supportInfoEntity, Support $support) {
+class TopicAdmin extends IndexAdmin
+{
+    public function fetch(SupportInfoEntity $supportInfoEntity, Support $support)
+    {
         $supportInfo = $supportInfoEntity->getInfo();
 
         if (empty($supportInfo->public_key)) {
@@ -26,9 +25,8 @@ class TopicAdmin extends IndexAdmin {
         $this->design->assign("accesses", $supportInfo->accesses);
         $topic = new \stdClass();
         if ($this->request->method('post')) {
-
             $accesses = $this->request->post('accesses');
-            $supportInfoEntity->updateInfo(['accesses'=>$accesses]);
+            $supportInfoEntity->updateInfo(['accesses' => $accesses]);
             $this->design->assign('accesses', $accesses);
             $topic->id = $this->request->post('id', 'integer');
 
@@ -50,17 +48,17 @@ class TopicAdmin extends IndexAdmin {
                     $comment->manager = $manager->login;
                     if (empty($topic->id)) {
                         $result = $support->addTopic([
-                            'header'=>$topic->header,
-                            'manager'=>$comment->manager,
-                            'text'=>$comment->text,
-                            'accesses'=>$accesses,
+                            'header' => $topic->header,
+                            'manager' => $comment->manager,
+                            'text' => $comment->text,
+                            'accesses' => $accesses,
                         ]);
                     } else {
                         $result = $support->addComment([
-                            'topic_id'=>$topic->id,
-                            'manager'=>$comment->manager,
-                            'text'=>$comment->text,
-                            'accesses'=>$accesses,
+                            'topic_id' => $topic->id,
+                            'manager' => $comment->manager,
+                            'text' => $comment->text,
+                            'accesses' => $accesses,
                         ]);
                     }
 
@@ -108,6 +106,7 @@ class TopicAdmin extends IndexAdmin {
             } elseif (empty($result->success)) {
                 $this->design->assign('message_error', $result->error ? $result->error : 'unknown_error');
             } else {
+                /** @var object{comments: array<int, object{is_read: mixed}>, topic: mixed, comments_count: int|float}&\stdClass $result */
                 $result->comments = (array)$result->comments;
                 if (!empty($result->comments)) {
                     $read_messages = 0;
@@ -134,5 +133,4 @@ class TopicAdmin extends IndexAdmin {
 
         $this->response->setContent($this->design->fetch('topic.tpl'));
     }
-
 }

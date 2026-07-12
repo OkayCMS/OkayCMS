@@ -1,7 +1,7 @@
 <?php
 
-
 use Okay\Core\Database;
+use Okay\Core\Export\CsvExportWriter;
 use Okay\Core\Managers;
 use Okay\Core\Response;
 use Okay\Core\QueryFactory;
@@ -37,6 +37,11 @@ $managers = $DI->get(Managers::class);
 /** @var Response $response */
 $response = $DI->get(Response::class);
 
+/** @var CsvExportWriter $csvExportWriter */
+$csvExportWriter = new CsvExportWriter();
+$requestedFormat = $_GET['format'] ?? null;
+$format = $csvExportWriter->normalizeFormat(is_string($requestedFormat) ? $requestedFormat : null);
+
 /** @var BrandsEntity $brandsEntity */
 $brandsEntity         = $entityFactory->get(BrandsEntity::class);
 
@@ -56,38 +61,43 @@ if (!$managers->access('category_stats', $managersEntity->get($_SESSION['admin']
 
 // Страница, которую экспортируем
 $page = $request->get('page');
-if (empty($page) || $page==1) {
+if (empty($page) || $page == 1) {
     $page = 1;
     // Если начали сначала - удалим старый файл экспорта
-    if (is_writable($exportFilesDir.$filename)) {
-        unlink($exportFilesDir.$filename);
+    if (is_writable($exportFilesDir . $filename)) {
+        unlink($exportFilesDir . $filename);
     }
 }
 
 // Открываем файл экспорта на добавление
-$f = fopen($exportFilesDir.$filename, 'ab');
+try {
+    $f = $csvExportWriter->openAppendStream($exportFilesDir, $filename, $format);
+} catch (\RuntimeException) {
+    $response->setContent(json_encode(false), RESPONSE_JSON)->sendContent();
+    exit;
+}
 
 // Если начали сначала - добавим в первую строку названия колонок
 if ($page == 1) {
-    fputcsv($f, $columnsNames, $columnDelimiter);
+    $csvExportWriter->writeRow($f, $columnsNames, $columnDelimiter, $format);
 }
 
 $filter = [];
 $filter['page'] = $page;
 $totalPrice = 0;
 $totalAmount = 0;
-$category_id = $request->get('category','integer');
+$category_id = $request->get('category', 'integer');
 if (!empty($category_id)) {
     $category = $categoriesEntity->get(intval($category_id));
-    $this->design->assign('category',$category);
+    $this->design->assign('category', $category);
     $filter['category_id'] = $category->children;
 }
 
-$brand_id = $request->get('brand','integer');
+$brand_id = $request->get('brand', 'integer');
 if (!empty($brand_id)) {
     $filter['brand_id'] = $brand_id;
     $brand = $brandsEntity->get(intval($brand_id));
-    $this->design->assign('brand',$brand);
+    $this->design->assign('brand', $brand);
 }
 
 $dateFrom = $request->get('date_from');
@@ -111,23 +121,17 @@ if (!empty($category)) {
     $categories_list = cat_tree($categories, $purchases);
 }
 foreach ($categories_list as $c) {
-    fputcsv($f, $c, $columnDelimiter);
+    $csvExportWriter->writeRow($f, $c, $columnDelimiter, $format);
 }
 
 $total = [
     'name' => 'Имя',
     'amount' => $totalAmount,
-    'price'=>$totalPrice
+    'price' => $totalPrice
 ];
 
-fputcsv($f, $total, $columnDelimiter);
+$csvExportWriter->writeRow($f, $total, $columnDelimiter, $format);
 fclose($f);
-
-mb_substitute_character('none');
-file_put_contents(
-    $exportFilesDir.$filename,
-    mb_convert_encoding(file_get_contents($exportFilesDir.$filename), 'Windows-1251')
-);
 
 $data = true;
 
@@ -136,15 +140,16 @@ if ($data) {
 }
 
 
-function cat_tree($categories, $purchases = [], &$result = []) {
+function cat_tree($categories, $purchases = [], &$result = [])
+{
     global $totalPrice, $totalAmount, $subcategoryDelimiter;
 
-    foreach ($categories as $k=>$v) {
+    foreach ($categories as $k => $v) {
         $category = [];
         $path = [];
 
         foreach ($v->path as $p) {
-            $path[] = str_replace($subcategoryDelimiter, '\\'.$subcategoryDelimiter, $p->name);
+            $path[] = str_replace($subcategoryDelimiter, '\\' . $subcategoryDelimiter, $p->name);
         }
 
         if (isset($purchases[$v->id])) {
@@ -162,7 +167,7 @@ function cat_tree($categories, $purchases = [], &$result = []) {
         $totalPrice += $price;
         $totalAmount += $amount;
         if (isset($v->subcategories)) {
-            array_merge($result, cat_tree($v->subcategories,$purchases,$result));
+            array_merge($result, cat_tree($v->subcategories, $purchases, $result));
         }
     }
     return $result;

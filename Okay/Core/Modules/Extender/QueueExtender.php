@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Modules\Extender;
-
 
 use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\ServiceLocator;
@@ -11,6 +9,9 @@ class QueueExtender extends AbstractExtender
 {
     protected static $triggers = [];
 
+    /**
+     * @param list<mixed> $input
+     */
     public static function execute($trigger, $output = null, array $input = [])
     {
         if (! static::isValidTrigger($trigger)) {
@@ -18,8 +19,7 @@ class QueueExtender extends AbstractExtender
         }
 
         $serviceLocator = ServiceLocator::getInstance();
-        foreach(static::$triggers[$trigger] as $extension) {
-
+        foreach (static::$triggers[$trigger] as $extension) {
             $classExtender = $extension->class;
             if ($serviceLocator->hasService($extension->class)) {
                 $classExtender = $serviceLocator->getService($extension->class);
@@ -28,8 +28,13 @@ class QueueExtender extends AbstractExtender
             } else {
                 throw new \Exception("Class \"{$classExtender}\" not found");
             }
+            $callback = [$classExtender, $extension->method];
+            if (!is_callable($callback)) {
+                throw new \Exception("Method \"{$extension->method}\" not found");
+            }
+
             DebugBar::startExtensionExecution($trigger, $extension);
-            call_user_func_array([$classExtender, $extension->method], array_merge([$output], $input));
+            call_user_func_array($callback, array_merge([$output], $input));
             DebugBar::finishExtensionExecution($trigger, $extension);
         }
     }

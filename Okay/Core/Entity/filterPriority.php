@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Entity;
-
 
 trait filterPriority
 {
@@ -38,31 +36,33 @@ trait filterPriority
         $this->lowPriorityFilters = [];
         return $this;
     }
-    
+
+    /**
+     * @param array<string, mixed> $filter
+     * @return array<string, mixed>
+     */
     public function orderFilterByPriority(array $filter = [])
     {
         $resultHigh = [];
         $resultLow = [];
-        
-        foreach($this->getHighPriority() as $highPriorityName)
-        {
+
+        foreach ($this->getHighPriority() as $highPriorityName) {
             if (isset($filter[$highPriorityName])) {
                 $resultHigh[$highPriorityName] = $filter[$highPriorityName];
                 unset($filter[$highPriorityName]);
             }
         }
-        
-        foreach($this->getLowPriority() as $lowPriorityName)
-        {
+
+        foreach ($this->getLowPriority() as $lowPriorityName) {
             if (isset($filter[$lowPriorityName])) {
                 $resultLow[$lowPriorityName] = $filter[$lowPriorityName];
                 unset($filter[$lowPriorityName]);
             }
         }
-        
+
         return array_merge($resultHigh, $filter, $resultLow);
     }
-    
+
     private function getHighPriority()
     {
         return (array)$this->highPriorityFilters;

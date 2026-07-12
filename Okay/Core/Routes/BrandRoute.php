@@ -1,17 +1,15 @@
 <?php
 
-
 namespace Okay\Core\Routes;
-
 
 use Okay\Core\Routes\Strategies\Brand\NoPrefixStrategy;
 use Okay\Core\Routes\Strategies\Brand\DefaultStrategy;
 
 class BrandRoute extends AbstractRoute
 {
-    const BRAND_ROUTE_TEMPLATE = 'brand_routes_template';
-    const TYPE_NO_PREFIX       = 'no_prefix';
-    const SLASH_END            = 'brand_routes_template_slash_end';
+    public const BRAND_ROUTE_TEMPLATE = 'brand_routes_template';
+    public const TYPE_NO_PREFIX       = 'no_prefix';
+    public const SLASH_END            = 'brand_routes_template_slash_end';
 
     public function hasSlashAtEnd()
     {

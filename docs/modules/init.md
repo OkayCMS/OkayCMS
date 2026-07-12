@@ -1,38 +1,38 @@
-# Инициализация модуля (класс Init)
+# Ініціалізація модуля (клас Init)
 
-Класс `Init\Init` является самым главным конфигурационным классом. Он обязательно должен наследоваться от 
+Клас `Init\Init` є головним конфігураційним класом. Він обовʼязково має наслідуватися від
 `Okay\Core\Modules\AbstractInit`.
-В классе `Init\Init` должны быть реализованы методы install() и init(). Базовый класс `Okay\Core\Modules\AbstractInit` 
-предоставляет средства для инициализации модуля в системе. 
-Метод install() выполняется один раз, во время установки модуля, метод init() вызывается при каждом запуске системы.
+У класі `Init\Init` мають бути реалізовані методи `install()` і `init()`. Базовий клас `Okay\Core\Modules\AbstractInit`
+надає засоби для ініціалізації модуля в системі.
+Метод `install()` виконується один раз під час встановлення модуля, метод `init()` викликається під час кожного запуску системи.
 
-## Обновление модуля
+## Оновлення модуля
 
-Опционально в классе `Init\Init` можно описывать методы, с названием вида `update_1_2_0()`. Данные методы будут 
-выполняться при обновлении модуля в порядке возрастания версии. Когда установленная в системе версия модуля ниже чем 
-указанная в [module.json](./module_json.md) в свойстве version, в списке модулей в админ части предлагается его обновить.
-Когда пользователь нажмет обновить модуль, выполнятся все методы, для версии модуля выше текущей установленной и ниже
-версии, указанной в свойстве version файла [module.json](./module_json.md).
+Опціонально в класі `Init\Init` можна описувати методи з назвою виду `update_1_2_0()`. Ці методи будуть
+виконуватися під час оновлення модуля в порядку зростання версії. Коли встановлена в системі версія модуля нижча за
+вказану в [module.json](./module_json.md) у властивості version, у списку модулів в admin-частині пропонується його оновити.
+Коли користувач натисне “Оновити модуль”, виконаються всі методи для версій модуля, вищих за поточну встановлену, і нижчих або рівних
+версії, вказаної у властивості version файла [module.json](./module_json.md).
 
-Для получения зависимостей в методах обновления можно использовать [локатор служб](./../service_locator.md).
+Для отримання залежностей у методах оновлення можна використовувати [service locator](./../service_locator.md).
 
-Для выполнения SQL запросов нужно получить экземпляр одного из классов `Okay\Core\QueryFactory\Insert`, 
-`Okay\Core\QueryFactory\Select`, `Okay\Core\QueryFactory\Update` , `Okay\Core\QueryFactory\Delete` 
- или `Okay\Core\QueryFactory\SqlQuery`.
+Для виконання SQL-запитів потрібно отримати екземпляр одного з класів `Okay\Core\QueryFactory\Insert`,
+`Okay\Core\QueryFactory\Select`, `Okay\Core\QueryFactory\Update` , `Okay\Core\QueryFactory\Delete`
+або `Okay\Core\QueryFactory\SqlQuery`.
 
-### Методы класса AbstractInit
+### Методи класу AbstractInit
 
 <a name="registerChainExtension"></a>
 ```php
 registerChainExtension( array $expandable, array $extension)
 ```
-Регистрирует [экстендер](./extenders.md) в режиме Chain.
-Вызывать в методе `init()`.
+Реєструє [extender](./extenders.md) у режимі Chain.
+Викликати в методі `init()`.
 
-Аргумент | Описание
+Аргумент | Опис
 ---|---
-$expandable | массив из двух элементов, имени класса [хелпера](./../helpers.md) или [реквеста](./../requests.md) и его метода, который нужно расширить.
-$extension | массив из двух элементов, имени класса [экстендера](./extenders.md) и его метода, каким нужно расширить метод хелпера.
+$expandable | масив із двох елементів: імʼя класу [helper](./../helpers.md) або [request](./../requests.md) і його метод, який потрібно розширити.
+$extension | масив із двох елементів: імʼя класу [extender](./extenders.md) і його метод, яким потрібно розширити метод helper.
 
 
 <a name="registerQueueExtension"></a>
@@ -40,13 +40,13 @@ $extension | массив из двух элементов, имени клас�
 registerQueueExtension( array $expandable, array $extension)
 ```
 
-Регистрирует [экстендер](./extenders.md) в режиме Queue.
-Вызывать в методе `init()`.
+Реєструє [extender](./extenders.md) у режимі Queue.
+Викликати в методі `init()`.
 
-Аргумент | Описание
+Аргумент | Опис
 ---|---
-$expandable | массив из двух элементов, имени класса [хелпера](./../helpers.md) или [реквеста](./../requests.md) и его метода, который нужно расширить.
-$extension | массив из двух элементов, имени класса [экстендера](./extenders.md) и его метода, каким нужно расширить метод хелпера.
+$expandable | масив із двох елементів: імʼя класу [helper](./../helpers.md) або [request](./../requests.md) і його метод, який потрібно розширити.
+$extension | масив із двох елементів: імʼя класу [extender](./extenders.md) і його метод, яким потрібно розширити метод helper.
 
 
 <a name="migrateEntityTable"></a>
@@ -54,13 +54,13 @@ $extension | массив из двух элементов, имени клас�
 migrateEntityTable( string $entityClassName, array $fields)
 ```
 
-Создание таблицы нового [Entity](./../entities.md) модуля. [Пример миграции](./table_migrate.md). 
-Вызывать в методе `install()`.
+Створення таблиці нового [Entity](./../entities.md) модуля. [Приклад оновлення таблиці](./table_migrate.md).
+Викликати в методі `install()`.
 
-Аргумент | Описание
+Аргумент | Опис
 ---|---
-$entityClassName | полное имя класса Entity
-$fields | массив экземпляров класса [Okay\Core\Modules\EntityField](./table_migrate.md#EntityField)
+$entityClassName | повне імʼя класу Entity
+$fields | масив екземплярів класу [Okay\Core\Modules\EntityField](./table_migrate.md#EntityField)
 
 
 <a name="migrateEntityField"></a>
@@ -68,12 +68,12 @@ $fields | массив экземпляров класса [Okay\Core\Modules\En
 migrateEntityField( string $entityClassName, EntityField $field)
 ```
 
-Добавление дополнительных полей в БД к существующим [сущностям](./../entities.md). Вызывать в методе `install()`.
+Додавання додаткових полів у БД до наявних [сутностей](./../entities.md). Викликати в методі `install()`.
 
-Аргумент | Описание
+Аргумент | Опис
 ---|---
-$entityClassName | полное имя существующего класса Entity
-$field | экземпляр класса [Okay\Core\Modules\EntityField](./table_migrate.md#EntityField)
+$entityClassName | повне імʼя наявного класу Entity
+$field | екземпляр класу [Okay\Core\Modules\EntityField](./table_migrate.md#EntityField)
 
 
 <a name="migrateCustomTable"></a>
@@ -81,12 +81,12 @@ $field | экземпляр класса [Okay\Core\Modules\EntityField](./table
 migrateCustomTable( string $tableName, array $fields)
 ```
 
-Создание таблицы в БД. В основном используется для создания таблиц связей. Вызывать в методе `install()`.
+Створення таблиці в БД. Здебільшого використовується для створення таблиць звʼязків. Викликати в методі `install()`.
 
-Аргумент | Описание
+Аргумент | Опис
 ---|---
-$tableName | название таблицы, которую нужно создать (без префиксов "ok_" или "__")
-$fields | массив экземпляров класса [Okay\Core\Modules\EntityField](./table_migrate.md#EntityField)
+$tableName | назва таблиці, яку потрібно створити (без префіксів "ok_" або "__")
+$fields | масив екземплярів класу [Okay\Core\Modules\EntityField](./table_migrate.md#EntityField)
 
 
 <a name="registerEntityField"></a>
@@ -94,14 +94,14 @@ $fields | массив экземпляров класса [Okay\Core\Modules\En
 registerEntityField( string $entityClassName, string $fieldName[, bool $isLang = false])
 ```
 
-Регистрация дополнительных полей к существующим сущностям.
-В базу не добавляются, только учавствуют в селекте и фильтрации. Вызывать в методе `init()`.
+Реєстрація додаткових полів для наявних сутностей.
+У базу не додаються — лише беруть участь у select і фільтрації. Викликати в методі `init()`.
 
-Аргумент | Описание
+Аргумент | Опис
 ---|---
-$entityClassName | Полное имя класса существующего [Entity](./../entities.md)
-$fieldName | Название колонки, которую стоит добавить в [Entity](./../entities.md)
-$isLang | является ли это поле ленговым
+$entityClassName | Повне імʼя класу наявного [Entity](./../entities.md)
+$fieldName | Назва колонки, яку варто додати в [Entity](./../entities.md)
+$isLang | чи є це поле мультимовним
 
 
 <a name="registerEntityFilter"></a>
@@ -109,15 +109,15 @@ $isLang | является ли это поле ленговым
 registerEntityFilter( string $entityClassName, string $filterName, string $filterClassName, string $filterMethod)
 ```
 
-Регистрация [пользовательского фильтра для уже существующих](./../entities.md#usersFiltersFromModules) в 
-системе [Entities](./../entities.md). Вызывать в методе `init()`.
+Реєстрація [користувацького фільтра для наявних](./../entities.md#usersFiltersFromModules) у
+системі [Entities](./../entities.md). Викликати в методі `init()`.
 
-Аргумент | Описание
+Аргумент | Опис
 ---|---
-$entityClassName | Полное имя класса существующего [Entity](./../entities.md), для которого регистрируется новый фильтр
-$filterName | Имя нового фильтра, которое будет использоваться в массиве совместно с остальными фильтрами
-$filterClassName | Класс, в котором описана реализация нового фильтра
-$filterMethod | Метод описывающий реализацию нового фильтра
+$entityClassName | Повне імʼя класу наявного [Entity](./../entities.md), для якого реєструється новий фільтр
+$filterName | Імʼя нового фільтра, яке використовуватиметься в масиві разом з іншими фільтрами
+$filterClassName | Клас, у якому описана реалізація нового фільтра
+$filterMethod | Метод, що описує реалізацію нового фільтра
 
 
 <a name="registerBackendController"></a>
@@ -125,12 +125,12 @@ $filterMethod | Метод описывающий реализацию ново�
 registerBackendController( string $controllerClass)
 ```
 
-Добавление [бек-контроллера](./../controllers.md#backendControllersModules) в общий список контроллеров. 
-Вызывать в методе `init()`.
+Додавання [backend-контролера](./../controllers.md#backendControllersModules) до загального списку контролерів.
+Викликати в методі `init()`.
 
-Аргумент | Описание
+Аргумент | Опис
 ---|---
-$controllerClass | Имя класса бек-контроллера
+$controllerClass | Імʼя класу backend-контролера
 
 
 <a name="setBackendMainController"></a>
@@ -138,13 +138,13 @@ $controllerClass | Имя класса бек-контроллера
 setBackendMainController( string $className)
 ```
 
-Установка [бек-контроллер](./../controllers.md#backendControllersModules), который будет в админке обрабатываться как 
-основной (когда со списка модулей происходит переход внутрь модуля, попадаем на этот контроллер).
-Вызывать в методе `install()`.
+Встановлення [backend-контролера](./../controllers.md#backendControllersModules), який в admin-частині оброблятиметься як
+основний (коли зі списку модулів відбувається перехід усередину модуля — потрапляємо на цей контролер).
+Викликати в методі `install()`.
 
-Аргумент | Описание
+Аргумент | Опис
 ---|---
-$className | Имя класса бек-контроллера
+$className | Імʼя класу backend-контролера
 
 
 <a name="addBackendControllerPermission"></a>
@@ -152,13 +152,13 @@ $className | Имя класса бек-контроллера
 addBackendControllerPermission( string $controllerClass, string $permission)
 ```
 
-Добавление связки разрешения для админа и [бек-контроллера](./../controllers.md#backendControllersModules).
-Вызывать в методе `init()`.
+Додавання звʼязки permission для admin і [backend-контролера](./../controllers.md#backendControllersModules).
+Викликати в методі `init()`.
 
-Аргумент | Описание
+Аргумент | Опис
 ---|---
-$controllerClass | Имя класса бек-контроллера
-$permission | Название разрешения
+$controllerClass | Імʼя класу backend-контролера
+$permission | Назва permission
 
 
 <a name="addPermission"></a>
@@ -166,13 +166,13 @@ $permission | Название разрешения
 addPermission( string $permission)
 ```
 
-Добавление разрешения, в общий массив разрешений для менеджеров.
-Нужно использовать если нужно разрешение, но [бек-контроллера](./../controllers.md#backendControllersModules) 
-для него нет. Вызывать в методе `init()`.
+Додавання permission у загальний масив permissions для менеджерів.
+Використовуйте, якщо потрібен permission, але [backend-контролера](./../controllers.md#backendControllersModules)
+для нього немає. Викликати в методі `init()`.
 
-Аргумент | Описание
+Аргумент | Опис
 ---|---
-$permission | Название разрешения
+$permission | Назва permission
 
 
 <a name="setModuleType"></a>
@@ -180,11 +180,11 @@ $permission | Название разрешения
 setModuleType( string $type)
 ```
 
-Установка [типа модуля](./README.md#typesOfModules). Вызывать в методе `install()`.
+Встановлення [типу модуля](./README.md#typesOfModules). Викликати в методі `install()`.
 
-Аргумент | Описание
+Аргумент | Опис
 ---|---
-$type | Тип модуля. Константы типов начинаются на MODULE_TYPE_. [Типы модулей](./README.md#typesOfModules).
+$type | Тип модуля. Константи типів починаються на MODULE_TYPE_. [Типи модулів](./README.md#typesOfModules).
 
 
 <a name="extendBackendMenu"></a>
@@ -192,27 +192,25 @@ $type | Тип модуля. Константы типов начинаются 
 extendBackendMenu( string $firstLevelName, array $menuItemsByControllers[, string $icon = null])
 ```
 
-Добавить новый пункт
-меню в админ-части.
-Вызывать в методе `init()`.
+Додати новий пункт меню в admin-частині.
+Викликати в методі `init()`.
 
-Аргумент | Описание
+Аргумент | Опис
 ---|---
-$firstLevelName | [Название группы меню](./../dev_mode.md#backendMenu), в которую стоит добавить новый пункт. Если указать несуществующую группу, тогда создастся новая.
-$menuItemsByControllers | Массив, в котором ключ является названием пункта меню, и должен быть перевод с таким же названием. В виде значения должен быть массив названий [бек-контроллеров](./../controllers.md#backendControllersModules), которые будут в этом пункте меню (обычно это контроллер списка записей и редактирования одной записи).
-$icon | Иконка группы меню. Стоит использовать если создаёте новую группу. В виде значения может быть код SVG изображения, или же путь к изображению, относительно директории `Okay/Modules/Vendor/Module/` (напр. 'Backend/design/images/menu_logo.png').
+$firstLevelName | [Назва групи меню](./../dev_mode.md#backendMenu), до якої слід додати новий пункт. Якщо вказати неіснуючу групу — буде створено нову.
+$menuItemsByControllers | Масив: ключ — назва пункту меню, і має існувати переклад із такою ж назвою. Значення — масив назв [backend-контролерів](./../controllers.md#backendControllersModules), які будуть у цьому пункті меню (зазвичай це контролер списку записів і редагування одного запису).
+$icon | Іконка групи меню. Варто використовувати, якщо створюєте нову групу. Як значення може бути SVG-код або шлях до зображення відносно директорії `Okay/Modules/Vendor/Module/` (напр. 'Backend/design/images/menu_logo.png').
 
-Если указать новый пункт меню, нужно обязательно добавить перевод для админ части, с таким же названием как и пункт 
-меню.
+Якщо додали новий пункт меню — потрібно обовʼязково додати переклад для admin-частини з такою ж назвою, як і пункт меню.
 
-Пример Init:
+Приклад Init:
 ```php
 $this->extendBackendMenu('left_faq_title', [
     'left_faq_menu_item' => ['FAQsAdmin', 'FAQAdmin']
 ],
 'Backend/design/images/faq_icon.png');
 ```
-Переводы:
+Переклади:
 ```php
 $lang['left_faq_title'] = 'FAQ';
 $lang['left_faq_menu_item'] = 'FAQ Item';
@@ -224,18 +222,17 @@ $lang['left_faq_menu_item'] = 'FAQ Item';
 addResizeObject( string $originalImgDirDirective, string $resizedImgDirDirective)
 ```
 
-Добавление ресайза сущностей.
-Если ваш модуль подразумевает что будут нарезаться изображения, которых в системе ранее не было, то нужно добавить в 
-систему информацию об этом. Не забыть в таком случае еще в методе install создать директорию для изображений 
-(через функцию mkdir()).
-Вызывать в методе `init()`.
+Додавання resize для сутностей.
+Якщо ваш модуль передбачає нарізання зображень, яких у системі раніше не було, потрібно додати в систему інформацію про це.
+У такому разі не забудьте також у методі install створити директорію для зображень (через `mkdir()`).
+Викликати в методі `init()`.
 
-Аргумент | Описание
+Аргумент | Опис
 ---|---
-$originalImgDirDirective | Название директивы из [конфига модуля](./README.md), которая содержит путь к директории оригиналов изображений
-$resizedImgDirDirective | Название директивы из [конфига модуля](./README.md), которая содержит путь к директории нарезок изображений
+$originalImgDirDirective | Назва директиви з [конфіга модуля](./README.md), яка містить шлях до директорії оригіналів зображень
+$resizedImgDirDirective | Назва директиви з [конфіга модуля](./README.md), яка містить шлях до директорії нарізок зображень
 
-Пример Init:
+Приклад Init:
 ```php
 class Init extends AbstractInit
 {   
@@ -258,7 +255,7 @@ class Init extends AbstractInit
     }
 }
 ```
-Пример конфига:
+Приклад конфіга:
 ```ini
 banners_images_dir = files/originals/slides/
 resized_banners_images_dir = files/resized/slides/
@@ -270,17 +267,16 @@ resized_banners_images_dir = files/resized/slides/
 extendUpdateObject( string $alias, string $permission, string $entityClassName)
 ```
 
-Метод расширяет коллекцию объектов 
-доступную для использования в файле ajax/update_object.php, который обновляет определенную по алиасу сущность 
-повредством AJAX запроса из админ панели сайта.
+Метод розширює колекцію обʼєктів, доступну для використання у файлі `ajax/update_object.php`, який оновлює сутність,
+визначену за alias, через AJAX-запит з admin-частини сайту.
 
-Аргумент | Описание
+Аргумент | Опис
 ---|---
-$alias | Уникальный псевдоним, который идентифицирует сущность (указывается в атрибуте data-controller="алиас" тега в админ панели)
-$permission | Название разрешения доступа к псевдониму для менеджера, добавленые через [addBackendControllerPermission](#addBackendControllerPermission) или [addPermission](#addPermission)
-$entityClassName | Полное имя [сущности](./../entities.md), которая будет обновляться.
+$alias | Унікальний псевдонім, що ідентифікує сутність (вказується в атрибуті `data-controller=\"alias\"` тега в admin-частині)
+$permission | Permission доступу до псевдоніма для менеджера, доданий через [addBackendControllerPermission](#addBackendControllerPermission) або [addPermission](#addPermission)
+$entityClassName | Повне імʼя [сутності](./../entities.md), яка буде оновлюватися.
 
-Пример Init:
+Приклад Init:
 ```php
 class Init extends AbstractInit
 {
@@ -295,7 +291,7 @@ class Init extends AbstractInit
 }
 ```
 
-Пример banners.tpl (добавляем data-controller):
+Приклад banners.tpl (додаємо data-controller):
 ```smarty
 // ...abstract
 {foreach $banners as $banner}
@@ -328,14 +324,14 @@ class Init extends AbstractInit
 addBackendBlock( string $blockName, string $blockTplFile, callable $callback = null)
 ```
 
-Добавление [шорт-блока](./../dev_mode.md#shortBLock)
-в админ-панель сайта.
+Додавання [шорт-блока](./../dev_mode.md#shortBLock)
+в admin-частину сайту.
 
-Аргумент | Описание
+Аргумент | Опис
 ---|---
-$blockName | Имя [шорт-блока](./../dev_mode.md#shortBLock) админ-панели.
-$blockTplFile | Путь к tpl файлу (относительно директории `Okay/Modules/Vendor/Module/Backend/design/html/`), в котором размещается верстка блока. В блоке работаем, как будто его добавят в основной файл через include (все переменные поддерживаются).
-$callback | Ф-ция которую нужно вызвать перед отрисовкой шортблока. Может использоваться для передачи в дизайн данных, нужных для отрисовки шортблока. Можно указывать как аргументы с указанием type hint Services, Entities etc.
+$blockName | Імʼя [шорт-блока](./../dev_mode.md#shortBLock) admin-частини.
+$blockTplFile | Шлях до tpl файла (відносно директорії `Okay/Modules/Vendor/Module/Backend/design/html/`), у якому розміщується верстка блока. У блоці працюємо так, наче його додадуть у основний файл через include (усі змінні підтримуються).
+$callback | Функція, яку потрібно викликати перед відмальовуванням шорт-блока. Може використовуватися для передачі в дизайн даних, потрібних для відмальовування. Можна вказувати аргументи з type hint (Services, Entities тощо).
 
 
 <a name="addFrontBlock"></a>
@@ -343,14 +339,14 @@ $callback | Ф-ция которую нужно вызвать перед отр
 addFrontBlock( string $blockName, string $blockTplFile, callable $callback = null)
 ```
 
-Добавление [шорт-блока](./../dev_mode.md#shortBLock)
-на клиентскую часть сайта.
+Додавання [шорт-блока](./../dev_mode.md#shortBLock)
+на клієнтську частину сайту.
 
-Аргумент | Описание
+Аргумент | Опис
 ---|---
-$blockName | Имя [шорт-блока](./../dev_mode.md#shortBLock) клиентской части сайта.
-$blockTplFile | Путь к tpl файлу (относительно директории `Okay/Modules/Vendor/Module/design/html/`), в котором размещается верстка блока. В блоке работаем, как будто его добавят в основной файл через include (все переменные поддерживаются).
-$callback | Ф-ция которую нужно вызвать перед отрисовкой шортблока. Может использоваться для передачи в дизайн данных, нужных для отрисовки шортблока. Можно указывать как аргументы с указанием type hint Services, Entities etc.
+$blockName | Імʼя [шорт-блока](./../dev_mode.md#shortBLock) клієнтської частини сайту.
+$blockTplFile | Шлях до tpl файла (відносно директорії `Okay/Modules/Vendor/Module/design/html/`), у якому розміщується верстка блока. У блоці працюємо так, наче його додадуть у основний файл через include (усі змінні підтримуються).
+$callback | Функція, яку потрібно викликати перед відмальовуванням шорт-блока. Може використовуватися для передачі в дизайн даних, потрібних для відмальовування. Можна вказувати аргументи з type hint (Services, Entities тощо).
 
 
 <a name="registerPurchaseDiscountSign"></a>
@@ -358,14 +354,14 @@ $callback | Ф-ция которую нужно вызвать перед отр
 registerPurchaseDiscountSign( string $sign, string $name, string $description)
 ```
 
-Регистрация знака скидки для позиции.\
-Вызывать в методе `init()`.
+Реєстрація знака знижки для позиції.\
+Викликати в методі `init()`.
 
-Аргумент | Описание
+Аргумент | Опис
 ---|---
-$sign|Знак скидки. Должен быть уникальным в рамках обеих сущностей(корзина и позиция корзины).
-$name|Название скидки. Необходимо для подсказки администратору. Представляет собой языковую переменную.
-$description|Описание скидки. Необходимо для подсказки администратору. Представляет собой backend языковую переменную.
+$sign|Знак знижки. Має бути унікальним у межах обох сутностей (кошик і позиція кошика).
+$name|Назва знижки. Потрібна як підказка адміністратору. Є мовною змінною.
+$description|Опис знижки. Потрібний як підказка адміністратору. Є backend мовною змінною.
 
 
 <a name="registerCartDiscountSign"></a>
@@ -373,11 +369,11 @@ $description|Описание скидки. Необходимо для подс
 registerCartDiscountSign( string $sign, string $name, string $description)
 ```
 
-Регистрация знака скидки корзины.\
-Вызывать в методе `init()`.
+Реєстрація знака знижки кошика.\
+Викликати в методі `init()`.
 
-Аргумент | Описание
+Аргумент | Опис
 ---|---
-$sign|Знак скидки. Должен быть уникальным в рамках обеих сущностей(корзина и позиция корзины).
-$name|Название скидки. Необходимо для подсказки администратору. Представляет собой языковую переменную.
-$description|Описание скидки. Необходимо для подсказки администратору. Представляет собой backend языковую переменную.
+$sign|Знак знижки. Має бути унікальним у межах обох сутностей (кошик і позиція кошика).
+$name|Назва знижки. Потрібна як підказка адміністратору. Є мовною змінною.
+$description|Опис знижки. Потрібний як підказка адміністратору. Є backend мовною змінною.

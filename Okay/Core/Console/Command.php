@@ -1,12 +1,10 @@
 <?php
 
-
 namespace Okay\Core\Console;
-
 
 use Okay\Core\OkayContainer\MethodDI;
 use Okay\Core\ServiceLocator;
-use \Symfony\Component\Console\Command\Command AS SymfonyCommand;
+use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -32,6 +30,15 @@ class Command extends SymfonyCommand
 
     public function __construct($name = null)
     {
+        // Symfony Console 6/7/8: команди без імені заборонені.
+        // Якщо ім'я не передане явно, беремо його з static::$defaultName (якщо воно задане).
+        if ($name === null && property_exists(static::class, 'defaultName')) {
+            $defaultName = static::$defaultName ?? null;
+            if (!empty($defaultName)) {
+                $name = $defaultName;
+            }
+        }
+
         parent::__construct($name);
 
         $this->serviceLocator = ServiceLocator::getInstance();
@@ -67,6 +74,9 @@ class Command extends SymfonyCommand
         );
     }
 
+    /**
+     * @param array<int|string, string> $choices
+     */
     protected function askChoice(string $question, array $choices, $default = null)
     {
         return $this->questionHelper->ask(

@@ -72,6 +72,19 @@
         </div>
         <div class="col-md-6">
             <div class="heading_label">
+                <span>{$btr->okay_cms__feeds__feed__settings__google_merchant__mpn}</span>
+            </div>
+            <div class="mb-1">
+                <select name="settings[mpn]" class="selectpicker form-control">
+                    <option {if $feed->settings['mpn'] == 0}selected=""{/if} value=""></option>
+                    {foreach $features as $feature}
+                        <option {if $feed->settings['mpn'] == $feature->id}selected=""{/if} value="{$feature->id}">{$feature->name|escape}</option>
+                    {/foreach}
+                </select>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="heading_label">
                 <span>{$btr->okay_cms__feeds__feed__settings__google_merchant__gender}</span>
             </div>
             <div class="mb-1">

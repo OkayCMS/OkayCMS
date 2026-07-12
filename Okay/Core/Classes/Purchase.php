@@ -1,14 +1,18 @@
 <?php
 
-
 namespace Okay\Core\Classes;
-
 
 use Okay\Core\Cart;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\ServiceLocator;
 use Okay\Helpers\DiscountsHelper;
 
+/**
+ * @phpstan-type PurchaseProductRow object{id: int|string, name: string}&\stdClass
+ * @phpstan-type PurchaseVariantRow object{id: int|string, name: string|null, price: int|float|string, sku: string|null, units: string|null}&\stdClass
+ * @phpstan-type PurchaseMeta object{undiscounted_total_price?: int|float, total_price?: int|float}&\stdClass
+ * @phpstan-type DiscountSignRow object{sign: string, partial?: bool}&\stdClass
+ */
 class Purchase
 {
     /**
@@ -18,7 +22,7 @@ class Purchase
 
 
     /**
-     * @var object
+     * @var PurchaseProductRow
      * Purchased product
      */
     public $product;
@@ -37,7 +41,7 @@ class Purchase
     public $product_name;
 
     /**
-     * @var object
+     * @var PurchaseVariantRow
      * Purchased variant
      */
     public $variant;
@@ -62,7 +66,7 @@ class Purchase
     public $amount;
 
     /**
-     * @var integer
+     * @var string|int|float|null
      * Price before all discounts
      */
     public $undiscounted_price;
@@ -86,32 +90,34 @@ class Purchase
     public $units;
 
     /**
-     * @var array
+     * @var array<string, Discount>
      * All available discounts of the purchase
      */
     public $availableDiscounts = [];
 
     /**
-     * @var array
+     * @var array<int, Discount>
      * All applied discounts of the purchase
      */
     public $discounts = [];
 
     /**
-     * @var object
+     * @var PurchaseMeta
      * Purchase metadata
      */
     public $meta;
 
-    public function __construct(
-    ) {
-        $this->meta = new \stdClass();
+    public function __construct()
+    {
+        $meta = new \stdClass();
+        /** @var PurchaseMeta $meta */
+        $this->meta = $meta;
         $SL = ServiceLocator::getInstance();
         $this->discountsHelper = $SL->getService(DiscountsHelper::class);
     }
 
     /**
-     * @param object $product
+     * @param PurchaseProductRow $product
      */
     public function setProduct($product)
     {
@@ -122,16 +128,16 @@ class Purchase
     }
 
     /**
-     * @param object $variant
+     * @param PurchaseVariantRow $variant
      */
     public function setVariant($variant)
     {
         $this->variant            = $variant;
         $this->variant_id         = $variant->id;
-        $this->variant_name       = $variant->name;
+        $this->variant_name       = $variant->name ?? '';
         $this->undiscounted_price = $variant->price;
-        $this->sku                = $variant->sku;
-        $this->units              = $variant->units;
+        $this->sku                = $variant->sku ?? '';
+        $this->units              = $variant->units ?? '';
         ExtenderFacade::execute(__METHOD__, $this, func_get_args());
         $this->updateTotals();
     }
@@ -141,7 +147,7 @@ class Purchase
      */
     public function setAmount($amount)
     {
-        $this->amount = $amount;
+        $this->amount = (int) $amount;
         ExtenderFacade::execute(__METHOD__, $this, func_get_args());
         $this->updateTotals();
     }
@@ -152,8 +158,9 @@ class Purchase
     public function updateTotals()
     {
         $undiscountedPrice = 0;
-        if (isset($this->amount) && isset($this->undiscounted_price))
-            $undiscountedPrice = $this->amount * $this->undiscounted_price;
+        if (isset($this->amount) && isset($this->undiscounted_price)) {
+            $undiscountedPrice = $this->amount * (float) $this->undiscounted_price;
+        }
         $undiscountedPrice = ($undiscountedPrice < 0) ? $undiscountedPrice = 0 : $undiscountedPrice;
         $this->meta->undiscounted_total_price = $undiscountedPrice;
         ExtenderFacade::execute(__METHOD__, $this, func_get_args());
@@ -166,26 +173,29 @@ class Purchase
      */
     public function applyDiscounts($cart)
     {
-        $this->price = $this->undiscounted_price;
+        $this->price = $this->undiscounted_price ?? 0;
         $this->meta->total_price = $this->meta->undiscounted_total_price;
         $sets = $this->discountsHelper->getPurchaseSets();
         $this->discounts = [];
         if (!empty($this->availableDiscounts) && !empty($sets)) {
             foreach ($sets as $set) {
                 if ($signs = $this->discountsHelper->parseSet($set)) {
-                    if (empty($signs) ||
+                    if (
+                        empty($signs) ||
+                        !isset($signs['purchase']) ||
                         (isset($signs['cart']) && !$cart->checkAvailableDiscounts($signs['cart'])) ||
-                        (isset($signs['purchase']) && !$this->checkAvailableDiscounts($signs['purchase']))) {
+                        !$this->checkAvailableDiscounts($signs['purchase'])
+                    ) {
                         continue;
                     }
                     $discounts = $this->discountsHelper->prepareDiscounts($signs['purchase'], $this->availableDiscounts);
-                    list($this->discounts, $this->price) = $this->discountsHelper->calculateDiscounts($discounts, $this->undiscounted_price);
+                    list($this->discounts, $this->price) = $this->discountsHelper->calculateDiscounts($discounts, (float) $this->undiscounted_price);
                     $this->meta->total_price = $this->price * $this->amount;
                     break;
                 }
             }
         }
-        
+
         $this->collectAppliedTotalDiscount($cart);
 
         ExtenderFacade::execute(__METHOD__, $this, func_get_args());
@@ -198,18 +208,19 @@ class Purchase
      */
     public function collectAppliedTotalDiscount($cart)
     {
-        foreach ($this->discounts as $discount){
+        foreach ($this->discounts as $discount) {
             if (!isset($cart->total_purchases_discounts[$discount->sign])) {
                 $discountForTotal = (object)(array)$discount;
-                $discountForTotal->absoluteDiscount *= $this->amount;
-                $discountForTotal->priceBeforeDiscount *= $this->amount;
-                $discountForTotal->priceAfterDiscount *= $this->amount;
+                $discountForTotal->absoluteDiscount = (float) $discountForTotal->absoluteDiscount * $this->amount;
+                $discountForTotal->priceBeforeDiscount = (float) $discountForTotal->priceBeforeDiscount * $this->amount;
+                $discountForTotal->priceAfterDiscount = (float) $discountForTotal->priceAfterDiscount * $this->amount;
                 $discountForTotal->percentDiscount = round($discountForTotal->absoluteDiscount / $discountForTotal->priceBeforeDiscount * 100, 2);
+                /** @var object{absoluteDiscount: int|float, priceBeforeDiscount: int|float, priceAfterDiscount: int|float, percentDiscount: int|float}&\stdClass $discountForTotal */
                 $cart->total_purchases_discounts[$discount->sign] = $discountForTotal;
             } else {
-                $cart->total_purchases_discounts[$discount->sign]->absoluteDiscount += $discount->absoluteDiscount * $this->amount;
-                $cart->total_purchases_discounts[$discount->sign]->priceBeforeDiscount += $discount->priceBeforeDiscount * $this->amount;
-                $cart->total_purchases_discounts[$discount->sign]->priceAfterDiscount += $discount->priceAfterDiscount* $this->amount;
+                $cart->total_purchases_discounts[$discount->sign]->absoluteDiscount += (float) $discount->absoluteDiscount * $this->amount;
+                $cart->total_purchases_discounts[$discount->sign]->priceBeforeDiscount += (float) $discount->priceBeforeDiscount * $this->amount;
+                $cart->total_purchases_discounts[$discount->sign]->priceAfterDiscount += (float) $discount->priceAfterDiscount * $this->amount;
                 $cart->total_purchases_discounts[$discount->sign]->percentDiscount = round($cart->total_purchases_discounts[$discount->sign]->absoluteDiscount / $cart->total_purchases_discounts[$discount->sign]->priceBeforeDiscount * 100, 2);
             }
         }
@@ -219,7 +230,7 @@ class Purchase
     /**
      * Checks the availability of a discount for each registered sign.
      *
-     * @param array $signs
+     * @param list<DiscountSignRow> $signs
      * @return bool
      */
     public function checkAvailableDiscounts($signs)
@@ -229,7 +240,7 @@ class Purchase
             foreach ($signs as $sign) {
                 if (isset($this->availableDiscounts[$sign->sign])) {
                     $valid = true;
-                } else if (!$sign->partial) {
+                } elseif (empty($sign->partial)) {
                     $valid = false;
                     break;
                 }
@@ -241,7 +252,7 @@ class Purchase
 
     /**
      * @param string|int $orderId
-     * @return object
+     * @return object{id?: string|int|null}&\stdClass
      */
     public function getForDB($orderId)
     {

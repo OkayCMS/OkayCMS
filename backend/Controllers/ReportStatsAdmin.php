@@ -1,17 +1,16 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
 
-
+use Okay\Core\Export\CsvExportWriter;
 use Okay\Entities\CategoriesEntity;
 use Okay\Entities\OrderStatusEntity;
 use Okay\Entities\ReportStatEntity;
 
 class ReportStatsAdmin extends IndexAdmin
 {
-    
-    public function fetch(ReportStatEntity $reportStatEntity, CategoriesEntity $categoriesEntity, OrderStatusEntity $orderStatusEntity) {
+    public function fetch(ReportStatEntity $reportStatEntity, CategoriesEntity $categoriesEntity, OrderStatusEntity $orderStatusEntity)
+    {
         $filter = [];
         $date_filter = $this->request->get('date_filter');
         if (!empty($date_filter)) {
@@ -23,37 +22,43 @@ class ReportStatsAdmin extends IndexAdmin
         $date_from = $this->request->get('date_from');
         $date_to = $this->request->get('date_to');
         $filter_check = $this->request->get('filter_check');
-        
+
         if (!empty($date_from)) {
-            $filter['date_from'] = date("Y-m-d 00:00:00", strtotime($date_from));
+            $dateFromTimestamp = strtotime($date_from);
+            if ($dateFromTimestamp !== false) {
+                $filter['date_from'] = date("Y-m-d 00:00:00", $dateFromTimestamp);
+            }
             $this->design->assign('date_from', $date_from);
         }
-        
+
         if (!empty($date_to)) {
-            $filter['date_to'] = date("Y-m-d 23:59:59", strtotime($date_to));
+            $dateToTimestamp = strtotime($date_to);
+            if ($dateToTimestamp !== false) {
+                $filter['date_to'] = date("Y-m-d 23:59:59", $dateToTimestamp);
+            }
             $this->design->assign('date_to', $date_to);
         }
         $this->design->assign('filter_check', $filter_check);
-        
+
         $status = $this->request->get('status', 'integer');
         if (!empty($status)) {
             $filter['status'] = $status;
             $this->design->assign('status', $status);
         }
-        
+
         $sort_prod = $this->request->get('sort_prod');
         if (!empty($sort_prod)) {
             $filter['sort_prod'] = $sort_prod;
-            $this->design->assign('sort_prod',$sort_prod);
+            $this->design->assign('sort_prod', $sort_prod);
         } else {
             $sort_prod = 'price';
-            $this->design->assign('sort_prod',$sort_prod);
+            $this->design->assign('sort_prod', $sort_prod);
         }
-        
+
         $filter['page'] = max(1, $this->request->get('page', 'integer'));
         $filter['limit'] = 40;
-        $catFilter = $this->request->get('category_id','integer');
-        $this->design->assign('category',$catFilter );
+        $catFilter = $this->request->get('category_id', 'integer');
+        $this->design->assign('category', $catFilter);
 
         if ($cat = $categoriesEntity->get($catFilter)) {
             $filter['category_id'] = $cat->children;
@@ -61,20 +66,20 @@ class ReportStatsAdmin extends IndexAdmin
 
         $statCount = $reportStatEntity->count($filter);
         $statCount += $reportStatEntity->countNullable($filter);
-        
-        $this->design->assign('posts_count', $statCount );
-        
+
+        $this->design->assign('posts_count', $statCount);
+
         if ($this->request->get('page') == 'all') {
             $filter['limit'] = $statCount;
         }
-        
-        $this->design->assign('pages_count', ceil($statCount/$filter['limit']));
+
+        $this->design->assign('pages_count', ceil($statCount / $filter['limit']));
         $this->design->assign('current_page', $filter['page']);
 
         /*Выборка товаров для статистики*/
         $report_stat_purchases = $reportStatEntity->find($filter);
-        
-        foreach ($report_stat_purchases as $id=>$r) {
+
+        foreach ($report_stat_purchases as $id => $r) {
             if (!empty($r->product_id)) {
                 $tmp_cat = $categoriesEntity->findOne(array('product_id' => $r->product_id));
                 $report_stat_purchases[$id]->category = $tmp_cat;
@@ -91,7 +96,8 @@ class ReportStatsAdmin extends IndexAdmin
 
     public function export(
         ReportStatEntity $reportStatEntity,
-        CategoriesEntity $categoriesEntity
+        CategoriesEntity $categoriesEntity,
+        CsvExportWriter $csvExportWriter
     ) {
 
         $columnsNames = [
@@ -105,18 +111,24 @@ class ReportStatsAdmin extends IndexAdmin
         $statCount       = 100;
         $exportFilesDir  = 'backend/files/export/';
         $filename        = 'export_stat_products.csv';
-        
+        $format          = $this->request->get('format');
+        $format          = is_string($format) ? $format : CsvExportWriter::FORMAT_UTF8;
+
         $page = $this->request->get('page');
         if (empty($page) || $page == 1 || $page == 'all') {
             $page = 1;
-            if (is_writable($exportFilesDir.$filename)) {
-                unlink($exportFilesDir.$filename);
+            if (is_writable($exportFilesDir . $filename)) {
+                unlink($exportFilesDir . $filename);
             }
         }
 
-        $f = fopen($exportFilesDir.$filename, 'ab');
+        try {
+            $f = $csvExportWriter->openAppendStream($exportFilesDir, $filename, $format);
+        } catch (\RuntimeException) {
+            return;
+        }
         if ($page == 1) {
-            fputcsv($f, $columnsNames, $columnDelimiter);
+            $csvExportWriter->writeRow($f, $columnsNames, $columnDelimiter, $format);
         }
 
         $filter = [];
@@ -136,10 +148,16 @@ class ReportStatsAdmin extends IndexAdmin
         }
 
         if (!empty($dateFrom)) {
-            $filter['date_from'] = date("Y-m-d 00:00:00", strtotime($dateFrom));
+            $dateFromTimestamp = strtotime($dateFrom);
+            if ($dateFromTimestamp !== false) {
+                $filter['date_from'] = date("Y-m-d 00:00:00", $dateFromTimestamp);
+            }
         }
         if (!empty($dateTo)) {
-            $filter['date_to'] = date("Y-m-d 23:59:59", strtotime($dateTo));
+            $dateToTimestamp = strtotime($dateTo);
+            if ($dateToTimestamp !== false) {
+                $filter['date_to'] = date("Y-m-d 23:59:59", $dateToTimestamp);
+            }
         }
         $status = $this->request->get('status', 'integer');
         if (!empty($status)) {
@@ -152,10 +170,10 @@ class ReportStatsAdmin extends IndexAdmin
         } else {
             $filter['sort_prod'] = 'price';
         }
-        
+
         $filter['page'] = max(1, $this->request->get('page', 'integer'));
         $filter['limit'] = 40;
-        
+
         $totalCount = $reportStatEntity->count($filter);
         if ($this->request->get('page') == 'all') {
             $filter['limit'] = $totalCount;
@@ -165,8 +183,8 @@ class ReportStatsAdmin extends IndexAdmin
         $totalSum = 0;
         $totalAmount = 0;
         $reportStatPurchases = $reportStatEntity->find($filter);
-        
-        foreach ($reportStatPurchases as $id=>$r) {
+
+        foreach ($reportStatPurchases as $id => $r) {
             if (!empty($r->product_id)) {
                 $tmpCat = $categoriesEntity->findOne(['product_id' => $r->product_id]);
                 $reportStatPurchases[$id]->category_name = $tmpCat->name;
@@ -179,10 +197,10 @@ class ReportStatsAdmin extends IndexAdmin
             $totalSum += $u->sum_price;
             $totalAmount += $u->amount;
             $str = [];
-            foreach($columnsNames as $n=>$c) {
+            foreach ($columnsNames as $n => $c) {
                 $str[] = $u->$n;
             }
-            fputcsv($f, $str, $columnDelimiter);
+            $csvExportWriter->writeRow($f, $str, $columnDelimiter, $format);
         }
 
         $total = [
@@ -192,24 +210,17 @@ class ReportStatsAdmin extends IndexAdmin
             'amount'        => $totalAmount
         ];
 
-        fputcsv($f, $total, $columnDelimiter);
+        $csvExportWriter->writeRow($f, $total, $columnDelimiter, $format);
         fclose($f);
 
-        mb_substitute_character('none');
-        file_put_contents(
-            $exportFilesDir.$filename,
-            mb_convert_encoding(file_get_contents($exportFilesDir.$filename), 'Windows-1251')
-        );
-
-        if ($statCount*$page < $totalCount) {
-            $data = ['end'=>false, 'page'=>$page, 'totalpages'=>$totalCount/$statCount];
+        if ($statCount * $page < $totalCount) {
+            $data = ['end' => false, 'page' => $page, 'totalpages' => $totalCount / $statCount];
         } else {
-            $data = ['end'=>true, 'page'=>$page, 'totalpages'=>$totalCount/$statCount];
+            $data = ['end' => true, 'page' => $page, 'totalpages' => $totalCount / $statCount];
         }
 
         if ($data) {
             $this->response->setContent(json_encode($data), RESPONSE_JSON);
         }
     }
-    
 }

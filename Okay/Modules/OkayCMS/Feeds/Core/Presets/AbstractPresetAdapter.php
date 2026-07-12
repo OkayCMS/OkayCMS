@@ -28,15 +28,42 @@ use Okay\Modules\OkayCMS\Feeds\Entities\FeedsEntity;
 use Okay\Modules\OkayCMS\Feeds\Helpers\FeedsHelper;
 use Okay\Modules\OkayCMS\Feeds\Init\Init;
 
+/**
+ * @phpstan-type FeedPresetRow \stdClass&object{
+ *     id: int|string,
+ *     settings: array<string, mixed>,
+ *     categories_settings: array<int|string, array<string, mixed>>,
+ *     features_settings: array<int|string, array<string, mixed>>
+ * }
+ * @phpstan-type CategoryRow object{id: int|string, name: string, parent_id?: int|string|null}
+ * @phpstan-type FeedProductRow \stdClass&object{
+ *     product_id: int|string,
+ *     price: int|float,
+ *     compare_price?: int|float|null,
+ *     currency_id: int|string|null,
+ *     brand_name: string,
+ *     product_name: string,
+ *     sku: string,
+ *     main_category_id: int|string|null,
+ *     images_string?: string|null,
+ *     images?: list<string>,
+ *     features?: array<int|string, array{
+ *         name: string,
+ *         values_string: string,
+ *         auto_name_id?: string|null,
+ *         auto_value_id?: string|null
+ *     }>
+ * }
+ */
 abstract class AbstractPresetAdapter implements PresetAdapterInterface
 {
     use InheritedExtenderTrait;
 
     /** @var string */
-    static protected $headerTemplate;
+    protected static $headerTemplate;
 
     /** @var string */
-    static protected $footerTemplate;
+    protected static $footerTemplate;
 
 
     /** @var Design */
@@ -86,28 +113,28 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
     /** @var object */
     protected $mainCurrency;
 
-    /** @var array */
+    /** @var array<int|string, object> */
     protected $allCurrencies;
 
-    /** @var */
+    /** @var array<int|string, object> */
     protected $allCategories;
 
-    /** @var object */
+    /** @var FeedPresetRow */
     protected $feed;
 
     public function __construct(
-        Money            $money,
-        Design           $design,
-        QueryFactory     $queryFactory,
-        Database         $database,
-        XmlFeedHelper    $xmlFeedHelper,
-        Response         $response,
-        ExtendedPdo      $pdo,
-        Settings         $settings,
-        Languages        $languages,
-        Image            $image,
+        Money $money,
+        Design $design,
+        QueryFactory $queryFactory,
+        Database $database,
+        XmlFeedHelper $xmlFeedHelper,
+        Response $response,
+        ExtendedPdo $pdo,
+        Settings $settings,
+        Languages $languages,
+        Image $image,
         CurrenciesEntity $currenciesEntity,
-        FeedsEntity      $feedsEntity,
+        FeedsEntity $feedsEntity,
         CategoriesEntity $categoriesEntity,
         FeedsHelper $feedHelper
     ) {
@@ -138,6 +165,36 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
         $this->inheritedExtender(__FUNCTION__, null, func_get_args());
     }
 
+    protected function normalizeComparisonOperator(mixed $operator): string
+    {
+        return in_array($operator, ['<', '>', '='], true) ? $operator : '=';
+    }
+
+    protected function feedVariantIsAvailable(int|string|null $stock): bool
+    {
+        if ($this->settings->get('is_preorder')) {
+            return true;
+        }
+
+        return $stock === null || (int) $stock > 0;
+    }
+
+    protected function googleMerchantAvailability(int|string|null $stock): string
+    {
+        if ($this->settings->get('is_preorder')) {
+            return 'in_stock';
+        }
+
+        if ($stock === null) {
+            return $this->settings->get('use_backorder_status') ? 'backorder' : 'in_stock';
+        }
+
+        return (int) $stock > 0 ? 'in_stock' : 'out_of_stock';
+    }
+
+    /**
+     * @param FeedPresetRow $feed
+     */
     public function render($feed): void
     {
         $this->feed = $feed;
@@ -188,6 +245,7 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
 
         $prevProductId = null;
         while ($product = $productsQuery->result()) {
+            /** @var FeedProductRow $product */
             $product = $this->modifyItem($product);
 
             $addVariantUrl = false;
@@ -215,11 +273,19 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
         return $this->inheritedExtender(__FUNCTION__, static::$footerTemplate, func_get_args());
     }
 
+    /**
+     * @param array<string, mixed> $settings
+     * @return array<string, mixed>
+     */
     protected function loadSettings(array $settings): array
     {
         return $this->inheritedExtender(__FUNCTION__, $settings, func_get_args());
     }
 
+    /**
+     * @param int|string $feedId
+     * @return list<array<string, mixed>>
+     */
     protected function buildCategories($feedId): array
     {
         $categories = array_map([$this, 'buildCategory'], $this->categoriesEntity->find());
@@ -234,6 +300,10 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
         return $this->inheritedExtender(__FUNCTION__, $result, func_get_args());
     }
 
+    /**
+     * @param CategoryRow $dbCategory
+     * @return array<string, mixed>
+     */
     protected function buildCategory(object $dbCategory): array
     {
         $categorySettings = $this->getCategorySettings($dbCategory->id);
@@ -264,7 +334,7 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
      * Фильтрация результатов и группировка свойств с изображениями вынесена в подзапрос,
      * который формируется методом getSubSelect()
      */
-    protected function getQuery($feedId): Select
+    protected function getQuery(int|string $feedId): Select
     {
         $subSelect = $this->getSubSelect(...func_get_args());
 
@@ -276,9 +346,9 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
                 'lb.name as brand_name'
             ])
             ->fromSubSelect($subSelect, 't')
-            ->leftJoin(ProductsEntity::getLangTable().' AS lp', 'lp.product_id = t.product_id and lp.lang_id=' . $this->languages->getLangId())
-            ->leftJoin(VariantsEntity::getLangTable().' AS lv', 'lv.variant_id = t.variant_id and lv.lang_id=' . $this->languages->getLangId())
-            ->leftJoin(BrandsEntity::getLangTable().' AS lb', 'lb.brand_id = t.brand_id and lb.lang_id=' . $this->languages->getLangId());
+            ->leftJoin(ProductsEntity::getLangTable() . ' AS lp', 'lp.product_id = t.product_id and lp.lang_id=' . $this->languages->getLangId())
+            ->leftJoin(VariantsEntity::getLangTable() . ' AS lv', 'lv.variant_id = t.variant_id and lv.lang_id=' . $this->languages->getLangId())
+            ->leftJoin(BrandsEntity::getLangTable() . ' AS lb', 'lb.brand_id = t.brand_id and lb.lang_id=' . $this->languages->getLangId());
 
         return $this->inheritedExtender(__FUNCTION__, $sql, func_get_args());
     }
@@ -287,7 +357,7 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
      * Метод возвращает подзапрос, который фильтрует и сортирует результаты, здесь достаются только не мультиязычные
      * данные, кроме свойств. Свойства нужно доставать здесь, т.к. их группируем через GROUP_CONCAT()
      */
-    protected function getSubSelect($feedId): Select
+    protected function getSubSelect(int|string $feedId): Select
     {
         $sql = $this->queryFactory->newSelect();
 
@@ -313,8 +383,8 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
                 'vc.total_variants'
             ])
             ->from(VariantsEntity::getTable() . ' AS v')
-            ->leftJoin(ProductsEntity::getTable().' AS  p', 'v.product_id=p.id')
-            ->leftJoin(RouterCacheEntity::getTable().' AS r', 'r.url = p.url AND r.type="product"')
+            ->leftJoin(ProductsEntity::getTable() . ' AS  p', 'v.product_id=p.id')
+            ->leftJoin(RouterCacheEntity::getTable() . ' AS r', 'r.url = p.url AND r.type="product"')
             ->joinSubSelect('left', $variantsCountSubSelect, 'vc', 'vc.product_id = p.id')
             ->where('p.visible')
             ->bindValue('feed_id', $feedId)
@@ -334,7 +404,7 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
      * Добавляет к запросу условия включающие товары в выгрузку. Выгрузка формируется на основании суммы всех условий,
      * а не их пересечении
      */
-    protected function addSubSelectInclusions(Select $sql, $feedId): Select
+    protected function addSubSelectInclusions(Select $sql, int|string $feedId): Select
     {
         if ($includedCategoryIds = $this->getIncludedCategoryIds($feedId)) {
             $includedCategoriesFilter = "OR p.id IN (SELECT product_id FROM __products_categories WHERE category_id IN (:included_category_ids))";
@@ -343,10 +413,10 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
             $includedCategoriesFilter = '';
         }
 
-        $sql->where("((SELECT COUNT(*) FROM ".ConditionsEntity::getTable()." WHERE feed_id = :feed_id AND entity = 'product' AND type = 'inclusion' AND all_entities) OR p.id IN ({$this->buildSelectFromEntitiesConditions('product', 'inclusion')}) OR
+        $sql->where("((SELECT COUNT(*) FROM " . ConditionsEntity::getTable() . " WHERE feed_id = :feed_id AND entity = 'product' AND type = 'inclusion' AND all_entities) OR p.id IN ({$this->buildSelectFromEntitiesConditions('product', 'inclusion')}) OR
                 p.brand_id IN ({$this->buildSelectFromEntitiesConditions('brand', 'inclusion')}) OR
-                p.id IN (SELECT pfv.product_id FROM ".Init::CONDITIONS_ENTITIES_RELATION_TABLE." AS `ce`
-                    LEFT JOIN ".ConditionsEntity::getTable()." AS `con` ON con.id = ce.condition_id
+                p.id IN (SELECT pfv.product_id FROM " . Init::CONDITIONS_ENTITIES_RELATION_TABLE . " AS `ce`
+                    LEFT JOIN " . ConditionsEntity::getTable() . " AS `con` ON con.id = ce.condition_id
                     LEFT JOIN __products_features_values AS `pfv` ON pfv.value_id = ce.entity_id
                     WHERE con.feed_id = :feed_id AND
                     con.entity = 'feature_value' AND
@@ -359,14 +429,14 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
     /**
      * Добавляет к запросу условия исключающие товары из выгрузки. Товар исключается, если удовлетворяет хотя бы одному из условий
      */
-    protected function addSubSelectExclusions(Select $sql, $feedId): Select
+    protected function addSubSelectExclusions(Select $sql, int|string $feedId): Select
     {
-        $sql->where("!(SELECT COUNT(*) FROM ".ConditionsEntity::getTable()." WHERE feed_id = :feed_id AND entity = 'product' AND type = 'exclusion' AND all_entities) AND p.id NOT IN ({$this->buildSelectFromEntitiesConditions('product', 'exclusion')})")
+        $sql->where("!(SELECT COUNT(*) FROM " . ConditionsEntity::getTable() . " WHERE feed_id = :feed_id AND entity = 'product' AND type = 'exclusion' AND all_entities) AND p.id NOT IN ({$this->buildSelectFromEntitiesConditions('product', 'exclusion')})")
             ->where("p.brand_id NOT IN ({$this->buildSelectFromEntitiesConditions('brand', 'exclusion')})")
             ->where("p.id NOT IN (
                         SELECT pfv.product_id
-                        FROM ".Init::CONDITIONS_ENTITIES_RELATION_TABLE." AS `ce`
-                        LEFT JOIN ".ConditionsEntity::getTable()." AS `con` ON con.id = ce.condition_id
+                        FROM " . Init::CONDITIONS_ENTITIES_RELATION_TABLE . " AS `ce`
+                        LEFT JOIN " . ConditionsEntity::getTable() . " AS `con` ON con.id = ce.condition_id
                         LEFT JOIN __products_features_values AS `pfv` ON pfv.value_id = ce.entity_id
                         WHERE con.feed_id = :feed_id AND
                         con.entity = 'feature_value' AND
@@ -386,12 +456,15 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
     /**
      * Получает список категорий, которые нужно включить в выгрузку. Делаем это на php, так как нужно строить дерево.
      */
-    protected function getIncludedCategoryIds($feedId): array
+    /**
+     * @return array<int|string, int|string>
+     */
+    protected function getIncludedCategoryIds(int|string $feedId): array
     {
         $select = $this->queryFactory->newSelect();
-        $select ->from(Init::CONDITIONS_ENTITIES_RELATION_TABLE.' AS ce')
+        $select ->from(Init::CONDITIONS_ENTITIES_RELATION_TABLE . ' AS ce')
             ->cols(['ce.entity_id'])
-            ->join('LEFT', ConditionsEntity::getTable().' AS con', 'con.id = ce.condition_id')
+            ->join('LEFT', ConditionsEntity::getTable() . ' AS con', 'con.id = ce.condition_id')
             ->where("con.feed_id = :feed_id AND con.entity = 'category' AND con.type = 'inclusion'")
             ->bindValue('feed_id', $feedId);
 
@@ -404,12 +477,15 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
     /**
      * Получает список категорий, которые нужно исключить из выгрузки. Делаем это на php, так как нужно строить дерево.
      */
-    protected function getExcludedCategoryIds($feedId): array
+    /**
+     * @return array<int|string, int|string>
+     */
+    protected function getExcludedCategoryIds(int|string $feedId): array
     {
         $select = $this->queryFactory->newSelect();
-        $select ->from(Init::CONDITIONS_ENTITIES_RELATION_TABLE.' AS ce')
+        $select ->from(Init::CONDITIONS_ENTITIES_RELATION_TABLE . ' AS ce')
             ->cols(['ce.entity_id'])
-            ->join('LEFT', ConditionsEntity::getTable().' AS con', 'con.id = ce.condition_id')
+            ->join('LEFT', ConditionsEntity::getTable() . ' AS con', 'con.id = ce.condition_id')
             ->where("con.feed_id = :feed_id AND con.entity = 'category' AND con.type = 'exclusion'")
             ->bindValue('feed_id', $feedId);
 
@@ -424,7 +500,7 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
      */
     protected function buildSelectFromEntitiesConditions(string $entity, string $type): string
     {
-        $select = "SELECT ce.entity_id FROM ".Init::CONDITIONS_ENTITIES_RELATION_TABLE." AS `ce` LEFT JOIN ".ConditionsEntity::getTable()." AS `con` ON con.id = ce.condition_id WHERE con.feed_id = :feed_id AND con.entity = '{$entity}' AND con.type = '{$type}'";
+        $select = "SELECT ce.entity_id FROM " . Init::CONDITIONS_ENTITIES_RELATION_TABLE . " AS `ce` LEFT JOIN " . ConditionsEntity::getTable() . " AS `con` ON con.id = ce.condition_id WHERE con.feed_id = :feed_id AND con.entity = '{$entity}' AND con.type = '{$type}'";
 
         return $this->inheritedExtender(__FUNCTION__, $select, func_get_args());
     }
@@ -432,7 +508,10 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
     /**
      * Получает название свойства используя таблицу сопоставления свойств
      */
-    protected function getFeatureSettings($featureId)
+    /**
+     * @return array<string, mixed>|null
+     */
+    protected function getFeatureSettings(int|string $featureId): ?array
     {
         $settings = $this->feed->features_settings[$featureId] ?? null;
 
@@ -442,7 +521,10 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
     /**
      * Получает название свойства используя таблицу сопоставления свойств
      */
-    protected function getCategorySettings($categoryId)
+    /**
+     * @return array<string, mixed>|null
+     */
+    protected function getCategorySettings(int|string $categoryId): ?array
     {
         $settings = $this->feed->categories_settings[$categoryId] ?? null;
 
@@ -453,9 +535,14 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
      * Вызов методов модифицирующих товар.
      * Последняя возможность для расширений изменить товар перед сборкой объекта под шаблон
      */
+    /**
+     * @param FeedProductRow $item
+     * @return FeedProductRow
+     */
     protected function modifyItem(object $item): object
     {
         $item = $this->xmlFeedHelper->attachFeatures($item);
+        /** @var FeedProductRow $item */
         $metaParts = $this->xmlFeedHelper->getMetadataParts($item);
         $item = $this->xmlFeedHelper->attachDescriptionByTemplate(
             $item,
@@ -469,7 +556,9 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
             $this->xmlFeedHelper->getAnnotationTemplate($item),
             XmlFeedHelper::ANNOTATION_FIELD
         );
-        $item = $this->xmlFeedHelper->attachProductImages($item);
+        $imageProduct = $item;
+        /** @var \stdClass&object{images_string?: string|null, images?: list<string>} $imageProduct */
+        $item = $this->xmlFeedHelper->attachProductImages($imageProduct);
 
         return $this->inheritedExtender(__FUNCTION__, $item, func_get_args());
     }
@@ -480,6 +569,9 @@ abstract class AbstractPresetAdapter implements PresetAdapterInterface
      * @param object $product строка выборки из базы (запрос формирующийся методом getQuery),
      * но после отработки методов attachFeatures и attachImages.
      * @param bool $addVariantUrl Если true будет добавлен урл на определенный вариант
+     */
+    /**
+     * @return array<int|string, array<string, mixed>>
      */
     abstract protected function getItem(object $product, bool $addVariantUrl = false): array;
 }

@@ -1,19 +1,18 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Core\Response;
 use Okay\Core\Managers;
 use Okay\Core\Notify;
+use Okay\Core\Security\AdminSession;
+use Okay\Core\Security\AdminRecoveryToken;
 use Okay\Core\Validator;
 use Okay\Entities\LessonsEntity;
 use Okay\Entities\ManagersEntity;
 
 class AuthAdmin extends IndexAdmin
 {
-
     public function fetch(
         Managers $managers,
         ManagersEntity $managersEntity,
@@ -29,12 +28,13 @@ class AuthAdmin extends IndexAdmin
             if (!$validator->isEmail($recoveryEmail, true)) {
                 $result->error = 'wrong_email';
             } elseif (!($managerToRecovery = $managersEntity->findOne(['email' => $recoveryEmail]))) {
-                $result->error = 'not_admin_email';
+                $result->send = true;
             } else {
-                $code = $this->config->token(mt_rand(1, mt_getrandmax()) . mt_rand(1, mt_getrandmax()) . mt_rand(1, mt_getrandmax()));
-                $_SESSION['admin_password_recovery_code'] = $code;
+                /** @var object{id: int|string, email: string, password: string} $managerToRecovery */
+                $recoveryToken = new AdminRecoveryToken($this->config);
+                $code = $recoveryToken->create((int)$managerToRecovery->id, (string)$managerToRecovery->password);
                 $notify->emailPasswordRecoveryAdmin($managerToRecovery->email, $code);
-                
+
                 $result->send = true;
             }
             $this->response->setContent(json_encode($result), RESPONSE_JSON);
@@ -42,39 +42,58 @@ class AuthAdmin extends IndexAdmin
             exit;
         }
 
-        if (isset($_SESSION['admin_password_recovery_code']) && $_SESSION['admin_password_recovery_code'] == $this->request->get('code')){
-            $this->design->assign("recovery_mod",true);
-            if ($this->request->method('post')){
-                $new_login = $this->request->post('new_login');
-                $new_password = $this->request->post('new_password');
-                $new_password_check = $this->request->post('new_password_check');
+        /** @var object{id: int|string, login: string}|null $recoveryManager */
+        $recoveryManager = $this->getRecoveryManager($managersEntity);
+        if ($recoveryManager) {
+            $this->design->assign("recovery_mod", true);
+            $this->design->assign("recovery_login", $recoveryManager->login);
+            if ($this->request->method('post')) {
+                $new_password = (string)$this->request->post('new_password');
+                $new_password_check = (string)$this->request->post('new_password_check');
 
-                if ($new_password == $new_password_check) {
-                    $manager = $managersEntity->get($new_login);
-                    if (!$managersEntity->update($manager->id, ['password' => $new_password, 'cnt_try' => 0, 'last_try' => null])) {
-                        $managersEntity->add(['login' => $new_login, 'password' => $new_password]);
-                        $manager = $managersEntity->get($new_login);
+                if (trim($new_password) === '') {
+                    $this->design->assign('error_message', 'password_empty');
+                } elseif ($new_password !== $new_password_check) {
+                    $this->design->assign('error_message', 'password_wrong');
+                } else {
+                    $manager = $recoveryManager;
+                    $passwordUpdated = $managersEntity->update($manager->id, [
+                        'password' => $new_password,
+                        'cnt_try' => 0,
+                        'last_try' => null,
+                    ]);
+                    if (!$passwordUpdated) {
+                        $this->design->assign('error_message', 'auth_wrong');
+                        $this->response->setContent($this->design->fetch('auth.tpl'));
+                        return;
                     }
+
                     unset($_SESSION['admin_password_recovery_code']);
                     $_SESSION['admin'] = $manager->login;
+                    AdminSession::regenerateId();
 
                     $allManagers = $managersEntity->order('id ASC')->find();
                     $firstManager = reset($allManagers);
 
-                    if ($lessonsEntity->count(['not_done' => 1]) > 0 && $firstManager->id === $manager->id) {
+                    if (
+                        $firstManager
+                        && $lessonsEntity->count(['not_done' => 1]) > 0
+                        && $firstManager->id === $manager->id
+                    ) {
                         $response->redirectTo($this->request->getRootUrl() . '/backend/index.php?controller=LearningAdmin');
                     }
-                    $response->redirectTo($this->request->getBasePathWithDomain() . '/backend/index.php');
+                    $response->redirectTo($this->request->getRootUrl() . '/backend/index.php');
                 }
             }
-
         } elseif ($this->request->method('post')) {
             /*Авторизация в админ.панель*/
             $login = $this->request->post('login');
             $pass = $this->request->post('password');
             $manager = $managersEntity->get((string)$login);
-            
+
             if ($manager) {
+                $passwordIsValid = $managers->checkPassword($pass, $manager->password);
+
                 /*Подсчитываем количество неправильны попыток входа*/
                 $limit = 10;
                 $now = date('Y-m-d');
@@ -86,14 +105,17 @@ class AuthAdmin extends IndexAdmin
                     $manager->cnt_try++;
                 }
 
-                if ($manager->cnt_try > $limit) {
-                    $this->design->assign('error_message', 'limit_try');
-                } elseif ($managers->checkPassword($pass, $manager->password)) {
+                if ($passwordIsValid) {
+                    if (is_string($pass)) {
+                        $managersEntity->rehashPasswordIfNeeded((int)$manager->id, $pass, (string)$manager->password);
+                    }
+
                     /*Входим в админку*/
                     $_SESSION['admin'] = $manager->login;
-                    $managersEntity->update((int)$manager->id, ['cnt_try'=>0, 'last_try'=>null]);
+                    AdminSession::regenerateId();
+                    $managersEntity->update((int)$manager->id, ['cnt_try' => 0, 'last_try' => null]);
                     $managersEntity->updateLastActivityDate($manager->id);
-                    $loginRedirectResource = (!empty($_SESSION['before_auth_url']) ? $_SESSION['before_auth_url'] : $this->request->getBasePathWithDomain() . '/backend/index.php');
+                    $loginRedirectResource = (!empty($_SESSION['before_auth_url']) ? $_SESSION['before_auth_url'] : $this->request->getRootUrl() . '/backend/index.php');
                     unset($_SESSION['before_auth_url']);
 
                     $allManagers = $managersEntity->order('id ASC')->find();
@@ -103,12 +125,14 @@ class AuthAdmin extends IndexAdmin
                         $response->redirectTo($this->request->getRootUrl() . '/backend/index.php?controller=LearningAdmin');
                     }
                     $response->redirectTo($loginRedirectResource);
+                } elseif ($manager->cnt_try > $limit) {
+                    $this->design->assign('error_message', 'limit_try');
                 } else {
                     /*неверный пароль менеджера*/
                     $this->design->assign('login', $login);
                     $this->design->assign('error_message', 'auth_wrong');
-                    $this->design->assign('limit_cnt', $limit-$manager->cnt_try);
-                    $managersEntity->update((int)$manager->id, ['cnt_try'=>$manager->cnt_try, 'last_try'=>$last]);
+                    $this->design->assign('limit_cnt', $limit - $manager->cnt_try);
+                    $managersEntity->update((int)$manager->id, ['cnt_try' => $manager->cnt_try, 'last_try' => $last]);
                 }
             } else {
                 /*менеджер не найден*/
@@ -119,4 +143,38 @@ class AuthAdmin extends IndexAdmin
         $this->response->setContent($this->design->fetch('auth.tpl'));
     }
 
+    /**
+     * @return object{id: int|string, login: string}|null
+     */
+    private function getRecoveryManager(ManagersEntity $managersEntity): ?object
+    {
+        $recovery = $_SESSION['admin_password_recovery_code'] ?? null;
+        if (is_array($recovery)) {
+            $code = $this->request->get('code');
+            if (!empty($recovery['code']) && !empty($recovery['manager_id']) && hash_equals((string)$recovery['code'], (string)$code)) {
+                /** @var object{id: int|string, login: string}|null $legacyManager */
+                $legacyManager = $managersEntity->get((int)$recovery['manager_id']);
+                return $legacyManager;
+            }
+        }
+
+        $code = (string)$this->request->get('code');
+        $recoveryToken = new AdminRecoveryToken($this->config);
+        $managerId = $recoveryToken->unverifiedManagerId($code);
+        if ($managerId === null) {
+            return null;
+        }
+
+        /** @var object{id: int|string, login: string, password: string}|null $manager */
+        $manager = $managersEntity->get($managerId);
+        if (!$manager || empty($manager->password)) {
+            return null;
+        }
+
+        if ($recoveryToken->managerId($code, (string)$manager->password) !== (int)$manager->id) {
+            return null;
+        }
+
+        return $manager;
+    }
 }

@@ -2,28 +2,36 @@
 
 namespace Okay\Core\DebugBar\DataCollectors;
 
-use \DebugBar\DataCollector\TimeDataCollector as LibTimeDataCollector;
+use DebugBar\DataCollector\TimeDataCollector as LibTimeDataCollector;
 use DebugBar\DebugBarException;
 
 class TimeDataCollector extends LibTimeDataCollector
 {
-    public function startMeasure($name, $label = null, $collector = null, $aggregate = false)
+    public function startMeasure(string $name, ?string $label = null, ?string $collector = null, mixed $group = null): void
     {
         $start = microtime(true);
         $this->startedMeasures[$name] = array(
             'name' => $name,
             'label' => $label ?: $name,
             'start' => $start,
+            'memory' => $this->memoryMeasure ? memory_get_usage(false) : null,
             'collector' => $collector,
-            'aggregate' => $aggregate
+            'group' => is_string($group) ? $group : null,
+            'aggregate' => is_bool($group) ? $group : false
         );
     }
 
-    public function stopMeasure($name, $params = array())
+    /**
+     * @param array<string, mixed> $params
+     */
+    public function stopMeasure(string $name, array $params = array()): void
     {
         $end = microtime(true);
         if (!$this->hasStartedMeasure($name)) {
             throw new DebugBarException("Failed stopping measure '$name' because it hasn't been started");
+        }
+        if (!is_null($this->startedMeasures[$name]['memory'])) {
+            $params['memoryUsage'] = memory_get_usage(false) - $this->startedMeasures[$name]['memory'];
         }
         $this->addMeasure(
             $this->startedMeasures[$name]['label'],
@@ -31,14 +39,33 @@ class TimeDataCollector extends LibTimeDataCollector
             $end,
             $params,
             $this->startedMeasures[$name]['collector'],
-            $this->startedMeasures[$name]['aggregate'],
-            $this->startedMeasures[$name]['name']
+            $this->startedMeasures[$name]['group'],
+            $this->startedMeasures[$name]['name'],
+            $this->startedMeasures[$name]['aggregate']
         );
         unset($this->startedMeasures[$name]);
     }
 
-    public function addMeasure($label, $start, $end, $params = array(), $collector = null, $aggregate = false, $name = null)
-    {
+    /**
+     * @param array<string, mixed> $params
+     */
+    public function addMeasure(
+        string $label,
+        ?float $start = null,
+        ?float $end = null,
+        array $params = array(),
+        ?string $collector = null,
+        mixed $group = null,
+        ?string $name = null,
+        bool $aggregate = false
+    ): void {
+        $start ??= microtime(true);
+        $end ??= $start;
+        if (isset($params['memoryUsage'])) {
+            $memory = $this->memoryMeasure ? $params['memoryUsage'] : 0;
+            unset($params['memoryUsage']);
+        }
+
         $this->measures[] = array(
             'name' => $name ?? $label,
             'label' => $label,
@@ -48,23 +75,30 @@ class TimeDataCollector extends LibTimeDataCollector
             'relative_end' => $end - $this->requestEndTime,
             'duration' => $end - $start,
             'duration_str' => $this->getDataFormatter()->formatDuration($end - $start),
+            'memory' => $memory ?? 0,
+            'memory_str' => $this->getDataFormatter()->formatBytes($memory ?? 0),
             'params' => $params,
             'collector' => $collector,
+            'group' => is_string($group) ? $group : null,
             'aggregate' => $aggregate
         );
     }
 
-    public function getWidgets()
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    public function getWidgets(): array
     {
         return array(
             "time" => array(
-                "icon" => "clock-o",
+                "icon" => "clock",
                 "tooltip" => "Request Duration",
                 "map" => "time.duration_str",
+                "link" => "timeline",
                 "default" => "'0ms'"
             ),
             "timeline" => array(
-                "icon" => "tasks",
+                "icon" => "chart-infographic",
                 "widget" => "PhpDebugBar.Widgets.OkayTimelineWidget",
                 "map" => "time",
                 "default" => "{}"

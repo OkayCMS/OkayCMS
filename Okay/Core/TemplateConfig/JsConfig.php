@@ -1,14 +1,9 @@
 <?php
 
-
 namespace Okay\Core\TemplateConfig;
-
-
-use MatthiasMullie\Minify\JS as JsMinifier;
 
 class JsConfig
 {
-
     private $templateJs = [];
     private $individualJs = [];
     private $deferJsFiles = [];
@@ -53,7 +48,7 @@ class JsConfig
     {
         return $this->filesAttributes[$filename] ?? null;
     }
-    
+
     /**
      * Метод компилирует все зарегистрированные JS файлы
      * @param string $position head|footer указание куда файл генерируется
@@ -67,7 +62,6 @@ class JsConfig
         $resultFile = '';
         $compiledFilename = '';
         if (!empty($this->templateJs[$position])) {
-
             // Определяем название выходного файла, на основании хешей всех входящих файлов
             foreach ($this->templateJs[$position] as $file) {
                 $compiledFilename .= md5_file($file);
@@ -82,7 +76,7 @@ class JsConfig
                 return $compiledFilename;
             }
 
-            foreach ($this->templateJs[$position] as $k=>$file) {
+            foreach ($this->templateJs[$position] as $k => $file) {
                 $filename = pathinfo($file, PATHINFO_BASENAME);
 
                 $resultFile .= '/*! #File ' . $filename . ' */' . PHP_EOL;
@@ -93,9 +87,7 @@ class JsConfig
             }
         }
 
-        $minifier = new JsMinifier();
-        $minifier->add($resultFile);
-        $resultFile = $minifier->minify();
+        $resultFile = $this->minify($resultFile);
 
         $this->saveCompileFile($resultFile, $compiledFilename);
 
@@ -107,15 +99,14 @@ class JsConfig
      * @param string $position head|footer указание куда файл генерируется
      * @param string $compileJsDir путь к директории, в которой нужно сохранить скомпилированные css файлы
      * @param string $compiledFilenamePrefix префикс имени скомпилированного файла. Может понадобиться для компиляции
-     * @return array
+     *
+     * @return array<string, string>
      */
     public function compileRegisteredIndividual($position, $compileJsDir, $compiledFilenamePrefix = null)
     {
         $result = [];
         if (!empty($this->individualJs[$position])) {
-
-            foreach ($this->individualJs[$position] as $k=>$fullFilePath) {
-
+            foreach ($this->individualJs[$position] as $k => $fullFilePath) {
                 $compiledFilename = $compileJsDir . (!empty($compiledFilenamePrefix) ? $compiledFilenamePrefix . '.' : '') . pathinfo($fullFilePath, PATHINFO_BASENAME) . '.' . md5_file($fullFilePath) . '.js';
                 $result[$fullFilePath] = $compiledFilename;
 
@@ -135,9 +126,7 @@ class JsConfig
                 } else {
                     $result_file = file_get_contents($fullFilePath) . PHP_EOL . PHP_EOL;
 
-                    $minifier = new JsMinifier();
-                    $minifier->add($result_file);
-                    $result_file = $minifier->minify();
+                    $result_file = $this->minify($result_file);
 
                     $this->saveCompileFile($result_file, $compiledFilename);
                 }
@@ -158,9 +147,7 @@ class JsConfig
         } else {
             $result_file = file_get_contents($fullFilePath) . PHP_EOL . PHP_EOL;
 
-            $minifier = new JsMinifier();
-            $minifier->add($result_file);
-            $result_file = $minifier->minify();
+            $result_file = $this->minify($result_file);
 
             $this->saveCompileFile($result_file, $compiledFilename);
         }
@@ -170,10 +157,7 @@ class JsConfig
 
     public static function minifyJs($jsString)
     {
-        $minifier = new JsMinifier();
-        $minifier->add($jsString);
-
-        return $minifier->minify();
+        return (new JavaScriptMinifier())->minify((string) $jsString);
     }
 
     /**
@@ -187,5 +171,10 @@ class JsConfig
             // Сохраняем скомпилированный CSS
             file_put_contents($file, $content);
         }
+    }
+
+    private function minify(string $javascript): string
+    {
+        return (new JavaScriptMinifier())->minify($javascript);
     }
 }

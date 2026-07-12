@@ -1,0 +1,19 @@
+<?php
+
+namespace axy\sourcemap;
+
+/**
+ * Stub file for PHPStan to recognize PosMap class and its properties
+ *
+ * @property \axy\sourcemap\PosGenerated $generated Generated position information
+ * @property \axy\sourcemap\PosSource $source Source position information
+ */
+class PosMap
+{
+    /**
+     * @param mixed $data
+     */
+    public function __construct($data = null)
+    {
+    }
+}

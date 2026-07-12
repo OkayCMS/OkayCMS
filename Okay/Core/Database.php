@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 use Aura\Sql\ExtendedPdo;
 use Aura\SqlQuery\QueryInterface;
@@ -11,7 +9,6 @@ use PDOStatement;
 
 class Database
 {
-
     /**
      * @var \PDOStatement
      */
@@ -34,7 +31,7 @@ class Database
     private $rev;
     private $dbParams;
     private $affectedRows = null;
-    
+
     /**
      * Database constructor.
      * @param $pdo ExtendedPdo
@@ -45,13 +42,11 @@ class Database
      */
     public function __construct(ExtendedPdo $pdo, LoggerInterface $logger, $dbParams, QueryFactory $queryFactory)
     {
-        
+
         $this->pdo          = $pdo;
         $this->logger       = $logger;
         $this->dbParams     = (object)$dbParams;
         $this->queryFactory = $queryFactory;
-
-        $this->pdo->connect();
 
         if (!empty($this->dbParams->db_names)) {
             $sql = $this->queryFactory->newSqlQuery();
@@ -64,14 +59,14 @@ class Database
             $sql->setStatement('SET SESSION SQL_MODE = "' . $this->dbParams->db_sql_mode . '"');
             $this->query($sql);
         }
-        
+
         if (!empty($this->dbParams->db_timezone)) {
             $sql = $this->queryFactory->newSqlQuery();
             $sql->setStatement('SET time_zone = "' . $this->dbParams->db_timezone . '"');
             $this->query($sql);
         }
     }
-    
+
     /**
      * В деструкторе отсоединяемся от базы
      */
@@ -79,7 +74,7 @@ class Database
     {
         $this->pdo->disconnect();
     }
-    
+
     /**
      * @param QueryInterface $query
      * @param bool $debug
@@ -90,13 +85,41 @@ class Database
         $result = true;
         try {
             $this->affectedRows = null;
-            
+
             // Получаем все плейсхолдеры
             $bind = $query->getBindValues();
 
+            // ВАЖНО: Фільтруємо числові індекси з біндінгів перед викликом perform()
+            // Числові індекси використовуються тільки для позиційних плейсхолдерів `?`
+            // Якщо кількість числових індексів не відповідає кількості позиційних плейсхолдерів `?`,
+            // це може викликати помилку "Undefined array key" в AbstractQuery.php:437
+            // Тому фільтруємо числові індекси, якщо:
+            // 1. В SQL немає позиційних плейсхолдерів `?` (вони вже оброблені)
+            // 2. АБО кількість числових індексів не відповідає кількості позиційних плейсхолдерів `?`
+            $hasNumericKeys = false;
+            $numericKeys = [];
+            foreach ($bind as $key => $value) {
+                if (is_int($key)) {
+                    $hasNumericKeys = true;
+                    $numericKeys[] = $key;
+                }
+            }
+            $sqlStatement = $this->tablePrefix($query);
+            $questionMarkCount = substr_count($sqlStatement, '?');
+
+            if ($hasNumericKeys && ($questionMarkCount == 0 || count($numericKeys) != $questionMarkCount)) {
+                $filteredBind = [];
+                foreach ($bind as $key => $value) {
+                    if (!is_int($key)) {
+                        $filteredBind[$key] = $value;
+                    }
+                }
+                $bind = $filteredBind;
+            }
+
             // Подготавливаем запрос для выполнения добавляя данные из плейсхолдеров
             $this->result = $this->pdo->perform(
-                $this->tablePrefix($query),
+                $sqlStatement,
                 $bind
             );
 
@@ -134,14 +157,14 @@ class Database
     public function prepare(QueryInterface $query, $values)
     {
         return $this->pdo->prepareWithValues(
-            $this->tablePrefix($query), 
+            $this->tablePrefix($query),
             $values
         );
     }
-    
+
     /**
      * @param PDOStatement $preparedQuery
-     * @param array $bindValues
+     * @param array<int|string, mixed> $bindValues
      * @return string
      * ВНИМАНИЕ: данный метод не возвращает запрос, который выполнял MySQL сервер
      * он лиш имитирует такой же запрос, не исключено что в определенных ситуациях это будут разные запросы
@@ -173,21 +196,21 @@ class Database
         }
         return strtr($preparedQuery->queryString, $binded);
     }
-    
+
     public function customQuery($query)
     {
         trigger_error('Method ' . __METHOD__ . ' is deprecated. Please use QueryFactory::newSqlQuery for native SQL queries', E_USER_DEPRECATED);
     }
-    
+
     private function tablePrefix($query)
     {
         if (!is_string($query) && $query instanceof QueryInterface) {
             $query = $query->getStatement();
         }
-        
-        return preg_replace('/([^"\'0-9a-z_])__([a-z_]+[^"\'])/i', "\$1".$this->dbParams->prefix."\$2", $query);
+
+        return preg_replace('/([^"\'0-9a-z_])__([a-z_]+[^"\'])/i', "\$1" . $this->dbParams->prefix . "\$2", $query);
     }
-    
+
     /**
      * @var $str
      * @return string
@@ -195,28 +218,29 @@ class Database
      */
     public function escape($str)
     {
-        return $this->pdo->quote($str);
+        $quoted = $this->pdo->quote($str);
+        return $quoted === false ? '' : $quoted;
     }
-    
+
     /**
      * Возвращает результаты запроса.
      * @param string $field - Если нужно получить массив значений одной колонки, нужно передать название этой колонки
      * @param string $mapped - Если нужно получить массив, с ключами значения другого поля (например id) нужно передать название колонки
-     * @return array
+     * @return array<int|string, mixed>
      * @throws \Exception
      */
     public function results($field = null, $mapped = null)
     {
-        
+
         if (empty($this->result)) {
             return [];
         }
 
         $results = [];
         $this->result->setFetchMode(ExtendedPdo::FETCH_OBJ);
-        
+
         foreach ($this->result->fetchAll() as $row) {
-            if (property_exists($row, $mapped)) {
+            if (!empty($mapped) && property_exists($row, $mapped)) {
                 $mappedValue = $row->$mapped;
             } elseif (!empty($mapped)) {
                 throw new \Exception("Field named \"{$mapped}\" uses for mapped is not exists");
@@ -227,17 +251,17 @@ class Database
             } elseif (!empty($field) && property_exists($row, $field)) {
                 $row = $row->$field;
             }
-            
+
             if (!empty($mapped) && !empty($mappedValue)) {
                 $results[$mappedValue] = $row;
             } else {
                 $results[] = $row;
             }
         }
-        
+
         return $results;
     }
-    
+
     /**
      * Возвращает первый результат запроса.
      * @param string $field - Если нужно получить массив значений одной колонки, нужно передать название этой колонки
@@ -249,9 +273,12 @@ class Database
         if (empty($this->result)) {
             return null;
         }
-        
+
         $row = $this->result->fetchObject();
-        
+        if ($row === false) {
+            return null;
+        }
+
         if (!empty($field) && isset($row->$field)) {
             return $row->$field;
         } elseif (!empty($field) && !isset($row->$field)) {
@@ -260,7 +287,7 @@ class Database
             return $row;
         }
     }
-    
+
     /**
      * Возвращает последний вставленный id
      */
@@ -268,7 +295,7 @@ class Database
     {
         return $this->pdo->lastInsertId();
     }
-    
+
     /**
      * Возвращает количество затронутых строк
      */
@@ -297,12 +324,12 @@ class Database
     public function restore($filename)
     {
         $migration = fopen($filename, 'r');
-        if(empty($migration)) {
+        if (empty($migration)) {
             return;
         }
 
         $migrationQuery = '';
-        while(!feof($migration)) {
+        while (!feof($migration)) {
             $line = fgets($migration);
             if ($this->isComment($line) || empty($line)) {
                 continue;
@@ -317,8 +344,8 @@ class Database
                 $sql = $this->queryFactory->newSqlQuery();
                 $sql->setStatement($migrationQuery);
                 $this->query($sql);
-            } catch(\PDOException $e) {
-                print 'Error performing query \'<b>'.$migrationQuery.'</b>\': '.$e->getMessage().'<br/><br/>';
+            } catch (\PDOException $e) {
+                print 'Error performing query \'<b>' . $migrationQuery . '</b>\': ' . $e->getMessage() . '<br/><br/>';
             }
 
             $migrationQuery = '';

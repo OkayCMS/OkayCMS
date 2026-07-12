@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Admin\Helpers\BackendOrderHistoryHelper;
 use Okay\Admin\Helpers\BackendOrdersHelper;
@@ -12,9 +10,8 @@ use Okay\Entities\UsersEntity;
 
 class OrdersAdmin extends IndexAdmin
 {
-    
     public function fetch(
-        OrderLabelsEntity   $orderLabelsEntity,
+        OrderLabelsEntity $orderLabelsEntity,
         BackendOrdersHelper $backendOrdersHelper,
         BackendOrderHistoryHelper $backendOrderHistoryHelper,
         OrdersEntity $ordersEntity,
@@ -26,22 +23,18 @@ class OrdersAdmin extends IndexAdmin
             $ids = $this->request->post('check');
             if (is_array($ids)) {
                 switch ($this->request->post('action')) {
-                    case 'delete': {
+                    case 'delete':
                         $backendOrdersHelper->delete($ids);
                         break;
-                    }
-                    case 'change_status': {
+                    case 'change_status':
                         $backendOrdersHelper->changeStatus($ids);
                         break;
-                    }
-                    case 'set_label': {
+                    case 'set_label':
                         $backendOrdersHelper->setLabel($ids);
                         break;
-                    }
-                    case 'unset_label': {
+                    case 'unset_label':
                         $backendOrdersHelper->unsetLabel($ids);
                         break;
-                    }
                 }
             }
         }
@@ -54,7 +47,7 @@ class OrdersAdmin extends IndexAdmin
         $ordersCount = $backendOrdersHelper->count($filter);
 
         $countStatusesFilter = $backendOrdersHelper->buildCountStatusesFilter($filter);
-        
+
         // Считаем количество заказов по всем фильтрам, кроме статуса
         $countOrdersForStatuses = $ordersEntity->count($countStatusesFilter);
         if ($countOrdersForStatuses > 0) {
@@ -67,18 +60,18 @@ class OrdersAdmin extends IndexAdmin
                 if (empty($filter['from_date'])) {
                     $this->design->assign('orders_from_date', $dates->min);
                 }
-                
+
                 if (empty($filter['to_date'])) {
                     $this->design->assign('orders_to_date', $dates->max);
                 }
             }
-            
+
             $countOrdersByStatuses = $ordersEntity->countOrdersByStatuses($countStatusesFilter);
             $this->design->assign('count_orders_by_statuses', $countOrdersByStatuses);
         }
-        
+
         $this->design->assign('count_orders_for_statuses', $countOrdersForStatuses);
-        
+
         if (isset($filter['keyword'])) {
             $this->design->assign('keyword', $filter['keyword']);
         }
@@ -103,23 +96,22 @@ class OrdersAdmin extends IndexAdmin
             $this->design->assign('order_user', $usersEntity->findOne(['id' => $filter['user_id']]));
         }
 
-        $this->design->assign('pages_count',   ceil($ordersCount/$filter['limit']));
-        $this->design->assign('current_page',  $filter['page']);
-        $this->design->assign('orders_count',  $ordersCount);
-        $this->design->assign('orders',        $orders);
-        $this->design->assign('all_status',    $allStatuses);
+        $this->design->assign('pages_count', ceil($ordersCount / $filter['limit']));
+        $this->design->assign('current_page', $filter['page']);
+        $this->design->assign('orders_count', $ordersCount);
+        $this->design->assign('orders', $orders);
+        $this->design->assign('all_status', $allStatuses);
         $this->design->assign('orders_status', $allStatuses);
 
         if (!empty($orders)) {
             $ordersHistory = $backendOrderHistoryHelper->findOrdersHistory(array_keys($orders));
             $this->design->assign('orders_history', $ordersHistory);
         }
-        
+
         // Метки заказов
         $labels = $orderLabelsEntity->find();
         $this->design->assign('labels', $labels);
 
         $this->response->setContent($this->design->fetch('orders.tpl'));
     }
-    
 }

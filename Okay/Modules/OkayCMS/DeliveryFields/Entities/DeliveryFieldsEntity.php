@@ -26,6 +26,10 @@ class DeliveryFieldsEntity extends Entity
         'position',
     ];
 
+    /**
+     * @param array<int|string, int|string> $fieldId
+     * @return array<int|string, object>
+     */
     public function getFieldsDeliveries(array $fieldId): array
     {
         $select = $this->queryFactory->newSelect();

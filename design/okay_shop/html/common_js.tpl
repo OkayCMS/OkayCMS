@@ -4,13 +4,13 @@
     const okay = {};
     okay.router = {};
     {/literal}
-    
+
     {if $common_js_vars}
         {foreach $common_js_vars as $var=>$value}
             okay.{$var|escape} = {$value};
         {/foreach}
     {/if}
-    
+
     {if $front_routes}
         {foreach $front_routes as $name=>$route}
             okay.router['{$name|escape}'] = '{url_generator route=$name absolute=1}';
@@ -22,7 +22,7 @@
         let current_payment_id = $( 'input[name="payment_method_id"]:checked' ).val();
         let delivery_id = delivery_input.val();
         let payments_ids = new Array();
-        
+
         if (String(delivery_input.data('payment_method_ids')).length > 0) {
             payments_ids = String(delivery_input.data('payment_method_ids')).split(',');
         }
@@ -32,7 +32,7 @@
             .find('input[name="payment_method_id"]')
             .not('[value="' + current_payment_id + '"]')
             .prop('checked', false);
-        
+
         if (payments_ids.length > 0) {
             payments_ids.forEach(function (payment_id, i, arr) {
                 let payment_block =  $( ".fn_payment_method__item_" + payment_id );
@@ -53,11 +53,17 @@
         } else {
             $('.fn_payments_block').hide();
         }
-        
+
         okay.update_cart_total_price();
 
-        $( 'input[name="delivery_id"]' ).parent().removeClass( 'active' );
-        $( '#deliveries_' + delivery_id ).parent().addClass( 'active' );
+        // Remove active class from all delivery labels
+        $( 'input[name="delivery_id"]' ).each(function() {
+            $(this).closest('label').removeClass('active');
+        });
+        // Add active class to selected delivery label
+        if (delivery_id) {
+            $( '#deliveries_' + delivery_id ).closest('label').addClass('active');
+        }
     };
 
     okay.update_cart_total_price = function() {
@@ -87,7 +93,7 @@
     {
 
         if (currencyId === null) {
-            currencyId = {$currency->id};
+            currencyId = {if $currency && $currency->id}{$currency->id}{else}0{/if};
         }
 
         let currencies = Object.create(null);
@@ -102,12 +108,12 @@
         {/foreach}
 
         let currency = currencies[currencyId];
-        
+
         if (typeof currency == "undefined") {
             console.error('currency ID='+currencyId+' is not defined');
             return 'currency error';
         }
-        
+
         let decimal = currency.cents;
         let dec_point = '{$settings->decimals_point|escape}';
         let separator = '{$settings->thousands_separator|escape}';

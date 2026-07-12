@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Image;
 use Okay\Core\Entity\Entity;
@@ -10,7 +8,6 @@ use Okay\Core\Modules\Extender\ExtenderFacade;
 
 class PaymentsEntity extends Entity
 {
-
     protected static $fields = [
         'id',
         'module',
@@ -46,7 +43,7 @@ class PaymentsEntity extends Entity
         $this->select->where('id IN (SELECT payment_method_id FROM __delivery_payment dp WHERE dp.delivery_id=:delivery_id)')
             ->bindValue('delivery_id', (int)$deliveryId);
     }
-    
+
     public function delete($ids)
     {
         /** @var Image $imageCore */
@@ -83,11 +80,11 @@ class PaymentsEntity extends Entity
             ->cols(['settings'])
             ->where('id=:id')
             ->bindValue('id', (int)$methodId);
-        
+
         $this->db->query($select);
         $result = $this->db->result('settings');
         $settings = [];
-        if (!empty($result)) {
+        if (!empty($result) && is_string($result)) {
             $settings = unserialize($result);
         }
 
@@ -95,6 +92,9 @@ class PaymentsEntity extends Entity
     }
 
     /*Обновление настроек способа оплаты*/
+    /**
+     * @param array<string, mixed> $settings serialized payment settings payload
+     */
     public function updatePaymentSettings($methodId, array $settings)
     {
         $settings = serialize($settings);
@@ -123,6 +123,9 @@ class PaymentsEntity extends Entity
     }
 
     /*Обновление способов оплаты у данного способа доставки*/
+    /**
+     * @param list<int> $deliveriesIds
+     */
     public function updatePaymentDeliveries($paymentId, array $deliveriesIds)
     {
         $delete = $this->queryFactory->newDelete();
@@ -132,16 +135,14 @@ class PaymentsEntity extends Entity
 
         $this->db->query($delete);
 
-        if (is_array($deliveriesIds)) {
-            foreach($deliveriesIds as $dId) {
-                $insert = $this->queryFactory->newInsert();
-                $insert->into('__delivery_payment')
-                    ->cols([
-                        'payment_method_id' => $paymentId,
-                        'delivery_id' => $dId,
-                    ]);
-                $this->db->query($insert);
-            }
+        foreach ($deliveriesIds as $dId) {
+            $insert = $this->queryFactory->newInsert();
+            $insert->into('__delivery_payment')
+                ->cols([
+                    'payment_method_id' => $paymentId,
+                    'delivery_id' => $dId,
+                ]);
+            $this->db->query($insert);
         }
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], null, func_get_args());

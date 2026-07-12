@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Modules;
-
 
 class SqlPresentor
 {
@@ -29,7 +27,7 @@ class SqlPresentor
                 $sql .= "ALTER TABLE `{$tableName}` ADD {$indexType} `{$indexName}` ({$fullIndexFields});";
             }
         }
-        
+
         return $sql;
     }
 
@@ -38,6 +36,9 @@ class SqlPresentor
         return "ALTER TABLE `{$tableName}` CHANGE `{$field->getName()}` {$this->fieldSql($field)};";
     }
 
+    /**
+     * @param list<EntityField> $entityFields
+     */
     public function createTableQuery($tableName, array $entityFields, $langObjectField = null)
     {
         $primaryKeyExists = false;
@@ -47,14 +48,14 @@ class SqlPresentor
         /** @var EntityField $entityField */
         foreach ($entityFields as $entityField) {
             $sql .= $this->fieldSql($entityField) . ",";
-            
+
             if ($indexes = $entityField->getIndexes()) {
                 $indexFields = [];
                 foreach ($indexes as $indexType => $index) {
                     $length = $index['length'];
                     $indexName = $entityField->getName();
                     //var_dump($length);
-                    $indexFields[] = "`{$entityField->getName()}`" 
+                    $indexFields[] = "`{$entityField->getName()}`"
                         . ($length !== null ? "({$length})" : "");
                     // Если указали дополнительные поля для составного индекса, добавим их
                     if (!empty($index['fields'])) {
@@ -64,7 +65,7 @@ class SqlPresentor
                             $indexFields[] = "`{$compositeIndexField->getName()}`";
                         }
                     }
-                    
+
                     $fullIndexFields = implode(', ', $indexFields);
                     $sql .= ($indexType !== EntityField::INDEX ? $indexType : "") . " KEY `{$indexName}` ({$fullIndexFields}),";
                 }
@@ -73,7 +74,7 @@ class SqlPresentor
             if ($entityField->isPrimaryKey() && $primaryKeyExists === false) {
                 $sql .= "PRIMARY KEY (`{$entityField->getName()}`),";
                 $primaryKeyExists = true;
-            } elseif($entityField->isPrimaryKey()) {
+            } elseif ($entityField->isPrimaryKey()) {
                 throw new \Exception("Table can use only one primary key");
             }
         }
@@ -81,7 +82,7 @@ class SqlPresentor
         if ($langObjectField !== null) {
             $sql .= "UNIQUE KEY `lang_id_{$langObjectField}` (`lang_id`, `{$langObjectField}`),";
         }
-        
+
         $sql = substr($sql, 0, -1);
         $sql .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
 

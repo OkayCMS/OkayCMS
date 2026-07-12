@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Helpers;
-
 
 use Okay\Core\Languages;
 use Okay\Core\Request;
@@ -59,12 +57,12 @@ class BackendFeaturesValuesHelper
 
     public function __construct(
         EntityFactory $entityFactory,
-        QueryFactory  $queryFactory,
-        Translit      $translit,
-        Database      $db,
-        Request       $request,
-        Languages     $languages,
-        Settings      $settings
+        QueryFactory $queryFactory,
+        Translit $translit,
+        Database $db,
+        Request $request,
+        Languages $languages,
+        Settings $settings
     ) {
         $this->featuresValuesEntity = $entityFactory->get(FeaturesValuesEntity::class);
         $this->featuresEntity       = $entityFactory->get(FeaturesEntity::class);
@@ -79,20 +77,20 @@ class BackendFeaturesValuesHelper
     public function moveToPage($ids, $page, $feature, $featuresValuesFilter)
     {
         $featuresValuesFilter['page'] = $page;
-        $offset = $featuresValuesFilter['limit'] * ($page-1);
+        $offset = $featuresValuesFilter['limit'] * ($page - 1);
 
         if (empty($ids) || !$offset) {
             return ExtenderFacade::execute(__METHOD__, $offset, func_get_args());
         }
 
-        $targetFVs = $this->featuresValuesEntity->cols(['id', 'feature_id', 'position'])->find(['id'=>$ids]);
+        $targetFVs = $this->featuresValuesEntity->cols(['id', 'feature_id', 'position'])->find(['id' => $ids]);
 
         $shiftCounter = 0;
         foreach ($targetFVs as $targetFV) {
             $select = $this->queryFactory->newSelect();
-            $shiftFV = $select->from(FeaturesValuesEntity::getTable().' fv')
+            $shiftFV = $select->from(FeaturesValuesEntity::getTable() . ' fv')
                 ->cols(['feature_value_id', 'lfv.position as position'])
-                ->leftJoin(FeaturesValuesEntity::getLangTable().' lfv', 'fv.feature_id = :feature_id AND fv.id = lfv.feature_value_id AND lfv.lang_id = :lang_id')
+                ->leftJoin(FeaturesValuesEntity::getLangTable() . ' lfv', 'fv.feature_id = :feature_id AND fv.id = lfv.feature_value_id AND lfv.lang_id = :lang_id')
                 ->where('feature_id = :feature_id')
 
                 ->bindValues([
@@ -111,19 +109,18 @@ class BackendFeaturesValuesHelper
 
                 $update = $this->queryFactory->newSqlQuery();
                 $update->setStatement('
-                    UPDATE '.FeaturesValuesEntity::getLangTable().' lfv
+                    UPDATE ' . FeaturesValuesEntity::getLangTable() . ' lfv
                     JOIN (SELECT lfv.feature_value_id as feature_value_id, lfv.position as position
-                            FROM '.FeaturesValuesEntity::getLangTable().' lfv
-                            LEFT JOIN '.FeaturesValuesEntity::getTable().' fv ON lfv.feature_value_id = fv.id
-                            WHERE fv.feature_id = :feature_id 
-                              AND lfv.lang_id = :lang_id 
+                            FROM ' . FeaturesValuesEntity::getLangTable() . ' lfv
+                            LEFT JOIN ' . FeaturesValuesEntity::getTable() . ' fv ON lfv.feature_value_id = fv.id
+                            WHERE fv.feature_id = :feature_id
+                              AND lfv.lang_id = :lang_id
                               AND lfv.position > :positionFrom
                               AND lfv.position <= :positionTo
                             ORDER BY lfv.position
                           ) as tp ON lfv.feature_value_id = tp.feature_value_id
                     SET lfv.position = lfv.position-1
-                    WHERE lfv.lang_id = :lang_id2;'
-                )->bindValues([
+                    WHERE lfv.lang_id = :lang_id2;')->bindValues([
                     'feature_id' => $feature->id,
                     'lang_id' => $this->languages->getLangId(),
                     'lang_id2' => $this->languages->getLangId(),
@@ -131,7 +128,7 @@ class BackendFeaturesValuesHelper
                     'positionTo' => $positionUpdateTo,
                 ])->execute();
 
-                $this->featuresValuesEntity->update($targetFV->id, ['position'=>$shiftFV->position]);
+                $this->featuresValuesEntity->update($targetFV->id, ['position' => $shiftFV->position]);
             }
         }
 
@@ -147,7 +144,7 @@ class BackendFeaturesValuesHelper
         unset($copyFeaturesValuesFilter['page']);
 
         $featuresCount = $this->featuresValuesEntity->count($copyFeaturesValuesFilter);
-        $pageCount = ceil($featuresCount/$featuresValuesFilter['limit']);
+        $pageCount = ceil($featuresCount / $featuresValuesFilter['limit']);
         return ExtenderFacade::execute(__METHOD__, $pageCount, func_get_args());
     }
 
@@ -180,7 +177,7 @@ class BackendFeaturesValuesHelper
         $featureValuesCount = $this->featuresValuesEntity->count($featuresValuesFilter);
 
         // Показать все страницы сразу
-        if($this->request->get('page') == 'all') {
+        if ($this->request->get('page') == 'all') {
             $featuresValuesFilter['limit'] = $featureValuesCount;
         }
 
@@ -192,9 +189,9 @@ class BackendFeaturesValuesHelper
         $featuresValues = [];
 
         $count = 0;
-        foreach($this->featuresValuesEntity->find($featuresValuesFilter) as $fv) {
+        foreach ($this->featuresValuesEntity->find($featuresValuesFilter) as $fv) {
             if (isset($featuresValues[$fv->translit])) {
-                $featuresValues[$fv->translit.'repeated'.++$count] = $fv;
+                $featuresValues[$fv->translit . 'repeated' . ++$count] = $fv;
             } else {
                 $featuresValues[$fv->translit] = $fv;
             }
@@ -208,7 +205,7 @@ class BackendFeaturesValuesHelper
         $feature_values_count = $this->featuresValuesEntity->count($featuresValuesFilter);
 
         // Показать все страницы сразу
-        if($this->request->get('page') == 'all') {
+        if ($this->request->get('page') == 'all') {
             $featuresValuesFilter['limit'] = $feature_values_count;
         }
 
@@ -217,7 +214,7 @@ class BackendFeaturesValuesHelper
 
     public function buildValuesFilter($feature)
     {
-        $featuresValuesFilter = ['feature_id'=>$feature->id];
+        $featuresValuesFilter = ['feature_id' => $feature->id];
 
         if ($featuresValuesFilter['limit'] = $this->request->get('limit', 'integer')) {
             $featuresValuesFilter['limit'] = max(5, $featuresValuesFilter['limit']);
@@ -265,10 +262,11 @@ class BackendFeaturesValuesHelper
         $featureValuesIds = [];
 
         $isPageAll = $featuresValuesFilter['page'] == 'all';
-        $position = $isPageAll ? 1 : $featuresValuesFilter['limit'] * ($featuresValuesFilter['page']-1) +1;
+        $position = $isPageAll ? 1 : $featuresValuesFilter['limit'] * ($featuresValuesFilter['page'] - 1) + 1;
 
         $addedIds = [];
-        foreach($featuresValues as $fv) {
+        foreach ($featuresValues as $fv) {
+            /** @var object{id?: int|string, value?: string|null, translit?: string|null, to_index?: int|string, feature_id?: int|string, position?: int|string}&\stdClass $fv */
             if (!$fv->to_index) {
                 $fv->to_index = 0;
             }
@@ -292,7 +290,7 @@ class BackendFeaturesValuesHelper
             }
         }
 
-        $this->updateValuesPositions($feature->id, $this->languages->getLangId(), $position-1, $addedIds);
+        $this->updateValuesPositions($feature->id, $this->languages->getLangId(), $position - 1, $addedIds);
         $this->sortAllFeatureValuesTranslationsProcedure($feature->id, $addedIds);
 
         ExtenderFacade::execute(__METHOD__, $featureValuesIds, func_get_args());
@@ -304,15 +302,15 @@ class BackendFeaturesValuesHelper
             $addedStr = !empty($addedFeatureValuesIds) ? 'AND lfv.feature_value_id not in (:added_value_ids)' : '';
 
             $this->queryFactory->newSqlQuery()
-                ->setStatement('UPDATE '.FeaturesValuesEntity::getLangTable().' lfv
-                LEFT JOIN '.FeaturesValuesEntity::getTable().' fv ON lfv.feature_value_id = fv.id
+                ->setStatement('UPDATE ' . FeaturesValuesEntity::getLangTable() . ' lfv
+                LEFT JOIN ' . FeaturesValuesEntity::getTable() . ' fv ON lfv.feature_value_id = fv.id
                 SET lfv.position = (lfv.position + :shift)
-                WHERE fv.feature_id = :feature_id AND lfv.lang_id = :lang_id AND lfv.position > :position '.$addedStr.';
+                WHERE fv.feature_id = :feature_id AND lfv.lang_id = :lang_id AND lfv.position > :position ' . $addedStr . ';
             ')->bindValues([
                     'feature_id' => $featureId,
                     'lang_id' => $langId,
                     'position' => $position,
-                    'shift' => $doShiftCount ?: count($addedFeatureValuesIds ?? []),
+                    'shift' => $doShiftCount ?: count($addedFeatureValuesIds),
                     'added_value_ids' => $addedFeatureValuesIds,
                 ])->execute();
         }
@@ -322,14 +320,14 @@ class BackendFeaturesValuesHelper
                 CREATE TEMPORARY TABLE __temp_positions AS
                 SELECT feature_value_id, @rownum := @rownum + 1 AS new_position
                 FROM (SELECT lfv.feature_value_id as feature_value_id
-                        FROM '.FeaturesValuesEntity::getLangTable().' lfv
-                        LEFT JOIN '.FeaturesValuesEntity::getTable().' fv ON lfv.feature_value_id = fv.id
-                        WHERE fv.feature_id = :feature_id 
-                          AND lfv.lang_id = :lang_id 
+                        FROM ' . FeaturesValuesEntity::getLangTable() . ' lfv
+                        LEFT JOIN ' . FeaturesValuesEntity::getTable() . ' fv ON lfv.feature_value_id = fv.id
+                        WHERE fv.feature_id = :feature_id
+                          AND lfv.lang_id = :lang_id
                         ORDER BY lfv.position
                       ) as t;
-                
-                UPDATE '.FeaturesValuesEntity::getLangTable().' lfv
+
+                UPDATE ' . FeaturesValuesEntity::getLangTable() . ' lfv
                     JOIN temp_positions tp ON lfv.feature_value_id = tp.feature_value_id
                     SET lfv.position = tp.new_position;
                     WHERE lfv.lang_id = :lang_id2;
@@ -344,12 +342,11 @@ class BackendFeaturesValuesHelper
     public function generateUniqueTranslitForValue($featureId, $translit, $valueId = null)
     {
         while ($this->getUniqueTranslitForLangTable($featureId, $translit, $valueId)) {
-            if(preg_match('/(.+)rptd([0-9]+)$/', $translit, $parts)) {
-                $translit = $parts[1].'rptd'.($parts[2]+1);
+            if (preg_match('/(.+)rptd([0-9]+)$/', $translit, $parts)) {
+                $translit = $parts[1] . 'rptd' . ($parts[2] + 1);
             } else {
-                $translit = $translit.'rptd2';
+                $translit = $translit . 'rptd2';
             }
-
         }
 
         return $translit;
@@ -359,12 +356,12 @@ class BackendFeaturesValuesHelper
     {
         if ($valueId) {
             $selectFromLangTable = $this->featuresValuesEntity->cols(['id'])
-                ->getSelect(['feature_id'=>$featureId, 'translit'=>Translit::translitAlpha($translit), 'limit'=>1])
+                ->getSelect(['feature_id' => $featureId, 'translit' => Translit::translitAlpha($translit), 'limit' => 1])
                 ->where('id != :value_id')
-                ->bindValues(['value_id'=>$valueId]);
+                ->bindValues(['value_id' => $valueId]);
         } else {
-            $selectFromLangTable = $this->queryFactory->newSelect()->cols(['id'])->from(FeaturesValuesEntity::getTable().' fv')
-                ->innerJoin(FeaturesValuesEntity::getLangTable().' lfv', 'fv.id = lfv.feature_value_id')
+            $selectFromLangTable = $this->queryFactory->newSelect()->cols(['id'])->from(FeaturesValuesEntity::getTable() . ' fv')
+                ->innerJoin(FeaturesValuesEntity::getLangTable() . ' lfv', 'fv.id = lfv.feature_value_id')
                 ->where('lfv.translit = :translit')
                 ->where('fv.feature_id = :feature_id')
                 ->bindValues([
@@ -378,7 +375,7 @@ class BackendFeaturesValuesHelper
 
     public function deleteSelectedValues($valuesToDelete, $featuresValues)
     {
-        foreach ($featuresValues  as $k=>$fv) {
+        foreach ($featuresValues as $k => $fv) {
             if (in_array($fv->id, $valuesToDelete)) {
                 unset($featuresValues[$k]);
                 $this->featuresValuesEntity->delete($fv->id);
@@ -403,15 +400,15 @@ class BackendFeaturesValuesHelper
     public function sortFeatureValuePositionsAlphabet($feature)
     {
         $featuresValues = [];
-        foreach($this->featuresValuesEntity->cols(['id', 'value'])->noLimit()->find(['feature_id' => $feature->id]) as $fv) {
+        foreach ($this->featuresValuesEntity->cols(['id', 'value'])->noLimit()->find(['feature_id' => $feature->id]) as $fv) {
             $featuresValues[$fv->id] = $fv->value;
         }
 
         asort($featuresValues, SORT_NATURAL);
 
         $featureValueIds = array_keys($featuresValues);
-        foreach($featureValueIds as $position => $id) {
-            $this->featuresValuesEntity->update($id, ['position'=>$position+1]);
+        foreach ($featureValueIds as $position => $id) {
+            $this->featuresValuesEntity->update($id, ['position' => $position + 1]);
         }
 
         $this->sortAllFeatureValuesTranslationsProcedure($feature->id);
@@ -428,7 +425,7 @@ class BackendFeaturesValuesHelper
     {
         return $this->getQueryForValueDuplicates()->cols(['COUNT(*) as total_count'])->result('total_count');
     }
-    
+
     protected function getQueryForValueDuplicates(): QueryFactory\Select
     {
         $query = $this->queryFactory->newSelect();
@@ -446,19 +443,53 @@ class BackendFeaturesValuesHelper
         $query->from('__lang_features_values AS lfv_inner')
             ->innerJoin('__features_values AS fv_inner', 'lfv_inner.feature_value_id = fv_inner.id')
             ->leftJoin('__languages AS l', 'l.id = lfv_inner.lang_id')
-            ->leftJoin('__lang_features AS lf','lf.feature_id = fv_inner.feature_id AND lf.lang_id = lfv_inner.lang_id');
+            ->leftJoin('__lang_features AS lf', 'lf.feature_id = fv_inner.feature_id AND lf.lang_id = lfv_inner.lang_id');
 
         $subQuery = $this->queryFactory->newSelect();
         $subQuery->cols([
             'lfv_inner.lang_id',
             'fv_inner.feature_id',
-            'lfv_inner.translit'])
-            ->from('__lang_features_values as lfv_inner')
-            ->innerJoin('__features_values fv_inner','lfv_inner.feature_value_id = fv_inner.id')
-        ->groupBy(['lfv_inner.lang_id, fv_inner.feature_id, lfv_inner.translit'])
-        ->having('COUNT(*) > 1');
+            'lfv_inner.translit',
+        ])
+            ->from('__lang_features_values AS lfv_inner')
+            ->innerJoin('__features_values AS fv_inner', 'lfv_inner.feature_value_id = fv_inner.id')
+            ->groupBy(['lfv_inner.lang_id', 'fv_inner.feature_id', 'lfv_inner.translit'])
+            ->having('COUNT(*) > 1');
 
-        $query->where(' (lfv_inner.lang_id, fv_inner.feature_id, lfv_inner.translit) IN (?)', $subQuery);
+        // IN (?) does not accept a subquery object in Aura; use joinSubSelect (see BrandsEntity, FeaturesValuesEntity).
+        $subQueryBindValues = $subQuery->getBindValues();
+        $expandedBindValues = [];
+        foreach ($subQueryBindValues as $key => $value) {
+            if (is_array($value)) {
+                foreach ($value as $index => $item) {
+                    $expandedBindValues[$key . '_' . $index] = $item;
+                }
+            } else {
+                $expandedBindValues[$key] = $value;
+            }
+        }
+        $subQueryStatement = $subQuery->getStatement();
+        foreach ($subQueryBindValues as $key => $value) {
+            if (is_array($value)) {
+                $placeholders = [];
+                foreach ($value as $index => $item) {
+                    $placeholders[] = ':' . $key . '_' . $index;
+                }
+                $subQueryStatement = str_ireplace('IN (:' . $key . ')', 'IN (' . implode(', ', $placeholders) . ')', $subQueryStatement);
+            }
+        }
+
+        $query->bindValues($expandedBindValues);
+
+        $dupAlias = 'fv_dup_groups';
+        $query->joinSubSelect(
+            'INNER',
+            $subQueryStatement,
+            $dupAlias,
+            $dupAlias . '.lang_id = lfv_inner.lang_id AND '
+                . $dupAlias . '.feature_id = fv_inner.feature_id AND '
+                . $dupAlias . '.translit = lfv_inner.translit'
+        );
 
         $query->orderBy(['lang_id', 'feature_id', 'translit', 'feature_value_id', 'translit']);
 
@@ -477,7 +508,7 @@ class BackendFeaturesValuesHelper
                 lfv_inner.feature_value_id as feature_value_id
             FROM __lang_features_values lfv_inner
             JOIN __features_values fv_inner ON lfv_inner.feature_value_id = fv_inner.id
-            WHERE (lfv_inner.lang_id, fv_inner.feature_id, lfv_inner.translit) 
+            WHERE (lfv_inner.lang_id, fv_inner.feature_id, lfv_inner.translit)
               IN (SELECT lfv_inner.lang_id, fv_inner.feature_id, lfv_inner.translit
                 FROM __lang_features_values lfv_inner
                 JOIN __features_values fv_inner ON lfv_inner.feature_value_id = fv_inner.id
@@ -517,7 +548,7 @@ class BackendFeaturesValuesHelper
     {
         if ($this->settings->get('sort_feature_values_individually_each_lang') != 1) {
             $this->sortAllFeatureValuesTranslationsByLang($featureId, $this->languages->getLangId());
-        } elseif(!empty($addedValueIds)) {
+        } elseif (!empty($addedValueIds)) {
             $this->sortAddedFeatureValuesPosition($featureId, $addedValueIds);
         }
     }
@@ -526,10 +557,9 @@ class BackendFeaturesValuesHelper
      * @param int $featureId
      * @param int|null $langId
      */
-    public function sortAllFeatureValuesTranslationsByLang($featureId, $langId=null)
+    public function sortAllFeatureValuesTranslationsByLang($featureId, $langId = null)
     {
         if (!empty($featureId = (int)$featureId)) {
-
             if (empty($langId)) {
                 $langId = $this->languages->getLangId();
             }
@@ -539,8 +569,9 @@ class BackendFeaturesValuesHelper
                 'UPDATE `__lang_features_values` origin_lfv
                 INNER JOIN `__features_values` fv ON origin_lfv.feature_value_id = fv.id
                 LEFT JOIN `__lang_features_values` sub ON origin_lfv.feature_value_id = sub.feature_value_id AND sub.lang_id = :lang_id
-                SET origin_lfv.`position`= sub.position WHERE fv.`feature_id` = :feature_id')
-                ->bindValues(['feature_id'=>$featureId, 'lang_id'=>$langId])
+                SET origin_lfv.`position`= sub.position WHERE fv.`feature_id` = :feature_id'
+            )
+                ->bindValues(['feature_id' => $featureId, 'lang_id' => $langId])
                 ->execute();
         }
     }
@@ -550,11 +581,12 @@ class BackendFeaturesValuesHelper
      * @param int[] $addedValueIds
      * @param int|null $langId
      */
-    public function sortAddedFeatureValuesPosition($featureId, $addedValueIds, $langId=null)
+    public function sortAddedFeatureValuesPosition($featureId, $addedValueIds, $langId = null)
     {
-        if (!empty($featureId = (int)$featureId)
-            && !empty($addedValueIds = (array)$addedValueIds)) {
-
+        if (
+            !empty($featureId = (int)$featureId)
+            && !empty($addedValueIds = (array)$addedValueIds)
+        ) {
             if (empty($langId)) {
                 $langId = $this->languages->getLangId();
             }
@@ -563,12 +595,12 @@ class BackendFeaturesValuesHelper
             $update->setStatement(
                 'UPDATE `__lang_features_values` lfv
                 INNER JOIN `__features_values` fv ON lfv.feature_value_id = fv.id
-                SET lfv.`position`= lfv.feature_value_id  
+                SET lfv.`position`= lfv.feature_value_id
                 WHERE fv.`feature_id` = :feature_id AND lfv.feature_value_id in (:value_ids) AND lfv.lang_id != :lang_id;'
             )->bindValues([
-                'feature_id'=>$featureId,
-                'lang_id'=>$langId,
-                'value_ids'=>$addedValueIds
+                'feature_id' => $featureId,
+                'lang_id' => $langId,
+                'value_ids' => $addedValueIds
             ])->execute();
         }
     }

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\NovaposhtaCost\Helpers;
-
 
 use Okay\Core\Settings;
 use Okay\Modules\OkayCMS\NovaposhtaCost\DTO\NPCitiesCollectionDTO;
@@ -12,8 +10,16 @@ use Okay\Modules\OkayCMS\NovaposhtaCost\DTO\NPWarehousesCollectionDTO;
 use Okay\Modules\OkayCMS\NovaposhtaCost\DTO\NPWarehouseTypeDTO;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @phpstan-type WarehouseTypeApiRow object{Description: string, DescriptionRu?: string|null, Ref: string}&\stdClass
+ * @phpstan-type WarehouseApiRow object{Description: string, DescriptionRu?: string|null, Ref: string, CityRef: string, TypeOfWarehouse: string, Number: int|string}&\stdClass
+ * @phpstan-type CityApiRow object{Description: string, DescriptionRu?: string|null, Ref: string}&\stdClass
+ * @phpstan-type ApiResponse object{success?: bool, data?: list<object>, info?: object{totalCount?: int|string}, errors?: mixed}&\stdClass
+ */
 class NPApiHelper
 {
+    private const THROTTLE_DELAY_MICROSECONDS = 500000;
+
     private string $lastCallError = '';
     private Settings $settings;
     private LoggerInterface $logger;
@@ -30,17 +36,19 @@ class NPApiHelper
      * Метод достает типы отделений из API Новой Почты
      * @return NPWarehouseTypeDTO[]
      */
-    public function getWarehouseTypes(): array
+    public function getWarehouseTypes(bool $throttleRequests = false): array
     {
         $request = [
             "modelName" => "Address",
             "calledMethod" => "getWarehouseTypes",
         ];
 
-        $response = $this->request($request, false);
+        $response = $this->request($request, false, $throttleRequests);
+        /** @var ApiResponse|false $response */
         if (!empty($response->success)) {
             $result = [];
             foreach ($response->data as $warehouseTypeData) {
+                /** @var WarehouseTypeApiRow $warehouseTypeData */
                 $name = $nameRu = htmlspecialchars($warehouseTypeData->Description);
                 if (!empty($warehouseTypeData->DescriptionRu)) {
                     $nameRu = htmlspecialchars($warehouseTypeData->DescriptionRu);
@@ -67,28 +75,35 @@ class NPApiHelper
         return $this->getLastCallError();
     }
 
-    public function getWarehouses(string $warehouseType, int $page, int $limit): ?NPWarehousesCollectionDTO
-    {
+    public function getWarehouses(
+        string $warehouseType,
+        int $page,
+        int $limit,
+        bool $throttleRequests = false
+    ): ?NPWarehousesCollectionDTO {
         $request = [
             "modelName" => "Address",
             "calledMethod" => "getWarehouses",
             "methodProperties" => [
                 "TypeOfWarehouseRef" => $warehouseType,
-                "Page" => $page,
-                "Limit" => $limit,
+                "Page" => (string) $page,
+                "Limit" => (string) $limit,
             ]
         ];
 
-        $response = $this->request($request);
+        $response = $this->request($request, true, $throttleRequests);
+        /** @var ApiResponse|false $response */
         if (!empty($response->success)) {
             $warehousesDTO = new NPWarehousesCollectionDTO();
             foreach ($response->data as $warehouseData) {
+                /** @var WarehouseApiRow $warehouseData */
                 // Перевіряємо тип, оскільки НП може повернути відділення не того типу і вони задублюються на сайті
                 if ($warehouseData->TypeOfWarehouse != $warehouseType) {
                     continue;
                 }
                 $name = htmlspecialchars($warehouseData->Description);
                 $name = preg_replace('~(?:(№\d+)\S*)~', '$1', $name);
+                $name = is_string($name) ? $name : '';
                 $warehouseDTO = new NPWarehouseDTO(
                     $name,
                     $warehouseData->Ref,
@@ -99,12 +114,13 @@ class NPApiHelper
                 if (!empty($warehouseData->DescriptionRu)) {
                     $nameRu = htmlspecialchars($warehouseData->DescriptionRu);
                     $nameRu = preg_replace('~(?:(№\d+)\S*)~', '$1', $nameRu);
+                    $nameRu = is_string($nameRu) ? $nameRu : '';
                     $warehouseDTO->setNameRu($nameRu);
                 }
                 $warehousesDTO->setWarehouse($warehouseDTO);
             }
             if (!empty($response->info->totalCount)) {
-                $warehousesDTO->setTotalCount($response->info->totalCount);
+                $warehousesDTO->setTotalCount((int)$response->info->totalCount);
             }
             return $warehousesDTO;
         } else {
@@ -112,21 +128,23 @@ class NPApiHelper
         }
     }
 
-    public function getCities(int $page, int $limit): ?NPCitiesCollectionDTO
+    public function getCities(int $page, int $limit, bool $throttleRequests = false): ?NPCitiesCollectionDTO
     {
         $request = [
             "modelName" => "Address",
             "calledMethod" => "getCities",
             "methodProperties" => [
-                "Page" => $page,
-                "Limit" => $limit,
+                "Page" => (string) $page,
+                "Limit" => (string) $limit,
             ],
         ];
 
-        $response = $this->request($request);
+        $response = $this->request($request, true, $throttleRequests);
+        /** @var ApiResponse|false $response */
         if (!empty($response->success)) {
             $citiesDTO = new NPCitiesCollectionDTO();
             foreach ($response->data as $cityData) {
+                /** @var CityApiRow $cityData */
                 $cityDTO = new NPCityDTO(
                     htmlspecialchars($cityData->Description),
                     $cityData->Ref
@@ -137,7 +155,7 @@ class NPApiHelper
                 $citiesDTO->setCity($cityDTO);
             }
             if (!empty($response->info->totalCount)) {
-                $citiesDTO->setTotalCount($response->info->totalCount);
+                $citiesDTO->setTotalCount((int)$response->info->totalCount);
             }
             return $citiesDTO;
         } else {
@@ -150,7 +168,10 @@ class NPApiHelper
         return $this->lastCallError;
     }
 
-    public function request(array $requestParams, bool $isUseApiKey = true)
+    /**
+     * @param array<string, mixed> $requestParams
+     */
+    public function request(array $requestParams, bool $isUseApiKey = true, bool $throttleRequests = false)
     {
         if (empty($requestParams)) {
             return false;
@@ -165,18 +186,30 @@ class NPApiHelper
         curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestParams));
+        $encodedRequest = json_encode($requestParams);
+        if ($encodedRequest === false) {
+            $encodedRequest = '';
+        }
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedRequest);
         curl_setopt($ch, CURLOPT_POST, 1);
         $response = curl_exec($ch);
-        curl_close($ch);
+        if ($throttleRequests) {
+            usleep(self::THROTTLE_DELAY_MICROSECONDS);
+        }
 
         if ($response === false) {
             $this->lastCallError = 'Error in API call';
             $this->logger->warning('Novaposhta cost error: "' . $this->lastCallError . '"');
             return false;
         }
+        if (!is_string($response)) {
+            $this->lastCallError = 'Invalid API response';
+            $this->logger->warning('Novaposhta cost error: "' . $this->lastCallError . '"');
+            return false;
+        }
 
         $response = json_decode($response);
+        /** @var ApiResponse|null $response */
 
         if (!empty($response->errors)) {
             $this->lastCallError = implode('<br>', (array)$response->errors);

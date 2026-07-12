@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\GoogleMerchant\Entities;
-
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
@@ -32,7 +30,6 @@ class GoogleMerchantRelationsEntity extends Entity
                 ->execute();
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], null, func_get_args());
-
     }
 
     /**
@@ -107,7 +104,7 @@ class GoogleMerchantRelationsEntity extends Entity
     }
 
     /**
-     * @param array $rows
+     * @param list<array<string, int|string>> $rows
      * Добавляем отношения
      */
     public function addRelations($rows)

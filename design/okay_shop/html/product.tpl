@@ -144,35 +144,50 @@
 
                     {* Product available *}
                     <div class="details_boxed__available">
-                        <div class="available__no_stock d-flex align-items-center icon icon-highlight-off fn_not_stock{if $product->variant->stock > 0} hidden-xs-up{/if}" data-language="product_out_of_stock">{$lang->product_out_of_stock}</div>
-                        <div class="available__in_stock d-flex align-items-center icon icon-check-circle-outline fn_in_stock{if $product->variant->stock < 1} hidden-xs-up{/if}" data-language="product_in_stock">{$lang->product_in_stock}</div>
+                        <div class="available__no_stock d-flex align-items-center icon icon-highlight-off fn_not_stock{if $product->variant->stock_effective_status != 'out_of_stock'} hidden-xs-up{/if}" data-language="product_out_of_stock">{$lang->product_out_of_stock}</div>
+                        <div class="available__no_stock d-flex align-items-center icon icon-highlight-off fn_is_backorder{if $product->variant->stock_effective_status != 'backorder'} hidden-xs-up{/if}" data-language="product_backorder">{$lang->product_backorder}</div>
+                        <div class="available__in_stock d-flex align-items-center icon icon-check-circle-outline fn_in_stock{if $product->variant->stock_effective_status != 'in_stock'} hidden-xs-up{/if}" data-language="product_in_stock">{$lang->product_in_stock}</div>
                     </div>
                 </div>
 
                 <div class="details_boxed__item">
-                    <form class="fn_variants" action="{url_generator route="cart"}">
+                    <form class="fn_variants" method="post" action="{url_generator route="cart"}">
+                        <input type="hidden" name="customer_csrf_token" value="{$customer_csrf_token|escape}">
 
                         {* Product variants *}
                         <div class="details_boxed__select">
                             <div class="details_boxed__title {if $product->variants|count < 2} hidden{/if}" data-language="product_variant">{$lang->product_variant}:</div>
                             <select name="variant" class="fn_variant variant_select {if $product->variants|count < 2} hidden {else}fn_select2{/if}">
                                 {foreach $product->variants as $v}
-                                    <option{if $product->variant->id == $v->id} selected{/if} value="{$v->id}" data-price="{$v->price|convert}" data-stock="{$v->stock}"{if $v->compare_price > 0} data-cprice="{$v->compare_price|convert}"{if $v->compare_price>$v->price && $v->price>0} data-discount="{round((($v->price-$v->compare_price)/$v->compare_price)*100, 2)}&nbsp;%"{/if}{/if}{if $v->sku} data-sku="{$v->sku|escape}"{/if} {if $v->units}data-units="{$v->units}"{/if}>{if $v->name}{$v->name|escape}{else}{$product->name|escape}{/if}</option>
+                                    <option{if $product->variant->id == $v->id} selected{/if} value="{$v->id}" data-price="{$v->price|convert}" data-stock="{$v->stock}" data-stock-raw="{$v->stock_raw|default:''}" data-stock-status="{$v->stock_status|escape}" data-stock-effective-status="{$v->stock_effective_status|escape}" data-orderable="{if $v->available_to_order}1{else}0{/if}" data-order-limit="{$v->order_amount_limit|default:''}" data-schema-availability="{$v->schema_availability|escape}" data-offer-url="{url_generator route="product" url=$product->url absolute=1}?variantId={$v->id}"{if $v->compare_price > 0} data-cprice="{$v->compare_price|convert}"{if $v->compare_price>$v->price && $v->price>0} data-discount="{round((($v->price-$v->compare_price)/$v->compare_price)*100, 2)}&nbsp;%"{/if}{/if}{if $v->sku} data-sku="{$v->sku|escape}"{/if} {if $v->units}data-units="{$v->units}"{/if}>{if $v->name}{$v->name|escape}{else}{$product->name|escape}{/if}</option>
                                 {/foreach}
                             </select>
                             <div class="dropDownSelect2"></div>
                         </div>
+
+                        {foreach $product->variants as $schema_variant}
+                            {if $schema_variant->id != $product->variant->id}
+                                <span class="hidden" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                                    {if $schema_variant->sku}<meta itemprop="sku" content="{$schema_variant->sku|escape}" />{/if}
+                                    <meta itemprop="name" content="{$product->name|escape}{if $schema_variant->name} {$schema_variant->name|escape}{/if}" />
+                                    <link itemprop="url" href="{url_generator route="product" url=$product->url absolute=1}?variantId={$schema_variant->id}" />
+                                    <meta itemprop="price" content="{$schema_variant->price|convert:null:false}" />
+                                    <meta itemprop="priceCurrency" content="{$currency->code|escape}" />
+                                    <link itemprop="availability" href="{$schema_variant->schema_availability|escape}" />
+                                    <link itemprop="itemCondition" href="https://schema.org/NewCondition" />
+                                    <span itemprop="seller" itemscope itemtype="https://schema.org/Organization">
+                                        <meta itemprop="name" content="{$settings->site_name|escape}" />
+                                    </span>
+                                </span>
+                            {/if}
+                        {/foreach}
 
                         <div class="details_boxed__offer" itemprop="offers" itemscope="" itemtype="http://schema.org/Offer">
                             {* Schema.org *}
                             <span class="hidden">
                                 <link itemprop="url" href="{url_generator route="product" url=$product->url absolute=1}" />
                                 <time itemprop="priceValidUntil" datetime="{$product->created|date:'Ymd'}"></time>
-                                {if $product->variant->stock > 0}
-                                <link itemprop="availability" href="https://schema.org/InStock" />
-                                {else}
-                                <link itemprop="availability" href="http://schema.org/OutOfStock" />
-                                {/if}
+                                <link itemprop="availability" href="{$product->variant->schema_availability|escape}" />
                                 <link itemprop="itemCondition" href="https://schema.org/NewCondition" />
                                 <span itemprop="seller" itemscope itemtype="http://schema.org/Organization">
                                 <span itemprop="name">{$settings->site_name}</span></span>
@@ -200,13 +215,13 @@
 
                                 {* Quantity *}
                                 <div class="details_boxed__amount">
-                                    <div class="fn_is_stock{if $product->variant->stock < 1} hidden{/if}">
+                                    <div class="fn_is_orderable{if !$product->variant->available_to_order} hidden{/if}">
                                         {*<div class="details_boxed__title" data-language="product_quantity">
                                         {$lang->product_quantity}<span class="fn_units">{if $product->variant->units}, {$product->variant->units|escape}{/if}</span>:
                                     </div>*}
                                         <div class="fn_product_amount  amount">
                                             <span class="fn_minus amount__minus">&minus;</span>
-                                            <input class="amount__input" type="text" name="amount" value="1" data-max="{$product->variant->stock}">
+                                            <input class="amount__input" type="text" name="amount" value="1" data-max="{$product->variant->order_amount_limit|default:''}">
                                             <span class="fn_plus amount__plus">&plus;</span>
                                         </div>
                                     </div>
@@ -214,20 +229,17 @@
                             </div>
 
                             <div class="d-flex align-items-center details_boxed__buttons">
-                                {if !$settings->is_preorder}
                                 {* No stock *}
-                                <p class="fn_not_preorder {if $product->variant->stock > 0} hidden-xs-up{/if}">
+                                <p class="fn_not_preorder {if $product->variant->stock_effective_status != 'out_of_stock'} hidden-xs-up{/if}">
                                     <span class="product-page__button product-page__out_stock" data-language="product_out_of_stock">{$lang->product_out_of_stock}</span>
                                 </p>
-                                {else}
-                                {* Preorder *}
-                                <div class="fn_is_preorder {if $product->variant->stock > 0} hidden-xs-up{/if}">
-                                    <button class="product-page__button product-page__button--preloader" type="submit" data-language="product_pre_order">{$lang->product_pre_order}</button>
+                                {* Backorder *}
+                                <div class="fn_is_backorder fn_is_preorder {if $product->variant->stock_effective_status != 'backorder'} hidden-xs-up{/if}">
+                                    <button class="product-page__button product-page__button--preloader" type="submit" data-language="product_backorder">{$lang->product_backorder}</button>
                                 </div>
-                                {/if}
 
                                 {* Submit button *}
-                                <div class="fn_is_stock {if $product->variant->stock < 1} hidden-xs-up{/if}">
+                                <div class="fn_is_stock {if $product->variant->stock_effective_status != 'in_stock'} hidden-xs-up{/if}">
                                     <button class=" product-page__button button--blick" type="submit" data-language="product_add_cart">{$lang->product_add_cart}</button>
                                 </div>
 
@@ -304,13 +316,16 @@
                         <div class="share__text">
                             <span data-language="product_share">{$lang->product_share}:</span>
                         </div>
-                        <div class="fn_share jssocials share__icons"></div>
+                        {include file='share_links.tpl'
+                            share_url="{$rootUrl}/products/{$product->url}"
+                            share_title=$product->name
+                        }
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <div id="fn_products_tab" class="product-page__tabs">
         <div class="block--border tabs">
             <div class="tabs__navigation hidden-sm-down">
@@ -394,10 +409,10 @@
                                     {* Comment anchor *}
                                     <a name="comment_{$comment->id}"></a>
                                     {* Comment list *}
-                                    <div class="comment__inner"> 
+                                    <div class="comment__inner">
                                         <div class="comment__icon">
                                             {if $level > 0}
-                                                {include file="svg.tpl" svgId="comment-admin_icon"} 
+                                                {include file="svg.tpl" svgId="comment-admin_icon"}
                                             {else}
                                                 {include file="svg.tpl" svgId="comment-user_icon"}
                                             {/if}
@@ -417,7 +432,7 @@
                                                     <span>{$comment->date|date}, {$comment->date|time}</span>
                                                 </div>
                                             </div>
-    
+
                                             {* Comment content *}
                                             <div class="comment__body">
                                                 {$comment->text|escape|nl2br}
@@ -479,7 +494,7 @@
                                         <input class="form__input form__placeholder--focus" type="text" name="email" value="{if $request_data.email}{$request_data.email|escape}{elseif $user->email}{$user->email|escape}{/if}" data-language="form_email" />
                                         <span class="form__placeholder">{$lang->form_email}</span>
                                     </div>
-                                    
+
                                     {* User's comment *}
                                     <div class="form__group">
                                         <textarea class="form__textarea form__placeholder--focus" rows="3" name="text" >{$request_data.text}</textarea>
@@ -504,7 +519,7 @@
                                             </div>
                                         {/if}
                                     {/if}
-                                    
+
                                     <input type="hidden" name="comment" value="1">
                                     {* Submit button *}
                                     <input class="form__button g-recaptcha" type="submit" name="comment" data-language="form_send" {if $settings->captcha_type == "invisible"}data-sitekey="{$settings->public_recaptcha_invisible}" data-badge='bottomleft' data-callback="onSubmit"{/if} value="{$lang->form_send}"/>
@@ -623,15 +638,9 @@
 "priceValidUntil": "{/literal}{$smarty.now|date_format:'%Y-%m-%d'}{literal}",
 "itemCondition": "http://schema.org/NewCondition",
 {/literal}
-{if $product->variant->stock > 0}
 {literal}
-"availability": "http://schema.org/InStock",
+"availability": "{/literal}{$product->variant->schema_availability|escape}{literal}",
 {/literal}
-{else}
-{literal}
-"availability": "http://schema.org/OutOfStock",
-{/literal}
-{/if}
 {literal}
 "seller": {
 "@type": "Organization",

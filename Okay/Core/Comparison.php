@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 use Okay\Entities\FeaturesValuesEntity;
 use Okay\Entities\FeaturesEntity;
@@ -31,7 +29,7 @@ class Comparison
 
     /** @var FeaturesEntity */
     private $featuresEntity;
-    
+
     private $settings;
 
     /**
@@ -43,10 +41,10 @@ class Comparison
 
     public function __construct(
         EntityFactory $entityFactory,
-        Settings      $settings,
-        MoneyHelper   $moneyHelper,
-        MainHelper    $mainHelper
-    ){
+        Settings $settings,
+        MoneyHelper $moneyHelper,
+        MainHelper $mainHelper
+    ) {
         $this->productsEntity         = $entityFactory->get(ProductsEntity::class);
         $this->variantsEntity         = $entityFactory->get(VariantsEntity::class);
         $this->imagesEntity           = $entityFactory->get(ImagesEntity::class);
@@ -69,7 +67,7 @@ class Comparison
         if (!empty($items) && is_array($items)) {
             $products = [];
             $images_ids = [];
-            foreach ($this->productsEntity->find(['id'=>$items, 'visible'=>1]) as $p) {
+            foreach ($this->productsEntity->find(['id' => $items, 'visible' => 1]) as $p) {
                 $products[$p->id] = $p;
                 $images_ids[] = $p->main_image_id;
             }
@@ -81,15 +79,15 @@ class Comparison
                     $product->features = [];
                 }
 
-                $variants = $this->variantsEntity->find(['product_id'=>$products_ids]);
+                $variants = $this->variantsEntity->find(['product_id' => $products_ids]);
                 $variants = $this->moneyHelper->convertVariantsPriceToMainCurrency($variants);
 
                 foreach ($variants as $variant) {
                     $products[$variant->product_id]->variants[] = $variant;
                 }
 
-                if (!empty($images_ids)) {
-                    $images = $this->imagesEntity->find(['id'=>$images_ids]);
+                if (array_filter($images_ids)) {
+                    $images = $this->imagesEntity->find(['id' => $images_ids]);
                     foreach ($images as $image) {
                         if (isset($products[$image->product_id])) {
                             $products[$image->product_id]->image = $image;
@@ -97,14 +95,14 @@ class Comparison
                     }
                 }
 
-                if ($featuresValues = $this->featuresValuesEntity->mappedBy('id')->find(['product_id'=>$products_ids])) {
+                if ($featuresValues = $this->featuresValuesEntity->mappedBy('id')->find(['product_id' => $products_ids])) {
                     foreach ($featuresValues as $fv) {
                         $featuresIds[] = $fv->feature_id;
                     }
                 }
-                
+
                 if (!empty($featuresIds)) {
-                    $features = $this->featuresEntity->mappedBy('id')->find(['id' => $featuresIds, 'visible'=>1, 'show_in_product'=>1]);
+                    $features = $this->featuresEntity->mappedBy('id')->find(['id' => $featuresIds, 'visible' => 1, 'show_in_product' => 1]);
 
                     $productsValues = [];
                     if (!empty($visibleFeaturesIds = array_keys($features))) {
@@ -113,6 +111,7 @@ class Comparison
                         });
 
                         foreach ($this->featuresValuesEntity->getProductValuesIds($products_ids) as $pv) {
+                            /** @var object{product_id: int|string, value_id: int|string}&\stdClass $pv */
                             if (isset($featuresValues[$pv->value_id]) && in_array($featuresValues[$pv->value_id]->feature_id, $visibleFeaturesIds)) {
                                 $productsValues[$pv->product_id][$pv->value_id] = $pv->value_id;
                             }
@@ -135,19 +134,20 @@ class Comparison
 
                     foreach ($featuresValues as $fv) {
                         foreach ($products as $p) {
-                            if (is_array($features[$fv->feature_id]->products[$p->id])){
+                            if (is_array($features[$fv->feature_id]->products[$p->id])) {
                                 $features[$fv->feature_id]->products[$p->id] = implode(", ", $features[$fv->feature_id]->products[$p->id]);
                             }
                         }
                         $features[$fv->feature_id]->not_unique = (count(array_unique($features[$fv->feature_id]->products)) == 1);
                     }
-    
+
                     if (!empty($features)) {
                         $comparison->features = $features;
                     }
                 }
 
                 foreach ($products as $product) {
+                    /** @var object{variants?: list<object>, variant?: object}&\stdClass $product */
                     if (isset($product->variants[0])) {
                         $product->variant = $product->variants[0];
                     }
@@ -160,7 +160,7 @@ class Comparison
                             }
                         }
                     }
-                    
+
                     if (!empty($features)) {
                         foreach ($features as $f) {
                             if (isset($productFeatures[$f->id])) {
@@ -175,7 +175,7 @@ class Comparison
             }
         }
 
-        return ExtenderFacade::execute(__METHOD__, $comparison,func_get_args());
+        return ExtenderFacade::execute(__METHOD__, $comparison, func_get_args());
     }
 
     public function addItem($productId, $onlyLocal = false, $delayedDispatch = false)
@@ -204,7 +204,7 @@ class Comparison
                 ]);
             }
         }
-        
+
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
@@ -232,17 +232,17 @@ class Comparison
 
             $userComparisonItemsEntity->deleteByProductId($user->id, $productId);
         }
-        
+
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
     public function save()
     {
         if (!empty($_COOKIE['comparison'])) {
-            setcookie('comparison', $_COOKIE['comparison'], time() + 30 * 24 * 3600, '/');
+            $this->setComparisonCookie((string)$_COOKIE['comparison'], time() + 30 * 24 * 3600);
         }
     }
-    
+
     /*Очистка списка сравнения*/
     public function emptyComparison($onlyLocal = false)
     {
@@ -255,10 +255,26 @@ class Comparison
                 $userComparisonItemsEntity->deleteByProductId($user->id, array_keys(json_decode($_COOKIE['comparison'])));
             }
         }
-        
+
         unset($_COOKIE['comparison']);
-        setcookie('comparison', '', time()-3600, '/');
+        $this->setComparisonCookie('', time() - 3600);
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    private function setComparisonCookie(string $value, int $expires): void
+    {
+        setcookie('comparison', $value, [
+            'expires' => $expires,
+            'path' => '/',
+            'secure' => $this->isHttpsRequest(),
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+    }
+
+    private function isHttpsRequest(): bool
+    {
+        return !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
     }
 }

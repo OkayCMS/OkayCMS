@@ -4,7 +4,6 @@ namespace Okay\Core;
 
 class Recaptcha
 {
-
     private $settings;
 
     private $request;
@@ -16,7 +15,7 @@ class Recaptcha
     {
         $this->settings = $settings;
         $this->request  = $request;
-        
+
         switch ($this->settings->captcha_type) {
             case 'invisible':
                 $this->secret_key = $this->settings->secret_recaptcha_invisible;
@@ -33,26 +32,30 @@ class Recaptcha
     public function check()
     {
         $response = $this->request();
-        // В случае инвалидных ключей пропускаем пользователя
-        if (isset($response['error-codes']) && reset($response['error-codes']) == 'invalid-input-secret') {
-            return true; // TODO add to events list
-        }
-        
-        if ($response['success'] == false) {
+        if (!is_array($response)) {
             return false;
         }
-        
+
+        if (isset($response['error-codes']) && in_array('invalid-input-secret', (array)$response['error-codes'], true)) {
+            error_log('[OkayCMS] Recaptcha: invalid secret key configured');
+            return false;
+        }
+
+        if (($response['success'] ?? false) == false) {
+            return false;
+        }
+
         // Для третей версии нужно дополнительно определить можно ли пропускать с таким уровнем "человечности"
         if ($this->settings->captcha_type == 'v3') {
             return $this->calcIsHumanV3($response);
         }
-        
+
         return true;
     }
-    
+
     private function calcIsHumanV3($response)
     {
-        
+
         $action = $response['action'];
         $score  = (float)$response['score'];
         switch ($action) {
@@ -68,7 +71,7 @@ class Recaptcha
 
         return $min_score <= $score;
     }
-    
+
     private function request()
     {
         $curl = curl_init($this->url);
@@ -87,20 +90,21 @@ class Recaptcha
         curl_setopt($curl, CURLOPT_TIMEOUT, 10);
 
         $response = curl_exec($curl);
-        curl_close($curl);
-        
+        if (!is_string($response)) {
+            return null;
+        }
+
         return json_decode($response, true);
     }
 
     private function getResponseKey()
     {
-        if ($this->settings->captcha_type == 'v2' || $this->settings->captcha_type == 'invisible'){
+        if ($this->settings->captcha_type == 'v2' || $this->settings->captcha_type == 'invisible') {
             return $this->request->post('g-recaptcha-response');
-        } 
-        
-        if ($this->settings->captcha_type == 'v3'){
+        }
+
+        if ($this->settings->captcha_type == 'v3') {
             return $this->request->post('recaptcha_token');
         }
     }
-    
 }

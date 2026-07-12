@@ -1,3 +1,6 @@
+# Ephemeral dev output (e.g. PHPStan cache when tmpDir points under dev/)
+var/
+
 .env
 config/nginx/okay.conf
 logs/application.error.log

@@ -19,11 +19,11 @@ class BackendFacebookAdapter extends AbstractBackendPresetAdapter
     protected $featuresEntity;
 
     public function __construct(
-        Design         $design,
-        Request        $request,
-        DesignBlocks   $designBlocks,
+        Design $design,
+        Request $request,
+        DesignBlocks $designBlocks,
         FeaturesEntity $featuresEntity
-    ){
+    ) {
         parent::__construct(...func_get_args());
 
         $this->featuresEntity = $featuresEntity;
@@ -58,11 +58,11 @@ class BackendFacebookAdapter extends AbstractBackendPresetAdapter
             'material' => $postSettings['material'],
             'price_change' => $postSettings['price_change'],
             'filter_price' => [
-                'operator' => $postSettings['filter_price']['operator'],
+                'operator' => $this->normalizeComparisonOperator($postSettings['filter_price']['operator'] ?? null),
                 'value' => $postSettings['filter_price']['value'] === '' ? null : (float) str_replace(',', '.', $postSettings['filter_price']['value']),
             ],
             'filter_stock' => [
-                'operator' => $postSettings['filter_stock']['operator'],
+                'operator' => $this->normalizeComparisonOperator($postSettings['filter_stock']['operator'] ?? null),
                 'value' => $postSettings['filter_stock']['value'] === '' ? null : (float) str_replace(',', '.', $postSettings['filter_stock']['value']),
             ],
             'custom_labels' => $postSettings['custom_labels']
@@ -75,7 +75,7 @@ class BackendFacebookAdapter extends AbstractBackendPresetAdapter
     {
         $this->designBlocks->registerBlock(
             'okay_cms__feeds__feed__categories_settings__settings_custom_block',
-            dirname(__DIR__, 3).'/design/html/presets/facebook/category_settings.tpl'
+            dirname(__DIR__, 3) . '/design/html/presets/facebook/category_settings.tpl'
         );
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());

@@ -9,8 +9,8 @@ use Okay\Modules\OkayCMS\Feeds\Entities\FeedsEntity;
 
 class Init extends AbstractInit
 {
-    const PERMISSION = 'okay_cms__feeds';
-    const CONDITIONS_ENTITIES_RELATION_TABLE = '__okay_cms__feeds__conditions_entities';
+    public const PERMISSION = 'okay_cms__feeds';
+    public const CONDITIONS_ENTITIES_RELATION_TABLE = '__okay_cms__feeds__conditions_entities';
 
     public function install()
     {
@@ -60,6 +60,5 @@ class Init extends AbstractInit
         </svg>');
 
         $this->extendUpdateObject('okay_cms__feed', self::PERMISSION, FeedsEntity::class);
-
     }
 }

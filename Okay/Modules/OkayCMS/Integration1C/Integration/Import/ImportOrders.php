@@ -2,14 +2,12 @@
 
 namespace Okay\Modules\OkayCMS\Integration1C\Integration\Import;
 
-
 use Okay\Entities\OrdersEntity;
 use Okay\Entities\OrderStatusEntity;
 use Okay\Entities\PurchasesEntity;
 
 class ImportOrders extends AbstractImport
 {
-
     /**
      * @param string $xmlFile Full path to xml file
      * @return string
@@ -19,33 +17,36 @@ class ImportOrders extends AbstractImport
 
         /** @var OrderStatusEntity $ordersStatusesEntity */
         $ordersStatusesEntity = $this->integration1C->entityFactory->get(OrderStatusEntity::class);
-        
+
         /** @var OrdersEntity $ordersEntity */
         $ordersEntity = $this->integration1C->entityFactory->get(OrdersEntity::class);
-        
+
         /** @var PurchasesEntity $purchasesEntity */
         $purchasesEntity = $this->integration1C->entityFactory->get(PurchasesEntity::class);
-        
+
         $xml = \simplexml_load_file($xmlFile);
-        
+        if (!$xml) {
+            return "error import file\n";
+        }
+
         $ordersStatuses = [];
         foreach ($ordersStatusesEntity->find() as $s) {
             $ordersStatuses[$s->status_1c] = $s;
         }
-        
+
         // Если никакой статус не отметили для новых, возьмем первый в списке
         if (!isset($ordersStatuses['new'])) {
             $ordersStatuses['new'] = reset($ordersStatuses);
         }
-        
+
         foreach ($xml->Документ as $xmlOrder) {
             $order = new \stdClass();
             $order->status_id = 0;
-            
+
             $order->id    = (int)$xmlOrder->Номер;
             $existedOrder = $ordersEntity->get($order->id);
 
-            $order->date = (string)$xmlOrder->Дата.' '.$xmlOrder->Время;
+            $order->date = (string)$xmlOrder->Дата . ' ' . $xmlOrder->Время;
             $order->name = (string)$xmlOrder->Контрагенты->Контрагент->Наименование;
 
             $accepted = false;
@@ -120,12 +121,12 @@ class ImportOrders extends AbstractImport
                         ->from('__variants')
                         ->where('sku=:sku')
                         ->bindValue('sku', $sku);
-                    
+
                     if (!empty($productId)) {
                         $select->where('product_id=:product_id')
                             ->bindValue('product_id', $productId);
                     }
-                    
+
                     $this->integration1C->db->query($select);
                     $variantId = $this->integration1C->db->result('id');
                 // последняя попытка, это если у товара всего один вариант, вероятнее всего он нужен
@@ -141,8 +142,8 @@ class ImportOrders extends AbstractImport
                         $variantId = reset($variantIds);
                     }
                 }
-                
-                $purchase = new \stdClass;
+
+                $purchase = new \stdClass();
                 $purchase->order_id     = $order->id;
                 $purchase->product_id   = $productId;
                 $purchase->variant_id   = $variantId;
@@ -153,9 +154,9 @@ class ImportOrders extends AbstractImport
 
                 if (isset($xmlProduct->Скидки->Скидка)) {
                     $discount = $xmlProduct->Скидки->Скидка->Процент;
-                    $purchase->price = $purchase->price*(100-$discount)/100;
+                    $purchase->price = $purchase->price * (100 - $discount) / 100;
                 }
-                
+
                 if (!empty($variantId)) {
                     $select = $this->integration1C->queryFactory->newSelect();
                     $select->cols(['id'])
@@ -176,9 +177,9 @@ class ImportOrders extends AbstractImport
                     $purchases_ids[] = $purchaseId;
                 }
             }
-            
+
             // Удалим покупки, которых нет в файле
-            foreach ($purchasesEntity->find(['order_id'=>intval($order->id)]) as $purchase) {
+            foreach ($purchasesEntity->find(['order_id' => intval($order->id)]) as $purchase) {
                 if (!in_array($purchase->id, $purchases_ids)) {
                     $purchasesEntity->delete($purchase->id);
                 }
@@ -189,7 +190,7 @@ class ImportOrders extends AbstractImport
                 'total_price' => (float)$xmlOrder->Сумма,
             ]);
         }
-        
+
         return "success\n";
     }
 }

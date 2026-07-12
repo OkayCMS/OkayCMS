@@ -1,14 +1,11 @@
 <?php
 
-
 namespace Okay\Core\Adapters\Response;
-
 
 use Okay\Core\DebugBar\DebugBar;
 
 class Json extends AbstractResponse
 {
-
     public function getSpecialHeaders()
     {
         return [
@@ -18,10 +15,10 @@ class Json extends AbstractResponse
             'Expires: -1',
         ];
     }
-    
+
     public function send($content)
     {
-        DebugBar::stackData();
+        self::safeStackData();
         // todo добавить json_encode()
         print implode('', $content);
     }

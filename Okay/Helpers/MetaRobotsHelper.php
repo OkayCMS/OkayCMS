@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Helpers;
-
 
 use Exception;
 
@@ -14,13 +12,13 @@ class MetaRobotsHelper
     private $catalogFeatures;
     private $catalogOtherFilter;
     private $catalogFilterPagination;
-    
+
     private $maxBrandFilterDepth;
     private $maxOtherFilterDepth;
     private $maxFeaturesFilterDepth;
     private $maxFeaturesValuesFilterDepth;
     private $maxFilterDepth;
-    
+
     private $features = [];
 
     public function setParams(
@@ -42,13 +40,12 @@ class MetaRobotsHelper
         $this->catalogFeatures = (int)$catalogFeatures;
         $this->catalogOtherFilter = (int)$catalogOtherFilter;
         $this->catalogFilterPagination = (int)$catalogFilterPagination;
-        
+
         $this->maxBrandFilterDepth = (int)$maxBrandFilterDepth;
         $this->maxOtherFilterDepth = (int)$maxOtherFilterDepth;
         $this->maxFeaturesFilterDepth = (int)$maxFeaturesFilterDepth;
         $this->maxFeaturesValuesFilterDepth = (int)$maxFeaturesValuesFilterDepth;
         $this->maxFilterDepth = (int)$maxFilterDepth;
-        
     }
 
     /**
@@ -85,7 +82,7 @@ class MetaRobotsHelper
      * @return $this
      * @throws Exception
      */
-    public function setAvailableFeatures(array $features) : self
+    public function setAvailableFeatures(array $features): self
     {
         if (!empty($features)) {
             $firstItem = reset($features);
@@ -98,14 +95,13 @@ class MetaRobotsHelper
                         throw new Exception('Param $features must have features_values property');
                     }
                     foreach ($feature->features_values as $value) {
-
                         if (!property_exists($value, 'value')) {
                             throw new Exception('Param $features[]->features_values must have value property');
                         }
                         if (!property_exists($value, 'to_index')) {
                             throw new Exception('Param $features[]->features_values must have to_index property');
                         }
-                        
+
                         $this->features[$feature->id][$value->value] = $value;
                     }
                 }
@@ -114,29 +110,29 @@ class MetaRobotsHelper
 
         return $this;
     }
-    
+
     /**
      * @param string|int $page текущая страница, может быть all
-     * @param array $otherFilter одномерный массив, содержащий значения ['discounted', 'featured'...]
-     * @param array $featuresFilter
-     * @param array $brandsFilter
+     * @param array<string> $otherFilter одномерный массив, содержащий значения ['discounted', 'featured'...]
+     * @param array<int|string, list<int|string>> $featuresFilter
+     * @param list<int> $brandsFilter
      * @return int
      * @throws Exception
      *
      * Определение meta robots для категории
      */
-    public function getCatalogRobots($page, array $otherFilter, array $featuresFilter, array $brandsFilter) : int
+    public function getCatalogRobots($page, array $otherFilter, array $featuresFilter, array $brandsFilter): int
     {
         // Если хоть одно значение свойства отмечено как не идексировать - страница не индексируется
         if (!empty($featuresFilter)) {
-            foreach ($featuresFilter as $featureId=>$values) {
+            foreach ($featuresFilter as $featureId => $values) {
                 foreach ($values as $value) {
                     if (!isset($this->features[$featureId])) {
-                        throw new Exception('Wrong feature id "'.$featureId.'". Need set available features ids via '
+                        throw new Exception('Wrong feature id "' . $featureId . '". Need set available features ids via '
                             . self::class
                             . '::setAvailableFeatures() method');
                     } elseif (!isset($this->features[$featureId][$value])) {
-                        throw new Exception('Wrong feature value "'.$value.'" for feature id "'.$featureId.'". Need set available feature value via '
+                        throw new Exception('Wrong feature value "' . $value . '" for feature id "' . $featureId . '". Need set available feature value via '
                             . self::class
                             . '::setAvailableFeatures() method');
                     }
@@ -146,7 +142,7 @@ class MetaRobotsHelper
                 }
             }
         }
-        
+
         // Подсчитываем общую глубину фильтра
         $filterDepth = 0;
         if (!empty($otherFilter)) {
@@ -158,14 +154,14 @@ class MetaRobotsHelper
         if (!empty($brandsFilter)) {
             $filterDepth++;
         }
-        
+
         if ($filterDepth > $this->maxFilterDepth) {
             return ROBOTS_NOINDEX_NOFOLLOW; // no ExtenderFacade
         }
 
         if (!empty($page) && (!empty($otherFilter) || !empty($featuresFilter) || !empty($brandsFilter))) {
             $paginationCatalogRobots = $this->catalogFilterPagination; // no ExtenderFacade
-        } else if (!empty($page)) {
+        } elseif (!empty($page)) {
             if ($page == 'all') {
                 $paginationCatalogRobots = $this->catalogPageAll; // no ExtenderFacade
             } else {
@@ -174,14 +170,18 @@ class MetaRobotsHelper
         } else {
             $paginationCatalogRobots = 0;
         }
-        
+
         $baseCatalogRobots = $this->getBaseCatalogRobots($otherFilter);
         $catalogRobots = $this->getCatalogRobotsExecutor($featuresFilter, $brandsFilter);
-        
+
         return max($baseCatalogRobots, $catalogRobots, $paginationCatalogRobots); // no ExtenderFacade
     }
 
-    private function getCatalogRobotsExecutor(array $featuresFilter, array $brandsFilter) : int
+    /**
+     * @param array<int|string, list<int|string>> $featuresFilter
+     * @param list<int> $brandsFilter
+     */
+    private function getCatalogRobotsExecutor(array $featuresFilter, array $brandsFilter): int
     {
         if (!empty($featuresFilter)) {
             foreach ($featuresFilter as $values) {
@@ -193,7 +193,7 @@ class MetaRobotsHelper
                 return ROBOTS_NOINDEX_NOFOLLOW; // no ExtenderFacade
             }
         }
-        
+
         if (!empty($brandsFilter)) {
             if (count($brandsFilter) > $this->maxBrandFilterDepth) {
                 return ROBOTS_NOINDEX_NOFOLLOW; // no ExtenderFacade
@@ -212,10 +212,10 @@ class MetaRobotsHelper
     }
 
     /**
-     * @param array $otherFilter
+     * @param array<string> $otherFilter
      * @return int
      */
-    private function getBaseCatalogRobots(array $otherFilter) : int
+    private function getBaseCatalogRobots(array $otherFilter): int
     {
         if ($this->maxFilterDepth === 0 && !empty($otherFilter)) {
             return ROBOTS_NOINDEX_NOFOLLOW; // no ExtenderFacade
@@ -230,7 +230,7 @@ class MetaRobotsHelper
         if (!empty($otherFilter)) {
             return $this->catalogOtherFilter; // no ExtenderFacade
         }
-        
+
         return ROBOTS_INDEX_FOLLOW;
     }
 }

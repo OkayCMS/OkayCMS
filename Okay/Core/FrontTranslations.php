@@ -1,27 +1,25 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 use Okay\Core\Modules\Modules;
 use Okay\Entities\TranslationsEntity;
 
+#[\AllowDynamicProperties]
 class FrontTranslations
 {
-    
     private $_debugTranslation;
     private $_entityFactory;
     private $_languages;
     private $_modules;
-    
+
     public function __construct(EntityFactory $entityFactory, Languages $languages, Modules $modules, $debugTranslation = false)
     {
         $this->_debugTranslation = (bool)$debugTranslation;
         $this->_entityFactory = $entityFactory;
         $this->_languages = $languages;
         $this->_modules = $modules;
-        
+
         $this->init();
     }
 
@@ -35,7 +33,7 @@ class FrontTranslations
             $this->$var = $translation->value;
         }
     }
-    
+
     public function __get($var)
     {
         // Если не нашли перевода на текущем языке, посмотрим может есть этот перевод на основном языке или уже на английском
@@ -61,12 +59,12 @@ class FrontTranslations
             return '<b style="color: red!important;">$lang->' . $var . ' not exists</b>';
         }
     }
-    
+
     public function getTranslation($var)
     {
         return $this->$var;
     }
-    
+
     public function addTranslation($var, $translation)
     {
         $var = preg_replace('~[^\w]~', '', $var);

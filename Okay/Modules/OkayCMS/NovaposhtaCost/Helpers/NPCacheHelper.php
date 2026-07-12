@@ -11,22 +11,28 @@ use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCitiesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPWarehousesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Init\Init;
 
+/**
+ * @phpstan-type CachedCityRow object{id: int|string}&\stdClass
+ * @phpstan-type CachedWarehouseRow object{id: int|string}&\stdClass
+ * @phpstan-type LanguageRow object{id: int|string, label: string}&\stdClass
+ */
 class NPCacheHelper
 {
     private NPApiHelper $apiHelper;
     private EntityFactory $entityFactory;
     private Languages $languages;
     private Settings $settings;
+    /** @var list<string> */
     private array $skippedWarehousesTypes = [
         '6f8c7162-4b72-4b0a-88e5-906948c6a92f', // Parcel Shop
         '95dc212d-479c-4ffb-a8ab-8c1b9073d0bc', // Поштомат Приват банка
     ];
 
     public function __construct(
-        NPApiHelper   $apiHelper,
+        NPApiHelper $apiHelper,
         EntityFactory $entityFactory,
-        Languages     $languages,
-        Settings      $settings
+        Languages $languages,
+        Settings $settings
     ) {
         $this->apiHelper = $apiHelper;
         $this->entityFactory = $entityFactory;
@@ -36,7 +42,7 @@ class NPCacheHelper
 
     public function updateCitiesCache(int $page, int $limit): ?int
     {
-        $citiesDTO = $this->apiHelper->getCities($page, $limit);
+        $citiesDTO = $this->apiHelper->getCities($page, $limit, true);
 
         if ($citiesDTO === null) {
             return null;
@@ -49,9 +55,12 @@ class NPCacheHelper
 
         $ruLanguage = $languagesEntity->findOne(['label' => 'ru']);
         $languages = $languagesEntity->find();
+        /** @var LanguageRow|false $ruLanguage */
+        /** @var list<LanguageRow> $languages */
 
         /** @var NPCitiesEntity $citiesEntity */
         $citiesEntity = $this->entityFactory->get(NPCitiesEntity::class);
+        /** @var array<string, CachedCityRow> $currentCities */
         $currentCities = $citiesEntity->mappedBy('ref')->find([
             'ref' => $citiesDTO->getCitiesRefs(),
             'limit' => $limit,
@@ -96,7 +105,7 @@ class NPCacheHelper
 
     public function updateWarehousesCache(string $warehouseType, int $page, int $limit): ?int
     {
-        $warehousesDTO = $this->apiHelper->getWarehouses($warehouseType, $page, $limit);
+        $warehousesDTO = $this->apiHelper->getWarehouses($warehouseType, $page, $limit, true);
 
         if ($warehousesDTO === null) {
             return null;
@@ -109,9 +118,12 @@ class NPCacheHelper
 
         $ruLanguage = $languagesEntity->findOne(['label' => 'ru']);
         $languages = $languagesEntity->find();
+        /** @var LanguageRow|false $ruLanguage */
+        /** @var list<LanguageRow> $languages */
 
         /** @var NPWarehousesEntity $warehousesEntity */
         $warehousesEntity = $this->entityFactory->get(NPWarehousesEntity::class);
+        /** @var array<string, CachedWarehouseRow> $currentWarehouses */
         $currentWarehouses = $warehousesEntity->mappedBy('ref')->find([
             'type' => $warehouseType,
             'ref' => $warehousesDTO->getWarehousesRefs(),
@@ -169,7 +181,7 @@ class NPCacheHelper
     public function getUpdatedWarehousesTypes(): array
     {
         $updatedTypes = [];
-        foreach ($this->apiHelper->getWarehouseTypes() as $warehouseTypeDTO) {
+        foreach ($this->apiHelper->getWarehouseTypes(true) as $warehouseTypeDTO) {
             if (in_array($warehouseTypeDTO->getTypeRef(), $this->skippedWarehousesTypes)) {
                 continue;
             }

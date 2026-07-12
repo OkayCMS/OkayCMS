@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Helpers;
-
 
 use Okay\Core\Config;
 use Okay\Core\EntityFactory;
@@ -21,7 +19,7 @@ class BackendBlogHelper
      * @var BlogEntity
      */
     private $blogEntity;
-    
+
     /**
      * @var BlogCategoriesEntity
      */
@@ -31,27 +29,27 @@ class BackendBlogHelper
      * @var Request
      */
     private $request;
-    
+
     /**
      * @var Config
      */
     private $config;
-    
+
     /**
      * @var Image
      */
     private $imageCore;
-    
+
     /**
      * @var Settings
      */
     private $settings;
-    
+
     /**
      * @var QueryFactory
      */
     private $queryFactory;
-    
+
     private $productsHelper;
 
     public function __construct(
@@ -76,7 +74,7 @@ class BackendBlogHelper
     public function disable($ids)
     {
         if (is_array($ids)) {
-            $this->blogEntity->update($ids, ['visible'=>0]);
+            $this->blogEntity->update($ids, ['visible' => 0]);
         }
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
@@ -94,7 +92,7 @@ class BackendBlogHelper
     public function delete($ids)
     {
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
-       
+
         if (is_array($ids)) {
             $this->blogEntity->delete($ids);
         }
@@ -112,14 +110,15 @@ class BackendBlogHelper
         }
 
         $postsCount = $this->blogEntity->count($filter);
-        if($this->request->get('page') == 'all') {
+        if ($this->request->get('page') == 'all') {
             $filter['limit'] = $postsCount;
         }
 
         // Категории
         $categoryId = $this->request->get('category_id', 'integer');
         $category = $this->categoriesEntity->findOne(['id' => $categoryId]);
-        if(!empty($categoryId) && !empty($category)) {
+        if (!empty($categoryId) && !empty($category)) {
+            /** @var object{children: list<int>}&\stdClass $category */
             $filter['category_id'] = $category->children;
         } elseif ($categoryId == -1) {
             $filter['without_category'] = 1;
@@ -170,12 +169,12 @@ class BackendBlogHelper
         $post = $this->blogEntity->get($id);
 
         if (empty($post)) {
-            $post = new \stdClass;
+            $post = new \stdClass();
             $post->date = date($this->settings->get('date_format'), time());
             $post->visible = 1;
             $post->show_table_content = 1;
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $post, func_get_args());
     }
 
@@ -203,7 +202,7 @@ class BackendBlogHelper
                 $this->config->get('resized_blog_dir')
             );
 
-            $this->blogEntity->update($post->id, ['image'=>$filename]);
+            $this->blogEntity->update($post->id, ['image' => $filename]);
         }
 
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
@@ -219,7 +218,7 @@ class BackendBlogHelper
         $this->blogEntity->deleteRelatedProduct($post->id);
         if (is_array($relatedProducts)) {
             $pos = 0;
-            foreach($relatedProducts  as $i=>$relatedProduct) {
+            foreach ($relatedProducts as $i => $relatedProduct) {
                 $this->blogEntity->addRelatedProduct($post->id, $relatedProduct->related_id, $pos++);
             }
         }
@@ -228,7 +227,7 @@ class BackendBlogHelper
     }
 
     /**
-     * @param array $filter аргумент метода getRelatedProducts()
+     * @param array<string, mixed> $filter аргумент метода getRelatedProducts()
      * @return mixed|void|null
      * @throws \Exception
      */
@@ -249,7 +248,7 @@ class BackendBlogHelper
             foreach ($this->productsHelper->getList($relatedFilter) as $p) {
                 $relatedProducts[$p->id] = $p;
             }
-            foreach ($relatedProducts as $id=>$r) {
+            foreach ($relatedProducts as $id => $r) {
                 if ($r === null) {
                     unset($relatedProducts[$id]);
                 }
@@ -257,7 +256,7 @@ class BackendBlogHelper
         }
         return ExtenderFacade::execute(__METHOD__, $relatedProducts, func_get_args());
     }
-    
+
     public function findPostCategories($post)
     {
         $postCategories = [];
@@ -299,7 +298,7 @@ class BackendBlogHelper
 
         if (is_array($postCategories)) {
             $i = 0;
-            foreach($postCategories as $category) {
+            foreach ($postCategories as $category) {
                 $this->categoriesEntity->addPostCategory($post->id, $category->id, $i);
                 $i++;
             }
@@ -313,5 +312,4 @@ class BackendBlogHelper
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
-    
 }

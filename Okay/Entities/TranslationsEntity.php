@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Entity\Entity;
@@ -13,9 +11,9 @@ use Okay\Core\Modules\Extender\ExtenderFacade;
 
 class TranslationsEntity extends Entity
 {
-    const TRANS_T_THEME   = 'theme';
-    const TRANS_T_GENERAL = 'general';
-    const TRANS_T_MODULE  = 'module';
+    public const TRANS_T_THEME   = 'theme';
+    public const TRANS_T_GENERAL = 'general';
+    public const TRANS_T_MODULE  = 'module';
 
     /** @var FrontTemplateConfig */
     private $frontTemplateConfig;
@@ -27,16 +25,16 @@ class TranslationsEntity extends Entity
     private $modules;
 
 
-    /** @var array general translations */
+    /** @var array<string, mixed> general translations */
     private $generalVars = [];
 
-    /** @var array theme translations */
+    /** @var array<string, mixed> theme translations */
     private $themeVars = [];
 
-    /** @var array modules translations */
+    /** @var array<string, mixed> modules translations */
     private $modulesVars = [];
 
-    /** @var array all translations */
+    /** @var array<string, mixed> all translations */
     private $vars = [];
 
     public function __construct()
@@ -48,23 +46,23 @@ class TranslationsEntity extends Entity
 
         $this->languagesEntity = $serviceLocator->getService(EntityFactory::class)->get(LanguagesEntity::class);
     }
-    
+
     public function templateOnly($state)
     {
         $this->templateOnly = (bool)$state;
         return $this;
     }
-    
+
     public function flush()
     {
         $this->templateOnly = false;
         parent::flush();
     }
 
-    public function get($id) 
+    public function get($id)
     {
         $translation = [];
-        
+
         foreach ($this->languagesEntity->find() as $l) {
             $modulesResult = $this->initOneModulesTranslation($l->label);
             $themeResult   = $this->initOneThemeTranslation($l->label);
@@ -72,17 +70,17 @@ class TranslationsEntity extends Entity
             if (isset($modulesResult[$id])) {
                 $translation['lang_' . $l->label] = $modulesResult[$id];
                 $translation['values'][$l->id]    = $modulesResult[$id];
-            } else if (isset($themeResult[$id])) {
+            } elseif (isset($themeResult[$id])) {
                 $translation['lang_' . $l->label] = $themeResult[$id];
                 $translation['values'][$l->id]    = $themeResult[$id];
-            } else if (isset($generalResult[$id])) {
+            } elseif (isset($generalResult[$id])) {
                 $translation['lang_' . $l->label] = $generalResult[$id];
                 $translation['values'][$l->id]    = $generalResult[$id];
             }
         }
 
         $this->flush();
-        
+
         if (count($translation) > 0) {
             $translation['id'] = $id;
             $translation['label'] = $id;
@@ -96,11 +94,11 @@ class TranslationsEntity extends Entity
     public function find(array $filter = [])
     {
         $force = false;
-        
+
         if (isset($filter['force'])) {
             $force = $filter['force'];
         }
-        
+
         if (!empty($filter['lang_id']) && ($lang = $this->languagesEntity->get((int)$filter['lang_id']))) {
             $result = $this->initOneTranslation($lang->label, $force);
         } elseif (!empty($filter['lang'])) {
@@ -145,7 +143,7 @@ class TranslationsEntity extends Entity
                     unset($this->vars[$l->label][$id]);
                 }
 
-                $translation->value = $data['lang_'.$l->label];
+                $translation->value = $data['lang_' . $l->label];
                 $this->modulesVars[$l->label][$data['label']] = $translation;
                 $this->vars[$l->label][$data['label']] = $translation;
                 $this->writeModuleTranslation(
@@ -168,7 +166,7 @@ class TranslationsEntity extends Entity
                     unset($this->themeVars[$l->label][$id]);
                 }
                 $translation = (object) [
-                    'value' => $data['lang_'.$l->label],
+                    'value' => $data['lang_' . $l->label],
                     'type' => self::TRANS_T_THEME
                 ];
                 $this->vars[$l->label][$data['label']]      = $translation;
@@ -201,19 +199,20 @@ class TranslationsEntity extends Entity
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], null, func_get_args());
     }
-    
+
     /*Дублирование переводов*/
-    public function copyTranslations($labelSrc, $labelDest) 
+    public function copyTranslations($labelSrc, $labelDest)
     {
         if (empty($labelSrc) || empty($labelDest) || $labelSrc == $labelDest) {
             return ExtenderFacade::execute([static::class, __FUNCTION__], null, func_get_args());
         }
 
         $themesDir = __DIR__ . '/../../design/';
-        foreach (glob($themesDir.'*', GLOB_ONLYDIR) as $theme) {
-            if (file_exists($theme.'/lang/')) {
-                $src = $theme.'/lang/'.$labelSrc.'.php';
-                $dest = $theme.'/lang/'.$labelDest.'.php';
+        $themes = glob($themesDir . '*', GLOB_ONLYDIR) ?: [];
+        foreach ($themes as $theme) {
+            if (file_exists($theme . '/lang/')) {
+                $src = $theme . '/lang/' . $labelSrc . '.php';
+                $dest = $theme . '/lang/' . $labelDest . '.php';
                 if (file_exists($src) && !file_exists($dest)) {
                     copy($src, $dest);
                     @chmod($dest, 0664);
@@ -223,9 +222,9 @@ class TranslationsEntity extends Entity
 
         // Копируем общие переводы
         $generalDir = dirname(__DIR__) . '/lang_general/';
-        if (file_exists($generalDir.$labelSrc.'.php')) {
-            $src = $generalDir.$labelSrc.'.php';
-            $dest = $generalDir.$labelDest.'.php';
+        if (file_exists($generalDir . $labelSrc . '.php')) {
+            $src = $generalDir . $labelSrc . '.php';
+            $dest = $generalDir . $labelDest . '.php';
             if (file_exists($src) && !file_exists($dest)) {
                 copy($src, $dest);
                 @chmod($dest, 0664);
@@ -247,16 +246,17 @@ class TranslationsEntity extends Entity
         }
 
         $themesDir = __DIR__ . '/../../design/';
-        foreach (glob($themesDir.'*', GLOB_ONLYDIR) as $theme) {
-            if (file_exists($theme.'/lang/')) {
-                @unlink($theme.'/lang/'.$label.'.php');
+        $themes = glob($themesDir . '*', GLOB_ONLYDIR) ?: [];
+        foreach ($themes as $theme) {
+            if (file_exists($theme . '/lang/')) {
+                @unlink($theme . '/lang/' . $label . '.php');
             }
         }
 
         // Удаляем общие переводы
         $generalDir = dirname(__DIR__) . '/lang_general/';
-        if (file_exists($generalDir.$label.'.php')) {
-            @unlink($generalDir.$label.'.php');
+        if (file_exists($generalDir . $label . '.php')) {
+            @unlink($generalDir . $label . '.php');
         }
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], null, func_get_args());
@@ -345,7 +345,7 @@ class TranslationsEntity extends Entity
         if ($force === true) {
             unset($this->themeVars[$langLabel]);
         }
-        
+
         if (!isset($this->themeVars[$langLabel])) {
             $translations = [];
             $langFile = $this->getReadLangFile($langLabel, $this->frontTemplateConfig->getTheme());
@@ -413,7 +413,7 @@ class TranslationsEntity extends Entity
         }
 
         $this->writeTranslationsToLangFile($langFile, $translationsToWrite);
-            
+
         return ExtenderFacade::execute([static::class, __FUNCTION__], null, func_get_args());
     }
 
@@ -444,10 +444,14 @@ class TranslationsEntity extends Entity
     {
         $content = "<?php\n\n";
         $content .= "\$lang = [];\n";
-        foreach($translations as $label => $translation) {
-            $content .= "\$lang['".$label."'] = '".addcslashes($translation, "\n\r\\\"'")."';\n";
+        foreach ($translations as $label => $translation) {
+            $content .= "\$lang['" . $label . "'] = '" . addcslashes($translation, "\n\r\\\"'") . "';\n";
         }
         $file = fopen($langFile, 'w');
+        if ($file === false) {
+            return ExtenderFacade::execute([static::class, __FUNCTION__], null, func_get_args());
+        }
+
         fwrite($file, $content);
         fclose($file);
 
@@ -459,7 +463,7 @@ class TranslationsEntity extends Entity
         $langFile = __DIR__ . '/../../design/' . $theme . '/lang/' . $langLabel . '.php';
         return ExtenderFacade::execute([static::class, __FUNCTION__], $langFile, func_get_args());
     }
-    
+
     private function getWriteLangFile($langLabel, $theme)
     {
         $langFile = __DIR__ . '/../../design/' . $theme . '/lang/' . $langLabel . '.php';

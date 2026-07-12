@@ -9,6 +9,11 @@ use Okay\Entities\PaymentsEntity;
 use Okay\Controllers\AbstractController;
 use Psr\Log\LoggerInterface;
 use Okay\Core\QueryFactory;
+
+/**
+ * @phpstan-type CallbackData object{external_id: int|string, details: object{amount: int|float|string, status_code?: string|null}&\stdClass, id: int|string}&\stdClass
+ * @phpstan-type CreatePaymentDetails object{id: int|string, details?: object{amount: int|float|string|null}&\stdClass}&\stdClass
+ */
 class CallbackController extends AbstractController
 {
     public function payOrder(
@@ -20,8 +25,10 @@ class CallbackController extends AbstractController
         QueryFactory $queryFactory
     ) {
         $this->response->setContentType(RESPONSE_TEXT);
-        
-        $data = json_decode(file_get_contents("php://input"));
+
+        $rawCallback = file_get_contents("php://input");
+        $data = json_decode($rawCallback === false ? '' : $rawCallback);
+        /** @var CallbackData|null $data */
 
         if (empty($data->external_id)) {
             $this->response->setContent("Wrong data")->setStatusCode(400);
@@ -33,9 +40,9 @@ class CallbackController extends AbstractController
         $order = $ordersEntity->get((int) $orderId);
         if (empty($order)) {
             $postfix = \Okay\Modules\OkayCMS\RozetkaPay\Models\Gateway\CreatePayment::POSTFIX_FOR_TEST;
-            $orderId = str_replace($postfix, '', $orderId);
+            $orderId = str_replace($postfix, '', (string)$orderId);
             $order = $ordersEntity->get((int) $orderId);
-            if(empty($order)) {
+            if (empty($order)) {
                 $logger->warning("RozetkaPay notice: 'Order not found'. Order №{$orderId}");
                 $this->response->setContent("Order not found")->setStatusCode(400);
                 $this->response->sendContent();
@@ -45,9 +52,11 @@ class CallbackController extends AbstractController
 
         $createDetails = $this->getPaymentDetails((int)$orderId, $queryFactory, OrdersEntity::getTable());
 
-        if(!empty($createDetails)
-            && !isset($createDetails->details)
-            && !isset($createDetails->details->amount)
+        if (
+            empty($createDetails)
+            || !isset($createDetails->details)
+            || !isset($createDetails->details->amount)
+            || !isset($createDetails->id)
         ) {
             $this->response->setContent("Wrong CreatePayment data in order entity")->setStatusCode(400);
             $this->response->sendContent();
@@ -55,7 +64,7 @@ class CallbackController extends AbstractController
         }
 
         $method = $paymentsEntity->get((int) $order->payment_method_id);
-        if (empty($method) && $method->module !== "OkayCMS/RozetkaPay") {
+        if (empty($method) || $method->module !== "OkayCMS/RozetkaPay") {
             $logger->warning("RozetkaPay notice: 'Invalid payment method'. Order №{$orderId}");
             $this->response->setContent("Invalid payment method")->setStatusCode(400);
             $this->response->sendContent();
@@ -63,7 +72,7 @@ class CallbackController extends AbstractController
         }
 
         $amount = $data->details->amount;
-        $w4pAmount = round($amount, 2);
+        $w4pAmount = round((float)$amount, 2);
         $orderAmount = $money->convert($order->total_price, $method->currency_id, false, false, 2);
         if ($orderAmount != $w4pAmount) {
             $logger->warning("RozetkaPay notice: 'Invalid total order price'. Order №{$orderId}");
@@ -72,14 +81,15 @@ class CallbackController extends AbstractController
             exit;
         }
 
-        if($data->id !== $createDetails->id) {
+        if ($data->id !== $createDetails->id) {
             $logger->warning("RozetkaPay notice: 'Invalid request id'. Order №{$orderId}");
             $this->response->setContent("Invalid total order price")->setStatusCode(400);
             $this->response->sendContent();
             exit;
         }
 
-        if (!empty($data->details->status_code)
+        if (
+            !empty($data->details->status_code)
             && $data->details->status_code == 'transaction_successful'
             && !$order->paid
         ) {
@@ -97,7 +107,7 @@ class CallbackController extends AbstractController
      * @param $id
      * @param $queryFactory
      * @param $table
-     * @return mixed
+     * @return CreatePaymentDetails|null
      */
     protected function getPaymentDetails($id, $queryFactory, $table)
     {
@@ -108,6 +118,8 @@ class CallbackController extends AbstractController
             ->bindValue('id', $id)
             ->results('payment_details');
 
-        return json_decode($data[0]);
+        $paymentDetails = json_decode($data[0]);
+        /** @var CreatePaymentDetails|null $paymentDetails */
+        return $paymentDetails;
     }
 }

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Helpers;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Entities\OrderLabelsEntity;
@@ -21,7 +19,7 @@ class BackendOrderSettingsHelper
      * @var OrderLabelsEntity
      */
     private $orderLabelsEntity;
-    
+
     private $entityFactory;
 
     public function __construct(EntityFactory $entityFactory)
@@ -30,7 +28,7 @@ class BackendOrderSettingsHelper
         $this->orderStatusEntity = $entityFactory->get(OrderStatusEntity::class);
         $this->orderLabelsEntity = $entityFactory->get(OrderLabelsEntity::class);
     }
-    
+
 
     public function updateStatuses($statuses)
     {
@@ -49,8 +47,8 @@ class BackendOrderSettingsHelper
     {
         $ids = array_keys($positions);
         sort($positions);
-        foreach ($positions as $i=>$position) {
-            $this->orderStatusEntity->update($ids[$i], ['position'=>$position]);
+        foreach ($positions as $i => $position) {
+            $this->orderStatusEntity->update($ids[$i], ['position' => $position]);
         }
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
@@ -60,8 +58,8 @@ class BackendOrderSettingsHelper
     {
         $ids = array_keys($positions);
         sort($positions);
-        foreach ($positions as $i=>$position) {
-            $this->orderLabelsEntity->update($ids[$i], ['position'=>$position]);
+        foreach ($positions as $i => $position) {
+            $this->orderLabelsEntity->update($ids[$i], ['position' => $position]);
         }
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
@@ -73,13 +71,16 @@ class BackendOrderSettingsHelper
         $this->orderStatusEntity->delete($ids);
     }
 
+    /**
+     * @param array<int|string, int|string> $idsToDelete
+     */
     public function statusCanBeDeleted(array $idsToDelete)
     {
 
         if ($this->orderStatusEntity->count() == 1) {
             return ExtenderFacade::execute(__METHOD__, false, func_get_args());
         }
-        
+
         /** @var OrdersEntity $ordersEntity */
         $ordersEntity = $this->entityFactory->get(OrdersEntity::class);
 
@@ -92,7 +93,6 @@ class BackendOrderSettingsHelper
             }
         }
         return ExtenderFacade::execute(__METHOD__, $statusesForNotDelete, func_get_args());
-        
     }
 
     public function updateLabels($labels)

@@ -1,19 +1,24 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Entities\DiscountsEntity;
 
+/**
+ * @phpstan-type RegisteredDiscountSign object{sign: string, name: string, description: string, fromLastDiscount?: bool, partial?: bool}&\stdClass
+ */
 class Discounts
 {
     /** @var DiscountsEntity */
     private $discountsEntity;
 
 
-    /** @var array */
+    /**
+     * Top-level keys: `purchase`, `cart`. Values: sign id => metadata object.
+     *
+     * @var array{purchase: array<string, RegisteredDiscountSign>, cart: array<string, RegisteredDiscountSign>}
+     */
     private $signs;
 
     public function __construct(
@@ -67,7 +72,7 @@ class Discounts
      */
     public function registerCartSign($sign, $name, $description)
     {
-        if (isset($this->discountSigns['purchase'][$sign]) && isset($this->discountSigns['cart'][$sign])) {
+        if (isset($this->signs['purchase'][$sign]) && isset($this->signs['cart'][$sign])) {
             throw new \Exception("Sign \"{$sign}\" is already exists");
         } else {
             $signObject = (object) [
@@ -81,7 +86,7 @@ class Discounts
     }
 
     /**
-     * @return array
+     * @return array{purchase: array<string, RegisteredDiscountSign>, cart: array<string, RegisteredDiscountSign>}
      */
     public function getRegisteredSigns()
     {

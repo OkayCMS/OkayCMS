@@ -1,19 +1,16 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Modules\Module;
 
 class ManagerMenu
 {
-
     /**
      * Массив системных контроллеров, которые в меню не выводятся, но на них отдельные разрешения
      *
-     * @var array
+     * @var array<string, list<string>>
      */
     private $systemControllers = [
         'left_support'       => ['SupportAdmin', 'TopicAdmin'],
@@ -24,7 +21,7 @@ class ManagerMenu
     /**
      * Массив с меню админ. части (из него автоматически формируется главное меню админки)
      *
-     * @var array
+     * @var array<string, array<string, list<string>>>
      */
     private $leftMenu = [
         'left_catalog' => [
@@ -106,7 +103,7 @@ class ManagerMenu
     /**
      * Полный список элементов меню быстрого редактирования
      *
-     * @var array
+     * @var array<string, list<array<string, mixed>>>
      */
     private $fastMenu = [
         'feature' => [
@@ -240,14 +237,14 @@ class ManagerMenu
      * Ссылки на изображения для дополнительных секцый меню. Представляют из себя ассоциативный массив с именем
      * секции в качестве ключа и путем к картинке относительно корня проекта
      *
-     * @var array
+     * @var array<string, array{data: string, type: string}>
      */
     private $additionalSectionIcons = [];
 
     /**
      * Список контроллеров, которые имеют собственную вкладку в меню
      *
-     * @var array
+     * @var list<string>
      */
     private $modulesControllersHasOwnMenuItem = [];
 
@@ -291,6 +288,8 @@ class ManagerMenu
         ]);
      * При наведении на элемент с атрибутом data-property="1" будут построены ссылки на добавление сущности через
      * контроллер Vendor.Module.Controller и на редактирование с GET параметром id=1 (указанным в data-property).
+     *
+     * @param array<string, mixed> ...$menuItems
      */
     public function addFastMenuItem($dataProperty, ...$menuItems)
     {
@@ -331,8 +330,10 @@ class ManagerMenu
             return;
         }
 
-        if ($this->module->getBackendControllerParams($vendorModuleController)
-            && !in_array($vendorModuleController, $this->leftMenu['left_modules']['left_modules_list'])) {
+        if (
+            $this->module->getBackendControllerParams($vendorModuleController)
+            && !in_array($vendorModuleController, $this->leftMenu['left_modules']['left_modules_list'])
+        ) {
             $this->leftMenu['left_modules']['left_modules_list'][] = $vendorModuleController;
         }
     }
@@ -344,7 +345,7 @@ class ManagerMenu
 
     public function getCounters()
     {
-        foreach ($this->leftMenu as $section=>$menu) {
+        foreach ($this->leftMenu as $section => $menu) {
             foreach (array_keys($menu) as $menuItemTitle) {
                 if (isset($this->menuCounters[$menuItemTitle])) {
                     if (!isset($this->menuCounters[$section])) {
@@ -362,19 +363,26 @@ class ManagerMenu
      * Получить основное меню админ панели с учетом индивидуальной сортировки менеждера и прав доступа вышеупомянутого менеджера
      *
      * @param $manager
-     * @return array
+     * @return array<string, array<string, mixed>>
      */
     public function getMenu($manager)
     {
         $controllersPermissions = $this->managers->getControllersPermissions();
 
         foreach ($this->leftMenu as $section => $items) {
+            if ($manager->menu === false || !is_array($manager->menu)) {
+                $manager->menu = [];
+            }
             if (!isset($manager->menu[$section])) {
                 $manager->menu[$section] = $this->prepareItemsForManagerMenu($items);
             }
 
             foreach ($items as $title => $controllers) {
                 $mainController = reset($controllers);
+                if (!is_string($mainController)) {
+                    continue;
+                }
+
                 $controllerMethod = null;
 
                 if (strpos($mainController, '@') !== false) {
@@ -413,13 +421,13 @@ class ManagerMenu
             }
         }
 
-        foreach($manager->menu as $section => $items) {
+        foreach ($manager->menu as $section => $items) {
             if (empty($this->leftMenu[$section])) {
                 unset($manager->menu[$section]);
                 continue;
             }
 
-            foreach($items as $title => $controllers) {
+            foreach ($items as $title => $controllers) {
                 if (empty($this->leftMenu[$section][$title])) {
                     unset($manager->menu[$section][$title]);
                 }
@@ -439,7 +447,7 @@ class ManagerMenu
     private function prepareItemsForManagerMenu($section)
     {
         $preparedItems = [];
-        foreach($section as $title => $controllers) {
+        foreach ($section as $title => $controllers) {
             $preparedItems[$title] = reset($controllers);
         }
 
@@ -458,10 +466,12 @@ class ManagerMenu
     'lang_name_menu_item_1' => ['SomeOneAdmin'],
     'lang_name_menu_item_2' => ['SomeTwoAdmin', 'SomeThreeAdmin'],
     ], 'icon');
+     *
+     * @param array<string, list<string>|string> $menuItemsByControllers
      */
     public function extendMenu($section, array $menuItemsByControllers, $icon)
     {
-        foreach($menuItemsByControllers as $itemName => $controllers) {
+        foreach ($menuItemsByControllers as $itemName => $controllers) {
             if (is_string($controllers)) {
                 $controllers = [$controllers];
             }
@@ -497,11 +507,18 @@ class ManagerMenu
     {
         $activeControllerName = null;
         // Если не запросили модуль - используем модуль первый из разрешенных
-        if (empty($controller)
-            || (!is_file('backend/Controllers/'.$controller.'.php') && !$this->module->getBackendControllerParams($controller))) {
+        if (
+            empty($controller)
+            || (!is_file('backend/Controllers/' . $controller . '.php') && !$this->module->getBackendControllerParams($controller))
+        ) {
             $menu = $this->getMenu($manager);
             $firstBlock = reset($menu);
-            $activeControllerName = key(reset($firstBlock));
+            if (is_array($firstBlock)) {
+                $firstBlockControllers = reset($firstBlock);
+                if (is_array($firstBlockControllers)) {
+                    $activeControllerName = key($firstBlockControllers);
+                }
+            }
         } else {
             foreach ($this->leftMenu as $section => $items) {
                 foreach ($items as $title => $controllers) {
@@ -525,7 +542,7 @@ class ManagerMenu
         $permissionMenu = [];
 
         $menu = $this->leftMenu;
-        foreach($menu as $blockName => $items) {
+        foreach ($menu as $blockName => $items) {
             $permissionMenu[$blockName] = $this->groupPermissionByBlockMenu($items);
         }
 
@@ -538,7 +555,7 @@ class ManagerMenu
         $permissionMenu = $this->replaceTranslations($btr, $permissionMenu);
 
         // Разрешения для модулей добавляем без переводов, в качестве имени идёт Vendor/Module
-        foreach ($this->managers->getModulesPermissions() as $permission=>$vendorModuleName) {
+        foreach ($this->managers->getModulesPermissions() as $permission => $vendorModuleName) {
             $permissionMenu['left_modules'][$permission] = $vendorModuleName;
         }
 
@@ -547,15 +564,15 @@ class ManagerMenu
 
     private function removeNotPermittedSections($permissionMenu, $manager)
     {
-        foreach($permissionMenu as $menuName => $menuItem) {
-            foreach($menuItem as $permission => $title) {
+        foreach ($permissionMenu as $menuName => $menuItem) {
+            foreach ($menuItem as $permission => $title) {
                 if (! in_array($permission, $manager->permissions)) {
                     unset($permissionMenu[$menuName][$permission]);
                 }
             }
         }
 
-        foreach($permissionMenu as $menuName => $menuItem) {
+        foreach ($permissionMenu as $menuName => $menuItem) {
             if (empty($permissionMenu[$menuName])) {
                 unset($permissionMenu[$menuName]);
             }
@@ -566,8 +583,8 @@ class ManagerMenu
 
     private function replaceTranslations($btr, $permissionMenu)
     {
-        foreach($permissionMenu as $blockName => $blockItems) {
-            foreach($blockItems as $permission => $title) {
+        foreach ($permissionMenu as $blockName => $blockItems) {
+            foreach ($blockItems as $permission => $title) {
                 $permissionMenu[$blockName][$permission] = $btr->$title;
             }
         }
@@ -579,7 +596,7 @@ class ManagerMenu
     {
         $permissionBlockMenu = [];
 
-        foreach($blockMenu as $itemName => $controllers) {
+        foreach ($blockMenu as $itemName => $controllers) {
             if (strpos($controllers[0], '@') !== false) {
                 list($controllers[0], $controllerMethod) = explode('@', $controllers[0], 2);
             }

@@ -18,19 +18,23 @@ use Okay\Helpers\ProductsHelper;
 class BrandController extends AbstractController
 {
     /*Отображение страницы бренда*/
+    /**
+     * @param string $url
+     * @param string $filtersUrl
+     */
     public function render(
-        BrandsEntity        $brandsEntity,
-        CatalogHelper       $catalogHelper,
-        ProductsHelper      $productsHelper,
-        ProductsEntity      $productsEntity,
-        FilterHelper        $filterHelper,
+        BrandsEntity $brandsEntity,
+        CatalogHelper $catalogHelper,
+        ProductsHelper $productsHelper,
+        ProductsEntity $productsEntity,
+        FilterHelper $filterHelper,
         BrandMetadataHelper $brandMetadataHelper,
-        CanonicalHelper     $canonicalHelper,
-        MetaRobotsHelper    $metaRobotsHelper,
-        BrandsHelper        $brandsHelper,
-        RouteFactory        $routeFactory,
-                            $url,
-                            $filtersUrl = ''
+        CanonicalHelper $canonicalHelper,
+        MetaRobotsHelper $metaRobotsHelper,
+        BrandsHelper $brandsHelper,
+        RouteFactory $routeFactory,
+        $url,
+        $filtersUrl = ''
     ) {
         $brandRoute = $routeFactory->create('brand');
         $this->design->assign('url', $brandRoute->generateSlugUrl($url), true);
@@ -38,6 +42,7 @@ class BrandController extends AbstractController
         $this->design->assign('ajax_filter_route', 'brand_features', true);
 
         $brand = $brandsEntity->get((string)$url);
+        /** @var (object{id: int|string, visible: mixed, url: string, name: string|null, name_h1?: string|null, annotation: string|null, description: string|null, meta_title: string|null, meta_keywords: string|null, meta_description: string|null}&\stdClass)|false|null $brand */
 
         if (empty($brand) || (!$brand->visible && empty($_SESSION['admin']))) {
             return false;
@@ -74,7 +79,8 @@ class BrandController extends AbstractController
         $metaArray = $filterHelper->getMetaArray($filtersUrl);
 
         // Если в строке есть параметры которые не должны быть в фильтре, либо параметры с другой категории, бросаем 404
-        if (!empty($metaArray['features_values'])
+        if (
+            !empty($metaArray['features_values'])
             && array_intersect_key($metaArray['features_values'], $catalogFeatures) !== $metaArray['features_values']
             || !empty($metaArray['brand'])
             && array_intersect_key($metaArray['brand'], [$brand]) !== $metaArray['brand']
@@ -85,7 +91,7 @@ class BrandController extends AbstractController
         $isFilterPage = $brandsHelper->isFilterPage($productsFilter);
         $this->design->assign('is_filter_page', $isFilterPage);
 
-        if (!$this->settings->get('deferred_load_features') || $this->request->get('ajax','boolean')) {
+        if (!$this->settings->get('deferred_load_features') || $this->request->get('ajax', 'boolean')) {
             $brandsHelper->assignBrandFilterProcedure(
                 $productsFilter,
                 $catalogFeatures,
@@ -112,13 +118,15 @@ class BrandController extends AbstractController
 
             $metaRobotsHelper->setAvailableFeatures($catalogFeatures);
         }
-        
-        if (!$catalogHelper->paginate(
-            $this->settings->get('products_num'),
-            $currentPage,
-            $productsFilter,
-            $this->design
-        )) {
+
+        if (
+            !$catalogHelper->paginate(
+                $this->settings->get('products_num'),
+                $currentPage,
+                $productsFilter,
+                $this->design
+            )
+        ) {
             return false;
         }
 
@@ -126,7 +134,7 @@ class BrandController extends AbstractController
         $products = $productsHelper->getList($productsFilter, $productsSort);
         $this->design->assign('products', $products);
 
-        if ($this->request->get('ajax','boolean')) {
+        if ($this->request->get('ajax', 'boolean')) {
             $this->design->assign('ajax', 1);
             $result = $catalogHelper->getAjaxFilterData();
             $this->response->setContent(json_encode($result), RESPONSE_JSON);
@@ -150,11 +158,13 @@ class BrandController extends AbstractController
         if (isset($productsFilter['keyword'])) {
             $this->design->assign('noindex_nofollow', true);
         } else {
-            switch ($metaRobotsHelper->getCatalogRobots(
-                $currentPage,
-                $productsFilter['other_filter'] ?? [],
-                $metaArray['features_values'] ?? [],
-                [])
+            switch (
+                $metaRobotsHelper->getCatalogRobots(
+                    $currentPage,
+                    $productsFilter['other_filter'] ?? [],
+                    $metaArray['features_values'] ?? [],
+                    []
+                )
             ) {
                 case ROBOTS_NOINDEX_FOLLOW:
                     $this->design->assign('noindex_follow', true);
@@ -204,19 +214,22 @@ class BrandController extends AbstractController
             $this->design->getVar('current_page_num'),
             $filterHelper->getMetaArray($filtersUrl),
             $productsFilter['keyword'] ?? null
-
         );
         $this->setMetadataHelper($brandMetadataHelper);
-        
+
         $this->response->setContent('products.tpl');
     }
 
+    /**
+     * @param string $url
+     * @param string $filtersUrl
+     */
     public function getFilter(
         BrandsEntity $brandsEntity,
         FilterHelper $filterHelper,
         BrandsHelper $brandsHelper,
-                     $url,
-                     $filtersUrl = ''
+        $url,
+        $filtersUrl = ''
     ) {
         // Если ленивая отложенная загрузка фильтра отключена, этот метод должен давать 404
         if (!$this->settings->get('deferred_load_features')) {

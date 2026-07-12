@@ -1,7 +1,7 @@
 <?php
 
-
 use Okay\Core\Database;
+use Okay\Core\Export\CsvExportWriter;
 use Okay\Core\Managers;
 use Okay\Core\Response;
 use Okay\Core\QueryFactory;
@@ -33,6 +33,11 @@ $managers = $DI->get(Managers::class);
 /** @var Response $response */
 $response = $DI->get(Response::class);
 
+/** @var CsvExportWriter $csvExportWriter */
+$csvExportWriter = new CsvExportWriter();
+$requestedFormat = $_GET['format'] ?? null;
+$format = $csvExportWriter->normalizeFormat(is_string($requestedFormat) ? $requestedFormat : null);
+
 /** @var SubscribesEntity $subscribesEntity */
 $subscribesEntity     = $entityFactory->get(SubscribesEntity::class);
 
@@ -44,17 +49,22 @@ if (!$managers->access('users', $managersEntity->get($_SESSION['admin']))) {
 }
 
 $page = $request->get('page');
-if(empty($page) || $page==1) {
+if (empty($page) || $page == 1) {
     $page = 1;
-    if(is_writable($exportFilesDir.$filename)) {
-        unlink($exportFilesDir.$filename);
+    if (is_writable($exportFilesDir . $filename)) {
+        unlink($exportFilesDir . $filename);
     }
 }
 
-$f = fopen($exportFilesDir.$filename, 'ab');
+try {
+    $f = $csvExportWriter->openAppendStream($exportFilesDir, $filename, $format);
+} catch (\RuntimeException) {
+    $response->setContent(json_encode(false), RESPONSE_JSON)->sendContent();
+    exit;
+}
 
-if($page == 1) {
-    fputcsv($f, $columnsNames, $columnDelimiter);
+if ($page == 1) {
+    $csvExportWriter->writeRow($f, $columnsNames, $columnDelimiter, $format);
 }
 
 $filter = [];
@@ -63,29 +73,23 @@ $filter['limit'] = $totalUsers;
 $filter['sort']  = $request->get('sort');
 
 $users = [];
-foreach($subscribesEntity->find($filter) as $s) {
+foreach ($subscribesEntity->find($filter) as $s) {
     $str = [];
-    foreach($columnsNames as $n=>$c) {
+    foreach ($columnsNames as $n => $c) {
         $str[] = $s->$n;
     }
 
-    fputcsv($f, $str, $columnDelimiter);
+    $csvExportWriter->writeRow($f, $str, $columnDelimiter, $format);
 }
 
 fclose($f);
 
-$totalSubscribes = $subscribesEntity->count();
+$totalSubscribes = (int) $subscribesEntity->count();
 
-if($subscribesCount*$page < $totalSubscribes) {
-    $data = ['end'=>false, 'page'=>$page, 'totalpages'=>$totalSubscribes/$subscribesCount];
+if ($subscribesCount * $page < $totalSubscribes) {
+    $data = ['end' => false, 'page' => $page, 'totalpages' => $totalSubscribes / $subscribesCount];
 } else {
-    $data = ['end'=>true, 'page'=>$page, 'totalpages'=>$totalSubscribes/$subscribesCount];
-
-    mb_substitute_character('none');
-    file_put_contents(
-        $exportFilesDir.$filename,
-        mb_convert_encoding(file_get_contents($exportFilesDir.$filename), 'Windows-1251')
-    );
+    $data = ['end' => true, 'page' => $page, 'totalpages' => $totalSubscribes / $subscribesCount];
 }
 
 if ($data) {

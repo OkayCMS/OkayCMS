@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<ruleset name="OkayCMS">
+    <description>OkayCMS PHP code style based on PSR-12 with project-specific tweaks.</description>
+
+    <!-- Базовий стандарт -->
+    <rule ref="PSR12"/>
+
+    <!-- Глобальні налаштування запуску -->
+    <arg name="basepath" value="."/>
+    <arg name="colors"/>
+    <arg name="parallel" value="8"/>
+
+    <!-- Основні шляхи для перевірки -->
+    <file>Okay</file>
+    <file>backend</file>
+    <file>ok</file>
+
+    <!-- Проєктні винятки / налаштування -->
+
+    <!-- 1) Довжина рядка: пом'якшуємо PSR-12 до 140 символів, без жорсткого ліміту -->
+    <rule ref="Generic.Files.LineLength">
+      <!-- Поки що вимикаємо ліміт на довжину рядка
+        <properties>
+            <property name="lineLimit" value="140"/>
+            <property name="absoluteLineLimit" value="0"/>
+        </properties>
+      -->
+        <severity>0</severity>
+    </rule>
+
+    <!-- 2) Скомпільовані та службові файли, які не мають сенсу для code style -->
+
+    <!-- Скомпільовані XML/Smarty шаблони (frontend) -->
+    <exclude-pattern>Okay/xml/compiled/*</exclude-pattern>
+
+    <!-- Скомпільовані Smarty-шаблони адмінки -->
+    <exclude-pattern>backend/design/compiled/*</exclude-pattern>
+
+    <!-- Логи застосунку -->
+    <exclude-pattern>Okay/log/*</exclude-pattern>
+
+    <!-- Користувацькі файли в адмінці (експорт, завантаження тощо) -->
+    <exclude-pattern>backend/files/*/*</exclude-pattern>
+
+    <!-- Bundled filemanager: MIME map + procedural helpers (PSR-1 side-effects + data) -->
+    <exclude-pattern>backend/design/js/filemanager/*</exclude-pattern>
+
+    <rule ref="PSR1.Files.SideEffects">
+        <exclude-pattern>backend/design/js/filemanager/include/mime_type_lib.php</exclude-pattern>
+        <exclude-pattern>backend/ajax/export_stat.php</exclude-pattern>
+    </rule>
+
+    <!-- Project dynamic extension points. These names are discovered at runtime. -->
+    <rule ref="PSR1.Methods.CamelCapsMethodName">
+        <exclude-pattern>Okay/Entities/*</exclude-pattern>
+        <exclude-pattern>Okay/Core/Entity/Entity.php</exclude-pattern>
+        <exclude-pattern>Okay/Core/Design.php</exclude-pattern>
+        <exclude-pattern>Okay/Modules/*/*/Entities/*</exclude-pattern>
+        <exclude-pattern>Okay/Modules/*/*/ExtendsEntities/*</exclude-pattern>
+        <exclude-pattern>Okay/Modules/*/*/Init/Init.php</exclude-pattern>
+        <exclude-pattern>Okay/Modules/OkayCMS/FastOrder/Extenders/BackendExtender.php</exclude-pattern>
+        <exclude-pattern>Okay/Modules/MaxIT/MinOrderAmount/Backend/Controllers/MinOrderAmountAdmin.php</exclude-pattern>
+        <exclude-pattern>Okay/Modules/MaxIT/MinOrderAmount/Controllers/MinOrderAmountController.php</exclude-pattern>
+        <exclude-pattern>Okay/Modules/MaxIT/MinOrderAmount/Extenders/CartExtender.php</exclude-pattern>
+        <exclude-pattern>Okay/Modules/MaxIT/MinOrderAmount/Init/Init.php</exclude-pattern>
+    </rule>
+
+    <rule ref="PSR2.Methods.MethodDeclaration.Underscore">
+        <exclude-pattern>Okay/Modules/MaxIT/MinOrderAmount/Backend/Controllers/MinOrderAmountAdmin.php</exclude-pattern>
+        <exclude-pattern>Okay/Modules/MaxIT/MinOrderAmount/Controllers/MinOrderAmountController.php</exclude-pattern>
+        <exclude-pattern>Okay/Modules/MaxIT/MinOrderAmount/Extenders/CartExtender.php</exclude-pattern>
+        <exclude-pattern>Okay/Modules/MaxIT/MinOrderAmount/Init/Init.php</exclude-pattern>
+    </rule>
+
+    <rule ref="PSR2.Classes.PropertyDeclaration.Underscore">
+        <exclude-pattern>Okay/Core/BackendTranslations.php</exclude-pattern>
+        <exclude-pattern>Okay/Core/FrontTranslations.php</exclude-pattern>
+        <exclude-pattern>Okay/Modules/MaxIT/MinOrderAmount/Extenders/CartExtender.php</exclude-pattern>
+        <exclude-pattern>Okay/Modules/MaxIT/MinOrderAmount/Extenders/ValidateHelperExtender.php</exclude-pattern>
+    </rule>
+
+    <rule ref="Squiz.Classes.ValidClassName.NotPascalCase">
+        <exclude-pattern>Okay/Core/Entity/filter.php</exclude-pattern>
+        <exclude-pattern>Okay/Core/Entity/filterPriority.php</exclude-pattern>
+        <exclude-pattern>Okay/Core/Entity/lang.php</exclude-pattern>
+        <exclude-pattern>Okay/Core/Entity/order.php</exclude-pattern>
+        <exclude-pattern>Okay/Core/Entity/entityInfo.php</exclude-pattern>
+    </rule>
+
+</ruleset>

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 use Okay\Admin\Helpers\BackendAuthorsHelper;
 use Okay\Admin\Helpers\BackendBlogCategoriesHelper;
@@ -30,6 +28,8 @@ use Okay\Admin\Helpers\BackendUserGroupsHelper;
 use Okay\Admin\Helpers\BackendUsersHelper;
 use Okay\Admin\Helpers\BackendValidateHelper;
 use Okay\Admin\Requests\BackendOrdersRequest;
+use Okay\Core\Ai\OpenAiModelCatalog;
+use Okay\Core\Ai\OpenAiTextClient;
 use Okay\Core\Modules\LicenseModulesTemplates;
 use Okay\Core\Modules\Module;
 use Okay\Core\Modules\Modules;
@@ -89,6 +89,8 @@ use Okay\Helpers\OrdersHelper;
 use Okay\Helpers\FilterHelper;
 use Okay\Helpers\MoneyHelper;
 use Okay\Core\Entity\UrlUniqueValidator;
+use Okay\Core\Export\CsvExportWriter;
+use Okay\Core\Import\CsvImportValueNormalizer;
 use Okay\Admin\Helpers\BackendExportHelper;
 use Symfony\Component\Console\Helper\QuestionHelper as ConsoleQuestionHelper;
 
@@ -119,6 +121,7 @@ return [
         'arguments' => [
             new SR(EntityFactory::class),
             new SR(Request::class),
+            new SR(CsvExportWriter::class),
         ]
     ],
     BackendVariantsHelper::class => [
@@ -371,6 +374,7 @@ return [
             new SR(Languages::class),
             new SR(EntityFactory::class),
             new SR(Image::class),
+            new SR(CsvImportValueNormalizer::class),
         ]
     ],
     BackendModulesHelper::class => [
@@ -693,11 +697,23 @@ return [
         'arguments' => [
         ]
     ],
+    OpenAiModelCatalog::class => [
+        'class' => OpenAiModelCatalog::class,
+    ],
+    OpenAiTextClient::class => [
+        'class' => OpenAiTextClient::class,
+        'arguments' => [
+            new SR(Settings::class),
+            null,
+            new SR(OpenAiModelCatalog::class),
+        ]
+    ],
     OpenAiHelper::class => [
         'class' => OpenAiHelper::class,
         'arguments' => [
             new SR(Response::class),
             new SR(Settings::class),
+            new SR(OpenAiTextClient::class),
         ]
     ],
     OpenAiEntityHelper::class => [
@@ -706,4 +722,3 @@ return [
         ]
     ],
 ];
-

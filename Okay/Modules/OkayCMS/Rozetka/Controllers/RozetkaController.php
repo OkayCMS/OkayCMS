@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\Rozetka\Controllers;
-
 
 use Aura\Sql\ExtendedPdo;
 use Okay\Controllers\AbstractController;
@@ -18,20 +16,44 @@ use Okay\Modules\OkayCMS\Rozetka\Entities\RozetkaRelationsEntity;
 use Okay\Modules\OkayCMS\Rozetka\Helpers\RozetkaHelper;
 use PDO;
 
+/**
+ * @phpstan-type RozetkaFeedRow object{id: int|string, enabled: bool|int|string|null}
+ * @phpstan-type RozetkaProductRow \stdClass&object{
+ *     product_id: int|string,
+ *     variant_id: int|string,
+ *     stock: int|float|string|null,
+ *     price: int|float,
+ *     compare_price: int|float|null,
+ *     currency_id: int|string|null,
+ *     main_category_id: int|string|null,
+ *     url: string,
+ *     slug_url: string,
+ *     brand_name: string,
+ *     product_name: string,
+ *     variant_name?: string|null,
+ *     sku: string,
+ *     images?: list<string>,
+ *     images_string?: string|null,
+ *     features?: array<int|string, array{name: string, values: list<string>, values_string: string}>,
+ *     description?: string|null
+ * }
+ */
 class RozetkaController extends AbstractController
 {
     public function render(
-        CategoriesEntity   $categoriesEntity,
-        QueryFactory       $queryFactory,
-        ExtendedPdo        $pdo,
-        RozetkaHelper      $rozetkaHelper,
-        XmlFeedHelper      $feedHelper,
+        CategoriesEntity $categoriesEntity,
+        QueryFactory $queryFactory,
+        ExtendedPdo $pdo,
+        RozetkaHelper $rozetkaHelper,
+        XmlFeedHelper $feedHelper,
         RozetkaFeedsEntity $feedsEntity,
-        Money              $money,
-        CurrenciesEntity   $currenciesEntity,
+        Money $money,
+        CurrenciesEntity $currenciesEntity,
         $url
     ) {
-        if (!($feed = $feedsEntity->findOne(['url' => $url])) || !$feed->enabled) {
+        /** @var RozetkaFeedRow|null $feed */
+        $feed = $feedsEntity->findOne(['url' => $url]);
+        if (!$feed || !$feed->enabled) {
             return false;
         }
 
@@ -62,7 +84,7 @@ class RozetkaController extends AbstractController
         $this->response->setContentType(RESPONSE_XML);
         $this->response->sendHeaders();
         $this->response->sendStream($this->design->fetch('feed_head.xml.tpl'));
-        
+
         // На всякий случай наполним кеш роутов
         Router::generateRouterCache();
 
@@ -72,14 +94,16 @@ class RozetkaController extends AbstractController
         // Увеличиваем лимит ф-ции GROUP_CONCAT()
         $query = $queryFactory->newSqlQuery();
         $query->setStatement('SET SESSION group_concat_max_len = 1000000;')->execute();
-        
+
         // Для экономии памяти работаем с небуферизированными запросами
         $pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
         $query = $rozetkaHelper->getQuery($feed->id, $uploadCategories);
 
         $prevProductId = null;
         while ($product = $query->result()) {
+            /** @var RozetkaProductRow $product */
             $product = $feedHelper->attachFeatures($product);
+            /** @var RozetkaProductRow $product */
             $metaParts = $feedHelper->getMetadataParts($product);
             $product = $feedHelper->attachDescriptionByTemplate(
                 $product,
@@ -87,13 +111,16 @@ class RozetkaController extends AbstractController
                 $feedHelper->getDescriptionTemplate($product),
                 XmlFeedHelper::DESCRIPTION_FIELD
             );
+            /** @var RozetkaProductRow $product */
             $product = $feedHelper->attachDescriptionByTemplate(
                 $product,
                 $metaParts,
                 $feedHelper->getAnnotationTemplate($product),
                 XmlFeedHelper::ANNOTATION_FIELD
             );
+            /** @var RozetkaProductRow $product */
             $product = $feedHelper->attachProductImages($product);
+            /** @var RozetkaProductRow $product */
 
             $addVariantUrl = false;
             if ($prevProductId === $product->product_id) {
@@ -102,8 +129,8 @@ class RozetkaController extends AbstractController
             $prevProductId = $product->product_id;
             $item = $rozetkaHelper->getItem($product, $addVariantUrl);
             $xmlProduct = $feedHelper->compileItem($item, 'offer', [
-                'id' => $product->variant_id,
-                'available' => ($product->stock > 0 || $product->stock === null ? 'true' : 'false'),
+                'id' => (string)$product->variant_id,
+                'available' => ($this->settings->get('is_preorder') || $product->stock > 0 || $product->stock === null ? 'true' : 'false'),
             ]);
 
             $this->response->sendStream($xmlProduct);

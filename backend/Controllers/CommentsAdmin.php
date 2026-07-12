@@ -1,19 +1,16 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Admin\Helpers\BackendCommentsHelper;
 use Okay\Admin\Requests\BackendCommentsRequest;
 
 class CommentsAdmin extends IndexAdmin
 {
-    
     public function fetch(
-        BackendCommentsHelper  $backendCommentsHelper,
+        BackendCommentsHelper $backendCommentsHelper,
         BackendCommentsRequest $commentsRequest
-    ){
+    ) {
         if ($commentsRequest->postCommentAnswer()) {
             $comment     = $backendCommentsHelper->prepareCommentAnswer();
             $comment->id = $backendCommentsHelper->addCommentAnswer($comment);
@@ -22,15 +19,13 @@ class CommentsAdmin extends IndexAdmin
 
         if ($this->request->method('post')) {
             $ids = $commentsRequest->postCheck();
-            switch($this->request->post('action')) {
-                case 'approve': {
+            switch ($this->request->post('action')) {
+                case 'approve':
                     $backendCommentsHelper->approve($ids);
                     break;
-                }
-                case 'delete': {
+                case 'delete':
                     $backendCommentsHelper->delete($ids);
                     break;
-                }
             }
         }
 
@@ -52,10 +47,10 @@ class CommentsAdmin extends IndexAdmin
             $this->design->assign('keyword', $filter['keyword']);
         }
 
-        $this->design->assign('pages_count',    ceil($commentsCount/$filter['limit']));
-        $this->design->assign('current_page',   $filter['page']);
-        $this->design->assign('comments',       $comments);
-        $this->design->assign('children',       $children);
+        $this->design->assign('pages_count', ceil($commentsCount / $filter['limit']));
+        $this->design->assign('current_page', $filter['page']);
+        $this->design->assign('comments', $comments);
+        $this->design->assign('children', $children);
         $this->design->assign('comments_count', $commentsCount);
         $this->response->setContent($this->design->fetch('comments.tpl'));
     }

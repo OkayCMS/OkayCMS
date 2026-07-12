@@ -1,12 +1,9 @@
 <?php
 
-
 namespace Okay\Core\TplMod\Nodes;
-
 
 class BaseNode
 {
-    
     protected $element;
     protected $elementModified;
     protected $selfClose = false;
@@ -33,7 +30,7 @@ class BaseNode
     {
         $this->elementModified = $element;
     }
-    
+
     public function getElement()
     {
         return !empty($this->elementModified) ? $this->elementModified : $this->element;
@@ -43,17 +40,17 @@ class BaseNode
     {
         return $this->element;
     }
-    
+
     /**
      * Метод возвращает массив дочерних элементов
-     * 
-     * @return array
+     *
+     * @return list<BaseNode>
      */
     public function children()
     {
         return $this->children;
     }
-    
+
     // Метод заменяет всё содержимое элемента новым элементом
     public function text(TextNode $node)
     {
@@ -62,7 +59,7 @@ class BaseNode
         // Добавляем новую ноду
         $this->append($node);
     }
-    
+
     public function remove()
     {
         if (!empty($this->parent())) {
@@ -95,13 +92,13 @@ class BaseNode
             }
         }
     }
-    
+
     public function appendAfter(BaseNode $node)
     {
         $parent = $this->parent();
         foreach ($parent->children() as $key => $child) {
             if ($child === $this) {
-                $parent->addChildByIndex($node, $key+1);
+                $parent->addChildByIndex($node, $key + 1);
                 break;
             }
         }
@@ -142,7 +139,7 @@ class BaseNode
     {
         return $this->close;
     }
-    
+
     protected function setParent(BaseNode $parent)
     {
         $this->patent = $parent;
@@ -150,6 +147,6 @@ class BaseNode
 
     protected function addChildByIndex(BaseNode $node, $index)
     {
-        array_splice( $this->children, $index, 0, [$node]);
+        array_splice($this->children, $index, 0, [$node]);
     }
 }

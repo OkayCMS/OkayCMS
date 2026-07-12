@@ -16,7 +16,6 @@ Disallow: /*?currency_id
 Disallow: /*?keyword
 Disallow: /*?utm
 Disallow: /*&utm
-Disallow: /cart
 
 User-agent: Googlebot
 Allow: *.css
@@ -36,4 +35,3 @@ Disallow: /*?currency_id
 Disallow: /*?keyword
 Disallow: /*?utm
 Disallow: /*&utm
-Disallow: /cart

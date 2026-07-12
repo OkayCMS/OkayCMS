@@ -1,25 +1,33 @@
 <?php
 
-
 namespace Okay\Helpers\MetadataHelpers;
-
 
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Router;
 
+/**
+ * @phpstan-type ProductRow object{name: string|null, variants: array<int|string, VariantRow>, variant: VariantRow, annotation: string|null, description: string|null, meta_title: string|null, meta_keywords: string|null, meta_description: string|null, features?: array<int|string, FeatureRow>}&\stdClass
+ * @phpstan-type VariantRow object{name?: string|null, price: int|float|string|null, compare_price: int|float|string|null, sku: string|null}&\stdClass
+ * @phpstan-type BrandRow object{url: string, name: string|null}&\stdClass
+ * @phpstan-type CategoryRow object{name: string|null, name_h1: string|null, path: list<object>}&\stdClass
+ * @phpstan-type FeatureRow object{auto_name_id: string|null, name: string|null, auto_value_id: string|null, stingify_values: string|null}&\stdClass
+ */
 class ProductMetadataHelper extends CommonMetadataHelper
 {
-    /** @var object */
+    /** @var ProductRow */
     private $product;
 
-    /** @var object|null */
+    /** @var CategoryRow|null */
     private $category;
 
-    /** @var object|null */
+    /** @var BrandRow|null */
     private $brand;
 
     public function setUp(object $product, ?object $category = null, ?object $brand = null): void
     {
+        /** @var ProductRow $product */
+        /** @var CategoryRow|null $category */
+        /** @var BrandRow|null $brand */
         $this->product  = $product;
         $this->category = $category;
         $this->brand    = $brand;
@@ -35,12 +43,12 @@ class ProductMetadataHelper extends CommonMetadataHelper
         $h1 = (string)$this->product->name;
         if ($data = $this->getCategoryField('auto_h1')) {
             $h1 = $data;
-        } elseif(!empty($defaultProductsSeoPattern->auto_h1)) {
+        } elseif (!empty($defaultProductsSeoPattern->auto_h1)) {
             $h1 = $defaultProductsSeoPattern->auto_h1;
         } elseif (count($this->product->variants) == 1 && !empty($this->product->variant->name)) {
             $h1 .= ' ' . $this->product->variant->name;
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $h1, func_get_args());
     }
 
@@ -59,7 +67,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
                 $annotation = $defaultProductsSeoPattern->auto_annotation;
             }
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $annotation, func_get_args());
     }
 
@@ -78,7 +86,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
                 $description = $defaultProductsSeoPattern->auto_description;
             }
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $description, func_get_args());
     }
 
@@ -96,7 +104,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
         } else {
             $metaTitle = (string)$this->product->meta_title;
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $metaTitle, func_get_args());
     }
 
@@ -114,7 +122,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
         } else {
             $metaKeywords = (string)$this->product->meta_keywords;
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $metaKeywords, func_get_args());
     }
 
@@ -132,20 +140,20 @@ class ProductMetadataHelper extends CommonMetadataHelper
         } else {
             $metaDescription = (string)$this->product->meta_description;
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $metaDescription, func_get_args());
     }
 
     /**
-     * Метод возвращает массив переменных и их значений, который учавствуют в формировании метаданных
-     * @return array
+     * Метод возвращает массив переменных и их значений, который участвуют в формировании метаданных
+     * @return array<string, mixed>
      */
     protected function getParts(): array
     {
         if (!empty($this->parts)) {
             return $this->parts; // no ExtenderFacade
         }
-        
+
         $currency = $this->mainHelper->getCurrentCurrency();
 
         $brandRoute = '';

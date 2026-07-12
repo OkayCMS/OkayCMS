@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Helpers;
-
 
 use Okay\Core\Classes\Discount;
 use Okay\Core\Discounts;
@@ -13,6 +11,12 @@ use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Settings;
 use Okay\Entities\DiscountsEntity;
 
+/**
+ * @phpstan-type DiscountSetRow object{set: string, partial: bool}&\stdClass
+ * @phpstan-type DiscountSignRow object{sign: string, name: string, description: string, fromLastDiscount?: bool, partial?: bool}&\stdClass
+ * @phpstan-type ParsedDiscountSigns array{cart?: list<DiscountSignRow>, purchase?: list<DiscountSignRow>}
+ * @phpstan-type DiscountDbRow object{id: string|int, type: string, value: string|int|float, name: string, description: string, from_last_discount: bool, position?: string|int|null}&\stdClass
+ */
 class DiscountsHelper
 {
     /** @var Discounts */
@@ -32,11 +36,11 @@ class DiscountsHelper
     private $discountsEntity;
 
     public function __construct(
-        Discounts         $discountsCore,
+        Discounts $discountsCore,
         FrontTranslations $frontTranslations,
-        Languages         $languagesCore,
-        EntityFactory     $entityFactory,
-        Settings          $settings
+        Languages $languagesCore,
+        EntityFactory $entityFactory,
+        Settings $settings
     ) {
         $this->discountsCore     = $discountsCore;
         $this->frontTranslations = $frontTranslations;
@@ -49,7 +53,7 @@ class DiscountsHelper
     /**
      * Get cart sets of discounts, added by user in admin panel.
      *
-     * @return array|null
+     * @return array<int, DiscountSetRow>|null
      */
     public function getCartSets()
     {
@@ -59,7 +63,7 @@ class DiscountsHelper
     /**
      * Get purchase sets of discounts, added by user in admin panel.
      *
-     * @return array|null
+     * @return array<int, DiscountSetRow>|null
      */
     public function getPurchaseSets()
     {
@@ -69,8 +73,8 @@ class DiscountsHelper
     /**
      * Parse set of discounts, sort them on purchase and cart signs and check they registration in system
      *
-     * @param $set string
-     * @return array|bool
+     * @param DiscountSetRow $set
+     * @return ParsedDiscountSigns|false
      */
     public function parseSet($set)
     {
@@ -86,12 +90,12 @@ class DiscountsHelper
                     $signObject->fromLastDiscount = $fromLastDiscount;
                     $signObject->partial = $set->partial;
                     $signs['cart'][] = $signObject;
-                } else if (isset($registeredSigns['purchase'][$sign])) {
+                } elseif (isset($registeredSigns['purchase'][$sign])) {
                     $signObject = clone $registeredSigns['purchase'][$sign];
                     $signObject->fromLastDiscount = $fromLastDiscount;
                     $signObject->partial = $set->partial;
                     $signs['purchase'][] = $signObject;
-                } else if (!$set->partial) {
+                } elseif (!$set->partial) {
                     return false;
                 }
             }
@@ -103,9 +107,9 @@ class DiscountsHelper
     /**
      * Prepare discounts and combine them with information from parsed set
      *
-     * @param array $signs
-     * @param array $availableDiscounts
-     * @return array
+     * @param list<DiscountSignRow> $signs
+     * @param array<string, Discount> $availableDiscounts
+     * @return list<Discount>
      */
     public function prepareDiscounts($signs, $availableDiscounts)
     {
@@ -137,6 +141,10 @@ class DiscountsHelper
      * @param array $parts
      * @return array
      */
+    /**
+     * @param array<string, string> $parts
+     * @return array<string, string>
+     */
     private function buildReplacements($parts)
     {
         $replacements = [];
@@ -150,9 +158,9 @@ class DiscountsHelper
     /**
      * Calculate discounts and price after all discounts
      *
-     * @param array $discounts
-     * @param string|int|float $undiscountedPrice
-     * @return array
+     * @param list<Discount> $discounts
+     * @param int|float $undiscountedPrice
+     * @return array{0: list<Discount>, 1: int|float}
      */
     public function calculateDiscounts($discounts, $undiscountedPrice)
     {
@@ -173,7 +181,10 @@ class DiscountsHelper
      * @param Discount $discount
      * @param string $entity
      * @param string|int $entityId
-     * @return array
+     * @return array{
+     *     0: object{id?: string|int|null, entity: string, entity_id: string|int, type: string, value: string|int|float, from_last_discount: int, name: string, description: string}&\stdClass,
+     *     1: array<int|string, array<string, string>>
+     * }
      */
     public function prepareForDB($discount, $entity, $entityId)
     {
@@ -187,7 +198,7 @@ class DiscountsHelper
      * Get all translations of discount from lang files
      *
      * @param Discount $discount
-     * @return array
+     * @return array<int|string, array<string, string>>
      */
     private function getTranslations($discount)
     {
@@ -213,8 +224,8 @@ class DiscountsHelper
     }
 
     /**
-     * @param array $discountsDB
-     * @return array
+     * @param list<DiscountDbRow> $discountsDB
+     * @return list<Discount>
      */
     public function buildFromDB($discountsDB)
     {

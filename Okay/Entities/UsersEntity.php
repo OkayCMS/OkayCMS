@@ -1,15 +1,12 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 
 class UsersEntity extends Entity
 {
-
     protected static $fields = [
         'id',
         'email',
@@ -46,15 +43,15 @@ class UsersEntity extends Entity
     protected static $langTable;
     protected static $langObject;
 
-    // осторожно, при изменении соли испортятся текущие пароли пользователей
+    // Legacy customer hashes are verified for compatibility and rehashed on successful authentication.
     private $salt = '8e86a279d6e182b3c811c559e6b15484';
-    
+
     public function find(array $filter = [])
     {
         $this->select->join('LEFT', '__groups AS g', 'u.group_id=g.id');
         return parent::find($filter);
     }
-    
+
     public function get($id)
     {
         if (empty($id)) {
@@ -62,14 +59,16 @@ class UsersEntity extends Entity
         }
 
         $this->select->join('LEFT', '__groups AS g', 'u.group_id=g.id');
-        
+
         $user = parent::get($id);
-        
+
         if (empty($user)) {
             return ExtenderFacade::execute([static::class, __FUNCTION__], false, func_get_args());
         }
 
-        $user->discount = floor($user->discount);
+        if ($user->discount !== null) {
+            $user->discount = floor((float)$user->discount);
+        }
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], $user, func_get_args());
     }
@@ -78,15 +77,15 @@ class UsersEntity extends Entity
     {
         $user = (array)$user;
         if (isset($user['password'])) {
-            $user['password'] = md5($this->salt . $user['password'] . md5($user['password']));
+            $user['password'] = $this->hashPassword($user['password']);
         }
-        
-        $count = $this->count(['email'=>$user['email']]);
-        
+
+        $count = $this->count(['email' => $user['email']]);
+
         if ($count > 0) {
             return ExtenderFacade::execute([static::class, __FUNCTION__], false, func_get_args());
         }
-        
+
         return parent::add($user);
     }
 
@@ -94,9 +93,9 @@ class UsersEntity extends Entity
     {
         $user = (array)$user;
         if (isset($user['password'])) {
-            $user['password'] = md5($this->salt . $user['password'] . md5($user['password']));
+            $user['password'] = $this->hashPassword($user['password']);
         }
-        
+
         return parent::update($id, $user);
     }
 
@@ -108,9 +107,8 @@ class UsersEntity extends Entity
                 ->set('user_id', 0)
                 ->where('user_id IN (:user_id)')
                 ->bindValue('user_id', $ids);
-            
+
             $this->db->query($update);
-            
         }
 
         return parent::delete($ids);
@@ -123,23 +121,75 @@ class UsersEntity extends Entity
      */
     public function checkPassword($email, $password)
     {
-        $encPassword = md5($this->salt . $password . md5($password));
-        $userId = $this->cols(['id'])->findOne([
+        $user = $this->cols(['id', 'password'])->findOne([
             'email' => $email,
-            'password' => $encPassword,
             'limit' => 1,
         ]);
-        if (!empty($userId)) {
-            $userId = (int)$userId;
+        if ($user === false) {
+            return ExtenderFacade::execute([static::class, __FUNCTION__], false, func_get_args());
+        }
+
+        /** @var object{id: int|string, password: string} $user */
+        if ($this->verifyPassword($password, (string)$user->password)) {
+            $userId = (int)$user->id;
+            if ($this->needsPasswordRehash((string)$user->password)) {
+                $this->update($userId, ['password' => $password]);
+            }
+
             return ExtenderFacade::execute([static::class, __FUNCTION__], $userId, func_get_args());
         }
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], false, func_get_args());
     }
 
-    public function generatePass($passLen = 6) {
+    public function hashPassword(string $password): string
+    {
+        if (defined('PASSWORD_ARGON2ID')) {
+            return password_hash($password, PASSWORD_ARGON2ID, [
+                'memory_cost' => PASSWORD_ARGON2_DEFAULT_MEMORY_COST,
+                'time_cost' => PASSWORD_ARGON2_DEFAULT_TIME_COST,
+                'threads' => PASSWORD_ARGON2_DEFAULT_THREADS,
+            ]);
+        }
+
+        return password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
+    }
+
+    public function verifyPassword(string $password, string $hash): bool
+    {
+        if ($this->isLegacyPasswordHash($hash)) {
+            return hash_equals($hash, md5($this->salt . $password . md5($password)));
+        }
+
+        return password_verify($password, $hash);
+    }
+
+    public function needsPasswordRehash(string $hash): bool
+    {
+        if ($this->isLegacyPasswordHash($hash)) {
+            return true;
+        }
+
+        if (defined('PASSWORD_ARGON2ID')) {
+            return password_needs_rehash($hash, PASSWORD_ARGON2ID, [
+                'memory_cost' => PASSWORD_ARGON2_DEFAULT_MEMORY_COST,
+                'time_cost' => PASSWORD_ARGON2_DEFAULT_TIME_COST,
+                'threads' => PASSWORD_ARGON2_DEFAULT_THREADS,
+            ]);
+        }
+
+        return password_needs_rehash($hash, PASSWORD_BCRYPT, ['cost' => 12]);
+    }
+
+    private function isLegacyPasswordHash(string $hash): bool
+    {
+        return strlen($hash) === 32 && ctype_xdigit($hash);
+    }
+
+    public function generatePass($passLen = 6)
+    {
         $pass = '';
-        for ($i=0; $i< $passLen; $i++) {
+        for ($i = 0; $i < $passLen; $i++) {
             $ranges = [
                 rand(48, 57),
                 rand(65, 90),

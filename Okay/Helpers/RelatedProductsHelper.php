@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Helpers;
-
 
 use Okay\Core\Entity\RelatedProductsInterface;
 use Okay\Core\Modules\Extender\ExtenderFacade;
@@ -10,7 +8,7 @@ use Okay\Core\Modules\Extender\ExtenderFacade;
 class RelatedProductsHelper
 {
     private $productsHelper;
-    
+
     public function __construct(ProductsHelper $productsHelper)
     {
         $this->productsHelper = $productsHelper;
@@ -18,7 +16,7 @@ class RelatedProductsHelper
 
     /**
      * @param RelatedProductsInterface $relatedObjectsEntity экземпляр класса, в котором стоит вызвать метод getRelatedProducts()
-     * @param array $filter аргумент метода getRelatedProducts()
+     * @param array<string, mixed> $filter аргумент метода getRelatedProducts()
      * @return mixed|void|null
      * @throws \Exception
      */
@@ -41,7 +39,7 @@ class RelatedProductsHelper
             foreach ($this->productsHelper->getList($relatedFilter) as $p) {
                 $relatedProducts[$p->id] = $p;
             }
-            foreach ($relatedProducts as $id=>$r) {
+            foreach ($relatedProducts as $id => $r) {
                 if ($r === null) {
                     unset($relatedProducts[$id]);
                 }

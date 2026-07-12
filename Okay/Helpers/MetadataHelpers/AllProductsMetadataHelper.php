@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Helpers\MetadataHelpers;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\FrontTranslations;
@@ -30,8 +28,9 @@ class AllProductsMetadataHelper extends CommonMetadataHelper
     public function __construct()
     {
         parent::__construct();
-        
+
         if (!$this->keyword) {
+            /** @var EntityFactory $entityFactory */
             $entityFactory = $this->SL->getService(EntityFactory::class);
             /** @var PagesEntity $pagesEntity */
             $pagesEntity = $entityFactory->get(PagesEntity::class);
@@ -51,7 +50,7 @@ class AllProductsMetadataHelper extends CommonMetadataHelper
         } else {
             $h1 = parent::getH1Template();
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $h1, func_get_args());
     }
 
@@ -89,7 +88,7 @@ class AllProductsMetadataHelper extends CommonMetadataHelper
             $translations = $this->SL->getService(FrontTranslations::class);
             $metaTitle .= $translations->getTranslation('meta_page') . ' ' . $this->currentPageNum;
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $metaTitle, func_get_args());
     }
 
@@ -105,7 +104,7 @@ class AllProductsMetadataHelper extends CommonMetadataHelper
         } else {
             $metaKeywords = parent::getMetaKeywordsTemplate();
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $metaKeywords, func_get_args());
     }
 
@@ -121,8 +120,7 @@ class AllProductsMetadataHelper extends CommonMetadataHelper
         } else {
             $metaDescription = parent::getMetaDescriptionTemplate();
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $metaDescription, func_get_args());
     }
-    
 }

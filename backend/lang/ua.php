@@ -1,4 +1,5 @@
 <?php
+
 $lang['left_menus_title'] = 'Список меню';
 $lang['menus_menu'] = 'Меню';
 $lang['menus_add'] = 'Додати меню';
@@ -80,6 +81,9 @@ $lang['delivery_type'] = 'Тип доставки';
 $lang['delivery_updated'] = 'Спосіб доставки змінений';
 $lang['export_message'] = 'Експорт товарів дозволяє вам завантажити товари з сайту в CSV-форматі. Після того як ви натиснете кнопку "Експортувати", вам буде запропоновано зберегти файл у форматі CSV на ваш комп\'ютер.';
 $lang['export_products'] = 'Експорт товарів';
+$lang['export_file_format'] = 'Формат файлу';
+$lang['export_format_csv_utf8'] = 'CSV UTF-8';
+$lang['export_format_csv_utf8_bom'] = 'CSV UTF-8 BOM (Excel)';
 $lang['feature_add'] = 'Додавання властивості';
 $lang['feature_added'] = 'Властивість додана';
 $lang['feature_filter'] = 'Відображати в фільтрі';
@@ -533,7 +537,8 @@ $lang['settings_catalog_comma'] = 'кома:';
 $lang['settings_catalog_dot'] = 'крапка:';
 $lang['settings_catalog_message1'] = 'Впливає на поточні фото';
 $lang['settings_catalog_message2'] = 'Застосовуйте цей параметр тільки на початку роботи магазину, щоб виставити оптимальний рівень стискання зображень при їх ресайзі';
-$lang['settings_catalog_preorder_not_in_stock'] = 'Передзамовлення відсутніх товарів';
+$lang['settings_catalog_preorder_not_in_stock'] = 'Дозволити замовлення незалежно від залишку';
+$lang['settings_catalog_use_backorder_status'] = 'Використовувати статус - під замовлення';
 $lang['settings_catalog_not_in_stock'] = 'Відсутні товари';
 $lang['settings_catalog_missing_products_default'] = 'Відображати за замовчуванням';
 $lang['settings_catalog_missing_products_move_end'] = 'Перемістити в кінець списку';
@@ -1322,7 +1327,7 @@ $lang['learning_hint_settings_catalog_units'] = '<p>Единицы измере�
 $lang['learning_hint_settings_catalog_cents'] = '<p>Здесь можно выбрать, запятой или точкой разделяются копейки в стоимости товаров</p>';
 $lang['learning_hint_settings_catalog_thousands'] = '<p>Здесь можно выбрать как будут выглядеть большие цены в товарах</p>';
 $lang['learning_hint_settings_catalog_not_in_stock'] = '<p>Здесь можно выбрать что делать с товарами у которых задан 0 на складе. Перемещены в конец списка товары будут только в клиентской части. В админ. панели сортировка будет такая-же, как была. Товары, скрытые для отображения в каталоге будут доступы для клиентов и поисковых систем при переходе по прямой ссылке. </p>';
-$lang['learning_hint_settings_catalog_preorder_not_in_stock'] = '<p>Возможность предзаказа, если товар закончился. Если переключатель выключен, то будет отображаться что товар не в наличии и его нельзя будет заказать.</p>';
+$lang['learning_hint_settings_catalog_preorder_not_in_stock'] = '<p>Повністю вимикає перевірки залишку: активний товар можна замовити за будь-якої кількості. Коли цей перемикач увімкнено, статус "під замовлення" не використовується.</p>';
 $lang['learning_hint_settings_catalog_truncate_table'] = '<p> Бывает так что категории созданы, но товар к ним не добавлен, в таком случае мы можем их скрыть.</p>';
 $lang['learning_hint_settings_catalog_watermark'] = '<p> В один клик можно очистить весь каталог товаров. С помощью этой кнопки можно быстро удалить демо-контент перед началом создания вашего магазина</p>';
 $lang['learning_hint_settings_catalog_finish'] = '<p>Вы прошли обучение и теперь сможете правильно настраивать каталог</p><p>Нажмите <strong>"Завершить"</strong> чтобы перейти к следующему уроку</p>';

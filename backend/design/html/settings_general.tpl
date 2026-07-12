@@ -84,10 +84,10 @@
                             </div>
                             <div class="mb-1">
                                 <select name="phone_default_format" class="selectpicker form-control" data-live-search="false">
-                                    <option value="{libphonenumber\PhoneNumberFormat::E164}" {if $settings->phone_default_format == libphonenumber\PhoneNumberFormat::E164}selected{/if}>{$phone_example|phone:libphonenumber\PhoneNumberFormat::E164}</option>
-                                    <option value="{libphonenumber\PhoneNumberFormat::INTERNATIONAL}" {if $settings->phone_default_format == libphonenumber\PhoneNumberFormat::INTERNATIONAL}selected{/if}>{$phone_example|phone:libphonenumber\PhoneNumberFormat::INTERNATIONAL}</option>
-                                    <option value="{libphonenumber\PhoneNumberFormat::NATIONAL}" {if $settings->phone_default_format == libphonenumber\PhoneNumberFormat::NATIONAL}selected{/if}>{$phone_example|phone:libphonenumber\PhoneNumberFormat::NATIONAL}</option>
-                                    <option value="{libphonenumber\PhoneNumberFormat::RFC3966}" {if $settings->phone_default_format == libphonenumber\PhoneNumberFormat::RFC3966}selected{/if}>{$phone_example|phone:libphonenumber\PhoneNumberFormat::RFC3966}</option>
+                                    <option value="0" {if $settings->phone_default_format == '0'}selected{/if}>{$phone_example|phone:0}</option>
+                                    <option value="1" {if $settings->phone_default_format == '1'}selected{/if}>{$phone_example|phone:1}</option>
+                                    <option value="2" {if $settings->phone_default_format == '2'}selected{/if}>{$phone_example|phone:2}</option>
+                                    <option value="3" {if $settings->phone_default_format == '3'}selected{/if}>{$phone_example|phone:3}</option>
                                 </select>
                             </div>
                         </div>

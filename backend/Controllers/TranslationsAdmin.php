@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Core\Languages;
 use Okay\Core\TemplateConfig\FrontTemplateConfig;
@@ -11,14 +9,13 @@ use Okay\Entities\TranslationsEntity;
 
 class TranslationsAdmin extends IndexAdmin
 {
-    
     public function fetch(
         TranslationsEntity $translationsEntity,
         FrontTemplateConfig $frontTemplateConfig,
         LanguagesEntity $languagesEntity,
         Languages $languagesCore
     ) {
-        
+
         $lockedTheme = is_file('design/' . $frontTemplateConfig->getTheme() . '/locked');
         $this->design->assign('locked_theme', $lockedTheme);
 
@@ -27,12 +24,11 @@ class TranslationsAdmin extends IndexAdmin
             // Действия с выбранными
             $ids = $this->request->post('check');
             if (is_array($ids)) {
-                switch($this->request->post('action')) {
-                    case 'delete': {
+                switch ($this->request->post('action')) {
+                    case 'delete':
                         /*Удалить перевод*/
                         $translationsEntity->delete($ids);
                         break;
-                    }
                 }
             }
         }
@@ -60,11 +56,10 @@ class TranslationsAdmin extends IndexAdmin
                 }
             }
         }
-        
-        $this->design->assign('current_translations',  $currentTranslations);
-        $this->design->assign('all_translations',      $allTranslations);
+
+        $this->design->assign('current_translations', $currentTranslations);
+        $this->design->assign('all_translations', $allTranslations);
 
         $this->response->setContent($this->design->fetch('translations.tpl'));
     }
-    
 }

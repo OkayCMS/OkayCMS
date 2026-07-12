@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Okay\Core\Modules;
 
 use Okay\Core\Config;
@@ -9,7 +8,6 @@ use Okay\Core\Modules\DTO\LicenseDTO;
 use Okay\Core\QueryFactory;
 use Okay\Core\Request;
 use Okay\Entities\ModulesEntity;
-
 
 class LicenseModulesTemplates
 {
@@ -43,8 +41,7 @@ class LicenseModulesTemplates
         Config $config,
         LicenseStorage $licenseStorage,
         string $rootDir
-    )
-    {
+    ) {
         $this->queryFactory = $queryFactory;
         $this->db = $database;
         $this->config = $config;
@@ -77,6 +74,7 @@ class LicenseModulesTemplates
             $templateRequest
         );
         $url = $this->config->get('marketplace_url') . 'api/v2/modules/access/user';
+        $this->ensureSession();
         $retryCnt = $_SESSION['request_timeout_try_cnt'] ?? 0;
 
         if (time() > ($_SESSION['request_timeout'] ?? 0) && ($response = $this->request($url, $request))) {
@@ -102,8 +100,8 @@ class LicenseModulesTemplates
             if ($retryCnt < self::MAX_RETRY) {
                 $retryCnt++;
             }
-            $_SESSION['request_timeout'] = time() + (self::REQUEST_TIMEOUT * $_SESSION['request_timeout_try_cnt']);
             $_SESSION['request_timeout_try_cnt'] = $retryCnt;
+            $_SESSION['request_timeout'] = time() + (self::REQUEST_TIMEOUT * $retryCnt);
         }
 
         return null;
@@ -111,14 +109,20 @@ class LicenseModulesTemplates
 
     public function clearRequestRetry()
     {
+        $this->ensureSession();
         unset($_SESSION['request_timeout_try_cnt']);
         unset($_SESSION['request_timeout']);
+    }
+    private function ensureSession(): void
+    {
+        $_SESSION ??= [];
     }
 
     public function isLicensedModule(string $vendor, string $moduleName): bool
     {
         if ($this->licenseDTO && !is_null($this->licenseDTO->getModulesLicenses())) {
-            $moduleHash = md5(sprintf('%s/%s/%s',
+            $moduleHash = md5(sprintf(
+                '%s/%s/%s',
                 Request::getDomain(),
                 $vendor,
                 $moduleName
@@ -135,7 +139,8 @@ class LicenseModulesTemplates
     public function isOfficialModule(string $vendor, string $moduleName): bool
     {
         if ($this->licenseDTO) {
-            $module = sprintf('%s/%s',
+            $module = sprintf(
+                '%s/%s',
                 $vendor,
                 $moduleName
             );
@@ -216,16 +221,25 @@ class LicenseModulesTemplates
         }
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function emailRequest(): array
     {
         return ['email' => $this->licenseEmail];
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function domainRequest(): array
     {
         return ['domain' => Request::getDomain()];
     }
 
+    /**
+     * @return array<string, list<string>>
+     */
     private function vendorNameRequest(): array
     {
         $select = $this->queryFactory->newSelect()
@@ -243,14 +257,19 @@ class LicenseModulesTemplates
         return ['modules' => $modules];
     }
 
+    /**
+     * @return array<string, array<string, string>>
+     */
     private function templateRequest(): array
     {
         $templateRequestModules = [];
 
         $imagePath = $this->themesDir . $this->themeName . DIRECTORY_SEPARATOR . 'preview.png';
         if (is_file($imagePath)) {
-            $contentPng = base64_encode(file_get_contents($imagePath));
-            $templateRequestModules['preview.png'] = $contentPng;
+            $contentPng = file_get_contents($imagePath);
+            if (is_string($contentPng)) {
+                $templateRequestModules['preview.png'] = base64_encode($contentPng);
+            }
         }
 
         $folderPath = $this->themesDir . $this->themeName . DIRECTORY_SEPARATOR . 'html';
@@ -267,12 +286,21 @@ class LicenseModulesTemplates
         return ['template' => $templateRequestModules];
     }
 
+    /**
+     * @return list<string>
+     */
     private function getTplFiles($folderPath, $subFolder = ''): array
     {
         $tplFiles = [];
 
+        if (!is_dir($folderPath)) {
+            return $tplFiles;
+        }
         // Получить список файлов и папок
         $files = scandir($folderPath);
+        if ($files === false) {
+            return $tplFiles;
+        }
 
         // Перебор полученных файлов и папок
         foreach ($files as $file) {
@@ -303,6 +331,9 @@ class LicenseModulesTemplates
     {
         // Отримання вмісту файлу
         $fileContent = file_get_contents($filePath);
+        if (!is_string($fileContent)) {
+            return '';
+        }
 
         // Отримання останніх символів
         $fileContent = substr($fileContent, -self::END_FILE_LENGTH);
@@ -311,8 +342,15 @@ class LicenseModulesTemplates
         return str_replace([" ", "\n", "\r"], '', $fileContent);
     }
 
+    /**
+     * @param array<string, mixed> $request
+     */
     private function request(string $url, array $request = [])
     {
+        if ($url === '') {
+            return false;
+        }
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
@@ -322,16 +360,22 @@ class LicenseModulesTemplates
 
         if (!empty($request)) {
             curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($request));
+            $jsonRequest = json_encode($request);
+            if (!is_string($jsonRequest)) {
+                return false;
+            }
+
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonRequest);
         }
 
         $result = curl_exec($ch);
         if (curl_errno($ch)) {
-            curl_close($ch);
             return false;
         }
 
-        curl_close($ch);
+        if (!is_string($result)) {
+            return false;
+        }
 
         $result = json_decode($result);
         if (json_last_error() === JSON_ERROR_NONE) {

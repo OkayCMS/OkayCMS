@@ -1,10 +1,9 @@
 <?php
 
-
 namespace Okay\Admin\Helpers;
 
-
 use Okay\Core\EntityFactory;
+use Okay\Core\Export\CsvExportWriter;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Request;
 use Okay\Entities\BrandsEntity;
@@ -57,9 +56,13 @@ class BackendExportHelper
      */
     private $request;
 
+    /**
+     * @var CsvExportWriter
+     */
+    private $csvExportWriter;
 
 
-    public function __construct(EntityFactory $entityFactory, Request $request)
+    public function __construct(EntityFactory $entityFactory, Request $request, CsvExportWriter $csvExportWriter)
     {
         $this->productsEntity       = $entityFactory->get(ProductsEntity::class);
         $this->variantsEntity       = $entityFactory->get(VariantsEntity::class);
@@ -69,6 +72,7 @@ class BackendExportHelper
         $this->featuresEntity       = $entityFactory->get(FeaturesEntity::class);
         $this->featuresValuesEntity = $entityFactory->get(FeaturesValuesEntity::class);
         $this->request              = $request;
+        $this->csvExportWriter      = $csvExportWriter;
     }
 
     public function getColumnsNames()
@@ -113,6 +117,29 @@ class BackendExportHelper
         return ExtenderFacade::execute(__METHOD__, $params, func_get_args());
     }
 
+    /**
+     * Open export CSV for append; fail fast with a clear error instead of passing false to fputcsv().
+     *
+     * @return resource
+     *
+     * @throws \RuntimeException
+     */
+    private function openExportAppendStream(string $exportFilesDir, string $filename, string $format = CsvExportWriter::FORMAT_UTF8)
+    {
+        return $this->csvExportWriter->openAppendStream($exportFilesDir, $filename, $format);
+    }
+
+    private function exportFormat(): string
+    {
+        $format = $this->request->get('format');
+
+        if (!is_string($format)) {
+            return CsvExportWriter::FORMAT_UTF8;
+        }
+
+        return $this->csvExportWriter->normalizeFormat($format);
+    }
+
     public function setUp($exportFilesDir, $filename, &$columnsNames, $columnDelimiter, $productsCount)
     {
         session_write_close();
@@ -120,14 +147,15 @@ class BackendExportHelper
         unset($_SESSION['admin_lang_id']);
 
         $page = $this->request->get('page');
-        if(empty($page) || $page==1) {
+        if (empty($page) || $page == 1) {
             $page = 1;
-            if(is_writable($exportFilesDir.$filename)) {
-                unlink($exportFilesDir.$filename);
+            if (is_writable($exportFilesDir . $filename)) {
+                unlink($exportFilesDir . $filename);
             }
         }
 
-        $f = fopen($exportFilesDir.$filename, 'ab');
+        $format = $this->exportFormat();
+        $f = $this->openExportAppendStream($exportFilesDir, $filename, $format);
 
         $filter = ['page' => $page, 'limit' => $productsCount];
         $featuresFilter = [];
@@ -142,12 +170,12 @@ class BackendExportHelper
 
         $featuresFilter['limit'] = $this->featuresEntity->count($featuresFilter);
         $features = $this->featuresEntity->find($featuresFilter);
-        foreach($features as $feature) {
+        foreach ($features as $feature) {
             $columnsNames[$feature->name] = $feature->name;
         }
 
-        if($page == 1) {
-            fputcsv($f, $columnsNames, $columnDelimiter);
+        if ($page == 1) {
+            $this->csvExportWriter->writeRow($f, $columnsNames, $columnDelimiter, $format);
         }
 
         fclose($f);
@@ -157,7 +185,7 @@ class BackendExportHelper
     public function fetchProducts($filter)
     {
         $products = array();
-        foreach($this->productsEntity->find($filter) as $p) {
+        foreach ($this->productsEntity->find($filter) as $p) {
             $products[$p->id] = (array) $p;
         }
 
@@ -166,7 +194,7 @@ class BackendExportHelper
 
     public function attachFeatures($products, $valuesDelimiter)
     {
-        $productsIds = array_keys($products);
+        $productsIds = array_map('intval', array_keys($products));
 
         $featuresValues = [];
         foreach ($this->featuresValuesEntity->find(['product_id' => $productsIds]) as $fv) {
@@ -175,21 +203,22 @@ class BackendExportHelper
 
         $productsValues = [];
         foreach ($this->featuresValuesEntity->getProductValuesIds($productsIds) as $pv) {
+            /** @var object{product_id: int|string, value_id: int|string}&\stdClass $pv */
             $productsValues[$pv->product_id][$pv->value_id] = $pv->value_id;
         }
 
-        foreach($products as $pId=>&$product) {
+        foreach ($products as $pId => &$product) {
             if (isset($productsValues[$pId])) {
                 $productFeatureValues = [];
-                foreach($productsValues[$pId] as $valueId) {
-                    if(isset($featuresValues[$valueId])) {
+                foreach ($productsValues[$pId] as $valueId) {
+                    if (isset($featuresValues[$valueId])) {
                         $feature = $featuresValues[$valueId];
                         $tempFeature = $this->featuresEntity->get(intval($feature->feature_id));
                         $productFeatureValues[$tempFeature->name][] = str_replace(',', '.', trim($feature->value));
                     }
                 }
 
-                foreach ($productFeatureValues as $featureName=>$values) {
+                foreach ($productFeatureValues as $featureName => $values) {
                     $product[$featureName] = implode($valuesDelimiter, $values);
                 }
             }
@@ -200,16 +229,16 @@ class BackendExportHelper
 
     public function attachCategories($products, $subcategoryDelimiter)
     {
-        foreach($products as $pId => &$product) {
+        foreach ($products as $pId => &$product) {
             $categories = [];
             $cats = $this->categoriesEntity->getProductCategories($pId);
-            foreach($cats as $category) {
+            foreach ($cats as $category) {
                 $path = [];
                 $cat = $this->categoriesEntity->get((int)$category->category_id);
-                if(!empty($cat)) {
+                if (!empty($cat)) {
                     // Вычисляем составляющие категории
-                    foreach($cat->path as $p) {
-                        $path[] = str_replace($subcategoryDelimiter, '\\'.$subcategoryDelimiter, $p->name);
+                    foreach ($cat->path as $p) {
+                        $path[] = str_replace($subcategoryDelimiter, '\\' . $subcategoryDelimiter, $p->name);
                     }
                     // Добавляем категорию к товару
                     $categories[] = implode('/', $path);
@@ -224,12 +253,12 @@ class BackendExportHelper
     public function attachImages($products)
     {
         $images = $this->imagesEntity->find(['product_id' => array_keys($products)]);
-        foreach($images as $image) {
+        foreach ($images as $image) {
             // Добавляем изображения к товару чезер запятую
-            if(empty($products[$image->product_id]['images'])) {
+            if (empty($products[$image->product_id]['images'])) {
                 $products[$image->product_id]['images'] = $image->filename;
             } else {
-                $products[$image->product_id]['images'] .= ', '.$image->filename;
+                $products[$image->product_id]['images'] .= ', ' . $image->filename;
             }
         }
 
@@ -238,7 +267,7 @@ class BackendExportHelper
 
     public function fetchVariants($products)
     {
-        $variants = $this->variantsEntity->find(['product_id'=>array_keys($products)]);
+        $variants = $this->variantsEntity->find(['product_id' => array_keys($products)]);
         return ExtenderFacade::execute(__METHOD__, $variants, func_get_args());
     }
 
@@ -253,7 +282,7 @@ class BackendExportHelper
         $v['weight']          = $variant->weight;
         $v['units']           = $variant->units;
         $v['currency']        = $variant->currency_id;
-        if($variant->infinity) {
+        if ($variant->infinity) {
             $v['stock']       = '';
         }
 
@@ -264,11 +293,11 @@ class BackendExportHelper
     {
         $allBrands = [];
         $brandsCount = $this->brandsEntity->count();
-        foreach ($this->brandsEntity->find(['limit'=>$brandsCount]) as $b) {
+        foreach ($this->brandsEntity->find(['limit' => $brandsCount]) as $b) {
             $allBrands[$b->id] = $b;
         }
 
-        foreach($products as &$product) {
+        foreach ($products as &$product) {
             if ($product['brand_id'] && isset($allBrands[$product['brand_id']])) {
                 $product['brand'] = $allBrands[$product['brand_id']]->name;
             }
@@ -277,30 +306,31 @@ class BackendExportHelper
         return ExtenderFacade::execute(__METHOD__, $products, func_get_args());
     }
 
-    public function exportRun($exportFilesDir, $filename,  $products, $filter, $columnsNames, $columnDelimiter, $productsCount, $page)
+    public function exportRun($exportFilesDir, $filename, $products, $filter, $columnsNames, $columnDelimiter, $productsCount, $page)
     {
-        $f = fopen($exportFilesDir.$filename, 'ab');
+        $format = $this->exportFormat();
+        $f = $this->openExportAppendStream($exportFilesDir, $filename, $format);
 
-        foreach($products as &$product) {
-            if(isset($product['variants'])) {
+        foreach ($products as &$product) {
+            if (isset($product['variants'])) {
                 $variants = $product['variants'];
                 unset($product['variants']);
 
-                foreach($variants as $variant) {
+                foreach ($variants as $variant) {
                     $res = [];
                     $result =  $product;
-                    foreach($variant as $name=>$value) {
-                        $result[$name]=$value;
+                    foreach ($variant as $name => $value) {
+                        $result[$name] = $value;
                     }
 
-                    foreach($columnsNames as $internalName=>$columnName) {
-                        if(isset($result[$internalName])) {
+                    foreach ($columnsNames as $internalName => $columnName) {
+                        if (isset($result[$internalName])) {
                             $res[$internalName] = str_replace(["\r\n", "\r", "\n"], '', $result[$internalName]);
                         } else {
                             $res[$internalName] = '';
                         }
                     }
-                    fputcsv($f, $res, $columnDelimiter);
+                    $this->csvExportWriter->writeRow($f, $res, $columnDelimiter, $format);
                 }
             }
         }
@@ -309,24 +339,16 @@ class BackendExportHelper
         fclose($f);
 
         if ($productsCount * $page < $totalProducts) {
-            return ['end' => false, 'page' => $page, 'totalpages' => $totalProducts/$productsCount];
+            return ['end' => false, 'page' => $page, 'totalpages' => $totalProducts / $productsCount];
         }
 
-        $data = ['end' => true, 'page' => $page, 'totalpages' => $totalProducts/$productsCount];
-
-        mb_substitute_character('none');
-        file_put_contents(
-            $exportFilesDir.$filename,
-            mb_convert_encoding(file_get_contents($exportFilesDir.$filename), 'Windows-1251')
-        );
-
-        return $data;
+        return ['end' => true, 'page' => $page, 'totalpages' => $totalProducts / $productsCount];
     }
 
     public function getBrandsForExportFilter($brandsCount)
     {
         $brands = [];
-        $brands = $this->brandsEntity->find(['limit'=>$brandsCount]);
+        $brands = $this->brandsEntity->find(['limit' => $brandsCount]);
         return ExtenderFacade::execute(__METHOD__, $brands, func_get_args());
     }
 
@@ -336,5 +358,4 @@ class BackendExportHelper
         $categories = $this->categoriesEntity->getCategoriesTree();
         return ExtenderFacade::execute(__METHOD__, $categories, func_get_args());
     }
-
 }

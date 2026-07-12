@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Routes\Strategies\Post;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Routes\PostRoute;
@@ -50,7 +48,7 @@ class NoPrefixAndCategoryStrategy extends AbstractRouteStrategy
         } elseif ($route = PostRoute::getUrlSlugAlias($url)) {// Может уже указали для этого урла его slug
             return $route;
         } elseif (PostRoute::getUseSqlToGenerate() === false) {// Если запретили выполнять запросы для генерации урла
-            $this->logger->notice('For generate route to post "'.$url.'" need execute SQL query. Or set url through "Okay\Core\Routes\PostRoute::setUrlSlugAlias()"');
+            $this->logger->notice('For generate route to post "' . $url . '" need execute SQL query. Or set url through "Okay\Core\Routes\PostRoute::setUrlSlugAlias()"');
             return '';
         }
 
@@ -64,15 +62,17 @@ class NoPrefixAndCategoryStrategy extends AbstractRouteStrategy
         if ($route = PostRoute::getUrlSlugAlias($url)) {
             return $route;
         }
-        
+
         $post = $this->blogEntity->findOne(['url' => $url]);
 
+        /** @var object{url: string, main_category_id?: int|string|null}&\stdClass $post */
         $slug = $post->url;
         if (empty($post->main_category_id)) {
-            $this->logger->warning('Missing "main_category_id" for post "'.$url.'"');
+            $this->logger->warning('Missing "main_category_id" for post "' . $url . '"');
         } else {
             $category = $this->categoriesEntity->findOne(['id' => $post->main_category_id]);
-            $slug = $category->url.'/'.$post->url;
+            /** @var object{url: string}&\stdClass $category */
+            $slug = $category->url . '/' . $post->url;
         }
 
         // Запоминаем в оперативке slug для этого урла
@@ -84,7 +84,7 @@ class NoPrefixAndCategoryStrategy extends AbstractRouteStrategy
             'slug_url' => $slug,
             'type' => 'post',
         ]);
-        
+
         return $slug;
     }
 
@@ -105,7 +105,13 @@ class NoPrefixAndCategoryStrategy extends AbstractRouteStrategy
         }
 
         $post = $this->blogEntity->findOne(['url' => $postUrl]);
-        if (empty($post) || $category->id !== $post->main_category_id) {
+        if (empty($post)) {
+            return $this->mockRouteParams;
+        }
+
+        /** @var object{id: int|string}&\stdClass $category */
+        /** @var object{main_category_id: int|string}&\stdClass $post */
+        if ($category->id !== $post->main_category_id) {
             return $this->mockRouteParams;
         }
 

@@ -22,11 +22,12 @@ class Scheduler
     /** @var Task[] */
     private $tasks = [];
 
-    public function __construct($loggerDir) {
+    public function __construct($loggerDir)
+    {
         $this->lockFactory = new LockFactory(new FlockStore());
 
         $logger = new Logger('Scheduler');
-        $logger->pushHandler(new RotatingFileHandler($loggerDir.'/scheduler/scheduler.log', 10));
+        $logger->pushHandler(new RotatingFileHandler($loggerDir . '/scheduler/scheduler.log', 10));
         $this->pushLogger($logger);
     }
 
@@ -39,6 +40,7 @@ class Scheduler
     public function run(bool $force = false): void
     {
         $subProcesses = [];
+        $startedTasks = 0;
         foreach ($this->tasks as $key => $task) {
             if ($task->isDue() || $force) {
                 $command = [PHP_BINARY, 'ok', 'scheduler:task', $task->getId()];
@@ -48,18 +50,26 @@ class Scheduler
 
                 $subProcesses[$key]['process'] = $process = new Process($command);
                 $subProcesses[$key]['time'] = $this->info("Task #{$task->getId()} ({$task->getName()}): Start");
+                $startedTasks++;
 
                 $process
                     ->setTimeout($task->getTimeout())
                     ->start(function ($type, $buffer) {
                         echo $buffer;
-                });
+                    });
             }
+        }
+
+        if ($startedTasks === 0) {
+            $this->info($this->tasks === [] ? 'No scheduled tasks registered' : 'No scheduled tasks due');
         }
 
         $this->waitForProcesses($subProcesses);
     }
 
+    /**
+     * @param array<int, array{process: Process, time: string}> $subProcesses
+     */
     private function waitForProcesses(array $subProcesses): void
     {
         while (!empty($subProcesses)) {
@@ -95,6 +105,9 @@ class Scheduler
         }
     }
 
+    /**
+     * @return array<int, Task>
+     */
     public function getTasks(): array
     {
         return $this->tasks;
@@ -105,6 +118,9 @@ class Scheduler
         $this->loggers[] = $logger;
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     private function info(string $message, array $context = []): string
     {
         $time = date('Y-m-d H:i:s');

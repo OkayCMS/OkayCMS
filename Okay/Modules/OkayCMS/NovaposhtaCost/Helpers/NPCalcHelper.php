@@ -9,6 +9,11 @@ use Okay\Entities\CurrenciesEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\VO\NPCalcVO;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @phpstan-type CurrencyRow object{id: int|string}&\stdClass
+ * @phpstan-type PriceApiResponse object{success?: bool, data: list<object{Cost: int|float|string, CostRedelivery?: int|float|string|null}&\stdClass>}&\stdClass
+ * @phpstan-type TermApiResponse object{success?: bool, data: list<object{DeliveryDate: object{date: string}&\stdClass}&\stdClass>}&\stdClass
+ */
 class NPCalcHelper
 {
     private EntityFactory $entityFactory;
@@ -18,9 +23,9 @@ class NPCalcHelper
 
     public function __construct(
         EntityFactory $entityFactory,
-        NPApiHelper   $apiHelper,
-        Settings      $settings,
-        Money         $money
+        NPApiHelper $apiHelper,
+        Settings $settings,
+        Money $money
     ) {
         $this->entityFactory = $entityFactory;
         $this->apiHelper = $apiHelper;
@@ -42,8 +47,7 @@ class NPCalcHelper
         bool $redelivery,
         NPCalcVO $calcVO,
         string $serviceType
-    ): ?int
-    {
+    ): ?int {
         if (empty($cityRef)) {
             return false;
         }
@@ -54,6 +58,7 @@ class NPCalcHelper
         if (!$npCurrency = $currenciesEntity->findOne(['code' => 'UAH'])) {
             $npCurrency = $currenciesEntity->getMainCurrency();
         }
+        /** @var CurrencyRow $npCurrency */
 
         $methodProperties = [
             'CitySender' => $this->settings->get('newpost_city'),
@@ -62,7 +67,7 @@ class NPCalcHelper
             'ServiceType' => $serviceType,
         ];
 
-        if ($this->settings->get('newpost_use_volume')){
+        if ($this->settings->get('newpost_use_volume')) {
             $methodProperties = array_merge($methodProperties, [
                 'VolumeGeneral' => $calcVO->getTotalVolume()
             ]);
@@ -72,7 +77,7 @@ class NPCalcHelper
         if ($this->settings->get('newpost_use_assessed_value')) {
             $cost = $this->money->convert($calcVO->getTotalPrice(), $npCurrency->id, false);
             $methodProperties = array_merge($methodProperties, [
-                'Cost' => max(1, round($cost))
+                'Cost' => max(1, round((float)$cost))
             ]);
         }
 
@@ -83,7 +88,7 @@ class NPCalcHelper
             $methodProperties = array_merge($methodProperties, [
                 'RedeliveryCalculate' => [
                     'CargoType' => 'Money',
-                    'Amount' => round($redeliveryAmount),
+                    'Amount' => round((float)$redeliveryAmount),
                 ],
             ]);
         }
@@ -95,9 +100,10 @@ class NPCalcHelper
         ];
 
         $response = $this->apiHelper->request($request);
+        /** @var PriceApiResponse|false $response */
 
         if (!empty($response->success)) {
-            return (int)($response->data[0]->Cost + ($response->data[0]->CostRedelivery ?? 0));
+            return (int)((float)$response->data[0]->Cost + (float)($response->data[0]->CostRedelivery ?? 0));
         }
 
         return null;
@@ -126,6 +132,7 @@ class NPCalcHelper
         ];
 
         $response = $this->apiHelper->request($request);
+        /** @var TermApiResponse|false $response */
         if (!empty($response->success)) {
             $term = strtotime($response->data[0]->DeliveryDate->date);
 

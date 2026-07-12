@@ -1,22 +1,19 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 use Okay\Core\Entity\Entity;
 use Psr\Log\LoggerInterface;
 
 class EntityFactory
 {
-
     /**
      * @var LoggerInterface
      */
     private $logger;
-    
+
     private static $objects = [];
-    
+
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
@@ -40,21 +37,21 @@ class EntityFactory
     }
 
     private function create($class)
-    {   
+    {
         if ($this->hasEntity($class)) {
             return new $class();
         }
 
         throw new \Exception("Entity '{$class}' not exists");
     }
-    
-    private function hasEntity($class) {
+
+    private function hasEntity($class)
+    {
         if (!class_exists($class)) {
             $this->logger->critical("Entity '{$class}' not exists");
             return false;
         }
-        
+
         return true;
     }
-    
 }

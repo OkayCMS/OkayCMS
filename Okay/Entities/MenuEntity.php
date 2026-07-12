@@ -1,16 +1,13 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 
 class MenuEntity extends Entity
 {
-
-    const MENU_VAR_PREFIX = "menu_";
+    public const MENU_VAR_PREFIX = "menu_";
 
     protected static $fields = [
         'id',
@@ -35,7 +32,7 @@ class MenuEntity extends Entity
         $menus = parent::find($filter);
         if (!empty($menus)) {
             foreach ($menus as $menu) {
-                $menu->var = '{$'.self::MENU_VAR_PREFIX.$menu->group_id."}";
+                $menu->var = '{$' . self::MENU_VAR_PREFIX . $menu->group_id . "}";
             }
         }
         return $menus;
@@ -49,7 +46,7 @@ class MenuEntity extends Entity
 
         $menu = parent::get($id);
         if (!empty($menu)) {
-            $menu->var = '{$'.self::MENU_VAR_PREFIX.$menu->group_id."}";
+            $menu->var = '{$' . self::MENU_VAR_PREFIX . $menu->group_id . "}";
         }
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], $menu, func_get_args());
@@ -73,5 +70,4 @@ class MenuEntity extends Entity
 
         return parent::delete($ids);
     }
-
 }

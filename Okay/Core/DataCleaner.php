@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 use Okay\Entities\AuthorsEntity;
 use Okay\Entities\BlogCategoriesEntity;
@@ -19,6 +17,7 @@ use Okay\Entities\PurchasesEntity;
 use Okay\Entities\CategoriesEntity;
 use Okay\Entities\FeaturesValuesEntity;
 use Okay\Entities\FeaturesAliasesValuesEntity;
+use Okay\Core\Filesystem\KeepFolderDirectoryCleaner;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 
 class DataCleaner
@@ -37,20 +36,28 @@ class DataCleaner
      * @var QueryFactory
      */
     private $queryFactory;
-    
-    public function __construct(Database $database, Config $config, QueryFactory $queryFactory)
-    {
+
+    /** @var KeepFolderDirectoryCleaner */
+    private $keepFolderDirectoryCleaner;
+
+    public function __construct(
+        Database $database,
+        Config $config,
+        QueryFactory $queryFactory,
+        KeepFolderDirectoryCleaner $keepFolderDirectoryCleaner
+    ) {
         $this->db           = $database;
         $this->config       = $config;
         $this->queryFactory = $queryFactory;
+        $this->keepFolderDirectoryCleaner = $keepFolderDirectoryCleaner;
     }
 
     public function clearCatalogData()
     {
-        $sql = $this->queryFactory->newSqlQuery()->setStatement("DELETE FROM ".CommentsEntity::getTable()." WHERE `type`='product'");
+        $sql = $this->queryFactory->newSqlQuery()->setStatement("DELETE FROM " . CommentsEntity::getTable() . " WHERE `type`='product'");
         $this->db->query($sql);
 
-        $sql = $this->queryFactory->newSqlQuery()->setStatement("UPDATE ".PurchasesEntity::getTable()." SET `product_id`=0, `variant_id`=0");
+        $sql = $this->queryFactory->newSqlQuery()->setStatement("UPDATE " . PurchasesEntity::getTable() . " SET `product_id`=0, `variant_id`=0");
         $this->db->query($sql);
 
         $this->truncateTable(CategoriesEntity::getTable());
@@ -89,7 +96,7 @@ class DataCleaner
 
     public function clearCategoryData()
     {
-        $sql = $this->queryFactory->newSqlQuery()->setStatement("UPDATE ".ProductsEntity::getTable()." SET `main_category_id`=null");
+        $sql = $this->queryFactory->newSqlQuery()->setStatement("UPDATE " . ProductsEntity::getTable() . " SET `main_category_id`=null");
         $this->db->query($sql);
 
         $this->truncateTable(CategoriesEntity::getTable());
@@ -101,7 +108,7 @@ class DataCleaner
 
     public function clearBrandsData()
     {
-        $sql = $this->queryFactory->newSqlQuery()->setStatement("UPDATE ".ProductsEntity::getTable()." SET `brand_id`=0");
+        $sql = $this->queryFactory->newSqlQuery()->setStatement("UPDATE " . ProductsEntity::getTable() . " SET `brand_id`=0");
         $this->db->query($sql);
 
         $this->truncateTable(BrandsEntity::getTable());
@@ -112,10 +119,10 @@ class DataCleaner
 
     public function clearProductVariantData()
     {
-        $sql = $this->queryFactory->newSqlQuery()->setStatement("DELETE FROM ".CommentsEntity::getTable()." WHERE `type`='product'");
+        $sql = $this->queryFactory->newSqlQuery()->setStatement("DELETE FROM " . CommentsEntity::getTable() . " WHERE `type`='product'");
         $this->db->query($sql);
 
-        $sql = $this->queryFactory->newSqlQuery()->setStatement("UPDATE ".PurchasesEntity::getTable()." SET `product_id`=0, `variant_id`=0");
+        $sql = $this->queryFactory->newSqlQuery()->setStatement("UPDATE " . PurchasesEntity::getTable() . " SET `product_id`=0, `variant_id`=0");
         $this->db->query($sql);
 
         $this->truncateTable(ProductsEntity::getTable());
@@ -252,14 +259,10 @@ class DataCleaner
         if (empty($dir)) {
             return false;
         }
-        if ($handle = opendir($dir)) {
-            while (false !== ($file = readdir($handle))) {
-                if ($file != "." && $file != ".." && $file != '.keep_folder' && $file != '.htaccess') {
-                    @unlink($dir."/".$file);
-                }
-            }
-            closedir($handle);
-        }
+
+        $this->keepFolderDirectoryCleaner->clearDirectory(rtrim((string) $dir, '/'));
+
+        return true;
     }
 
     private function truncateTable($table)
@@ -268,5 +271,4 @@ class DataCleaner
         $sql->setStatement("TRUNCATE TABLE $table");
         $this->db->query($sql);
     }
-    
 }

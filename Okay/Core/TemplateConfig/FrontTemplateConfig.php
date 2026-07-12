@@ -1,14 +1,13 @@
 <?php
 
-
 namespace Okay\Core\TemplateConfig;
-
 
 use DebugBar\JavascriptRenderer;
 use Okay\Core\BackendTranslations;
 use Okay\Core\Config;
 use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\Design;
+use Okay\Core\Filesystem\KeepFolderDirectoryCleaner;
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\Module;
 use Okay\Core\Modules\Modules;
@@ -20,12 +19,12 @@ use Psr\Log\LoggerInterface;
 
 class FrontTemplateConfig
 {
-    const TYPE_JS = 'js';
-    const TYPE_CSS = 'css';
+    public const TYPE_JS = 'js';
+    public const TYPE_CSS = 'css';
 
     private $rootDir;
     private $scriptsDefer;
-    
+
     private $themeSettingsFileName;
     private $theme;
     private $adminTheme;
@@ -39,7 +38,10 @@ class FrontTemplateConfig
     private $config;
     private $jsConfig;
     private $cssConfig;
-    
+
+    /** @var KeepFolderDirectoryCleaner */
+    private $keepFolderDirectoryCleaner;
+
     private $headCssFilename;
     private $headIndividualCssFilenames;
     private $headJsFilename;
@@ -54,6 +56,7 @@ class FrontTemplateConfig
         Module $module,
         Settings $settings,
         Config $config,
+        KeepFolderDirectoryCleaner $keepFolderDirectoryCleaner,
         $rootDir,
         $scriptsDefer,
         $themeSettingsFileName,
@@ -65,13 +68,14 @@ class FrontTemplateConfig
         $this->adminTheme = $settings->get('admin_theme');
         $this->adminThemeManagers = $settings->get('admin_theme_managers');
         $settingsFile = 'design/' . $this->getTheme() . '/css/' . $themeSettingsFileName;
-        
+
         $this->modules = $modules;
         $this->module = $module;
         $this->config = $config;
+        $this->keepFolderDirectoryCleaner = $keepFolderDirectoryCleaner;
         $this->jsConfig = new JsConfig();
         $this->cssConfig = new CssConfig($rootDir, $settingsFile);
-        
+
         $this->rootDir = $rootDir;
         $this->scriptsDefer = $scriptsDefer;
         $this->themeSettingsFileName = $themeSettingsFileName;
@@ -90,22 +94,20 @@ class FrontTemplateConfig
     public function __destruct()
     {
         // Инвалидация компилированных js и css файлов
-        $css = glob($this->rootDir . $this->compileCssDir . $this->getTheme() . ".*.css");
-        $cssMaps = glob($this->rootDir . $this->compileCssDir . $this->getTheme() . ".*.css.map");
-        $js = glob($this->rootDir . $this->compileJsDir . $this->getTheme() . ".*.js");
+        $css = glob($this->rootDir . $this->compileCssDir . $this->getTheme() . ".*.css") ?: [];
+        $cssMaps = glob($this->rootDir . $this->compileCssDir . $this->getTheme() . ".*.css.map") ?: [];
+        $js = glob($this->rootDir . $this->compileJsDir . $this->getTheme() . ".*.js") ?: [];
 
         $cacheFiles = array_merge($css, $cssMaps, $js);
-        if (is_array($cacheFiles)) {
-            foreach ($cacheFiles as $f) {
-                $fileTime = filemtime($f);
-                // Если файл редактировался более недели назад, удалим его, вероятнее всего он уже не нужен
-                if ($fileTime !== false && time() - $fileTime > 604800) {
-                    @unlink($f);
-                }
+        foreach ($cacheFiles as $f) {
+            $fileTime = filemtime($f);
+            // Если файл редактировался более недели назад, удалим его, вероятнее всего он уже не нужен
+            if ($fileTime !== false && time() - $fileTime > 604800) {
+                @unlink($f);
             }
         }
     }
-    
+
     public function getTheme()
     {
         // Если тема уже удалена, выключим её для админа
@@ -133,7 +135,7 @@ class FrontTemplateConfig
     /**
      * Метод возвращает все зарегистрированные css из активного шаблона, нужно чтобы в админке в редакторе их подставить
      *
-     * @return array
+     * @return list<string>
      */
     public function getRegisteredCss()
     {
@@ -167,7 +169,7 @@ class FrontTemplateConfig
 
         return $css;
     }
-    
+
     /**
      * Метод возвращает теги на подключение всех зарегистрированных js и css для блока head
      * @return string
@@ -239,7 +241,7 @@ class FrontTemplateConfig
                 }
             }
         }
-        
+
         // Подключаем динамический JS (scripts.tpl)
         $commonJsFile = "design/" . $this->getTheme() . "/html/common_js.tpl";
         if (is_file($commonJsFile)) {
@@ -289,9 +291,8 @@ class FrontTemplateConfig
         }
 
         return $head;
-
     }
-    
+
     /**
      * Метод возвращает теги на подключение всех зарегистрированных js и css для футера
      * @return string
@@ -316,7 +317,6 @@ class FrontTemplateConfig
         $footer = $this->getIncludeHtml(TC_POSITION_FOOTER);
 
         if (!empty($_SESSION['admin']) && ($manager = $managersEntity->get($_SESSION['admin']))) {
-
             $templatesDir = $design->getTemplatesDir();
             $compiledDir = $design->getCompiledDir();
 
@@ -334,7 +334,6 @@ class FrontTemplateConfig
             // Возвращаем настройки компилирования файлов smarty
             $design->setTemplatesDir($templatesDir);
             $design->setCompiledDir($compiledDir);
-
         }
 
         // Подключаем динамический JS (scripts.tpl)
@@ -358,20 +357,8 @@ class FrontTemplateConfig
 
     public function clearCompiled()
     {
-        $cache_directories = [
-            $this->compileCssDir,
-            $this->compileJsDir,
-        ];
-
-        foreach ($cache_directories as $dir) {
-            if (is_dir($dir)) {
-                foreach (scandir($dir) as $file) {
-                    if (!in_array($file, array(".", ".."))) {
-                        @unlink($dir . $file);
-                    }
-                }
-            }
-        }
+        $this->keepFolderDirectoryCleaner->clearDirectory($this->rootDir . rtrim($this->compileCssDir, '/'));
+        $this->keepFolderDirectoryCleaner->clearDirectory($this->rootDir . rtrim($this->compileJsDir, '/'));
     }
 
     public function getCssVariables()
@@ -416,8 +403,8 @@ class FrontTemplateConfig
         }
         return '';
     }
-    
-    
+
+
     public function compileFiles()
     {
         $this->registerTemplateFiles();
@@ -434,7 +421,7 @@ class FrontTemplateConfig
 
         // Подключаем дополнительные индивидуальные JS файлы
         $this->headIndividualJsFilenames = $this->jsConfig->compileRegisteredIndividual(TC_POSITION_HEAD, $this->compileJsDir, $this->getTheme());
-        
+
         // footer
         // Подключаем основной файл стилей
         $this->footerCssFilename = $this->cssConfig->compileRegistered(TC_POSITION_FOOTER, $this->compileCssDir, $this->getTheme());
@@ -447,9 +434,8 @@ class FrontTemplateConfig
 
         // Подключаем дополнительные индивидуальные JS файлы
         $this->footerIndividualJsFilenames = $this->jsConfig->compileRegisteredIndividual(TC_POSITION_FOOTER, $this->compileJsDir, $this->getTheme());
-        
     }
-    
+
     /**
      * @param string $position
      * @return string html для подключения js и css шаблона
@@ -459,7 +445,6 @@ class FrontTemplateConfig
     {
         $includeHtml = '';
         if (empty($position) || $position == TC_POSITION_HEAD) {
-            
             // Подключаем основной файл стилей
             if ($this->headCssFilename !== '') {
                 $includeHtml .= "<link href=\"{$this->headCssFilename}\" type=\"text/css\" rel=\"stylesheet\">" . PHP_EOL;
@@ -524,20 +509,20 @@ class FrontTemplateConfig
         return "<script src=\"{$filename}\"" .
             ($this->jsConfig->hasDefer($filename) ? " defer" : '') .
             $this->compileElementAttributes($this->jsConfig->getAttributes($filename)) .
-            "></script>".PHP_EOL;
+            "></script>" . PHP_EOL;
     }
 
     private function compileElementAttributes($attributes): string
     {
         if ($attributes) {
-            return ' '.implode(' ', array_map(function($attribute, $value) {
+            return ' ' . implode(' ', array_map(function ($attribute, $value) {
                     return "$attribute=\"$value\"";
-                }, array_keys($attributes), $attributes));
+            }, array_keys($attributes), $attributes));
         } else {
             return '';
         }
     }
-    
+
     private function checkFile($filename, $type, $dir = null)
     {
         // файлы по http регистрировать нельзя
@@ -548,7 +533,7 @@ class FrontTemplateConfig
         $file = $this->getFullPath($filename, $type, $dir);
         return (bool)file_exists($file);
     }
-    
+
     private function getFullPath($filename, $type, $dir = null)
     {
         $directory =  $this->rootDir;
@@ -559,7 +544,7 @@ class FrontTemplateConfig
         }
         return $directory . $filename;
     }
-    
+
     private function registerTemplateFiles()
     {
         if ($this->registeredTemplateFiles === true) {
@@ -589,7 +574,6 @@ class FrontTemplateConfig
 
         $runningModules = $this->modules->getRunningModules();
         foreach ($runningModules as $runningModule) {
-
             //  пропускаем не активированные модули
             if (empty($runningModule['is_active'])) {
                 continue;
@@ -632,10 +616,12 @@ class FrontTemplateConfig
     {
         /** @var JavascriptRenderer $debugBarRenderer */
         if ($debugBarRenderer = DebugBar::getRenderer()) {
+            $assets = $debugBarRenderer->getAssets($debugBarRenderer::RELATIVE_PATH);
+
             // Регистрируем css файлы из библиотеки
-            foreach ($debugBarRenderer->getAssets('css', $debugBarRenderer::RELATIVE_PATH) as $cssFilePath) {
+            foreach ($assets['css'] as $cssFilePath) {
                 $this->cssConfig->register(
-                    (new Css('debug_bar_'.pathinfo($cssFilePath, PATHINFO_BASENAME)))
+                    (new Css('debug_bar_' . pathinfo($cssFilePath, PATHINFO_BASENAME)))
                         ->setPosition('footer')
                         ->setIndividual(true),
                     $cssFilePath
@@ -643,9 +629,9 @@ class FrontTemplateConfig
             }
 
             // Регистрируем js файлы из библиотеки
-            foreach ($debugBarRenderer->getAssets('js', $debugBarRenderer::RELATIVE_PATH) as $jsFilePath) {
+            foreach ($assets['js'] as $jsFilePath) {
                 $this->jsConfig->register(
-                    (new Js('debug_bar_'.pathinfo($jsFilePath, PATHINFO_BASENAME)))
+                    (new Js('debug_bar_' . pathinfo($jsFilePath, PATHINFO_BASENAME)))
                         ->setPosition('footer')
                         ->setIndividual(true),
                     $jsFilePath
@@ -664,7 +650,7 @@ class FrontTemplateConfig
 
     /**
      * Метод возвращает путь к css файлу, с учетом того, что его моги переопределить в дизайне для кастомизации
-     * 
+     *
      * @param Css $cssItem
      * @param $module
      * @return string
@@ -674,8 +660,8 @@ class FrontTemplateConfig
     {
         $moduleThemesDir = $this->module->getModuleDirectory($module['vendor'], $module['module_name']) . 'design/';
 
-        $moduleInnerThemeCssDir = './design/'.$this->getTheme().'/modules/'.$module['vendor'].'/'.$module['module_name'].'/css';
-        if (file_exists($moduleInnerThemeCssDir.'/'.$cssItem->getFilename())) {
+        $moduleInnerThemeCssDir = './design/' . $this->getTheme() . '/modules/' . $module['vendor'] . '/' . $module['module_name'] . '/css';
+        if (file_exists($moduleInnerThemeCssDir . '/' . $cssItem->getFilename())) {
             return $moduleInnerThemeCssDir;
         }
 
@@ -684,7 +670,7 @@ class FrontTemplateConfig
 
     /**
      * Метод возвращает путь к js файлу, с учетом того, что его моги переопределить в дизайне для кастомизации
-     * 
+     *
      * @param Js $jsItem
      * @param $module
      * @return string
@@ -694,12 +680,11 @@ class FrontTemplateConfig
     {
         $moduleThemesDir = $this->module->getModuleDirectory($module['vendor'], $module['module_name']) . 'design/';
 
-        $moduleInnerThemeJsDir = './design/'.$this->getTheme().'/modules/'.$module['vendor'].'/'.$module['module_name'].'/js/';
-        if (file_exists($moduleInnerThemeJsDir.$jsItem->getFilename())) {
+        $moduleInnerThemeJsDir = './design/' . $this->getTheme() . '/modules/' . $module['vendor'] . '/' . $module['module_name'] . '/js/';
+        if (file_exists($moduleInnerThemeJsDir . $jsItem->getFilename())) {
             return $moduleInnerThemeJsDir;
         }
 
         return $moduleThemesDir . 'js/';
     }
-    
 }

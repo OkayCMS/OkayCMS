@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Helpers;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Routes\ProductRoute;
@@ -17,6 +15,13 @@ use Okay\Entities\FeaturesEntity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Helpers\MetadataHelpers\ProductMetadataHelper;
 
+/**
+ * @phpstan-type ProductRow object{id: int|string, url: string, slug_url: string, name?: string, main_image_id?: int|string|null, brand_id?: int|string|null, main_category_id?: int|string|null, visible?: mixed, image?: ImageRow, images?: list<ImageRow>, variants?: array<int|string, VariantRow>, variant?: VariantRow, features?: array<int|string, FeatureRow>, annotation?: mixed, description?: mixed}&\stdClass
+ * @phpstan-type VariantRow object{id: int|string, product_id: int|string, price: int|float|string, currency_id: int|string|null, compare_price?: int|float|string|null, name?: string|null, sku?: string|null}&\stdClass
+ * @phpstan-type ImageRow object{product_id: int|string}&\stdClass
+ * @phpstan-type FeatureRow object{values?: list<FeatureValueRow>, stingify_values?: string}&\stdClass
+ * @phpstan-type FeatureValueRow object{id: int|string, feature_id: int|string, value: string}&\stdClass
+ */
 class ProductsHelper implements GetListInterface
 {
     /** @var EntityFactory */
@@ -45,12 +50,12 @@ class ProductsHelper implements GetListInterface
     private $categoriesEntity;
 
     public function __construct(
-        EntityFactory         $entityFactory,
-        MoneyHelper           $moneyHelper,
-        Settings              $settings,
+        EntityFactory $entityFactory,
+        MoneyHelper $moneyHelper,
+        Settings $settings,
         ProductMetadataHelper $productMetadataHelper,
-        CatalogHelper         $catalogHelper,
-        FilterHelper          $filterHelper
+        CatalogHelper $catalogHelper,
+        FilterHelper $filterHelper
     ) {
         $this->entityFactory         = $entityFactory;
         $this->moneyHelper           = $moneyHelper;
@@ -63,9 +68,13 @@ class ProductsHelper implements GetListInterface
         $this->categoriesEntity = $entityFactory->get(CategoriesEntity::class);
     }
 
+    /**
+     * @param array<string, mixed> $productsFilter
+     * @param array<int|string, object{id: int|string, features_values?: mixed}&\stdClass> $catalogFeatures
+     */
     public function assignFilterProcedure(
-        array   $productsFilter,
-        array   $catalogFeatures,
+        array $productsFilter,
+        array $catalogFeatures,
         ?string $keyword = null
     ): void {
         if (isset($productsFilter['keyword'])) {
@@ -85,16 +94,26 @@ class ProductsHelper implements GetListInterface
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    /**
+     * @return array<int, object{id: int|string, url: string, features_values?: array<int|string, object>}&\stdClass>
+     */
     public function getCatalogFeatures(): array
     {
         return ExtenderFacade::execute(__METHOD__, $this->catalogHelper->getCatalogFeatures(), func_get_args());
     }
 
+    /**
+     * @param array<string, mixed> $filter
+     */
     public function isFilterPage(array $filter): bool
     {
         return ExtenderFacade::execute(__METHOD__, $this->filterHelper->isFilterPage($filter), func_get_args());
     }
 
+    /**
+     * @param ProductRow|false $product
+     * @return ProductRow|false
+     */
     public function attachProductData($product)
     {
         if (empty($product->id)) {
@@ -111,6 +130,9 @@ class ProductsHelper implements GetListInterface
 
     /**
      * @inheritDoc
+     * @param array<string, mixed> $filter
+     * @param array<int, string>|false|null $excludedFields
+     * @return array<int|string, ProductRow>
      */
     public function getList($filter = [], $sortName = null, $excludedFields = null)
     {
@@ -137,6 +159,7 @@ class ProductsHelper implements GetListInterface
         $productsEntity->order($sortName, $this->getOrderProductsAdditionalData());
 
         $products = $productsEntity->mappedBy('id')->find($filter);
+        /** @var array<int|string, ProductRow> $products */
 
         if (empty($products)) {
             return ExtenderFacade::execute(__METHOD__, [], func_get_args());
@@ -149,7 +172,7 @@ class ProductsHelper implements GetListInterface
         foreach ($products as $p) {
             ProductRoute::setUrlSlugAlias($p->url, $p->slug_url);
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $products, func_get_args());
     }
 
@@ -163,7 +186,7 @@ class ProductsHelper implements GetListInterface
         ];
         return ExtenderFacade::execute(__METHOD__, $excludedFields, func_get_args());
     }
-    
+
     // Данный метод остаётся для обратной совместимости, но объявлен как deprecated, и будет удалён в будущих версиях
     public function getProductList($filter = [], $sortProducts = null)
     {
@@ -179,10 +202,15 @@ class ProductsHelper implements GetListInterface
         if ($this->settings->get('missing_products') === MISSING_PRODUCTS_MOVE_END) {
             $orderAdditionalData['in_stock_first'] = true;
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $orderAdditionalData, func_get_args());
     }
 
+    /**
+     * @param array<int|string, ProductRow> $products
+     * @param array<string, mixed> $variantsFilter
+     * @return array<int|string, ProductRow>
+     */
     public function attachVariants(array $products, array $variantsFilter = [])
     {
         $obj = new \ArrayObject($products);
@@ -191,18 +219,20 @@ class ProductsHelper implements GetListInterface
         $productsIds = array_keys($copyProducts);
 
         $variantsFilter['product_id'] = $productsIds;
-        
+
         /** @var VariantsEntity $variantsEntity */
         $variantsEntity = $this->entityFactory->get(VariantsEntity::class);
+        /** @var list<VariantRow> $variants */
         $variants = $variantsEntity->order('in_stock_first')->find($variantsFilter);
 
         $variants = $this->moneyHelper->convertVariantsPriceToMainCurrency($variants);
+        /** @var list<VariantRow> $variants */
         foreach ($variants as $variant) {
             $copyProducts[$variant->product_id]->variants[$variant->id] = $variant;
         }
 
         foreach ($copyProducts as $copyProduct) {
-            if (!empty($copyProduct->variants) && count($copyProduct->variants) > 0) {
+            if (!empty($copyProduct->variants)) {
                 $copyProduct->variant = reset($copyProduct->variants);
             }
         }
@@ -212,32 +242,41 @@ class ProductsHelper implements GetListInterface
 
     /**
      * Метод добавляет к списку товаров свойства и их значения
-     * 
+     *
      * @param array $products список товаров, к которому нужно добавить свойства
      * @param array $featuresFilter дополнительные параметры фильтрации по свойствам
      * @param array $featuresValuesFilter дополнительные параметры фильтрации по значениям свойств
      * @return array список товаров, к каждому товару добавлены его свойства в свойство объекта features (простите за тавтологию)
      * @throws \Exception
      */
+    /**
+     * @param array<int|string, ProductRow> $products
+     * @param array<string, mixed> $featuresFilter
+     * @param array<string, mixed> $featuresValuesFilter
+     * @return array<int|string, ProductRow>
+     */
     public function attachFeatures(array $products, array $featuresFilter = [], array $featuresValuesFilter = [])
     {
         /** @var FeaturesValuesEntity $featuresValuesEntity */
         $featuresValuesEntity = $this->entityFactory->get(FeaturesValuesEntity::class);
-        
+
         /** @var FeaturesEntity $featuresEntity */
         $featuresEntity = $this->entityFactory->get(FeaturesEntity::class);
-        
+
         $productsIds = array_keys($products);
+        /** @var list<int> $productsIds */
 
         $featuresValuesFilter['product_id'] = $productsIds;
         $featuresValues = [];
         $features = [];
-        
+
         if (isset($featuresFilter['id'])) {
             $featuresValuesFilter['feature_id'] = $featuresFilter['id'];
         }
-        
-        foreach ($featuresValuesEntity->find($featuresValuesFilter) as $fv) {
+
+        /** @var list<FeatureValueRow> $featureValuesRows */
+        $featureValuesRows = $featuresValuesEntity->find($featuresValuesFilter);
+        foreach ($featureValuesRows as $fv) {
             $featuresValues[$fv->feature_id][$fv->id] = $fv;
         }
 
@@ -251,15 +290,19 @@ class ProductsHelper implements GetListInterface
         $featuresFilter['visible'] = true;
         $featuresFilter['show_in_product'] = 1;
 
-        foreach ($featuresEntity->find($featuresFilter) as $f) {
+        /** @var list<object{id: int|string}&\stdClass> $featureRows */
+        $featureRows = $featuresEntity->find($featuresFilter);
+        foreach ($featureRows as $f) {
             $features[$f->id] = $f;
         }
 
         $productsValuesIds = [];
-        foreach ($featuresValuesEntity->getProductValuesIds($productsIds) as $productValueId) {
+        /** @var list<object{value_id: int|string, product_id: int|string}&\stdClass> $productValueRows */
+        $productValueRows = $featuresValuesEntity->getProductValuesIds($productsIds);
+        foreach ($productValueRows as $productValueId) {
             $productsValuesIds[$productValueId->value_id][] = $productValueId->product_id;
         }
-        
+
         foreach ($features as $feature) {
             if (isset($featuresValues[$feature->id])) {
                 foreach ($featuresValues[$feature->id] as $featureValue) {
@@ -291,6 +334,10 @@ class ProductsHelper implements GetListInterface
         return ExtenderFacade::execute(__METHOD__, $products, func_get_args());
     }
 
+    /**
+     * @param array<int|string, ProductRow> $products
+     * @return array<int|string, ProductRow>
+     */
     public function attachMainImages(array $products)
     {
         $obj = new \ArrayObject($products);
@@ -309,6 +356,7 @@ class ProductsHelper implements GetListInterface
         }
 
         $images = $imagesEntity->find(['id' => $imagesIds]);
+        /** @var list<ImageRow> $images */
         foreach ($images as $image) {
             $copyProducts[$image->product_id]->image = $image;
         }
@@ -316,6 +364,10 @@ class ProductsHelper implements GetListInterface
         return ExtenderFacade::execute(__METHOD__, $copyProducts, func_get_args());
     }
 
+    /**
+     * @param array<int|string, ProductRow> $products
+     * @return array<int|string, ProductRow>
+     */
     public function attachImages(array $products)
     {
         $obj = new \ArrayObject($products);
@@ -324,18 +376,19 @@ class ProductsHelper implements GetListInterface
         $imagesEntity = $this->entityFactory->get(ImagesEntity::class);
 
         $productsIds = array_keys($copyProducts);
-        
+
         if (empty($productsIds)) {
             return ExtenderFacade::execute(__METHOD__, $copyProducts, func_get_args());
         }
 
         $images = $imagesEntity->find(['product_id' => $productsIds]);
+        /** @var list<ImageRow> $images */
         foreach ($images as $image) {
             $copyProducts[$image->product_id]->images[] = $image;
         }
 
         foreach ($copyProducts as $copyProduct) {
-            if (!empty($copyProduct->images) && count($copyProduct->images) > 0) {
+            if (!empty($copyProduct->images)) {
                 $copyProduct->image = reset($copyProduct->images);
             }
         }
@@ -343,8 +396,8 @@ class ProductsHelper implements GetListInterface
     }
 
     /**
-     * @param array $products
-     * @return array
+     * @param array<int|string, ProductRow> $products
+     * @return array<int|string, ProductRow>
      * @throws \Exception
      */
     public function attachDescriptionByTemplate(array $products): array
@@ -368,9 +421,13 @@ class ProductsHelper implements GetListInterface
             }
 
             foreach ($products as $product) {
+                $category = $categoriesEntity->findOne(['id' => $product->main_category_id]);
+                /** @var object|null $category */
+                $category = $category === false ? null : $category;
+
                 $this->productMetadataHelper->setUp(
                     $product,
-                    $categoriesEntity->findOne(['id' => $product->main_category_id]),
+                    $category,
                     $brands[$product->brand_id] ?? null
                 );
 
@@ -378,7 +435,8 @@ class ProductsHelper implements GetListInterface
                     $product->annotation = $this->productMetadataHelper->getAnnotation();
                 }
                 if (isset($product->description)) {
-                    $product->description = $this->productMetadataHelper->getDescription();;
+                    $product->description = $this->productMetadataHelper->getDescription();
+                    ;
                 }
             }
         }
@@ -391,8 +449,8 @@ class ProductsHelper implements GetListInterface
      * можно переопределить логику работы контроллера и отменить дальнейшие действия
      * для этого после реализации другой логики необходимо вернуть true из экстендера
      *
-     * @param object $product
-     * @return object
+     * @param object{visible: mixed}|false $product
+     * @return mixed
      */
     public function setProduct($product)
     {
@@ -403,6 +461,10 @@ class ProductsHelper implements GetListInterface
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    /**
+     * @param array<string, mixed> $filter
+     * @return array<string, mixed>|null
+     */
     public function getProductsFilter(?string $filtersUrl = null, array $filter = []): ?array
     {
         if (($filter = $this->catalogHelper->getProductsFilter($filtersUrl, $filter)) === null) {

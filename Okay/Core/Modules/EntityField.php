@@ -1,29 +1,26 @@
 <?php
 
-
 namespace Okay\Core\Modules;
 
-
-use \Exception;
+use Exception;
 
 class EntityField
 {
-    
-    const TYPE_VARCHAR = 'varchar';
-    const TYPE_INT     = 'int';
-    const TYPE_TINYINT = 'tinyint';
-    const TYPE_FLOAT   = 'float';
-    const TYPE_DECIMAL = 'decimal';
-    const TYPE_TEXT    = 'text';
-    const TYPE_ENUM    = 'enum';
-    const TYPE_MEDIUMTEXT = 'mediumtext';
-    const TYPE_LONGTEXT   = 'longtext';
-    const TYPE_DATETIME   = 'datetime';
-    const TYPE_TIMESTAMP  = 'timestamp';
-    const INDEX = 'INDEX';
-    const INDEX_FULLTEXT = 'FULLTEXT';
-    const INDEX_UNIQUE = 'UNIQUE';
-    
+    public const TYPE_VARCHAR = 'varchar';
+    public const TYPE_INT     = 'int';
+    public const TYPE_TINYINT = 'tinyint';
+    public const TYPE_FLOAT   = 'float';
+    public const TYPE_DECIMAL = 'decimal';
+    public const TYPE_TEXT    = 'text';
+    public const TYPE_ENUM    = 'enum';
+    public const TYPE_MEDIUMTEXT = 'mediumtext';
+    public const TYPE_LONGTEXT   = 'longtext';
+    public const TYPE_DATETIME   = 'datetime';
+    public const TYPE_TIMESTAMP  = 'timestamp';
+    public const INDEX = 'INDEX';
+    public const INDEX_FULLTEXT = 'FULLTEXT';
+    public const INDEX_UNIQUE = 'UNIQUE';
+
     private $type = self::TYPE_VARCHAR;
     private $length = 255;
     private $values = [];
@@ -66,7 +63,7 @@ class EntityField
     public function getType()
     {
         $type = $this->type;
-        
+
         if ($this->type === self::TYPE_ENUM && !empty($this->values)) {
             $values = array_map(function ($value) {
                 return "'" . $value . "'";
@@ -75,7 +72,7 @@ class EntityField
         } elseif (!empty($this->length)) {
             $type .= "({$this->length})";
         }
-        
+
         return $type;
     }
 
@@ -123,6 +120,9 @@ class EntityField
         return $this;
     }
 
+    /**
+     * @param list<string> $values
+     */
     public function setTypeEnum(array $values, $nullable = true)
     {
         $this->resetAll();
@@ -148,7 +148,7 @@ class EntityField
         $this->nullable = $nullable;
         return $this;
     }
-    
+
     public function setTypeVarchar($length, $nullable = true)
     {
         if (!is_int($length)) {
@@ -156,7 +156,7 @@ class EntityField
         }
 
         $this->resetAll();
-        
+
         $this->type = self::TYPE_VARCHAR;
         $this->nullable = $nullable;
         $this->length = $length;
@@ -168,7 +168,7 @@ class EntityField
         $this->default = $default;
         return $this;
     }
-    
+
     public function setTypeInt($length, $nullable = true)
     {
         if (!is_int($length)) {
@@ -176,13 +176,13 @@ class EntityField
         }
 
         $this->resetAll();
-        
+
         $this->type = self::TYPE_INT;
         $this->nullable = $nullable;
         $this->length = $length;
         return $this;
     }
-    
+
     public function setTypeTinyInt($length, $nullable = true)
     {
         if (!is_int($length)) {
@@ -190,54 +190,54 @@ class EntityField
         }
 
         $this->resetAll();
-        
+
         $this->type = self::TYPE_TINYINT;
         $this->nullable = $nullable;
         $this->length = $length;
         return $this;
     }
-    
+
     public function setTypeFloat($length, $nullable = true)
     {
         $this->resetAll();
-        
+
         $this->type = self::TYPE_FLOAT;
         $this->nullable = $nullable;
         $this->length = $length;
         return $this;
     }
-    
+
     public function setTypeDecimal($length, $nullable = true)
     {
         $this->resetAll();
-        
+
         $this->type = self::TYPE_DECIMAL;
         $this->nullable = $nullable;
         $this->length = $length;
         return $this;
     }
-    
+
     public function setTypeText()
     {
         $this->resetAll();
         $this->type = self::TYPE_TEXT;
         return $this;
     }
-    
+
     public function setTypeMediumText()
     {
         $this->resetAll();
         $this->type = self::TYPE_MEDIUMTEXT;
         return $this;
     }
-    
+
     public function setTypeLongText()
     {
         $this->resetAll();
         $this->type = self::TYPE_LONGTEXT;
         return $this;
     }
-    
+
     public function getName()
     {
         return $this->fieldName;
@@ -279,7 +279,7 @@ class EntityField
 
     /**
      * @param null $length
-     * @param EntityField ...$fields Экземпляры класса EntityField в сочетании с которыми нужно сделать 
+     * @param EntityField ...$fields Экземпляры класса EntityField в сочетании с которыми нужно сделать
      * составной индекс
      * @return $this
      */
@@ -297,18 +297,18 @@ class EntityField
         unset($this->indexes[self::INDEX_UNIQUE]);
         return $this;
     }
-    
+
     public function getIndexes()
     {
         return $this->indexes;
     }
-    
+
     public function unsetPrimaryKey()
     {
         $this->primaryKey = false;
         return $this;
     }
-    
+
     private function resetAll()
     {
         $this->type = null;
@@ -317,5 +317,4 @@ class EntityField
         $this->default = null;
         $this->nullable = false;
     }
-    
 }

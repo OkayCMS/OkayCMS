@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\QueryFactory;
-
 
 use Aura\SqlQuery\QueryInterface;
 use Okay\Core\Database;
@@ -74,9 +72,13 @@ class SqlQuery implements QueryInterface
         return $this;
     }
 
+    /**
+     * @param array<string, mixed> $bindValues
+     * @return $this
+     */
     public function bindValues(array $bindValues)
     {
-        foreach($bindValues as $name => $value) {
+        foreach ($bindValues as $name => $value) {
             $this->bindValues[$name] = $value;
         }
         return $this;
@@ -88,6 +90,9 @@ class SqlQuery implements QueryInterface
         return $this;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getBindValues()
     {
         return $this->bindValues;
@@ -96,5 +101,10 @@ class SqlQuery implements QueryInterface
     public function getStatement()
     {
         return $this->statement;
+    }
+
+    public function resetFlags()
+    {
+        return $this;
     }
 }

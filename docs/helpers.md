@@ -1,50 +1,52 @@
 # Helpers
 
-Хелперы предназначены для того, чтобы вынести часть логики (бизнес логики, или логики приложения) из контроллера.
-Методы хелперов могут переиспользоваться в различных частях системы. Например Okay\Helpers\ProductsHelper::getProductList.
-Также методы любого хелпера могут [расширяться из модуля](./modules/extenders.md).
+Хелпери призначені для того, щоб винести частину логіки (бізнес-логіки або логіки застосунку) з контролера.
+Методи хелперів можуть перевикористовуватися в різних частинах системи. Наприклад `Okay\Helpers\ProductsHelper::getList`.
+Також методи будь-якого хелпера можуть [розширюватися з модуля](./modules/extenders.md).
 
-Название всех сервисов хелперов заканчиваются на ключевое слово Helper.
-По умолчанию все хелперы хранятся в директории Okay/Helpers/ и backend/Helpers/.
+Назви всіх helper-сервісів закінчуються на ключове слово Helper.
+За замовчуванням усі хелпери розташовані в директоріях `Okay/Helpers/` і `backend/Helpers/`.
 
-Хелперы могут возвращать результат выполнения. Но результат выполенния дложен возвращаться не напрямую,
-а через ExtenderFacade::execute();.
-Метод execute() принимает три параметра, имя метода (строка или массив), в котором он запускается, данные которые нужно вернуть
-и массив аргументов данного метода.
+Хелпери можуть повертати результат виконання. Але результат виконання має повертатися не напряму,
+а через `ExtenderFacade::execute()`.
+Метод `execute()` приймає три параметри: імʼя методу (рядок або масив), у якому він запускається, дані, які потрібно повернути,
+та масив аргументів цього методу.
 
-Пример возвращения результата в хелпером:
+Приклад повернення результату в helper:
 ```php
 return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
 return ExtenderFacade::execute([static::class, __FUNCTION__], $result, func_get_args());
 ```
 
-Пример хелпера:
+Приклад helper:
 ```php
 class BrandsHelper
 {
 
     //...abstract 
 
-    public function getBrandsList($filter = [])
+    public function getList($filter = [], $sortName = null, $excludedFields = null)
     {
         /** @var BrandsEntity $brandsEntity */
         $brandsEntity = $this->entityFactory->get(BrandsEntity::class);
+        $brandsEntity->order($sortName);
         $brands = $brandsEntity->find($filter);
+
         return ExtenderFacade::execute(__METHOD__, $brands, func_get_args());
     }
 }
 ```
-Данный хелпер достает из базы список брендов. По большому счёту, это можно считать декоратором к методу 
+Цей helper дістає з бази список брендів. По суті, це можна вважати декоратором до методу
 BrandsEntity::find().
 
-Более интересный пример:
+Більш цікавий приклад:
 ```php
 class ProductsHelper
 {
 
     //...abstract 
     
-    public function getProductList($filter = [])
+    public function getList($filter = [], $sortName = null, $excludedFields = null)
     {
         /** @var ProductsEntity $productsEntity */
         $productsEntity = $this->entityFactory->get(ProductsEntity::class);
@@ -53,7 +55,7 @@ class ProductsHelper
             $filter['in_stock'] = true;
         }
     
-        $products = $productsEntity->mappedBy('id')->find($filter);
+        $products = $productsEntity->mappedBy('id')->order($sortName)->find($filter);
     
         if (empty($products)) {
             return ExtenderFacade::execute(__METHOD__, [], func_get_args());
@@ -65,17 +67,17 @@ class ProductsHelper
     }
 }
 ```
-данный хелпер не только достает список товаров, а и добавляет к ним варианты, тем самым декорируя результат 
+цей helper не лише дістає список товарів, а й додає до них варіанти, тим самим декоруючи результат
 ProductsEntity::find().
 
 ### ValidateHelper
 
-Хелпер валидации требует отдельного внимания.
-Если все хелперы подроблены каждый под свою сущность, то хелпер валидации собрал 
-в себе валидации всех [реквестов](./requests.md).
-Методы там называются от обратного getFeedbackValidateError() и подобные.
+Helper валідації потребує окремої уваги.
+Якщо всі хелпери поділені — кожен під свою сутність, то helper валідації зібрав
+у собі валідації всіх [requests](./requests.md).
+Методи там називаються “від зворотного”: `getFeedbackValidateError()` та подібні.
 
-Пример: 
+Приклад:
 ```php
 use Okay\Core\Validator;
 //...abstract
@@ -107,7 +109,7 @@ class ValidateHelper
 }
 ```
 
-Пример использования:
+Приклад використання:
 ```php
 use Okay\Helpers\ValidateHelper;
 //...abstract
@@ -121,7 +123,7 @@ class FeedbackController extends AbstractController
     ) {
         if (($feedback = $commonRequest->postFeedback()) !== null) {
             if ($error = $validateHelper->getFeedbackValidateError($feedback)) {
-                // Обработка ошибки
+                // Обробка помилки
             } else {
                 //...abstract
             }
@@ -131,7 +133,7 @@ class FeedbackController extends AbstractController
 }
 ```
 
-#### Хелперы модулей <a name="modulesHelpers"></a>
-Модуль также может содержать свои хелперы. Рекомендуется по возможности, все логические части кода выносить в хелперы.
-Это обеспечит более гибкое взаимодействие между модулями. Хелперы модуля регистрируются также как и 
-[сервисы модуля](./modules/README.md#Initservices)
+#### Хелпери модулів <a name="modulesHelpers"></a>
+Модуль також може містити свої хелпери. Рекомендується за можливості всі логічні частини коду виносити в хелпери.
+Це забезпечить гнучкішу взаємодію між модулями. Хелпери модуля реєструються так само, як і
+[сервіси модуля](./modules/README.md#Initservices)

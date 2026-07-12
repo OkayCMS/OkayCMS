@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Helpers;
-
 
 use Okay\Core\Classes\Discount;
 use Okay\Core\EntityFactory;
@@ -31,43 +29,43 @@ class BackendOrdersHelper
 {
     /** @var OrdersEntity */
     private $ordersEntity;
-    
+
     /** @var VariantsEntity */
     private $variantsEntity;
-    
+
     /** @var PurchasesEntity */
     private $purchasesEntity;
-    
+
     /** @var OrderStatusEntity */
     private $orderStatusEntity;
 
     /** @var OrderLabelsEntity */
     private $orderLabelsEntity;
-    
+
     /** @var ProductsEntity */
     private $productsEntity;
-    
+
     /** @var ImagesEntity */
     private $imagesEntity;
-    
+
     /** @var DeliveriesEntity */
     private $deliveriesEntity;
-    
+
     /** @var PaymentsEntity */
     private $paymentsEntity;
-    
+
     /** @var OrderHistoryEntity */
     private $orderHistoryEntity;
-    
+
     /** @var UsersEntity */
     private $usersEntity;
-    
+
     /** @var UserGroupsEntity */
     private $userGroupsEntity;
 
     /** @var DiscountsEntity */
     private $discountsEntity;
-    
+
     /** @var MoneyHelper */
     private $moneyHelper;
 
@@ -85,13 +83,13 @@ class BackendOrdersHelper
 
     /** @var DiscountsHelper */
     private $discountsHelper;
-    
+
     public function __construct(
-        EntityFactory   $entityFactory,
-        MoneyHelper     $moneyHelper,
-        Request         $request,
-        Settings        $settings,
-        QueryFactory    $queryFactory,
+        EntityFactory $entityFactory,
+        MoneyHelper $moneyHelper,
+        Request $request,
+        Settings $settings,
+        QueryFactory $queryFactory,
         DiscountsHelper $discountsHelper
     ) {
         $this->ordersEntity       = $entityFactory->get(OrdersEntity::class);
@@ -118,14 +116,14 @@ class BackendOrdersHelper
 
     /**
      * Метод используется для поиска нового товара в заказ
-     * 
+     *
      * @param $keyword
      * @return mixed|void|null
      * @throws \Exception
      */
     public function findOrderProducts($keyword)
     {
-        
+
         /** @var CurrenciesEntity $currenciesEntity */
         $currenciesEntity = $this->entityFactory->get(CurrenciesEntity::class);
 
@@ -164,18 +162,20 @@ class BackendOrdersHelper
                     $variant->units = $variant->units ? $variant->units : $this->settings->get('units');
                     $products[$variant->product_id]->variants[] = $variant;
                     if ($variant->currency_id && ($currency = $currenciesEntity->findOne(['id' => $variant->currency_id]))) {
+                        /** @var object{rate_from: int|float|string, rate_to: int|float|string}&\stdClass $currency */
                         if ($currency->rate_from != $currency->rate_to) {
-                            $variant->price = round($variant->price*$currency->rate_to/$currency->rate_from,2);
-                            $variant->compare_price = round($variant->compare_price*$currency->rate_to/$currency->rate_from,2);
+                            $variant->price = round($variant->price * $currency->rate_to / $currency->rate_from, 2);
+                            $variant->compare_price = round($variant->compare_price * $currency->rate_to / $currency->rate_from, 2);
                         }
                     }
                 }
             }
         }
-        
-        return ExtenderFacade::execute(__METHOD__, $products, func_get_args());;
+
+        return ExtenderFacade::execute(__METHOD__, $products, func_get_args());
+        ;
     }
-    
+
     /**
      * @var $order
      * Метод заглушка, чтобы модули могли зацепиться
@@ -184,7 +184,7 @@ class BackendOrdersHelper
     {
         ExtenderFacade::execute(__METHOD__, $order, func_get_args());
     }
-    
+
     public function prepareAdd($order)
     {
         return ExtenderFacade::execute(__METHOD__, $order, func_get_args());
@@ -221,7 +221,7 @@ class BackendOrdersHelper
         }
 
         $purchase = $this->prepareCommonPurchase(...func_get_args());
-        
+
         return ExtenderFacade::execute(__METHOD__, $purchase, func_get_args());
     }
 
@@ -265,18 +265,21 @@ class BackendOrdersHelper
 
         return ExtenderFacade::execute(__METHOD__, $purchase, func_get_args());
     }
-    
+
+    /**
+     * @param array<int|string, int|string> $postedPurchasesIds
+     */
     public function deletePurchases($order, array $postedPurchasesIds)
     {
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
-        
+
         foreach ($this->purchasesEntity->find(['order_id' => $order->id]) as $p) {
             if (!in_array($p->id, $postedPurchasesIds)) {
                 $this->purchasesEntity->delete($p->id);
             }
         }
     }
-    
+
     public function updateOrderStatus($order, $newStatusId)
     {
         $newStatusInfo = $this->orderStatusEntity->get((int)$newStatusId);
@@ -295,25 +298,26 @@ class BackendOrdersHelper
         }
         return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
     }
-    
+
     public function findOrder($orderId)
     {
         $order = $this->ordersEntity->get((int)$orderId);
         return ExtenderFacade::execute(__METHOD__, $order, func_get_args());
     }
-    
+
     public function findOrderDelivery($order)
     {
         $delivery = null;
         if (!empty($order->delivery_id)) {
             $delivery = $this->deliveriesEntity->get($order->delivery_id);
             if (!empty($delivery->settings) && is_string($delivery->settings)) {
-                $delivery->settings = unserialize($delivery->settings);
+                $unserialized = unserialize($delivery->settings);
+                $delivery->settings = $unserialized !== false ? $unserialized : [];
             }
         }
         return ExtenderFacade::execute(__METHOD__, $delivery, func_get_args());
     }
-    
+
     public function findOrderPayment($order)
     {
         $payment = null;
@@ -322,7 +326,7 @@ class BackendOrdersHelper
         }
         return ExtenderFacade::execute(__METHOD__, $payment, func_get_args());
     }
-    
+
     public function findOrderUser($order)
     {
         $user = null;
@@ -332,7 +336,7 @@ class BackendOrdersHelper
         }
         return ExtenderFacade::execute(__METHOD__, $user, func_get_args());
     }
-    
+
     public function findNeighborsOrders($order, $labelId = null, $statusId = null)
     {
         $neighborsOrders = null;
@@ -346,13 +350,13 @@ class BackendOrdersHelper
             }
             $neighborsOrders = $this->ordersEntity->getNeighborsOrders($neighborsFilter);
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $neighborsOrders, func_get_args());
     }
-    
+
     public function findOrderPurchases($order)
     {
-        if ($purchases = $this->purchasesEntity->mappedBy('id')->find(['order_id'=>$order->id])) {
+        if ($purchases = $this->purchasesEntity->mappedBy('id')->find(['order_id' => $order->id])) {
             // Покупки
             $productsIds = [];
             $variantsIds = [];
@@ -363,13 +367,13 @@ class BackendOrdersHelper
             }
 
             $products = [];
-            foreach ($this->productsEntity->find(['id'=>$productsIds, 'limit' => count($productsIds)]) as $p) {
+            foreach ($this->productsEntity->find(['id' => $productsIds, 'limit' => count($productsIds)]) as $p) {
                 $products[$p->id] = $p;
                 $imagesIds[] = $p->main_image_id;
             }
 
             if (!empty($imagesIds)) {
-                $images = $this->imagesEntity->find(['id'=>$imagesIds]);
+                $images = $this->imagesEntity->find(['id' => $imagesIds]);
                 foreach ($images as $image) {
                     if (isset($products[$image->product_id])) {
                         $products[$image->product_id]->image = $image;
@@ -377,7 +381,7 @@ class BackendOrdersHelper
                 }
             }
 
-            $variants = $this->variantsEntity->mappedBy('id')->find(['product_id'=>$productsIds]);
+            $variants = $this->variantsEntity->mappedBy('id')->find(['product_id' => $productsIds]);
             $variants = $this->moneyHelper->convertVariantsPriceToMainCurrency($variants);
 
             foreach ($variants as $variant) {
@@ -399,7 +403,7 @@ class BackendOrdersHelper
             }
 
             foreach ($purchases as $purchase) {
-                if(!empty($products[$purchase->product_id])) {
+                if (!empty($products[$purchase->product_id])) {
                     $purchase->product = $products[$purchase->product_id];
                 }
                 if (!empty($variants[$purchase->variant_id])) {
@@ -410,33 +414,33 @@ class BackendOrdersHelper
                 }
             }
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $purchases, func_get_args());
     }
 
     public function buildCountStatusesFilter($filter)
     {
         $countStatusesFilter = [];
-        
+
         if (isset($filter['label'])) {
             $countStatusesFilter['label'] = $filter['label'];
         }
-        
+
         if (isset($filter['keyword'])) {
             $countStatusesFilter['keyword'] = $filter['keyword'];
         }
-        
+
         if (isset($filter['from_date'])) {
             $countStatusesFilter['from_date'] = $filter['from_date'];
         }
-        
+
         if (isset($filter['to_date'])) {
             $countStatusesFilter['to_date'] = $filter['to_date'];
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $countStatusesFilter, func_get_args());
     }
-    
+
     public function buildFilter()
     {
         $filter = [];
@@ -451,7 +455,7 @@ class BackendOrdersHelper
 
         // Фильтр по метке
         $label = $this->orderLabelsEntity->get($this->request->get('label', 'int'));
-        
+
         if (!empty($label)) {
             $filter['label'] = $label->id;
         }
@@ -467,14 +471,14 @@ class BackendOrdersHelper
         //Поиск до дате заказа
         $fromDate = $this->request->get('from_date');
         $toDate = $this->request->get('to_date');
-        if (!empty($fromDate) || !empty($toDate)){
+        if (!empty($fromDate) || !empty($toDate)) {
             $filter['from_date'] = $fromDate;
             $filter['to_date'] = $toDate;
         }
 
         $ordersCount = $this->ordersEntity->count($filter);
         // Показать все страницы сразу
-        if($this->request->get('page') == 'all') {
+        if ($this->request->get('page') == 'all') {
             $filter['limit'] = $ordersCount;
         }
 
@@ -489,24 +493,23 @@ class BackendOrdersHelper
 
     public function changeStatus($ids)
     {
-        if(!empty($change_status_id = $this->request->post("change_status_id"))) {
+        if (!empty($change_status_id = $this->request->post("change_status_id"))) {
             $newStatus = $this->orderStatusEntity->findOne(["id" => $change_status_id]);
             $errorOrders = [];
-            foreach($ids as $id) {
-                if($newStatus->is_close == 1){
+            foreach ($ids as $id) {
+                if ($newStatus->is_close == 1) {
                     if (!$this->ordersEntity->close(intval($id))) {
                         $errorOrders[] = $id;
                         //$this->design->assign('error_orders', $errorOrders);
                         //$this->design->assign('message_error', 'error_closing');
                     } else {
-                        $this->ordersEntity->update($id, ['status_id'=>$this->request->post("change_status_id","integer")]);
+                        $this->ordersEntity->update($id, ['status_id' => $this->request->post("change_status_id", "integer")]);
                     }
                 } else {
                     if ($this->ordersEntity->open(intval($id))) {
-                        $this->ordersEntity->update($id, ['status_id'=>$this->request->post("change_status_id","integer")]);
+                        $this->ordersEntity->update($id, ['status_id' => $this->request->post("change_status_id", "integer")]);
                     }
                 }
-
             }
         }
 
@@ -515,9 +518,9 @@ class BackendOrdersHelper
 
     public function setLabel($ids)
     {
-        if($this->request->post("change_label_id")) {
-            foreach($ids as $id) {
-                $this->orderLabelsEntity->addOrderLabels($id, [$this->request->post("change_label_id","integer")]);
+        if ($this->request->post("change_label_id")) {
+            foreach ($ids as $id) {
+                $this->orderLabelsEntity->addOrderLabels($id, [$this->request->post("change_label_id", "integer")]);
             }
         }
 
@@ -526,9 +529,9 @@ class BackendOrdersHelper
 
     public function unsetLabel($ids)
     {
-        if($this->request->post("change_label_id")) {
-            foreach($ids as $id) {
-                $this->orderLabelsEntity->deleteOrderLabels($id, [$this->request->post("change_label_id","integer")]);
+        if ($this->request->post("change_label_id")) {
+            foreach ($ids as $id) {
+                $this->orderLabelsEntity->deleteOrderLabels($id, [$this->request->post("change_label_id", "integer")]);
             }
         }
 
@@ -575,8 +578,8 @@ class BackendOrdersHelper
     public function findOrders($filter = [])
     {
         $orders = $this->ordersEntity->mappedBy('id')->find($filter);
-        foreach($orders as $o) {
-            $o->purchases = $this->purchasesEntity->find(['order_id'=>$o->id]);
+        foreach ($orders as $o) {
+            $o->purchases = $this->purchasesEntity->find(['order_id' => $o->id]);
         }
 
         return ExtenderFacade::execute(__METHOD__, $orders, func_get_args());
@@ -636,7 +639,7 @@ class BackendOrdersHelper
         $select ->from(DiscountsEntity::getTable())
                 ->cols(['*'])
                 ->where("((`entity` = 'order' AND `entity_id` = :order_id) OR
-                                (`entity` = 'purchase' AND `entity_id` IN (SELECT `id` FROM `".PurchasesEntity::getTable()."` WHERE `order_id` = :order_id)))")
+                                (`entity` = 'purchase' AND `entity_id` IN (SELECT `id` FROM `" . PurchasesEntity::getTable() . "` WHERE `order_id` = :order_id)))")
                 ->bindValue('order_id', $orderId);
         $discountIds = $select->results('id');
         if (!empty($discountIds)) {
@@ -656,6 +659,8 @@ class BackendOrdersHelper
             'entity' => 'order',
             'entity_id' => $orderId
         ]);
+        /** @var list<object{id: int|string, type: string, value: float|int|string, name: string, description: string, from_last_discount: bool, position?: int|string|null}&\stdClass> $discountsDB */
+        $discountsDB = array_values($discountsDB);
         $order = $ordersEntity->findOne(['id' => $orderId]);
         list($discounts) = $this->discountsHelper->calculateDiscounts($this->discountsHelper->buildFromDB($discountsDB), $order->undiscounted_total_price);
 
@@ -708,7 +713,7 @@ class BackendOrdersHelper
         $select ->from(DiscountsEntity::getTable())
             ->cols(['id'])
             ->where("((`entity` = 'order' AND `entity_id` = :order_id) OR
-                            (`entity` = 'purchase' AND `entity_id` IN (SELECT `id` FROM `".PurchasesEntity::getTable()."` WHERE `order_id` = :order_id)))")
+                            (`entity` = 'purchase' AND `entity_id` IN (SELECT `id` FROM `" . PurchasesEntity::getTable() . "` WHERE `order_id` = :order_id)))")
             ->bindValues(['order_id' => $orderId]);
         if (!empty($discountIds)) {
             $select->where('`id` NOT IN (:discount_ids)')
@@ -728,7 +733,7 @@ class BackendOrdersHelper
 
     public function updateDiscountPositions($ids, $positions)
     {
-        foreach($positions as $i=>$position) {
+        foreach ($positions as $i => $position) {
             $this->discountsEntity->update($ids[$i], array('position' => (int) $position));
         }
 

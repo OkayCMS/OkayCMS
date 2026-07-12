@@ -1,37 +1,95 @@
-compiled/*/*.php
-Okay/xml/compiled/*.php
+### OkayCMS specific ignores ###
+# Ignoring vendor and cache folders
 /vendor/
-backend/design/compiled/*.php
-backend/files/*/*.*
-!backend/files/*/.keep_folder
-
-files/**/*.*
-!files/**/*.phtml
-!files/**/*.php*
-!files/**/*.cgi
-!files/**/*.exe
-!files/**/*.pl
-!files/**/*.asp
-!files/**/*.aspx
-!files/**/*.shtml
-!files/**/*.shtm
-!files/**/*.fcgi
-!files/**/*.fpl
-!files/**/*.jsp
-!files/**/*.htm
-!files/**/*.html
-!files/**/*.wml
-!files/originals/payments/*.png
-!files/**/.gitignore
-!files/lang/*.*
-files/thumbs/*
-cache/
-
+/cache/
+!/cache/**/.keep_folder
+# DDEV: track .ddev/config.yaml and commands/; ignore generated files via .ddev/.gitignore
+/.devcontainer/
+.phpunit.result.cache
+/var/phpstan
+/var/release-packages/
+# PHPStan probe config (dev/scripts/phpstan-without-ign-mig-01.sh)
+/phpstan.neon.probe.*
+# Local PHPStan / probe scratch under var/ (not part of app data)
+/var/phpstan-probe-*.json
+/var/ps-stdout.txt
+/var/ps-stderr.txt
+/.env
+/.env.local
+/.env.*.local
+# Ignoring compiled files
+/compiled/*/*.php
+/Okay/xml/compiled/*.php
+/backend/design/compiled/*.php
+# Ignoring local configuration files
+/config/config.local.php
+/design/*/lang/local.*.php
+.cursor/mcp.json
+# Ignoring all modules
+/Okay/Modules/*
+!/Okay/Modules/AGENTS.md
+# Excluding native core modules
+!/Okay/Modules/OkayCMS/
+# Ignoring all log contents
 /Okay/log/*
-config/config.local.php
-design/*/lang/local.*.php
-#design/*/css/theme-settings.css
+/Okay/log/**/*.log
+# Allowing the folder structure
+!/Okay/log/**/
+# Ignoring userfiles inside backend/files subfolders
+/backend/files/*/*
+# Keeping placeholder folders for structure preservation
+!/backend/files/*/.keep_folder
+# Ignoring user files (frontend)
+# Closing all frontend files
+/files/*
+# Allowing the folder structure
+!/files/**/
+# Allowing service files inside files
+!/files/**/.htaccess
+!/files/**/.keep_folder
+!/files/**/.gitignore
+# Allowing images
+!/files/**/*.jpg
+!/files/**/*.jpeg
+!/files/**/*.png
+!/files/**/*.gif
+!/files/**/*.webp
+!/files/**/*.svg
+!/files/**/*.ico
+# Thumbs exceptions
+# Again, we ignore the contents of thumbs, even if they contain images.
+/files/thumbs/*
+/files/resized/*
+# But we leave the folder itself
+!/files/thumbs/.keep_folder
+# Global permissions
 !*.keep_folder
 !*.htaccess
-.phpunit.result.cache
-robots.txt
+!*.gitignore
+backend/files/export/export.csv
+var/phpstan/resultCache.php
+### macOS specific ignores ###
+# General
+.DS_Store
+__MACOSX/
+.AppleDouble
+.LSOverride
+Icon[]
+# Thumbnails
+._*
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+.phpunit.cache/test-results
+stubs/axy/sourcemap/SourceMap.php

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 use Okay\Core\DebugBar\DebugBar;
 
@@ -12,9 +10,8 @@ use Okay\Core\DebugBar\DebugBar;
  */
 class Config
 {
-
     /*Версия системы*/
-    public string $version = '4.5.2';
+    public string $version = '4.6.0';
     /*Тип системы*/
     public string $version_type = 'pro';
 
@@ -23,8 +20,11 @@ class Config
     public string $configLocalFile;
 
     public string $salt = '';
+    /** @var array<string, mixed> */
     private array $vars = [];
+    /** @var array<string, mixed> */
     private array $masterVars = [];
+    /** @var array<string, mixed> */
     private array $localVars = [];
 
     public function __construct(string $configFile, string $configLocalFile)
@@ -76,13 +76,25 @@ class Config
         }
 
         $conf = file_get_contents($configFile);
-        $conf = preg_replace("/".$name."\s*=.*\n/i", $name.' = '.$value."\r\n", $conf);
+        if (!is_string($conf)) {
+            return;
+        }
+
+        $conf = preg_replace("/" . $name . "\s*=.*\n/i", $name . ' = ' . $value . "\r\n", $conf);
+        if (!is_string($conf)) {
+            return;
+        }
+
         $cf = fopen($configFile, 'w');
+        if ($cf === false) {
+            return;
+        }
+
         fwrite($cf, $conf);
         fclose($cf);
         $this->vars[$name] = $value;
     }
-    
+
     public function __get($name)
     {
         return $this->get($name);
@@ -96,24 +108,28 @@ class Config
     /*Формирование токена*/
     public function token($text): string
     {
-        return md5($text.$this->salt);
+        return md5($text . $this->salt);
     }
 
     /*Проверка токена*/
     public function checkToken($text, $token): bool
     {
-        if(!empty($token) && $token === $this->token($text)) {
+        if (!empty($token) && $token === $this->token($text)) {
             return true;
         }
         return false;
     }
-    
+
     private function initConfig()
     {
         /*Читаем настройки из дефолтного файла*/
         $ini = parse_ini_file($this->configFile);
+        if (!is_array($ini)) {
+            $ini = [];
+        }
+
         /*Записываем настройку как переменную класса*/
-        foreach ($ini as $var=>$value) {
+        foreach ($ini as $var => $value) {
             $this->masterVars[$var] = $value;
             $this->vars[$var] = $value;
             DebugBar::setConfigValue($var, $value, 'core');
@@ -122,6 +138,10 @@ class Config
         /*Заменяем настройки, если есть локальный конфиг*/
         if (file_exists($this->configLocalFile)) {
             $ini = parse_ini_file($this->configLocalFile);
+            if (!is_array($ini)) {
+                $ini = [];
+            }
+
             foreach ($ini as $var => $value) {
                 $this->localVars[$var] = $this->vars[$var] = $value;
                 DebugBar::setConfigValue($var, $value, 'local');
@@ -130,24 +150,30 @@ class Config
 
         // Вычисляем DOCUMENT_ROOT вручную, так как иногда в нем находится что-то левое
         if (($localPath = getenv("SCRIPT_NAME")) && ($absolutePath = getenv("SCRIPT_FILENAME"))) {
-            $_SERVER['DOCUMENT_ROOT'] = substr($absolutePath,0, strpos($absolutePath, $localPath));
+            $documentRootLength = strpos($absolutePath, $localPath);
+            if ($documentRootLength !== false) {
+                $_SERVER['DOCUMENT_ROOT'] = substr($absolutePath, 0, $documentRootLength);
+            }
         }
 
         // Определяем корневую директорию сайта
-        $this->vars['root_dir'] =  dirname(dirname(__DIR__)).DIRECTORY_SEPARATOR;
+        $this->vars['root_dir'] =  dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR;
 
         // Максимальный размер загружаемых файлов
         $max_upload = (int)(ini_get('upload_max_filesize'));
         $max_post = (int)(ini_get('post_max_size'));
         $memory_limit = (int)(ini_get('memory_limit'));
-        $this->vars['max_upload_filesize'] = min($max_upload, $max_post, $memory_limit)*1024*1024;
+        $this->vars['max_upload_filesize'] = min($max_upload, $max_post, $memory_limit) * 1024 * 1024;
 
         // Соль (разная для каждой копии сайта, изменяющаяся при изменении config-файла)
+        /** @var array{dev: int, ino: int, uid: int, mtime: int}|false $s */
         $s = stat($this->configFile);
-        $this->salt = $this->vars['salt'] = md5(md5_file($this->configFile).$s['dev'].$s['ino'].$s['uid'].$s['mtime']);
+        $fileHash = md5_file($this->configFile);
+        $statSalt = $s === false ? '' : $s['dev'] . $s['ino'] . $s['uid'] . $s['mtime'];
+        $this->salt = $this->vars['salt'] = md5((is_string($fileHash) ? $fileHash : '') . $statSalt);
 
         // Часовой пояс
-        if (!empty($this->vars['php_timezone'])) {
+        if (!empty($this->vars['php_timezone']) && is_string($this->vars['php_timezone'])) {
             date_default_timezone_set($this->vars['php_timezone']);
         }
     }
@@ -159,6 +185,10 @@ class Config
         }
 
         $ini = parse_ini_file($filename);
+        if (!is_array($ini)) {
+            $ini = [];
+        }
+
         foreach ($ini as $var => $value) {
             if (isset($this->masterVars[$var])) {
                 throw new \Exception("Duplicate parameter \"{$var}\"");

@@ -70,7 +70,7 @@
                                             <div class="mb-1">
                                                 <select name="open_ai_model" class="selectpicker form-control">
                                                     {foreach $open_ai_models as $model}
-                                                        <option value='{$model['id']}' {if ($settings->open_ai_model == '' && $model['id'] == 'gpt-3.5-turbo') || $settings->open_ai_model == $model['id']}selected{/if}>{$model['id']}</option>
+                                                        <option value='{$model['id']}' {if ($settings->open_ai_model == '' && $model['id'] == 'gpt-4o-mini') || $settings->open_ai_model == $model['id']}selected{/if}>{$model['id']}</option>
                                                     {/foreach}
                                                 </select>
                                             </div>

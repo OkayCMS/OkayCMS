@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Requests;
-
 
 use Okay\Core\Request;
 use Okay\Core\Modules\Extender\ExtenderFacade;
@@ -21,7 +19,7 @@ class BackendPagesRequest
 
     public function postPage()
     {
-        $page = new \stdClass;
+        $page = new \stdClass();
         $page->id               = $this->request->post('id', 'integer');
         $page->name             = $this->request->post('name');
         $page->name_h1          = $this->request->post('name_h1');

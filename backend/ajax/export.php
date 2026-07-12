@@ -1,6 +1,5 @@
 <?php
 
-
 use Okay\Core\Managers;
 use Okay\Core\Response;
 use Okay\Entities\ManagersEntity;
@@ -34,23 +33,30 @@ if (!$managers->access('export', $managersEntity->get($_SESSION['admin']))) {
     exit();
 }
 
-list($filter, $page) = $backendExportHelper->setUp($exportFilesDir, $filename,$columnsNames, $columnDelimiter, $productsCount);
-$products = $backendExportHelper->fetchProducts($filter);
-$products = $backendExportHelper->attachFeatures($products, $valuesDelimiter);
-$products = $backendExportHelper->attachCategories($products, $subcategoryDelimiter);
-$products = $backendExportHelper->attachImages($products);
+try {
+    list($filter, $page) = $backendExportHelper->setUp($exportFilesDir, $filename, $columnsNames, $columnDelimiter, $productsCount);
+    $products = $backendExportHelper->fetchProducts($filter);
+    $products = $backendExportHelper->attachFeatures($products, $valuesDelimiter);
+    $products = $backendExportHelper->attachCategories($products, $subcategoryDelimiter);
+    $products = $backendExportHelper->attachImages($products);
 
-$variants = $backendExportHelper->fetchVariants($products);
-foreach($variants as $variant) {
-    if(isset($products[$variant->product_id])) {
-        $variantData = $backendExportHelper->prepareVariantsData($variant);
-        $products[$variant->product_id]['variants'][] = $variantData;
+    $variants = $backendExportHelper->fetchVariants($products);
+    foreach ($variants as $variant) {
+        if (isset($products[$variant->product_id])) {
+            $variantData = $backendExportHelper->prepareVariantsData($variant);
+            $products[$variant->product_id]['variants'][] = $variantData;
+        }
     }
-}
 
-$products = $backendExportHelper->attachBrands($products);
+    $products = $backendExportHelper->attachBrands($products);
 
-$data = $backendExportHelper->exportRun($exportFilesDir, $filename,  $products, $filter, $columnsNames, $columnDelimiter, $productsCount, $page);
-if($data) {
-    $response->setContent(json_encode($data), RESPONSE_JSON)->sendContent();
+    $data = $backendExportHelper->exportRun($exportFilesDir, $filename, $products, $filter, $columnsNames, $columnDelimiter, $productsCount, $page);
+    if ($data) {
+        $response->setContent(json_encode($data), RESPONSE_JSON)->sendContent();
+    }
+} catch (\RuntimeException $e) {
+    $response->setContent(json_encode([
+        'error'   => true,
+        'message' => $e->getMessage(),
+    ]), RESPONSE_JSON)->sendContent();
 }

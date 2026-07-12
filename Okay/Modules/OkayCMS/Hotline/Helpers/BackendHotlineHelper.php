@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\Hotline\Helpers;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\Extender\ExtenderFacade;
@@ -14,6 +12,9 @@ use Okay\Helpers\ProductsHelper;
 use Okay\Modules\OkayCMS\Hotline\Entities\HotlineFeedsEntity;
 use Okay\Modules\OkayCMS\Hotline\Entities\HotlineRelationsEntity;
 
+/**
+ * @phpstan-type FeedRow object{id: int|string}
+ */
 class BackendHotlineHelper
 {
     /** @var QueryFactory */
@@ -33,12 +34,11 @@ class BackendHotlineHelper
     private $relationsEntity;
 
     public function __construct(
-        EntityFactory  $entityFactory,
-        QueryFactory   $queryFactory,
-        Request        $request,
+        EntityFactory $entityFactory,
+        QueryFactory $queryFactory,
+        Request $request,
         ProductsHelper $productsHelper
-    )
-    {
+    ) {
         $this->queryFactory   = $queryFactory;
         $this->request        = $request;
         $this->productsHelper = $productsHelper;
@@ -48,7 +48,7 @@ class BackendHotlineHelper
     }
 
     /**
-     * @param array $feed
+     * @param array<string, mixed> $feed
      * Добавляем новый фид
      * @return integer|bool
      */
@@ -59,7 +59,7 @@ class BackendHotlineHelper
     ])
     {
         if (empty($feed['url'])) {
-            $feed['url'] = $this->feedsEntity->count() + 1;
+            $feed['url'] = (int)$this->feedsEntity->count() + 1;
 
             while ($this->feedsEntity->findOne(['url' => $feed['url']])) {
                 $feed['url']++;
@@ -81,7 +81,7 @@ class BackendHotlineHelper
     }
 
     /**
-     * @param array $feeds
+     * @param array<int|string, array<string, mixed>> $feeds
      * Обновляем полученные фиды
      */
     public function updateFeeds($feeds)
@@ -94,18 +94,20 @@ class BackendHotlineHelper
     }
 
     /**
-     * @param string|integer|array $feeds
+     * @param array<int|string, array<string, mixed>> $feeds
      * Валидируем фиды. Проверяем URL на уникальность
-     * @return array
+     * @return array<string, mixed>
      * Возвращаем ошибки, индивидуальные для каждого фида
      */
     public function validateFeeds($feeds)
     {
         $errors = [];
         foreach ($feeds as $feedId => $feed) {
-            if (($dbFeed = $this->feedsEntity->findOne(['url' => $feed['url']])) && ($dbFeed->id != $feedId)) {
+            /** @var FeedRow|null $dbFeed */
+            $dbFeed = $this->feedsEntity->findOne(['url' => $feed['url']]);
+            if ($dbFeed && ($dbFeed->id != $feedId)) {
                 $errors['feeds'][$feedId]['url'] = true;
-            } else if (preg_match('/[А-я]/', $feed['url'])) {
+            } elseif (preg_match('/[А-я]/', $feed['url'])) {
                 $errors['feeds'][$feedId]['url_cyrillic'] = true;
             }
         }
@@ -141,7 +143,7 @@ class BackendHotlineHelper
     }
 
     /**
-     * @param array $relatedCategories
+     * @param array<int|string, array<int|string, int|string>> $relatedCategories
      * Закрепляем за фидом вручуню отмеченные категории
      */
     public function updateRelatedCategories($relatedCategories)
@@ -195,7 +197,7 @@ class BackendHotlineHelper
     }
 
     /**
-     * @param array $relatedBrands
+     * @param array<int|string, array<int|string, int|string>> $relatedBrands
      * Закрепляем за фидом вручуню отмеченные бренды
      */
     public function updateRelatedBrands($relatedBrands)
@@ -282,7 +284,7 @@ class BackendHotlineHelper
     }
 
     /**
-     * @return array
+     * @return array<int|string, list<int|string>>
      * Достаем массив ids закрепённых категорий
      */
     public function getAllRelatedCategoriesIds()
@@ -301,7 +303,7 @@ class BackendHotlineHelper
     }
 
     /**
-     * @return array
+     * @return array<int|string, list<int|string>>
      * Достаем массив ids закрепённых брендов
      */
     public function getAllRelatedBrandsIds()
@@ -320,7 +322,7 @@ class BackendHotlineHelper
     }
 
     /**
-     * @return array
+     * @return array<int|string, list<object>>
      * Достаем массив закрепённых продуктов
      * @throws \Exception
      */
@@ -345,11 +347,10 @@ class BackendHotlineHelper
         }
 
         return ExtenderFacade::execute(__METHOD__, $relatedProducts, func_get_args());
-
     }
 
     /**
-     * @return array
+     * @return array<int|string, list<object>>
      * Достаем массив закрепённых продуктов не для выгрузки
      * @throws \Exception
      */

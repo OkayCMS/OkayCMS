@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Okay\Core;
 
 use Okay\Core\DebugBar\DebugBar;
@@ -14,14 +13,18 @@ use Okay\Entities\RouterCacheEntity;
 use Okay\Entities\PagesEntity;
 use Psr\Log\LoggerInterface;
 
-class Router {
-
-    const DEFAULT_CONTROLLER_NAMESPACE = '\\Okay\\Controllers\\';
+class Router
+{
+    public const DEFAULT_CONTROLLER_NAMESPACE = '\\Okay\\Controllers\\';
 
     private static $currentRouteName;
-    private $routeParams;
-    private $routeRequiredParams;
-    
+
+    /** @var array<string, mixed> */
+    private $routeParams = [];
+
+    /** @var array<string, mixed> */
+    private $routeRequiredParams = [];
+
     private static $routes;
     private static $modulesRoutes;
 
@@ -52,24 +55,24 @@ class Router {
     /** @var Languages */
     private static $languages;
 
-    /** @var Languages */
+    /** @var RouteFactory */
     private static $routeFactory;
 
     public function __construct(
-        BRouter         $router,
-        Request         $request,
-        Response        $response,
-        EntityFactory   $entityFactory,
-        Languages       $languages,
-        RouteFactory    $routeFactory,
-        Modules         $modules,
+        BRouter $router,
+        Request $request,
+        Response $response,
+        EntityFactory $entityFactory,
+        Languages $languages,
+        RouteFactory $routeFactory,
+        Modules $modules,
         LoggerInterface $logger,
-        Config          $config
+        Config $config
     ) {
-        
+
         // SL будем использовать только для получения сервисов, которые запросили для контроллера
         $this->serviceLocator = ServiceLocator::getInstance();
-        
+
         $this->router        = $router;
         $this->request       = $request;
         $this->response      = $response;
@@ -85,15 +88,15 @@ class Router {
     {
         self::initializeRoutes();
         $result = [];
-        foreach (self::$routes as $name=>$route) {
+        foreach (self::$routes as $name => $route) {
             if (isset($route['to_front']) && $route['to_front'] === true) {
                 $result[$name] = $route;
             }
         }
-        
+
         return $result;
     }
-    
+
     public static function getRouteByName($name)
     {
         self::initializeRoutes();
@@ -103,7 +106,7 @@ class Router {
     private function getFullControllerClassName($controllerName)
     {
         if ($this->classNameHasNoNamespace($controllerName)) {
-            return self::DEFAULT_CONTROLLER_NAMESPACE.$controllerName;
+            return self::DEFAULT_CONTROLLER_NAMESPACE . $controllerName;
         }
 
         return $controllerName;
@@ -127,12 +130,12 @@ class Router {
         $router = $this->router;
         $routes = self::$routes;
         $request = $this->request;
-        
+
         /** @var LanguagesEntity $languagesEntity */
         $languagesEntity = self::$entityFactory->get(LanguagesEntity::class);
-        
+
         $language = $languagesEntity->get(self::$languages->getLangId());
-        
+
         $baseRoute = '';
         $label = self::$languages->getLangLink($language->id);
 
@@ -142,25 +145,25 @@ class Router {
 
         foreach ($routes as $routeName => $route) {
             if (empty($route['params']['controller']) || empty($route['params']['method'])) {
-                throw new \Exception('Route "'.$routeName.'" must contain two arguments named "controller" and "method" in "params" block');
+                throw new \Exception('Route "' . $routeName . '" must contain two arguments named "controller" and "method" in "params" block');
             }
 
             $controllerClassName = $this->getFullControllerClassName($route['params']['controller']);
             if (!class_exists($controllerClassName)) {
-                throw new \Exception('Class "'.$controllerClassName.'" uses in route "'.$routeName.'" is not exists');
+                throw new \Exception('Class "' . $controllerClassName . '" uses in route "' . $routeName . '" is not exists');
             }
 
             if (!$this->methodExists($controllerClassName, $route['params']['method'])) {
-                throw new \Exception('Method "'.$route['params']['method'].'" of "'.$controllerClassName.'" class uses in route "'.$routeName.'" is not exists');
+                throw new \Exception('Method "' . $route['params']['method'] . '" of "' . $controllerClassName . '" class uses in route "' . $routeName . '" is not exists');
             }
 
             if (!empty($route['mock'])) {
                 continue;
             }
-            
+
             $pattern = $baseRoute . $this->getPattern($route, $routeName);
-            
-            $router->all($pattern, function(...$params) use ($router, $route, $request, $language, $baseRoute, $routeName) {
+
+            $router->all($pattern, function (...$params) use ($router, $route, $request, $language, $baseRoute, $routeName) {
 
                 $flexibleRoute = self::$routeFactory->create($routeName, $params);
                 if ($flexibleRoute) {
@@ -168,12 +171,12 @@ class Router {
                     $lastSymbolCurrentUrl = mb_substr($currentUri, -1, 1);
 
                     if ($flexibleRoute->hasSlashAtEnd() && $lastSymbolCurrentUrl !== "/") {
-                        $this->response->redirectTo($currentUri.'/'.Request::getCurrentQueryString(), 301);
+                        $this->response->redirectTo($currentUri . '/' . Request::getCurrentQueryString(), 301);
                         return;
                     }
 
                     if (! $flexibleRoute->hasSlashAtEnd() && $lastSymbolCurrentUrl === "/") {
-                        $this->response->redirectTo(mb_substr($currentUri, 0, -1).Request::getCurrentQueryString(), 301);
+                        $this->response->redirectTo(mb_substr($currentUri, 0, -1) . Request::getCurrentQueryString(), 301);
                         return;
                     }
                 }
@@ -222,6 +225,7 @@ class Router {
                 preg_match_all('~{\$(.+?)}~', $route['slug'], $matches);
                 $routeVars = array_merge($routeVars, $matches[1]);
 
+                /** @var Settings $settings */
                 $settings = $this->serviceLocator->getService(Settings::class);
                 if ((!isset($route['always_active']) || $route['always_active'] !== true) && $settings->get('site_work') === 'off' && empty($_SESSION['admin'])) {
                     $controllerName = self::DEFAULT_CONTROLLER_NAMESPACE . 'ErrorController';
@@ -252,7 +256,7 @@ class Router {
 
         $response = $this->response;
 
-        $router->run(function() use ($response) {
+        $router->run(function () use ($response) {
             $response->sendContent();
         });
     }
@@ -267,14 +271,14 @@ class Router {
         $languages = array_reverse($languages);
         $router = clone $this->router;
 
-        // Если в урле есть приставка основного языка, редиректим на без неё 
+        // Если в урле есть приставка основного языка, редиректим на без неё
         $mainLanguage = self::$languages->getMainLanguage();
         $pattern = '/' . $mainLanguage->label . '(\/.*)?';
-        $router->all($pattern, function() use ($mainLanguage) {
-            $uri = preg_replace('~^/?'.$mainLanguage->label.'/?~', '', Request::getRequestUri());
+        $router->all($pattern, function () use ($mainLanguage) {
+            $uri = preg_replace('~^/?' . $mainLanguage->label . '/?~', '', Request::getRequestUri());
             Response::redirectTo(Request::getRootUrl() . '/' . $uri, 301);
         });
-        
+
         foreach ($languages as $language) {
             $label = self::$languages->getLangLink($language->id);
             if (!empty(trim($label, '/'))) {
@@ -283,7 +287,7 @@ class Router {
                 $pattern = '/.*';
             }
 
-            $router->all($pattern, function() use ($language) {
+            $router->all($pattern, function () use ($language) {
                 self::$languages->setLangId((int)$language->id);
             });
         }
@@ -307,7 +311,7 @@ class Router {
             }
         }
 
-        foreach ($this->getMethodParams($controller, $methodName, $params, $routeVars, $defaults, true) as $name=>$paramValue) {
+        foreach ($this->getMethodParams($controller, $methodName, $params, $routeVars, $defaults, true) as $name => $paramValue) {
             if (in_array($name, $requiredParametersNames)) {
                 $this->routeRequiredParams[$name] = $paramValue;
             }
@@ -315,57 +319,79 @@ class Router {
         }
 
         if ($this->methodExists($controller, 'beforeController')) {
+            $callback = [$controller, 'beforeController'];
+            if (!is_callable($callback)) {
+                throw new \Exception("Method \"beforeController\" is not callable");
+            }
+
             DebugBar::startMeasure("$controllerName::beforeController", "$controllerName::beforeController");
-            call_user_func_array([$controller, 'beforeController'], $this->getMethodParams($controller, 'beforeController', $params, $routeVars, $defaults));
+            call_user_func_array($callback, $this->getMethodParams($controller, 'beforeController', $params, $routeVars, $defaults));
             DebugBar::stopMeasure("$controllerName::beforeController");
         }
 
         // Передаем контроллеру, все, что запросили
         if ($this->methodExists($controller, 'onInit')) {
+            $callback = [$controller, 'onInit'];
+            if (!is_callable($callback)) {
+                throw new \Exception("Method \"onInit\" is not callable");
+            }
+
             DebugBar::startMeasure("$controllerName::onInit", "$controllerName::onInit");
-            call_user_func_array([$controller, 'onInit'], $this->getMethodParams($controller, 'onInit', $params, $routeVars, $defaults));
+            call_user_func_array($callback, $this->getMethodParams($controller, 'onInit', $params, $routeVars, $defaults));
             DebugBar::stopMeasure("$controllerName::onInit");
         }
 
+        $callback = [$controller, $methodName];
+        if (!is_callable($callback)) {
+            throw new \Exception("Method \"{$methodName}\" is not callable");
+        }
+
         DebugBar::startMeasure("$controllerName::$methodName", "$controllerName::$methodName");
-        $controllerResult = call_user_func_array([$controller, $methodName], $this->getMethodParams($controller, $methodName, $params, $routeVars, $defaults));
+        $controllerResult = call_user_func_array($callback, $this->getMethodParams($controller, $methodName, $params, $routeVars, $defaults));
         DebugBar::stopMeasure("$controllerName::$methodName");
 
         // На 404 не вызываем afterController
-        if ($controllerResult !== false){
+        if ($controllerResult !== false) {
             if ($this->methodExists($controller, 'afterController')) {
+                $callback = [$controller, 'afterController'];
+                if (!is_callable($callback)) {
+                    throw new \Exception("Method \"afterController\" is not callable");
+                }
+
                 DebugBar::startMeasure("$controllerName::afterController", "$controllerName::afterController");
-                call_user_func_array([$controller, 'afterController'], $this->getMethodParams($controller, 'afterController', $params, $routeVars, $defaults));
+                call_user_func_array($callback, $this->getMethodParams($controller, 'afterController', $params, $routeVars, $defaults));
                 DebugBar::stopMeasure("$controllerName::afterController");
             }
         }
         return $controllerResult;
     }
-    
+
     /**
-     * @return array
      * Метод возвращает все параметры, для которых не задан type hint (текстовые)
      * в виде ассоциативного массива, которые указаны в поле slug роута
+     *
+     * @return array<string, mixed>
      */
-    public function getCurrentRouteParams()
+    public function getCurrentRouteParams(): array
     {
         return $this->routeParams;
     }
-    
+
     /**
-     * @return array
      * Метод возвращает все обязательные параметры, для которых не задан type hint (текстовые)
      * в виде ассоциативного массива, которые указаны в поле slug роута
+     *
+     * @return array<string, mixed>
      */
-    public function getCurrentRouteRequiredParams()
+    public function getCurrentRouteRequiredParams(): array
     {
         return $this->routeRequiredParams;
     }
 
     /**
-     * Метод добавляет в кеш роутов те, которых еще там нет. В кеш попадают урлы, для формирования 
+     * Метод добавляет в кеш роутов те, которых еще там нет. В кеш попадают урлы, для формирования
      * которых нужно выполнить дополнительные действия (для товаров достають категоии и т.д.)
-     * 
+     *
      * @throws \Exception
      */
     public static function generateRouterCache()
@@ -374,7 +400,7 @@ class Router {
         $routerCacheEntity = self::$entityFactory->get(RouterCacheEntity::class);
 
         // Если в генерации могут использоваться sql запросы, сгенерируем кеш для таких страниц
-        
+
         $categoryRoute = self::$routeFactory->create('category');
         if ($categoryRoute->getIsUsesSqlToGenerate()) {
             $urls = $routerCacheEntity->getCategoriesUrlsWithoutCache();
@@ -407,7 +433,7 @@ class Router {
             }
         }
     }
-    
+
     public static function generateUrl($routeName, $params = [], $isAbsolute = false, $langId = null)
     {
         $route = self::$routeFactory->create($routeName);
@@ -441,8 +467,8 @@ class Router {
                             if (!empty($paramValue)) {
                                 if (is_array($paramValue)) {
                                     $res[] = $paramName . '-' . implode('_', $paramValue);
-                                } else if (is_string($paramName)) {
-                                    $res[] = $paramName.'-'.$paramValue;
+                                } elseif (is_string($paramName)) {
+                                    $res[] = $paramName . '-' . $paramValue;
                                 } else {
                                     $res[] = $paramValue;
                                 }
@@ -450,18 +476,18 @@ class Router {
                         }
                         $res = implode('/', $res);
                     } else {
-                        $res = $param;
+                        $res = is_scalar($param) ? (string) $param : '';
                     }
                     $urlData['{$' . $var . '}'] = $res;
-                } else if ($param) {
+                } elseif ($param) {
                     $query[$var] = $param;
                 }
             }
         }
 
-        $slug = $routeInfo['slug'];
+        $slug = is_string($routeInfo['slug']) ? $routeInfo['slug'] : '';
         $slug = str_replace('/?', '/', $slug);
-        
+
         $result = trim(strtr($slug, $urlData), '/');
 
         // Если это не внешний урл, добавим языковой префикс
@@ -470,8 +496,9 @@ class Router {
         }
 
         $result = preg_replace('~{\$[^$]*}~', '', $result);
+        $result = is_string($result) ? $result : '';
         $result = trim($result, '/');
-        
+
         if ($isAbsolute === true) {
             $result = Request::getRootUrl() . '/' . $result;
         } else {
@@ -479,8 +506,9 @@ class Router {
             $result = Request::getSubDir() . '/' . $result;
         }
 
-        $result = trim(strip_tags(htmlspecialchars($result)));
-        
+        // $result is always string at this point, but ensure it's safe
+        $result = trim(strip_tags(htmlspecialchars((string)$result)));
+
         // TODO здесь есть скрытая связь с FilterHelper. Это может привести к багам, подумать над тем, чтобы решить это
         if (is_object($route) && method_exists($route, 'hasSlashAtEnd') && $route->hasSlashAtEnd()) {
             $result = rtrim($result, '/') . '/';
@@ -494,7 +522,7 @@ class Router {
 
         return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
     }
-    
+
     /**
      * @return string
      *
@@ -507,11 +535,11 @@ class Router {
 
     /**
      * Метод на основании поля slug роута генерирует регулярное выражение
-     * @param array $route
-     * @param string $routeName
+     *
+     * @param array<string, mixed> $route
      * @return string pattern
      */
-    public function getPattern($route, $routeName)
+    public function getPattern(array $route, string $routeName): string
     {
         $pattern = !empty($route['patterns']) ? strtr($route['slug'], $route['patterns']) : $route['slug'];
         $pattern = trim(preg_replace('~{\$.+?}~', '([^/]+)', $pattern), '/');
@@ -520,11 +548,12 @@ class Router {
 
     /**
      * Добавляет новые маршруты в реестр класса роутера
-     * @param array $routes
+     *
+     * @param array<string, array<string, mixed>> $routes
+     *
      * @throws \Exception Route name already uses
-     * @return void
      */
-    public static function bindRoutes(array $routes)
+    public static function bindRoutes(array $routes): void
     {
         foreach ($routes as $routeName => $route) {
             self::$modulesRoutes[$routeName] = $route;
@@ -532,36 +561,40 @@ class Router {
     }
 
     /**
-     * @param $controller
-     * @param $methodName
-     * @param array $routeParams
-     * @param array $routeVars
-     * @param array $defaults
+     * @param object $controller
+     * @param array<int|string, string> $routeParams
+     * @param array<int|string, string> $routeVars
+     * @param array<string, mixed> $defaults
      * @param bool $stringOnly - возвращать все параметры или только текстовые
-     * @return array ассоциативный массив, где ключ - название параметра, 
-     * значение - экземпляк класса, который указали как Type hint или строка, которая соответствует части урла
+     *
+     * @return array<string, mixed> ассоциативный массив, где ключ - название параметра,
+     *         значение - экземпляк класса, который указали как Type hint или строка, которая соответствует части урла
+     *
      * @throws \ReflectionException
      */
-    private function getMethodParams($controller, $methodName, $routeParams = [], $routeVars = [], $defaults = [], $stringOnly = false)
+    private function getMethodParams(object $controller, string $methodName, array $routeParams = [], array $routeVars = [], array $defaults = [], bool $stringOnly = false): array
     {
         $methodParams = [];
         $allParams = [];
-        
+
         // Перебираем переменные роута, чтобы заполнить их дефолтными значениями
         if (!empty($routeVars)) {
             foreach ($routeVars as $key => $routeVar) {
                 $param = $routeParams[$key] ?? null;
-                $param = strip_tags(htmlspecialchars($param));
-                
+                if ($param !== null) {
+                    $param = strip_tags(htmlspecialchars((string)$param));
+                } else {
+                    $param = '';
+                }
+
                 $allParams[$routeVar] = (empty($param) && !empty($defaults['{$' . $routeVar . '}']) ? $defaults['{$' . $routeVar . '}'] : $param);
             }
         }
-        
+
         // Проходимся рефлексией по параметрам метода, определяем их тип, и пытаемся через DI передать нужный объект
         // Если тип не указан, тогда связываем название переменной в поле slug роута, с названием аргумента метода
         $reflectionMethod = new \ReflectionMethod($controller, $methodName);
         foreach ($reflectionMethod->getParameters() as $parameter) {
-            
             if (($parameterType = $parameter->getType()) !== null) { // если для аргумента указан type hint, передадим экземляр соответствующего класса
                 if ($stringOnly === false) {
                     $parameterName = $parameterType->getName();
@@ -587,7 +620,7 @@ class Router {
 
     private function getCurrentUri($currentUri, $baseUri)
     {
-        return preg_replace('~^('.$baseUri.'/?)(.*)$~', '$2', $currentUri);
+        return preg_replace('~^(' . $baseUri . '/?)(.*)$~', '$2', $currentUri);
     }
 
     /**
@@ -596,7 +629,6 @@ class Router {
     private static function initializeRoutes()
     {
         if (($routes = require_once 'Okay/Core/config/routes.php') && is_array($routes)) {
-            
             if (!empty(self::$modulesRoutes)) {
                 $modulesRoutes = [];
                 foreach (self::$modulesRoutes as $routeName => $route) {
@@ -612,9 +644,8 @@ class Router {
                 }
                 $routes = array_merge($modulesRoutes, $routes);
             }
-            
+
             self::$routes = $routes;
         }
     }
-    
 }

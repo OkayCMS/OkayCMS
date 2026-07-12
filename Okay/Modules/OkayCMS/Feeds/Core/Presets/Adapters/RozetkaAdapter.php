@@ -27,35 +27,79 @@ use Okay\Modules\OkayCMS\Feeds\Core\Presets\AbstractPresetAdapter;
 use Okay\Modules\OkayCMS\Feeds\Entities\FeedsEntity;
 use Okay\Modules\OkayCMS\Feeds\Helpers\FeedsHelper;
 
+/**
+ * @phpstan-type CurrencyRow object{id: int|string, code: string, rate_from: int|float, rate_to: int|float}
+ * @phpstan-type UaLanguageRow object{id: int|string}
+ * @phpstan-type CategoryUaRow object{name: string|null, name_h1: string|null, path?: list<object>}
+ * @phpstan-type RozetkaFeatureRow array{
+ *     id: int|string,
+ *     name: string,
+ *     values: list<string>,
+ *     values_string: string,
+ *     auto_name_id?: string|null,
+ *     auto_value_id?: string|null
+ * }
+ * @phpstan-type RozetkaProductRow object{
+ *     product_id: int|string,
+ *     variant_id: int|string,
+ *     product_name: string,
+ *     variant_name?: string|null,
+ *     slug_url: string,
+ *     url: string,
+ *     description?: string|null,
+ *     annotation?: string|null,
+ *     sku: string,
+ *     price: int|float,
+ *     compare_price: int|float,
+ *     currency_id: int|string|null,
+ *     stock: int|string|null,
+ *     brand_name: string,
+ *     features?: array<int|string, RozetkaFeatureRow>,
+ *     main_category_id: int|string|null,
+ *     images_string?: string|null,
+ *     images?: list<string>,
+ *     product_name_ua?: string|null,
+ *     variant_name_ua?: string|null,
+ *     description_ua?: string|null,
+ *     annotation_ua?: string|null,
+ *     brand_name_ua?: string|null,
+ *     features_string_ua?: string|null,
+ *     values_string_ua?: string|null,
+ *     features_ua?: array<int|string, RozetkaFeatureRow>
+ * }&\stdClass
+ */
 class RozetkaAdapter extends AbstractPresetAdapter
 {
     /** @var string */
-    static protected $headerTemplate = 'presets/rozetka/header.tpl';
+    protected static $headerTemplate = 'presets/rozetka/header.tpl';
 
     /** @var string */
-    static protected $footerTemplate = 'presets/rozetka/footer.tpl';
+    protected static $footerTemplate = 'presets/rozetka/footer.tpl';
 
+    /** @var UaLanguageRow|false|null */
     private $uaLang;
 
     private string $siteNameUa;
+    /** @var array<int|string, CategoryUaRow> */
     private array $allCategoriesUa;
+    /** @var object{auto_description?: string|null, auto_annotation?: string|null}&\stdClass */
     private object $defaultProductsSeoPatternUa;
 
     public function __construct(
-        Money            $money,
-        Design           $design,
-        QueryFactory     $queryFactory,
-        Database         $database,
-        XmlFeedHelper    $xmlFeedHelper,
-        Response         $response,
-        ExtendedPdo      $pdo,
-        Settings         $settings,
-        Languages        $languages,
-        Image            $image,
+        Money $money,
+        Design $design,
+        QueryFactory $queryFactory,
+        Database $database,
+        XmlFeedHelper $xmlFeedHelper,
+        Response $response,
+        ExtendedPdo $pdo,
+        Settings $settings,
+        Languages $languages,
+        Image $image,
         CurrenciesEntity $currenciesEntity,
-        FeedsEntity      $feedsEntity,
+        FeedsEntity $feedsEntity,
         CategoriesEntity $categoriesEntity,
-        FeedsHelper      $feedHelper
+        FeedsHelper $feedHelper
     ) {
         parent::__construct(
             $money,
@@ -83,9 +127,13 @@ class RozetkaAdapter extends AbstractPresetAdapter
             $this->settings->initSettings();
 
             $this->siteNameUa = $this->settings->get('site_name');
-            $this->defaultProductsSeoPatternUa = (object)$settings->get('default_products_seo_pattern');
+            $defaultProductsSeoPatternUa = (object)$settings->get('default_products_seo_pattern');
+            /** @var object{auto_description?: string|null, auto_annotation?: string|null}&\stdClass $defaultProductsSeoPatternUa */
+            $this->defaultProductsSeoPatternUa = $defaultProductsSeoPatternUa;
             $categoriesEntity->initCategories();
-            $this->allCategoriesUa = $categoriesEntity->find();
+            /** @var array<int|string, CategoryUaRow> $allCategoriesUa */
+            $allCategoriesUa = $categoriesEntity->find();
+            $this->allCategoriesUa = $allCategoriesUa;
 
             $this->languages->setLangId($currentLangId);
             $this->settings->initSettings();
@@ -120,7 +168,7 @@ class RozetkaAdapter extends AbstractPresetAdapter
         return ExtenderFacade::execute(__METHOD__, $xmlCategory, func_get_args());
     }
 
-    public function getQuery($feedId): Select
+    public function getQuery(int|string $feedId): Select
     {
         $sql = parent::getQuery(...func_get_args());
 
@@ -144,10 +192,9 @@ class RozetkaAdapter extends AbstractPresetAdapter
                 ]);
             }
 
-            $sql->leftJoin(ProductsEntity::getLangTable().' AS lp_ua', 'lp_ua.product_id = t.product_id and lp_ua.lang_id=' . $uaLangId);
-            $sql->leftJoin(VariantsEntity::getLangTable().' AS lv_ua', 'lv_ua.variant_id = t.variant_id and lv_ua.lang_id=' . $uaLangId);
-            $sql->leftJoin(BrandsEntity::getLangTable().' AS lb_ua', 'lb_ua.brand_id = t.brand_id and lb_ua.lang_id=' . $uaLangId);
-
+            $sql->leftJoin(ProductsEntity::getLangTable() . ' AS lp_ua', 'lp_ua.product_id = t.product_id and lp_ua.lang_id=' . $uaLangId);
+            $sql->leftJoin(VariantsEntity::getLangTable() . ' AS lv_ua', 'lv_ua.variant_id = t.variant_id and lv_ua.lang_id=' . $uaLangId);
+            $sql->leftJoin(BrandsEntity::getLangTable() . ' AS lb_ua', 'lb_ua.brand_id = t.brand_id and lb_ua.lang_id=' . $uaLangId);
         } else {
             if ($this->feed->settings['use_full_description']) {
                 $sql->cols(['lp.description AS description']);
@@ -159,7 +206,7 @@ class RozetkaAdapter extends AbstractPresetAdapter
         return ExtenderFacade::execute(__METHOD__, $sql, func_get_args());
     }
 
-    protected function getSubSelect($feedId): Select
+    protected function getSubSelect(int|string $feedId): Select
     {
         $sql = parent::getSubSelect(...func_get_args());
 
@@ -169,22 +216,22 @@ class RozetkaAdapter extends AbstractPresetAdapter
             $sql->where('p.main_image_id != \'\' AND p.main_image_id IS NOT NULL');
         }
 
-        if ($this->feed->settings['upload_only_products_in_stock']) {
+        if ($this->feed->settings['upload_only_products_in_stock'] && !$this->settings->get('is_preorder')) {
             $sql->where('(v.stock >0 OR v.stock is NULL)');
         }
 
         if (($value = $this->feed->settings['filter_price']['value']) !== null) {
-            $operator = $this->feed->settings['filter_price']['operator'];
+            $operator = $this->normalizeComparisonOperator($this->feed->settings['filter_price']['operator'] ?? null);
 
-            $sql->join('left', CurrenciesEntity::getTable().' AS cur', 'cur.id = v.currency_id')
+            $sql->join('left', CurrenciesEntity::getTable() . ' AS cur', 'cur.id = v.currency_id')
                 ->where("(v.price*cur.rate_to/cur.rate_from) {$operator} :filter_price_value")
                 ->bindValues(['filter_price_value' => $value]);
         }
 
         if (($value = $this->feed->settings['filter_stock']['value']) !== null) {
-            $operator = $this->feed->settings['filter_stock']['operator'];
+            $operator = $this->normalizeComparisonOperator($this->feed->settings['filter_stock']['operator'] ?? null);
 
-            $sql->where("IF(v.stock IS NULL, IF ('{$operator}' = '<' OR '{$operator}' = '=', false, true), v.stock {$operator} :filter_stock_value)")
+            $sql->where("v.stock IS NOT NULL AND v.stock {$operator} :filter_stock_value")
                 ->bindValues(['filter_stock_value' => $value]);
         }
 
@@ -194,9 +241,8 @@ class RozetkaAdapter extends AbstractPresetAdapter
                 'GROUP_CONCAT(DISTINCT lf_ua.feature_id, "!-", lf_ua.name SEPARATOR "@|@") AS features_string_ua',
                 'GROUP_CONCAT(DISTINCT fv.feature_id, "!-", lfv_ua.value SEPARATOR "@|@") AS values_string_ua',
             ])
-                ->leftJoin(FeaturesValuesEntity::getLangTable().' AS  lfv_ua', 'fv.id = lfv_ua.feature_value_id and lfv_ua.lang_id=' . $uaLangId)
-                ->leftJoin(FeaturesEntity::getLangTable().' AS  lf_ua', 'f.id = lf_ua.feature_id and lf_ua.lang_id=' . $uaLangId);
-
+                ->leftJoin(FeaturesValuesEntity::getLangTable() . ' AS  lfv_ua', 'fv.id = lfv_ua.feature_value_id and lfv_ua.lang_id=' . $uaLangId)
+                ->leftJoin(FeaturesEntity::getLangTable() . ' AS  lf_ua', 'f.id = lf_ua.feature_id and lf_ua.lang_id=' . $uaLangId);
         }
 
         return ExtenderFacade::execute(__METHOD__, $sql, func_get_args());
@@ -205,6 +251,7 @@ class RozetkaAdapter extends AbstractPresetAdapter
     public function modifyItem(object $item): object
     {
         $item = parent::modifyItem($item);
+        /** @var RozetkaProductRow $item */
 
         //  получаем украинские данные
         if (!empty($this->uaLang) && !empty($this->uaLang->id)) {
@@ -214,6 +261,7 @@ class RozetkaAdapter extends AbstractPresetAdapter
                 'values_string_ua',
                 'features_ua'
             );
+            /** @var RozetkaProductRow $item */
 
             // Застосовуємо шаблон опису товару на українській мові
             $metaParts = $this->getMetadataPartsUa($item);
@@ -223,32 +271,44 @@ class RozetkaAdapter extends AbstractPresetAdapter
                 $this->getDescriptionTemplateUa($item),
                 'description_ua'
             );
+            /** @var RozetkaProductRow $item */
+            $annotationProduct = $item;
+            /** @var RozetkaProductRow $annotationProduct */
             $item = $this->xmlFeedHelper->attachDescriptionByTemplate(
                 $item,
                 $metaParts,
-                $this->getAnnotationTemplateUa($item),
+                $this->getAnnotationTemplateUa($annotationProduct),
                 'annotation_ua'
             );
+            /** @var RozetkaProductRow $item */
         }
         return $item;
     }
 
+    /**
+     * @param RozetkaProductRow $product
+     */
     protected function getDescriptionTemplateUa($product): string
     {
-        $category = $this->allCategoriesUa[$product->main_category_id];
+        $categoryId = $product->main_category_id;
+        $category = $categoryId !== null && isset($this->allCategoriesUa[$categoryId]) ? $this->allCategoriesUa[$categoryId] : null;
         $descriptionTemplate = '';
-        if ($data = $this->xmlFeedHelper->getCategoryField($category, 'auto_description')) {
+        if ($category !== null && ($data = $this->xmlFeedHelper->getCategoryField($category, 'auto_description'))) {
             $descriptionTemplate = $data;
         } elseif (!empty($this->defaultProductsSeoPatternUa->auto_description)) {
             $descriptionTemplate = $this->defaultProductsSeoPatternUa->auto_description;
         }
         return $descriptionTemplate;
     }
+    /**
+     * @param RozetkaProductRow $product
+     */
     protected function getAnnotationTemplateUa($product): string
     {
-        $category = $this->allCategoriesUa[$product->main_category_id];
+        $categoryId = $product->main_category_id;
+        $category = $categoryId !== null && isset($this->allCategoriesUa[$categoryId]) ? $this->allCategoriesUa[$categoryId] : null;
         $annotationTemplate = '';
-        if ($data = $this->xmlFeedHelper->getCategoryField($category, 'auto_annotation')) {
+        if ($category !== null && ($data = $this->xmlFeedHelper->getCategoryField($category, 'auto_annotation'))) {
             $annotationTemplate = $data;
         } elseif (!empty($this->defaultProductsSeoPatternUa->auto_annotation)) {
             $annotationTemplate = $this->defaultProductsSeoPatternUa->auto_annotation;
@@ -256,6 +316,10 @@ class RozetkaAdapter extends AbstractPresetAdapter
         return $annotationTemplate;
     }
 
+    /**
+     * @return array<string, string>
+     * @param RozetkaProductRow $product
+     */
     protected function getMetadataPartsUa($product): array
     {
         $mataDataParts = $this->xmlFeedHelper->getMetadataParts($product);
@@ -278,7 +342,6 @@ class RozetkaAdapter extends AbstractPresetAdapter
 
         if (!empty($product->features_ua)) {
             foreach ($product->features_ua as $feature) {
-
                 if (!empty($feature['auto_name_id'])) {
                     $mataDataParts['{$' . $feature['auto_name_id'] . '}'] = $feature['name'];
                 }
@@ -293,6 +356,7 @@ class RozetkaAdapter extends AbstractPresetAdapter
 
     public function getItem(object $product, bool $addVariantUrl = false): array
     {
+        /** @var RozetkaProductRow $product */
         // Указываем связку урла товара и его slug
         ProductRoute::setUrlSlugAlias($product->url, $product->slug_url);
         if ($addVariantUrl) {
@@ -309,10 +373,12 @@ class RozetkaAdapter extends AbstractPresetAdapter
 
         $price = $product->price;
         $comparePrice = $product->compare_price;
-        if (isset($this->allCurrencies[$product->currency_id])) {
+        $currencyId = $product->currency_id;
+        if ($currencyId !== null && isset($this->allCurrencies[$currencyId])) {
             // Переводим в основную валюту сайта
-            $variantCurrency = $this->allCurrencies[$product->currency_id];
-            if (!empty($product->currency_id) && $variantCurrency->rate_from != $variantCurrency->rate_to) {
+            /** @var CurrencyRow $variantCurrency */
+            $variantCurrency = $this->allCurrencies[$currencyId];
+            if ($variantCurrency->rate_from != $variantCurrency->rate_to) {
                 $price = round($product->price * $variantCurrency->rate_to / $variantCurrency->rate_from, 2);
                 if (!empty($product->compare_price)) {
                     $comparePrice = round($product->compare_price * $variantCurrency->rate_to / $variantCurrency->rate_from, 2);
@@ -325,13 +391,15 @@ class RozetkaAdapter extends AbstractPresetAdapter
             $comparePrice = $comparePrice + $comparePrice / 100 * $this->feed->settings['price_change'];
         }
 
-        $result['price']['data'] = $this->money->convert($price, $this->mainCurrency->id, false);
+        /** @var CurrencyRow $mainCurrency */
+        $mainCurrency = $this->mainCurrency;
+        $result['price']['data'] = $this->money->convert($price, $mainCurrency->id, false);
         if ($product->compare_price > 0) {
-            $comparePrice = $this->money->convert($comparePrice, $this->mainCurrency->id, false);
+            $comparePrice = $this->money->convert($comparePrice, $mainCurrency->id, false);
             $result['old_price']['data'] = $comparePrice;
         }
 
-        $result['currencyId']['data'] = $this->mainCurrency->code;
+        $result['currencyId']['data'] = $mainCurrency->code;
         $result['categoryId']['data'] = $product->main_category_id;
 
         if (!empty($product->images)) {
@@ -346,7 +414,9 @@ class RozetkaAdapter extends AbstractPresetAdapter
             }
         }
 
-        $result['stock_quantity']['data'] = $product->stock ?? $this->settings->get('max_order_amount');
+        if ($product->stock !== null) {
+            $result['stock_quantity']['data'] = $product->stock;
+        }
         $result['delivery']['data'] = 'true';
 
         if (!empty($product->brand_name)) {
@@ -358,26 +428,26 @@ class RozetkaAdapter extends AbstractPresetAdapter
         //  добавляем описание
         if (!empty($this->feed->settings['description_in_html']) && $this->feed->settings['description_in_html'] == 1) {    //  передаем html текст полностью в CDATA
             if (!empty($product->description)) {
-                $result['description']['data'] = '<![CDATA['.$product->description.']]>';
-            } else if (!empty($product->annotation)) {
-                $result['description']['data'] = '<![CDATA['.$product->annotation.']]>';
+                $result['description']['data'] = '<![CDATA[' . $product->description . ']]>';
+            } elseif (!empty($product->annotation)) {
+                $result['description']['data'] = '<![CDATA[' . $product->annotation . ']]>';
             }
 
             if (!empty($product->description_ua)) {
-                $result['description_ua']['data'] = '<![CDATA['.$product->description_ua.']]>';
-            } else if (!empty($product->annotation_ua)) {
-                $result['description_ua']['data'] = '<![CDATA['.$product->annotation_ua.']]>';
+                $result['description_ua']['data'] = '<![CDATA[' . $product->description_ua . ']]>';
+            } elseif (!empty($product->annotation_ua)) {
+                $result['description_ua']['data'] = '<![CDATA[' . $product->annotation_ua . ']]>';
             }
         } else {
             if (!empty($product->description)) {    //  передаем описание без верстки
                 $result['description']['data'] = $this->xmlFeedHelper->escape($product->description);
-            } else if (!empty($product->annotation)) {
+            } elseif (!empty($product->annotation)) {
                 $result['description']['data'] = $this->xmlFeedHelper->escape($product->annotation);
             }
 
             if (!empty($product->description_ua)) {
                 $result['description_ua']['data'] = $this->xmlFeedHelper->escape($product->description_ua);
-            } else if (!empty($product->annotation_ua)) {
+            } elseif (!empty($product->annotation_ua)) {
                 $result['description_ua']['data'] = $this->xmlFeedHelper->escape($product->annotation_ua);
             }
         }
@@ -424,7 +494,7 @@ class RozetkaAdapter extends AbstractPresetAdapter
                     }
 
                     if (count($feature['values']) > 1) {
-                        $valuesString = implode(" <br/>\n", array_map(function($value) {
+                        $valuesString = implode(" <br/>\n", array_map(function ($value) {
                             return $this->xmlFeedHelper->escape($value);
                         }, $feature['values']));
 
@@ -434,7 +504,7 @@ class RozetkaAdapter extends AbstractPresetAdapter
                             $valuesString
                         );
                         if (!empty($this->uaLang) && !empty($this->uaLang->id) && !empty($product->features_ua[$feature['id']])) {
-                            $valuesStringUa = implode(" <br/>\n", array_map(function($value) {
+                            $valuesStringUa = implode(" <br/>\n", array_map(function ($value) {
                                 return $this->xmlFeedHelper->escape($value);
                             }, $product->features_ua[$feature['id']]['values']));
                             $data .= sprintf(
@@ -473,7 +543,7 @@ class RozetkaAdapter extends AbstractPresetAdapter
             'tag' => 'offer',
             'attributes' => [
                 'id' => $product->variant_id,
-                'available' => ($product->stock > 0 || $product->stock === null ? 'true' : 'false'),
+                'available' => ($this->feedVariantIsAvailable($product->stock) ? 'true' : 'false'),
             ],
             'data' => $result
         ];

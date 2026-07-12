@@ -29,13 +29,12 @@ class ValidateHelper implements ExtensionInterface
     private $settings;
 
     public function __construct(
-        Request                 $request,
-        Validator               $validator,
-        EntityFactory           $entityFactory,
-        FrontTranslations       $frontTranslations,
-        Settings                $settings
-    )
-    {
+        Request $request,
+        Validator $validator,
+        EntityFactory $entityFactory,
+        FrontTranslations $frontTranslations,
+        Settings $settings
+    ) {
         $this->request              = $request;
         $this->validator            = $validator;
         $this->entityFactory        = $entityFactory;
@@ -43,7 +42,7 @@ class ValidateHelper implements ExtensionInterface
         $this->settings             = $settings;
     }
 
-    public function validateFastOrderHeler($order,$variantId)
+    public function validateFastOrderHeler($order, $variantId)
     {
         $errors = [];
         /** @var VariantsEntity $variantsEntity */

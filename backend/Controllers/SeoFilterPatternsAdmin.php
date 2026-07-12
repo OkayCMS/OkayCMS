@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Core\BackendTranslations;
 use Okay\Entities\CategoriesEntity;
@@ -12,7 +10,6 @@ use Okay\Entities\SEOFilterPatternsEntity;
 
 class SeoFilterPatternsAdmin extends IndexAdmin
 {
-
     public function fetch(
         SEOFilterPatternsEntity $SEOFilterPatternsEntity,
         FeaturesEntity $featuresEntity,
@@ -23,11 +20,9 @@ class SeoFilterPatternsAdmin extends IndexAdmin
         $this->design->setTemplatesDir('backend/design/html');
         $this->design->setCompiledDir('backend/design/compiled');
 
-        if ($this->request->post("ajax")){
-
+        if ($this->request->post("ajax")) {
             $result = new \stdClass();
             if ($this->request->post("action") == "get_features") {
-
                 $filterFeatures['in_filter'] = 1;
                 if ($this->request->post("template_type") == 'category') {
                     $filterFeatures['category_id'] = $this->request->post("category_id", "integer");
@@ -38,7 +33,6 @@ class SeoFilterPatternsAdmin extends IndexAdmin
             }
             /*Получение SEO шаблонов*/
             if ($this->request->post("action") == "get") {
-
                 $isDefaultCategory = false;
                 if ($this->request->post("template_type") == 'default') {
                     $category = new \stdClass();
@@ -53,7 +47,7 @@ class SeoFilterPatternsAdmin extends IndexAdmin
                     $featuresIds = [];
                     $patterns = [];
                     $features = [];
-                    foreach ($SEOFilterPatternsEntity->find(['category_id'=>$category->id]) as $p) {
+                    foreach ($SEOFilterPatternsEntity->find(['category_id' => $category->id]) as $p) {
                         $patterns[$p->id] = $p;
                         if ($p->feature_id) {
                             $featuresIds[] = $p->feature_id;
@@ -92,7 +86,6 @@ class SeoFilterPatternsAdmin extends IndexAdmin
 
             /*Копирование SEO шаблонов*/
             if ($this->request->post("action") == "copy_patterns_from_category") {
-
                 $isDefaultToCopyCategory = false;
                 $result->success   = false;
 
@@ -106,15 +99,14 @@ class SeoFilterPatternsAdmin extends IndexAdmin
                 }
 
                 if ($categoryFromCopyId && ($categoryToCopyId || $isDefaultToCopyCategory)) {
-
                     // Собираем ключи, для понимания есть ли в базе такой ключ для категории в которую копируем
                     $indexesValuesTo = [];
-                    foreach ($SEOFilterPatternsEntity->find(['category_id'=>$categoryToCopyId]) as $p) {
+                    foreach ($SEOFilterPatternsEntity->find(['category_id' => $categoryToCopyId]) as $p) {
                         $indexesValuesTo[$p->id] = "{$categoryToCopyId}_{$p->type}_{$p->feature_id}_{$p->second_feature_id}";
                     }
 
                     $patternsFromCopy    = [];
-                    foreach ($SEOFilterPatternsEntity->find(['category_id'=>$categoryFromCopyId]) as $p) {
+                    foreach ($SEOFilterPatternsEntity->find(['category_id' => $categoryFromCopyId]) as $p) {
                         if ((array_search("{$categoryToCopyId}_{$p->type}_{$p->feature_id}_{$p->second_feature_id}", $indexesValuesTo)) === false) {
                             $patternsFromCopy[$p->id] = $p;
                         }
@@ -124,7 +116,6 @@ class SeoFilterPatternsAdmin extends IndexAdmin
                         $patternFromCopy->id = null;
                         $patternFromCopy->category_id = $categoryToCopyId;
                         $SEOFilterPatternsEntity->add($patternFromCopy);
-
                     }
                     $result->success = true;
                 }
@@ -132,7 +123,6 @@ class SeoFilterPatternsAdmin extends IndexAdmin
 
             /*Обновление шаблона данных категории*/
             if ($this->request->post("action") == "set") {
-
                 $result->success = true;
 
                 $isDefaultCategory = false;
@@ -150,11 +140,10 @@ class SeoFilterPatternsAdmin extends IndexAdmin
                     $patterns = [];
                     $patternsIds = [];
                     if (is_array($seoFilterPatterns)) {
-
-                        foreach ($this->request->post('seo_filter_patterns') as $n=>$pa) {
-                            foreach ($pa as $i=>$p) {
+                        foreach ($this->request->post('seo_filter_patterns') as $n => $pa) {
+                            foreach ($pa as $i => $p) {
                                 if (empty($patterns[$i])) {
-                                    $patterns[$i] = new \stdClass;
+                                    $patterns[$i] = new \stdClass();
                                 }
                                 $patterns[$i]->$n = $p;
                                 if ($n == 'id') {
@@ -191,7 +180,7 @@ class SeoFilterPatternsAdmin extends IndexAdmin
                     $featuresIds = [];
                     $patterns = [];
                     $features = [];
-                    foreach ($SEOFilterPatternsEntity->find(['category_id'=>$category->id]) as $p) {
+                    foreach ($SEOFilterPatternsEntity->find(['category_id' => $category->id]) as $p) {
                         $patterns[$p->id] = $p;
                         if ($p->feature_id) {
                             $featuresIds[] = $p->feature_id;
@@ -202,7 +191,7 @@ class SeoFilterPatternsAdmin extends IndexAdmin
                     }
 
                     $featuresIds = array_unique($featuresIds);
-                    foreach ($featuresEntity->find(['id'=>$featuresIds]) as $f) {
+                    foreach ($featuresEntity->find(['id' => $featuresIds]) as $f) {
                         $features[$f->id] = $f;
                     }
 

@@ -1,45 +1,37 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Admin\Requests\BackendCategoriesRequest;
 use Okay\Admin\Helpers\BackendCategoriesHelper;
 
 class CategoriesAdmin extends IndexAdmin
 {
-    
     public function fetch(
-        BackendCategoriesHelper  $backendCategoriesHelper,
+        BackendCategoriesHelper $backendCategoriesHelper,
         BackendCategoriesRequest $categoriesRequest
     ) {
         if ($this->request->method('post')) {
-
             // Действия с выбранными
             $ids = $categoriesRequest->postCheckedIds();
             if (is_array($ids)) {
-                switch($this->request->post('action')) {
-                    case 'disable': {
+                switch ($this->request->post('action')) {
+                    case 'disable':
                         $backendCategoriesHelper->disable($ids);
                         break;
-                    }
-                    case 'enable': {
+                    case 'enable':
                         $backendCategoriesHelper->enable($ids);
                         break;
-                    }
-                    case 'delete': {
+                    case 'delete':
                         $backendCategoriesHelper->delete($ids);
                         break;
-                    }
-                    case 'duplicate': {
+                    case 'duplicate':
                         $backendCategoriesHelper->duplicateCategories($ids);
                         $this->postRedirectGet->redirect();
                         break;
-                    }
                 }
             }
-            
+
             // Сортировка
             $positions = $categoriesRequest->postPositions();
             list($ids, $positions) = $backendCategoriesHelper->sortPositions($positions);
@@ -51,10 +43,10 @@ class CategoriesAdmin extends IndexAdmin
         $categoriesCount = $backendCategoriesHelper->countAllCategories();
 
         $this->design->assign('categoriesCount', $categoriesCount);
-        $this->design->assign('categories',      $categories);
+        $this->design->assign('categories', $categories);
         $this->response->setContent($this->design->fetch('categories.tpl'));
     }
-    
+
     public function getSubCategories(
         BackendCategoriesHelper $categoriesHelper
     ) {
@@ -68,12 +60,12 @@ class CategoriesAdmin extends IndexAdmin
             $result['success'] = true;
             $result['cats'] = $this->design->fetch("categories_ajax.tpl");
         } else {
-            $result['success ']= false;
+            $result['success '] = false;
         }
 
         $this->response->setContent(json_encode($result), RESPONSE_JSON);
     }
-    
+
     public function getAllCategories(
         BackendCategoriesHelper $categoriesHelper
     ) {
@@ -86,5 +78,4 @@ class CategoriesAdmin extends IndexAdmin
         $result['cats'] = $this->design->fetch("categories_ajax.tpl");
         $this->response->setContent(json_encode($result), RESPONSE_JSON);
     }
-    
 }

@@ -11,7 +11,7 @@ abstract class AbstractBackendPresetAdapter implements BackendPresetAdapterInter
 {
     use InheritedExtenderTrait;
 
-    /** @var string */
+    /** @var string|null */
     protected static $settingsTemplate;
 
 
@@ -25,8 +25,8 @@ abstract class AbstractBackendPresetAdapter implements BackendPresetAdapterInter
     protected $designBlocks;
 
     public function __construct(
-        Design       $design,
-        Request      $request,
+        Design $design,
+        Request $request,
         DesignBlocks $designBlocks
     ) {
         $this->design       = $design;
@@ -34,11 +34,22 @@ abstract class AbstractBackendPresetAdapter implements BackendPresetAdapterInter
         $this->designBlocks = $designBlocks;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function postSettings(): array
     {
         return $this->inheritedExtender(__FUNCTION__, [], func_get_args());
     }
 
+    protected function normalizeComparisonOperator(mixed $operator): string
+    {
+        return in_array($operator, ['<', '>', '='], true) ? $operator : '=';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     public function postCategorySettings(): array
     {
         $settings = [
@@ -48,6 +59,9 @@ abstract class AbstractBackendPresetAdapter implements BackendPresetAdapterInter
         return $this->inheritedExtender(__FUNCTION__, $settings, func_get_args());
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function postFeatureSettings(): array
     {
         $settings = [
@@ -59,12 +73,16 @@ abstract class AbstractBackendPresetAdapter implements BackendPresetAdapterInter
         return $this->inheritedExtender(__FUNCTION__, $settings, func_get_args());
     }
 
+    /**
+     * @param array<string, mixed> $settings
+     * @return array<string, mixed>
+     */
     public function loadSettings(array $settings): array
     {
         return $this->inheritedExtender(__FUNCTION__, $settings, func_get_args());
     }
 
-    protected function getSettingsTemplate(): string
+    protected function getSettingsTemplate(): ?string
     {
         return $this->inheritedExtender(__FUNCTION__, static::$settingsTemplate, func_get_args());
     }
@@ -86,7 +104,7 @@ abstract class AbstractBackendPresetAdapter implements BackendPresetAdapterInter
     {
         $this->designBlocks->registerBlock(
             'okay_cms__feeds__feed__categories_settings__settings_custom_block',
-            dirname(__DIR__, 2).'/design/html/presets/common/category_settings.tpl'
+            dirname(__DIR__, 2) . '/design/html/presets/common/category_settings.tpl'
         );
 
         $this->inheritedExtender(__FUNCTION__, null, func_get_args());
@@ -96,7 +114,7 @@ abstract class AbstractBackendPresetAdapter implements BackendPresetAdapterInter
     {
         $this->designBlocks->registerBlock(
             'okay_cms__feeds__feed__features_settings__settings_custom_block',
-            dirname(__DIR__, 2).'/design/html/presets/common/feature_settings.tpl'
+            dirname(__DIR__, 2) . '/design/html/presets/common/feature_settings.tpl'
         );
 
         $this->inheritedExtender(__FUNCTION__, null, func_get_args());

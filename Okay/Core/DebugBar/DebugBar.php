@@ -3,17 +3,17 @@
 namespace Okay\Core\DebugBar;
 
 use Aura\Sql\ExtendedPdo;
-use DebugBar\Bridge\MonologCollector;
+use DebugBar\Bridge\Monolog\MonologCollector;
 use DebugBar\DataCollector\DataCollectorInterface;
 use DebugBar\DataCollector\MemoryCollector;
 use DebugBar\DataCollector\MessagesCollector;
-use DebugBar\DataCollector\PDO\PDOCollector;
 use DebugBar\DataCollector\PDO\TraceablePDO;
 use DebugBar\DataCollector\PhpInfoCollector;
 use DebugBar\DataCollector\RequestDataCollector;
 use DebugBar\DebugBar as LibDebugBar;
 use Monolog\Logger;
 use Okay\Core\DebugBar\DataCollectors\ConfigCollector;
+use Okay\Core\DebugBar\DataCollectors\PdoCollector;
 use Okay\Core\DebugBar\DataCollectors\TimeDataCollector;
 use Okay\Core\ServiceLocator;
 use Psr\Log\LoggerInterface;
@@ -55,7 +55,7 @@ class DebugBar
             /** @var ExtendedPdo $extendedPdo */
             $extendedPdo = self::$serviceLocator->getService(ExtendedPdo::class);
             $traceablePdo = new TraceablePDO($extendedPdo);
-            DebugBar::addCollector(new PDOCollector($traceablePdo));
+            DebugBar::addCollector(new PdoCollector($traceablePdo));
         }
     }
 
@@ -69,8 +69,9 @@ class DebugBar
     public static function getCollector($name)
     {
         if (!is_null(self::$debugBar)) {
-            self::$debugBar->getCollector($name);
+            return self::$debugBar->getCollector($name);
         }
+        return null;
     }
 
     public static function stackData()
@@ -82,15 +83,17 @@ class DebugBar
 
     public static function addLogger(Logger $logger)
     {
-        if (!is_null(self::$debugBar)) {
-            self::$debugBar['system_log']->addLogger($logger);
+        $collector = self::getSystemLogCollector();
+        if ($collector !== null) {
+            $collector->addLogger($logger);
         }
     }
 
     public static function setConfigValue($name, $value, $source)
     {
-        if (!is_null(self::$debugBar)) {
-            self::$debugBar['config']->set($name, $value, $source);
+        $collector = self::getConfigCollector();
+        if ($collector !== null) {
+            $collector->set($name, $value, $source);
         }
     }
 
@@ -104,94 +107,135 @@ class DebugBar
 
     public static function startMeasure($name, $label = null, $collector = null, $aggregate = false)
     {
-        if (!is_null(self::$debugBar)) {
-            self::$debugBar['time']->startMeasure($name, $label, $collector, $aggregate);
+        $timeCollector = self::getTimeCollector();
+        if ($timeCollector !== null) {
+            $timeCollector->startMeasure($name, $label, $collector, $aggregate);
         }
     }
 
     public static function stopMeasure($name, $params = [])
     {
-        if (!is_null(self::$debugBar)) {
-            self::$debugBar['time']->stopMeasure($name, $params);
+        $timeCollector = self::getTimeCollector();
+        if ($timeCollector !== null) {
+            $timeCollector->stopMeasure($name, $params);
         }
     }
 
     public static function hasStartedMeasure($name)
     {
-        if (!is_null(self::$debugBar)) {
-            return self::$debugBar['time']->hasStartedMeasure($name);
+        $timeCollector = self::getTimeCollector();
+        if ($timeCollector !== null) {
+            return $timeCollector->hasStartedMeasure($name);
         }
         return null;
     }
 
     public static function addMessage($message, $label = 'info')
     {
-        if (!is_null(self::$debugBar)) {
-            self::$debugBar['messages']->addMessage($message, $label);
+        $collector = self::getMessagesCollector();
+        if ($collector !== null) {
+            $collector->addMessage($message, $label);
         }
     }
 
     public static function error($message)
     {
-        if (!is_null(self::$debugBar)) {
-            self::$debugBar['messages']->error($message);
+        $collector = self::getMessagesCollector();
+        if ($collector !== null) {
+            $collector->error($message);
         }
     }
 
     public static function emergency($message)
     {
-        if (!is_null(self::$debugBar)) {
-            self::$debugBar['messages']->emergency($message);
+        $collector = self::getMessagesCollector();
+        if ($collector !== null) {
+            $collector->emergency($message);
         }
     }
 
     public static function alert($message)
     {
-        if (!is_null(self::$debugBar)) {
-            self::$debugBar['messages']->alert($message);
+        $collector = self::getMessagesCollector();
+        if ($collector !== null) {
+            $collector->alert($message);
         }
     }
 
     public static function critical($message)
     {
-        if (!is_null(self::$debugBar)) {
-            self::$debugBar['messages']->critical($message);
+        $collector = self::getMessagesCollector();
+        if ($collector !== null) {
+            $collector->critical($message);
         }
     }
 
     public static function warning($message)
     {
-        if (!is_null(self::$debugBar)) {
-            self::$debugBar['messages']->warning($message);
+        $collector = self::getMessagesCollector();
+        if ($collector !== null) {
+            $collector->warning($message);
         }
     }
 
     public static function notice($message)
     {
-        if (!is_null(self::$debugBar)) {
-            self::$debugBar['messages']->notice($message);
+        $collector = self::getMessagesCollector();
+        if ($collector !== null) {
+            $collector->notice($message);
         }
     }
 
     public static function info($message)
     {
-        if (!is_null(self::$debugBar)) {
-            self::$debugBar['messages']->info($message);
+        $collector = self::getMessagesCollector();
+        if ($collector !== null) {
+            $collector->info($message);
         }
     }
 
     public static function debug($message)
     {
-        if (!is_null(self::$debugBar)) {
-            self::$debugBar['messages']->debug($message);
+        $collector = self::getMessagesCollector();
+        if ($collector !== null) {
+            $collector->debug($message);
         }
     }
 
     public static function log($level, $message)
     {
-        if (!is_null(self::$debugBar)) {
-            self::$debugBar['messages']->log($level, $message);
+        $collector = self::getMessagesCollector();
+        if ($collector !== null) {
+            $collector->log($level, $message);
         }
+    }
+
+    private static function getSystemLogCollector(): ?MonologCollector
+    {
+        $collector = self::getCollector('system_log');
+
+        return $collector instanceof MonologCollector ? $collector : null;
+    }
+
+    private static function getConfigCollector(): ?ConfigCollector
+    {
+        $collector = self::getCollector('config');
+
+        return $collector instanceof ConfigCollector ? $collector : null;
+    }
+
+    private static function getTimeCollector(): ?TimeDataCollector
+    {
+        $collector = self::getCollector('time');
+
+        return $collector instanceof TimeDataCollector ? $collector : null;
+    }
+
+    private static function getMessagesCollector(): ?MessagesCollector
+    {
+        $collector = self::getCollector('messages');
+
+        return $collector instanceof MessagesCollector ? $collector : null;
     }
 
     public static function startExtensionExecution($trigger, $extension)
@@ -230,7 +274,7 @@ class DebugBar
             $vendorName = preg_replace('~Okay/Modules/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/?.*~', '$1', $blockTplFile);
             $moduleName = preg_replace('~Okay/Modules/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/?.*~', '$2', $blockTplFile);
 
-            self::stopMeasure("$vendorName/$moduleName", ['Design block' => "$blockName -> ".pathinfo($blockTplFile, PATHINFO_FILENAME)]);
+            self::stopMeasure("$vendorName/$moduleName", ['Design block' => "$blockName -> " . pathinfo($blockTplFile, PATHINFO_FILENAME)]);
         }
     }
 }

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Requests;
-
 
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Request;
@@ -24,11 +22,13 @@ class BackendMenuRequest
         $menu->name     = $this->request->post('name');
         $menu->visible  = $this->request->post('visible', 'integer');
         $menu->group_id = preg_replace("/[\s]+/ui", '', $menu->group_id);
-        $menu->group_id = strtolower(preg_replace("/[^0-9a-z_]+/ui", '', $menu->group_id));
+        $menu->group_id = is_string($menu->group_id) ? $menu->group_id : '';
+        $groupId = preg_replace("/[^0-9a-z_]+/ui", '', $menu->group_id);
+        $menu->group_id = strtolower(is_string($groupId) ? $groupId : '');
 
         return ExtenderFacade::execute(__METHOD__, $menu, func_get_args());
     }
-    
+
     public function postMenuItems()
     {
         $postFields = $this->request->post('menu_items');
@@ -46,7 +46,7 @@ class BackendMenuRequest
                 $menuItems[$i]->$field = $v;
             }
         }
-        
+
         // сортируем по родителю
         usort($menuItems, function ($item1, $item2) {
             if ($item1->parent_index == $item2->parent_index) {
@@ -64,7 +64,7 @@ class BackendMenuRequest
             $tm[$item->index] = $item;
         }
         $menuItems = $tm;
-        
+
         return ExtenderFacade::execute(__METHOD__, $menuItems, func_get_args());
     }
 
@@ -85,5 +85,4 @@ class BackendMenuRequest
         $positions = $this->request->post('positions');
         return ExtenderFacade::execute(__METHOD__, $positions, func_get_args());
     }
-    
 }

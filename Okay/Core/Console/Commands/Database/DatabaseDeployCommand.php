@@ -22,7 +22,14 @@ class DatabaseDeployCommand extends Command
                 null,
                 InputOption::VALUE_REQUIRED,
                 'The database file path',
-                dirname(__DIR__, 5).'/1DB_changes/okay_clean.sql'
+                dirname(__DIR__, 5) . '/1DB_changes/okay_clean.sql'
+            )
+            ->addOption('yes', 'y', InputOption::VALUE_NONE, 'Deploy without interactive confirmation.')
+            ->addOption(
+                'delete-demo',
+                null,
+                InputOption::VALUE_NONE,
+                'Remove demo catalog content after deploy (non-interactive; use with --yes).'
             );
     }
 
@@ -30,7 +37,9 @@ class DatabaseDeployCommand extends Command
     {
         $this->output->writeln("\n***************************");
 
-        if (!$this->askConfirmation('Deploy clean database? ', false)) {
+        $assumeYes = (bool) $this->input->getOption('yes');
+
+        if (!$assumeYes && !$this->askConfirmation('Deploy clean database? ', false)) {
             return Command::FAILURE;
         }
 
@@ -48,14 +57,13 @@ class DatabaseDeployCommand extends Command
         $driver = $config->get('db_driver');
         $charset = $config->get('db_charset');
 
-        if ($this->askConfirmation('Set new credentials for database? ', false)) {
+        if (!$assumeYes && $this->askConfirmation('Set new credentials for database? ', false)) {
             $server = $this->ask("Enter database SERVER({$server}): ", $server);
             $user = $this->ask("Enter database USER({$user}): ", $user);
             $password = $this->ask("Enter database PASSWORD({$password}): ", $password);
             $name = $this->ask("Enter database NAME({$name}): ", $name);
 
             $pdo = new ExtendedPdo("{$driver}:host={$server};dbname={$name};charset={$charset}", $user, $password);
-            $pdo->connect();
 
             $config->set('db_server', $server);
             $config->set('db_user', $user);
@@ -63,12 +71,15 @@ class DatabaseDeployCommand extends Command
             $config->set('db_name', $name);
         } else {
             $pdo = new ExtendedPdo("{$driver}:host={$server};dbname={$name};charset={$charset}", $user, $password);
-            $pdo->connect();
         }
 
         $this->restore($pdo, $filename);
 
-        if ($this->askConfirmation('Delete demo content? ', false)) {
+        $deleteDemo = $assumeYes
+            ? (bool) $this->input->getOption('delete-demo')
+            : $this->askConfirmation('Delete demo content? ', false);
+
+        if ($deleteDemo) {
             /** @var DataCleaner $dataCleaner */
             $dataCleaner = $this->serviceLocator->getService(DataCleaner::class);
 
@@ -86,13 +97,12 @@ class DatabaseDeployCommand extends Command
     private function restore(ExtendedPdo $pdo, string $filename): void
     {
         $migration = fopen($filename, 'r');
-        if(empty($migration)) {
+        if ($migration === false) {
             return;
         }
 
         $migrationQuery = '';
-        while(!feof($migration)) {
-            $line = fgets($migration);
+        while (($line = fgets($migration)) !== false) {
             if ($this->isComment($line) || empty($line)) {
                 continue;
             }
@@ -104,8 +114,8 @@ class DatabaseDeployCommand extends Command
 
             try {
                 $pdo->perform($migrationQuery);
-            } catch(\PDOException $e) {
-                print 'Error performing query \'<b>'.$migrationQuery.'</b>\': '.$e->getMessage().'<br/><br/>';
+            } catch (\Exception $e) {
+                print 'Error performing query \'<b>' . $migrationQuery . '</b>\': ' . $e->getMessage() . '<br/><br/>';
             }
 
             $migrationQuery = '';

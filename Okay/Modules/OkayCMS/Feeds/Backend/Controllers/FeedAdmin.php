@@ -11,9 +11,10 @@ class FeedAdmin extends IndexAdmin
 {
     public function fetch(
         BackendFeedsRequest $feedsRequest,
-        BackendFeedsHelper  $backendFeedsHelper
+        BackendFeedsHelper $backendFeedsHelper
     ) {
         if ($this->request->method('POST')) {
+            /** @var \stdClass&object{id: int|string|null, name: mixed, url: string, preset: string, settings: array<string, mixed>} $feed */
             $feed           = $feedsRequest->postFeed();
             $conditions     = $feedsRequest->postConditions();
             $newConditions  = $feedsRequest->postNewConditions();
@@ -21,7 +22,6 @@ class FeedAdmin extends IndexAdmin
             if ($error = $backendFeedsHelper->getValidateError($feed)) {
                 $this->design->assign('message_error', $error);
             } else {
-
                 if (empty($feed->id)) {
                     $feed     = $backendFeedsHelper->prepareAdd($feed);
                     $feed->id = $backendFeedsHelper->add($feed);
@@ -110,7 +110,7 @@ class FeedAdmin extends IndexAdmin
             $result['success'] = true;
             $result['cats'] = $this->design->fetch("feed_tabs/categories_ajax.tpl");
         } else {
-            $result['success ']= false;
+            $result['success '] = false;
         }
 
         $this->response->setContent(json_encode($result), RESPONSE_JSON);
@@ -138,13 +138,13 @@ class FeedAdmin extends IndexAdmin
 
     public function updateEntitySettings(
         BackendFeedsRequest $feedsRequest,
-        BackendFeedsHelper  $backendFeedsHelper
+        BackendFeedsHelper $backendFeedsHelper
     ) {
         if (!$this->request->method('post')) {
             return false;
         }
 
-        switch($this->request->post('entity')) {
+        switch ($this->request->post('entity')) {
             case 'category':
                 $settings = $feedsRequest->postCategorySettings();
                 $backendFeedsHelper->updateCategorySettings($this->request->post('feed_id'), $this->request->post('entity_id'), $settings);

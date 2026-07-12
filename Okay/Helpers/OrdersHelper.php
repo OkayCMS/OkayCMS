@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Helpers;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Phone;
@@ -17,28 +15,42 @@ use Okay\Entities\UsersEntity;
 use Okay\Entities\VariantsEntity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 
+/**
+ * @phpstan-type VariantPriceRow object{id: int|string, price: int|float|string, currency_id: int|string|null, compare_price?: int|float|string|null}&\stdClass
+ * @phpstan-type DiscountDbRow object{id: int|string, type: string, value: int|float|string, name: string, description: string, from_last_discount: bool, position?: int|string|null}&\stdClass
+ */
 class OrdersHelper
 {
-    /** @var EntityFactory */
+    /**
+     * @var EntityFactory
+     */
     private $entityFactory;
 
-    /** @var ProductsHelper */
+    /**
+     * @var ProductsHelper
+     */
     private $productsHelper;
 
-    /** @var MoneyHelper */
+    /**
+     * @var MoneyHelper
+     */
     private $moneyHelper;
 
 
-    /** @var DiscountsEntity */
+    /**
+     * @var DiscountsEntity
+     */
     private $discountsEntity;
 
-    /** @var DiscountsHelper */
+    /**
+     * @var DiscountsHelper
+     */
     private $discountsHelper;
 
     public function __construct(
-        EntityFactory   $entityFactory,
-        ProductsHelper  $productsHelper,
-        MoneyHelper     $moneyHelper,
+        EntityFactory $entityFactory,
+        ProductsHelper $productsHelper,
+        MoneyHelper $moneyHelper,
         DiscountsHelper $discountsHelper
     ) {
         $this->entityFactory   = $entityFactory;
@@ -52,7 +64,7 @@ class OrdersHelper
     /**
      * @param $order
      * Метод вызывается после оформления заказа, перед отправкой пользователя на страницу заказа и очисткой корзины.
-     * Нужен чтобы модули могли расширять эту процедуру 
+     * Нужен чтобы модули могли расширять эту процедуру
      */
     public function finalCreateOrderProcedure($order)
     {
@@ -61,12 +73,26 @@ class OrdersHelper
 
     public function getOrderDelivery($order): ?object
     {
-        /** @var DeliveriesEntity $deliveriesEntity */
+        /**
+         * @var DeliveriesEntity $deliveriesEntity
+         */
         $deliveriesEntity = $this->entityFactory->get(DeliveriesEntity::class);
         $delivery = null;
         if ($order->delivery_id) {
             $delivery = $deliveriesEntity->get((int)$order->delivery_id);
-            $delivery->settings = unserialize($delivery->settings);
+            if (!empty($delivery->settings) && is_string($delivery->settings)) {
+                // Безпечна десеріалізація з перевіркою помилок
+                $success = true;
+                set_error_handler(
+                    function (int $errno, string $errstr, string $errfile, int $errline) use (&$success): bool {
+                        $success = false;
+                        return true;
+                    }
+                );
+                $unserialized = unserialize($delivery->settings);
+                restore_error_handler();
+                $delivery->settings = $success && $unserialized !== false ? $unserialized : [];
+            }
         }
 
         return ExtenderFacade::execute(__METHOD__, $delivery, func_get_args());
@@ -74,47 +100,83 @@ class OrdersHelper
 
     public function getOrderPaymentMethod($order): ?object
     {
-        /** @var PaymentsEntity $paymentsEntity */
+        /**
+         * @var PaymentsEntity $paymentsEntity
+         */
         $paymentsEntity = $this->entityFactory->get(PaymentsEntity::class);
         $paymentMethod = null;
 
         if ($order->payment_method_id) {
             $paymentMethod = $paymentsEntity->get((int)$order->payment_method_id);
-            $paymentMethod->settings = unserialize($paymentMethod->settings);
+            if (!empty($paymentMethod->settings) && is_string($paymentMethod->settings)) {
+                // Безпечна десеріалізація з перевіркою помилок
+                $success = true;
+                set_error_handler(
+                    function (int $errno, string $errstr, string $errfile, int $errline) use (&$success): bool {
+                        $success = false;
+                        return true;
+                    }
+                );
+                $unserialized = unserialize($paymentMethod->settings);
+                restore_error_handler();
+                $paymentMethod->settings = $success && $unserialized !== false ? $unserialized : [];
+            }
         }
 
         return ExtenderFacade::execute(__METHOD__, $paymentMethod, func_get_args());
     }
-    
+
     public function getOrderPaymentMethodsList($order)
     {
-        /** @var PaymentsEntity $paymentsEntity */
+        /**
+         * @var PaymentsEntity $paymentsEntity
+         */
         $paymentsEntity = $this->entityFactory->get(PaymentsEntity::class);
-        
-        $paymentMethods = $paymentsEntity->find([
-            'delivery_id' => $order->delivery_id,
-            'enabled' => 1,
-        ]);
+
+        $paymentMethods = $paymentsEntity->find(
+            [
+                'delivery_id' => $order->delivery_id,
+                'enabled' => 1,
+            ]
+        );
 
         foreach ($paymentMethods as $paymentMethod) {
-            $paymentMethod->settings = unserialize($paymentMethod->settings);
+            if (!empty($paymentMethod->settings) && is_string($paymentMethod->settings)) {
+                // Безпечна десеріалізація з перевіркою помилок
+                $success = true;
+                set_error_handler(
+                    function (int $errno, string $errstr, string $errfile, int $errline) use (&$success): bool {
+                        $success = false;
+                        return true;
+                    }
+                );
+                $unserialized = unserialize($paymentMethod->settings);
+                restore_error_handler();
+                $paymentMethod->settings = $success && $unserialized !== false ? $unserialized : [];
+            }
         }
 
         return ExtenderFacade::execute(__METHOD__, $paymentMethods, func_get_args());
     }
-    
+
     public function getOrderPurchasesList($orderId)
     {
-        /** @var PurchasesEntity $purchasesEntity */
+        /**
+         * @var PurchasesEntity $purchasesEntity
+         */
         $purchasesEntity = $this->entityFactory->get(PurchasesEntity::class);
-        
-        /** @var ProductsEntity $productsEntity */
+
+        /**
+         * @var ProductsEntity $productsEntity
+         */
         $productsEntity = $this->entityFactory->get(ProductsEntity::class);
-        
-        /** @var VariantsEntity $variantsEntity */
+
+        /**
+         * @var VariantsEntity $variantsEntity
+         */
         $variantsEntity = $this->entityFactory->get(VariantsEntity::class);
-        
-        $purchases = $purchasesEntity->mappedBy('id')->find(['order_id'=>intval($orderId)]);
+
+        $purchases = $purchasesEntity->mappedBy('id')->find(['order_id' => intval($orderId)]);
         if (!$purchases) {
             return ExtenderFacade::execute(__METHOD__, false, func_get_args());
         }
@@ -126,17 +188,21 @@ class OrdersHelper
             $variantsIds[] = $purchase->variant_id;
         }
 
-        $products = $productsEntity->mappedBy('id')->find(['id'=>$productsIds, 'limit' => count($productsIds)]);
-        $products = $this->productsHelper->attachVariants($products, ['id'=>$variantsIds]);
+        $products = $productsEntity->mappedBy('id')->find(['id' => $productsIds, 'limit' => count($productsIds)]);
+        $products = $this->productsHelper->attachVariants($products, ['id' => $variantsIds]);
         $products = $this->productsHelper->attachMainImages($products);
-        $variants = $variantsEntity->mappedBy('id')->find(['id'=>$variantsIds]);
+        /** @var array<int|string, VariantPriceRow> $variants */
+        $variants = $variantsEntity->mappedBy('id')->find(['id' => $variantsIds]);
         $variants = $this->moneyHelper->convertVariantsPriceToMainCurrency($variants);
 
-        $discounts = $this->discountsEntity->find([
-            'entity' => 'purchase',
-            'entity_id' => array_keys($purchases)
-        ]);
+        $discounts = $this->discountsEntity->find(
+            [
+                'entity' => 'purchase',
+                'entity_id' => array_keys($purchases)
+            ]
+        );
 
+        /** @var array<int|string, list<DiscountDbRow>> $sortedDiscounts */
         $sortedDiscounts = [];
         if (!empty($discounts)) {
             foreach ($discounts as $discount) {
@@ -170,30 +236,35 @@ class OrdersHelper
             $order->referer_channel = $referer['medium'];
             $order->referer_source = $referer['source'];
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $order, func_get_args());
     }
 
     public function add($order)
     {
         $ordersEntity = $this->entityFactory->get(OrdersEntity::class);
-        
+
         $result = $ordersEntity->add($order);
         return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
     }
 
+    /**
+     * @param object{phone?: mixed, user_id?: mixed}&\stdClass $order
+     * @param object{id?: mixed, phone?: mixed}|null $user
+     */
     public function attachUserIfLogin($order, $user)
     {
         if (!empty($user->id)) {
             $order->user_id = $user->id;
-            
+
             // Если у пользователя телефон пустой, но в заказе указан, добавим этот телефон пользователю
-            if (empty($user->phone && !empty($order->phone))) {
-                /** @var UsersEntity $usersEntity */
+            if (empty(($user->phone ?? null) && !empty($order->phone))) {
+                /**
+                 * @var UsersEntity $usersEntity
+                 */
                 $usersEntity = $this->entityFactory->get(UsersEntity::class);
                 $usersEntity->update($user->id, ['phone' => $order->phone]);
             }
-            
         }
 
         return ExtenderFacade::execute(__METHOD__, $order, func_get_args());
@@ -201,12 +272,17 @@ class OrdersHelper
 
     public function getDiscounts($orderId)
     {
-        /** @var OrdersEntity $ordersEntity */
+        /**
+         * @var OrdersEntity $ordersEntity
+         */
         $ordersEntity = $this->entityFactory->get(OrdersEntity::class);
-        $discountsDB = $this->discountsEntity->order('position')->find([
-            'entity' => 'order',
-            'entity_id' => $orderId
-        ]);
+        /** @var list<DiscountDbRow> $discountsDB */
+        $discountsDB = array_values($this->discountsEntity->order('position')->find(
+            [
+                'entity' => 'order',
+                'entity_id' => $orderId
+            ]
+        ));
         $order = $ordersEntity->findOne(['id' => $orderId]);
         list($discounts) = $this->discountsHelper->calculateDiscounts($this->discountsHelper->buildFromDB($discountsDB), $order->undiscounted_total_price);
 

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Routes\Strategies\Post;
-
 
 use Okay\Core\Database;
 use Okay\Core\EntityFactory;
@@ -35,7 +33,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
 
     /** @var RouterCacheEntity */
     private $cacheEntity;
-    
+
     /** @var QueryFactory */
     private $queryFactory;
 
@@ -63,10 +61,10 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
         } elseif ($route = PostRoute::getUrlSlugAlias($url)) {// Может уже указали для этого урла его slug
             return $route;
         } elseif (PostRoute::getUseSqlToGenerate() === false) {// Если запретили выполнять запросы для генерации урла
-            $this->logger->notice('For generate route to post "'.$url.'" need execute SQL query. Or set url through "Okay\Core\Routes\PostRoute::setUrlSlugAlias()"');
+            $this->logger->notice('For generate route to post "' . $url . '" need execute SQL query. Or set url through "Okay\Core\Routes\PostRoute::setUrlSlugAlias()"');
             return '';
         }
-        
+
         if (!$this->cacheInitFromDb) {
             PostRoute::mergeUrlSlugAlias(
                 $this->cacheEntity->cols(['slug_url', 'url'])->find(['type' => 'post'])
@@ -77,33 +75,35 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
         if ($route = PostRoute::getUrlSlugAlias($url)) {
             return $route;
         }
-        
+
         $post = $this->blogEntity->findOne(['url' => $url]);
+        /** @var object{url: string, main_category_id?: int|string|null}&\stdClass $post */
         $slug = $post->url;
         if (empty($post->main_category_id)) {
-            $this->logger->warning('Missing "main_category_id" for post "'.$url.'"');
+            $this->logger->warning('Missing "main_category_id" for post "' . $url . '"');
         } else {
             $category = $this->categoriesEntity->findOne(['id' => $post->main_category_id]);
-            $slug = substr($category->path_url, 1).'/'.$post->url;
+            /** @var object{path_url: string}&\stdClass $category */
+            $slug = substr($category->path_url, 1) . '/' . $post->url;
         }
-        
+
         // Запоминаем в оперативке slug для этого урла
         PostRoute::setUrlSlugAlias($url, $slug);
-        
+
         // Сохраняем в базу slug, чтобы его больше не генерить
         $this->cacheEntity->add([
             'url' => $url,
             'slug_url' => $slug,
             'type' => 'post',
         ]);
-        
+
         return $slug;
     }
 
     public function generateRouteParams($url)
     {
         $prefix = $this->getPrefix();
-        
+
         if ($this->prefixIsFailed($prefix, $url)) {
             return $this->getMockRouteParams($prefix);
         }
@@ -134,7 +134,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
         }
 
         return [
-            $prefix.'/{$url}',
+            $prefix . '/{$url}',
             [
                 '{$url}' => $noPrefixUrl
             ],
@@ -146,7 +146,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
 
     private function getMockRouteParams($prefix)
     {
-        return [$prefix.'/{$url}', ['{$url}' => ''], []];
+        return [$prefix . '/{$url}', ['{$url}' => ''], []];
     }
 
     private function matchPostUrlFromUri($url, $categoryPathUrl)
@@ -170,7 +170,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
     private function uriNoContainsValidCategoryPathUrl($url, $categoryPathUrl)
     {
         if ($url[0] !== '/') {
-            $url = '/'.$url;
+            $url = '/' . $url;
         }
 
         $comparePartUri = substr($url, 0, strlen($categoryPathUrl));
@@ -193,7 +193,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
 
     private function findMostNestedCategoryId($mappedByParentCategories)
     {
-        $sortCategories = function($category) use (&$sortCategories, $mappedByParentCategories) {
+        $sortCategories = function ($category) use (&$sortCategories, $mappedByParentCategories) {
             $nestedSortCategories[] = $category;
 
             if (empty($mappedByParentCategories[$category->id])) {
@@ -210,7 +210,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
     private function mapCategoriesByParents($categories)
     {
         $categoriesMappedByParent = [];
-        foreach($categories as $category) {
+        foreach ($categories as $category) {
             if (isset($categoriesMappedByParent[$category->parent_id])) {
                 return false;
             }

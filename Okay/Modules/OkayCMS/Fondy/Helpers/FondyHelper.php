@@ -1,18 +1,16 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\Fondy\Helpers;
-
 
 class FondyHelper
 {
-    const ORDER_SEPARATOR = '#';
-    const SIGNATURE_SEPARATOR = '|';
-    const ORDER_APPROVED = 'approved';
+    public const ORDER_SEPARATOR = '#';
+    public const SIGNATURE_SEPARATOR = '|';
+    public const ORDER_APPROVED = 'approved';
 
     public static function getSignature($data, $password, $encoded = true)
     {
-        $data = array_filter($data, function($var) {
+        $data = array_filter($data, function ($var) {
             return $var !== '' && $var !== null;
         });
         ksort($data);
@@ -26,7 +24,7 @@ class FondyHelper
             return $str;
         }
     }
-    
+
     public static function isPaymentValid($oplataSettings, $response)
     {
         if ($oplataSettings['merchant'] != $response['merchant_id']) {
@@ -34,10 +32,10 @@ class FondyHelper
         }
 
         $responseSignature = $response['signature'];
-        if (isset($response['response_signature_string'])){
+        if (isset($response['response_signature_string'])) {
             unset($response['response_signature_string']);
         }
-        if (isset($response['signature'])){
+        if (isset($response['signature'])) {
             unset($response['signature']);
         }
         if (self::getSignature($response, $oplataSettings['secretkey']) != $responseSignature) {

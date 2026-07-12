@@ -1,15 +1,12 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 
 class ManagersEntity extends Entity
 {
-
     protected static $fields = [
         'id',
         'lang',
@@ -35,6 +32,7 @@ class ManagersEntity extends Entity
 
     public function find(array $filter = [])
     {
+        /** @var \Okay\Core\Managers $managerCore */
         $managerCore = $this->serviceLocator->getService(\Okay\Core\Managers::class);
         $managers = parent::find($filter);
         foreach ($managers as $m) {
@@ -51,9 +49,15 @@ class ManagersEntity extends Entity
 
     public function get($id)
     {
+        /** @var \Okay\Core\Managers $managerCore */
         $managerCore = $this->serviceLocator->getService(\Okay\Core\Managers::class);
         if ($manager = parent::get($id)) {
-            $manager->menu = unserialize($manager->menu);
+            if ($manager->menu !== null) {
+                $manager->menu = unserialize((string)$manager->menu);
+            }
+            if ($manager->menu === false) {
+                $manager->menu = [];
+            }
 
             $managerCore->setManagerPermissions($manager);
             return ExtenderFacade::execute([static::class, __FUNCTION__], $manager, func_get_args());
@@ -68,11 +72,11 @@ class ManagersEntity extends Entity
 
         /** @var \Okay\Core\Managers $managersCore */
         $managersCore = $this->serviceLocator->getService(\Okay\Core\Managers::class);
-        
+
         $manager = (object)$manager;
         if (!empty($manager->password)) {
             // захешировать пароль
-            $manager->password = $managersCore->cryptApr1Md5($manager->password);
+            $manager->password = $managersCore->hashPassword($manager->password);
         }
 
         if (!empty($manager->menu) && is_array($manager->menu)) {
@@ -80,14 +84,14 @@ class ManagersEntity extends Entity
         }
 
         if (isset($manager->permissions) && is_array($manager->permissions)) {
-            if (count(array_diff($managersCore->getAllPermissions(), $manager->permissions))>0) {
+            if (count(array_diff($managersCore->getAllPermissions(), $manager->permissions)) > 0) {
                 $manager->permissions = implode(",", array_intersect($managersCore->getAllPermissions(), $manager->permissions));
             } else {
                 // все права
                 $manager->permissions = null;
             }
         }
-        
+
         return parent::add($manager);
     }
 
@@ -96,19 +100,19 @@ class ManagersEntity extends Entity
     {
         /** @var \Okay\Core\Managers $managersCore */
         $managersCore = $this->serviceLocator->getService(\Okay\Core\Managers::class);
-        
+
         $manager = (object)$manager;
         if (!empty($manager->password)) {
             // захешировать пароль
-            $manager->password = $managersCore->cryptApr1Md5($manager->password);
+            $manager->password = $managersCore->hashPassword($manager->password);
         }
 
         if (!empty($manager->menu) && is_array($manager->menu)) {
             $manager->menu = serialize($manager->menu);
         }
-        
+
         if (isset($manager->permissions) && is_array($manager->permissions)) {
-            if (count(array_diff($managersCore->getAllPermissions(), $manager->permissions))>0) {
+            if (count(array_diff($managersCore->getAllPermissions(), $manager->permissions)) > 0) {
                 $manager->permissions = implode(",", array_intersect($managersCore->getAllPermissions(), $manager->permissions));
             } else {
                 // все права
@@ -119,12 +123,23 @@ class ManagersEntity extends Entity
         return parent::update($id, $manager);
     }
 
+    public function rehashPasswordIfNeeded(int|string $id, string $password, string $hash): bool
+    {
+        /** @var \Okay\Core\Managers $managersCore */
+        $managersCore = $this->serviceLocator->getService(\Okay\Core\Managers::class);
+        if (!$managersCore->needsPasswordRehash($hash)) {
+            return false;
+        }
+
+        return (bool)$this->update($id, ['password' => $password]);
+    }
+
     public function updateLastActivityDate($managerId)
     {
         $update = $this->queryFactory->newUpdate();
         $update->set('last_activity', 'NOW()')
             ->table(self::getTable())
-            ->where( 'id=:id')
+            ->where('id=:id')
             ->bindValue('id', $managerId);
         $this->db->query($update);
 

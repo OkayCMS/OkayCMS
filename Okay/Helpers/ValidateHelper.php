@@ -1,13 +1,12 @@
 <?php
 
-
 namespace Okay\Helpers;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\FrontTranslations;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Request;
+use Okay\Core\Security\CustomerCsrfToken;
 use Okay\Core\ServiceLocator;
 use Okay\Core\Settings;
 use Okay\Core\Validator;
@@ -16,7 +15,6 @@ use Okay\Entities\UsersEntity;
 
 class ValidateHelper
 {
-
     private Validator $validator;
     private Settings $settings;
     private Request $request;
@@ -55,7 +53,7 @@ class ValidateHelper
 
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
-    
+
     public function getUserRegisterError($user): ?string
     {
         $SL = ServiceLocator::getInstance();
@@ -65,7 +63,7 @@ class ValidateHelper
 
         $captchaCode =  $this->request->post('captcha_code', 'string');
         $error = null;
-        $userExists = $usersEntity->count(['email'=>$user->email]);
+        $userExists = $usersEntity->count(['email' => $user->email]);
 
         /*Валидация данных клиента*/
         if ($userExists) {
@@ -81,33 +79,33 @@ class ValidateHelper
         } elseif ($this->settings->get('captcha_register') && !$this->validator->verifyCaptcha('captcha_register', $captchaCode)) {
             $error = 'captcha';
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
 
     public function getUserLoginError($email, $password): ?string
     {
-        $SL = ServiceLocator::getInstance();
-        $entityFactory = $SL->getService(EntityFactory::class);
-        /** @var UsersEntity $usersEntity */
-        $usersEntity = $entityFactory->get(UsersEntity::class);
-        
         $error = null;
-        
-        $userId = $usersEntity->checkPassword($email, $password);
 
         /*Валидация данных клиента*//*todo мож разделить проверку*/
-        if (!$this->validator->isEmail($email, true) || empty($password) || !$userId) {
+        if (!$this->validator->isEmail($email, true) || empty($password)) {
             $error = 'login_incorrect';
-        } 
+        }
 
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
-    
+
+    public function getCustomerCsrfError(?string $token): ?string
+    {
+        $error = CustomerCsrfToken::check($token) ? null : 'csrf';
+
+        return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
+    }
+
     public function getFeedbackValidateError($feedback): ?string
     {
         $captchaCode =  $this->request->post('captcha_code', 'string');
-        
+
         $error = null;
         if (!$this->validator->isName($feedback->name, true)) {
             $error = 'empty_name';
@@ -125,7 +123,7 @@ class ValidateHelper
     public function getCartValidateError($order): ?string
     {
         $captchaCode =  $this->request->post('captcha_code', 'string');
-        
+
         $error = null;
         if (!$this->validator->isName($order->name, true)) {
             $error = 'empty_name';
@@ -141,11 +139,11 @@ class ValidateHelper
 
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
-    
+
     public function getCallbackValidateError($callback): ?string
     {
         $captchaCode =  $this->request->post('captcha_code', 'string');
-        
+
         $error = null;
         if (!$this->validator->isName($callback->name, true)) {
             $error = 'empty_name';
@@ -159,7 +157,7 @@ class ValidateHelper
 
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
-    
+
     public function getCommentValidateError($comment): ?string
     {
         $captchaCode =  $this->request->post('captcha_code', 'string');
@@ -177,14 +175,14 @@ class ValidateHelper
 
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
-    
+
     public function getSubscribeValidateError($subscribe): ?string
     {
         $SL = ServiceLocator::getInstance();
         $entityFactory = $SL->getService(EntityFactory::class);
         /** @var SubscribesEntity $subscribesEntity */
         $subscribesEntity = $entityFactory->get(SubscribesEntity::class);
-        
+
         $error = null;
         if (!$this->validator->isEmail($subscribe->email, true)) {
             $error = $this->frontTranslations->getTranslation('form_enter_email');

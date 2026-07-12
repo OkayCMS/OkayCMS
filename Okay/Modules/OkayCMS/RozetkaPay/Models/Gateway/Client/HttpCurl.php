@@ -4,11 +4,10 @@ namespace Okay\Modules\OkayCMS\RozetkaPay\Models\Gateway\Client;
 
 class HttpCurl implements ClientInterface
 {
-
-    const LINK = 'https://api.rozetkapay.com/api/payments/v1/';
+    public const LINK = 'https://api.rozetkapay.com/api/payments/v1/';
 
     /**
-     * @var array
+     * @var array<int, bool|int|string>
      */
     private $options = [
         CURLOPT_FOLLOWLOCATION => false,
@@ -22,14 +21,15 @@ class HttpCurl implements ClientInterface
     ];
 
     /**
-     * @param $method
-     * @param $url
-     * @param $params
-     * @param $config
+     * @param string $method
+     * @param string $url
+     * @param string $params
+     * @param array<string, string> $config
      * @return mixed|string
      * @throws HttpClientException
      */
-    public function request($method, $url, $params, $config) {
+    public function request($method, $url, $params, $config)
+    {
         $headers = [
             'Authorization: ' . $this->setCredentials($config),
             'Content-Type: application/json',
@@ -37,11 +37,16 @@ class HttpCurl implements ClientInterface
 
         ];
         $method = strtoupper($method);
+        if ($method === '') {
+            throw new HttpClientException('The method is empty.');
+        }
         $link = self::LINK . $url;
-        if (!$this->curlEnabled())
+        if (!$this->curlEnabled()) {
             throw new HttpClientException('Curl not enabled.');
-        if (empty($link))
+        }
+        if (empty($link)) {
             throw new HttpClientException('The url is empty.');
+        }
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -56,8 +61,7 @@ class HttpCurl implements ClientInterface
         }
         $response = curl_exec($ch);
         $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        return json_decode($response);
+        return json_decode(is_string($response) ? $response : '');
     }
 
     public function setCredentials($config)
@@ -69,7 +73,8 @@ class HttpCurl implements ClientInterface
     /**
      * @return bool
      */
-    private function curlEnabled() {
+    private function curlEnabled()
+    {
         return function_exists('curl_init');
     }
 }

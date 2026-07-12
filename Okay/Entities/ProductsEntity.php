@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Entity\RelatedProductsInterface;
@@ -27,7 +25,7 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         'main_category_id',
         'main_image_id',
     ];
-    
+
     protected static $langFields = [
         'name',
         'annotation',
@@ -37,11 +35,11 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         'meta_description',
         'special',
     ];
-    
+
     protected static $additionalFields = [
         'r.slug_url',
     ];
-    
+
     protected static $defaultOrderFields = [
         'p.position DESC',
     ];
@@ -58,29 +56,29 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
             $this->flush();
             return ExtenderFacade::execute([static::class, __FUNCTION__], null, func_get_args());
         }
-        
+
         $this->select->leftJoin(RouterCacheEntity::getTable() . ' AS r', 'r.url=p.url AND r.type="product"');
         return parent::get($id);
     }
-    
+
     public function find(array $filter = [])
     {
         $this->select->leftJoin(RouterCacheEntity::getTable() . ' AS r', 'r.url=p.url AND r.type="product"');
-        
+
         return parent::find($filter);
     }
-    
+
     public function getSelect(array $filter = [])
     {
         $this->select->leftJoin(RouterCacheEntity::getTable() . ' AS r', 'r.url=p.url AND r.type="product"');
-        
+
         return parent::getSelect($filter);
     }
 
     public function update($ids, $object)
     {
         $res = parent::update($ids, $object);
-        
+
         /** @var RouterCacheEntity $routerCacheEntity */
         $routerCacheEntity = $this->entity->get(RouterCacheEntity::class);
         $routerCacheEntity->deleteWrongCache();
@@ -90,13 +88,14 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
     public function add($product)
     {
         $product = (object) $product;
+        /** @var object{name: string, url: string|null, created: mixed, last_modify: mixed}&\stdClass $product */
         if (empty($product->url)) {
             $product->url = Translit::translit($product->name);
             $product->url = str_replace('.', '', $product->url);
-            
+
             while ($url = $this->cols(['url'])->findOne(['url' => $product->url])) {
                 if (preg_match('/(.+)?_([0-9]+)$/', $url, $parts)) {
-                    $product->url = $parts[1].'_'.($parts[2]+1);
+                    $product->url = $parts[1] . '_' . ($parts[2] + 1);
                 } else {
                     $product->url .= '_1';
                 }
@@ -157,7 +156,7 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         /** @var RouterCacheEntity $routerCacheEntity */
         $routerCacheEntity = $this->entity->get(RouterCacheEntity::class);
         $routerCacheEntity->deleteWrongCache();
-        
+
         return ExtenderFacade::execute([static::class, __FUNCTION__], true, func_get_args());
     }
 
@@ -191,7 +190,7 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         }
 
         $toDeleteFiles = array_diff($candidatesToDelete, $filesUsesInOtherProducts);
-        foreach($toDeleteFiles as $file) {
+        foreach ($toDeleteFiles as $file) {
             @unlink($this->config->root_dir . $this->config->original_images_dir . $file);
             $this->removeAllResizes($file);
         }
@@ -264,9 +263,14 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         return true;
     }
 
+    /**
+     * @param array<string, mixed> $filter
+     */
     public function getPriceRange(array $filter = [])
     {
-        $coef = $this->serviceLocator->getService(Money::class)->getCoefMoney();
+        /** @var Money $money */
+        $money = $this->serviceLocator->getService(Money::class);
+        $coef = $money->getCoefMoney();
 
         $this->setUp();
 
@@ -302,13 +306,14 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
             ->where('product_id IN (:products_ids)')
             ->orderBy(['position'])
             ->bindValue('products_ids', (array)$filter['product_id']);
-        
+
         $this->db->query($select);
         return ExtenderFacade::execute([static::class, __FUNCTION__], $this->db->results(), func_get_args());
     }
 
     /*Добавление связанных товаров*/
-    public function addRelatedProduct($productId, $relatedId, $position = 0) {
+    public function addRelatedProduct($productId, $relatedId, $position = 0)
+    {
         $insert = $this->queryFactory->newInsert();
         $insert->into('__related_products')
             ->cols([
@@ -322,7 +327,7 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
                 'position' => $position,
             ])
             ->ignore();
-        
+
         $this->db->query($insert);
         return ExtenderFacade::execute([static::class, __FUNCTION__], $relatedId, func_get_args());
     }
@@ -334,7 +339,7 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         $delete->from('__related_products')
             ->where('product_id=:product_id')
             ->bindValue('product_id', (int)$productId);
-        
+
         if ($relatedId !== null) {
             $delete->where('related_id=:related_id')
                 ->bindValue('related_id', (int)$relatedId);
@@ -383,8 +388,8 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
 
         $this->db->query($select);
         $pid = $this->db->result('id');
-        if ($pid) {
-            $pIds[$pid] = 'prev';
+        if (is_scalar($pid) && $pid !== '') {
+            $pIds[(string)$pid] = 'prev';
         }
 
         // следующий товар
@@ -405,14 +410,18 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
 
         $this->db->query($select);
         $pid = $this->db->result('id');
-        if ($pid) {
-            $pIds[$pid] = 'next';
+        if (is_scalar($pid) && $pid !== '') {
+            $pIds[(string)$pid] = 'next';
         }
 
-        $result = ['next'=>'', 'prev'=>''];
+        $result = ['next' => '', 'prev' => ''];
         if (!empty($pIds)) {
-            foreach ($this->find(array('id'=>array_keys($pIds))) as $p) {
-                $result[$pIds[$p->id]] = $p;
+            foreach ($this->find(array('id' => array_keys($pIds))) as $p) {
+                /** @var object{id: int|string} $p */
+                $productId = (string)$p->id;
+                if (isset($pIds[$productId])) {
+                    $result[$pIds[$productId]] = $p;
+                }
             }
         }
 
@@ -424,31 +433,36 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
 
         /** @var BrandsEntity $brandsEntity */
         $brandsEntity = $this->entity->get(BrandsEntity::class);
-        
+
         /** @var CategoriesEntity $categoriesEntity */
         $categoriesEntity = $this->entity->get(CategoriesEntity::class);
-        
+
         /** @var ImagesEntity $imagesEntity */
         $imagesEntity = $this->entity->get(ImagesEntity::class);
-        
+
         /** @var VariantsEntity $variantsEntity */
         $variantsEntity = $this->entity->get(VariantsEntity::class);
-        
+
         /** @var FeaturesValuesEntity $featuresValuesEntity */
         $featuresValuesEntity = $this->entity->get(FeaturesValuesEntity::class);
 
         $productId = (int)$productId;
         $product = $this->findOne(['id' => $productId]);
+        if ($product === false) {
+            return false;
+        }
+
+        /** @var object{position: int|string|float}&\stdClass $product */
 
         //Запоминаем текущую позицию, на нее станет новая запись
         $position = $product->position;
-        
+
         $newProduct = new \stdClass();
 
         $fields = array_merge($this->getFields(), $this->getLangFields());
 
         foreach ($fields as $field) {
-            if (property_exists($product, $field)) {
+            if (!empty($field) && property_exists($product, $field)) {
                 $newProduct->$field = $product->$field;
             }
         }
@@ -488,13 +502,13 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
 
         // Дублируем категории
         $categories = $categoriesEntity->getProductCategories($productId);
-        foreach($categories as $i=>$c) {
+        foreach ($categories as $i => $c) {
             $categoriesEntity->addProductCategory($newProductId, $c->category_id, $i);
         }
 
         // Дублируем изображения
         $imagesIds = [];
-        $images = $imagesEntity->find(['product_id'=>$productId]);
+        $images = $imagesEntity->find(['product_id' => $productId]);
         foreach ($images as $image) {
             $image->id = null;
             $image->product_id = $newProductId;
@@ -514,8 +528,9 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         }
 
         // Дублируем варианты
-        $variants = $variantsEntity->find(['product_id'=>$productId]);
-        foreach($variants as $variant) {
+        $variants = $variantsEntity->find(['product_id' => $productId]);
+        foreach ($variants as $variant) {
+            /** @var object{product_id: int|string, stock: mixed, infinity?: mixed, sku?: mixed, id?: mixed, rate_from?: mixed, rate_to?: mixed, external_id: mixed}&\stdClass $variant */
             $variant->product_id = $newProductId;
             unset($variant->sku);
             unset($variant->id);
@@ -531,7 +546,8 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
 
         // Дублируем значения свойств
         $values = $featuresValuesEntity->getProductValuesIds([$productId]);
-        foreach($values as $value) {
+        foreach ($values as $value) {
+            /** @var object{value_id: int|string} $value */
             $featuresValuesEntity->addProductValue($newProductId, $value->value_id);
         }
 
@@ -545,16 +561,17 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         ExtenderFacade::execute([static::class, __FUNCTION__], $newProductId, func_get_args());
     }
 
-    private function multiDuplicateProduct($productId, $newProductId) {
+    private function multiDuplicateProduct($productId, $newProductId)
+    {
         $langId = $this->lang->getLangId();
         if (!empty($langId)) {
 
             /** @var LanguagesEntity $langEntity */
             $langEntity = $this->entity->get(LanguagesEntity::class);
-            
+
             /** @var VariantsEntity $variantsEntity */
             $variantsEntity = $this->entity->get(VariantsEntity::class);
-            
+
             $languages = $langEntity->find();
             $productLangFields = $this->getLangFields();
             $variantLangFields = $variantsEntity->getLangFields();
@@ -565,7 +582,7 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
                     if (!empty($productLangFields)) {
                         $sourceProduct = $this->get($productId);
                         $destinationProduct = new \stdClass();
-                        foreach($productLangFields as $field) {
+                        foreach ($productLangFields as $field) {
                             if (in_array($field, ['meta_title', 'meta_keywords', 'meta_description'])) {
                                 continue;
                             }
@@ -576,9 +593,9 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
 
                     // Дублируем варианты
                     if (!empty($variantLangFields)) {
-                        $variants = $variantsEntity->find(['product_id'=>$newProductId]);
-                        $sourceVariants = $variantsEntity->find(['product_id'=>$productId]);
-                        foreach($sourceVariants as $i=>$sourceVariant) {
+                        $variants = $variantsEntity->find(['product_id' => $newProductId]);
+                        $sourceVariants = $variantsEntity->find(['product_id' => $productId]);
+                        foreach ($sourceVariants as $i => $sourceVariant) {
                             $destinationVariant = new \stdClass();
                             foreach ($variantLangFields as $field) {
                                 $destinationVariant->{$field} = $sourceVariant->{$field};
@@ -592,28 +609,30 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
             }
         }
     }
-    
+
     protected function customOrder($order = null, array $orderFields = [], array $additionalData = [])
     {
-        $coef = $this->serviceLocator->getService(Money::class)->getCoefMoney();
+        /** @var Money $money */
+        $money = $this->serviceLocator->getService(Money::class);
+        $coef = $money->getCoefMoney();
 
         switch ($order) {
-            case 'price' :
+            case 'price':
                 $orderFields = [
-                    "(SELECT -floor(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*$coef) 
-                    FROM __variants pv 
+                    "(SELECT -floor(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*$coef)
+                    FROM __variants pv
                     LEFT JOIN __currencies c on c.id=pv.currency_id
-                    WHERE 
-                        p.id = pv.product_id 
-                        AND pv.position=(SELECT MIN(position) 
-                            FROM __variants 
-                            WHERE 
+                    WHERE
+                        p.id = pv.product_id
+                        AND pv.position=(SELECT MIN(position)
+                            FROM __variants
+                            WHERE
                                 product_id=p.id LIMIT 1
-                        ) 
+                        )
                     LIMIT 1) DESC"
                 ];
                 break;
-            case 'price_desc' :
+            case 'price_desc':
                 $orderFields = [
                     "(SELECT -floor(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*$coef)
                     FROM __variants pv
@@ -629,9 +648,18 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
                 ];
                 break;
             case 'stock':
-                $maxOrderAmount = $this->settings->get('max_order_amount');
                 $orderFields = [
-                    "(SELECT IFNULL(pv.stock, {$maxOrderAmount})
+                    "(SELECT CASE WHEN pv.stock > 0 THEN 0 WHEN pv.stock IS NULL THEN 1 ELSE 2 END
+                    FROM __variants pv
+                    WHERE
+                        p.id = pv.product_id
+                        AND pv.position=(SELECT MIN(position)
+                            FROM __variants
+                            WHERE
+                                product_id=p.id LIMIT 1
+                        )
+                    LIMIT 1) ASC",
+                    "(SELECT pv.stock
                     FROM __variants pv
                     WHERE
                         p.id = pv.product_id
@@ -644,9 +672,18 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
                 ];
                 break;
             case 'stock_desc':
-                $maxOrderAmount = $this->settings->get('max_order_amount');
                 $orderFields = [
-                    "(SELECT IFNULL(pv.stock, {$maxOrderAmount})
+                    "(SELECT CASE WHEN pv.stock > 0 THEN 0 WHEN pv.stock IS NULL THEN 1 ELSE 2 END
+                    FROM __variants pv
+                    WHERE
+                        p.id = pv.product_id
+                        AND pv.position=(SELECT MIN(position)
+                            FROM __variants
+                            WHERE
+                                product_id=p.id LIMIT 1
+                        )
+                    LIMIT 1) ASC",
+                    "(SELECT pv.stock
                     FROM __variants pv
                     WHERE
                         p.id = pv.product_id
@@ -667,10 +704,15 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         }
 
         // Если передали флаг, что нужно сместить товары не в наличии в конец списка, добавим SQL запрос
-        if (!empty($orderFields) && isset($additionalData['in_stock_first']) && $additionalData['in_stock_first'] === true) {
+        if (
+            !empty($orderFields)
+            && isset($additionalData['in_stock_first'])
+            && $additionalData['in_stock_first'] === true
+            && !$this->settings->get('is_preorder')
+        ) {
             array_unshift($orderFields, '((SELECT count(pv.id) FROM __variants pv WHERE (pv.stock IS NULL OR pv.stock>0) AND p.id = pv.product_id)>0) DESC');
         }
-        
+
         return ExtenderFacade::execute([static::class, __FUNCTION__], $orderFields, func_get_args());
     }
 
@@ -684,7 +726,7 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
             }
         }
     }
-    
+
     protected function filter__features($features, $filter)
     {
         $subQuery = $this->queryFactory->newSelect();
@@ -698,21 +740,36 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
             $optionsPx = 'lfv';
         }
 
-        foreach ($features as $featureId=>$value) {
-            $featuresValues[] = "({$optionsPx}.translit IN (:translit_features_{$featureId}) AND fv.feature_id=:feature_id_features_{$featureId})";
-            $this->select->bindValues([
-                "translit_features_{$featureId}" => (array)$value,
-                "feature_id_features_{$featureId}" => $featureId,
-            ]);
+        foreach ($features as $featureId => $value) {
+            // ВАЖНО: Структура $features: [featureId => [valueId => translit, ...]]
+            // Тобто $value - це асоціативний масив, де ключі - це ID значень (value_id), а значення - translit
+            // Нам потрібні тільки значення (translit), а не ключі (ID значень)
+            if (empty($value) || !is_array($value)) {
+                continue;
+            }
 
+            // Отримуємо масив translit-значень зі значень асоціативного масиву
+            $translitValues = array_values($value);
+
+            // ВАЖНО: Використовуємо (int)$featureId для типізації індексів (згідно з docs/migration/aura-74-8.md)
+            $placeholderTranslit = "translit_features_" . (int)$featureId;
+            $placeholderFeatureId = "feature_id_features_" . (int)$featureId;
+
+            // ВАЖНО: Використовуємо іменований плейсхолдер для IN, оскільки метод perform() в Database.php
+            // автоматично замінює IN (:id) на IN (:id_0, :id_1, ...) для масивів
+            // Це працює для основних запитів, але для підзапитів потрібно вручну розгорнути масив
+            // Але оскільки ми передаємо біндінги через bindValues(), perform() має розгорнути масив
+            $featuresValues[] = "({$optionsPx}.translit IN (:{$placeholderTranslit}) AND fv.feature_id=:{$placeholderFeatureId})";
+
+            // Прив'язуємо значення тільки до підзапиту
+            // ВАЖНО: Примусове приведення до масиву для безпеки IN (?) (згідно з docs/migration/aura-74-8.md)
             $subQuery->bindValues([
-                "translit_features_{$featureId}" => (array)$value,
-                "feature_id_features_{$featureId}" => $featureId,
+                $placeholderTranslit => (array)$translitValues,
+                $placeholderFeatureId => (int)$featureId,
             ]);
         }
 
         if (!empty($featuresValues)) {
-
             if (!empty($filter['visible'])) {
                 $subQuery->join('LEFT', '__products AS p', 'p.id=pf.product_id')
                     ->where('p.visible = ' . (int)$filter['visible']); // TODO проверить, не может ли он удалиться ранее, когда применялся
@@ -725,29 +782,96 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
                 ->having('COUNT(DISTINCT fv.feature_id) >=' . count($features))
                 ->groupBy(['product_id']);
 
+            // ВАЖНО: Передаємо bindValues ДО joinSubSelect (згідно з docs/migration/aura-74-8.md та FILTER_BUG_SUMMARY.md)
+            // Це критично важливо для правильної обробки підзапитів в Aura SQL Query v3.0
+            // Метод getStatement() повертає лише SQL-рядок, тому біндінги потрібно передавати вручну
+            $subQueryBindValues = $subQuery->getBindValues();
+
+            // ВАЖНО: Розгортаємо масиви в біндінгах для підзапиту, оскільки perform() може не розгорнути
+            // масиви для плейсхолдерів підзапиту (підзапит вже є частиною SQL-рядка)
+            // Метод perform() автоматично замінює IN (:id) на IN (:id_0, :id_1, ...) для масивів,
+            // але це працює тільки для основних запитів, а не для підзапитів
+            $expandedBindValues = [];
+            foreach ($subQueryBindValues as $key => $value) {
+                if (is_array($value)) {
+                    // Розгортаємо масив на окремі плейсхолдери
+                    foreach ($value as $index => $item) {
+                        $expandedBindValues[$key . '_' . $index] = $item;
+                    }
+                } else {
+                    $expandedBindValues[$key] = $value;
+                }
+            }
+
+            // Замінюємо IN (:placeholder) на IN (:placeholder_0, :placeholder_1, ...) в SQL
+            // ВАЖНО: Використовуємо str_ireplace для заміни всіх входжень (якщо є кілька однакових плейсхолдерів)
+            $subQueryStatement = $subQuery->getStatement();
+
+            foreach ($subQueryBindValues as $key => $value) {
+                if (is_array($value)) {
+                    $placeholders = [];
+                    foreach ($value as $index => $item) {
+                        $placeholders[] = ':' . $key . '_' . $index;
+                    }
+                    // Замінюємо всі входження, не тільки перше
+                    $subQueryStatement = str_ireplace('IN (:' . $key . ')', 'IN (' . implode(', ', $placeholders) . ')', $subQueryStatement);
+                }
+            }
+
+            // ВАЖНО: Об'єднуємо біндінги з попередніми, а не перезаписуємо їх
+            // Це критично важливо, коли є кілька фільтрів по характеристикам
+            $existingBindValues = $this->select->getBindValues();
+            $mergedBindValues = array_merge($existingBindValues, $expandedBindValues);
+
+            // Передаємо об'єднані біндінги в основний запит
+            $this->select->bindValues($mergedBindValues);
+
             $this->select->joinSubSelect(
                 'INNER',
-                $subQuery->getStatement(),
+                $subQueryStatement,
                 'products_features',
                 'products_features.product_id=p.id'
             );
         }
     }
 
+    /**
+     * @param array<string, mixed> $priceRange min/max product price filter
+     */
     protected function filter__price(array $priceRange)
     {
-        $coef = $this->serviceLocator->getService(Money::class)->getCoefMoney();
+        /** @var Money $money */
+        $money = $this->serviceLocator->getService(Money::class);
+        $coef = $money->getCoefMoney();
 
-        if (isset($priceRange['min'])) {
-            $this->select->where("ROUND(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*{$coef}, 2)>=?", trim($priceRange['min']));
+        // Build WHERE conditions using EXISTS subquery to avoid NULL issues with LEFT JOIN
+        $whereConditions = [];
+
+        if (isset($priceRange['min']) && $priceRange['min'] !== '') {
+            // Ensure value is a string before trim() - PHP 8.3+ requires string type
+            $minValue = is_scalar($priceRange['min']) ? trim((string)$priceRange['min']) : '';
+            if ($minValue !== '') {
+                // Convert to float for proper SQL comparison
+                $minValue = (float)$minValue;
+                $whereConditions[] = "EXISTS (SELECT 1 FROM __variants pv2 LEFT JOIN __currencies c2 ON c2.id=pv2.currency_id WHERE pv2.product_id=p.id AND ROUND(IF(pv2.currency_id=0 OR c2.id is null,pv2.price, pv2.price*c2.rate_to/c2.rate_from)*{$coef}, 2)>=:price_min)";
+                $this->select->bindValue('price_min', $minValue);
+            }
         }
-        if (isset($priceRange['max'])) {
-            $this->select->where("ROUND(IF(pv.currency_id=0 OR c.id is null,pv.price, pv.price*c.rate_to/c.rate_from)*{$coef}, 2)<=?", trim($priceRange['max']));
+
+        if (isset($priceRange['max']) && $priceRange['max'] !== '') {
+            // Ensure value is a string before trim() - PHP 8.3+ requires string type
+            $maxValue = is_scalar($priceRange['max']) ? trim((string)$priceRange['max']) : '';
+            if ($maxValue !== '') {
+                // Convert to float for proper SQL comparison
+                $maxValue = (float)$maxValue;
+                $whereConditions[] = "EXISTS (SELECT 1 FROM __variants pv3 LEFT JOIN __currencies c3 ON c3.id=pv3.currency_id WHERE pv3.product_id=p.id AND ROUND(IF(pv3.currency_id=0 OR c3.id is null,pv3.price, pv3.price*c3.rate_to/c3.rate_from)*{$coef}, 2)<=:price_max)";
+                $this->select->bindValue('price_max', $maxValue);
+            }
         }
 
-        $this->select->join('LEFT', '__variants AS pv', 'pv.product_id = p.id');
-        $this->select->join('LEFT', '__currencies AS c', 'c.id=pv.currency_id');
-
+        if (!empty($whereConditions)) {
+            $this->select->where('(' . implode(' AND ', $whereConditions) . ')');
+        }
     }
 
     /**
@@ -775,11 +899,20 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
 
     protected function filter__in_stock()
     {
+        if ($this->settings->get('is_preorder')) {
+            return;
+        }
+
         $this->select->where("(SELECT count(*)>0 FROM __variants pv WHERE pv.product_id=p.id AND (pv.stock IS NULL OR pv.stock>0) LIMIT 1) = 1");
     }
 
     protected function filter__not_in_stock()
     {
+        if ($this->settings->get('is_preorder')) {
+            $this->select->where('1 = 0');
+            return;
+        }
+
         $this->select->where("(SELECT count(*)>0 FROM __variants pv WHERE pv.product_id=p.id AND (pv.stock IS NULL OR pv.stock>0) LIMIT 1) <> 1");
     }
 
@@ -798,7 +931,7 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         $this->select->where('(SELECT 1 FROM __variants pv WHERE pv.product_id=p.id AND pv.compare_price>pv.price LIMIT 1) = :discounted')
             ->bindValue('discounted', (int)$state);
     }
-    
+
     protected function filter__other_filter($filters)
     {
         if (empty($filters)) {
@@ -835,25 +968,24 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
         $langAlias = $this->lang->getLangAlias(
             $this->getTableAlias()
         );
-        foreach ($keywords as $keyNum=>$keyword) {
-            
+        foreach ($keywords as $keyNum => $keyword) {
             $keywordFilter = [];
             $keywordFilter[] = "{$langAlias}.name LIKE :keyword_name_{$keyNum}";
             $keywordFilter[] = "{$langAlias}.meta_keywords LIKE :keyword_meta_keywords_{$keyNum}";
             $keywordFilter[] = "{$tableAlias}.id in (SELECT product_id FROM __variants WHERE sku LIKE :keyword_sku_{$keyNum})";
-            
+
             $this->select->bindValues([
                 "keyword_name_{$keyNum}" => '%' . $keyword . '%',
                 "keyword_meta_keywords_{$keyNum}" => '%' . $keyword . '%',
                 "keyword_sku_{$keyNum}" => '%' . $keyword . '%',
             ]);
-            
+
             $this->select->where('(' . implode(' OR ', $keywordFilter) . ')');
         }
     }
 
     protected function filter__brand($value)
     {
-        $this->select->where(($value ? '' : '!') . self::getTableAlias().'.brand_id');
+        $this->select->where(($value ? '' : '!') . self::getTableAlias() . '.brand_id');
     }
 }

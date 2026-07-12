@@ -8,7 +8,7 @@ use Okay\Core\Modules\AbstractInit;
 
 class Init extends AbstractInit
 {
-    const PERMISSION = '%permission%';
+    public const PERMISSION = '%permission%';
 
     public function install()
     {

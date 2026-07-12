@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Requests;
-
 
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Request;
@@ -14,7 +12,7 @@ class BackendBlogRequest
      * @var Request
      */
     private $request;
-    
+
     /**
      * @var Translit
      */
@@ -37,10 +35,10 @@ class BackendBlogRequest
         $action = $this->request->post('action');
         return ExtenderFacade::execute(__METHOD__, $action, func_get_args());
     }
-    
+
     public function postArticle()
     {
-        $post = new \stdClass;
+        $post = new \stdClass();
         $post->id        = $this->request->post('id', 'integer');
         $post->author_id = $this->request->post('author_id', 'integer');
         $post->read_time = $this->request->post('read_time', 'integer');
@@ -48,7 +46,7 @@ class BackendBlogRequest
         $post->date      = date('Y-m-d H:i:s', strtotime($this->request->post('date')));
         $post->rating = $this->request->post('rating', 'float');
         $post->votes  = $this->request->post('votes', 'integer');
-        
+
         if (($time = strtotime($this->request->post('updated_date'))) > 0) {
             $post->updated_date = date('Y-m-d', $time);
         } else {
@@ -91,7 +89,7 @@ class BackendBlogRequest
 
         return ExtenderFacade::execute(__METHOD__, $postCategories, func_get_args());
     }
-    
+
     public function fileImage()
     {
         $image = $this->request->files('image');
@@ -102,7 +100,7 @@ class BackendBlogRequest
     {
         if (is_array($this->request->post('related_products'))) {
             $rp = [];
-            foreach($this->request->post('related_products') as $p) {
+            foreach ($this->request->post('related_products') as $p) {
                 $rp[$p] = new \stdClass();
                 $rp[$p]->post_id = $this->request->post('id', 'integer');
                 $rp[$p]->related_id = $p;
@@ -114,5 +112,4 @@ class BackendBlogRequest
 
         return ExtenderFacade::execute(__METHOD__, $relatedProducts, func_get_args());
     }
-    
 }

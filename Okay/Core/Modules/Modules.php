@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Modules;
-
 
 use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\Modules\DTO\ModificationDTO;
@@ -10,7 +8,7 @@ use Okay\Core\Modules\DTO\ModuleParamsDTO;
 use Okay\Core\OkayContainer\OkayContainer;
 use Okay\Core\Request;
 use Okay\Core\Router;
-use Smarty;
+use Smarty\Smarty;
 use Okay\Core\Design;
 use Okay\Core\Database;
 use Okay\Core\QueryFactory;
@@ -55,12 +53,12 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
     private LicenseModulesTemplates $licenseModulesTemplates;
 
     /**
-     * @var array список контроллеров бекенда
+     * @var list<string> список контроллеров бекенда
      */
     private $backendControllersList = [];
 
     /**
-     * @var array список запущенных модулей
+     * @var array<string, array{vendor: string, module_name: string, is_active: mixed}>
      */
     private $runningModules = [];
 
@@ -68,6 +66,8 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
      * @var ModuleParamsDTO[] параметры модулей из файла module.json
      */
     private $modulesParams = [];
+
+    /** @var array{front: list<ModificationDTO>, backend: list<ModificationDTO>} */
     private array $modulesModifications = ['front' => [], 'backend' => []];
     private $modificationsInit = false;
 
@@ -77,11 +77,11 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
 
     public function __construct(
         EntityFactory $entityFactory,
-        Module        $module,
-        QueryFactory  $queryFactory,
-        Database      $database,
-        Config        $config,
-        Smarty        $smarty,
+        Module $module,
+        QueryFactory $queryFactory,
+        Database $database,
+        Config $config,
+        Smarty $smarty,
         LicenseModulesTemplates $licenseModulesTemplates
     ) {
         $this->entityFactory = $entityFactory;
@@ -95,7 +95,8 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
 
     /**
      * Метод возвращает список зарегистрированных контроллеров для бекенда
-     * @return array
+     *
+     * @return list<string>
      */
     public function getBackendControllers()
     {
@@ -156,8 +157,10 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
             }
 
             // TODO: подумать над тем, чтобы перенести этот код отсюда
-            if (($activeOnly === true && (int)$module->enabled !== 1)
-                || !$this->licenseModulesTemplates->isLicensedModule($module->vendor, $module->module_name)) {
+            if (
+                ($activeOnly === true && (int)$module->enabled !== 1)
+                || !$this->licenseModulesTemplates->isLicensedModule($module->vendor, $module->module_name)
+            ) {
                 $plugins = $this->module->getSmartyPlugins($module->vendor, $module->module_name);
                 foreach ($plugins as $plugin) {
                     $reflector = new \ReflectionClass($plugin['class']);
@@ -170,14 +173,17 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
                         $tag = strtolower($reflector->getShortName());
                     }
 
-                    $mock = function() {
+                    $mock = function () {
                         return '';
                     };
 
+                    if ($parentClass === false) {
+                        continue;
+                    }
+
                     if ($parentClass->name === \Okay\Core\SmartyPlugins\Func::class) {
                         $design->registerPlugin('function', $tag, $mock);
-                    }
-                    elseif ($parentClass->name === \Okay\Core\SmartyPlugins\Modifier::class) {
+                    } elseif ($parentClass->name === \Okay\Core\SmartyPlugins\Modifier::class) {
                         $design->registerPlugin('modifier', $tag, $mock);
                     }
                 }
@@ -245,7 +251,6 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
             'setHtml' => 'getHtml',
             'setText' => 'getText',
             'setReplace' => 'getReplace',
-            'setRemove' => 'isRemove',
         ];
 
         $frontModifications = [];
@@ -253,7 +258,6 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
         if (!empty($this->modulesParams)) {
             $modulesParams = array_reverse($this->modulesParams);
             foreach ($modulesParams as $vendorModule => $modulesParamDTO) {
-
                 // Для выключенных модулей не нужно инициализировать модификаторы
                 if (!isset($this->runningModules[$vendorModule]) || !$this->runningModules[$vendorModule]['is_active']) {
                     continue;
@@ -267,11 +271,10 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
                 $themeDir  = $frontTemplateConfig->getTheme();
 
                 $moduleDir = __DIR__ . '/../../Modules/' . $vendorModule . '/';
-                $themeModuleHtmlDir = dirname(__DIR__,3).'/design/'.$themeDir.'/modules/'.$vendorModule.'/';
+                $themeModuleHtmlDir = dirname(__DIR__, 3) . '/design/' . $themeDir . '/modules/' . $vendorModule . '/';
 
                 foreach ($modulesParamDTO->getFrontModifications() as $modificationDTO) {
                     foreach ($modificationDTO->getChanges() as $changeDTO) {
-
                         // Если не указали комментарий, добавим название модуля
                         if (empty($changeDTO->getComment())) {
                             $changeDTO->setComment($vendorModule);
@@ -281,9 +284,15 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
                             // Если в значении модификатора указано имя файла - значение считаем с самого файла
                             if (!empty($changeDTO->$getMethod())) {
                                 if (is_file($themeModuleHtmlDir . 'html/' . $changeDTO->$getMethod())) {
-                                    $changeDTO->$setMethod(file_get_contents($themeModuleHtmlDir . 'html/' . $changeDTO->$getMethod()));
-                                } else if (is_file($moduleDir . 'design/html/' . $changeDTO->$getMethod())) {
-                                    $changeDTO->$setMethod(file_get_contents($moduleDir . 'design/html/' . $changeDTO->$getMethod()));
+                                    $content = file_get_contents($themeModuleHtmlDir . 'html/' . $changeDTO->$getMethod());
+                                    if (is_string($content)) {
+                                        $changeDTO->$setMethod($content);
+                                    }
+                                } elseif (is_file($moduleDir . 'design/html/' . $changeDTO->$getMethod())) {
+                                    $content = file_get_contents($moduleDir . 'design/html/' . $changeDTO->$getMethod());
+                                    if (is_string($content)) {
+                                        $changeDTO->$setMethod($content);
+                                    }
                                 }
                             }
                         }
@@ -302,7 +311,10 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
                             // Если в значении модификатора указано имя файла - значение считаем с самого файла
                             if (!empty($changeDTO->$getMethod())) {
                                 if (is_file($moduleDir . 'Backend/design/html/' . $changeDTO->$getMethod())) {
-                                    $changeDTO->$setMethod(file_get_contents($moduleDir . 'Backend/design/html/' . $changeDTO->$getMethod()));
+                                    $content = file_get_contents($moduleDir . 'Backend/design/html/' . $changeDTO->$getMethod());
+                                    if (is_string($content)) {
+                                        $changeDTO->$setMethod($content);
+                                    }
                                 }
                             }
                         }
@@ -385,7 +397,7 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
         /** @var ModulesEntity $modulesEntity */
         $modulesEntity = $this->entityFactory->get(ModulesEntity::class);
         $notInstalledModules = $modulesEntity->findNotInstalled();
-        foreach($notInstalledModules as $module) {
+        foreach ($notInstalledModules as $module) {
             $this->mockingSmartyPlugins($module);
             if ($moduleParams = $this->module->getModuleParams($module->vendor, $module->module_name)) {
                 if ($moduleParams->getDaysToExpire() >= 0 || $moduleParams->isAccessExpired()) {
@@ -398,14 +410,14 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
     private function mockingSmartyPlugins($module)
     {
         $moduleDir     = $this->module->getModuleDirectory($module->vendor, $module->module_name);
-        $smartyRegFile = $moduleDir."Init/SmartyPlugins.php";
+        $smartyRegFile = $moduleDir . "Init/SmartyPlugins.php";
 
         if (! file_exists($smartyRegFile)) {
             return;
         }
 
         $smartyPlugins = include $smartyRegFile;
-        foreach($smartyPlugins as $plugin) {
+        foreach ($smartyPlugins as $plugin) {
             if (! class_exists($plugin['class'])) {
                 continue;
             }
@@ -419,7 +431,7 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
                 $pluginName = strtolower(end($classParts));
             }
 
-            $this->smarty->registerPlugin('function', $pluginName, function() {
+            $this->smarty->registerPlugin('function', $pluginName, function () {
                 return null;
             });
         }
@@ -432,13 +444,13 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
 
         $moduleTranslations = $this->getModuleBackendTranslations($vendor, $moduleName, $langLabel);
         if (is_readable($moduleDir . '/settings.xml') && $xml = simplexml_load_file($moduleDir . '/settings.xml')) {
-
             foreach ($xml->settings as $setting) {
                 $attributes = $setting->attributes();
                 $settingName = (string)$setting->name;
                 $translationName = preg_replace('~{\$lang->(.+)?}~', '$1', $settingName);
+                $translationName = is_string($translationName) ? $translationName : '';
                 $settingName = isset($moduleTranslations[$translationName]) ? $moduleTranslations[$translationName] : $settingName;
-                $settings[(string)$setting->variable] = new \stdClass;
+                $settings[(string)$setting->variable] = new \stdClass();
                 $settings[(string)$setting->variable]->name = $settingName;
                 $settings[(string)$setting->variable]->variable = (string)$setting->variable;
 
@@ -451,14 +463,14 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
                     if (!empty((string)$setting->value) && $settings[(string)$setting->variable]->type == 'checkbox') {
                         $settings[(string)$setting->variable]->value = (string)$setting->value;
                     }
-
                 } else {
                     $settings[(string)$setting->variable]->options = [];
                     foreach ($setting->options as $option) {
                         $optionName = (string)$option->name;
                         $translationName = preg_replace('~{\$lang->(.+)?}~', '$1', $optionName);
+                        $translationName = is_string($translationName) ? $translationName : '';
                         $optionName = isset($moduleTranslations[$translationName]) ? $moduleTranslations[$translationName] : $optionName;
-                        $settings[(string)$setting->variable]->options[(string)$option->value] = new \stdClass;
+                        $settings[(string)$setting->variable]->options[(string)$option->value] = new \stdClass();
                         $settings[(string)$setting->variable]->options[(string)$option->value]->name = $optionName;
                         $settings[(string)$setting->variable]->options[(string)$option->value]->value = (string)$option->value;
                     }
@@ -471,13 +483,12 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
 
     /**
      * Метод возвращает массив переводов
-     * @param string $vendor
-     * @param string $moduleName
-     * @param string $langLabel
-     * @return array
+     *
+     * @return array<string, string>
+     *
      * @throws \Exception
      */
-    public function getModuleBackendTranslations($vendor, $moduleName, $langLabel)
+    public function getModuleBackendTranslations(string $vendor, string $moduleName, string $langLabel)
     {
         $langLabel = $this->getBackendLangLabel($vendor, $moduleName, $langLabel);
         $moduleDir = $this->module->getModuleDirectory($vendor, $moduleName);
@@ -533,10 +544,10 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
 
         /** @var FrontTemplateConfig $frontTemplateConfig */
         $frontTemplateConfig = $serviceLocator->getService(FrontTemplateConfig::class);
-        $themeDir  = 'design/'.$frontTemplateConfig->getTheme().'/';
+        $themeDir  = 'design/' . $frontTemplateConfig->getTheme() . '/';
 
-        if (is_file($themeDir .'modules/'.$vendor.'/'.$moduleName.'/lang/'. $langLabel.'.php')) {
-            return $themeDir .'modules/'.$vendor.'/'.$moduleName.'/lang/'. $langLabel.'.php';
+        if (is_file($themeDir . 'modules/' . $vendor . '/' . $moduleName . '/lang/' . $langLabel . '.php')) {
+            return $themeDir . 'modules/' . $vendor . '/' . $moduleName . '/lang/' . $langLabel . '.php';
         } elseif (is_file($moduleDir . '/design/lang/' . $langLabel . '.php')) {
             return $moduleDir . 'design/lang/' . $langLabel . '.php';
         } else {
@@ -569,12 +580,10 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
     }
 
     /**
-     * @param $moduleId
-     * @param $vendor
-     * @param $moduleName
-     * @param $design
-     * @return array
+     * @return list<string>
+     *
      * @throws \Exception
+     *
      * Запуск определенного модуля, по большому счету сделано чтобы можно было контроллировать
      * какие модули запускать (для лайта), та и чтобы нельзя было просто так удалить лицензию
      */
@@ -603,7 +612,7 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
         $plugins = $this->module->getSmartyPlugins($vendor, $moduleName);
         $container->bindServices($plugins);
 
-        foreach($plugins as $name => $plugin) {
+        foreach ($plugins as $name => $plugin) {
             $this->plugins[$name] = $plugin;
         }
 
@@ -638,5 +647,4 @@ class Modules // TODO: подумать, мож сюда переедет CRUD E
             }
         }
     }
-
 }

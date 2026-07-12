@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\DeliveryFields\Extenders;
-
 
 use Okay\Core\FrontTranslations;
 use Okay\Core\Request;
@@ -31,13 +29,13 @@ class ValidateHelperExtender implements ExtensionInterface
     }
 
     /**
-     * @param $error
+     * @param string|null $error
      * @return string|null
      * @throws \Exception
      *
      * Валідуємо поля способів доставки в кошику.
      */
-    public function extendGetCartValidateError($error): ?string
+    public function extendGetCartValidateError(?string $error): ?string
     {
         if (!empty($error)) {
             return $error;

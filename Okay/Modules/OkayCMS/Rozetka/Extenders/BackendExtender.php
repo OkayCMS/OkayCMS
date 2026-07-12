@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\Rozetka\Extenders;
-
 
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
@@ -11,6 +9,9 @@ use Okay\Modules\OkayCMS\Rozetka\Entities\RozetkaFeedsEntity;
 use Okay\Modules\OkayCMS\Rozetka\Entities\RozetkaRelationsEntity;
 use Okay\Modules\OkayCMS\Rozetka\Init\Init;
 
+/**
+ * @phpstan-type FeedRow object{id: int|string}
+ */
 class BackendExtender implements ExtensionInterface
 {
     /** @var RozetkaFeedsEntity */
@@ -23,20 +24,21 @@ class BackendExtender implements ExtensionInterface
     private $design;
 
 
-    /** @var array */
+    /** @var array<int|string, FeedRow> */
     private $currentFeeds  = [];
 
     public function __construct(
         EntityFactory $entityFactory,
-        Design        $design
-    )
-    {
+        Design $design
+    ) {
         $this->design = $design;
 
         $this->feedsEntity     = $entityFactory->get(RozetkaFeedsEntity::class);
         $this->relationsEntity = $entityFactory->get(RozetkaRelationsEntity::class);
 
-        $this->currentFeeds = $this->feedsEntity->find(['limit' => $this->feedsEntity->count()]);
+        /** @var array<int|string, FeedRow> $currentFeeds */
+        $currentFeeds = $this->feedsEntity->find(['limit' => $this->feedsEntity->count()]);
+        $this->currentFeeds = $currentFeeds;
     }
 
     public function parseProductData($product)

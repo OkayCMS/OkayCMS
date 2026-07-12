@@ -1,62 +1,60 @@
 <?php
 
-
 namespace Okay\Core\Entity;
-
 
 trait entityInfo
 {
-
     /**
      * Метод возвращает все поля сущности, за исключением переданных
-     * 
-     * @var array $excludedFields поля, которые нужно исключить
-     * @return array
+     *
+     * @param array<int|string, string> $excludedFields поля, которые нужно исключить
+     * @return list<string>
      */
     final public static function getDifferentFields($excludedFields)
     {
         $allFields = static::getAllDefaultFields();
         foreach ($excludedFields as $field) {
-            if (($fieldKey = array_search($field, $allFields)) !== false && isset($allFields[$fieldKey])) {
+            $fieldKey = array_search($field, $allFields);
+            if ($fieldKey !== false) {
                 unset($allFields[$fieldKey]);
             }
         }
-        
-        return (array)$allFields;
+
+        return array_values($allFields);
     }
 
     /**
      * Метод возвращает все зарегистрированные поля сущности
-     * 
-     * @return array
+     *
+     * @return list<string>
      */
     final public static function getAllDefaultFields()
     {
         $fields = static::getFields();
         $langFields = static::getLangFields();
         $additionalFields = static::getAdditionalFields();
-        
-        return $allFields = array_merge($fields, $langFields, $additionalFields);
+
+        return array_merge($fields, $langFields, $additionalFields);
     }
-    
+
     /**
-     * @var array $fields
+     * @param array<int|string, string> $fields
      */
     final public function setSelectFields(array $fields)
     {
-        $this->selectFields = array_merge($this->selectFields, $fields);
+        $this->selectFields = array_values(array_merge($this->selectFields, $fields));
     }
-    
+
     /**
-     * @return array
+     * @return list<string>
      */
     final public static function getFields()
     {
         return (array)static::$fields;
     }
-    
+
     /**
-     * @return array
+     * @return list<string>
      */
     final public static function getAdditionalFields()
     {
@@ -64,7 +62,7 @@ trait entityInfo
     }
 
     /**
-     * @return array
+     * @return list<string>
      */
     final public static function getSearchFields()
     {
@@ -72,7 +70,7 @@ trait entityInfo
     }
 
     /**
-     * @return array
+     * @return list<string>
      */
     final public static function getDefaultOrderFields()
     {
@@ -82,17 +80,17 @@ trait entityInfo
     /**
      * Метод добавляет новые столбцы для сортировки по умолчанию или переопределяет полностью переменную сортировки по умолчанию у сущности
      *
-     * @var array $newOrderFields
-     * @var bool $redefine
-     * @return array
+     * @param list<string> $newOrderFields
+     * @param bool $redefine
+     * @return list<string>
      */
     final public static function setDefaultOrderFields($newOrderFields, $redefine = false)
     {
         if (!empty($redefine) && !empty($newOrderFields)) {
-            return (array)static::$defaultOrderFields = $newOrderFields;
+            return static::$defaultOrderFields = $newOrderFields;
         }
 
-        return (array)static::$defaultOrderFields = array_merge($newOrderFields, static::$defaultOrderFields);
+        return static::$defaultOrderFields = array_merge($newOrderFields, static::$defaultOrderFields);
     }
 
     /**
@@ -104,7 +102,7 @@ trait entityInfo
     }
 
     /**
-     * @return array
+     * @return list<string>
      */
     final public static function getLangFields()
     {
@@ -138,7 +136,8 @@ trait entityInfo
     final public static function getTableAlias()
     {
         if (empty(static::$tableAlias)) {
-            static::$tableAlias = substr(preg_replace('~(__)?(.+)~', '$2', self::getTable()), 0, 1);
+            $table = preg_replace('~(__)?(.+)~', '$2', self::getTable());
+            static::$tableAlias = substr(is_string($table) ? $table : self::getTable(), 0, 1);
         }
         return (string)static::$tableAlias;
     }
@@ -168,7 +167,7 @@ trait entityInfo
             if (in_array($name, static::getLangFields())) {
                 $langFields = static::getLangFields();
                 unset($langFields[array_search($name, $langFields)]);
-                static::$langFields = $langFields;
+                static::$langFields = array_values($langFields);
             }
             static::$fields[] = $name;
         }
@@ -188,7 +187,7 @@ trait entityInfo
             if (in_array($name, static::getFields())) {
                 $fields = static::getFields();
                 unset($fields[array_search($name, $fields)]);
-                static::$fields = $fields;
+                static::$fields = array_values($fields);
             }
             static::$langFields[] = $name;
         }

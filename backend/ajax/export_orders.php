@@ -1,9 +1,9 @@
 <?php
 
-
 use Okay\Entities\CurrenciesEntity;
 use Okay\Entities\ManagersEntity;
 use Okay\Entities\OrdersEntity;
+use Okay\Core\Export\CsvExportWriter;
 use Okay\Core\QueryFactory;
 use Okay\Core\Managers;
 use Okay\Core\Response;
@@ -12,15 +12,15 @@ use Okay\Core\Database;
 require_once 'configure.php';
 
 $columnsNames = [
-    'id'=>           'Order ID',
-    'date'=>         'Order date',
-    'name'=>         'User name',
-    'last_name'=>    'User last name',
-    'phone'=>        'User phone',
-    'email'=>        'User email',
-    'comment'=>      'User comment',
-    'total_price'=>  'Total price',
-    'currency'=>     'Currency'
+    'id' =>           'Order ID',
+    'date' =>         'Order date',
+    'name' =>         'User name',
+    'last_name' =>    'User last name',
+    'phone' =>        'User phone',
+    'email' =>        'User email',
+    'comment' =>      'User comment',
+    'total_price' =>  'Total price',
+    'currency' =>     'Currency'
 ];
 
 $columnDelimiter = ';';
@@ -40,6 +40,11 @@ $managers = $DI->get(Managers::class);
 /** @var Response $response */
 $response = $DI->get(Response::class);
 
+/** @var CsvExportWriter $csvExportWriter */
+$csvExportWriter = new CsvExportWriter();
+$requestedFormat = $_GET['format'] ?? null;
+$format = $csvExportWriter->normalizeFormat(is_string($requestedFormat) ? $requestedFormat : null);
+
 /** @var OrdersEntity $ordersEntity */
 $ordersEntity = $entityFactory->get(OrdersEntity::class);
 
@@ -58,14 +63,19 @@ unset($_SESSION['lang_id']);
 unset($_SESSION['admin_lang_id']);
 
 $page = $request->get('page');
-if(empty($page) || $page==1) {
+if (empty($page) || $page == 1) {
     $page = 1;
-    if(is_writable($exportFilesDir.$filename)) {
-        unlink($exportFilesDir.$filename);
+    if (is_writable($exportFilesDir . $filename)) {
+        unlink($exportFilesDir . $filename);
     }
 }
 
-$f = fopen($exportFilesDir.$filename, 'ab');
+try {
+    $f = $csvExportWriter->openAppendStream($exportFilesDir, $filename, $format);
+} catch (\RuntimeException) {
+    $response->setContent(json_encode(false), RESPONSE_JSON)->sendContent();
+    exit;
+}
 
 $filter          = [];
 $filter['page']  = $page;
@@ -77,7 +87,7 @@ if (!empty($statusId)) {
 }
 
 $labelId = $request->get('label', 'integer');
-if(!empty($labelId)) {
+if (!empty($labelId)) {
     $filter['label'] = $labelId;
 }
 
@@ -91,40 +101,34 @@ if (!empty($toDate)) {
     $filter['to_date'] = $toDate;
 }
 
-if($page == 1) {
-    fputcsv($f, $columnsNames, $columnDelimiter);
+if ($page == 1) {
+    $csvExportWriter->writeRow($f, $columnsNames, $columnDelimiter, $format);
 }
 
 $mainCurrency =  $currenciesEntity->getMainCurrency();
 
 $orders = $ordersEntity->find($filter);
 if (!empty($orders)) {
-    foreach($orders as $o) {
+    foreach ($orders as $o) {
         $str = array();
         $o->currency = $mainCurrency->code;
-        foreach($columnsNames as $n=>$c) {
+        foreach ($columnsNames as $n => $c) {
             $str[] = $o->$n;
         }
-        fputcsv($f, $str, $columnDelimiter);
+        $csvExportWriter->writeRow($f, $str, $columnDelimiter, $format);
     }
 }
 
 fclose($f);
 
-$totalOrders = $ordersEntity->count($filter);
+$totalOrders = (int) $ordersEntity->count($filter);
 
-if($ordersCount*$page < $totalOrders) {
-    $data = ['end'=>false, 'page'=>$page, 'totalpages'=>$totalOrders/$ordersCount];
+if ($ordersCount * $page < $totalOrders) {
+    $data = ['end' => false, 'page' => $page, 'totalpages' => $totalOrders / $ordersCount];
 } else {
-    $data = ['end'=>true, 'page'=>$page, 'totalpages'=>$totalOrders/$ordersCount];
-
-    mb_substitute_character('none');
-    file_put_contents(
-        $exportFilesDir.$filename,
-        mb_convert_encoding(file_get_contents($exportFilesDir.$filename), 'Windows-1251')
-    );
+    $data = ['end' => true, 'page' => $page, 'totalpages' => $totalOrders / $ordersCount];
 }
 
-if($data) {
+if ($data) {
     $response->setContent(json_encode($data), RESPONSE_JSON)->sendContent();
 }

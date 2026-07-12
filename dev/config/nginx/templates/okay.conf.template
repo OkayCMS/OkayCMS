@@ -18,12 +18,17 @@ server {
     access_log /var/www/html/dev/logs/application.access.log;
     error_log /var/www/html/dev/logs/application.error.log;
         
+    # Gzip compression
     gzip on;
     gzip_comp_level 9;
     gzip_disable "msie6";
     gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript;
     gzip_vary on;
 
+    # Brotli compression (better than Gzip, fallback to Gzip if not supported)
+    brotli on;
+    brotli_comp_level 6;
+    brotli_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
     client_max_body_size 100M;
 
     if ($host ~* ^www\.(.*)$) {

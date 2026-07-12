@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\QueryFactory;
-
 
 use Aura\SqlQuery\QueryInterface;
 use Aura\SqlQuery\Common\Delete as AuraDelete;
@@ -25,15 +23,23 @@ class Delete extends AbstractQuery
         return $this;
     }
 
-    public function where($cond, ...$binds)
+    /**
+     * @param array<string, mixed> $bind
+     * @return $this
+     */
+    public function where($cond, array $bind = [])
     {
-        $this->queryObject->where(...func_get_args());
+        $this->queryObject->where($cond, $bind);
         return $this;
     }
 
-    function orWhere($cond)
+    /**
+     * @param array<string, mixed> $bind
+     * @return $this
+     */
+    public function orWhere($cond, array $bind = [])
     {
-        $this->queryObject->orWhere(...func_get_args());
+        $this->queryObject->orWhere($cond, $bind);
         return $this;
     }
 
@@ -91,6 +97,10 @@ class Delete extends AbstractQuery
         return null;
     }
 
+    /**
+     * @param list<string> $spec
+     * @return $this
+     */
     public function orderBy(array $spec)
     {
         if (method_exists($this->queryObject, 'orderBy')) {

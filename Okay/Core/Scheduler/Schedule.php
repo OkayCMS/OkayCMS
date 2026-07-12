@@ -6,7 +6,7 @@ use Symfony\Component\Lock\LockFactory;
 
 class Schedule
 {
-    /** @var string|array */
+    /** @var string|array<int, mixed>|\Closure */
     private $command;
 
     /** @var string */
@@ -58,8 +58,13 @@ class Schedule
     {
         if ($this->command instanceof \Closure) {
             $ref  = new \ReflectionFunction($this->command);
-            $file = new \SplFileObject($ref->getFileName());
-            $file->seek($ref->getStartLine()-1);
+            $fileName = $ref->getFileName();
+            if ($fileName === false) {
+                throw new \RuntimeException('Unable to build scheduler lock key for closure command');
+            }
+
+            $file = new \SplFileObject($fileName);
+            $file->seek($ref->getStartLine() - 1);
 
             $content = '';
             while ($file->key() < $ref->getEndLine()) {

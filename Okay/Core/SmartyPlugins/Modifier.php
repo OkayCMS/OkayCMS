@@ -1,7 +1,7 @@
 <?php
 
-
 namespace Okay\Core\SmartyPlugins;
 
-
-class Modifier extends Plugin {}
+class Modifier extends Plugin
+{
+}

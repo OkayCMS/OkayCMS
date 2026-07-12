@@ -1,4 +1,5 @@
 <?php
+
 // Боковое меню
 $lang['okay_cms__feeds__menu'] = "Товарные фиды";
 
@@ -92,6 +93,7 @@ $lang['okay_cms__feeds__feed__settings__google_merchant__company'] = "Полно
 $lang['okay_cms__feeds__feed__settings__google_merchant__color'] = "Цвет";
 $lang['okay_cms__feeds__feed__settings__google_merchant__color_notify'] = "Выберите свойство, которое будет отвечать за данный параметр";
 $lang['okay_cms__feeds__feed__settings__google_merchant__gtin'] = "Код GTIN (gtin)";
+$lang['okay_cms__feeds__feed__settings__google_merchant__mpn'] = "Код MPN (mpn)";
 $lang['okay_cms__feeds__feed__settings__google_merchant__gender'] = "Пол (gender)";
 $lang['okay_cms__feeds__feed__settings__google_merchant__material'] = "Материал (material)";
 $lang['okay_cms__feeds__feed__settings__google_merchant__full_description_if_not_exist_annotation'] = "Передавать в фид полное описание товара, только если нет краткого";

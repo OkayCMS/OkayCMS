@@ -28,7 +28,7 @@ class NPWarehousesCollectionDTO
     }
 
     /**
-     * @return NPWarehouseDTO[]
+     * @return array<string, NPWarehouseDTO>
      */
     public function getWarehouses(): array
     {
@@ -44,7 +44,7 @@ class NPWarehousesCollectionDTO
     }
 
     /**
-     * @return array
+     * @return list<string>
      */
     public function getWarehousesRefs(): array
     {

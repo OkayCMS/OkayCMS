@@ -1,12 +1,9 @@
 <?php
 
-
 namespace Okay\Core\Adapters\Resize;
-
 
 abstract class AbstractResize
 {
-
     /**
      * @var int качество изображения, берется из настроек 0-100
      */
@@ -26,8 +23,8 @@ abstract class AbstractResize
      * @var int смещение водяного знака по оси Y
      */
     protected $watermarkOffsetY;
-    
-    public function __construct($imageQuality = 80, $watermark = null, $watermarkOffsetX = 0, $watermarkOffsetY = 0)
+
+    public function __construct(int $imageQuality = 80, ?string $watermark = null, int $watermarkOffsetX = 0, int $watermarkOffsetY = 0)
     {
         $this->imageQuality = $imageQuality;
         $this->watermark    = $watermark;
@@ -35,41 +32,40 @@ abstract class AbstractResize
         $this->watermarkOffsetY = $watermarkOffsetY;
     }
 
+    /**
+     * @param array<string, mixed> $crop_params Optional crop hints (e.g. x_pos, y_pos for crop-aware adapters)
+     */
     abstract public function resize(
-        $srcFile,
-        $dstFile,
-        $maxW,
-        $maxH,
-        $setWatermark = null,
-        $crop_params = []
-    );
+        string $srcFile,
+        string $dstFile,
+        int $maxW,
+        int $maxH,
+        bool $setWatermark = false,
+        array $crop_params = []
+    ): bool;
 
     /**
      * Вычисляет размеры изображения, до которых нужно его пропорционально уменьшить, чтобы вписать в квадрат $maxW x $maxH
-     * @param $srcW - ширина исходного изображения
-     * @param $srcH - высота исходного изображения
-     * @param int $maxW - максимальная ширина
-     * @param int $maxH - максимальная высота
-     * @return array|bool
+     *
+     * @return array<int, float>|false [width, height] or false when source size is invalid
      */
-    protected function calcContainSize($srcW, $srcH, $maxW = 0, $maxH = 0)
+    protected function calcContainSize(float|int $srcW, float|int $srcH, int $maxW = 0, int $maxH = 0)
     {
-        if($srcW == 0 || $srcH == 0) {
+        if ($srcW == 0 || $srcH == 0) {
             return false;
         }
 
         $dstW = $srcW;
         $dstH = $srcH;
 
-        if($srcW > $maxW && $maxW>0) {
-            $dstH = $srcH * ($maxW/$srcW);
+        if ($srcW > $maxW && $maxW > 0) {
+            $dstH = $srcH * ($maxW / $srcW);
             $dstW = $maxW;
         }
-        if($dstH > $maxH && $maxH>0) {
-            $dstW = $dstW * ($maxH/$dstH);
+        if ($dstH > $maxH && $maxH > 0) {
+            $dstW = $dstW * ($maxH / $dstH);
             $dstH = $maxH;
         }
         return [$dstW, $dstH];
     }
-    
 }

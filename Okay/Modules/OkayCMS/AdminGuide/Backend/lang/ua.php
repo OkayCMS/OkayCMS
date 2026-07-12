@@ -1,4 +1,5 @@
 <?php
+
 $lang['description__title'] = 'Документация админ панели';
 $lang['description__description'] = 'В этом разделе приведены примеры готовых решений по оформлению админки. ';
 $lang['description_context'] = 'Содержание';
@@ -58,8 +59,8 @@ $lang['description_alerts2'] = '<p>Это уведомление вывода о
 $lang['description_alerts3'] = '<p>Это уведомление об успехе. Используется при сохранения каких либо успешных действий</p>';
 $lang['description_alerts4'] = '<p>Это инфо-уведомление, его лучше использовать для написания инструкции каких либо действий</p>';
 $lang['description_alerts5'] = '<p>Это уведомление может использоваться как для вывода совета, так и о предупреждении</p>';
-$lang['description_promo_buttons'] = '<p>В системе есть предопределенные стили кнопок, каждые из которых имеет свою семантическую цель, и имеет дополнительные параметры для большего контроля и гибкости.</p>
-                                      <p>Класс <strong>.btn</strong> можно использовать как для <strong>button</strong>, так и для <strong>input</strong> и ссыллок. Классы <strong>.btn_blue</strong>, <strong>.btn-outline-info</strong> и т.д задают определенный стиль кнопкам, а классы <strong>.btn_big</strong>, <strong>.btn_small</strong> и <strong>.btn_mini</strong> изменяют размер кнопок </p>';
+$lang['description_promo_buttons'] = '<p>В системе есть предопределенные стили кнопок, каждый из которых имеет свою семантическую цель и дополнительные параметры для большего контроля и гибкости.</p>
+                                      <p>Класс <strong>.btn</strong> можно использовать для <strong>button</strong>, <strong>input</strong> и ссылок. Основные варианты с фоном: <strong>.btn_blue</strong>, <strong>.btn-info</strong>, <strong>.btn_yellow</strong>, <strong>.btn-danger</strong>, <strong>.btn-warning</strong>. Контурные варианты: <strong>.btn_border_blue</strong>, <strong>.btn_border-info</strong>, <strong>.btn_border_yellow</strong>, <strong>.btn-outline-danger</strong>, <strong>.btn-outline-warning</strong>. Классы <strong>.btn_big</strong>, <strong>.btn_small</strong> и <strong>.btn_mini</strong> изменяют размер кнопок.</p>';
 $lang['description_title2_buttons'] = 'Пример кнопок c фоном:';
 $lang['description_title3_buttons'] = 'Пример кнопок без фона:';
 $lang['description_title4_buttons'] = 'Пример больших кнопок:';
@@ -73,11 +74,11 @@ $lang['description_title3_tooltips'] = 'Подсказки для вывода �
 $lang['description_info_switcher'] = '<p>В этом разделе приведены примеры и рекомендации по использованию стилей управления формой и пользовательских компонентов для широкого использования</p>';
 $lang['description_title2_switcher'] = 'Переключатель (switcher)';
 $lang['description_title2_switcher_label'] = 'Активность';
-$lang['description_info_add_images'] = '<p>Для загрузки файлов или изображений предусмотрены два варианта. Первый - это загрузка текстового файла, а второй вариант отлично подойдет для загрузки изображений и управлениями ими. </p>';
+$lang['description_info_add_images'] = '<p>Для загрузки файлов или изображений предусмотрены два варианта. Первый - это одиночный файловый input с классами <strong>.input_file</strong> и <strong>.input_file_trigger</strong>; общий шаблон админки инициализирует его и выводит выбранное имя файла в <strong>.input_file_return</strong>. Второй вариант используется для загрузки изображений, превью и сортировки через <strong>.fn_droplist_wrap</strong>, <strong>.fn_dropzone</strong> и <strong>.fn_new_image_item</strong>.</p>';
 $lang['description_title2_add_images'] = 'Загрузка файла:';
 $lang['description_title3_add_images'] = 'Загрузка изображений:';
-$lang['description_info3_add_images'] = '<p>Этот способ используется для загрузки фото к баннерам, товарам, категориям и т.д. Можно загружать несколько фото одновременно, удалять их и перемещать по приоритетности. Для его настройки необходимо подставить свои переменные в <strong>&#123;foreach&#125;</strong> и в <strong>&#123;if&#125;</strong></p>';
+$lang['description_info3_add_images'] = '<p>Этот способ используется для загрузки фото к баннерам, товарам, категориям и т.д. Можно загружать несколько фото одновременно, удалять их и перемещать по приоритетности. Существующие изображения выводятся через <strong>&#123;foreach&#125;</strong>, а скрытый элемент <strong>.fn_new_image_item</strong> используется как шаблон для JS-превью новых файлов. Для настройки необходимо подставить свои переменные в <strong>&#123;foreach&#125;</strong> и <strong>&#123;if&#125;</strong>.</p>';
 $lang['description_text_clip_clipboard'] = 'Нажмите, чтобы скопировать в буфер обмена.';
-$lang['description_info_icons'] = '<p>В системе используется иконки <a href="https://fontawesome.com/v4.7.0/icons/" target="_blank">fontawesome</a> и дефолтный набор svg конок, который находится в <strong>svg_icon.tpl</strong>. Для того чтобы вывести определенную иконку, нужно подключить <strong>svg_icon.tpl</strong> с параметром <strong>svgId=""</strong>, в котором указываем id нужной иконки.</p>
+$lang['description_info_icons'] = '<p>В системе используются иконки <a href="https://fontawesome.com/v4.7.0/icons/" target="_blank">fontawesome</a> и набор SVG-иконок в <strong>svg_icon.tpl</strong>. Для вывода SVG-иконки подключите <strong>svg_icon.tpl</strong> с параметром <strong>svgId=""</strong>, в котором указывается id нужной иконки.</p>
                                    <p>Для примера, чтобы вывести иконку корзины, вставляем <strong>&#123;include file="svg_icon.tpl" svgId="trash"&#125;</strong> и в <strong>svgId</strong> указываем id иконки корзины.</p> Наша иконка:  {include file="svg_icon.tpl" svgId="trash"}';
-$lang['description_title2_icons'] = 'Список дефолтных иконок:';
+$lang['description_title2_icons'] = 'Список текущих SVG-иконок:';

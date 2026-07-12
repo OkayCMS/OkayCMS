@@ -1,22 +1,20 @@
 <?php
 
-
 namespace Okay\Core\TemplateConfig;
-
 
 class Common
 {
-
     protected $filename;
     protected $position = 'head';
     protected $dir;
     protected $individual = false;
     protected $preload = false;
+    /** @var array<string, string> */
     protected $attributes = [];
 
     /**
      * Т.к. параметр $filename является единственным обязательным, мы его принимаем в конструктор,
-     * чтобы небыло шанса создать объект без него. 
+     * чтобы небыло шанса создать объект без него.
      * @param mixed $filename
      * @throws \Exception
      */
@@ -44,7 +42,7 @@ class Common
         $this->dir = rtrim($dir, '/') . '/';
         return $this;
     }
-    
+
     /**
      * @param string $position (head|footer)
      * @return $this
@@ -69,7 +67,7 @@ class Common
         $this->preload = true;
         return $this;
     }
-    
+
     /**
      * Установка флага что файл должен подключиться индивидуально, не в общем скомпилированном файле
      * true - подключаем индивидуально, false - файл будет подключен в общем скомпилированном файле
@@ -81,7 +79,7 @@ class Common
         $this->individual = $individual;
         return $this;
     }
-    
+
     /**
      * @return mixed
      */
@@ -137,6 +135,9 @@ class Common
         return $this->attributes[$attribute] ?? null;
     }
 
+    /**
+     * @param array<string, mixed> $attributes
+     */
     public function setAttributes(array $attributes): Common
     {
         foreach ($attributes as $attribute => $value) {
@@ -146,6 +147,9 @@ class Common
         return $this;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getAttributes(): array
     {
         return $this->attributes;

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the `nicolab/php-ftp-client` package.
  *
@@ -33,13 +34,13 @@ namespace FtpClient;
  * @method int nb_fput() nb_fput(string $remote_file, resource $handle, int $mode, int $startpos = 0) Stores a file from an open file to the FTP server (non-blocking)
  * @method int nb_get() nb_get(string $local_file, string $remote_file, int $mode, int $resumepos = 0) Retrieves a file from the FTP server and writes it to a local file (non-blocking)
  * @method int nb_put() nb_put(string $remote_file, string $local_file, int $mode, int $startpos = 0) Stores a file on the FTP server (non-blocking)
- * @method array nlist() nlist(string $directory) Returns a list of files in the given directory
+ * @method array<int, string>|false nlist() nlist(string $directory) Returns a list of files in the given directory
  * @method bool pasv() pasv(bool $pasv) Turns passive mode on or off
  * @method bool put() put(string $remote_file, string $local_file, int $mode, int $startpos = 0) Uploads a file to the FTP server
  * @method string pwd() pwd() Returns the current directory name
  * @method bool quit() quit() Closes an FTP connection
- * @method array raw() raw(string $command) Sends an arbitrary command to an FTP server
- * @method array rawlist() rawlist(string $directory, bool $recursive = false) Returns a detailed list of files in the given directory
+ * @method array<int, string> raw() raw(string $command) Sends an arbitrary command to an FTP server
+ * @method array<int, string> rawlist() rawlist(string $directory, bool $recursive = false) Returns a detailed list of files in the given directory
  * @method bool rename() rename(string $oldname, string $newname) Renames a file or a directory on the FTP server
  * @method bool rmdir() rmdir(string $directory) Removes a directory
  * @method bool set_option() set_option(int $option, mixed $value) Set miscellaneous runtime FTP options
@@ -54,14 +55,14 @@ class FtpWrapper
     /**
      * The connection with the server
      *
-     * @var resource
+     * @var resource|\FTP\Connection|null
      */
     protected $conn;
 
     /**
      * Constructor.
      *
-     * @param resource &$connection The FTP (or SSL-FTP) connection (takes by reference).
+     * @param resource|\FTP\Connection|null $connection The FTP (or SSL-FTP) connection (takes by reference).
      */
     public function __construct(&$connection)
     {
@@ -72,7 +73,7 @@ class FtpWrapper
      * Forward the method call to FTP functions
      *
      * @param  string       $function
-     * @param  array        $arguments
+     * @param  array<int, mixed> $arguments
      * @return mixed
      * @throws FtpException When the function is not valid
      */
@@ -94,7 +95,7 @@ class FtpWrapper
      * @param  string   $host
      * @param  int      $port
      * @param  int      $timeout
-     * @return resource
+     * @return resource|object|false
      */
     public function connect($host, $port = 21, $timeout = 90)
     {
@@ -106,9 +107,9 @@ class FtpWrapper
      * @param  string   $host
      * @param  int      $port
      * @param  int      $timeout
-     * @return resource
+     * @return resource|object|false
      */
-    public function ssl_connect($host, $port = 21, $timeout = 90)
+    public function sslConnect($host, $port = 21, $timeout = 90)
     {
         return ftp_ssl_connect($host, $port, $timeout);
     }

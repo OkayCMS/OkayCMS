@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Helpers;
-
 
 use Okay\Core\Config;
 use Okay\Core\EntityFactory;
@@ -22,12 +20,12 @@ class BackendDeliveriesHelper
      * @var Request
      */
     private $request;
-    
+
     /**
      * @var Config
      */
     private $config;
-    
+
     /**
      * @var Image
      */
@@ -45,15 +43,21 @@ class BackendDeliveriesHelper
         $this->imageCore = $imageCore;
     }
 
+    /**
+     * @param array<int|string, int|string> $ids
+     */
     public function disable(array $ids)
     {
         if (is_array($ids)) {
-            $this->deliveriesEntity->update($ids, ['visible'=>0]);
+            $this->deliveriesEntity->update($ids, ['visible' => 0]);
         }
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    /**
+     * @param array<int|string, int|string> $ids
+     */
     public function enable(array $ids)
     {
         if (is_array($ids)) {
@@ -63,6 +67,9 @@ class BackendDeliveriesHelper
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    /**
+     * @param array<int|string, int|string> $ids
+     */
     public function delete(array $ids)
     {
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
@@ -71,18 +78,21 @@ class BackendDeliveriesHelper
         }
     }
 
+    /**
+     * @param array<int|string, int> $positions
+     */
     public function sortPositions(array $positions)
     {
         $ids = array_keys($positions);
         sort($positions);
 
-        foreach ($positions as $i=>$position) {
-            $this->deliveriesEntity->update($ids[$i], ['position'=>$position]);
+        foreach ($positions as $i => $position) {
+            $this->deliveriesEntity->update($ids[$i], ['position' => $position]);
         }
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
-    
+
     public function buildDeliveriesFilter()
     {
         $filter = [];
@@ -142,6 +152,7 @@ class BackendDeliveriesHelper
     {
         $delivery = $this->deliveriesEntity->get($id);
         if (!empty($delivery->id)) {
+            /** @var object{id: int|string, delivery_payments?: list<int>, delivery_settings?: array<string, mixed>}&\stdClass $delivery */
             $delivery->delivery_payments = $this->deliveriesEntity->getDeliveryPayments($delivery->id);
             $delivery->delivery_settings = $this->deliveriesEntity->getSettings($delivery->id);
         } else {
@@ -152,18 +163,25 @@ class BackendDeliveriesHelper
         return ExtenderFacade::execute(__METHOD__, $delivery, func_get_args());
     }
 
+    /**
+     * @param array<string, mixed> $deliverySettings
+     */
     public function updateSettings($deliveryId, array $deliverySettings)
     {
         $this->deliveriesEntity->updateSettings($deliveryId, $deliverySettings);
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    /**
+     * @param array<int|string, int|string> $payments
+     */
     public function updateDeliveryPayments($deliveryId, array $payments)
     {
+        $payments = array_values(array_map('intval', $payments));
         $this->deliveriesEntity->updateDeliveryPayments($deliveryId, $payments);
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
-    
+
     public function deleteImage($delivery)
     {
         $this->imageCore->deleteImage(
@@ -188,7 +206,7 @@ class BackendDeliveriesHelper
                 $this->config->get('resized_deliveries_dir')
             );
 
-            $this->deliveriesEntity->update($delivery->id, ['image'=>$filename]);
+            $this->deliveriesEntity->update($delivery->id, ['image' => $filename]);
         }
 
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());

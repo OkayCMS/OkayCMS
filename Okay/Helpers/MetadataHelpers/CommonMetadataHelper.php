@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Helpers\MetadataHelpers;
-
 
 use Okay\Core\Design;
 use Okay\Core\Modules\Extender\ExtenderFacade;
@@ -14,7 +12,7 @@ use Okay\Helpers\MainHelper;
 class CommonMetadataHelper implements MetadataInterface
 {
     protected $parts = [];
-    
+
     protected $page;
     /** @var Design */
     protected $design;
@@ -26,7 +24,7 @@ class CommonMetadataHelper implements MetadataInterface
     protected $mainHelper;
     /** @var ServiceLocator */
     protected $SL;
-    
+
     protected $h1 = '';
     protected $annotation = '';
     protected $description = '';
@@ -44,7 +42,7 @@ class CommonMetadataHelper implements MetadataInterface
         $this->mainHelper = $SL->getService(MainHelper::class);
         $this->page = $this->design->getVar('page');
     }
-    
+
     /**
      * @inheritDoc
      */
@@ -53,7 +51,7 @@ class CommonMetadataHelper implements MetadataInterface
         if (empty($this->h1) && $this->page) {
             $this->h1 = empty($this->page->name_h1) ? $this->page->name : $this->page->name_h1;
         }
-        
+
         return ExtenderFacade::execute([static::class, __FUNCTION__], $this->h1, func_get_args());
     }
 
@@ -73,7 +71,7 @@ class CommonMetadataHelper implements MetadataInterface
         if (empty($this->description) && $this->page) {
             $this->description = $this->page->description;
         }
-        
+
         return ExtenderFacade::execute([static::class, __FUNCTION__], $this->description, func_get_args());
     }
 
@@ -85,7 +83,7 @@ class CommonMetadataHelper implements MetadataInterface
         if (empty($this->metaTitle) && $this->page) {
             $this->metaTitle = $this->page->meta_title;
         }
-        
+
         return ExtenderFacade::execute([static::class, __FUNCTION__], $this->metaTitle, func_get_args());
     }
 
@@ -97,7 +95,7 @@ class CommonMetadataHelper implements MetadataInterface
         if (empty($this->metaKeywords) && $this->page) {
             $this->metaKeywords = $this->page->meta_keywords;
         }
-        
+
         return ExtenderFacade::execute([static::class, __FUNCTION__], $this->metaKeywords, func_get_args());
     }
 
@@ -109,10 +107,10 @@ class CommonMetadataHelper implements MetadataInterface
         if (empty($this->metaDescription) && $this->page) {
             $this->metaDescription = $this->page->meta_description;
         }
-        
+
         return ExtenderFacade::execute([static::class, __FUNCTION__], $this->metaDescription, func_get_args());
     }
-    
+
     public function getH1(): string
     {
         $h1 = $this->compileMetadata($this->getH1Template());
@@ -150,29 +148,29 @@ class CommonMetadataHelper implements MetadataInterface
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      */
     protected function getParts(): array
     {
         if (!empty($this->parts)) {
             return $this->parts; // no ExtenderFacade
         }
-        
-        if ($page = $this->design->getVar('page')) {
 
+        if ($page = $this->design->getVar('page')) {
             $this->parts = [
                 '{$page}' => ($page->name ? $page->name : ''),
                 '{$page_h1}' => ($page->name_h1 ? $page->name_h1 : ''),
             ];
         }
-        
+
         return $this->parts = ExtenderFacade::execute([static::class, __FUNCTION__], $this->parts, func_get_args());
     }
 
     protected function compileMetadata($pattern)
     {
         $metaData = strtr($pattern, $this->getParts());
-        $metaData = trim(preg_replace('/{\$[^$]*}/', '', $metaData));
+        $metaData = preg_replace('/{\$[^$]*}/', '', $metaData);
+        $metaData = trim(is_string($metaData) ? $metaData : '');
         return ExtenderFacade::execute([static::class, __FUNCTION__], $metaData, func_get_args());
     }
 }

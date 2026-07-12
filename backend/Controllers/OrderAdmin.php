@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Admin\Helpers\BackendOrderHistoryHelper;
 use Okay\Admin\Helpers\BackendOrdersHelper;
@@ -20,25 +18,23 @@ use Okay\Entities\PurchasesEntity;
 
 class OrderAdmin extends IndexAdmin
 {
-
     public function fetch(
-        OrdersEntity              $ordersEntity,
-        PurchasesEntity           $purchasesEntity,
-        OrderLabelsEntity         $orderLabelsEntity,
-        OrderStatusEntity         $orderStatusEntity,
-        DeliveriesEntity          $deliveriesEntity,
-        PaymentsEntity            $paymentsEntity,
-        CurrenciesEntity          $currenciesEntity,
-        Notify                    $notify,
-        BackendOrdersRequest      $ordersRequest,
-        BackendOrdersHelper       $backendOrdersHelper,
+        OrdersEntity $ordersEntity,
+        PurchasesEntity $purchasesEntity,
+        OrderLabelsEntity $orderLabelsEntity,
+        OrderStatusEntity $orderStatusEntity,
+        DeliveriesEntity $deliveriesEntity,
+        PaymentsEntity $paymentsEntity,
+        CurrenciesEntity $currenciesEntity,
+        Notify $notify,
+        BackendOrdersRequest $ordersRequest,
+        BackendOrdersHelper $backendOrdersHelper,
         BackendOrderHistoryHelper $backendOrderHistoryHelper,
-        DiscountsEntity           $discountsEntity
+        DiscountsEntity $discountsEntity
     ) {
-        
+
         /*Прием информации о заказе*/
         if ($this->request->method('post')) {
-            
             $order = $ordersRequest->postOrder();
             $purchases = $ordersRequest->postPurchases();
 
@@ -50,7 +46,7 @@ class OrderAdmin extends IndexAdmin
                 $purchasesBeforeUpdate = $purchasesEntity->find(['order_id' => $order->id]);
                 $discountsBeforeUpdate = $backendOrdersHelper->getDiscountsBeforeUpdate($order->id);
             }
-            
+
             if (!$orderLabels = $this->request->post('order_labels')) {
                 $orderLabels = [];
             }
@@ -60,7 +56,7 @@ class OrderAdmin extends IndexAdmin
                 $deliverySeparatePayment = (array)$deliveriesEntity->cols(['separate_payment'])->get((int)$order->delivery_id);
                 $order->separate_delivery = $deliverySeparatePayment['separate_payment'];
             }
-            
+
             if (empty($purchases)) {
                 $this->design->assign('message_error', 'empty_purchase');
             } else {
@@ -75,7 +71,7 @@ class OrderAdmin extends IndexAdmin
                     $backendOrdersHelper->update($preparedOrder);
                     $this->postRedirectGet->storeMessageSuccess('updated');
                 }
-                
+
                 $orderLabelsEntity->updateOrderLabels($order->id, $orderLabels);
 
                 if ($order->id) {
@@ -166,8 +162,9 @@ class OrderAdmin extends IndexAdmin
                 $this->postRedirectGet->redirect();
             }
         }
-            
+
         $order = $backendOrdersHelper->findOrder($this->request->get('id', 'integer'));
+        /** @var object{id?: int|string|null, closed: bool|int|string|null} $order */
 
         // Метки заказа
         $orderLabels = [];
@@ -179,10 +176,11 @@ class OrderAdmin extends IndexAdmin
             $subtotal = 0;
             $hasVariantNotInStock = false;
             foreach ($purchases as $purchase) {
+                /** @var object{amount: int|float|string, price: int|float|string, variant?: object{stock: int|float|string|null}|null} $purchase */
                 if (!$order->closed && ((empty($purchase->variant) || $purchase->amount > $purchase->variant->stock || !$purchase->variant->stock) && !$hasVariantNotInStock)) {
                     $hasVariantNotInStock = true;
                 }
-                $subtotal += $purchase->price * $purchase->amount;
+                $subtotal += (float) $purchase->price * (float) $purchase->amount;
             }
             // Способ доставки
             $delivery = $backendOrdersHelper->findOrderDelivery($order);
@@ -222,21 +220,21 @@ class OrderAdmin extends IndexAdmin
         // Все способы доставки
         $deliveries = $deliveriesEntity->find();
         $this->design->assign('deliveries', $deliveries);
-        
+
         // Все способы оплаты
         $paymentMethods = $paymentsEntity->find();
         $this->design->assign('payment_methods', $paymentMethods);
-        
+
         // Метки заказов
         $labels = $orderLabelsEntity->find();
         $this->design->assign('labels', $labels);
-        
+
         $this->design->assign('order_labels', $orderLabels);
 
         if (!empty($order->id)) {
             $orderHistory = $backendOrderHistoryHelper->getHistory($order->id);
             $this->design->assign('order_history', $orderHistory);
-            
+
             $page             = $ordersRequest->getPage();
             $currentPage      = $backendOrdersHelper->determineCurrentPage($page);
             $perPage          = $backendOrdersHelper->getPaginationPerPage();
@@ -244,7 +242,7 @@ class OrderAdmin extends IndexAdmin
             $otherOrdersCount = $backendOrdersHelper->countOtherOrdersOfClient($order);
             $this->design->assign('match_orders', $otherOrders);
             $this->design->assign('current_page', $currentPage);
-            $this->design->assign('pages_count',  ceil($otherOrdersCount / $perPage));
+            $this->design->assign('pages_count', ceil($otherOrdersCount / $perPage));
         }
 
         if ($this->request->get('match_orders_tab_active')) {
@@ -257,18 +255,19 @@ class OrderAdmin extends IndexAdmin
             $this->response->setContent($this->design->fetch('order.tpl'));
         }
     }
-    
-    public function addOrderProduct(BackendOrdersHelper  $backendOrdersHelper, Image $imagesCore)
+
+    public function addOrderProduct(BackendOrdersHelper $backendOrdersHelper, Image $imagesCore)
     {
         $keyword = $this->request->get('query', 'string');
 
         $products = $backendOrdersHelper->findOrderProducts($keyword);
 
         $suggestions = [];
-        foreach($products as $product) {
-            if(!empty($product->variants)) {
-                $suggestion = new \stdClass;
-                if(!empty($product->image)) {
+        foreach ($products as $product) {
+            /** @var object{name: string, variants?: array<mixed>, image?: string|null}&\stdClass $product */
+            if (!empty($product->variants)) {
+                $suggestion = new \stdClass();
+                if (!empty($product->image)) {
                     $product->image = $imagesCore->getResizeModifier($product->image, 35, 35);
                 }
                 $suggestion->value = $product->name;
@@ -277,11 +276,9 @@ class OrderAdmin extends IndexAdmin
             }
         }
 
-        $result = new \stdClass;
+        $result = new \stdClass();
         $result->query = $keyword;
         $result->suggestions = $suggestions;
         $this->response->setContent(json_encode($result), RESPONSE_JSON);
-
     }
-    
 }

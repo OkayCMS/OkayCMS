@@ -13,6 +13,9 @@ class BackendDeliveryFieldsRequest
         $this->request = $request;
     }
 
+    /**
+     * @return array<int|string, object{deliveries: array<int|string, int|string>, visible: int, required: int, id?: int|string|null}&\stdClass>
+     */
     public function postDeliveryFields(): array
     {
         $postFields = $this->request->post('delivery_fields', null, []);
@@ -30,6 +33,7 @@ class BackendDeliveryFieldsRequest
             }
         }
 
+        /** @var array<int|string, object{deliveries: array<int|string, int|string>, visible: int, required: int, id?: int|string|null}&\stdClass> $deliveryFields */
         return $deliveryFields;
     }
 }

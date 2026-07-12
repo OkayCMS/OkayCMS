@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Controllers;
-
 
 use Okay\Core\Cart;
 use Okay\Core\Comparison;
@@ -22,18 +20,23 @@ use Okay\Helpers\UserHelper;
 
 class AbstractController
 {
-    
     /* Смысл класса в доступности следующих переменных в любом контроллере */
+    /** @var object|null */
     public $currency;
+    /** @var array<int, object> */
     public $currencies;
+    /** @var (object{id: int|string, name?: string, preferred_payment_method_id?: int|string|null, preferred_delivery_id?: int|string|null}&\stdClass)|null */
     public $user;
+    /** @var object|null */
     public $group;
+    /** @var (object{url: string, last_modify: mixed}&\stdClass)|null */
     public $page;
+    /** @var object|null */
     public $language;
 
     /** @var Design */
     protected $design;
-    
+
     /** @var Request */
     protected $request;
 
@@ -48,7 +51,7 @@ class AbstractController
 
     /** @var EntityFactory */
     protected $entityFactory;
-    
+
     /** @var Router */
     protected $router;
 
@@ -63,12 +66,14 @@ class AbstractController
 
     /** @var ServiceLocator */
     protected $serviceLocator;
-    
+
+    /** @var MetadataInterface|null */
     private $metadataHelper;
 
+    /** @var array<int, object> */
     protected $languages;
 
-    protected function setMetadataHelper(MetadataInterface $metadataHelper)
+    protected function setMetadataHelper(MetadataInterface $metadataHelper): void
     {
         $this->metadataHelper = $metadataHelper;
     }
@@ -77,11 +82,11 @@ class AbstractController
      * Метод, который вызывается всегда перед вызовом методов контроллера.
      * В методе можно принимать аргументы, с указанием типа данных, они автоматически через DI сюда передадутся
      */
-    final public function beforeController(MainHelper $mainHelper)
+    final public function beforeController(MainHelper $mainHelper): void
     {
         $mainHelper->commonBeforeControllerProcedure();
     }
-    
+
     /*
      * Метод, который вызывается всегда перед вызовом метода контроллера.
      * В методе можно принимать аргументы, с указанием типа данных, они автоматически через DI сюда передадутся
@@ -101,7 +106,7 @@ class AbstractController
         MainHelper $mainHelper,
         CommonHelper $commonHelper,
         UserHelper $userHelper
-    ) {
+    ): void {
         $this->design       = $design;
         $this->request      = $request;
         $this->response     = $response;
@@ -122,10 +127,10 @@ class AbstractController
         $userHelper->mergeWishlist(true);
         $userHelper->mergeComparison(true);
         $userHelper->mergeBrowsedProducts(true);
-        
+
         // Передаем на фронт все, что может там понадобиться
         $mainHelper->setDesignDataProcedure();
-        
+
         $this->languages    = $mainHelper->getAllLanguages();
         $this->language     = $mainHelper->getCurrentLanguage();
         $this->page         = $mainHelper->getCurrentPage();
@@ -138,14 +143,13 @@ class AbstractController
 
         $commonHelper->rootPostProcedure();
     }
-    
+
     /*
      * Метод, который вызывается всегда после вызовом метода контроллера.
      * В методе можно принимать аргументы, с указанием типа данных, они автоматически через DI сюда передадутся
      */
-    final public function afterController(MainHelper $mainHelper)
+    final public function afterController(MainHelper $mainHelper): void
     {
         $mainHelper->commonAfterControllerProcedure($this->metadataHelper);
     }
-    
 }

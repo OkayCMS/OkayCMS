@@ -1,15 +1,12 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Core\Modules\LicenseModulesTemplates;
 use Okay\Entities\ManagersEntity;
 
 class ThemeAdmin extends IndexAdmin
 {
-
     private $themes_dir = 'design/';
     private $compiled_dir = 'compiled/';
 
@@ -30,12 +27,12 @@ class ThemeAdmin extends IndexAdmin
             $old_names = $this->request->post('old_name');
             $new_names = $this->request->post('new_name');
             if (is_array($old_names)) {
-                foreach ($old_names as $i=>$old_name) {
+                foreach ($old_names as $i => $old_name) {
                     $new_name = preg_replace("/[^a-zA-Z0-9\-_]/", "", $new_names[$i]);
 
-                    if (is_writable($this->themes_dir) && is_dir($this->themes_dir.$old_name) && !is_file($this->themes_dir.$new_name)&& !is_dir($this->themes_dir.$new_name)) {
-                        rename($this->themes_dir.$old_name, $this->themes_dir.$new_name);
-                        if($this->settings->get('admin_theme') == $old_name) {
+                    if (is_writable($this->themes_dir) && is_dir($this->themes_dir . $old_name) && !is_file($this->themes_dir . $new_name) && !is_dir($this->themes_dir . $new_name)) {
+                        rename($this->themes_dir . $old_name, $this->themes_dir . $new_name);
+                        if ($this->settings->get('admin_theme') == $old_name) {
                             $this->settings->set('admin_theme', $new_name);
                         }
                         if ($this->settings->get('theme') == $old_name) {
@@ -50,37 +47,43 @@ class ThemeAdmin extends IndexAdmin
             $action_theme  = $this->request->post('theme');
 
             switch ($action) {
-                case 'set_main_theme': {
-                    /*Установить тему*/
+                case 'set_main_theme':
+                        /*Установить тему*/
                     if ($action_theme == $this->settings->get('admin_theme')) {
                         $this->settings->set('admin_theme', '');
                     }
-                    $this->settings->set('theme', $action_theme);
+                        $this->settings->set('theme', $action_theme);
                         $licenseModulesTemplates->setThemeName($action_theme);
                         $licenseModulesTemplates->updateLicenseInfo();
                     break;
-                }
-                case 'clone_theme': {
-                    /*Сдлать копию темы*/
-                    $new_name = $this->settings->get('theme');
-                    while (is_dir($this->themes_dir.$new_name) || is_file($this->themes_dir.$new_name)) {
+                case 'clone_theme':
+                        /*Сдлать копию темы*/
+                        $new_name = $this->settings->get('theme');
+                    while (is_dir($this->themes_dir . $new_name) || is_file($this->themes_dir . $new_name)) {
                         $parts = [];
                         if (preg_match('/(.+)_([0-9]+)$/', $new_name, $parts)) {
-                            $new_name = $parts[1].'_'.($parts[2]+1);
+                            $new_name = $parts[1] . '_' . ($parts[2] + 1);
                         } else {
-                            $new_name = $new_name.'_1';
+                            $new_name = $new_name . '_1';
                         }
                     }
-                    $this->dirCopy($this->themes_dir.$this->settings->get('theme'), $this->themes_dir.$new_name);
-                    @unlink($this->themes_dir.$new_name.'/locked');
-                    $this->settings->set('theme', $new_name);
-                    $licenseModulesTemplates->setThemeName($new_name);
-                    $licenseModulesTemplates->updateLicenseInfo();
+                        $this->dirCopy($this->themes_dir . $this->settings->get('theme'), $this->themes_dir . $new_name);
+                        // Валідація шляху перед видаленням
+                        $locked_file = $this->themes_dir . $new_name . '/locked';
+                    if (strpos($locked_file, '..') === false) {
+                        $real_locked = realpath($locked_file);
+                        $real_themes_dir = realpath($this->themes_dir);
+                        if ($real_locked !== false && $real_themes_dir !== false && strpos($real_locked, $real_themes_dir) === 0) {
+                            @unlink($locked_file);
+                        }
+                    }
+                        $this->settings->set('theme', $new_name);
+                        $licenseModulesTemplates->setThemeName($new_name);
+                        $licenseModulesTemplates->updateLicenseInfo();
                     break;
-                }
-                case 'delete_theme': {
-                    /*Удалить тему*/
-                    $this->dirDelete($this->themes_dir.$action_theme);
+                case 'delete_theme':
+                        /*Удалить тему*/
+                        $this->dirDelete($this->themes_dir . $action_theme);
                     if ($action_theme == $this->settings->get('admin_theme')) {
                         $this->settings->set('admin_theme', '');
                     }
@@ -91,7 +94,6 @@ class ThemeAdmin extends IndexAdmin
                         $licenseModulesTemplates->updateLicenseInfo();
                     }
                     break;
-                }
             }
         }
 
@@ -102,9 +104,9 @@ class ThemeAdmin extends IndexAdmin
             $this->design->assign('message_error', 'permissions');
         }
 
-        $current_theme = new \stdClass;
+        $current_theme = new \stdClass();
         $current_theme->name = $this->settings->get('theme');
-        $current_theme->locked = is_file($this->themes_dir.$current_theme->name.'/locked');
+        $current_theme->locked = is_file($this->themes_dir . $current_theme->name . '/locked');
         $managers = $managersEntity->find();
         $this->design->assign('is_licensed_template', $licenseModulesTemplates->isLicensedTemplate());
         $this->design->assign('is_official_template', $licenseModulesTemplates->isOfficialTemplate());
@@ -117,8 +119,9 @@ class ThemeAdmin extends IndexAdmin
         $this->response->setContent($this->design->fetch('theme.tpl'));
     }
 
-    private function dirCopy($src, $dst) {
-        if(is_dir($src)) {
+    private function dirCopy($src, $dst)
+    {
+        if (is_dir($src)) {
             mkdir($dst, 0755);
             $files = scandir($src);
             foreach ($files as $file) {
@@ -127,40 +130,71 @@ class ThemeAdmin extends IndexAdmin
                 }
             }
             @chmod($dst, 0755);
-        } elseif(file_exists($src)) {
+        } elseif (file_exists($src)) {
             copy($src, $dst);
             @chmod($dst, 0664);
         }
     }
 
-    private function dirDelete($path, $delete_self = true, $ignore = []) {
-        if(!$dh = @opendir($path)) {
+    private function dirDelete($path, $delete_self = true, $ignore = [])
+    {
+        // Валідація базового шляху
+        if (empty($path) || strpos($path, '..') !== false) {
+            return;
+        }
+
+        $real_path = realpath($path);
+        $real_themes_dir = realpath($this->themes_dir);
+        $real_compiled_dir = realpath($this->compiled_dir);
+
+        // Перевіряємо, що шлях знаходиться в дозволених директоріях
+        if (
+            $real_path === false ||
+            ($real_themes_dir !== false && strpos($real_path, $real_themes_dir) !== 0) &&
+            ($real_compiled_dir !== false && strpos($real_path, $real_compiled_dir) !== 0)
+        ) {
+            return;
+        }
+
+        if (!$dh = @opendir($path)) {
             return;
         }
         while (false !== ($obj = readdir($dh))) {
-            if($obj == '.' || $obj == '..' || in_array($obj, $ignore)) {
+            if ($obj == '.' || $obj == '..' || in_array($obj, $ignore)) {
                 continue;
             }
 
-            if (!@unlink($path . '/' . $obj)) {
-                $this->dirDelete($path.'/'.$obj, true);
+            // Валідація шляху файлу перед видаленням
+            $file_path = $path . '/' . $obj;
+            if (strpos($file_path, '..') === false) {
+                $real_file_path = realpath($file_path);
+                if (
+                    $real_file_path !== false &&
+                    (($real_themes_dir !== false && strpos($real_file_path, $real_themes_dir) === 0) ||
+                        ($real_compiled_dir !== false && strpos($real_file_path, $real_compiled_dir) === 0))
+                ) {
+                    if (!@unlink($file_path)) {
+                        $this->dirDelete($file_path, true);
+                    }
+                }
             }
         }
         closedir($dh);
-        if($delete_self) {
+        if ($delete_self) {
             @rmdir($path);
         }
         return;
     }
 
-    private function getThemes() {
+    private function getThemes()
+    {
         $themes = [];
-        if($handle = opendir($this->themes_dir)) {
-            while(false !== ($file = readdir($handle))) {
-                if(is_dir($this->themes_dir.'/'.$file) && $file[0] != '.') {
-                    $theme = new \stdClass;
+        if ($handle = opendir($this->themes_dir)) {
+            while (false !== ($file = readdir($handle))) {
+                if (is_dir($this->themes_dir . '/' . $file) && $file[0] != '.') {
+                    $theme = new \stdClass();
                     $theme->name = $file;
-                    $theme->locked = is_file($this->themes_dir.$file.'/locked');
+                    $theme->locked = is_file($this->themes_dir . $file . '/locked');
                     $themes[] = $theme;
                 }
             }
@@ -169,5 +203,4 @@ class ThemeAdmin extends IndexAdmin
         }
         return $themes;
     }
-
 }

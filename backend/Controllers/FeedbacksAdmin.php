@@ -1,31 +1,26 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
 
-
 use Okay\Admin\Helpers\BackendFeedbacksHelper;
-
 use Okay\Admin\Helpers\BackendNotifyHelper;
 use Okay\Admin\Requests\BackendFeedbacksRequest;
 
 class FeedbacksAdmin extends IndexAdmin
 {
-    
     public function fetch(
         BackendFeedbacksRequest $feedbacksRequest,
-        BackendNotifyHelper     $backendNotifyHelper,
-        BackendFeedbacksHelper  $backendFeedbacksHelper
-    ){
+        BackendNotifyHelper $backendNotifyHelper,
+        BackendFeedbacksHelper $backendFeedbacksHelper
+    ) {
         // Обработка действий
         $ids    = $feedbacksRequest->postCheck();
         $action = $feedbacksRequest->postAction();
         if (!empty($ids)) {
             switch ($action) {
-                case 'delete': {
+                case 'delete':
                     $backendFeedbacksHelper->delete($ids);
                     break;
-                }
             }
         }
 
@@ -39,7 +34,7 @@ class FeedbacksAdmin extends IndexAdmin
                 $backendNotifyHelper->feedbackAnswerNotify($answerFeedbackId);
             }
         }
-        
+
         // Отображение
         $filter = $backendFeedbacksHelper->buildFilter();
 
@@ -59,13 +54,12 @@ class FeedbacksAdmin extends IndexAdmin
         $adminAnswers   = $backendFeedbacksHelper->selectAnswers($feedbacks);
         $feedbacksCount = $backendFeedbacksHelper->count($filter);
 
-        $this->design->assign('admin_answer',    $adminAnswers);
-        $this->design->assign('pages_count',     ceil($feedbacksCount/$filter['limit']));
-        $this->design->assign('current_page',    $filter['page']);
-        $this->design->assign('feedbacks',       $feedbacks);
+        $this->design->assign('admin_answer', $adminAnswers);
+        $this->design->assign('pages_count', ceil($feedbacksCount / $filter['limit']));
+        $this->design->assign('current_page', $filter['page']);
+        $this->design->assign('feedbacks', $feedbacks);
         $this->design->assign('feedbacks_count', $feedbacksCount);
 
         $this->response->setContent($this->design->fetch('feedbacks.tpl'));
     }
-    
 }

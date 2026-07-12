@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\LiqPay;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\AbstractModule;
@@ -15,7 +13,6 @@ use Okay\Entities\PaymentsEntity;
 
 class PaymentForm extends AbstractModule implements PaymentFormInterface
 {
-
     private $entityFactory;
     private $money;
 
@@ -50,7 +47,7 @@ class PaymentForm extends AbstractModule implements PaymentFormInterface
 
         // описание заказа
         // order description
-        $desc = 'Оплата заказа №'.$order->id;
+        $desc = 'Оплата заказа №' . $order->id;
 
         $resultUrl = Router::generateUrl('order', ['url' => $order->url], true);
         $serverUrl = Router::generateUrl('OkayCMS_LiqPay_callback', [], true);
@@ -72,13 +69,17 @@ class PaymentForm extends AbstractModule implements PaymentFormInterface
             'server_url'   => $serverUrl,
         ];
 
-        if(!empty($paymentType) && $paymentType !== 'default') {
+        if (!empty($paymentType) && $paymentType !== 'default') {
             $data_array['paytypes'] = $paymentType;
         }
 
 
-        $data = base64_encode(json_encode($data_array));
-        $sign = base64_encode(sha1($privateKey.$data.$privateKey,1));
+        $encodedData = json_encode($data_array);
+        if ($encodedData === false) {
+            $encodedData = '';
+        }
+        $data = base64_encode($encodedData);
+        $sign = base64_encode(sha1($privateKey . $data . $privateKey, 1));
 
         $this->design->assign('data', $data);
         $this->design->assign('sign', $sign);

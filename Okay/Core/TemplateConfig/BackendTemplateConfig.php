@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\TemplateConfig;
-
 
 use Okay\Core\Modules\Module;
 use Okay\Core\Modules\Modules;
@@ -10,12 +8,12 @@ use Okay\Core\Request;
 
 class BackendTemplateConfig
 {
-    const TYPE_JS = 'js';
-    const TYPE_CSS = 'css';
-    
+    public const TYPE_JS = 'js';
+    public const TYPE_CSS = 'css';
+
     private $rootDir;
     private $scriptsDefer;
-    
+
     private $themeSettingsFileName;
     private $compileCssDir;
     private $compileJsDir;
@@ -40,7 +38,7 @@ class BackendTemplateConfig
         $this->module = $module;
         $this->jsConfig = new JsConfig();
         $this->cssConfig = new CssConfig($rootDir, '');
-        
+
         $this->rootDir = $rootDir;
         $this->scriptsDefer = $scriptsDefer;
         $this->themeSettingsFileName = $themeSettingsFileName;
@@ -54,29 +52,26 @@ class BackendTemplateConfig
         if (!is_dir($this->compileJsDir)) {
             mkdir($this->compileJsDir, 0777, true);
         }
-        
     }
 
 
     public function __destruct()
     {
         // Инвалидация компилированных js и css файлов
-        $css = glob($this->rootDir . $this->compileCssDir . "backend.*.css");
-        $cssMaps = glob($this->rootDir . $this->compileCssDir . "backend.*.css.map");
-        $js = glob($this->rootDir . $this->compileJsDir . "backend.*.js");
+        $css = glob($this->rootDir . $this->compileCssDir . "backend.*.css") ?: [];
+        $cssMaps = glob($this->rootDir . $this->compileCssDir . "backend.*.css.map") ?: [];
+        $js = glob($this->rootDir . $this->compileJsDir . "backend.*.js") ?: [];
 
         $cacheFiles = array_merge($css, $cssMaps, $js);
-        if (is_array($cacheFiles)) {
-            foreach ($cacheFiles as $f) {
-                $fileTime = filemtime($f);
-                // Если файл редактировался более недели назад, удалим его, вероятнее всего он уже не нужен
-                if ($fileTime !== false && time() - $fileTime > 604800) {
-                    @unlink($f);
-                }
+        foreach ($cacheFiles as $f) {
+            $fileTime = filemtime($f);
+            // Если файл редактировался более недели назад, удалим его, вероятнее всего он уже не нужен
+            if ($fileTime !== false && time() - $fileTime > 604800) {
+                @unlink($f);
             }
         }
     }
-    
+
     /**
      * Метод возвращает теги на подключение всех зарегистрированных js и css для блока head
      * @return string
@@ -88,9 +83,8 @@ class BackendTemplateConfig
         $head .= $this->getIncludeHtml(TC_POSITION_HEAD);
 
         return $head;
-
     }
-    
+
     /**
      * Метод возвращает теги на подключение всех зарегистрированных js и css для футера
      * @return string
@@ -126,7 +120,7 @@ class BackendTemplateConfig
      */
     public function compileIndividualJs($filename, $dir = null, $defer = false)
     {
-        
+
         if ($this->checkFile($filename, self::TYPE_JS, $dir) === true) {
             $fullFilePath = $this->getFullPath($filename, self::TYPE_JS, $dir);
 
@@ -135,7 +129,7 @@ class BackendTemplateConfig
         }
         return '';
     }
-    
+
     /**
      * @param string $position
      * @return string html для подключения js и css шаблона
@@ -145,37 +139,37 @@ class BackendTemplateConfig
         if (empty($position)) {
             $position = TC_POSITION_HEAD;
         }
-        
+
         $this->registerTemplateFiles();
         $includeHtml = '';
 
         // Подключаем основной файл стилей
         if (($css_filename = $this->cssConfig->compileRegistered($position, $this->compileCssDir, 'backend')) !== '') {
-            $includeHtml .= "<link href=\"".Request::getRootUrl()."/{$css_filename}\" type=\"text/css\" rel=\"stylesheet\">" . PHP_EOL;
+            $includeHtml .= "<link href=\"" . Request::getRootUrl() . "/{$css_filename}\" type=\"text/css\" rel=\"stylesheet\">" . PHP_EOL;
         }
 
         // Подключаем дополнительные индивидуальные файлы стилей
         if (($individualCss_filenames = $this->cssConfig->compileRegisteredIndividual($position, $this->compileCssDir, 'backend')) !== []) {
             foreach ($individualCss_filenames as $filename) {
-                $includeHtml .= "<link href=\"".Request::getRootUrl()."/{$filename}\" type=\"text/css\" rel=\"stylesheet\">" . PHP_EOL;
+                $includeHtml .= "<link href=\"" . Request::getRootUrl() . "/{$filename}\" type=\"text/css\" rel=\"stylesheet\">" . PHP_EOL;
             }
         }
 
         // Подключаем основной JS файл
         if (($js_filename = $this->jsConfig->compileRegistered($position, $this->compileJsDir, 'backend')) !== '') {
-            $includeHtml .= "<script src=\"".Request::getRootUrl()."/{$js_filename}\"></script>" . PHP_EOL;
+            $includeHtml .= "<script src=\"" . Request::getRootUrl() . "/{$js_filename}\"></script>" . PHP_EOL;
         }
 
         // Подключаем дополнительные индивидуальные JS файлы
         if (($individualJs_filenames = $this->jsConfig->compileRegisteredIndividual($position, $this->compileJsDir, 'backend')) !== []) {
             foreach ($individualJs_filenames as $filename) {
-                $includeHtml .= "<script src=\"".Request::getRootUrl()."/{$filename}\"></script>" . PHP_EOL;
+                $includeHtml .= "<script src=\"" . Request::getRootUrl() . "/{$filename}\"></script>" . PHP_EOL;
             }
         }
 
         return $includeHtml;
     }
-    
+
     private function checkFile($filename, $type, $dir = null)
     {
         // файлы по http регистрировать нельзя
@@ -186,7 +180,7 @@ class BackendTemplateConfig
         $file = $this->getFullPath($filename, $type, $dir);
         return (bool)file_exists($file);
     }
-    
+
     private function getFullPath($filename, $type, $dir = null)
     {
         $directory =  $this->rootDir;
@@ -197,7 +191,7 @@ class BackendTemplateConfig
         }
         return $directory . $filename;
     }
-    
+
     private function registerTemplateFiles()
     {
         if ($this->registeredTemplateFiles === true) {
@@ -227,7 +221,6 @@ class BackendTemplateConfig
 
         $runningModules = $this->modules->getRunningModules();
         foreach ($runningModules as $runningModule) {
-
             $moduleThemesDir = $this->module->getModuleDirectory($runningModule['vendor'], $runningModule['module_name']) . 'Backend/design/';
 
             if (file_exists($moduleThemesDir . 'css.php') && ($moduleCss = include $moduleThemesDir . 'css.php') && is_array($moduleCss)) {
@@ -237,9 +230,9 @@ class BackendTemplateConfig
                         $cssDir = $this->module->getModuleDirectory(
                             $runningModule['vendor'],
                             $runningModule['module_name']
-                            ) 
+                        )
                             . 'Backend/design/css/';
-                        
+
                         $cssItem->setDir($cssDir);
                     }
                     $this->cssConfig->register($cssItem, $cssItem->getDir() . $cssItem->getFilename());
@@ -252,9 +245,9 @@ class BackendTemplateConfig
                 foreach ($moduleJs as $jsItem) {
                     if ($jsItem->getDir() === null) {
                         $jsDir = $this->module->getModuleDirectory(
-                                $runningModule['vendor'],
-                                $runningModule['module_name']
-                            )
+                            $runningModule['vendor'],
+                            $runningModule['module_name']
+                        )
                             . 'Backend/design/js/';
                         $jsItem->setDir($jsDir);
                     }

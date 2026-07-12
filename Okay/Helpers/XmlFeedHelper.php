@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Helpers;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Languages;
@@ -18,10 +16,14 @@ use Okay\Entities\ImagesEntity;
 /**
  * Class XmlFeedHelper
  * @package Okay\Helpers
- * 
+ *
  * Данный хелпер используется как вспомогательный для формирования XML выгрузок
+ *
+ * @phpstan-type XmlFeedItem array{data?: mixed, tag?: string, attributes?: array<string, string>}
+ * @phpstan-type FeatureSourceRow object{auto_name_id_string: string|null, auto_value_id_string: string|null}&\stdClass
+ * @phpstan-type MetadataProductRow object{price: int|float, compare_price?: int|float|null, currency_id: int|string|null, brand_name: string, product_name: string, sku: string, main_category_id?: int|string|null, features?: array<int|string, array{name: string, values_string: string, auto_name_id?: string|null, auto_value_id?: string|null}>}&\stdClass
+ * @phpstan-type ProductImagesRow object{images_string?: string|null, images?: list<string>}&\stdClass
  */
-
 class XmlFeedHelper
 {
     public const DESCRIPTION_FIELD = 'description';
@@ -29,13 +31,13 @@ class XmlFeedHelper
 
     /** @var Languages */
     private $languages;
-    
+
     private $siteName;
     private $defaultProductsSeoPattern;
     private $allCategories;
     private $mainCurrency;
     private $allCurrencies;
-    
+
     public function __construct(
         Languages $languages,
         Settings $settings,
@@ -44,10 +46,10 @@ class XmlFeedHelper
         $this->languages = $languages;
         $this->siteName = $settings->get('site_name');
         $this->defaultProductsSeoPattern = (object)$settings->get('default_products_seo_pattern');
-        
+
         /** @var CategoriesEntity $categoriesEntity */
         $categoriesEntity = $entityFactory->get(CategoriesEntity::class);
-        
+
         $this->allCategories = $categoriesEntity->find();
 
         /** @var CurrenciesEntity $currenciesEntity */
@@ -55,7 +57,6 @@ class XmlFeedHelper
 
         $this->mainCurrency  = $currenciesEntity->getMainCurrency();
         $this->allCurrencies = $currenciesEntity->mappedBy('id')->find();
-        
     }
 
     /**
@@ -84,7 +85,7 @@ class XmlFeedHelper
      *      ]
      * ]
      *
-     * @param array $items
+     * @param array<array-key, XmlFeedItem> $items
      * @return string
      */
     public function compileItems(array $items): string
@@ -92,12 +93,13 @@ class XmlFeedHelper
         $result = '';
 
         foreach ($items as $key => $item) {
-            $result .= $this->compileItem($item['data'] ?? [], $item['tag'] ?? $key, $item['attributes'] ?? []);
+            $tag = $item['tag'] ?? (string)$key;
+            $result .= $this->compileItem($item['data'] ?? [], $tag, $item['attributes'] ?? []);
         }
 
         return $result;// No ExtenderFacade
     }
-    
+
     /**
      * Метод формирует XML строку, на основе данных из массива.
      * Метод принимает массив, как описание офера. Ключ массива это название тега, а значение - массив с ключами:
@@ -125,19 +127,24 @@ class XmlFeedHelper
      * @param array $itemTagAttributes атрибуты для тега офера
      * @return string
      */
+    /**
+     * @param mixed $data описание офера
+     * @param string|null $itemTag название тега в который нужно обернуть сам офер
+     * @param array<string, string> $itemTagAttributes атрибуты для тега офера
+     * @return string
+     */
     public function compileItem($data, $itemTag = null, array $itemTagAttributes = [])
     {
         $xmlProduct = '';
         if (!empty($itemTag)) {
-
             $itemTagAttributesString = '';
             if (!empty($itemTagAttributes)) {
                 foreach ($itemTagAttributes as $attrName => $attrValue) {
                     $itemTagAttributesString .= " {$attrName}=\"{$attrValue}\"";
                 }
             }
-            
-            $xmlProduct .= PHP_EOL."<{$itemTag}{$itemTagAttributesString}>";
+
+            $xmlProduct .= PHP_EOL . "<{$itemTag}{$itemTagAttributesString}>";
         }
 
         if (is_array($data)) {
@@ -168,18 +175,18 @@ class XmlFeedHelper
             'GROUP_CONCAT(DISTINCT f.id, "!-", f.auto_value_id SEPARATOR "@|@") AS auto_value_id_string',
         ])
             ->leftJoin('__products_features_values pv', 'pv.product_id = p.id')
-            ->leftJoin(FeaturesValuesEntity::getTable().' AS  fv', 'pv.value_id = fv.id')
-            ->leftJoin(FeaturesValuesEntity::getLangTable().' AS  lfv', 'fv.id = lfv.feature_value_id and lfv.lang_id=' . $this->languages->getLangId())
-            ->leftJoin(FeaturesEntity::getTable().' AS  f', 'fv.feature_id = f.id AND f.visible')
-            ->leftJoin(FeaturesEntity::getLangTable().' AS  lf', 'f.id = lf.feature_id and lf.lang_id=' . $this->languages->getLangId());
-        
+            ->leftJoin(FeaturesValuesEntity::getTable() . ' AS  fv', 'pv.value_id = fv.id')
+            ->leftJoin(FeaturesValuesEntity::getLangTable() . ' AS  lfv', 'fv.id = lfv.feature_value_id and lfv.lang_id=' . $this->languages->getLangId())
+            ->leftJoin(FeaturesEntity::getTable() . ' AS  f', 'fv.feature_id = f.id AND f.visible')
+            ->leftJoin(FeaturesEntity::getLangTable() . ' AS  lf', 'f.id = lf.feature_id and lf.lang_id=' . $this->languages->getLangId());
+
         return $select;// No ExtenderFacade
     }
 
     /**
      * Метод добавляет к sql запросу join таблицы изображений, но таким образом, чтобы все изображение товара были
      * склеены в одну колонку результата выборки. Далее через метод self::attachProductImages() можно их распарсить.
-     * 
+     *
      * @param Select $select
      * @return Select
      */
@@ -187,16 +194,16 @@ class XmlFeedHelper
     {
         $select->cols([
             'GROUP_CONCAT(DISTINCT i.filename ORDER BY i.position SEPARATOR "@|@") as images_string',
-        ])->leftJoin(ImagesEntity::getTable().' AS  i', 'i.product_id = p.id');
+        ])->leftJoin(ImagesEntity::getTable() . ' AS  i', 'i.product_id = p.id');
 
         return $select;// No ExtenderFacade
     }
 
     /**
-     * Метод парсит строку со свойствами и их значениями, и складывает в свойство $features объекта $product в виде 
+     * Метод парсит строку со свойствами и их значениями, и складывает в свойство $features объекта $product в виде
      * массива, ключом которого является id свойства, значение массив с ключами id, name, 'values_string' и values.
      * Чтобы для данного метода были валидные данные нужно обязательно расширить sql запрос методом self::joinFeatures()
-     * 
+     *
      * Пример результата:
      * $product->features[1] = [
      *      'id' => 1,
@@ -221,8 +228,7 @@ class XmlFeedHelper
         string $featuresParamName = 'features_string',
         string $valuesParamName = 'values_string',
         string $saveToProperty = 'features'
-    ): object
-    {
+    ): object {
         if (!empty($product->{$featuresParamName}) && !empty($product->{$valuesParamName})) {
             $features = explode('@|@', $product->{$featuresParamName});
             $values = [];
@@ -230,25 +236,26 @@ class XmlFeedHelper
                 list($featureId, $val) = explode('!-', $value, 2);
                 $values[$featureId][] = $val;
             }
+            /** @var FeatureSourceRow $product */
             $autoNameIds = [];
-            foreach (explode('@|@', $product->auto_name_id_string) as $autoNameId) {
+            foreach (explode('@|@', $product->auto_name_id_string ?? '') as $autoNameId) {
                 list($featureId, $val) = explode('!-', $autoNameId, 2);
                 if (!empty($val)) {
                     $autoNameIds[$featureId] = $val;
                 }
             }
-            
+
             $autoValueIds = [];
-            foreach (explode('@|@', $product->auto_value_id_string) as $autoValueId) {
+            foreach (explode('@|@', $product->auto_value_id_string ?? '') as $autoValueId) {
                 list($featureId, $val) = explode('!-', $autoValueId, 2);
                 if (!empty($val)) {
                     $autoValueIds[$featureId] = $val;
                 }
             }
-            
+
             foreach ($features as $feature) {
                 list($featureId, $featureName) = explode('!-', $feature, 2);
-                
+
                 if (isset($values[$featureId])) {
                     $product->{$saveToProperty}[$featureId] = [
                         'id' => $featureId,
@@ -271,20 +278,29 @@ class XmlFeedHelper
         return $product; // No ExtenderFacade
     }
 
+    /**
+     * @param object $product
+     * @param array<string, string> $metaParts
+     * @param string $descriptionTemplate
+     * @param string $descriptionFieldName
+     * @return object
+     */
     public function attachDescriptionByTemplate(
         $product,
         array $metaParts,
         string $descriptionTemplate,
         string $descriptionFieldName
     ) {
-        if (!empty($descriptionTemplate)
+        if (
+            !empty($descriptionTemplate)
             && isset($product->{$descriptionFieldName})
             && empty($product->{$descriptionFieldName})
         ) {
             $metaData = strtr($descriptionTemplate, $metaParts);
-            $product->{$descriptionFieldName} = trim(preg_replace('/{\$[^$]*}/', '', $metaData));
+            $metaData = preg_replace('/{\$[^$]*}/', '', $metaData);
+            $product->{$descriptionFieldName} = trim(is_string($metaData) ? $metaData : '');
         }
-        
+
         return $product; // No ExtenderFacade
     }
 
@@ -323,7 +339,11 @@ class XmlFeedHelper
         }
         return $annotationTemplate;
     }
-    
+
+    /**
+     * @param MetadataProductRow $product
+     * @return array<string, string>
+     */
     public function getMetadataParts($product): array
     {
         $price = round($product->price, 2);
@@ -353,10 +373,9 @@ class XmlFeedHelper
             $mataDataParts['{$category}'] = ($category->name ? $category->name : '');
             $mataDataParts['{$category_h1}'] = ($category->name_h1 ? $category->name_h1 : '');
         }
-        
+
         if (!empty($product->features)) {
             foreach ($product->features as $feature) {
-                
                 if (!empty($feature['auto_name_id'])) {
                     $mataDataParts['{$' . $feature['auto_name_id'] . '}'] = $feature['name'];
                 }
@@ -365,7 +384,7 @@ class XmlFeedHelper
                 }
             }
         }
-        
+
         return $mataDataParts; // No ExtenderFacade
     }
 
@@ -376,7 +395,7 @@ class XmlFeedHelper
         }
 
         $categoryPath = array_reverse($category->path);
-        
+
         foreach ($categoryPath as $c) {
             if (!empty($c->{$fieldName})) {
                 return $c->{$fieldName};
@@ -384,12 +403,12 @@ class XmlFeedHelper
         }
         return false;
     }
-    
+
     /**
      * Метод парсит строку с изображениями, и складывает их в виде массива filename в свойстве images.
      * Чтобы для данного метода были валидные данные нужно обязательно расширить sql запрос методом self::joinImages()
      *
-     * @param object $product строка выборки из базы данных
+     * @param ProductImagesRow $product строка выборки из базы данных
      * @return object
      */
     public function attachProductImages($product)
@@ -409,9 +428,9 @@ class XmlFeedHelper
 
     /**
      * Метод возвращает один общий массив ID категорий включая дочерние, по ID родителей
-     * 
-     * @param array $categoriesIds массив ID категорий для которых нужно собрать всех деток
-     * @return array
+     *
+     * @param list<int> $categoriesIds массив ID категорий для которых нужно собрать всех деток
+     * @return array<int, int>
      * @throws \Exception
      */
     public function addAllChildrenToList(array $categoriesIds)
@@ -422,7 +441,7 @@ class XmlFeedHelper
 
         /** @var CategoriesEntity $categoriesEntity */
         $categoriesEntity = $ef->get(CategoriesEntity::class);
-        
+
         $uploadCategories = [];
         foreach ($categoriesIds as $cId) {
             $category = $categoriesEntity->get((int)$cId);
@@ -432,5 +451,4 @@ class XmlFeedHelper
         }
         return $uploadCategories; // no ExtenderFacade
     }
-    
 }

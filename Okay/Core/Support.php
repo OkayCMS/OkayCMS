@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 use Okay\Entities\SupportInfoEntity;
 
@@ -34,7 +32,8 @@ class Support
         $this->entityFactory = $entityFactory;
     }
 
-    public function addComment($params = []) {
+    public function addComment($params = [])
+    {
         $supportInfoEntity = $this->entityFactory->get(SupportInfoEntity::class);
         $info = $supportInfoEntity->getInfo();
         if (empty($info->public_key) || empty($params)) {
@@ -45,7 +44,8 @@ class Support
         return $this->supportRequest($params);
     }
 
-    public function closeTopic($topic_id) {
+    public function closeTopic($topic_id)
+    {
         $supportInfoEntity = $this->entityFactory->get(SupportInfoEntity::class);
         $info = $supportInfoEntity->getInfo();
         if (empty($info->public_key) || empty($topic_id)) {
@@ -59,7 +59,8 @@ class Support
         return $this->supportRequest($params);
     }
 
-    public function addTopic($params = []) {
+    public function addTopic($params = [])
+    {
         $supportInfoEntity = $this->entityFactory->get(SupportInfoEntity::class);
         $info = $supportInfoEntity->getInfo();
         if (empty($info->public_key) || empty($params)) {
@@ -70,7 +71,8 @@ class Support
         return $this->supportRequest($params);
     }
 
-    public function getTopic($params = ['page' => 1]) {
+    public function getTopic($params = ['page' => 1])
+    {
         $supportInfoEntity = $this->entityFactory->get(SupportInfoEntity::class);
         $info = $supportInfoEntity->getInfo();
         if (empty($info->public_key) || empty($params)) {
@@ -82,7 +84,8 @@ class Support
         return $this->supportRequest($params);
     }
 
-    public function getTopics($params = ['page' => 1]) {
+    public function getTopics($params = ['page' => 1])
+    {
         $supportInfoEntity = $this->entityFactory->get(SupportInfoEntity::class);
         $info = $supportInfoEntity->getInfo();
         if (empty($info->public_key) || empty($params)) {
@@ -94,18 +97,20 @@ class Support
         return $this->supportRequest($params);
     }
 
-    public function getNewKeys($email = '') {
-        $supportInfoEntity = $this->entityFactory->get(SupportInfoEntity::class);        
+    public function getNewKeys($email = '')
+    {
+        $supportInfoEntity = $this->entityFactory->get(SupportInfoEntity::class);
         $info = $supportInfoEntity->getInfo();
+        /** @var object{temp_time: mixed, temp_key: string|null}&\stdClass $info */
         $info->temp_time = strtotime($info->temp_time);
-        
-        $invalidTempToken = !empty($info->temp_time) && $info->temp_time+300 < time();
+
+        $invalidTempToken = !empty($info->temp_time) && $info->temp_time + 300 < time();
         if ($invalidTempToken) {
-            $supportInfoEntity->updateInfo(['temp_key'=>null, 'temp_time'=>null]);
+            $supportInfoEntity->updateInfo(['temp_key' => null, 'temp_time' => null]);
             $info->temp_key = null;
         }
-        
-        $validTempTokenExists = !empty($info->temp_key) && !empty($info->temp_time) && $info->temp_time+300 > time();
+
+        $validTempTokenExists = !empty($info->temp_key) && !empty($info->temp_time) && $info->temp_time + 300 > time();
         if ($validTempTokenExists) {
             return false;
         }
@@ -113,7 +118,7 @@ class Support
         $info->temp_time = date('Y-m-d H:i:s');
         $info->temp_key  = md5(uniqid("temp_key", true));
         $supportInfoEntity->updateInfo([
-            'temp_time' => $info->temp_time, 
+            'temp_time' => $info->temp_time,
             'temp_key'  => $info->temp_key
         ]);
 
@@ -125,11 +130,12 @@ class Support
             'owner_email'  => $email,
             'owner_phone'  => $this->settings->get('admin_phone') ? $this->settings->get('admin_phone') : ''
         ];
-        
+
         return $this->supportRequest($params);
     }
 
-    private function supportRequest($params = []) {
+    private function supportRequest($params = [])
+    {
         if (time() < ($_SESSION['support_request_timeout'] ?? 0)) {
             return false;
         }
@@ -143,7 +149,7 @@ class Support
         $params['domain']       = $_SERVER['HTTP_HOST'];
         $params['version']      = $this->config->version;
         $params['version_type'] = $this->config->version_type;
-    
+
         if (isset($params['accesses'])) {
             openssl_public_encrypt($info->accesses, $params['accesses'], $info->public_key);
             $params['accesses'] = bin2hex($params['accesses']);
@@ -155,7 +161,12 @@ class Support
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, 20);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
+        $postFields = json_encode($params);
+        if ($postFields === false) {
+            return false;
+        }
+
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
         curl_setopt($ch, CURLOPT_POST, 1);
         $response = curl_exec($ch);
 
@@ -166,16 +177,18 @@ class Support
             }
 
             $_SESSION['support_request_timeout'] = time() + pow(self::REQUEST_TIMEOUT, $retryCnt);
-
         } else {
             $retryCnt = 0;
         }
         $_SESSION['support_request_timeout_try_cnt'] = $retryCnt;
 
-        curl_close($ch);
+        if (!is_string($response)) {
+            return false;
+        }
+
         $response = json_decode($response);
         if ($response && isset($response->balance) && $response->balance != $info->balance) {
-            $supportInfoEntity->updateInfo(['balance'=>$response->balance]);
+            $supportInfoEntity->updateInfo(['balance' => $response->balance]);
         }
 
         return $response;

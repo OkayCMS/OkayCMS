@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Languages;
 use Okay\Core\Entity\Entity;
@@ -30,23 +28,23 @@ class LanguagesEntity extends Entity
     protected static $langObject = 'language';
     protected static $langTable = 'languages';
     protected static $tableAlias = 'le';
-    
+
     private $allLanguages = [];
     private $mainLanguage;
-    
-    
+
+
     public function __construct()
     {
         parent::__construct();
         $this->initLanguages();
     }
-    
+
     private function initLanguages()
     {
         $this->mappedBy('id');
         $this->allLanguages = [];
         $this->allLanguages = parent::find();
-        
+
         $this->mainLanguage = reset($this->allLanguages);
     }
 
@@ -55,7 +53,7 @@ class LanguagesEntity extends Entity
         if (empty($this->allLanguages)) {
             $this->initLanguages();
         }
-        
+
         if (empty($id)) {
             return ExtenderFacade::execute([static::class, __FUNCTION__], false, func_get_args());
         }
@@ -84,10 +82,10 @@ class LanguagesEntity extends Entity
     public function getMultiLanguage($langId)
     {
         $this->initLanguages();
-        
+
         $currentLangId = $this->lang->getLangId();
         $result = parent::get($langId);
-        
+
         foreach ($this->allLanguages as $l) {
             $this->lang->setLangId($l->id);
             $this->mappedBy('id');
@@ -100,14 +98,14 @@ class LanguagesEntity extends Entity
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], $result, func_get_args());
     }
-    
+
     // Метод по сути ничего не фильтрует, только возвращает все языки
     public function find(array $filter = [])
     {
         if (empty($this->allLanguages)) {
             $this->initLanguages();
         }
-        
+
         $result = $this->allLanguages;
         if (!empty($filter['label'])) {
             $result = [];
@@ -120,7 +118,7 @@ class LanguagesEntity extends Entity
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], $result, func_get_args());
     }
-    
+
     /*Выборка первого языка сайта*/
     public function getMainLanguage()
     {
@@ -130,7 +128,7 @@ class LanguagesEntity extends Entity
     public function update($ids, $language)
     {
         parent::update($ids, $language);
-        
+
         $this->initLanguages();
         return true;
     }
@@ -138,20 +136,20 @@ class LanguagesEntity extends Entity
     /*Добавление языка*/
     public function add($language)
     {
-        
+
         $language = (object)$language;
+        /** @var object{label: string}&\stdClass $language */
         $langId = parent::add($language);
-        
+
         /** @var Languages $languagesCore */
         $languagesCore = $this->serviceLocator->getService(Languages::class);
 
         /** @var TranslationsEntity $translations */
         $translations = $this->entity->get(TranslationsEntity::class);
-        
-        if (isset($langId)) {
 
+        if (isset($langId)) {
             $translations->copyTranslations($this->mainLanguage->label, $language->label);
-            
+
             if ($entitiesLangInfo = $languagesCore->getEntitiesLangInfo()) {
                 foreach ($entitiesLangInfo as $entityLangInfo) {
                     $sql = $this->queryFactory->newSqlQuery();
@@ -161,18 +159,18 @@ class LanguagesEntity extends Entity
                     $this->db->query($sql);
                 }
             }
-            
+
             if (isset($this->mainLanguage) && !empty($this->mainLanguage)) {
                 $settings = $this->settings->getSettings($this->mainLanguage->id);
                 if (!empty($settings)) {
                     foreach ($settings as $s) {
                         $sql = $this->queryFactory->newSqlQuery();
-                        $sql->setStatement("REPLACE INTO `__settings_lang` SET 
+                        $sql->setStatement("REPLACE INTO `__settings_lang` SET
                                                     `lang_id`=:lang_id,
                                                     `param`=:param,
                                                     `value`=:value
                                                     ");
-                        $sql->bindValue('land_id', $this->db->escape($langId));
+                        $sql->bindValue('land_id', $this->db->escape((int)$langId));
                         $sql->bindValue('param', $this->db->escape($s->param));
                         $sql->bindValue('value', $this->db->escape($s->value));
                         $this->db->query($sql);
@@ -181,7 +179,7 @@ class LanguagesEntity extends Entity
             } else {
                 $sql = $this->queryFactory->newSqlQuery();
                 $sql->setStatement("UPDATE `__settings_lang` SET `lang_id`=:lang_id");
-                $sql->bindValue('lang_id', $this->db->escape($langId));
+                $sql->bindValue('lang_id', $this->db->escape((int)$langId));
                 $this->db->query($sql);
             }
         }
@@ -195,29 +193,28 @@ class LanguagesEntity extends Entity
     {
         /** @var TranslationsEntity $translationsEntity */
         $translationsEntity = $this->entity->get(TranslationsEntity::class);
-        
+
         $ids = (array)$ids;
         $languages = $this->find();
         if (count($languages) == count($ids)) {
             $first = $this->getMainLanguage();
         }
-        
-        foreach ($ids as $id) {
 
+        foreach ($ids as $id) {
             // Удалим переводы фронта
             $lang = $this->get((int)$id);
             $translationsEntity->deleteLang($lang->label);
-            
+
             $saveMain = (isset($first) && $id == $first->id);
             if (empty($id)) {
                 continue;
             }
-            
+
             $id = (int)$id;
             parent::delete($id);
-            
+
             $tables = $this->getLangTables();
-            
+
             foreach ($tables as $table) {
                 $delete = $this->queryFactory->newDelete();
                 $delete->from($table)->where("lang_id={$id}");
@@ -239,7 +236,7 @@ class LanguagesEntity extends Entity
         $this->initLanguages();
         return true;
     }
-    
+
     private function getLangTables()
     {
         $sql = $this->queryFactory->newSqlQuery();
@@ -248,9 +245,12 @@ class LanguagesEntity extends Entity
 
         $tables = [];
         while ($table = $this->db->result()) {
-            $tables[] = reset($table);
+            if (is_object($table)) {
+                $tables[] = reset($table);
+            } elseif (is_string($table)) {
+                $tables[] = $table;
+            }
         }
         return $tables;
     }
-
 }

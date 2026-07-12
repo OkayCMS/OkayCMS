@@ -2,35 +2,24 @@
 
 namespace Seo;
 
+require_once __DIR__ . '/../../Okay/Core/config/constants.php';
+
 use Okay\Helpers\CanonicalHelper;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class CanonicalHelperTest extends TestCase
 {
-    public function __construct($name = null, array $data = [], $dataName = '')
-    {
-        parent::__construct($name, $data, $dataName);
-        require_once 'Okay/Core/config/constants.php';
-    }
 
-    /**
-     * @param array $canonicalSettings
-     * @param $page
-     * @param array $featuresFilter
-     * @param array $brandsFilter
-     * @param array|false $expectedResult
-     * @throws \ReflectionException
-     * @dataProvider getCatalogFeaturesFilterDataProvider
-     * @dataProvider getCatalogBrandsFilterDataProvider
-     * @dataProvider getCatalogFeaturesBrandsFilterDataProvider
-     * @dataProvider getCatalogPaginationFeaturesBrandsFilterDataProvider
-     */
+    #[DataProvider('getCatalogFeaturesFilterDataProvider')]
+    #[DataProvider('getCatalogBrandsFilterDataProvider')]
+    #[DataProvider('getCatalogFeaturesBrandsFilterDataProvider')]
+    #[DataProvider('getCatalogPaginationFeaturesBrandsFilterDataProvider')]
     public function testGetCatalogCanonicalDataExecutor(array $canonicalSettings, $page, array $featuresFilter, array $brandsFilter, $expectedResult)
     {
         // Т.к. метод приватный, доступ к нему получаем через рефлексию
         $reflector = new \ReflectionClass(CanonicalHelper::class);
         $method = $reflector->getMethod('getCatalogCanonicalDataExecutor');
-        $method->setAccessible(true);
 
         $canonicalHelper = new CanonicalHelper;
 
@@ -41,21 +30,14 @@ class CanonicalHelperTest extends TestCase
         $this->assertEquals($expectedResult, $actualResult);
     }
 
-    /**
-     * @param array $canonicalSettings
-     * @param $page
-     * @param array $otherFilters
-     * @param array|false $expectedResult
-     * @dataProvider getBaseCatalogPaginationDataProvider
-     * @dataProvider getBaseCatalogOtherFiltersDataProvider
-     * @dataProvider getBaseCatalogOtherFiltersPaginationDataProvider
-     */
+    #[DataProvider('getBaseCatalogPaginationDataProvider')]
+    #[DataProvider('getBaseCatalogOtherFiltersDataProvider')]
+    #[DataProvider('getBaseCatalogOtherFiltersPaginationDataProvider')]
     public function testGetBaseCatalogCanonical(array $canonicalSettings, $page, array $otherFilters, $expectedResult)
     {
         // Т.к. метод приватный, доступ к нему получаем через рефлексию
         $reflector = new \ReflectionClass(CanonicalHelper::class);
         $method = $reflector->getMethod('getBaseCatalogCanonicalData');
-        $method->setAccessible(true);
 
         $canonicalHelper = new CanonicalHelper;
 
@@ -63,34 +45,24 @@ class CanonicalHelperTest extends TestCase
         call_user_func_array([$canonicalHelper, 'setParams'], $canonicalSettings);
 
         $actualResult = $method->invokeArgs($canonicalHelper, [(string)$page, $otherFilters]);
-        
+
         $this->assertEquals($expectedResult, $actualResult);
     }
 
-    /**
-     * Интеграционный тест, проверяет как сработает полное определение каноникла для категории
-     * 
-     * @param array $canonicalSettings
-     * @param $page
-     * @param array $otherFilters
-     * @param array $featuresFilter
-     * @param array $brandsFilter
-     * @param array|false $expectedResult
-     * @dataProvider getCatalogPaginationFullFiltersDataProvider
-     */
+    #[DataProvider('getCatalogPaginationFullFiltersDataProvider')]
     public function testGetCatalogCanonicalData(array $canonicalSettings, $page, array $otherFilters, array $featuresFilter, array $brandsFilter, $expectedResult)
     {
         $canonicalHelper = new CanonicalHelper;
-        
+
         // Передаем нужные настройки в наш класс
         call_user_func_array([$canonicalHelper, 'setParams'], $canonicalSettings);
-        
+
         $actualResult = $canonicalHelper->getCatalogCanonicalData($page, $otherFilters, $featuresFilter, $brandsFilter);
-        
+
         $this->assertEquals($expectedResult, $actualResult);
     }
 
-    public function getCatalogFeaturesFilterDataProvider() : array
+    public static function getCatalogFeaturesFilterDataProvider() : array
     {
         return [
             [ // Страница фильтров, в настройках ведет на страницу без фильтра, canonical на страницу без фильтра
@@ -170,8 +142,8 @@ class CanonicalHelperTest extends TestCase
             ],
         ];
     }
-    
-    public function getCatalogBrandsFilterDataProvider() : array
+
+    public static function getCatalogBrandsFilterDataProvider() : array
     {
         return [
             [ // Страница фильтров, в настройках ведет на страницу без фильтра, canonical на страницу без фильтра
@@ -241,8 +213,8 @@ class CanonicalHelperTest extends TestCase
             ],
         ];
     }
-    
-    public function getCatalogFeaturesBrandsFilterDataProvider() : array
+
+    public static function getCatalogFeaturesBrandsFilterDataProvider() : array
     {
         return [
             [ // Страница фильтров, в настройках ведет на страницу без фильтра и без бренда, canonical на страницу без фильтра
@@ -365,8 +337,8 @@ class CanonicalHelperTest extends TestCase
             ],
         ];
     }
-    
-    public function getCatalogPaginationFeaturesBrandsFilterDataProvider() : array
+
+    public static function getCatalogPaginationFeaturesBrandsFilterDataProvider() : array
     {
         return [
             [ // Страница фильтров и пагинации, в настройках ведет на первую страницу без фильтра, canonical на первую страницу без фильтра
@@ -619,7 +591,7 @@ class CanonicalHelperTest extends TestCase
         ];
     }
 
-    public function getBaseCatalogPaginationDataProvider() : array
+    public static function getBaseCatalogPaginationDataProvider() : array
     {
         return [
             [ // Страница пагинации, canonical на первую
@@ -825,8 +797,8 @@ class CanonicalHelperTest extends TestCase
             ],
         ];
     }
-    
-    public function getBaseCatalogOtherFiltersDataProvider() : array
+
+    public static function getBaseCatalogOtherFiltersDataProvider() : array
     {
         return [
             [ // Страница фильтров, в настройках ведет на страницу без фильтра, canonical на страницу без фильтра
@@ -949,7 +921,7 @@ class CanonicalHelperTest extends TestCase
      * Тест страницы пагинации результатов фильтрации
      * @return array[]
      */
-    public function getBaseCatalogOtherFiltersPaginationDataProvider() : array
+    public static function getBaseCatalogOtherFiltersPaginationDataProvider() : array
     {
         return [
             [ // Страница пагинации и доп. фильтра, настройках без пагинации без доп. фильтра canonical на первую без фильтра
@@ -1134,12 +1106,12 @@ class CanonicalHelperTest extends TestCase
             ],
         ];
     }
-    
+
     /**
      * Немного кейсов определения каноникла в категории при разных условиях
      * @return array[]
      */
-    public function getCatalogPaginationFullFiltersDataProvider() : array
+    public static function getCatalogPaginationFullFiltersDataProvider() : array
     {
         return [
             [
@@ -1550,5 +1522,5 @@ class CanonicalHelperTest extends TestCase
             ],
         ];
     }
-    
+
 }

@@ -1,47 +1,45 @@
-# Smarty плагины
+# Плагіни Smarty
 
-Плагины для смарти в OkayCMS нужны для расширения функциональности дизайна.
-Планины могут работать в режиме модификатора или функции.
+Плагіни Smarty в OkayCMS потрібні для розширення функціональності дизайну.
+Плагіни можуть працювати в режимі модифікатора або функції.
 
 <a name="pluginRegister"></a>
-#### Регистрация плагинов
+#### Реєстрація плагінів
 
-В системе плагины регистрируются в файле `Okay/Core/SmartyPlugins/SmartyPlugins.php`, и являются по сути сервисами
-[DI контейнера](./di_container.md). Сами реализации плагинов располагаются в `Okay\Core\SmartyPlugins\Plugins` и должны
-быть наследником `Okay\Core\SmartyPlugins\Func` (для работы в режиме функции) или `Okay\Core\SmartyPlugins\Modifier` 
-(для работы в режиме модификатора).
+У системі плагіни реєструються у файлі `Okay/Core/SmartyPlugins/SmartyPlugins.php` і по суті є сервісами
+[DI контейнера](./di_container.md). Реалізації плагінів розташовані в `Okay\Core\SmartyPlugins\Plugins` і мають
+наслідувати `Okay\Core\SmartyPlugins\Func` (для роботи в режимі функції) або `Okay\Core\SmartyPlugins\Modifier`
+(для роботи в режимі модифікатора).
 
-Класс плагина должен реализовать метод `run()`, который и будет реализацией функциональности плагина.
-Также класс должен объявить одно защищеное (protected) свойство `$tag`, значение которого и будет названием функции
-в tpl файле.
+Клас плагіна має реалізувати метод `run()`, який і буде реалізацією функціональності плагіна.
+Також клас має оголосити одну захищену (protected) властивість `$tag`, значення якої і буде назвою функції
+в tpl файлі.
 
 <a name="funcArguments"></a>
-##### В аргументы метода в режиме функции
+##### Аргументи методу в режимі функції
 
-В режиме функции все аргументы вызова будут передаваться в метод `run()` в виде ассоциативного массива.
-Также вторым аргументом можно ловить экземпляр `Smarty`.
+У режимі функції всі аргументи виклику будуть передаватися в метод `run()` у вигляді асоціативного масиву.
+Також другим аргументом можна отримати екземпляр `\Smarty\Template`.
 
-Пример вызова:
+Приклад виклику:
 ```smarty
 {some_plugin var1=foo var2=bar}
 ```
 
-в методе плагина мы получим так:
+у методі плагіна ми отримаємо:
 ```php
-public function run($params)
+public function run(array $params, \Smarty\Template $smarty): void
 {
     // $params = [
     //    'var1' => 'foo',
-    //    'var2' => bar,
+    //    'var2' => 'bar',
     //];
-    
-    // ...abstract
 }
 ```
 
-`Best practices: в плагин передавать переменную "var", значение которой будет названием переменной - результатом работы`
+Рекомендований підхід: передавати в плагін змінну `var`; її значення буде назвою змінної, у яку плагін запише результат.
 
-Пример:
+Приклад:
 ```smarty
 {get_new_products var=new_products limit=5}
 {if $new_products}
@@ -51,11 +49,10 @@ public function run($params)
 {/if}
 ```
 
-в методе плагина мы получим так:
+у методі плагіна ми отримаємо:
 ```php
-public function run($params)
+public function run(array $params, \Smarty\Template $smarty): void
 {
-    // ...abstract
     if (!empty($params['var'])) {
         $smarty->assign($params['var'], $products);
     }
@@ -63,20 +60,20 @@ public function run($params)
 ```
 
 <a name="modifierArguments"></a>
-##### В аргументы метода в режиме модификатора
+##### Аргументи методу в режимі модифікатора
 
-В режиме модификатора аргументы вызова будут передаваться в метод `run()` в следующем порядке:
+У режимі модифікатора аргументи виклику будуть передаватися в метод `run()` у такому порядку:
 
-Первый аргумент, это будет собственно то, к чему применили модификатор, вторым и последующими аргументами будут 
-параметры, переданные модификатору. Передача параметров происходит последовательно с разделением параметров 
-двоеточием ":". 
+Перший аргумент — це, власне, те, до чого застосували модифікатор; другим і наступними аргументами будуть
+параметри, передані модифікатору. Передача параметрів відбувається послідовно з розділенням параметрів
+двокрапкою ":".
 
-Пример вызова:
+Приклад виклику:
 ```smarty
 {$product->name|some_modifier:foo:bar}
 ```
 
-в методе модификатора мы получим так:
+у методі модифікатора ми отримаємо:
 ```php
 public function run($productName, $param1, $param2 = null)
 {
@@ -86,7 +83,7 @@ public function run($productName, $param1, $param2 = null)
 }
 ```
 
-#### Пример плагина
+#### Приклад плагіна
 
 ```php
 namespace Okay\Core\SmartyPlugins\Plugins;
@@ -114,17 +111,22 @@ class GetNewProducts extends Func
         $this->productsHelper = $productsHelper;
     }
 
-    public function run($params, \Smarty_Internal_Template $smarty)
+    public function run($params, \Smarty\Template $smarty)
     {
+        if (!isset($params['visible'])) {
+            $params['visible'] = 1;
+        }
+
         if (!empty($params['var'])) {
-            $products = $this->productsHelper->getProductList($params);
+            $sort = $params['sort'] ?? 'created_desc';
+            $products = $this->productsHelper->getList($params, $sort);
             $smarty->assign($params['var'], $products);
         }
     }
 }
 ```
 
-#### Пример модификатора
+#### Приклад модифікатора
 
 ```php
 namespace Okay\Core\SmartyPlugins\Plugins;
@@ -137,23 +139,22 @@ class Convert extends Modifier
 
     /** @var Money */
     private $money;
-    protected $tag = 'convert';
 
     public function __construct(Money $money)
     {
         $this->money = $money;
     }
 
-    public function run($price, $currency_id = null, $format = true)
+    public function run($price, $currency_id = null, $format = true, $revers = false, $precision = null)
     {
-        return $this->money->convert($price, $currency_id, $format);
+        return $this->money->convert($price, $currency_id, $format, $revers, $precision);
     }
 }
 ```
 
-#### Smarty плагины в модулях
+#### Плагіни Smarty в модулях
 
-Плагины в модулях регистрируются, также как и системные плагины, но их регистрация происходит в файле
-`Okay/Core/Modules/Vendor/Module/Init/SmartyPlugins.php`.
+Плагіни в модулях реєструються так само, як і системні плагіни, але їх реєстрація відбувається у файлі
+`Okay/Modules/Vendor/Module/Init/SmartyPlugins.php`.
 
-`Best practices: реализации плагинов хранить в директории 'Okay/Core/Modules/Vendor/Module/Plugins'`
+Реалізації плагінів модуля зберігайте в директорії `Okay/Modules/Vendor/Module/Plugins`.

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Helpers;
-
 
 use Okay\Core\Cart;
 use Okay\Core\Comparison;
@@ -19,6 +17,8 @@ use Okay\Core\Phone;
 use Okay\Core\Request;
 use Okay\Core\Response;
 use Okay\Core\Router;
+use Okay\Core\Security\CheckoutToken;
+use Okay\Core\Security\CustomerCsrfToken;
 use Okay\Core\ServiceLocator;
 use Okay\Core\Settings;
 use Okay\Core\TemplateConfig\FrontTemplateConfig;
@@ -37,6 +37,10 @@ use Okay\Entities\UsersEntity;
 use Okay\Helpers\MetadataHelpers\CommonMetadataHelper;
 use Okay\Helpers\MetadataHelpers\MetadataInterface;
 
+/**
+ * @phpstan-type CurrencyRow object{id: string|int}&\stdClass
+ * @phpstan-type VisibleTreeItem object{parent_id: string|int|null, visible: bool|int, count_children_visible?: int}&\stdClass
+ */
 class MainHelper
 {
     private static $initialized = false;
@@ -48,7 +52,7 @@ class MainHelper
     private $currentUserGroup;
     private $currentPage;
     private $SL;
-    
+
     public function __construct()
     {
         $this->SL = ServiceLocator::getInstance();
@@ -56,7 +60,7 @@ class MainHelper
 
     public function init()
     {
-        
+
         /** @var EntityFactory $entityFactory */
         $entityFactory = $this->SL->getService(EntityFactory::class);
         /** @var Request $request */
@@ -65,7 +69,7 @@ class MainHelper
         $languages = $this->SL->getService(Languages::class);
         /** @var Response $response */
         $response = $this->SL->getService(Response::class);
-        
+
         $languagesEntity = $entityFactory->get(LanguagesEntity::class);
         $langId = $languages->getLangId();
         $this->currentLanguage = $languagesEntity->get($langId);
@@ -78,19 +82,40 @@ class MainHelper
         /** @var CurrenciesEntity $currenciesEntity */
         $currenciesEntity = $entityFactory->get(CurrenciesEntity::class);
         // Все валюты
-        $this->allCurrencies = $currenciesEntity->find(['enabled'=>1]);
+        $this->allCurrencies = $currenciesEntity->find(['enabled' => 1]);
 
         // Выбор текущей валюты
         if ($currencyId = $request->get('currency_id', 'integer')) {
             $_SESSION['currency_id'] = $currencyId;
-            $response->redirectTo($request->url(['currency_id'=>null]));
+            $response->redirectTo($request->url(['currency_id' => null]));
         }
         // Берем валюту из сессии
         if (isset($_SESSION['currency_id'])) {
             $this->currentCurrency = $currenciesEntity->get((int)$_SESSION['currency_id']);
         } else {
             $this->currentCurrency = reset($this->allCurrencies);
-            $_SESSION['currency_id'] = $this->currentCurrency->id;
+        }
+
+        // Если валюта не найдена или массив валют пуст, берем первую доступную
+        if (empty($this->currentCurrency) || !is_object($this->currentCurrency)) {
+            $this->currentCurrency = reset($this->allCurrencies);
+        }
+
+        // Если все еще нет валюты, создаем дефолтную
+        if (empty($this->currentCurrency) || !is_object($this->currentCurrency)) {
+            // Fallback: создаем объект с дефолтными значениями
+            $this->currentCurrency = (object)[
+                'id' => 0,
+                'code' => 'USD',
+                'sign' => '$',
+                'rate_from' => 1,
+                'rate_to' => 1,
+                'cents' => 2,
+            ];
+        } else {
+            /** @var CurrencyRow $currentCurrency */
+            $currentCurrency = $this->currentCurrency;
+            $_SESSION['currency_id'] = $currentCurrency->id;
         }
 
         // Пользователь, если залогинен
@@ -128,7 +153,7 @@ class MainHelper
 
     /**
      * Метод, который можно расширять модулями. Выполняется он после работы контроллера
-     * 
+     *
      * @var MetadataInterface|null $metadataHelper
      * @throws \Exception
      */
@@ -142,37 +167,37 @@ class MainHelper
             /** @var MetadataInterface $metadataHelper */
             $metadataHelper = $this->SL->getService(CommonMetadataHelper::class);
         }
-        
+
         if ($design->getVar('h1') === null) {
             $design->assign('h1', $metadataHelper->getH1());
         }
-        
+
         if ($design->getVar('meta_title') === null) {
             $design->assign('meta_title', $metadataHelper->getMetaTitle());
         }
-        
+
         if ($design->getVar('meta_keywords') === null) {
             $design->assign('meta_keywords', $metadataHelper->getMetaKeywords());
         }
-        
+
         if ($design->getVar('meta_description') === null) {
             $design->assign('meta_description', $metadataHelper->getMetaDescription());
         }
-        
+
         if ($design->getVar('annotation') === null) {
             $design->assign('annotation', $metadataHelper->getAnnotation());
         }
-        
+
         if ($design->getVar('description') === null) {
             $design->assign('description', $metadataHelper->getDescription());
         }
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
-    
+
     /**
      * Метод передает в дизайн все переменные, которые могут там понадобиться
-     * 
+     *
      * @throws \Exception
      */
     public function setDesignDataProcedure()
@@ -180,7 +205,7 @@ class MainHelper
         if (self::$initialized === true) {
             return;
         }
-        
+
         /** @var Design $design */
         $design = $this->SL->getService(Design::class);
         /** @var Request $request */
@@ -202,7 +227,7 @@ class MainHelper
         /** @var PagesEntity $pagesEntity */
         $pagesEntity = $entityFactory->get(PagesEntity::class);
 
-        $pages = $pagesEntity->find(['visible'=>1]);
+        $pages = $pagesEntity->find(['visible' => 1]);
         $design->assign('pages', $pages);
 
         // Передаём в дизайн DebugBarRenderer
@@ -211,7 +236,7 @@ class MainHelper
         // Передаем стили и скрипты в шаблон
         /** @var FrontTemplateConfig $frontTemplateConfig */
         $frontTemplateConfig = $this->SL->getService(FrontTemplateConfig::class);
-        
+
         $frontTemplateConfig->compileFiles();
         $design->assign('ok_head', $frontTemplateConfig->head());
         $design->assign('ok_footer', $frontTemplateConfig->footer());
@@ -221,32 +246,41 @@ class MainHelper
         $design->assign('current_page', $request->get('page'));
 
         // Передаем переводы
-        $design->assign('lang',       $this->SL->getService(FrontTranslations::class));
+        $design->assign('lang', $this->SL->getService(FrontTranslations::class));
 
-        $design->assign('settings',   $this->SL->getService(Settings::class));
-        $design->assign('config',     $this->SL->getService(Config::class));
-        $design->assign('rootUrl',    $request->getRootUrl());
+        $design->assign('settings', $this->SL->getService(Settings::class));
+        $design->assign('config', $this->SL->getService(Config::class));
+        $design->assign('rootUrl', $request->getRootUrl());
+        $customerCsrfToken = CustomerCsrfToken::get();
+        $design->assign('customer_csrf_token', $customerCsrfToken);
+        $design->assignJsVar('customer_csrf_token', $customerCsrfToken);
+        $design->assign('checkout_token', CheckoutToken::get());
 
-        $design->assign('is_mobile',  $design->isMobile());
-        $design->assign('is_tablet',  $design->isTablet());
+        $design->assign('is_mobile', $design->isMobile());
+        $design->assign('is_tablet', $design->isTablet());
 
-        $design->assign('language',   $this->getCurrentLanguage());
-        $design->assign('languages',  $this->getAllLanguages());
+        $design->assign('language', $this->getCurrentLanguage());
+        $design->assign('languages', $this->getAllLanguages());
 
-        $design->assign('base',       $request->getRootUrl());
+        $design->assign('base', $request->getRootUrl());
 
-        $design->assign('cart',       $this->SL->getService(Cart::class)->get());
-        $design->assign('wishlist',   $this->SL->getService(WishList::class)->get());
+        $design->assign('cart', $this->SL->getService(Cart::class)->get());
+        $design->assign('wishlist', $this->SL->getService(WishList::class)->get());
         $design->assign('comparison', $this->SL->getService(Comparison::class)->get());
 
-        $design->assign('page',       $this->getCurrentPage());
-        
-        $design->assign('currencies', $this->getAllCurrencies());
-        $design->assign('currency',   $this->getCurrentCurrency());
-        $design->assignJsVar('currency_cents', $this->getCurrentCurrency()->cents);
+        $design->assign('page', $this->getCurrentPage());
 
-        $design->assign('user',       $this->getCurrentUser());
-        $design->assign('group',      $this->getCurrentUserGroup());
+        $design->assign('currencies', $this->getAllCurrencies());
+        $currentCurrency = $this->getCurrentCurrency();
+        $design->assign('currency', $currentCurrency);
+        if ($currentCurrency && is_object($currentCurrency) && isset($currentCurrency->cents)) {
+            $design->assignJsVar('currency_cents', $currentCurrency->cents);
+        } else {
+            $design->assignJsVar('currency_cents', 2);
+        }
+
+        $design->assign('user', $this->getCurrentUser());
+        $design->assign('group', $this->getCurrentUserGroup());
 
         $design->assign('payment_methods', $this->getPaymentMethods());
         $design->assign('phone_example', $phone->getPhoneExample());
@@ -256,7 +290,7 @@ class MainHelper
 
         if (!empty($settings->get('site_social_links'))) {
             $socials = [];
-            foreach ($settings->get('site_social_links') as $k=>$socialUrl) {
+            foreach ($settings->get('site_social_links') as $k => $socialUrl) {
                 if (empty($socialUrl)) {
                     continue;
                 }
@@ -267,18 +301,21 @@ class MainHelper
 
             $design->assign('site_social', $socials);
         }
-        
+
         // Категории товаров
+        /** @var array<int|string, VisibleTreeItem> $allCategories */
         $allCategories = $categoriesEntity->find();
         $this->countVisible($categoriesEntity->getCategoriesTree(), $allCategories);
         $design->assign('categories', $categoriesEntity->getCategoriesTree());
-        
+
         // Категории блога
+        /** @var array<int|string, VisibleTreeItem> $allBlogCategories */
         $allBlogCategories = $blogCategoriesEntity->find();
         $this->countVisible($blogCategoriesEntity->getCategoriesTree(), $allBlogCategories);
         $design->assign('blog_categories', $blogCategoriesEntity->getCategoriesTree());
 
-        $design->assign('js_custom_socials', $this->SL->getService(JsSocial::class)->getCustomSocials());
+        $design->assign('share_networks', $this->SL->getService(JsSocial::class)->getShareNetworks());
+        $design->assign('share_icons_theme', $settings->get('social_share_theme') ?: 'default');
 
         // Передаем счетчики
         $counters = [];
@@ -288,7 +325,7 @@ class MainHelper
             }
         }
         $design->assign('counters', $counters);
-        
+
         // Передаем менюшки
         $menuEntity = $entityFactory->get(MenuEntity::class);
         $menuItemsEntity = $entityFactory->get(MenuItemsEntity::class);
@@ -318,14 +355,14 @@ class MainHelper
         }
 
         self::$initialized = true;
-        
+
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
     /**
      * Метод возвращает все языки сайта, с урлами
-     * 
-     * @return array
+     *
+     * @return list<object>
      * @throws \Exception
      */
     public function getAllLanguages()
@@ -340,7 +377,7 @@ class MainHelper
 
     /**
      * Метод возвращает текущий язык сайта с урлом
-     * 
+     *
      * @return object|null
      * @throws \Exception
      */
@@ -354,8 +391,8 @@ class MainHelper
 
     /**
      * Метод возвращает все активные валюты сайта
-     * 
-     * @return array
+     *
+     * @return list<object>
      */
     public function getAllCurrencies()
     {
@@ -364,7 +401,7 @@ class MainHelper
 
     /**
      * Метод возвращает текущую валюту пользователя
-     * 
+     *
      * @return mixed|void|null
      */
     public function getCurrentCurrency()
@@ -374,8 +411,8 @@ class MainHelper
 
     /**
      * Метод возвращает текущую страницу сайта
-     * 
-     * @return object|null
+     *
+     * @return (object{url: string, last_modify: mixed}&\stdClass)|null
      */
     public function getCurrentPage()
     {
@@ -384,8 +421,8 @@ class MainHelper
 
     /**
      * Метод возвращает текущего пользователя, если он залогинен
-     * 
-     * @return object|null
+     *
+     * @return (object{id: int|string, name?: string, preferred_payment_method_id?: int|string|null, preferred_delivery_id?: int|string|null}&\stdClass)|null
      */
     public function getCurrentUser()
     {
@@ -404,12 +441,12 @@ class MainHelper
 
     /**
      * Метод возвращает урл текущей страницы для другого языка, указанного как $langId
-     * 
+     *
      * @param int $langId ID языка для которого генерируем урл
      * @return string
      * @throws \Exception
      */
-    private function getLangUrl(int $langId) : string
+    private function getLangUrl(int $langId): string
     {
         /** @var Router $router */
         $router = $this->SL->getService(Router::class);
@@ -430,7 +467,7 @@ class MainHelper
 
         /** @var Router $router */
         $router = $this->SL->getService(Router::class);
-        
+
         // Если пришли не за скриптом, очищаем все переменные для динамического JS
         if (($routeName = $router->getCurrentRouteName()) != 'dynamic_js' && $routeName != 'common_js' && $routeName != 'resize') {
             unset($_SESSION['dynamic_js']);
@@ -458,17 +495,81 @@ class MainHelper
      */
     public function activatePRG()
     {
-        
+
         /** @var Request $request */
         $request = $this->SL->getService(Request::class);
 
         if ($prgSeoHide = $request->post("prg_seo_hide")) {
+            if (!$this->isSafePrgRedirect((string)$prgSeoHide)) {
+                return ExtenderFacade::execute(__METHOD__, null, func_get_args());
+            }
             Response::redirectTo($prgSeoHide);
             exit;
         }
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
-    
+
+    private function isSafePrgRedirect(string $url): bool
+    {
+        if ($url === '' || str_contains($url, "\r") || str_contains($url, "\n")) {
+            return false;
+        }
+
+        $decoded = rawurldecode($url);
+        if (str_starts_with($decoded, '//')) {
+            return false;
+        }
+
+        if (str_contains($decoded, '\\')) {
+            return false;
+        }
+
+        if (preg_match('~^[a-z][a-z0-9+.-]*:~i', $decoded)) {
+            return $this->isSameOriginPrgRedirect($decoded);
+        }
+
+        return str_starts_with($decoded, '/')
+            || !str_starts_with($decoded, '.');
+    }
+
+    private function isSameOriginPrgRedirect(string $url): bool
+    {
+        $urlParts = parse_url($url);
+        $currentParts = parse_url(Request::getDomainWithProtocol());
+
+        if (!is_array($urlParts) || !is_array($currentParts)) {
+            return false;
+        }
+
+        if (isset($urlParts['user']) || isset($urlParts['pass'])) {
+            return false;
+        }
+
+        if (empty($urlParts['scheme']) || empty($urlParts['host'])) {
+            return false;
+        }
+
+        if (empty($currentParts['scheme']) || empty($currentParts['host'])) {
+            return false;
+        }
+
+        return strtolower((string)$urlParts['scheme']) === strtolower((string)$currentParts['scheme'])
+            && strtolower((string)$urlParts['host']) === strtolower((string)$currentParts['host'])
+            && $this->prgRedirectPort($urlParts) === $this->prgRedirectPort($currentParts);
+    }
+
+    /**
+     * @param array{scheme?: string, port?: int} $parts
+     */
+    private function prgRedirectPort(array $parts): int
+    {
+        if (isset($parts['port'])) {
+            return (int)$parts['port'];
+        }
+
+        return strtolower((string)($parts['scheme'] ?? '')) === 'https' ? 443 : 80;
+    }
+
     /**
      * Метод устанавливает директорию, с которой нужно брать файлы шаблона (модуль или стандартный путь)
      *
@@ -513,25 +614,25 @@ class MainHelper
     }
 
     /**
-     * Подсчет количества видимых дочерних элементов
-     * 
-     * @param array $items
-     * @param array $allItems
-     * @param string [$subItemsName = subcategories]
+     * @param array<int|string, VisibleTreeItem> $items
+     * @param array<int|string, VisibleTreeItem> $allItems
+     * @param string $subItemsName
      */
-    public function countVisible(array $items, array $allItems, $subItemsName = 'subcategories')
+    public function countVisible(array $items, array $allItems, string $subItemsName = 'subcategories')
     {
         foreach ($items as $item) {
-            if (isset($allItems[$item->parent_id]) && !isset($allItems[$item->parent_id]->count_children_visible)) {
-                $allItems[$item->parent_id]->count_children_visible = 0;
+            $parentId = $item->parent_id;
+            if ($parentId !== null && isset($allItems[$parentId]) && !isset($allItems[$parentId]->count_children_visible)) {
+                $allItems[$parentId]->count_children_visible = 0;
             }
-            if ($item->parent_id && $item->visible) {
-                $allItems[$item->parent_id]->count_children_visible++;
+            if ($parentId && $item->visible) {
+                $allItems[$parentId]->count_children_visible++;
             }
             if (isset($item->{$subItemsName})) {
-                $this->countVisible($item->{$subItemsName}, $allItems, $subItemsName);
+                /** @var array<int|string, VisibleTreeItem> $subItems */
+                $subItems = $item->{$subItemsName};
+                $this->countVisible($subItems, $allItems, $subItemsName);
             }
         }
     }
-    
 }

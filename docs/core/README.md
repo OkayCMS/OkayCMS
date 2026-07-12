@@ -1,9 +1,9 @@
-# Ядро системы (Core)
+# Ядро системи (Core)
 
-Классы ядра располагаются в директории `Okay/Core/`.
-Все их инстансы (экземпляры) содержатся в [DI контейнере](./../di_container.md "Dependency injection container").
+Класи ядра розташовані в директорії `Okay/Core/`.
+Усі їхні інстанси (екземпляри) містяться в [DI контейнері](./../di_container.md "Dependency injection container").
 
-### Основные классы ядра
+### Основні класи ядра
 
 * [ManagerMenu](./ManagerMenu.md)
 * [Response](./Response.md)

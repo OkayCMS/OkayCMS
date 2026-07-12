@@ -25,12 +25,12 @@
                                 <input type=hidden name="session_id" value="{$smarty.session.id}">
                                 {if $recovery_mod}
                                     <h1 class="auth_heading">Восстановление пароля</h1>
-                                    <p class="auth_heading_promo">на сайте {$smarty.server.HTTP_HOST}</p>
+                                    <p class="auth_heading_promo">на сайте {$smarty.server.HTTP_HOST|escape}</p>
                                     <div class="input-group mb-1">
                                         <span class="input-group-addon">
                                             {include file='svg_icon.tpl' svgId='user_icon'}
                                         </span>
-                                        <input name="new_login" value="" type="text" class="form-control" autofocus="" tabindex="1" placeholder="Введите логин">
+                                        <input value="{$recovery_login|escape}" type="text" class="form-control" autofocus="" tabindex="1" readonly>
                                     </div>
                                     <div class="input-group mb-1">
                                         <span class="input-group-addon">
@@ -44,18 +44,29 @@
                                         </span>
                                         <input type="password" name="new_password_check" value="" tabindex="3" class="form-control" placeholder="Повторите пароль">
                                     </div>
+                                    {if $error_message}
+                                    <div class="mb-1 error_box">
+                                        {if $error_message == 'password_empty'}
+                                        Введите новый пароль.
+                                        {elseif $error_message == 'password_wrong'}
+                                        Введенные пароли не совпадают.
+                                        {elseif $error_message == 'auth_wrong'}
+                                        Не удалось обновить пароль.
+                                        {/if}
+                                    </div>
+                                    {/if}
                                     <div class="auth_buttons">
-                                        <button type="submit" value="login" class="auth_buttons__login btn btn_blue btn_big btn-block" tabindex="3">Войти</button>
+                                        <button type="submit" value="login" class="auth_buttons__login btn btn_blue btn_big btn-block" tabindex="3">Сменить пароль</button>
                                     </div>
                                 {else}
                                     <h1 class="auth_heading">Вход в панель управления</h1>
-                                    <p class="auth_heading_promo">{$smarty.server.HTTP_HOST}</p>
+                                    <p class="auth_heading_promo">{$smarty.server.HTTP_HOST|escape}</p>
 
                                     <div class="input-group mb-1">
                                         <span class="input-group-addon">
                                             {include file='svg_icon.tpl' svgId='user_icon'}
                                         </span>
-                                        <input name="login" value="{$login}" type="text" class="form-control" autofocus="" tabindex="1" placeholder="Введите логин">
+                                        <input name="login" value="{$login|escape}" type="text" class="form-control" autofocus="" tabindex="1" placeholder="Введите логин">
                                     </div>
                                     <div class="input-group mb-1">
                                         <span class="input-group-addon">
@@ -81,7 +92,7 @@
                             </form>
                             <div class="col-xs-12 mt-1 p-h fn_recovery_wrap hidden px-0">
                                 <div class="fn_error" style="display: none;margin-bottom:15px;color: #bf1e1e;font-weight: 600;font-size: 15px;"></div>
-                                <div class="fn_success" style="display: none;margin-bottom:15px;color: #13bb13;font-weight: 600;font-size: 15px;">Сообщение отправлено на емейл администратору</div>
+                                <div class="fn_success" style="display: none;margin-bottom:15px;color: #13bb13;font-weight: 600;font-size: 15px;">Если указанный email принадлежит администратору, сообщение для восстановления будет отправлено</div>
                                 <label class="fn_recovery_label">Введите email администратора для восстановления пароля</label>
                                 <div class="input-group mb-1">
                                     <span class="input-group-addon">

@@ -1,15 +1,12 @@
 <?php
 
-
 namespace Okay\Core\Entity;
-
 
 use Okay\Core\Modules\AbstractModuleEntityFilter;
 use ReflectionClass;
 
 trait filter
 {
-
     /**
      * @var int
      * Количество сущностей в списке по умолчанию
@@ -17,7 +14,7 @@ trait filter
     private $entitiesLimit = 100;
 
     /**
-     * @param array $filter
+     * @param array<string, mixed> $filter
      * @return void
      * @throws \ReflectionException
      * Чтобы применить кастомный фильтр (напр. $filter['price']),
@@ -34,7 +31,6 @@ trait filter
         foreach ($filter as $filterName => $value) {
             $filterMethod = 'filter__' . $filterName;
             if ($this->modulesFilters->hasFilter(static::class, $filterName)) {
-                
                 // Применяем фильтр из модуля
                 $filterClass = $this->modulesFilters->getFilterClassName(static::class, $filterName);
                 $filterMethod = $this->modulesFilters->getFilterMethod(static::class, $filterName);
@@ -43,7 +39,6 @@ trait filter
                 $filterObject->setSelect($this->select);
                 $filterObject->$filterMethod($value, $filter);
                 unset($filterObject);
-                
             } elseif ($entityClass->hasMethod($filterMethod)) {
                 // Применяем фильтр
                 $this->$filterMethod($value, $filter);
@@ -71,24 +66,23 @@ trait filter
 
     /**
      * @param string $filterName
-     * @param string|array $value
+     * @param string|array<int|string, mixed> $value
      * @return void
      * "Магический" фильтр, если передали $filterName и у сущности зарегистрировано такое поле, по нему пройдет фильтрация автоматически
      */
     private function autoFilter($filterName, $value)
     {
-        
+
         if ($value === []) {
             return;
         }
-        
+
         $langFields = $this->getLangFields();
         $fields = $this->getFields();
         $allFields = array_merge($langFields, $fields);
-        
+
         // Если есть фильтр по полю, добавим такой фильтр автоматически
         if (array_search($filterName, $allFields) !== false) {
-
             $tableAlias = $this->getTableAlias();
 
             // Если применили фильтр по полю, которое объявлено как мультиленговое, установим соответствующий алиас
@@ -97,10 +91,10 @@ trait filter
                     $this->getTableAlias()
                 );
             }
-            
+
             if (is_array($value)) {
                 $this->select->where("{$tableAlias}.{$filterName} IN (:magic_filter_{$filterName})");
-            } else if ($value === null) {
+            } elseif ($value === null) {
                 $this->select->where("{$tableAlias}.{$filterName} IS :magic_filter_{$filterName}");
             } else {
                 $this->select->where("{$tableAlias}.{$filterName} = :magic_filter_{$filterName}");

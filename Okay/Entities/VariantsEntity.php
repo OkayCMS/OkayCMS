@@ -1,15 +1,13 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
+use Okay\Core\Stock\VariantAvailabilityFactory;
 
 class VariantsEntity extends Entity
 {
-
     protected static $fields = [
         'id',
         'product_id',
@@ -81,7 +79,7 @@ class VariantsEntity extends Entity
         $mainCurrencyCoef = $this->getMainCurrencyCoef($currency);
 
         $sql = $this->queryFactory->newSqlQuery();
-        $sql->setStatement("UPDATE ".self::getTable()." SET price=price*{$mainCurrencyCoef}, compare_price=compare_price*{$mainCurrencyCoef}, currency_id=:main_currency_id WHERE currency_id=:currency_id")
+        $sql->setStatement("UPDATE " . self::getTable() . " SET price=price*{$mainCurrencyCoef}, compare_price=compare_price*{$mainCurrencyCoef}, currency_id=:main_currency_id WHERE currency_id=:currency_id")
             ->bindValue('currency_id', $id)
             ->bindValue('main_currency_id', $mainCurrency->id);
         $this->db->query($sql);
@@ -93,12 +91,14 @@ class VariantsEntity extends Entity
     {
 
         switch ($order) {
-            case 'in_stock_first' :
-                $orderFields = [
-                    'IF(stock=0, 0, 1) DESC',
-                    'position',
-                    'id',
-                ];
+            case 'in_stock_first':
+                if (!$this->settings->get('is_preorder')) {
+                    $orderFields = [
+                        'CASE WHEN stock > 0 THEN 2 WHEN stock IS NULL THEN 1 ELSE 0 END DESC',
+                        'position',
+                        'id',
+                    ];
+                }
                 break;
         }
 
@@ -114,8 +114,28 @@ class VariantsEntity extends Entity
             $variant->compare_price = null;
         }
 
-        if (property_exists($variant, 'stock') && $variant->stock === null) {
-            $variant->stock = $this->settings->max_order_amount;
+        if (property_exists($variant, 'stock')) {
+            $rawStock = $variant->stock === null ? null : (int) $variant->stock;
+            /** @var VariantAvailabilityFactory $availabilityFactory */
+            $availabilityFactory = $this->serviceLocator->getService(VariantAvailabilityFactory::class);
+            $availability = $availabilityFactory->fromRawStock(
+                $rawStock,
+                (bool) $this->settings->get('is_preorder'),
+                (int) $this->settings->get('max_order_amount'),
+                (bool) $this->settings->get('use_backorder_status')
+            );
+
+            $variant->stock_raw = $availability->rawStock();
+            $variant->stock_status = $availability->status();
+            $variant->stock_effective_status = $availability->effectiveStatus();
+            $variant->stock_is_tracked = $availability->isTracked();
+            $variant->available_to_order = $availability->isOrderable();
+            $variant->order_amount_limit = $availability->orderLimit();
+            $variant->schema_availability = $availability->schemaAvailabilityUrl();
+
+            if ($variant->stock === null) {
+                $variant->stock = $this->settings->max_order_amount;
+            }
         }
 
         if (property_exists($variant, 'units') && $variant->units === null) {

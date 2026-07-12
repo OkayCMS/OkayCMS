@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Helpers;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\Extender\ExtenderFacade;
@@ -18,24 +16,26 @@ use Okay\Entities\ProductsEntity;
 
 class SiteMapHelper
 {
-    
     private $entityFactory;
     private $response;
     private $settings;
-    
+
+    /** @phpstan-var object{label: string} */
     private $language;
     private $siteMapIndex = 1;
     private $urlIndex = 0;
     private $params = [];
 
-    const MAX_URLS = 50000;
-    
+    public const MAX_URLS = 50000;
+
     public function __construct(EntityFactory $entityFactory, Response $response, MainHelper $mainHelper, Settings $settings)
     {
         $this->entityFactory = $entityFactory;
         $this->response = $response;
         $this->settings = $settings;
-        $this->language = $mainHelper->getCurrentLanguage();
+        /** @var object{label: string} $language */
+        $language = $mainHelper->getCurrentLanguage();
+        $this->language = $language;
 
         if ($argv = Request::getArgv()) {
             $this->params['output'] = 'file';
@@ -48,35 +48,35 @@ class SiteMapHelper
             }
             $this->params['root_url'] = Request::getRootUrl();
         }
-        $this->params['lang_label'] = '_'.$this->language->label;
+        $this->params['lang_label'] = '_' . $this->language->label;
         if ($this->params['output'] == 'file') {
             $this->removeSiteMap();
         }
     }
-    
+
     public function writeHead()
     {
         $this->writeString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         $this->writeString("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
     }
-    
+
     public function writeFooter()
     {
         $this->writeString("</urlset>\n");
         // Если пишем в файл, создадим один итоговый файл со ссылками на все сайтмапы
         if ($this->params['output'] == 'file') {
             $last_modify = date("Y-m-d");
-            $file = 'sitemap'.$this->params['lang_label'].'.xml';
+            $file = 'sitemap' . $this->params['lang_label'] . '.xml';
             file_put_contents($file, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
             file_put_contents($file, "<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n", FILE_APPEND);
             for ($i = 1; $i <= $this->siteMapIndex; $i++) {
-                $url = $this->params['root_url'].'/sitemap'.$this->params['lang_label'].'_'.$i.'.xml';
-                file_put_contents($file, "\t<sitemap>"."\n", FILE_APPEND);
-                file_put_contents($file, "\t\t<loc>$url</loc>"."\n", FILE_APPEND);
-                file_put_contents($file, "\t\t<lastmod>$last_modify</lastmod>"."\n", FILE_APPEND);
-                file_put_contents($file, "\t</sitemap>"."\n", FILE_APPEND);
+                $url = $this->params['root_url'] . '/sitemap' . $this->params['lang_label'] . '_' . $i . '.xml';
+                file_put_contents($file, "\t<sitemap>" . "\n", FILE_APPEND);
+                file_put_contents($file, "\t\t<loc>$url</loc>" . "\n", FILE_APPEND);
+                file_put_contents($file, "\t\t<lastmod>$last_modify</lastmod>" . "\n", FILE_APPEND);
+                file_put_contents($file, "\t</sitemap>" . "\n", FILE_APPEND);
             }
-            file_put_contents($file, '</sitemapindex>'."\n", FILE_APPEND);
+            file_put_contents($file, '</sitemapindex>' . "\n", FILE_APPEND);
             return;
         }
     }
@@ -88,12 +88,12 @@ class SiteMapHelper
     {
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
-    
+
     public function writePagesProcedure()
     {
         /** @var PagesEntity $pagesEntity */
         $pagesEntity = $this->entityFactory->get(PagesEntity::class);
-        
+
         /** @var BlogEntity $blogEntity */
         $blogEntity = $this->entityFactory->get(BlogEntity::class);
 
@@ -106,18 +106,18 @@ class SiteMapHelper
 
         $page = ExtenderFacade::execute(__METHOD__, $page, func_get_args());
         $this->write($page, true);
-        
-        foreach ($pagesEntity->find(['visible'=>1]) as $p) {
+
+        foreach ($pagesEntity->find(['visible' => 1]) as $p) {
             if ($p->url && $p->url != '404') {
                 $lastModify = [];
                 if ($p->url == 'blog') {
-                    $lastModify = $blogEntity->cols(['last_modify'])->order('last_modify_desc')->find(['limit'=>1]);
+                    $lastModify = $blogEntity->cols(['last_modify'])->order('last_modify_desc')->find(['limit' => 1]);
                     $lastModify[] = $this->settings->get('lastModifyPosts');
                 }
                 $lastModify[] = $p->last_modify;
                 $lastModify = max($lastModify);
                 $lastModify = substr($lastModify, 0, 10);
-                
+
                 $page = [
                     'url' => Router::generateUrl('page', ['url' => $p->url], true),
                     'lastmod' => $lastModify,
@@ -135,9 +135,9 @@ class SiteMapHelper
     {
         /** @var BlogEntity $blogEntity */
         $blogEntity = $this->entityFactory->get(BlogEntity::class);
-        
-        $postsCount = $blogEntity->count(['visible'=>1]);
-        foreach ($blogEntity->find(['visible'=>1, 'limit'=>$postsCount]) as $p) {
+
+        $postsCount = $blogEntity->count(['visible' => 1]);
+        foreach ($blogEntity->find(['visible' => 1, 'limit' => $postsCount]) as $p) {
             $url = Router::generateUrl('post', ['url' => $p->url], true);
             $lastModify = substr($p->last_modify, 0, 10);
 
@@ -157,16 +157,16 @@ class SiteMapHelper
     {
         /** @var CategoriesEntity $categoriesEntity */
         $categoriesEntity = $this->entityFactory->get(CategoriesEntity::class);
-        
+
         /** @var ProductsEntity $productsEntity */
         $productsEntity = $this->entityFactory->get(ProductsEntity::class);
-        
+
         foreach ($categoriesEntity->find() as $c) {
             if ($c->visible) {
                 $url = Router::generateUrl('category', ['url' => $c->url], true);
                 $lastModify = $productsEntity->cols(['last_modify'])->order('last_modify_desc')->find([
                     'category_id' => $c->children,
-                    'limit'=>1,
+                    'limit' => 1,
                 ]);
 
                 $lastModify[] = $c->last_modify;
@@ -192,13 +192,13 @@ class SiteMapHelper
 
         /** @var ProductsEntity $productsEntity */
         $productsEntity = $this->entityFactory->get(ProductsEntity::class);
-        
-        $brandsCount = $brandsEntity->count(['visible'=>1]);
-        foreach ($brandsEntity->find(['visible'=>1, 'limit'=>$brandsCount]) as $b) {
+
+        $brandsCount = $brandsEntity->count(['visible' => 1]);
+        foreach ($brandsEntity->find(['visible' => 1, 'limit' => $brandsCount]) as $b) {
             $url = Router::generateUrl('brand', ['url' => $b->url], true);
             $lastModify = $productsEntity->cols(['last_modify'])->order('last_modify_desc')->find([
                 'brand_id' => $b->id,
-                'limit'=>1,
+                'limit' => 1,
             ]);
             $lastModify[] = $b->last_modify;
             $lastModify = substr(max($lastModify), 0, 10);
@@ -237,22 +237,32 @@ class SiteMapHelper
             $this->write($product, true);
         }
     }
-    
+
     private function removeSiteMap()
     {
         if ($this->params['output'] == 'file') {
             $subSiteMaps = glob("sitemap" . $this->params['lang_label'] . "_*.xml");
             if (is_array($subSiteMaps)) {
                 foreach ($subSiteMaps as $siteMap) {
-                    @unlink($siteMap);
+                    // Валідація шляху: перевіряємо, що файл знаходиться в поточній директорії та має правильний формат
+                    if (preg_match('/^sitemap_[a-z]{2}_\d+\.xml$/', basename($siteMap)) && strpos($siteMap, '..') === false) {
+                        @unlink($siteMap);
+                    }
                 }
             }
-            if (file_exists("sitemap" . $this->params['lang_label'] . ".xml")) {
-                @unlink("sitemap" . $this->params['lang_label'] . ".xml");
+            $mainSiteMap = "sitemap" . $this->params['lang_label'] . ".xml";
+            if (file_exists($mainSiteMap)) {
+                // Валідація шляху: перевіряємо формат імені файлу
+                if (preg_match('/^sitemap_[a-z]{2}\.xml$/', basename($mainSiteMap)) && strpos($mainSiteMap, '..') === false) {
+                    @unlink($mainSiteMap);
+                }
             }
         }
     }
-    
+
+    /**
+     * @param array<string, mixed> $params
+     */
     public function write(array $params, $countUrl = false)
     {
         if (!empty($params)) {
@@ -274,7 +284,7 @@ class SiteMapHelper
             $this->writeString($str, $countUrl);
         }
     }
-    
+
     private function writeString($str, $countUrl = false)
     {
         if ($this->params['output'] == 'file') {
@@ -283,21 +293,21 @@ class SiteMapHelper
             $this->browserWrite($str, $countUrl);
         }
     }
-    
+
     private function fileWrite($str, $countUrl = false)
     {
-        $file = 'sitemap'.$this->params['lang_label'].'_'.$this->siteMapIndex.'.xml';
+        $file = 'sitemap' . $this->params['lang_label'] . '_' . $this->siteMapIndex . '.xml';
         file_put_contents($file, $str, FILE_APPEND);
         if ($countUrl && ++$this->urlIndex == self::MAX_URLS) {
-            file_put_contents($file, '</urlset>'."\n", FILE_APPEND);
-            $this->urlIndex=0;
+            file_put_contents($file, '</urlset>' . "\n", FILE_APPEND);
+            $this->urlIndex = 0;
             $this->siteMapIndex++;
-            $file = 'sitemap'.$this->params['lang_label'].'_'.$this->siteMapIndex.'.xml';
+            $file = 'sitemap' . $this->params['lang_label'] . '_' . $this->siteMapIndex . '.xml';
             file_put_contents($file, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
             file_put_contents($file, "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n", FILE_APPEND);
         }
     }
-    
+
     private function browserWrite($str, $countUrl = false)
     {
         $this->response->setContent($str, RESPONSE_XML);

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Image;
@@ -102,6 +100,7 @@ class CategoriesEntity extends Entity
     public function add($category)
     {
         $category = (object) $category;
+        /** @var object{name: string, url?: string|null, parent_id?: int|string|null, level_depth?: int|false}&\stdClass $category */
         $category->level_depth = $this->determineLevelDepth($category);
 
         /** @var Translit $translit */
@@ -115,9 +114,9 @@ class CategoriesEntity extends Entity
 
         while ($this->get((string)$category->url)) {
             if (preg_match('/(.+)([0-9]+)$/', $category->url, $parts)) {
-                $category->url = $parts[1].''.($parts[2]+1);
+                $category->url = $parts[1] . '' . ($parts[2] + 1);
             } else {
-                $category->url = $category->url.'2';
+                $category->url = $category->url . '2';
             }
         }
 
@@ -130,6 +129,7 @@ class CategoriesEntity extends Entity
     public function update($ids, $category)
     {
         $category = (object) $category;
+        /** @var object{parent_id?: int|string|null, level_depth?: int|false}&\stdClass $category */
 
         // При обновлении категории не обновляем уровень вложенности, если его не возможно корректно определить
         if (($levelDepth = $this->determineLevelDepth($category)) !== false) {
@@ -347,9 +347,15 @@ class CategoriesEntity extends Entity
         $file = 'files/downloads/market_categories.csv';
         if (file_exists($file)) {
             $f = fopen($file, 'r');
-            fgetcsv($f, 0, '^');
+            if ($f === false) {
+                return ExtenderFacade::execute([static::class, __FUNCTION__], $marketCats, func_get_args());
+            }
+            fgetcsv($f, 0, '^', '"', '\\');
             while (!feof($f)) {
-                $line = fgetcsv($f, 0, '^');
+                $line = fgetcsv($f, 0, '^', '"', '\\');
+                if ($line === false || !isset($line[0])) {
+                    continue;
+                }
                 if (empty($query) || strpos(mb_strtolower($line[0]), $query) !== false) {
                     $marketCats[] = $line[0];
                 }
@@ -362,7 +368,11 @@ class CategoriesEntity extends Entity
 
     protected function filter__id($ids)
     {
-        $ids = (array)$ids;
+        $ids = $this->normalizeCategoryIds($ids);
+        if (empty($ids)) {
+            return;
+        }
+
         $this->filteredCategoryIds = array_merge($this->filteredCategoryIds, $ids);
         $this->filteredCategoryIds = array_unique($this->filteredCategoryIds);
     }
@@ -382,7 +392,7 @@ class CategoriesEntity extends Entity
 
         $this->db->query($select);
 
-        $categoriesIds = $this->db->results('category_id');
+        $categoriesIds = $this->normalizeCategoryIds($this->db->results('category_id'));
         $this->filteredCategoryIds = array_merge($this->filteredCategoryIds, $categoriesIds);
         $this->filteredCategoryIds = array_unique($this->filteredCategoryIds);
     }
@@ -414,10 +424,31 @@ class CategoriesEntity extends Entity
 
         $this->db->query($select);
 
-        $categoriesIds = $this->db->results('category_id');
+        $categoriesIds = $this->normalizeCategoryIds($this->db->results('category_id'));
 
         $this->filteredCategoryIds = array_merge($this->filteredCategoryIds, $categoriesIds);
         $this->filteredCategoryIds = array_unique($this->filteredCategoryIds);
+    }
+
+    /**
+     * @param mixed $ids
+     * @return list<int>
+     */
+    private function normalizeCategoryIds($ids): array
+    {
+        $normalizedIds = [];
+        foreach ((array)$ids as $id) {
+            if ($id === null || $id === '' || $id === false) {
+                continue;
+            }
+
+            $id = (int)$id;
+            if ($id > 0) {
+                $normalizedIds[] = $id;
+            }
+        }
+
+        return array_values(array_unique($normalizedIds));
     }
 
     public function initCategories()
@@ -455,20 +486,22 @@ class CategoriesEntity extends Entity
                     $pointers[$category->id]->path_url = implode('/', $pathUrl);
 
                     // Уровень вложенности категории
-                    $pointers[$category->id]->level = 1+$pointers[$category->parent_id]->level;
+                    $pointers[$category->id]->level = 1 + $pointers[$category->parent_id]->level;
 
                     // Убираем использованную категорию из массива категорий
                     unset($categories[$k]);
                     $flag = true;
                 }
             }
-            if (!$flag) $finish = true;
+            if (!$flag) {
+                $finish = true;
+            }
         }
 
         // Для каждой категории id всех ее деток узнаем
         $ids = array_reverse(array_keys($pointers));
         foreach ($ids as $id) {
-            if ($id>0) {
+            if ($id > 0) {
                 $pointers[$id]->children[] = $id;
 
                 if (isset($pointers[$pointers[$id]->parent_id]->children)) {
@@ -497,7 +530,6 @@ class CategoriesEntity extends Entity
 
         $hasProductsCategoriesIds = [];
         foreach ($pointers as &$pointer) {
-
             if (isset($categoriesIdsWithProducts[$pointer->id])) {
                 $hasProductsCategoriesIds[] = $pointer->id;
             }
@@ -578,7 +610,7 @@ class CategoriesEntity extends Entity
         $fields = array_merge($this->getFields(), $this->getLangFields());
 
         foreach ($fields as $field) {
-            if (property_exists($category, $field)) {
+            if (!empty($field) && property_exists($category, $field)) {
                 $newCategory->$field = $category->$field;
             }
         }

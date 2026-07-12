@@ -10,7 +10,7 @@ if (!$request->checkSession()) {
     exit();
 }
 
-if (!$managers->access('categories',  $manager)) {
+if (!$managers->access('categories', $manager)) {
     exit();
 }
 
@@ -22,7 +22,7 @@ $result = new \stdClass();
 $module = $request->post('module');
 $module = (!$module ? $request->get('module') : $module);
 switch ($module) {
-    case 'search_market': {
+    case 'search_market':
         $keyword = $request->get('query');
         $keywords = explode(' ', $keyword);
         $categories = $categoriesEntity->getMarket($keyword);
@@ -37,11 +37,7 @@ switch ($module) {
         $result->query = $keyword;
         $result->suggestions = $suggestions;
         break;
-    }
 }
 
 $response->setContent(json_encode($result), RESPONSE_JSON);
 $response->sendContent();
-
-
-

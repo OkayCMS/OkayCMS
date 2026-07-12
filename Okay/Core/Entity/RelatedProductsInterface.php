@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Entity;
-
 
 interface RelatedProductsInterface
 {
@@ -12,13 +10,13 @@ interface RelatedProductsInterface
         'post_id'|'product_id',
         'related_id',
         'position'
-     * 
-     * @param array $filter
-     * @return \stdClass[] 
+     *
+     * @param array<string, mixed> $filter
+     * @return \stdClass[]
      */
     public function getRelatedProducts(array $filter = []);
-    
+
     public function addRelatedProduct($objectId, $relatedId, $position = 0);
-    
+
     public function deleteRelatedProduct($objectId, $relatedId = null);
 }

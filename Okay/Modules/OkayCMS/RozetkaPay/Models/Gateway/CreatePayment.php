@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\RozetkaPay\Models\Gateway;
 
 use Okay\Core\EntityFactory;
@@ -8,9 +7,9 @@ use Okay\Modules\OkayCMS\RozetkaPay\Models\Gateway\Client\HttpCurl;
 
 class CreatePayment
 {
-    const CREATE_PAYMENT = 'new';
+    public const CREATE_PAYMENT = 'new';
 
-    const POSTFIX_FOR_TEST = '20249OKAY';
+    public const POSTFIX_FOR_TEST = '20249OKAY';
 
     private $client;
 
@@ -25,8 +24,7 @@ class CreatePayment
     public function __construct(
         HttpCurl $client,
         EntityFactory $entityFactory
-    )
-    {
+    ) {
         $this->client = $client;
         $this->entityFactory = $entityFactory;
     }
@@ -34,13 +32,19 @@ class CreatePayment
     public function createPayment($order)
     {
         $data = $this->prepareRequest($order);
-        if($order['settings']['rozetkapay_secretkey'] === 'XChz3J8qrr') {
-            $data['external_id'] = $data['external_id'] .'-'.date('YmdHis'). self::POSTFIX_FOR_TEST;
+        if ($order['settings']['rozetkapay_secretkey'] === 'XChz3J8qrr') {
+            $data['external_id'] = $data['external_id'] . '-' . date('YmdHis') . self::POSTFIX_FOR_TEST;
         }
         $data = json_encode($data);
+        if ($data === false) {
+            $data = '';
+        }
         return $this->client->request('post', 'new', $data, $order['settings']);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function prepareRequest($order): array
     {
         return [

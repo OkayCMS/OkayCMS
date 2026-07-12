@@ -701,6 +701,7 @@ header {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   -webkit-transition: 0.3s ease-in-out;
   -o-transition: 0.3s ease-in-out;
+  transition: 0.3s ease-in-out;
   color: var(--okay-basic-company-text);
   background-color: var(--okay-basic-company);
 }
@@ -1141,9 +1142,10 @@ header {
   -ms-flex-align: center;
   align-items: center;
   justify-content: space-between;
+  gap: 15px;
   margin: 20px 0;
   background-color: rgb(255, 255, 255);
-  padding: 5px 20px 5px;
+  padding: 15px 20px;
   border: 1px solid rgb(219, 219, 219);
   border-radius: 3px;
   min-height: 50px;
@@ -1819,24 +1821,27 @@ a.filter__catalog_link svg {
 }
 
 /***** #Main top categories *********************************************************/
-.top_categories{
+.top_categories {
   margin-bottom: -15px;
 }
-.top_categories__item{
+.top_categories__item {
   -webkit-align-content: stretch;
   -ms-flex-line-pack: stretch;
   align-content: stretch;
   margin-bottom: 15px;
 }
-.top_categories__preview{
+.top_categories__preview {
   gap: 10px;
   min-height: 70px;
   height: 100%;
   border: 1px solid #dbdbdb;
-  box-shadow: 0 0 0 #0000001a,0 0 0 #0000001a,0 0 0 #0000001a;
+  box-shadow:
+    0 0 0 #0000001a,
+    0 0 0 #0000001a,
+    0 0 0 #0000001a;
   padding: 10px 10px;
   position: relative;
-  transition: .3s;
+  transition: 0.3s;
   width: 100%;
   background: #fff;
   text-decoration: none;
@@ -1846,33 +1851,28 @@ a.filter__catalog_link svg {
   border-color: transparent;
   border-radius: 4px;
   -webkit-box-shadow: 0 5px 15px #00000059;
-  -moz-box-shadow: 0 5px 15px rgba(0,0,0,0.35);
+  -moz-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
   box-shadow: 0 5px 15px #00000059;
   z-index: 3;
 }
-.top_categories__image{
+.top_categories__image {
   width: 50px;
   height: 50px;
   flex-shrink: 0;
 }
-.banner_advantages__icon svg{
+.banner_advantages__icon svg {
   width: 50px;
   height: 50px;
   color: var(--okay-basic-company);
 }
-.top_categories__name{
+.top_categories__name {
   text-align: center;
   color: var(--okay-body-text);
   font-size: 14px;
   font-weight: 500;
   width: 100%;
-  transition: .3s;
+  transition: 0.3s;
 }
-
-
-
-
-
 
 /***** #Main brands *****************************************************************/
 .main_brands {
@@ -1912,7 +1912,10 @@ a.filter__catalog_link svg {
 .author_list__preview,
 .brand__preview {
   border: 1px solid #dbdbdb;
-  box-shadow: 0 0 0 #0000001a, 0 0 0 #0000001a, 0 0 0 #0000001a;
+  box-shadow:
+    0 0 0 #0000001a,
+    0 0 0 #0000001a,
+    0 0 0 #0000001a;
   height: 100%;
   padding: 10px;
   position: relative;
@@ -1958,7 +1961,10 @@ a.filter__catalog_link svg {
 }
 .product_preview {
   border-right: 1px solid transparent;
-  box-shadow: 0 0 0 #00000026, 0 0 0 #00000012, 0 0 0 #00000017;
+  box-shadow:
+    0 0 0 #00000026,
+    0 0 0 #00000012,
+    0 0 0 #00000017;
   min-height: 340px;
   padding: 10px;
   position: relative;
@@ -2458,7 +2464,9 @@ a.filter__catalog_link svg {
 }
 .article__preview {
   border-right: 1px solid transparent;
-  box-shadow: 0 0 0 rgba(0, 0, 0, 0.1), 0 0 0 rgba(0, 0, 0, 0.1),
+  box-shadow:
+    0 0 0 rgba(0, 0, 0, 0.1),
+    0 0 0 rgba(0, 0, 0, 0.1),
     0 0 0 rgba(0, 0, 0, 0.1);
   height: 100%;
   padding: 0;
@@ -3332,8 +3340,8 @@ a.filter__catalog_link svg {
   content: "\f004";
 }
 .details_boxed__share {
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: 15px;
+  padding-bottom: 15px;
 }
 .share {
   width: 100%;
@@ -3345,6 +3353,7 @@ a.filter__catalog_link svg {
   -webkit-align-items: center;
   -ms-flex-align: center;
   align-items: center;
+  border-radius: 4px;
 }
 .share__text {
   color: var(--okay-body-text);
@@ -3353,12 +3362,44 @@ a.filter__catalog_link svg {
   opacity: 0.8;
   margin-right: 10px;
 }
-.share__icons .jssocials-share-logo {
-  font-size: 16px;
+.share__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
 }
-.share__icons .jssocials-share-link {
-  padding: 5px 10px;
-  border-radius: 4px;
+.share__link {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  color: inherit;
+  background-color: transparent;
+  border: 1px solid;
+  border-color: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 1;
+  transition: all 0.3s;
+}
+.share__link img {
+  width: 32px;
+  height: 32px;
+}
+.share__link svg {
+  width: 32px;
+  height: 32px;
+}
+button.fn_button_copy.share__link {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+}
+
+@media only screen and (min-width: 768px) {
+  .share__link:hover {
+    opacity: 0.8;
+  }
 }
 
 /***** #Features ********************************************************************/
@@ -4142,6 +4183,9 @@ footer {
   color: red;
   border: 1px solid;
   border-radius: 50%;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
 }
 .purchase__remove svg {
   width: 14px;
@@ -4589,7 +4633,7 @@ table.order_details {
   position: fixed;
   z-index: 100;
   left: 2%;
-  bottom: 40px;
+  bottom: 20px;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -4598,8 +4642,8 @@ table.order_details {
   -webkit-align-items: center;
   -ms-flex-align: center;
   align-items: center;
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   cursor: pointer;
   visibility: hidden;
   color: var(--okay-basic-company-text);

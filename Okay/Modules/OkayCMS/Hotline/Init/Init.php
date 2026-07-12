@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\Hotline\Init;
-
 
 use Okay\Admin\Helpers\BackendExportHelper;
 use Okay\Admin\Helpers\BackendImportHelper;
@@ -16,9 +14,9 @@ use Okay\Modules\OkayCMS\Hotline\Extenders\BackendExtender;
 
 class Init extends AbstractInit
 {
-    const TO_FEED_FIELD = 'to__okaycms__hotline';
-    const FILTER_FEEDS  = 'okaycms__hotline__feeds';
-    const PERMISSION    = 'okaycms__hotline';
+    public const TO_FEED_FIELD = 'to__okaycms__hotline';
+    public const FILTER_FEEDS  = 'okaycms__hotline__feeds';
+    public const PERMISSION    = 'okaycms__hotline';
 
     public function install()
     {
@@ -43,18 +41,19 @@ class Init extends AbstractInit
             $includeField,
         ]);
     }
-    
+
     public function init()
     {
         $this->addPermission(self::PERMISSION);
         $this->registerBackendController('HotlineAdmin');
         $this->addBackendControllerPermission('HotlineAdmin', self::PERMISSION);
 
-        $this->addBackendBlock('import_fields_association',
+        $this->addBackendBlock(
+            'import_fields_association',
             'import_fields_association.tpl',
-            function(
+            function (
                 HotlineFeedsEntity $feedsEntity,
-                Design             $design
+                Design $design
             ) {
                 $design->assign('hotlineFeeds', $feedsEntity->find());
             }
@@ -91,7 +90,5 @@ class Init extends AbstractInit
             \Okay\Modules\OkayCMS\Hotline\ExtendsEntities\ProductsEntity::class,
             self::FILTER_FEEDS
         );
-        
     }
-    
 }

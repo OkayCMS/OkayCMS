@@ -89,6 +89,15 @@
                         </div>
                         {/if}
                         {get_design_block block="export_entity_select_block"}
+                        <div class="col-md-3 col-sm-3 col-lg-3 col-sm-12 mb-h">
+                            <div class="option_export_wrap">
+                                <div class="heading_label">{$btr->export_file_format|escape}</div>
+                                <select class="selectpicker form-control fn_export_format" name="format">
+                                    <option value="csv_utf8">{$btr->export_format_csv_utf8|escape}</option>
+                                    <option value="csv_utf8_bom">{$btr->export_format_csv_utf8_bom|escape}</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="col-md-3 col-sm-3 col-lg-3 col-sm-12 float-sm-right mt-2">
                             <button id="fn_start" type="submit" class="btn btn_small btn_blue float-md-right">
                                 {include file='svg_icon.tpl' svgId='magic'}
@@ -136,6 +145,7 @@
         {
             page = typeof(page) != 'undefined' ? page : 1;
             var data = {page: page};
+            data.format = $(".fn_export_format").val();
             if (field && value) {
                 data[field] = value;
             }
@@ -144,6 +154,12 @@
                 data: data,
                 dataType: 'json',
                 success: function(data){
+
+                    if (data && data.error) {
+                        alert(data.message || 'Export failed');
+                        progress.fadeOut(500);
+                        return;
+                    }
 
                     if(data && !data.end)
                     {
@@ -171,5 +187,3 @@
     });
     {/literal}
 </script>
-
-

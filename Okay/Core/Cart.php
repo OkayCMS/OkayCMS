@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 use Okay\Core\Classes\Discount;
 use Okay\Core\Classes\Purchase;
@@ -18,6 +16,12 @@ use Okay\Helpers\DiscountsHelper;
 use Okay\Helpers\ProductsHelper;
 use Okay\Helpers\MoneyHelper;
 
+/**
+ * @phpstan-type CartProductRow object{id: int|string, url: string, slug_url: string, name: string, main_image_id?: int|string|null, brand_id?: int|string|null, main_category_id?: int|string|null, visible?: mixed, image?: object{product_id: int|string}&\stdClass, images?: list<object{product_id: int|string}&\stdClass>}&\stdClass
+ * @phpstan-type CartVariantRow object{id: int|string, product_id: int|string, price: int|float|string, currency_id: int|string|null, compare_price?: int|float|string|null, name: string|null, sku: string|null, units: string|null, stock: int|float|string|null, stock_raw?: int|null, available_to_order?: bool, order_amount_limit?: int|null}&\stdClass
+ * @phpstan-type CartItemRow object{variant: CartVariantRow, amount: int}&\stdClass
+ * @phpstan-type DiscountSignRow object{sign: string, partial?: bool}&\stdClass
+ */
 class Cart
 {
     /** @var Settings */
@@ -65,20 +69,20 @@ class Cart
     public array $purchases = [];
 
     /**
-     * @var int
+     * @var int|float
      * Price before all discounts
      */
     public $basic_total_price = 0;
 
     /**
-     * @var int
+     * @var int|float
      * Price after purchase discounts, but before cart discounts
      */
     //TODO Discount undiscounted_total_price без доставки, хотя total_price с доставкой
     public $undiscounted_total_price = 0;
 
     /**
-     * @var int
+     * @var int|float
      * Price after all discounts
      */
     public $total_price = 0;
@@ -90,13 +94,13 @@ class Cart
     public $total_products  = 0;
 
     /**
-     * @var array
+     * @var array<string, Discount>
      * All available discounts of the cart
      */
     public $availableDiscounts = [];
 
     /**
-     * @var array
+     * @var array<int, Discount>
      * All applied discounts of the cart
      */
     public $discounts = [];
@@ -108,18 +112,36 @@ class Cart
     public $isEmpty = true;
 
     /**
-     * @var array
+     * @var array<string, object{absoluteDiscount: int|float, priceBeforeDiscount: int|float, priceAfterDiscount: int|float, percentDiscount: int|float}&\stdClass>
      * Total sum for all applied discounts for purchases
      */
     public $total_purchases_discounts = [];
 
+    /**
+     * @var array<int, object{id?: string|int|null}&\stdClass>
+     * Purchases prepared for database insertion
+     */
+    public array $purchasesToDB = [];
+
+    /**
+     * @var array<int, object{id?: string|int|null}&\stdClass>
+     * Discounts prepared for database insertion
+     */
+    public array $discountsToDB = [];
+
+    /**
+     * @var array<int, array<int|string, array<string, string>>>
+     * Language-specific discounts prepared for database insertion
+     */
+    public array $langDiscountsToDB = [];
+
     public function __construct(
-        EntityFactory   $entityFactory,
-        Settings        $settings,
-        ProductsHelper  $productsHelper,
-        MoneyHelper     $moneyHelper,
-        MainHelper      $mainHelper,
-        Discounts       $discountsCore,
+        EntityFactory $entityFactory,
+        Settings $settings,
+        ProductsHelper $productsHelper,
+        MoneyHelper $moneyHelper,
+        MainHelper $mainHelper,
+        Discounts $discountsCore,
         DiscountsHelper $discountsHelper
     ) {
         $this->settings        = $settings;
@@ -143,9 +165,8 @@ class Cart
     {
         if (empty($_SESSION['user_id'])) {
             if (!empty($_COOKIE['shopping_cart']) && is_array($items = json_decode($_COOKIE['shopping_cart'], true))) {
-                foreach ($items as $key => $item){
-                    if (!empty($_SESSION['shopping_cart'][$key]))
-                    {
+                foreach ($items as $key => $item) {
+                    if (!empty($_SESSION['shopping_cart'][$key])) {
                         $_SESSION['shopping_cart'][$key] = max($item, $_SESSION['shopping_cart'][$key]);
                     } else {
                         $_SESSION['shopping_cart'][$key] = $item;
@@ -167,19 +188,20 @@ class Cart
     /**
      * We save the data of the selected products in a cookie
      *
-     * @param array $items
+     * @param array<string|int, int|float> $items
      */
     public function saveShoppingCart(array $items)
     {
         if (!empty($items)) {
-            $_COOKIE['shopping_cart'] = json_encode($items);
-            setcookie('shopping_cart', $_COOKIE['shopping_cart'], time() + 30 * 24 * 3600, '/');   //  на месяц
-        } else if (empty($items)) {
-            //  And delete the cookie variable when we empty the trash
-            if (isset($_COOKIE['shopping_cart'])) {
-                unset($_COOKIE['shopping_cart']);
+            $encodedItems = json_encode($items);
+            if ($encodedItems === false) {
+                return ExtenderFacade::execute(__METHOD__, $this, func_get_args());
             }
-            setcookie('shopping_cart', '', time()-3600, '/');
+            $_COOKIE['shopping_cart'] = $encodedItems;
+            $this->setShoppingCartCookie($encodedItems, time() + 30 * 24 * 3600);
+        } elseif (empty($items)) {
+            //  And delete the cookie variable when we empty the trash
+            $this->deleteShoppingCartCookie();
         }
 
         ExtenderFacade::execute(__METHOD__, $this, func_get_args());
@@ -188,7 +210,7 @@ class Cart
     /**
      * Get purchases and set them into cart
      *
-     * @param array $purchasesVariants
+     * @param array<string|int, int|float> $purchasesVariants
      * @return mixed|void|null
      * @throws \Exception
      */
@@ -198,11 +220,14 @@ class Cart
         if (!empty($purchasesVariants)) {
             $variants = $this->variantsEntity->mappedBy('id')->find(['id' => $this->getVariantsIdsByCart($purchasesVariants)]);
             if (!empty($variants)) {
+                /** @var array<int|string, CartVariantRow> $variants */
                 $variants = $this->moneyHelper->convertVariantsPriceToMainCurrency($variants);
+                /** @var array<int|string, CartVariantRow> $variants */
                 $products = $this->getProductsByVariants($variants);
                 $products = $this->productsHelper->attachImages($products);
+                /** @var array<int|string, CartProductRow> $products */
                 $items = $this->buildItemsByVariants($variants, $purchasesVariants);
-                foreach($items as $variantId=>$item) {
+                foreach ($items as $variantId => $item) {
                     if (!empty($products[$item->variant->product_id])) {
                         $purchase = new Purchase();
                         $purchase->setProduct($products[$item->variant->product_id]);
@@ -233,12 +258,13 @@ class Cart
     {
         if (!isset($_SESSION['shopping_cart'][$variantId])) {
             $variant = $this->variantsEntity->get(intval($variantId));
-            if (!empty($variant) && ($variant->stock > 0 || $this->settings->get('is_preorder'))) {
+            if (!empty($variant) && $this->isVariantOrderable($variant)) {
+                /** @var CartVariantRow $variant */
                 $amount = max(1, $amount);
-                $amount = min($amount, ($variant->stock > 0 ? $variant->stock : min($this->settings->get('max_order_amount'), $amount)));
+                $amount = $this->limitAmountByVariantAvailability($amount, $variant);
                 $_SESSION['shopping_cart'][$variantId] = intval($amount);
                 if (!empty($_SESSION['shopping_cart'])) {
-                    $this->saveShoppingCart($_SESSION['shopping_cart'] ?? []);
+                    $this->saveShoppingCart($_SESSION['shopping_cart']);
                 }
                 $this->addPurchase($variantId, $amount);
                 if ($user = $this->mainHelper->getCurrentUser()) {
@@ -246,7 +272,7 @@ class Cart
                 }
             }
         } else {
-            $amount = max(1, $amount + $_SESSION['shopping_cart'][$variantId]);
+            $amount = (int) max(1, $amount + $_SESSION['shopping_cart'][$variantId]);
             $this->updateItem($variantId, $amount);
         }
 
@@ -264,12 +290,13 @@ class Cart
     {
         if (isset($_SESSION['shopping_cart'][$variantId])) {
             $variant = $this->variantsEntity->get(intval($variantId));
-            if (!empty($variant) && ($variant->stock > 0 || $this->settings->get('is_preorder'))) {
+            if (!empty($variant) && $this->isVariantOrderable($variant)) {
+                /** @var CartVariantRow $variant */
                 $amount = max(1, $amount);
-                $amount = min($amount, ($variant->stock > 0 ? $variant->stock : min($this->settings->get('max_order_amount'), $amount)));
+                $amount = $this->limitAmountByVariantAvailability($amount, $variant);
                 $_SESSION['shopping_cart'][$variantId] = intval($amount);
                 if (!empty($_SESSION['shopping_cart'])) {
-                    $this->saveShoppingCart($_SESSION['shopping_cart'] ?? []);
+                    $this->saveShoppingCart($_SESSION['shopping_cart']);
                 }
                 $this->updatePurchase($variantId, $amount);
                 if ($user = $this->mainHelper->getCurrentUser()) {
@@ -284,9 +311,40 @@ class Cart
     }
 
     /**
+     * @param CartVariantRow $variant
+     */
+    private function isVariantOrderable($variant): bool
+    {
+        if (property_exists($variant, 'available_to_order')) {
+            return (bool) $variant->available_to_order;
+        }
+
+        return $variant->stock > 0 || (bool) $this->settings->get('is_preorder');
+    }
+
+    /**
+     * @param CartVariantRow $variant
+     */
+    private function limitAmountByVariantAvailability(int $amount, $variant): int
+    {
+        if (property_exists($variant, 'order_amount_limit') && $variant->order_amount_limit !== null) {
+            return (int) min($amount, (int) $variant->order_amount_limit);
+        }
+
+        if (!property_exists($variant, 'order_amount_limit')) {
+            return (int) min(
+                $amount,
+                ($variant->stock > 0 ? $variant->stock : min($this->settings->get('max_order_amount'), $amount))
+            );
+        }
+
+        return $amount;
+    }
+
+    /**
      * Delete item from the session-cart and the database-cart
      *
-     * @param $variantId
+     * @param string|int $variantId
      * @throws \Exception
      */
     public function deleteItem($variantId)
@@ -316,10 +374,7 @@ class Cart
         unset($_SESSION['coupon_code']);
 
         //  delete the cookie variable when we empty the trash
-        if (isset($_COOKIE['shopping_cart'])) {
-            unset($_COOKIE['shopping_cart']);
-            setcookie('shopping_cart', '', time()-3600, '/');
-        }
+        $this->deleteShoppingCartCookie();
 
         $this->purchases = [];
         $this->updateTotals();
@@ -339,8 +394,18 @@ class Cart
         if (empty($variant)) {
             ExtenderFacade::execute(__METHOD__, false, func_get_args());
         } else {
+            /** @var CartVariantRow $variant */
             $product = $this->productsEntity->findOne(['id' => $variant->product_id]);
-            $product = $this->productsHelper->attachImages([$product->id => $product])[$product->id];
+            if ($product === false) {
+                ExtenderFacade::execute(__METHOD__, false, func_get_args());
+
+                return;
+            }
+            /** @var CartProductRow $productRow */
+            $productRow = $product;
+            $products = $this->productsHelper->attachImages([$productRow->id => $productRow]);
+            /** @var array<int|string, CartProductRow> $products */
+            $product = $products[$productRow->id];
 
             $purchase = new Purchase();
             $purchase->setProduct($product);
@@ -352,6 +417,31 @@ class Cart
             $this->purchases[] = $purchase;
             $this->updateTotals();
         }
+    }
+
+    private function setShoppingCartCookie(string $value, int $expires): void
+    {
+        setcookie('shopping_cart', $value, [
+            'expires' => $expires,
+            'path' => '/',
+            'secure' => $this->isHttpsRequest(),
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+    }
+
+    private function deleteShoppingCartCookie(): void
+    {
+        if (isset($_COOKIE['shopping_cart'])) {
+            unset($_COOKIE['shopping_cart']);
+        }
+
+        $this->setShoppingCartCookie('', time() - 3600);
+    }
+
+    private function isHttpsRequest(): bool
+    {
+        return !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
     }
 
     /**
@@ -399,7 +489,7 @@ class Cart
     public function applyCoupon($couponCode)
     {
         $coupon = $this->couponsEntity->get((string) $couponCode);
-        if($coupon && $coupon->valid) {
+        if ($coupon && $coupon->valid) {
             $_SESSION['coupon_code'] = $coupon->code;
         } else {
             unset($_SESSION['coupon_code']);
@@ -506,7 +596,7 @@ class Cart
                         if (
                             empty($signs) ||
                             !isset($signs['cart']) ||
-                            (isset($signs['cart']) && !$this->checkAvailableDiscounts($signs['cart']))
+                            !$this->checkAvailableDiscounts($signs['cart'])
                         ) {
                             continue;
                         }
@@ -521,7 +611,8 @@ class Cart
         ExtenderFacade::execute(__METHOD__, $this, func_get_args());
     }
 
-    private function applyPurchasesDiscounts() {
+    private function applyPurchasesDiscounts()
+    {
         $this->undiscounted_total_price = 0;
         foreach ($this->purchases as $purchase) {
             /** @var $purchase Purchase */
@@ -534,7 +625,7 @@ class Cart
     /**
      * Checks the availability of a discount for each registered sign.
      *
-     * @param array $signs
+     * @param list<DiscountSignRow> $signs
      * @return bool
      */
     public function checkAvailableDiscounts($signs)
@@ -544,7 +635,7 @@ class Cart
             foreach ($signs as $sign) {
                 if (isset($this->availableDiscounts[$sign->sign])) {
                     $valid = true;
-                } else if (!$sign->partial) {
+                } elseif (empty($sign->partial)) {
                     $valid = false;
                     break;
                 }
@@ -555,8 +646,8 @@ class Cart
     }
 
     /**
-     * @param array $sessionCart
-     * @return array
+     * @param array<string|int, int|float> $sessionCart
+     * @return array<int, string|int>
      */
     private function getVariantsIdsByCart(array $sessionCart)
     {
@@ -564,8 +655,8 @@ class Cart
     }
 
     /**
-     * @param array $variants
-     * @return array
+     * @param array<string|int, CartVariantRow> $variants
+     * @return array<string|int, CartProductRow>
      * @throws \Exception
      */
     private function getProductsByVariants(array $variants)
@@ -575,14 +666,15 @@ class Cart
             'id'    => $productsIds,
             'limit' => count($productsIds)
         ]);
+        /** @var array<string|int, CartProductRow> $products */
 
         return ExtenderFacade::execute(__METHOD__, $products, func_get_args());
     }
 
     /**
-     * @param array $variants
-     * @param array $purchasesVariants
-     * @return array
+     * @param array<string|int, CartVariantRow> $variants
+     * @param array<string|int, int|float> $purchasesVariants
+     * @return array<string|int, CartItemRow>
      */
     private function buildItemsByVariants(array $variants, array $purchasesVariants)
     {
@@ -593,9 +685,9 @@ class Cart
 
         foreach ($purchasesVariants as $variantId => $amount) {
             if (isset($variants[$variantId])) {
-                $item = new \stdClass;
+                $item = new \stdClass();
                 $item->variant = $variants[$variantId];
-                $item->amount = $amount;
+                $item->amount = (int) $amount;
 
                 $items[$variantId] = $item;
             }
@@ -605,13 +697,13 @@ class Cart
     }
 
     /**
-     * @param array $variants
-     * @return array
+     * @param array<string|int, CartVariantRow> $variants
+     * @return array<int, string|int>
      */
     private function getProductsIdsByVariants(array $variants)
     {
         $productsIds = [];
-        foreach($variants as $variant) {
+        foreach ($variants as $variant) {
             $productsIds[] = $variant->product_id;
         }
 

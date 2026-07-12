@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\LiqPay\Controllers;
-
 
 use Okay\Controllers\AbstractController;
 use Okay\Core\Money;
@@ -12,6 +10,10 @@ use Okay\Entities\OrdersEntity;
 use Okay\Entities\PaymentsEntity;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @phpstan-type LiqPayPayload object{order_id: string, currency: string, status: string, type: string, amount: int|float|string}&\stdClass
+ * @phpstan-type LiqPayOrderRow object{id: int|string, payment_method_id: int|string, paid: mixed, total_price: int|float|string}&\stdClass
+ */
 class CallbackController extends AbstractController
 {
     public function payOrder(
@@ -29,8 +31,16 @@ class CallbackController extends AbstractController
         $data           = $this->request->post('data');
 
         $payment_data = json_decode(base64_decode($data));
+        /** @var LiqPayPayload $payment_data */
 
-        $orderId = intval(substr($payment_data->order_id, 0, strpos($payment_data->order_id, '-')));
+        $orderIdSeparatorPosition = strpos($payment_data->order_id, '-');
+        if ($orderIdSeparatorPosition === false) {
+            $logger->warning("LiqPay notice: 'bad order id'.");
+            $this->response->setContent("bad order id")->setStatusCode(400);
+            $this->response->sendContent();
+            exit;
+        }
+        $orderId = intval(substr($payment_data->order_id, 0, $orderIdSeparatorPosition));
         $currency = $payment_data->currency;
         $status = $payment_data->status;
         $type = $payment_data->type;
@@ -57,6 +67,7 @@ class CallbackController extends AbstractController
             $logger->warning("LiqPay notice: 'Order not found'. Order №{$orderId}");
             die('Оплачиваемый заказ не найден');
         }
+        /** @var LiqPayOrderRow $order */
 
         // Выбираем из базы соответствующий метод оплаты
         $method = $paymentsEntity->get(intval($order->payment_method_id));
@@ -78,7 +89,7 @@ class CallbackController extends AbstractController
             exit;
         }
 
-        $mySignature = base64_encode(sha1($settings['liq_pay_private_key'] . $data . $settings['liq_pay_private_key'],1));
+        $mySignature = base64_encode(sha1($settings['liq_pay_private_key'] . $data . $settings['liq_pay_private_key'], 1));
 
         if ($mySignature !== $signature) {
             $logger->warning("LiqPay notice: 'bad sign {$signature}'. Order №{$orderId}");
@@ -87,7 +98,7 @@ class CallbackController extends AbstractController
             exit;
         }
 
-        // Нельзя оплатить уже оплаченный заказ  
+        // Нельзя оплатить уже оплаченный заказ
         if ($order->paid) {
             $logger->warning("LiqPay notice: 'order already paid'. Order №{$orderId}");
             $this->response->setContent("order already paid")->setStatusCode(400);
@@ -95,7 +106,7 @@ class CallbackController extends AbstractController
             exit;
         }
 
-        if ($amount != $money->convert($order->total_price, $method->currency_id, false, false, 2) || $amount<=0) {
+        if ($amount != $money->convert($order->total_price, $method->currency_id, false, false, 2) || $amount <= 0) {
             $logger->warning("LiqPay notice: 'incorrect price'. Order №{$orderId}");
             $this->response->setContent("incorrect price")->setStatusCode(400);
             $this->response->sendContent();
@@ -103,14 +114,13 @@ class CallbackController extends AbstractController
         }
 
         // Установим статус оплачен
-        $ordersEntity->update(intval($order->id), ['paid'=>1]);
+        $ordersEntity->update(intval($order->id), ['paid' => 1]);
 
         // Отправим уведомление на email
         $notify->emailOrderUser(intval($order->id));
         $notify->emailOrderAdmin(intval($order->id));
 
-        // Спишем товары  
+        // Спишем товары
         $ordersEntity->close(intval($order->id));
-
     }
 }

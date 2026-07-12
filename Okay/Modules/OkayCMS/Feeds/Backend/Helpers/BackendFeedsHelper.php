@@ -15,6 +15,23 @@ use Okay\Modules\OkayCMS\Feeds\Backend\Core\Presets\BackendPresetAdapterFactory;
 use Okay\Modules\OkayCMS\Feeds\Entities\ConditionsEntity;
 use Okay\Modules\OkayCMS\Feeds\Entities\FeedsEntity;
 
+/**
+ * @phpstan-type FeedBackendRow \stdClass&object{
+ *     id: int|string|null,
+ *     name: mixed,
+ *     url: string,
+ *     preset: string,
+ *     settings: array<string, mixed>
+ * }
+ * @phpstan-type ConditionBackendRow \stdClass&object{
+ *     entity: string,
+ *     entity_ids: list<int|string>,
+ *     all_entities: mixed,
+ *     type: string,
+ *     entities?: mixed
+ * }
+ * @phpstan-type SettingsMap array<int|string, mixed>
+ */
 class BackendFeedsHelper
 {
     /** @var ProductsHelper */
@@ -49,11 +66,11 @@ class BackendFeedsHelper
     private $featuresValuesEntity;
 
     public function __construct(
-        EntityFactory               $entityFactory,
-        ProductsHelper              $productsHelper,
+        EntityFactory $entityFactory,
+        ProductsHelper $productsHelper,
         BackendPresetAdapterFactory $backendPresetAdapterFactory,
-        QueryFactory                $queryFactory,
-        Request                     $request
+        QueryFactory $queryFactory,
+        Request $request
     ) {
         $this->productsHelper       = $productsHelper;
         $this->presetAdapterFactory = $backendPresetAdapterFactory;
@@ -68,10 +85,15 @@ class BackendFeedsHelper
         $this->featuresValuesEntity  = $entityFactory->get(FeaturesValuesEntity::class);
     }
 
+    /**
+     * @param FeedBackendRow $feed
+     */
     public function getValidateError(object $feed): string
     {
         $error = '';
-        if (($f = $this->feedsEntity->findOne(['url' => $feed->url])) && $f->id != $feed->id) {
+        /** @var FeedBackendRow|null $f */
+        $f = $this->feedsEntity->findOne(['url' => $feed->url]);
+        if ($f && $f->id != $feed->id) {
             $error = 'url_exists';
         } elseif (empty($feed->name)) {
             $error = 'empty_name';
@@ -82,6 +104,10 @@ class BackendFeedsHelper
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
 
+    /**
+     * @param FeedBackendRow $feed
+     * @return FeedBackendRow
+     */
     public function prepareAdd(object $feed): object
     {
         return ExtenderFacade::execute(__METHOD__, $feed, func_get_args());
@@ -93,6 +119,10 @@ class BackendFeedsHelper
         return ExtenderFacade::execute(__METHOD__, $insertedId, func_get_args());
     }
 
+    /**
+     * @param FeedBackendRow $feed
+     * @return FeedBackendRow
+     */
     public function prepareUpdate(object $feed): object
     {
         return ExtenderFacade::execute(__METHOD__, $feed, func_get_args());
@@ -104,6 +134,9 @@ class BackendFeedsHelper
         return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
     }
 
+    /**
+     * @param array<string, list<array<string, mixed>>> $conditions
+     */
     public function addConditions($feedId, array $conditions): void
     {
         foreach ($conditions as $conditionType => $typeConditions) {
@@ -124,6 +157,9 @@ class BackendFeedsHelper
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    /**
+     * @param array<int|string, array<string, mixed>> $conditions
+     */
     public function updateConditions($feedId, array $conditions): void
     {
         foreach ($conditions as $conditionId => $condition) {
@@ -152,21 +188,31 @@ class BackendFeedsHelper
     public function updateCategorySettings($feedId, $entityId, $newSettings): void
     {
         $settings = $this->feedsEntity->cols(['categories_settings'])->findOne(['id' => $feedId]);
+        $settings = $settings ? (array) $settings : [];
+        /** @var SettingsMap $settings */
         $settings[$entityId] = $newSettings;
         $this->feedsEntity->update($feedId, ['categories_settings' => $settings]);
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    /**
+     * @param array<string, mixed> $newSettings
+     */
     public function updateFeatureSettings($feedId, $entityId, array $newSettings): void
     {
         $settings = $this->feedsEntity->cols(['features_settings'])->findOne(['id' => $feedId]);
+        $settings = $settings ? (array) $settings : [];
+        /** @var SettingsMap $settings */
         $settings[$entityId] = $newSettings;
         $this->feedsEntity->update($feedId, ['features_settings' => $settings]);
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    /**
+     * @return list<object>
+     */
     public function getCategories(): array
     {
         $categories = $this->categoriesEntity->getCategoriesTree();
@@ -174,6 +220,9 @@ class BackendFeedsHelper
         return ExtenderFacade::execute(__METHOD__, $categories, func_get_args());
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
     public function getBrands(): array
     {
         $limit = $this->brandsEntity->count();
@@ -182,6 +231,9 @@ class BackendFeedsHelper
         return ExtenderFacade::execute(__METHOD__, $brands, func_get_args());
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
     public function getFeatures(): array
     {
         $limit = $this->featuresEntity->count();
@@ -190,6 +242,9 @@ class BackendFeedsHelper
         return ExtenderFacade::execute(__METHOD__, $features, func_get_args());
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
     public function getFeatureValues($featureId): array
     {
         $limit = $this->featuresValuesEntity->count();
@@ -205,8 +260,12 @@ class BackendFeedsHelper
         return ExtenderFacade::execute(__METHOD__, $feed, func_get_args());
     }
 
+    /**
+     * @return array{inclusions: list<object>, exclusions: list<object>}
+     */
     public function getConditions($feedId): array
     {
+        /** @var list<ConditionBackendRow> $conditions */
         $conditions = $this->conditionsEntity->find(['feed_id' => $feedId]);
 
         foreach ($conditions as $condition) {
@@ -222,25 +281,32 @@ class BackendFeedsHelper
             }
         }
 
-        $conditions = array_reduce($conditions, function($result, $condition) {
-            $result[$condition->type.'s'][] = $condition;
+        $conditions = array_reduce($conditions, function ($result, $condition) {
+            /** @var ConditionBackendRow $condition */
+            $result[$condition->type . 's'][] = $condition;
             return $result;
         }, ['inclusions' => [], 'exclusions' => []]);
 
         return ExtenderFacade::execute(__METHOD__, $conditions, func_get_args());
     }
 
+    /**
+     * @param array<int|string, int|string> $positions
+     */
     public function sortPositions(array $positions): void
     {
         $ids = array_keys($positions);
         sort($positions);
-        foreach ($positions as $i=>$position) {
-            $this->feedsEntity->update($ids[$i], ['position'=>$position]);
+        foreach ($positions as $i => $position) {
+            $this->feedsEntity->update($ids[$i], ['position' => $position]);
         }
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    /**
+     * @return array{page: int, limit: int, preset?: string}
+     */
     public function buildFilter(): array
     {
         // Пагинация
@@ -259,17 +325,20 @@ class BackendFeedsHelper
 
         // Бренды
         $presetName = $this->request->get('preset');
-        if($presetName) {
+        if ($presetName) {
             $filter['preset'] = $presetName;
         }
 
         if ($this->request->get('page') == 'all') {
-            $filter['limit'] = $this->feedsEntity->count($filter);
+            $filter['limit'] = (int) $this->feedsEntity->count($filter);
         }
 
         return ExtenderFacade::execute(__METHOD__, $filter, func_get_args());
     }
 
+    /**
+     * @param array<int|string, int|string> $ids
+     */
     public function disable(array $ids): void
     {
         $this->feedsEntity->update($ids, ['enabled' => 0]);
@@ -277,6 +346,9 @@ class BackendFeedsHelper
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    /**
+     * @param array<int|string, int|string> $ids
+     */
     public function enable(array $ids): void
     {
         $this->feedsEntity->update($ids, ['enabled' => 1]);
@@ -284,6 +356,9 @@ class BackendFeedsHelper
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    /**
+     * @param array<int|string, int|string> $ids
+     */
     public function delete(array $ids): void
     {
         $this->feedsEntity->delete($ids);
@@ -291,15 +366,22 @@ class BackendFeedsHelper
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    /**
+     * @param array<int|string, int|string> $ids
+     */
     public function duplicate(array $ids): void
     {
-        foreach($ids as $id) {
+        foreach ($ids as $id) {
             $this->feedsEntity->duplicate((int)$id);
         }
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    /**
+     * @param array<string, mixed> $settings
+     * @return array<string, mixed>
+     */
     public function loadSettings(string $presetName, array $settings)
     {
         $adapter = $this->presetAdapterFactory->get($presetName);
@@ -316,6 +398,9 @@ class BackendFeedsHelper
         return ExtenderFacade::execute(__METHOD__, $settingsTemplate, func_get_args());
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function fetchSettingsTemplates(): array
     {
         $settingsTemplates = [];
@@ -327,6 +412,9 @@ class BackendFeedsHelper
         return ExtenderFacade::execute(__METHOD__, $settingsTemplates, func_get_args());
     }
 
+    /**
+     * @return array<string, array<string, string>>
+     */
     public function getPresets(): array
     {
         $presets = $this->presetAdapterFactory->getPresets();

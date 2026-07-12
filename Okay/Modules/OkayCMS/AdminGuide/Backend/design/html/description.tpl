@@ -520,7 +520,7 @@
 
         <div class="boxed">
             <div id="ancor_4"></div>
-            <div class="heading_box font_24 mb-2">{$btr->description_title_switcher}</div>
+            <div class="heading_box font_24 mb-2">{$btr->description_title_forms}</div>
             <div class="mb-2">
                 {$btr->description_info_switcher}
             </div>
@@ -838,7 +838,7 @@
                         <div class="input_file_container">
                             <input class="input_file" id="my-file" type="file">
                             <label tabindex="0" for="my-file" class="input_file_trigger">
-                                <svg width="20" height="17" viewBox="0 0 20 17"><path fill="currentcolor" d="M10 0l-5.2 4.9h3.3v5.1h3.8v-5.1h3.3l-5.2-4.9zm9.3 11.5l-3.2-2.1h-2l3.4 2.6h-3.5c-.1 0-.2.1-.2.1l-.8 2.3h-6l-.8-2.2c-.1-.1-.1-.2-.2-.2h-3.6l3.4-2.6h-2l-3.2 2.1c-.4.3-.7 1-.6 1.5l.6 3.1c.1.5.7.9 1.2.9h16.3c.6 0 1.1-.4 1.3-.9l.6-3.1c.1-.5-.2-1.2-.7-1.5z"></path></svg>
+                                {include file='svg_icon.tpl' svgId='add'}
                                 <span>Выберите файл...</span>
                             </label>
                         </div>
@@ -851,7 +851,7 @@
     <div class="input_file_container">
         <input class="input_file" id="my-file" type="file">
         <label tabindex="0" for="my-file" class="input_file_trigger">
-            <svg width="20" height="17" viewBox="0 0 20 17"><path fill="currentcolor" d="M10 0l-5.2 4.9h3.3v5.1h3.8v-5.1h3.3l-5.2-4.9zm9.3 11.5l-3.2-2.1h-2l3.4 2.6h-3.5c-.1 0-.2.1-.2.1l-.8 2.3h-6l-.8-2.2c-.1-.1-.1-.2-.2-.2h-3.6l3.4-2.6h-2l-3.2 2.1c-.4.3-.7 1-.6 1.5l.6 3.1c.1.5.7.9 1.2.9h16.3c.6 0 1.1-.4 1.3-.9l.6-3.1c.1-.5-.2-1.2-.7-1.5z"></path></svg>
+            {include file='svg_icon.tpl' svgId='add'}
             <span>Выберите файл...</span>
         </label>
     </div>
@@ -882,7 +882,7 @@
                                 <input type=hidden name='images_ids[]' value="{$image->id}">
                             </i>
                         </li>
-                        <li class="fn_new_image_item product_image_item fn_sort_item">
+                        <li class="fn_new_image_item product_image_item fn_sort_item hidden">
                             <button type="button" class="fn_remove_image remove_image"></button>
                             <img src="" alt=""/>
                         </li>
@@ -914,7 +914,7 @@
 
     &#123;/foreach}
 
-    <li class="fn_new_image_item product_image_item fn_sort_item">
+    <li class="fn_new_image_item product_image_item fn_sort_item hidden">
         <button type="button" class="fn_remove_image remove_image"></button>
         <img src="" alt=""/>
     </li>
@@ -926,9 +926,9 @@
                             <div class="mt-2">
                                 <textarea class="fn_code_mirror17">
 $(window).on("load", function() {
-    var image_item_clone = $(".fn_new_image_item").clone(true);
+    var image_item_clone = $(".fn_new_image_item").clone(true).removeClass('hidden');
     $(".fn_new_image_item").remove();
-    var new_image_tem_clone = $(".fn_new_spec_image_item").clone(true);
+    var new_image_tem_clone = $(".fn_new_spec_image_item").clone(true).removeClass('hidden');
     $(".fn_new_spec_image_item").remove();
 
     if(window.File && window.FileReader && window.FileList) {
@@ -941,8 +941,11 @@ $(window).on("load", function() {
         });
 
         function handleFileSelect(evt){
-            let dropInput = $(this).closest(".fn_droplist_wrap").find("input.dropinput.fn_template").clone();
-            dropInput.attr('name', dropInput.data('name')).removeClass('fn_template');
+            let droplistWrap = $(this).closest(".fn_droplist_wrap");
+            droplistWrap.find("input.dropinput").hide();
+            let originalDropInput = droplistWrap.find("input.dropinput.fn_template");
+            let dropInput = originalDropInput.clone().attr('value', originalDropInput.val());
+            dropInput.attr('name', dropInput.data('name')).removeClass('fn_template').show();
             var parent = $(this).closest(".fn_droplist_wrap");
             var files = evt.target.files; // FileList object
             for (var i = 0, f; f = files[i]; i++) {
@@ -968,7 +971,16 @@ $(window).on("load", function() {
             }
             $(".fn_dropzone").removeAttr("style");
         }
-        $(document).on('change','.dropinput',handleFileSelect);
+        $(document).on('change', '.dropinput', handleFileSelect);
+
+        $('.dropinput').each(function () {
+            let droplistWrap = $(this).closest(".fn_droplist_wrap");
+            droplistWrap.find("input.dropinput").hide();
+            let dropInput = droplistWrap.find("input.dropinput.fn_template").clone();
+            dropInput.attr('name', dropInput.data('name')).removeClass('fn_template').show();
+            var parent = $(this).closest(".fn_droplist_wrap");
+            parent.find(".fn_dropzone").append(dropInput);
+        });
     }
     $(document).on("click", ".fn_remove_image", function () {
         $(this).closest("li").remove();
@@ -1492,6 +1504,110 @@ $(window).on("load", function() {
                         next
                     </div>
                 </div>
+                <div class="grid_wrapper__items">
+                    <div class="grid_wrapper__icon">
+                        {include file='svg_icon.tpl' svgId='eye'}
+                    </div>
+                    <div class="grid_wrapper__code">
+                        eye
+                    </div>
+                </div>
+                <div class="grid_wrapper__items">
+                    <div class="grid_wrapper__icon">
+                        {include file='svg_icon.tpl' svgId='winner'}
+                    </div>
+                    <div class="grid_wrapper__code">
+                        winner
+                    </div>
+                </div>
+                <div class="grid_wrapper__items">
+                    <div class="grid_wrapper__icon">
+                        {include file='svg_icon.tpl' svgId='yes_icon'}
+                    </div>
+                    <div class="grid_wrapper__code">
+                        yes_icon
+                    </div>
+                </div>
+                <div class="grid_wrapper__items">
+                    <div class="grid_wrapper__icon">
+                        {include file='svg_icon.tpl' svgId='no_icon'}
+                    </div>
+                    <div class="grid_wrapper__code">
+                        no_icon
+                    </div>
+                </div>
+                <div class="grid_wrapper__items">
+                    <div class="grid_wrapper__icon">
+                        {include file='svg_icon.tpl' svgId='sorts2'}
+                    </div>
+                    <div class="grid_wrapper__code">
+                        sorts2
+                    </div>
+                </div>
+                <div class="grid_wrapper__items">
+                    <div class="grid_wrapper__icon">
+                        {include file='svg_icon.tpl' svgId='video_icon'}
+                    </div>
+                    <div class="grid_wrapper__code">
+                        video_icon
+                    </div>
+                </div>
+                <div class="grid_wrapper__items">
+                    <div class="grid_wrapper__icon">
+                        {include file='svg_icon.tpl' svgId='user2_icon'}
+                    </div>
+                    <div class="grid_wrapper__code">
+                        user2_icon
+                    </div>
+                </div>
+                <div class="grid_wrapper__items">
+                    <div class="grid_wrapper__icon">
+                        {include file='svg_icon.tpl' svgId='modules_icon'}
+                    </div>
+                    <div class="grid_wrapper__code">
+                        modules_icon
+                    </div>
+                </div>
+                <div class="grid_wrapper__items">
+                    <div class="grid_wrapper__icon">
+                        {include file='svg_icon.tpl' svgId='feed_product'}
+                    </div>
+                    <div class="grid_wrapper__code">
+                        feed_product
+                    </div>
+                </div>
+                <div class="grid_wrapper__items">
+                    <div class="grid_wrapper__icon">
+                        {include file='svg_icon.tpl' svgId='feed_features'}
+                    </div>
+                    <div class="grid_wrapper__code">
+                        feed_features
+                    </div>
+                </div>
+                <div class="grid_wrapper__items">
+                    <div class="grid_wrapper__icon">
+                        {include file='svg_icon.tpl' svgId='feed_category'}
+                    </div>
+                    <div class="grid_wrapper__code">
+                        feed_category
+                    </div>
+                </div>
+                <div class="grid_wrapper__items">
+                    <div class="grid_wrapper__icon">
+                        {include file='svg_icon.tpl' svgId='feed_settings'}
+                    </div>
+                    <div class="grid_wrapper__code">
+                        feed_settings
+                    </div>
+                </div>
+                <div class="grid_wrapper__items">
+                    <div class="grid_wrapper__icon">
+                        {include file='svg_icon.tpl' svgId='backup'}
+                    </div>
+                    <div class="grid_wrapper__code">
+                        backup
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1554,9 +1670,9 @@ $(window).on("load", function() {
     });
 
     $(window).on("load", function() {
-        var image_item_clone = $(".fn_new_image_item").clone(true);
+        var image_item_clone = $(".fn_new_image_item").clone(true).removeClass('hidden');
         $(".fn_new_image_item").remove();
-        var new_image_tem_clone = $(".fn_new_spec_image_item").clone(true);
+        var new_image_tem_clone = $(".fn_new_spec_image_item").clone(true).removeClass('hidden');
         $(".fn_new_spec_image_item").remove();
         // Или перетаскиванием
         if(window.File && window.FileReader && window.FileList) {
@@ -1570,8 +1686,11 @@ $(window).on("load", function() {
             });
 
             function handleFileSelect(evt){
-                let dropInput = $(this).closest(".fn_droplist_wrap").find("input.dropinput.fn_template").clone();
-                dropInput.attr('name', dropInput.data('name')).removeClass('fn_template');
+                let droplistWrap = $(this).closest(".fn_droplist_wrap");
+                droplistWrap.find("input.dropinput").hide();
+                let originalDropInput = droplistWrap.find("input.dropinput.fn_template");
+                let dropInput = originalDropInput.clone().attr('value', originalDropInput.val());
+                dropInput.attr('name', dropInput.data('name')).removeClass('fn_template').show();
                 var parent = $(this).closest(".fn_droplist_wrap");
                 var files = evt.target.files; // FileList object
                 // Loop through the FileList and render image files as thumbnails.
@@ -1602,7 +1721,16 @@ $(window).on("load", function() {
                 }
                 $(".fn_dropzone").removeAttr("style");
             }
-            $(document).on('change','.dropinput',handleFileSelect);
+            $(document).on('change', '.dropinput', handleFileSelect);
+
+            $('.dropinput').each(function () {
+                let droplistWrap = $(this).closest(".fn_droplist_wrap");
+                droplistWrap.find("input.dropinput").hide();
+                let dropInput = droplistWrap.find("input.dropinput.fn_template").clone();
+                dropInput.attr('name', dropInput.data('name')).removeClass('fn_template').show();
+                var parent = $(this).closest(".fn_droplist_wrap");
+                parent.find(".fn_dropzone").append(dropInput);
+            });
         }
         $(document).on("click", ".fn_remove_image", function () {
             $(this).closest("li").remove();
@@ -1821,4 +1949,3 @@ $(window).on("load", function() {
     });
 </script>
 {/literal}
-

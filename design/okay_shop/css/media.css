@@ -200,9 +200,9 @@
     background: #f2f2f2;
   }
   .categories_nav
-    .subcategory
-    .categories_menu__item
-    .categories_menu__link:hover {
+  .subcategory
+  .categories_menu__item
+  .categories_menu__link:hover {
     color: var(--okay-basic-company);
     text-decoration: none;
   }
@@ -210,10 +210,10 @@
     background: #fff;
   }
   .categories_nav
-    .level_3
-    .subcategory
-    .categories_menu__item
-    .categories_menu__link:hover {
+  .level_3
+  .subcategory
+  .categories_menu__item
+  .categories_menu__link:hover {
     color: var(--okay-basic-company);
     text-decoration: none;
   }
@@ -1137,6 +1137,9 @@
   .details_boxed__item--one,
   .details_boxed__item {
     padding: 10px;
+  }
+  .details_boxed__item--inner {
+    padding: 0;
   }
   .details_boxed__amount {
     margin-bottom: 10px;

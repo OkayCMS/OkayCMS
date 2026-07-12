@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\GoogleMerchant\Init;
-
 
 use Okay\Admin\Helpers\BackendExportHelper;
 use Okay\Admin\Helpers\BackendImportHelper;
@@ -18,9 +16,9 @@ use Okay\Modules\OkayCMS\GoogleMerchant\Extenders\BackendExtender;
 
 class Init extends AbstractInit
 {
-    const TO_FEED_FIELD = 'to__okaycms__google_merchant';
-    const FILTER_FEEDS  = 'okaycms__google_merchant__feeds';
-    const PERMISSION    = 'okaycms__google_merchant';
+    public const TO_FEED_FIELD = 'to__okaycms__google_merchant';
+    public const FILTER_FEEDS  = 'okaycms__google_merchant__feeds';
+    public const PERMISSION    = 'okaycms__google_merchant';
 
     public function install()
     {
@@ -45,18 +43,19 @@ class Init extends AbstractInit
             $includeField,
         ]);
     }
-    
+
     public function init()
     {
         $this->addPermission(self::PERMISSION);
         $this->registerBackendController('GoogleMerchantAdmin');
         $this->addBackendControllerPermission('GoogleMerchantAdmin', self::PERMISSION);
 
-        $this->addBackendBlock('import_fields_association',
+        $this->addBackendBlock(
+            'import_fields_association',
             'import_fields_association.tpl',
-            function(
+            function (
                 GoogleMerchantFeedsEntity $feedsEntity,
-                Design                    $design
+                Design $design
             ) {
                 $design->assign('googleFeeds', $feedsEntity->find());
             }
@@ -86,7 +85,7 @@ class Init extends AbstractInit
             [BackendImportHelper::class, 'getModulesColumnsNames'],
             [BackendExtender::class, 'getModulesColumnsNames']
         );
-        
+
         $this->registerEntityFilter(
             ProductsEntity::class,
             self::FILTER_FEEDS,
@@ -94,5 +93,4 @@ class Init extends AbstractInit
             self::FILTER_FEEDS
         );
     }
-    
 }

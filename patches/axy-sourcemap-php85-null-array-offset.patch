@@ -1,0 +1,15 @@
+--- a/src/parsing/Line.php
++++ b/src/parsing/Line.php
+@@ -489,10 +489,10 @@ class Line implements LineInterface
+             $generated->column += $dColumn;
+             $fi = $source->fileIndex;
+             $ni = $source->nameIndex;
+-            if ((isset($mSources[$fi])) && ($fi !== null)) {
++            if ($fi !== null && isset($mSources[$fi])) {
+                 $source->fileIndex = $mSources[$fi];
+             }
+-            if ((isset($mNames[$ni])) && ($ni !== null)) {
++            if ($ni !== null && isset($mNames[$ni])) {
+                 $source->nameIndex = $mNames[$ni];
+             }
+             $npos[$generated->column] = $position;

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Image;
@@ -10,7 +8,6 @@ use Okay\Core\Modules\Extender\ExtenderFacade;
 
 class DeliveriesEntity extends Entity
 {
-
     protected static $fields = [
         'id',
         'free_from',
@@ -41,6 +38,11 @@ class DeliveriesEntity extends Entity
 
     public function add($delivery)
     {
+        if (is_array($delivery)) {
+            $delivery = (object)$delivery;
+        }
+
+        /** @var object{price: mixed, free_from: mixed}&\stdClass $delivery */
         if (empty($delivery->price)) {
             $delivery->price = 0.00;
         }
@@ -56,15 +58,15 @@ class DeliveriesEntity extends Entity
     {
         /** @var Image $imageCore */
         $imageCore = $this->serviceLocator->getService(Image::class);
-        
+
         $ids = (array)$ids;
-        
+
         // Удаляем связь доставки с методоми оплаты
         $delete = $this->queryFactory->newDelete();
         $delete->from('__delivery_payment')
             ->where('delivery_id IN (:delivery_id)')
             ->bindValue('delivery_id', $ids);
-        
+
         $this->db->query($delete);
 
         foreach ($ids as $id) {
@@ -76,7 +78,7 @@ class DeliveriesEntity extends Entity
                 $this->config->resized_deliveries_dir
             );
         }
-        
+
         return parent::delete($ids);
     }
 
@@ -87,8 +89,8 @@ class DeliveriesEntity extends Entity
         $select->from('__delivery_payment')
             ->cols(['payment_method_id'])
             ->where('delivery_id = :delivery_id')
-            ->bindValue('delivery_id', $deliveryId);
-        
+            ->bindValue('delivery_id', (int)$deliveryId);
+
         $this->db->query($select);
 
         $results = $this->db->results('payment_method_id');
@@ -96,25 +98,26 @@ class DeliveriesEntity extends Entity
     }
 
     /*Обновление способов оплаты у данного способа доставки*/
+    /**
+     * @param list<int> $paymentMethodsIds
+     */
     public function updateDeliveryPayments($deliveryId, array $paymentMethodsIds)
     {
         $delete = $this->queryFactory->newDelete();
         $delete->from('__delivery_payment')
             ->where('delivery_id = :delivery_id')
-            ->bindValue('delivery_id', $deliveryId);
-        
+            ->bindValue('delivery_id', (int)$deliveryId);
+
         $this->db->query($delete);
-        
-        if (is_array($paymentMethodsIds)) {
-            foreach($paymentMethodsIds as $pId) {
-                $insert = $this->queryFactory->newInsert();
-                $insert->into('__delivery_payment')
-                    ->cols([
-                        'delivery_id' => $deliveryId,
-                        'payment_method_id' => $pId,
-                    ]);
-                $this->db->query($insert);
-            }
+
+        foreach ($paymentMethodsIds as $pId) {
+            $insert = $this->queryFactory->newInsert();
+            $insert->into('__delivery_payment')
+                ->cols([
+                    'delivery_id' => $deliveryId,
+                    'payment_method_id' => $pId,
+                ]);
+            $this->db->query($insert);
         }
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], null, func_get_args());
@@ -131,13 +134,16 @@ class DeliveriesEntity extends Entity
         $this->db->query($select);
         $result = $this->db->result('settings');
         $settings = [];
-        if (!empty($result)) {
+        if (!empty($result) && is_string($result)) {
             $settings = unserialize($result);
         }
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], $settings, func_get_args());
     }
 
+    /**
+     * @param array<string, mixed> $settings serialized delivery settings payload
+     */
     public function updateSettings($deliveryId, array $settings)
     {
         $settings = serialize($settings);
@@ -150,5 +156,4 @@ class DeliveriesEntity extends Entity
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], $deliveryId, func_get_args());
     }
-    
 }

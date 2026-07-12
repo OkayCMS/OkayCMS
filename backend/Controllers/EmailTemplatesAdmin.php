@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Admin\Helpers\BackendNotifyHelper;
 use Okay\Core\Notify;
@@ -13,15 +11,13 @@ use Okay\Entities\ManagersEntity;
 
 class EmailTemplatesAdmin extends IndexAdmin
 {
-
     /*Чтение файлов шаблона*/
     public function fetch(
-        Notify               $notify,
-        BackendNotifyHelper  $notifyHelper,
-        ManagersEntity       $managersEntity,
-        QueryFactory         $queryFactory
-    )
-    {
+        Notify $notify,
+        BackendNotifyHelper $notifyHelper,
+        ManagersEntity $managersEntity,
+        QueryFactory $queryFactory
+    ) {
         if ($debugEmail = $this->request->get('debug')) {
             switch ($debugEmail) {
                 case 'emailOrderAdmin':
@@ -52,16 +48,16 @@ class EmailTemplatesAdmin extends IndexAdmin
                     //  если не указан конкрентый id тогда чтобы отобразить верстку шаблона производится поиск первого
                     if (empty($commentAnswerPostId = $this->request->get('comment_id', 'integer'))) {
                         $commentAnswerId = $queryFactory->newSelect()
-                            ->from(CommentsEntity::getTable().' AS c1')
+                            ->from(CommentsEntity::getTable() . ' AS c1')
                             ->cols(['c1.*'])
-                            ->join('left', CommentsEntity::getTable().' AS c2', 'c1.parent_id = c2.id')
+                            ->join('left', CommentsEntity::getTable() . ' AS c2', 'c1.parent_id = c2.id')
                             ->where('c2.id IS NOT NULL')
                             ->where("c2.email != ''")
                             ->result('id');
                     } else {
                         //  проверяем существует ли такой дочерний комментарий
                         $commentAnswerId = $queryFactory->newSelect()
-                            ->from(CommentsEntity::getTable().' AS c')
+                            ->from(CommentsEntity::getTable() . ' AS c')
                             ->cols(['id'])
                             ->where('id = :id')
                             ->where('parent_id > 0')
@@ -87,16 +83,16 @@ class EmailTemplatesAdmin extends IndexAdmin
                     //  если не указан конкрентый id тогда чтобы отобразить верстку шаблона производится поиск первого
                     if (empty($feedbackAnswerPostId = $this->request->get('feedback_id', 'integer'))) {
                         $feedbackAnswerId = $queryFactory->newSelect()
-                            ->from(FeedbacksEntity::getTable().' AS f1')
+                            ->from(FeedbacksEntity::getTable() . ' AS f1')
                             ->cols(['f1.*'])
-                            ->join('left', FeedbacksEntity::getTable().' AS f2', 'f1.parent_id = f2.id')
+                            ->join('left', FeedbacksEntity::getTable() . ' AS f2', 'f1.parent_id = f2.id')
                             ->where('f2.id IS NOT NULL')
                             ->where("f2.email != ''")
                             ->result('id');
                     } else {
                         //  проверяем существует ли такой дочерний feedback
                         $feedbackAnswerId = $queryFactory->newSelect()
-                            ->from(FeedbacksEntity::getTable().' AS f')
+                            ->from(FeedbacksEntity::getTable() . ' AS f')
                             ->cols(['id'])
                             ->where('id = :id')
                             ->where('parent_id > 0')
@@ -130,5 +126,4 @@ class EmailTemplatesAdmin extends IndexAdmin
             $this->response->setContent($this->design->fetch('email_templates_global.tpl'));
         }
     }
-    
 }

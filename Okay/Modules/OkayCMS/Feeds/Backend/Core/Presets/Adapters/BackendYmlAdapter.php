@@ -19,11 +19,11 @@ class BackendYmlAdapter extends AbstractBackendPresetAdapter
     protected $featuresEntity;
 
     public function __construct(
-        Design         $design,
-        Request        $request,
-        DesignBlocks   $designBlocks,
+        Design $design,
+        Request $request,
+        DesignBlocks $designBlocks,
         FeaturesEntity $featuresEntity
-    ){
+    ) {
         parent::__construct(...func_get_args());
 
         $this->featuresEntity = $featuresEntity;
@@ -51,11 +51,11 @@ class BackendYmlAdapter extends AbstractBackendPresetAdapter
             'price_change' => $postSettings['price_change'],
             'feed_name' => $postSettings['feed_name'],
             'filter_price' => [
-                'operator' => $postSettings['filter_price']['operator'],
+                'operator' => $this->normalizeComparisonOperator($postSettings['filter_price']['operator'] ?? null),
                 'value' => $postSettings['filter_price']['value'] === '' ? null : (float) str_replace(',', '.', $postSettings['filter_price']['value']),
             ],
             'filter_stock' => [
-                'operator' => $postSettings['filter_stock']['operator'],
+                'operator' => $this->normalizeComparisonOperator($postSettings['filter_stock']['operator'] ?? null),
                 'value' => $postSettings['filter_stock']['value'] === '' ? null : (float) str_replace(',', '.', $postSettings['filter_stock']['value']),
             ],
         ];

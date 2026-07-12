@@ -1,0 +1,62 @@
+name: PHP Quality
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+      - "fix/**"
+      - "feat/**"
+      - "test/**"
+      - "chore/**"
+  pull_request:
+    branches:
+      - develop
+      - main
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: PHP 8.5 quality gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup PHP 8.5
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          extensions: pdo, pdo_mysql, mbstring, xml, curl, zip, gd, intl, simplexml
+          ini-values: memory_limit=512M
+          coverage: none
+
+      - name: Cache Composer packages
+        uses: actions/cache@v5
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-8.5-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-8.5-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Composer metadata
+        run: composer check:composer
+
+      - name: Dependency security audit
+        run: composer security:audit
+
+      - name: Code style
+        run: composer lint:style
+
+      - name: Static analysis
+        run: composer analyze:static
+
+      - name: Unit tests
+        run: composer test:unit

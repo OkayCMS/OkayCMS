@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Helpers;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\Extender\ExtenderFacade;
@@ -11,12 +9,11 @@ use Okay\Entities\MenuItemsEntity;
 
 class BackendMenuHelper
 {
-    
     private $entityFactory;
 
     /** @var MenuEntity */
     private $menuEntity;
-    
+
     public function __construct(EntityFactory $entityFactory)
     {
         $this->entityFactory = $entityFactory;
@@ -28,7 +25,7 @@ class BackendMenuHelper
         $filter = [];
         return ExtenderFacade::execute(__METHOD__, $filter, func_get_args());
     }
-    
+
     public function getMenu($id)
     {
         $menu = $this->menuEntity->findOne(['id' => $id]);
@@ -63,7 +60,7 @@ class BackendMenuHelper
     {
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
-    
+
     public function prepareAdd($menu)
     {
         return ExtenderFacade::execute(__METHOD__, $menu, func_get_args());
@@ -79,15 +76,15 @@ class BackendMenuHelper
     {
         return ExtenderFacade::execute(__METHOD__, $menu, func_get_args());
     }
-    
+
     public function update($menu)
     {
         if (empty($menu->id)) {
             return ExtenderFacade::execute(__METHOD__, false, func_get_args());
         }
-        
+
         $this->menuEntity->update($menu->id, $menu);
-        
+
         return ExtenderFacade::execute(__METHOD__, $menu, func_get_args());
     }
 
@@ -108,7 +105,7 @@ class BackendMenuHelper
     {
         return ExtenderFacade::execute(__METHOD__, $item, func_get_args());
     }
-    
+
     public function updateMenuItem($item)
     {
         if (empty($item->id)) {
@@ -118,10 +115,10 @@ class BackendMenuHelper
         /** @var MenuItemsEntity $menuItemsEntity */
         $menuItemsEntity = $this->entityFactory->get(MenuItemsEntity::class);
         $menuItemsEntity->update($item->id, $item);
-        
+
         return ExtenderFacade::execute(__METHOD__, $item, func_get_args());
     }
-    
+
     public function getMenuItemsTree($menuId)
     {
         /** @var MenuItemsEntity $menuItemsEntity */
@@ -129,7 +126,7 @@ class BackendMenuHelper
         $menuItemsTree = $menuItemsEntity->getMenuItemsTree((int)$menuId);
         return ExtenderFacade::execute(__METHOD__, $menuItemsTree, func_get_args());
     }
-    
+
     public function buildTree($items)
     {
         $tree = new \stdClass();
@@ -154,10 +151,12 @@ class BackendMenuHelper
                     $flag = true;
                 }
             }
-            if (!$flag) $finish = true;
+            if (!$flag) {
+                $finish = true;
+            }
         }
         unset($pointers[0]);
-        
+
         return ExtenderFacade::execute(__METHOD__, $tree->submenus, func_get_args());
     }
 }

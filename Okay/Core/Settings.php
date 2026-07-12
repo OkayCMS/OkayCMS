@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 /**
  * Управление настройками магазина, хранящимися в базе данных
@@ -10,10 +8,9 @@ namespace Okay\Core;
  */
 class Settings
 {
-    
     private $vars;
     private $vars_lang;
-    
+
     /**
      * @var Database
      */
@@ -36,7 +33,7 @@ class Settings
         $this->queryFactory = $queryFactory;
         $this->initSettings();
     }
-    
+
     public function get($param)
     {
         if (isset($this->vars_lang[$param])) {
@@ -47,25 +44,25 @@ class Settings
             return null;
         }
     }
-    
+
     public function has($param)
     {
         return isset($this->vars_lang[$param]) || isset($this->vars[$param]);
     }
-    
+
     public function set($param, $value)
     {
         if (isset($this->vars_lang[$param])) {
             return;
         }
-        
-        if(is_array($value)) {
+
+        if (is_array($value)) {
             $valuePrepared = serialize($value);
         } else {
             $valuePrepared = (string) $value;
         }
-        
-        if(!isset($this->vars[$param])) {
+
+        if (!isset($this->vars[$param])) {
             $insert = $this->queryFactory->newInsert();
             $insert->into('__settings')
                 ->cols([
@@ -86,7 +83,7 @@ class Settings
 
         $this->vars[$param] = $value;
     }
-    
+
     public function __get($param)
     {
         return $this->get($param);
@@ -103,12 +100,13 @@ class Settings
     {
         // Выбираем из базы ОБЩИЕ настройки и записываем их в переменную
         $this->vars = [];
-        
+
         $select = $this->queryFactory->newSelect();
-        
+
         $this->db->query($select->cols(['param', 'value'])->from('__settings'));
-        foreach($this->db->results() as $result) {
-            $this->vars[$result->param] = $this->unserialize($result->value, $result->value);;
+        foreach ($this->db->results() as $result) {
+            $this->vars[$result->param] = $this->unserialize($result->value, $result->value);
+            ;
         }
 
         // Выбираем из базы настройки с переводами к текущему языку
@@ -124,14 +122,14 @@ class Settings
     private function unserialize($value, $default = false)
     {
         $success = true;
-        set_error_handler(function () use (&$success) {
+        set_error_handler(function ($errno, $errstr, $errfile, $errline) use (&$success) {
             $success = false;
         });
         $original = unserialize($value);
         restore_error_handler();
         return $success ? $original : $default;
     }
-    
+
     /**
      * Adding a new setting for all languages
      * @param string $param
@@ -146,10 +144,9 @@ class Settings
             ->cols(['id']);
         $this->db->query($select);
         $languagesIds = $this->db->results('id');
-        
+
         if (!empty($languagesIds)) {
             foreach ($languagesIds as $lId) {
-
                 $delete = $this->queryFactory->newDelete();
                 $delete->from('__settings_lang')
                     ->where('param =:param')
@@ -158,7 +155,7 @@ class Settings
                     ->bindValue('lang_id', $lId);
 
                 $this->db->query($delete);
-                
+
                 $insert = $this->queryFactory->newInsert();
                 $insert->into('__settings_lang')
                     ->cols([
@@ -168,7 +165,6 @@ class Settings
                     ]);
 
                 $this->db->query($insert);
-                
             }
         } else {
             $delete = $this->queryFactory->newDelete();
@@ -215,7 +211,7 @@ class Settings
             ->where('param = :param')
             ->bindValue('param', $param)
             ->limit(1);
-        
+
         $this->db->query($select);
         if (!$this->db->result()) {
             return $this->add($param, $value);
@@ -224,7 +220,7 @@ class Settings
             $delete->from('__settings_lang')
                 ->where('param =:param')
                 ->bindValue('param', $param);
-                
+
             $insert = $this->queryFactory->newInsert();
             $insert->into('__settings_lang')
                 ->cols([
@@ -240,7 +236,7 @@ class Settings
 
             $this->db->query($delete);
             $this->db->query($insert);
-            
+
             return true;
         }
     }
@@ -249,8 +245,8 @@ class Settings
      * Getting settings.
      * if $langId is not specified, a current language will be returned.
      * $langId = 0 is wrong, will be returned false.
-     * @param int $langId
-     * @return array|bool
+     * @param int|null $langId
+     * @return array<int|string, mixed>|false
      * @throws \Exception
      */
     public function getSettings($langId = null)
@@ -261,7 +257,7 @@ class Settings
             ->where("id=" . (int)$langId)
             ->limit(1);
         $this->db->query($select);
-        
+
         if (!is_null($langId) && !$this->db->results('id')) {
             return false;
         }
@@ -269,14 +265,13 @@ class Settings
         $select = $this->queryFactory->newSelect();
         $select->from('__settings_lang')
             ->cols(['*']);
-        
+
         $langId  = !is_null($langId) ? $langId : $this->languages->getLangId();
-        if($langId) {
+        if ($langId) {
             $select->where('lang_id=:action_object_lang_id');
-            $select->bindValues(['action_object_lang_id'=>$langId]);
+            $select->bindValues(['action_object_lang_id' => $langId]);
         }
         $this->db->query($select);
         return $this->db->results();
     }
-
 }

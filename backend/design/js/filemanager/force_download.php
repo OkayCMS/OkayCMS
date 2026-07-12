@@ -3,6 +3,7 @@
 $config = include 'config/config.php';
 
 include 'include/utils.php';
+require_once 'include/okay_access.php';
 include 'include/mime_type_lib.php';
 
 if ($_SESSION['RF']["verify"] != "RESPONSIVEfilemanager") {
@@ -10,12 +11,14 @@ if ($_SESSION['RF']["verify"] != "RESPONSIVEfilemanager") {
     exit;
 }
 
-if (!checkRelativePath($_POST['path']) || strpos($_POST['path'], '/') === 0) {
+$relativePath = normalizeFilemanagerRelativePath($_POST['path']);
+if ($relativePath === null) {
     response(trans('wrong path') . AddErrorLocation(), 400)->send();
     exit;
 }
 
-if (strpos($_POST['name'], '/') !== false) {
+$name = fix_filename($_POST['name'], $config);
+if ($name === '' || !checkRelativePath($name) || strpos($name, '/') !== false || strpos($name, '\\') !== false) {
     response(trans('wrong path') . AddErrorLocation(), 400)->send();
     exit;
 }
@@ -23,21 +26,26 @@ if (strpos($_POST['name'], '/') !== false) {
 $ftp = ftp_con($config);
 
 if ($ftp) {
-    $path = $config['ftp_base_url'] . $config['upload_dir'] . $_POST['path'];
+    $path = $config['ftp_base_url'] . $config['upload_dir'] . $relativePath;
 } else {
-    $path = $config['current_path'] . $_POST['path'];
+    $resolvedPath = resolveFilemanagerPath($config['current_path'], $relativePath);
+    if ($resolvedPath === null) {
+        http_response_code(400);
+        exit(trans('wrong path') . AddErrorLocation());
+    }
+    $path = rtrim($resolvedPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 }
 
-$name = $_POST['name'];
 $info = pathinfo($name);
+$extension = $info['extension'] ?? '';
 
-if (!check_extension($info['extension'], $config)) {
+if (!check_extension($extension, $config)) {
     response(trans('wrong extension') . AddErrorLocation(), 400)->send();
     exit;
 }
 
 $file_name = $info['basename'];
-$file_ext = $info['extension'];
+$file_ext = $extension;
 $file_path = $path . $name;
 
 
@@ -61,9 +69,12 @@ if ($ftp) {
         $mime_type = mime_content_type($file_path);
     } elseif (function_exists('finfo_open')) {
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime_type = finfo_file($finfo, $file_path);
+        $mime_type = $finfo === false ? false : finfo_file($finfo, $file_path);
     } else {
         $mime_type = get_file_mime_type($file_path);
+    }
+    if ($mime_type === false) {
+        $mime_type = 'application/octet-stream';
     }
 
 
@@ -104,11 +115,15 @@ if ($ftp) {
             fseek($file, $range);
         }
 
-        while (!feof($file) &&
+        while (
+            !feof($file) &&
             (!connection_aborted()) &&
             ($bytes_send < $new_length)
         ) {
             $buffer = fread($file, $chunksize);
+            if ($buffer === false) {
+                break;
+            }
             echo $buffer;
             flush();
             $bytes_send += strlen($buffer);

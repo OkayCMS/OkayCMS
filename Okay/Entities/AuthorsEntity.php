@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Translit;
@@ -10,7 +8,6 @@ use Okay\Core\Image;
 
 class AuthorsEntity extends Entity
 {
-    
     protected static $fields = [
         'id',
         'url',
@@ -44,14 +41,14 @@ class AuthorsEntity extends Entity
     protected static $langTable = 'authors';
     protected static $tableAlias = 'a';
     protected static $alternativeIdField = 'url';
-    
+
     public function find(array $filter = [])
     {
         $this->select->distinct(true);
         $this->select->join('left', '__blog AS b', 'b.author_id=a.id');
         return parent::find($filter);
     }
-    
+
     public function count(array $filter = [])
     {
         $this->select->join('left', '__blog AS b', 'b.author_id=a.id');
@@ -62,7 +59,7 @@ class AuthorsEntity extends Entity
     {
         $this->select->where('p.visible = ' . (int)$postVisible);
     }
-    
+
     protected function filter__post_id($postsIds)
     {
         $this->select->where('b.id IN (:post_id)');
@@ -75,6 +72,7 @@ class AuthorsEntity extends Entity
         $translit = $this->serviceLocator->getService(Translit::class);
 
         $author = (object)$author;
+        /** @var object{name: string, url?: string|null}&\stdClass $author */
         if (empty($author->url)) {
             $author->url = $translit->translit($author->name);
             $author->url = str_replace('.', '', $author->url);
@@ -83,10 +81,10 @@ class AuthorsEntity extends Entity
         $author->url = preg_replace("/[\s]+/ui", '', $author->url);
 
         while ($this->findOne(['url' => $author->url])) {
-            if(preg_match('/(.+)([0-9]+)$/', $author->url, $parts)) {
-                $author->url = $parts[1].''.($parts[2]+1);
+            if (preg_match('/(.+)([0-9]+)$/', $author->url, $parts)) {
+                $author->url = $parts[1] . '' . ($parts[2] + 1);
             } else {
-                $author->url = $author->url.'2';
+                $author->url = $author->url . '2';
             }
         }
 
@@ -125,6 +123,10 @@ class AuthorsEntity extends Entity
     public function duplicate($authorId)
     {
         $author = $this->findOne(['id' => $authorId]);
+        if ($author === false) {
+            return false;
+        }
+        /** @var object{position: int|string|float}&\stdClass $author */
 
         //Запоминаем текущую позицию, на нее станет новая запись
         $position = $author->position;
@@ -134,7 +136,7 @@ class AuthorsEntity extends Entity
         $fields = array_merge($this->getFields(), $this->getLangFields());
 
         foreach ($fields as $field) {
-            if (property_exists($author, $field)) {
+            if (!empty($field) && property_exists($author, $field)) {
                 $newAuthor->$field = $author->$field;
             }
         }
@@ -167,7 +169,8 @@ class AuthorsEntity extends Entity
         return $newAuthorId;
     }
 
-    private function multiDuplicateAuthor($authorId, $newAuthorId) {
+    private function multiDuplicateAuthor($authorId, $newAuthorId)
+    {
         $langId = $this->lang->getLangId();
         if (!empty($langId)) {
 
@@ -184,7 +187,7 @@ class AuthorsEntity extends Entity
                     if (!empty($authorLangFields)) {
                         $sourceAuthor = $this->findOne(['id' => $authorId]);
                         $destinationAuthor = new \stdClass();
-                        foreach($authorLangFields as $field) {
+                        foreach ($authorLangFields as $field) {
                             $destinationAuthor->{$field} = $sourceAuthor->{$field};
                         }
                         $this->update($newAuthorId, $destinationAuthor);
@@ -195,5 +198,4 @@ class AuthorsEntity extends Entity
             }
         }
     }
-    
 }

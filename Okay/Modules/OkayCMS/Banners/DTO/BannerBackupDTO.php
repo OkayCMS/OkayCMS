@@ -7,6 +7,9 @@ class BannerBackupDTO implements \JsonSerializable
     private string $name;
     private string $groupName;
     private bool $asIndividualShortcode = false;
+    /**
+     * @var string[]
+     */
     private ?array $pages = null;
     private BannerSettingsDTO $settings;
 
@@ -80,7 +83,7 @@ class BannerBackupDTO implements \JsonSerializable
     }
 
     /**
-     * @return array
+     * @return BannerImageBackupDTO[]
      */
     public function getBannerImageBackupDTO(): array
     {
@@ -88,7 +91,7 @@ class BannerBackupDTO implements \JsonSerializable
     }
 
     /**
-     * @return null|array
+     * @return string[]|null
      */
     public function getPages(): ?array
     {
@@ -111,11 +114,15 @@ class BannerBackupDTO implements \JsonSerializable
         $this->bannerImages[] = $bannerImageBackupDTO;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return get_object_vars($this);
     }
 
+    /**
+     * @param array<string, mixed> $array
+     */
     public function fromArray(array $array)
     {
         $this->setName($array['name'] ?? '');

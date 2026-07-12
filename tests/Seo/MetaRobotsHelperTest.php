@@ -2,32 +2,22 @@
 
 namespace Seo;
 
+require_once __DIR__ . '/../../Okay/Core/config/constants.php';
+
 use Okay\Helpers\MetaRobotsHelper;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
 class MetaRobotsHelperTest extends TestCase
 {
 
-    public function __construct($name = null, array $data = [], $dataName = '')
-    {
-        parent::__construct($name, $data, $dataName);
-        require_once 'Okay/Core/config/constants.php';
-    }
-
-    /**
-     * @param array $robotsSettings
-     * @param array $otherFilters
-     * @param $expectedResult
-     * @dataProvider getBaseCatalogOtherFiltersDataProvider
-     *
-     */
+    #[DataProvider('getBaseCatalogOtherFiltersDataProvider')]
     public function testGetBaseCatalogRobots(array $robotsSettings, array $otherFilters, $expectedResult)
     {
         // Т.к. метод приватный, доступ к нему получаем через рефлексию
         $reflector = new \ReflectionClass(MetaRobotsHelper::class);
         $method = $reflector->getMethod('getBaseCatalogRobots');
-        $method->setAccessible(true);
 
         $metaRobotsHelper = new MetaRobotsHelper;
 
@@ -39,11 +29,7 @@ class MetaRobotsHelperTest extends TestCase
         $this->assertEquals($expectedResult, $actualResult);
     }
 
-    /**
-     * @param array $features
-     * @param string $expectedExceptionMessage
-     * @dataProvider setAvailableFeaturesDataProvider
-     */
+    #[DataProvider('setAvailableFeaturesDataProvider')]
     public function testSetAvailableFeatures(array $features, string $expectedExceptionMessage)
     {
         $metaRobotsHelper = new MetaRobotsHelper;
@@ -57,18 +43,7 @@ class MetaRobotsHelperTest extends TestCase
         $this->assertEquals($actualResult, $expectedExceptionMessage);
     }
 
-    /**
-     * Интеграционный тест, проверяет как сработает полное определение robots для категории
-     * 
-     * @param array $robotsSettings
-     * @param $page
-     * @param array $otherFilters
-     * @param array $featuresFilter
-     * @param array $brandsFilter
-     * @param $expectedResult
-     * @throws Exception
-     * @dataProvider getCatalogPaginationFullFiltersDataProvider
-     */
+    #[DataProvider('getCatalogPaginationFullFiltersDataProvider')]
     public function testGetCatalogRobots(array $robotsSettings, $page, array $otherFilters, array $featuresFilter, array $brandsFilter, $expectedResult)
     {
         $metaRobotsHelper = new MetaRobotsHelper;
@@ -182,20 +157,12 @@ class MetaRobotsHelperTest extends TestCase
         $this->assertEquals($expectedResult, $actualResult);
     }
 
-    /**
-     * @param array $robotsSettings
-     * @param array $featuresFilter
-     * @param array $brandsFilter
-     * @param array|false $expectedResult
-     * @throws \ReflectionException
-     * @dataProvider getCatalogFeaturesFilterDataProvider
-     */
+    #[DataProvider('getCatalogFeaturesFilterDataProvider')]
     public function testGetCatalogRobotsExecutor(array $robotsSettings, array $featuresFilter, array $brandsFilter, $expectedResult)
     {
         // Т.к. метод приватный, доступ к нему получаем через рефлексию
         $reflector = new \ReflectionClass(MetaRobotsHelper::class);
         $method = $reflector->getMethod('getCatalogRobotsExecutor');
-        $method->setAccessible(true);
 
         $metaRobotsHelper = new MetaRobotsHelper;
 
@@ -206,7 +173,7 @@ class MetaRobotsHelperTest extends TestCase
         $this->assertEquals($expectedResult, $actualResult);
     }
 
-    public function getCatalogFeaturesFilterDataProvider() : array
+    public static function getCatalogFeaturesFilterDataProvider() : array
     {
         return [
             [
@@ -334,8 +301,8 @@ class MetaRobotsHelperTest extends TestCase
             ],
         ];
     }
-    
-    public function getBaseCatalogOtherFiltersDataProvider() : array
+
+    public static function getBaseCatalogOtherFiltersDataProvider() : array
     {
         return [
             [
@@ -442,7 +409,7 @@ class MetaRobotsHelperTest extends TestCase
      * Немного кейсов определения robots в категории при разных условиях
      * @return array[]
      */
-    public function getCatalogPaginationFullFiltersDataProvider() : array
+    public static function getCatalogPaginationFullFiltersDataProvider() : array
     {
         return [
             [
@@ -951,8 +918,8 @@ class MetaRobotsHelperTest extends TestCase
             ],
         ];
     }
-    
-    public function setAvailableFeaturesDataProvider() : array
+
+    public static function setAvailableFeaturesDataProvider() : array
     {
         return [
             [
@@ -1013,5 +980,5 @@ class MetaRobotsHelperTest extends TestCase
             ],
         ];
     }
-    
+
 }

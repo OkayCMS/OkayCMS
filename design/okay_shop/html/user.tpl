@@ -74,6 +74,7 @@
                     <div class="block block--boxed block--border mobile_tab__content">
                         <div class="block__inner">
                             <form method="post" class="fn_validate_register">
+                                <input type="hidden" name="customer_csrf_token" value="{$customer_csrf_token|escape}">
                                 {if $user_updated}
                                     <div class="message_success">
                                         {include file="svg.tpl" svgId="success_icon"}
@@ -93,7 +94,7 @@
                                             <div class="form__body">
                                                 {* Form error messages *}
                                                 {if $error}
-                                                <div class="message_error">
+                                                <div class="message_error" role="alert">
                                                     {if $error == 'empty_name'}
                                                         <span data-language="form_enter_name">{$lang->form_enter_name}</span>
                                                     {elseif $error == 'empty_email'}
@@ -102,6 +103,12 @@
                                                         <span data-language="form_enter_password">{$lang->form_enter_password}</span>
                                                     {elseif $error == 'user_exists'}
                                                         <span data-language="register_user_registered">{$lang->register_user_registered}</span>
+                                                    {elseif $error == 'password_wrong'}
+                                                        <span data-language="password_remind_password_wrong">{$lang->password_remind_password_wrong}</span>
+                                                    {elseif $error == 'password_current_wrong'}
+                                                        <span data-language="user_current_password_wrong">{$lang->user_current_password_wrong}</span>
+                                                    {elseif $error == 'csrf'}
+                                                        <span data-language="form_error_csrf">{$lang->form_error_csrf}</span>
                                                     {else}
                                                         {$error|escape}
                                                     {/if}
@@ -140,11 +147,24 @@
                                                     <div class="f_col-md-12">
                                                         {* User's password *}
                                                         <div class="form__group">
-                                                            <p class="change_pass" onclick="$('#fn_password').toggle().prop('type', 'password').prop('name', 'password');return false;">
+                                                            <p class="change_pass" onclick="$('.fn_password_change').toggle();return false;">
                                                                 <span data-language="user_change_password">{$lang->user_change_password}</span>
                                                                 {include file="svg.tpl" svgId="arrow_right2"}
                                                             </p>
-                                                            <input class="form__input form__placeholder--focus " id="fn_password" value="" name="" type="" style="display:none;" {*placeholder="{$lang->user_change_password}"*}/>
+                                                            <div class="fn_password_change" style="display:none;">
+                                                                <div class="form__group">
+                                                                    <input class="form__input form__placeholder--focus" value="" name="current_password" type="password" autocomplete="current-password" data-language="form_password" />
+                                                                    <span class="form__placeholder">{$lang->form_password}*</span>
+                                                                </div>
+                                                                <div class="form__group">
+                                                                    <input class="form__input form__placeholder--focus" value="" name="new_password" type="password" autocomplete="new-password" data-language="password_remind_new_password" />
+                                                                    <span class="form__placeholder">{$lang->password_remind_new_password}*</span>
+                                                                </div>
+                                                                <div class="form__group">
+                                                                    <input class="form__input form__placeholder--focus" value="" name="new_password_check" type="password" autocomplete="new-password" data-language="password_remind_new_password_check" />
+                                                                    <span class="form__placeholder">{$lang->password_remind_new_password_check}*</span>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div class="f_col-md-12 form__group hidden-sm-down">
@@ -242,7 +262,7 @@
                                                             <div class="purchase__name">
                                                                 <a class="purchase__name_link" href="{url_generator route="product" url=$purchase->product->url}">{$purchase->product_name|escape}</a>
                                                                 <i>{$purchase->variant_name|escape}</i>
-                                                                {if !$order->closed && $purchase->variant->stock == 0}<span class="preorder_label">{$lang->product_pre_order}</span>{/if}
+                                                                {if !$order->closed && $purchase->variant->stock_status == 'backorder'}<span class="preorder_label">{$lang->product_backorder}</span>{/if}
                     
                                                             </div>
                                                             <div class="purchase__group">

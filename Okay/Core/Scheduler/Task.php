@@ -18,7 +18,7 @@ class Task
     /** @var int */
     private $id;
 
-    /** @var string|array */
+    /** @var string|array<int, mixed>|\Closure */
     private $command;
 
     /** @var CronExpression */
@@ -42,8 +42,8 @@ class Task
         int $timout,
         ?string $name,
         bool $overlap,
-        LockInterface $lock)
-    {
+        LockInterface $lock
+    ) {
         $this->id       = self::$tasksCounter++;
         $this->command  = $command;
         $this->schedule = new CronExpression($time);
@@ -57,38 +57,50 @@ class Task
     {
         $this->lock->acquire();
 
-        $serviceLocator = ServiceLocator::getInstance();
+        try {
+            $serviceLocator = ServiceLocator::getInstance();
 
-        if (is_string($this->command)) {
-            exec($this->command);
-        } elseif (is_array($this->command)) {
-            $reflection = new \ReflectionMethod($this->command[0], $this->command[1]);
+            if (is_string($this->command)) {
+                exec($this->command);
+            } elseif (is_array($this->command)) {
+                $commandClass = $this->command[0] ?? null;
+                $commandMethod = $this->command[1] ?? null;
+                if ((!is_string($commandClass) && !is_object($commandClass)) || !is_string($commandMethod)) {
+                    throw new \Exception('The command is not callable');
+                }
 
-            if ($reflection->isStatic() || is_object($this->command[0])) {
-                $command = $this->command;
-            } elseif ($serviceLocator->hasService($this->command[0])) {
-                $command = [
-                    $serviceLocator->getService($this->command[0]),
-                    $this->command[1]
-                ];
+                $reflection = new \ReflectionMethod($commandClass, $commandMethod);
+
+                if ($reflection->isStatic() || is_object($commandClass)) {
+                    $command = [$commandClass, $commandMethod];
+                } elseif ($serviceLocator->hasService($commandClass)) {
+                    $command = [
+                        $serviceLocator->getService($commandClass),
+                        $commandMethod
+                    ];
+                } else {
+                    $command = [
+                        new $commandClass(),
+                        $commandMethod
+                    ];
+                }
+
+                if (!is_callable($command)) {
+                    throw new \Exception('The command is not callable');
+                }
+
+                call_user_func_array($command, $this->getMethodArguments($reflection));
+            } elseif ($this->command instanceof \Closure) {
+                $reflection = new \ReflectionFunction($this->command);
+
+                call_user_func_array($this->command, $this->getMethodArguments($reflection));
             } else {
-                $command = [
-                    new $this->command[0](),
-                    $this->command[1]
-                ];
+                throw new \Exception('The command is not callable');
             }
-
-            call_user_func_array($command, $this->getMethodArguments($reflection));
-        } elseif ($this->command instanceof \Closure) {
-            $reflection = new \ReflectionFunction($this->command);
-
-            call_user_func_array($this->command, $this->getMethodArguments($reflection));
-        } else {
-            throw new \Exception('The command is not callable');
-        }
-
-        if ($this->lock->isAcquired()) {
-            $this->lock->release();
+        } finally {
+            if ($this->lock->isAcquired()) {
+                $this->lock->release();
+            }
         }
     }
 

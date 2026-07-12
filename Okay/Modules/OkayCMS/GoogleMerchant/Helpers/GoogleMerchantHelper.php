@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\GoogleMerchant\Helpers;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Image;
@@ -22,6 +20,27 @@ use Okay\Helpers\XmlFeedHelper;
 use Okay\Core\QueryFactory\Select;
 use Okay\Modules\OkayCMS\GoogleMerchant\Entities\GoogleMerchantRelationsEntity;
 
+/**
+ * @phpstan-type CurrencyRow object{id: int|string, code: string, rate_from: int|float, rate_to: int|float}
+ * @phpstan-type CategoryRow object{path: list<object{name: string}>}
+ * @phpstan-type FeedProductRow \stdClass&object{
+ *     product_name: string,
+ *     variant_name?: string|null,
+ *     url: string,
+ *     slug_url: string,
+ *     variant_id: int|string,
+ *     description: string,
+ *     sku?: string|null,
+ *     price: int|float,
+ *     compare_price: int|float,
+ *     currency_id: int|string|null,
+ *     stock: int|float|string|null,
+ *     brand_name?: string|null,
+ *     main_category_id: int|string,
+ *     images?: list<string>,
+ *     features?: array<int|string, array{name: string, values: list<string>, values_string: string}>
+ * }
+ */
 class GoogleMerchantHelper
 {
     /** @var Settings */
@@ -43,17 +62,20 @@ class GoogleMerchantHelper
     private $money;
 
 
+    /** @var CurrencyRow */
     private $mainCurrency;
+
+    /** @var array<int|string, CurrencyRow> */
     private $allCurrencies;
 
     public function __construct(
-        Settings      $settings,
-        Languages     $languages,
-        QueryFactory  $queryFactory,
+        Settings $settings,
+        Languages $languages,
+        QueryFactory $queryFactory,
         XmlFeedHelper $feedHelper,
         EntityFactory $entityFactory,
-        Image         $image,
-        Money         $money
+        Image $image,
+        Money $money
     ) {
         $this->settings     = $settings;
         $this->languages    = $languages;
@@ -77,10 +99,9 @@ class GoogleMerchantHelper
      * который формируется методом getSubSelect()
      *
      * @param string|integer $feedId
-     * @param array $uploadCategories
-     * @return Select
+     * @param array<int|string, int|string> $uploadCategories
      */
-    public function getQuery($feedId, $uploadCategories = []) : Select
+    public function getQuery($feedId, $uploadCategories = []): Select
     {
         $subSelect = $this->getSubSelect($feedId, $uploadCategories);
         if ($this->settings->get('okaycms__google_merchant__use_full_description_to_google')) {
@@ -97,9 +118,9 @@ class GoogleMerchantHelper
             'lb.name as brand_name',
             $descriptionField . ' AS description',
         ])  ->fromSubSelect($subSelect, 't')
-            ->leftJoin(ProductsEntity::getLangTable().' AS lp', 'lp.product_id = t.product_id and lp.lang_id=' . $this->languages->getLangId())
-            ->leftJoin(VariantsEntity::getLangTable().' AS lv', 'lv.variant_id = t.variant_id and lv.lang_id=' . $this->languages->getLangId())
-            ->leftJoin(BrandsEntity::getLangTable().' AS lb', 'lb.brand_id = t.brand_id and lb.lang_id=' . $this->languages->getLangId());
+            ->leftJoin(ProductsEntity::getLangTable() . ' AS lp', 'lp.product_id = t.product_id and lp.lang_id=' . $this->languages->getLangId())
+            ->leftJoin(VariantsEntity::getLangTable() . ' AS lv', 'lv.variant_id = t.variant_id and lv.lang_id=' . $this->languages->getLangId())
+            ->leftJoin(BrandsEntity::getLangTable() . ' AS lb', 'lb.brand_id = t.brand_id and lb.lang_id=' . $this->languages->getLangId());
 
         return ExtenderFacade::execute(__METHOD__, $sql, func_get_args());
     }
@@ -109,10 +130,9 @@ class GoogleMerchantHelper
      * данные, кроме свойств. Свойства нужно доставать здесь, т.к. их группируем через GROUP_CONCAT()
      *
      * @param string|integer $feedId
-     * @param array $uploadCategories
-     * @return Select
+     * @param array<int|string, int|string> $uploadCategories
      */
-    private function getSubSelect($feedId, $uploadCategories = []) : Select
+    private function getSubSelect($feedId, $uploadCategories = []): Select
     {
         $sql = $this->queryFactory->newSelect();
 
@@ -136,8 +156,8 @@ class GoogleMerchantHelper
             'p.main_category_id',
             'p.brand_id',
         ])  ->from(VariantsEntity::getTable() . ' AS v')
-            ->leftJoin(ProductsEntity::getTable().' AS  p', 'v.product_id=p.id')
-            ->leftJoin(RouterCacheEntity::getTable().' AS r', 'r.url = p.url AND r.type="product"')
+            ->leftJoin(ProductsEntity::getTable() . ' AS  p', 'v.product_id=p.id')
+            ->leftJoin(RouterCacheEntity::getTable() . ' AS r', 'r.url = p.url AND r.type="product"')
             ->where('p.visible')
             ->where("p.id NOT IN (SELECT entity_id FROM " . GoogleMerchantRelationsEntity::getTable() . " WHERE feed_id = :feed_id AND entity_type = 'product' AND include = 0)")
             ->where("(p.id IN (SELECT entity_id FROM " . GoogleMerchantRelationsEntity::getTable() . " WHERE feed_id = :feed_id AND entity_type = 'product' AND include = 1) OR
@@ -147,14 +167,17 @@ class GoogleMerchantHelper
             ->groupBy(['v.id'])
             ->orderBy(['p.position DESC']);
 
-        if (!($this->settings->get('okaycms__google_merchant__upload_non_exists_products_to_google'))) {
+        if (
+            !$this->settings->get('okaycms__google_merchant__upload_non_exists_products_to_google')
+            && !$this->settings->get('is_preorder')
+        ) {
             $sql->where('(v.stock >0 OR v.stock is NULL)');
         }
 
         if (!$this->settings->get('okaycms__google_merchant__upload_without_images')) {
             $sql->where('p.main_image_id != \'\' AND p.main_image_id IS NOT NULL');
         }
-        
+
         if ($this->settings->get('okaycms__google_merchant__no_export_without_price')) {
             $sql->where('v.price > 0');
         }
@@ -170,36 +193,36 @@ class GoogleMerchantHelper
     /**
      * Формируем описание офера в виде массива
      *
-     * @param object $product строка выборки из базы (запрос формирующийся методом getQuery),
+     * @param FeedProductRow $product строка выборки из базы (запрос формирующийся методом getQuery),
      * но после отработки методов attachFeatures и attachImages.
      * @param bool $addVariantUrl Если true будет добавлен урл на определенный вариант
-     * @param array $allCategories Передаем сюда все категории, чтобы сгенерировать product_type
-     * @return array
+     * @param array<int|string, CategoryRow> $allCategories Передаем сюда все категории, чтобы сгенерировать product_type
+     * @return array<int|string, array<string, mixed>>
      * @throws \Exception
      */
-    public function getItem($product, array $allCategories, $addVariantUrl = false) : array
+    public function getItem($product, array $allCategories, $addVariantUrl = false): array
     {
         if ($this->settings->get('okaycms__google_merchant__use_variant_name_like_size')) {
-            $result['title']['data'] = $this->feedHelper->escape($product->product_name);
+            $result['g:title']['data'] = $this->feedHelper->escape($product->product_name);
             if (!empty($product->variant_name)) {
                 $result['g:size']['data'] = $this->feedHelper->escape($product->variant_name);
             }
         } else {
             if (!empty($product->variant_name)) {
-                $result['title']['data'] = $this->feedHelper->escape($product->product_name . ' ' . $product->variant_name);
+                $result['g:title']['data'] = $this->feedHelper->escape($product->product_name . ' ' . $product->variant_name);
             } else {
-                $result['title']['data'] = $this->feedHelper->escape($product->product_name);
+                $result['g:title']['data'] = $this->feedHelper->escape($product->product_name);
             }
         }
 
         ProductRoute::setUrlSlugAlias($product->url, $product->slug_url);
         if ($addVariantUrl) {
-            $result['link']['data'] = Router::generateUrl('product', ['url' => $product->url, 'variantId' => $product->variant_id], true);
+            $result['g:link']['data'] = Router::generateUrl('product', ['url' => $product->url, 'variantId' => $product->variant_id], true);
         } else {
-            $result['link']['data'] = Router::generateUrl('product', ['url' => $product->url], true);
+            $result['g:link']['data'] = Router::generateUrl('product', ['url' => $product->url], true);
         }
 
-        $result['description']['data'] = $this->feedHelper->escape($product->description);
+        $result['g:description']['data'] = $this->feedHelper->escape($product->description);
         $result['g:id']['data'] = $this->feedHelper->escape($product->variant_id);
 
         if (!empty($product->sku)) {
@@ -210,10 +233,11 @@ class GoogleMerchantHelper
 
         $price = round($product->price, 2);
         $comparePrice = round($product->compare_price, 2);
-        if (isset($this->allCurrencies[$product->currency_id])) {
+        $currencyId = $product->currency_id;
+        if ($currencyId !== null && isset($this->allCurrencies[$currencyId])) {
             // Переводим в основную валюту сайта
-            $variantCurrency = $this->allCurrencies[$product->currency_id];
-            if (!empty($product->currency_id) && $variantCurrency->rate_from != $variantCurrency->rate_to) {
+            $variantCurrency = $this->allCurrencies[$currencyId];
+            if ($variantCurrency->rate_from != $variantCurrency->rate_to) {
                 $price = round($product->price * $variantCurrency->rate_to / $variantCurrency->rate_from, 2);
                 if (!empty($product->compare_price)) {
                     $comparePrice = round($product->compare_price * $variantCurrency->rate_to / $variantCurrency->rate_from, 2);
@@ -230,7 +254,13 @@ class GoogleMerchantHelper
             $result['g:price']['data'] = $this->feedHelper->escape($price . ' ' . $this->mainCurrency->code);
         }
 
-        $result['g:availability']['data'] = (!in_array($product->stock, [0, '0'], true) ? 'in stock' : 'out of stock');
+        if ($this->settings->get('is_preorder') || (int) $product->stock > 0) {
+            $result['g:availability']['data'] = 'in stock';
+        } elseif ($product->stock === null) {
+            $result['g:availability']['data'] = $this->settings->get('use_backorder_status') ? 'backorder' : 'in stock';
+        } else {
+            $result['g:availability']['data'] = 'out of stock';
+        }
 
         if (!empty($product->brand_name)) {
             $result['g:brand']['data'] = $this->feedHelper->escape($product->brand_name);
@@ -250,8 +280,8 @@ class GoogleMerchantHelper
 
             $productType = '';
 
-            foreach($categoryPath as $category) {
-                $productType .= $category->name.' > ';
+            foreach ($categoryPath as $category) {
+                $productType .= $category->name . ' > ';
             }
 
             $result['g:product_type']['data'] = mb_substr($productType, 0, -3);

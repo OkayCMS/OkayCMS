@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\AutoDeploy\Helpers;
-
 
 use Okay\Core\Database;
 use Okay\Core\EntityFactory;
@@ -18,16 +16,16 @@ class DeployHelper
     private $settings;
     private $database;
     private $entityFactory;
-    
+
     private $migrationDir;
-    
+
     public function __construct(Request $request, Settings $settings, Database $database, EntityFactory $entityFactory)
     {
         $this->request = $request;
         $this->settings = $settings;
         $this->database = $database;
         $this->entityFactory = $entityFactory;
-        
+
         $this->migrationDir = dirname(__DIR__) . '/migrations/';
     }
 
@@ -35,14 +33,14 @@ class DeployHelper
     {
         $requestBody = $this->request->post();
         $requestBody = json_decode($requestBody);
-        
+
         $branch = $this->getBranch($channel);
 
         $currentChannel = $this->settings->get('deploy_build_channel');
         if ($channel != $currentChannel) {
             return false;
         }
-        
+
         // В случае удаления ветки, new будет равен null
         if ($requestBody === null || $requestBody->push->changes[0]->new === null) {
             $this->settings->set('deploy_last_status_text', date("d.m.Y H:i:s") . PHP_EOL . 'Empty request from bitbucket');
@@ -53,11 +51,11 @@ class DeployHelper
         if ($requestBody->push->changes[0]->new->name != $branch) {
             return false;
         }
-        
+
         $this->updateProject($branch);
         return true;
     }
-    
+
     public function updateProject($branch)
     {
         if (!$pathToPhp = $this->settings->get('path_to_php')) {
@@ -66,7 +64,7 @@ class DeployHelper
                 $pathToPhp = rtrim($constants['PHP_BINDIR'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
             }
         }
-        
+
         $dir = dirname(__DIR__);
         exec("{$pathToPhp}php {$dir}/bin/phing.phar -f {$dir}/build.xml -Dbranch=\"{$branch}\" -Dphp_path=\"{$pathToPhp}\"", $output);
         $deployLog = date("d.m.Y H:i:s")
@@ -83,7 +81,7 @@ class DeployHelper
     {
         /** @var MigrationsEntity $migrationsEntity */
         $migrationsEntity = $this->entityFactory->get(MigrationsEntity::class);
-        
+
         if ($newMigrations = $this->getNewMigrations()) {
             foreach ($newMigrations as $migration) {
                 $this->database->restore($migration['full_path']);
@@ -91,7 +89,7 @@ class DeployHelper
             }
         }
     }
-    
+
     public function getNewMigrations()
     {
         $newMigrations = [];
@@ -99,12 +97,13 @@ class DeployHelper
         $migrationsEntity = $this->entityFactory->get(MigrationsEntity::class);
 
         $migrationsCount = $migrationsEntity->count();
-        
+
         $alreadyExecuted = $migrationsEntity->cols(['name'])->find([
             'limit' => $migrationsCount,
         ]);
-        
-        foreach (glob($this->migrationDir . "*.up.sql") as $path) {
+
+        $migrationPaths = glob($this->migrationDir . "*.up.sql") ?: [];
+        foreach ($migrationPaths as $path) {
             $file = pathinfo($path, PATHINFO_BASENAME);
             if (!in_array($file, $alreadyExecuted)) {
                 $newMigrations[] = [
@@ -115,14 +114,18 @@ class DeployHelper
         }
         return ExtenderFacade::execute(__METHOD__, $newMigrations, func_get_args());
     }
-    
+
     public function createMigration($name)
     {
-        $migrationName = date("YmdHis") . (empty($name) ? '' : '_'.$name) . ".up.sql";
-        fclose(fopen($this->migrationDir . $migrationName, "w"));
+        $migrationName = date("YmdHis") . (empty($name) ? '' : '_' . $name) . ".up.sql";
+        $migrationFile = fopen($this->migrationDir . $migrationName, "w");
+        if ($migrationFile !== false) {
+            fclose($migrationFile);
+        }
+
         return ExtenderFacade::execute(__METHOD__, $migrationName, func_get_args());
     }
-    
+
     public function getBranch($channel)
     {
         $branch = null;
@@ -137,7 +140,7 @@ class DeployHelper
         return ExtenderFacade::execute(__METHOD__, $branch, func_get_args());
     }
 
-    public function updateModules() : bool
+    public function updateModules(): bool
     {
         $SL = ServiceLocator::getInstance();
 

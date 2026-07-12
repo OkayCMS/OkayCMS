@@ -16,7 +16,6 @@ use Okay\Core\QueryFactory;
 
 class PaymentForm extends AbstractModule implements PaymentFormInterface
 {
-
     /**
      * @var EntityFactory
      */
@@ -55,8 +54,7 @@ class PaymentForm extends AbstractModule implements PaymentFormInterface
         Money $money,
         CreatePayment $createPayment,
         QueryFactory $queryFactory
-    )
-    {
+    ) {
         parent::__construct();
         $this->entityFactory = $entityFactory;
         $this->languages     = $languages;
@@ -83,7 +81,7 @@ class PaymentForm extends AbstractModule implements PaymentFormInterface
 
         $paymentMethod = $paymentsEntity->get($order->payment_method_id);
         $createDetails = $this->getPaymentDetails((int)$orderId, $this->queryFactory, OrdersEntity::getTable());
-        if(empty($createDetails)) {
+        if (empty($createDetails)) {
             $settings = $paymentsEntity->getPaymentSettings($paymentMethod->id);
             $paymentCurrency = $currenciesEntity->get(intval($paymentMethod->currency_id));
             $orderArray = (array)$order;

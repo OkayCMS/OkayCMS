@@ -1,25 +1,24 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 use Okay\Core\Adapters\Resize\AbstractResize;
 use Okay\Core\Adapters\Resize\AdapterManager;
+use Okay\Core\Adapters\Resize\WebpConverter;
 use Okay\Core\Modules\Extender\ExtenderFacade;
-use WebPConvert\WebPConvert;
 
 class Image
 {
-    
     private $allowedExtensions = ['png', 'gif', 'jpg', 'jpeg', 'ico', 'svg', 'webp'];
 
     private $rootDir;
-    
+
     /**
      * @var AdapterManager
      */
     private $adapterManager;
+
+    private WebpConverter $webpConverter;
 
     /**
      * @var Settings
@@ -55,16 +54,20 @@ class Image
      * @var EntityFactory
      */
     private $entityFactory;
-    
-    private $resizeObjects;
-    
+
+    /**
+     * @var array<string, array{original_dir: string, resized_dir: string}>
+     */
+    private array $resizeObjects = [];
+
     private $originalsDir;
     private $productionDomain;
-    
+
     public function __construct(
         Settings $settings,
         Config $config,
         AdapterManager $adapterManager,
+        WebpConverter $webpConverter,
         Request $request,
         Response $response,
         QueryFactory $queryFactory,
@@ -75,6 +78,7 @@ class Image
         $this->settings       = $settings;
         $this->config         = $config;
         $this->adapterManager = $adapterManager;
+        $this->webpConverter  = $webpConverter;
         $this->request        = $request;
         $this->rootDir        = $rootDir;
         $this->response       = $response;
@@ -101,15 +105,15 @@ class Image
 
     /**
      * Метод возвращает массив объектов ресайза. В виде ключа выступает название конечной директории ресайза,
-     * значение это массив с ключами original_dir и resized_dir, 
-     * 
-     * @return array
+     * значение это массив с ключами original_dir и resized_dir,
+     *
+     * @return array<string, array{original_dir: string, resized_dir: string}>
      */
     public function getResizeObjects()
     {
         return $this->resizeObjects;
     }
-    
+
     /**
      * Создание превью изображения
      *
@@ -122,14 +126,23 @@ class Image
      */
     public function resize($filename, $imageSizes, $originalImagesDir = null, $resizedImagesDir = null)
     {
-        list($sourceFile, $width , $height, $setWatermark, $cropParams, $pseudoWebp) = $this->getResizeParams($filename);
+        $resizeParams = $this->getResizeParams($filename);
+        if ($resizeParams === false) {
+            return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+        }
+
+        list($sourceFile, $width , $height, $setWatermark, $cropParams, $pseudoWebp) = $resizeParams;
+        if ($this->hasUnsafeImagePath($sourceFile)) {
+            return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+        }
+
         $size = $width . 'x' . $height . ($setWatermark === true ? 'w' : '');
 
         if (!is_array($imageSizes)) {
             $imageSizes = explode('|', $imageSizes);
         }
-        
-        if (!in_array($size, $imageSizes)){
+
+        if (!in_array($size, $imageSizes)) {
             $this->response->setStatusCode(404)->sendHeaders();
             exit();
         }
@@ -137,9 +150,13 @@ class Image
         $originalsDir = $this->rootDir . $originalImagesDir;
         $previewDir   = $this->rootDir . $resizedImagesDir;
         $this->originalsDir = $originalImagesDir;
-        
+
         // Если файл удаленный (https?://), зальем его себе
         if (preg_match("~^https?://~", $sourceFile)) {
+            if ($this->isNotHttpsSource($sourceFile)) {
+                return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+            }
+
             // Имя оригинального файла
             if (!$originalFile = $this->downloadImage($sourceFile)) {
                 return ExtenderFacade::execute(__METHOD__, false, func_get_args());
@@ -147,10 +164,19 @@ class Image
         } else {
             $originalFile = $sourceFile;
         }
-        
+
         $resizedFile = $this->addResizeParams($originalFile, $width, $height, $setWatermark, $cropParams);
-        
-        if (!file_exists($originalsDir . $originalFile)) {
+        if ($this->hasUnsafeImagePath($originalFile) || $this->hasUnsafeImagePath($resizedFile)) {
+            return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+        }
+
+        $resizedPath = $this->buildPathWithinDirectory($previewDir, $resizedFile, false);
+        if ($resizedPath === false) {
+            return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+        }
+
+        $originalPath = $this->buildPathWithinDirectory($originalsDir, $originalFile, true);
+        if ($originalPath === false) {
             // Намагаємось завантажити зображення з production сайта
             if (!empty($this->productionDomain)) {
                 $ch = curl_init($this->productionDomain . $resizedImagesDir . $resizedFile);
@@ -160,14 +186,17 @@ class Image
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 $file = curl_exec($ch);
                 $info = curl_getinfo($ch);
-                curl_close($ch);
-                $fileDestination = $previewDir . $resizedFile;
+                $fileDestination = $resizedPath;
                 if ($pseudoWebp) {
                     $fileDestination .= '.webp';
                 }
 
-                if ($info['http_code'] === 200 && $info['size_download'] > 0) {
+                if ($info['http_code'] === 200 && $info['size_download'] > 0 && is_string($file)) {
                     $fp = fopen($fileDestination, 'w+');
+                    if ($fp === false) {
+                        return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+                    }
+
                     fwrite($fp, $file);
                     fclose($fp);
                     return ExtenderFacade::execute(__METHOD__, $fileDestination, func_get_args());
@@ -178,42 +207,48 @@ class Image
         }
 
         if (strtolower(pathinfo($originalFile, PATHINFO_EXTENSION)) == 'svg') {
-            copy($originalsDir . $originalFile, $previewDir . $resizedFile);
-            return ExtenderFacade::execute(__METHOD__, $previewDir . $resizedFile, func_get_args());
+            copy($originalPath, $resizedPath);
+            return ExtenderFacade::execute(__METHOD__, $resizedPath, func_get_args());
         }
-        
+
         // Если в настройках выключена поддержка webp, но просят такое изображение - кадием 404
         if (!$this->settings->get('support_webp') && $pseudoWebp) {
             return ExtenderFacade::execute(__METHOD__, false, func_get_args());
         }
-        
+
         /** @var AbstractResize $adapter */
         $adapter = $this->adapterManager->getAdapter();
-        
-        $adapter->resize(
-            $originalsDir . $originalFile,
-            $previewDir . $resizedFile,
-            $width,
-            $height,
-            $setWatermark,
-            $cropParams
-        );
 
-        $destination = $previewDir . $resizedFile;
-        
+        if (
+            !$adapter->resize(
+                $originalPath,
+                $resizedPath,
+                (int) $width,
+                (int) $height,
+                $setWatermark,
+                $cropParams
+            )
+        ) {
+            return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+        }
+
+        $destination = $resizedPath;
+
         // Если запросили псевдо webp, создаем еще дубль такого изображения в формате webp
         if ($pseudoWebp) {
             $source = $destination;
             $destination = $source . '.webp';
-            WebPConvert::convert($source, $destination);
+            if (!$this->webpConverter->convert($source, $destination)) {
+                return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+            }
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $destination, func_get_args());
     }
 
     /**
      * Метод формирует строку, по которой можно будет нарезать изображение
-     * 
+     *
      * @param $filename
      * @param int $width
      * @param int $height
@@ -242,7 +277,7 @@ class Image
         $resizedFilename = $this->addResizeParams($filename, $width, $height, $setWatermark, $cropParams);
         $resizedFilenameEncoded = $resizedFilename;
 
-        $size = $width.'x'.$height.($setWatermark ? 'w':'');
+        $size = $width . 'x' . $height . ($setWatermark ? 'w' : '');
 
         if ($resizedDir === null || $resizedDir == $this->config->get('resized_images_dir')) {
             $this->addImagesSize($size, 'product');
@@ -259,11 +294,11 @@ class Image
         if ($resizedDir === null) {
             $resizedDir = $this->config->get('resized_images_dir');
         }
-        
+
         $result = $this->request->getRootUrl() . '/' . $resizedDir . $resizedFilenameEncoded;
         return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
     }
-    
+
     public function addImagesSize($size, $type) // todo сделать protected
     {
         if ($type == 'product') {
@@ -299,30 +334,30 @@ class Image
      * @param int     $width
      * @param int     $height
      * @param boolean $setWatermark
-     * @param array   $cropParams
+     * @param array<string, mixed> $cropParams
      * @return string
      */
     public function addResizeParams($filename, $width = 0, $height = 0, $setWatermark = false, $cropParams = []) // todo сделать protected
     {
-        if('.' != ($dirname = pathinfo($filename,  PATHINFO_DIRNAME))) {
-            $file = $dirname.'/'.pathinfo($filename, PATHINFO_FILENAME);
+        if ('.' != ($dirname = pathinfo($filename, PATHINFO_DIRNAME))) {
+            $file = $dirname . '/' . pathinfo($filename, PATHINFO_FILENAME);
         } else {
             $file = pathinfo($filename, PATHINFO_FILENAME);
         }
 
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
-        
-        if($width>0 || $height>0) {
-            $resizedFilename = $file.'.'.($width > 0 ? $width : '').'x'.($height > 0 ? $height : '').($setWatermark ? 'w' : '');
+
+        if ($width > 0 || $height > 0) {
+            $resizedFilename = $file . '.' . ($width > 0 ? $width : '') . 'x' . ($height > 0 ? $height : '') . ($setWatermark ? 'w' : '');
         } else {
-            $resizedFilename = $file.($setWatermark?'.w':'').$ext;
+            $resizedFilename = $file . ($setWatermark ? '.w' : '') . $ext;
         }
 
         if (!empty($cropParams['x_pos']) && !empty($cropParams['y_pos'])) {
-            $resizedFilename .= '.'.$cropParams['x_pos'].'.'.$cropParams['y_pos'];
+            $resizedFilename .= '.' . $cropParams['x_pos'] . '.' . $cropParams['y_pos'];
         }
 
-        $result = $resizedFilename.'.'.$ext;
+        $result = $resizedFilename . '.' . $ext;
         return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
     }
 
@@ -335,6 +370,10 @@ class Image
      */
     public function downloadImage($filename) // todo сделать protected
     {
+        if (!$this->isRemoteImageSource($filename) || $this->isNotHttpsSource($filename) || $this->hasUnsafeImagePath($filename)) {
+            return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+        }
+
         $encodedFilename = rawurlencode($filename);
         if (isset($_SESSION['resize_files'][$encodedFilename])) {
             if ($this->filenameAlreadyUses($this->getOriginalFilenameByResizeName($filename))) {
@@ -343,20 +382,30 @@ class Image
                 unset($_SESSION['resize_files'][$encodedFilename]);
             }
         }
-        
+
         if ($this->fileIsNotExists($filename)) {
             return ExtenderFacade::execute(__METHOD__, false, func_get_args());
         }
 
         $uploadedFile = $this->getOriginalFilenameByResizeName($filename);
+        if ($this->hasUnsafeImagePath($uploadedFile)) {
+            return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+        }
+
         if ($this->filenameAlreadyUses($uploadedFile)) {
             $newName = $this->comeUpUniqueFilename($uploadedFile);
-        }
-        else {
+        } else {
             $newName = urldecode($uploadedFile);
         }
-        
-        $localFile = $this->rootDir.$this->config->get('original_images_dir').$newName;
+
+        $localFile = $this->buildPathWithinDirectory(
+            $this->rootDir . $this->config->get('original_images_dir'),
+            $newName,
+            false
+        );
+        if ($localFile === false) {
+            return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+        }
 
         if (!touch($localFile)) {
             return ExtenderFacade::execute(__METHOD__, false, func_get_args());
@@ -371,10 +420,14 @@ class Image
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $file = curl_exec($ch);
         $info = curl_getinfo($ch);
-        curl_close($ch);
 
-        if ($info['http_code'] === 200 && $info['size_download'] > 0) {
+        if ($info['http_code'] === 200 && $info['size_download'] > 0 && is_string($file)) {
             $fp = fopen($localFile, 'w+');
+            if ($fp === false) {
+                @unlink($localFile);
+                return ExtenderFacade::execute(__METHOD__, false, func_get_args());
+            }
+
             fwrite($fp, $file);
             fclose($fp);
 
@@ -410,20 +463,20 @@ class Image
         if (!$originalDir) {
             $originalDir = $this->config->get('original_images_dir');
         }
-        
+
         if (!in_array(strtolower($ext), $this->allowedExtensions)) {
             return ExtenderFacade::execute(__METHOD__, false, func_get_args());
         }
 
-        while (file_exists($this->rootDir.$originalDir.$newName)) {
+        while (file_exists($this->rootDir . $originalDir . $newName)) {
             $new_base = pathinfo($newName, PATHINFO_FILENAME);
             if (preg_match('/_([0-9]+)$/', $new_base, $parts)) {
-                $newName = $base.'_'.($parts[1]+1).'.'.$ext;
+                $newName = $base . '_' . ($parts[1] + 1) . '.' . $ext;
             } else {
-                $newName = $base.'_1.'.$ext;
+                $newName = $base . '_1.' . $ext;
             }
         }
-        if (move_uploaded_file($filename, $this->rootDir.$originalDir.$newName)) {
+        if (move_uploaded_file($filename, $this->rootDir . $originalDir . $newName)) {
             return ExtenderFacade::execute(__METHOD__, $newName, func_get_args());
         }
 
@@ -465,17 +518,25 @@ class Image
             $crop_params['y_pos'] = $matches[7];
         }
 
-        return array($file.'.'.$ext, $width, $height, $set_watermark, $crop_params, $pseudoWebp);
+        return array($file . '.' . $ext, $width, $height, $set_watermark, $crop_params, $pseudoWebp);
     }
-    
+
     /*Транслит названия изображения*/
-    public function correctFilename($filename) {
+    public function correctFilename($filename)
+    {
+        if (!is_scalar($filename)) {
+            $filename = '';
+        }
+
+        $filename = (string) $filename;
         $ru = explode('-', "А-а-Б-б-В-в-Ґ-ґ-Г-г-Д-д-Е-е-Ё-ё-Є-є-Ж-ж-З-з-И-и-І-і-Ї-ї-Й-й-К-к-Л-л-М-м-Н-н-О-о-П-п-Р-р-С-с-Т-т-У-у-Ф-ф-Х-х-Ц-ц-Ч-ч-Ш-ш-Щ-щ-Ъ-ъ-Ы-ы-Ь-ь-Э-э-Ю-ю-Я-я");
         $en = explode('-', "A-a-B-b-V-v-G-g-G-g-D-d-E-e-E-e-E-e-ZH-zh-Z-z-I-i-I-i-I-i-J-j-K-k-L-l-M-m-N-n-O-o-P-p-R-r-S-s-T-t-U-u-F-f-H-h-TS-ts-CH-ch-SH-sh-SCH-sch---Y-y---E-e-YU-yu-YA-ya");
-        
+
         $res = str_replace($ru, $en, $filename);
         $res = preg_replace("/[\s]+/ui", '-', $res);
+        $res = is_string($res) ? $res : '';
         $res = preg_replace("/[^a-zA-Z0-9.\-_]+/ui", '', $res);
+        $res = is_string($res) ? $res : '';
         $res = strtolower($res);
         return ExtenderFacade::execute(__METHOD__, $res, func_get_args());
     }
@@ -510,7 +571,7 @@ class Image
             $this->db->query($select);
             $filename = $this->db->result($field);
 
-            if (!empty($filename)) {
+            if (is_string($filename) && $filename !== '') {
                 $update = $this->queryFactory->newUpdate();
                 $update->table($entity::getTable())
                     ->cols([$field => ''])
@@ -563,8 +624,7 @@ class Image
             $this->db->query($select);
             $filename = $this->db->result($field);
 
-            if (!empty($filename)) {
-
+            if (is_string($filename) && $filename !== '') {
                 $update = $this->queryFactory->newUpdate();
                 $update->table($entity::getLangTable())
                     ->cols([$field => ''])
@@ -645,15 +705,15 @@ class Image
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
 
         $newName = urldecode($filename);
-        while (file_exists($this->rootDir.$this->originalsDir.$newName)) {
+        while (file_exists($this->rootDir . $this->originalsDir . $newName)) {
             $new_base = pathinfo($newName, PATHINFO_FILENAME);
 
             if (preg_match('/_([0-9]+)$/', $new_base, $parts)) {
-                $newName = $base.'_'.($parts[1]+1).'.'.$ext;
+                $newName = $base . '_' . ($parts[1] + 1) . '.' . $ext;
                 continue;
             }
 
-            $newName = $base.'_1.'.$ext;
+            $newName = $base . '_1.' . $ext;
         }
 
         return $newName;
@@ -661,9 +721,89 @@ class Image
 
     private function filenameAlreadyUses($filename)
     {
-        return file_exists($this->rootDir.$this->originalsDir.urldecode($filename));
+        $file = $this->buildPathWithinDirectory($this->rootDir . $this->originalsDir, urldecode($filename), true);
+
+        return $file !== false && file_exists($file);
     }
 
+    private function buildPathWithinDirectory(string $baseDir, string $relativePath, bool $mustExist): string|false
+    {
+        if ($this->hasUnsafeImagePath($relativePath)) {
+            return false;
+        }
+
+        $basePath = realpath($baseDir);
+        if ($basePath === false || !is_dir($basePath)) {
+            return false;
+        }
+
+        $basePath = rtrim($basePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $targetPath = $basePath . ltrim(str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $relativePath), DIRECTORY_SEPARATOR);
+
+        if ($mustExist) {
+            $resolvedTarget = realpath($targetPath);
+            if ($resolvedTarget === false || !str_starts_with($resolvedTarget, $basePath)) {
+                return false;
+            }
+
+            return $resolvedTarget;
+        }
+
+        $resolvedParent = realpath(dirname($targetPath));
+        if ($resolvedParent === false) {
+            return false;
+        }
+
+        $resolvedParent = rtrim($resolvedParent, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        if (!str_starts_with($resolvedParent, $basePath)) {
+            return false;
+        }
+
+        return $targetPath;
+    }
+
+    private function hasUnsafeImagePath(string $path): bool
+    {
+        if (str_contains($path, "\0")) {
+            return true;
+        }
+
+        $decodedPath = rawurldecode($path);
+        if (str_contains($decodedPath, "\0")) {
+            return true;
+        }
+
+        if ($this->isRemoteImageSource($decodedPath)) {
+            $urlPath = parse_url($decodedPath, PHP_URL_PATH);
+            if (!is_string($urlPath)) {
+                return false;
+            }
+
+            return $this->hasParentDirectorySegment($urlPath);
+        }
+
+        if (preg_match('~^(?:/|\\\\|[a-zA-Z]:[\\\\/])~', $decodedPath)) {
+            return true;
+        }
+
+        return $this->hasParentDirectorySegment($decodedPath);
+    }
+
+    private function hasParentDirectorySegment(string $path): bool
+    {
+        foreach (explode('/', str_replace('\\', '/', $path)) as $segment) {
+            if ($segment === '..') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function isRemoteImageSource(string $filename): bool
+    {
+        return preg_match("~^https?://~i", $filename) === 1;
+    }
 
     private function responseSuccess($responseHeaders)
     {
@@ -672,7 +812,7 @@ class Image
         }
 
         preg_match('/\d{3}/', $responseHeaders[0], $matches);
-        if ($matches[0] == '200') {
+        if (isset($matches[0]) && $matches[0] == '200') {
             return true;
         }
 
@@ -681,7 +821,7 @@ class Image
 
     private function isNotHttpsSource($filename)
     {
-        if (!preg_match("~^https://~", $filename)) {
+        if (!preg_match("~^https://~i", $filename)) {
             return true;
         }
 
@@ -691,10 +831,9 @@ class Image
     public function convertFilenameToWebp($filename)
     {
         if (pathinfo($filename, PATHINFO_EXTENSION) !== 'webp') {
-            $filename = $filename.'.webp';
+            $filename = $filename . '.webp';
         }
 
         return $filename;
     }
-
 }

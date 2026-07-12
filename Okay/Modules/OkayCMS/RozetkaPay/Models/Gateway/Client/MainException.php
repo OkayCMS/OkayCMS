@@ -15,8 +15,7 @@ abstract class MainException extends Exception
         $message,
         $httpStatus = null,
         $json = null
-    )
-    {
+    ) {
         $this->httpStatus = $httpStatus;
         $this->json = $json;
         $this->rozetkapayCode = isset($json["response"]["response_status"]) ? $message = $json["response"]["error_message"] . ".\n" . $message : null;

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\QueryFactory;
-
 
 use Aura\SqlQuery\QueryInterface;
 use Okay\Core\ServiceLocator;
@@ -37,7 +35,7 @@ abstract class AbstractQuery implements QueryInterface
         if (!$query = $this->db->prepare($this, $this->getBindValues())) {
             return false;
         }
-        
+
         return $this->db->debug($query, $this->getBindValues());
     }
 
@@ -49,7 +47,7 @@ abstract class AbstractQuery implements QueryInterface
             print 'Error in query' . PHP_EOL . PHP_EOL;
         }
     }
-    
+
     public function result($column = null)
     {
         if ($this->executed) {
@@ -94,9 +92,13 @@ abstract class AbstractQuery implements QueryInterface
         return $this->queryObject->getQuoteNameSuffix();
     }
 
-    public function bindValues(array $bind_values)
+    /**
+     * @param array<string, mixed> $bindValues
+     * @return $this
+     */
+    public function bindValues(array $bindValues)
     {
-        $this->queryObject->bindValues($bind_values);
+        $this->queryObject->bindValues($bindValues);
         return $this;
     }
 
@@ -106,6 +108,9 @@ abstract class AbstractQuery implements QueryInterface
         return $this;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getBindValues()
     {
         return $this->queryObject->getBindValues();
@@ -114,5 +119,11 @@ abstract class AbstractQuery implements QueryInterface
     public function getStatement()
     {
         return $this->queryObject->getStatement();
+    }
+
+    public function resetFlags()
+    {
+        $this->queryObject->resetFlags();
+        return $this;
     }
 }

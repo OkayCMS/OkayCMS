@@ -9,6 +9,9 @@ class ModificationDTO
     /** @var TplChangeDTO[]  */
     private array $changes;
 
+    /**
+     * @param list<TplChangeDTO> $changes
+     */
     public function __construct(string $file, array $changes)
     {
         $this->file = $file;

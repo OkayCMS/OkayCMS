@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\Fondy\Controllers;
-
 
 use Okay\Core\Money;
 use Okay\Core\Notify;
@@ -15,7 +13,6 @@ use Okay\Modules\OkayCMS\Fondy\Helpers\FondyHelper;
 
 class CallbackController extends AbstractController
 {
-    
     public function payOrder(Money $money, Notify $notify)
     {
         /** @var OrdersEntity $ordersEntity */
@@ -24,13 +21,17 @@ class CallbackController extends AbstractController
         /** @var PaymentsEntity $paymentsEntity */
         $paymentsEntity = $this->entityFactory->get(PaymentsEntity::class);
 
-        if (empty($_POST)){
-            $callback = json_decode(file_get_contents("php://input"));
+        if (empty($_POST)) {
+            $rawCallback = file_get_contents("php://input");
+            if ($rawCallback === false) {
+                die('go away');
+            }
+            $callback = json_decode($rawCallback);
             $_POST = array();
-            foreach ($callback as $key=>$val){
+            foreach ($callback as $key => $val) {
                 $_POST[$key] =  $val ;
             }
-            if (!$_POST['order_id']){
+            if (!$_POST['order_id']) {
                 die('go away');
             }
         }
@@ -47,11 +48,9 @@ class CallbackController extends AbstractController
         $paymentInfo = FondyHelper::isPaymentValid($options, $_POST);
 
         if (!$order->paid) {
-
-            if ($_POST['amount'] / 100 >= round($money->convert($order->total_price, $payment_method->currency_id, false), 2)) {
+            if ($_POST['amount'] / 100 >= round((float)$money->convert($order->total_price, $payment_method->currency_id, false), 2)) {
                 if ($paymentInfo === true) {
                     if ($_POST['order_status'] == FondyHelper::ORDER_APPROVED) {
-
                         // Установим статус оплачен
                         $ordersEntity->update(intval($order->id), array('paid' => 1));
 
@@ -62,7 +61,6 @@ class CallbackController extends AbstractController
                         // Спишем товары
                         $ordersEntity->close(intval($order->id));
                         Response::redirectTo(Router::generateUrl('order', ['url' => $order->url], true));
-
                     } else {
                         $ordersEntity->update(intval($order->id), array('paid' => 0));
 
@@ -71,8 +69,7 @@ class CallbackController extends AbstractController
                 }
             }
         }
-        
+
         Response::redirectTo(Router::generateUrl('order', ['url' => $order->url], true));
     }
-
 }

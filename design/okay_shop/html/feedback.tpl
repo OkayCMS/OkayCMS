@@ -56,6 +56,8 @@
                                 <span data-language="form_enter_email">{$lang->form_enter_email}</span>
                                 {elseif $error=='empty_text'}
                                 <span data-language="form_enter_message">{$lang->form_enter_message}</span>
+                                {elseif $error=='csrf'}
+                                <span data-language="form_error_csrf">{$lang->form_error_csrf}</span>
                                 {/if}
                             </div>
                         {/if}
@@ -70,7 +72,7 @@
 
                         {* User's email *}
                         <div class="form__group">
-                            <input class="form__input form__placeholder--focus" value="{if $request_data.email}{$request_data.email|escape}{elseif $user->email}{$user->email|escape}{/if}" name="email" type="text" data-language="form_email"/>
+                            <input class="form__input form__placeholder--focus" value="{if $request_data.email}{$request_data.email|escape}{elseif $user->email}{$user->email|escape}{/if}" name="email" inputmode="email" type="email" data-language="form_email"/>
                             <span class="form__placeholder">{$lang->form_email}</span>
                         </div>
 
@@ -100,6 +102,7 @@
                             {/if}
                         {/if}
                         <input type="hidden" name="feedback" value="1">
+                        <input type="hidden" name="customer_csrf_token" value="{$customer_csrf_token|escape}">
 
                         {* Submit button *}
                         <button class="form__button button--blick g-recaptcha" type="submit" name="feedback" {if $settings->captcha_type == "invisible"}data-sitekey="{$settings->public_recaptcha_invisible}" data-badge='bottomleft' data-callback="onSubmit"{/if} value="{$lang->form_send}">
@@ -121,4 +124,3 @@
     </div>
 </div>
 {/if}
-

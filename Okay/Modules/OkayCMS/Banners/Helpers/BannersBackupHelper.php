@@ -14,6 +14,9 @@ use Okay\Modules\OkayCMS\Banners\Entities\BannersEntity;
 use Okay\Modules\OkayCMS\Banners\Entities\BannersImagesEntity;
 use Okay\Modules\OkayCMS\Banners\VO\RestoreBackupErrorVO;
 
+/**
+ * @phpstan-type BannerImageLangRow object{name: string, alt: string, title: string, description: string, url: string, image: string, image_mobile: string}&\stdClass
+ */
 class BannersBackupHelper
 {
     private const BACKUP_CONFIG_FILE = 'config.json';
@@ -37,8 +40,7 @@ class BannersBackupHelper
     }
 
     /**
-     * @param array $bannersIds
-     * @return string|null
+     * @param array<int|string, int|string> $bannersIds
      * @throws \Exception
      *
      * Метод створює zip архів бекапу обраних груп банерів і повертає шлях до цього архіву.
@@ -61,7 +63,11 @@ class BannersBackupHelper
             }
 
             $backupConfigFile = $this->serializeBackupConfigFile($backup);
-            return $this->zipBackup($backupConfigFile, array_unique($backupImages));
+            if ($backupConfigFile === null) {
+                return null;
+            }
+
+            return $this->zipBackup($backupConfigFile, array_values(array_unique($backupImages)));
         }
         return null;
     }
@@ -86,7 +92,8 @@ class BannersBackupHelper
                 )];
             }
 
-            if (($bannerBackupDTOs = $this->unserializeBackup(file_get_contents($configFile))) === null) {
+            $jsonBackupInfo = file_get_contents($configFile);
+            if ($jsonBackupInfo === false || ($bannerBackupDTOs = $this->unserializeBackup($jsonBackupInfo)) === null) {
                 return [new RestoreBackupErrorVO(
                     RestoreBackupErrorVO::WRONG_CONFIG_FILE,
                     [
@@ -107,9 +114,10 @@ class BannersBackupHelper
             }
 
             foreach ($bannerBackupDTOs as $bannerBackupDTO) {
-                if (empty($bannerBackupDTO->getGroupName())
-                    || $this->bannersEntity->findOne(['group_name' => $bannerBackupDTO->getGroupName()]))
-                {
+                if (
+                    empty($bannerBackupDTO->getGroupName())
+                    || $this->bannersEntity->findOne(['group_name' => $bannerBackupDTO->getGroupName()])
+                ) {
                     $errors[] = new RestoreBackupErrorVO(
                         RestoreBackupErrorVO::GROUP_ALREADY_EXISTS,
                         [
@@ -200,6 +208,9 @@ class BannersBackupHelper
         return [new RestoreBackupErrorVO(RestoreBackupErrorVO::UNZIP_ERROR)];
     }
 
+    /**
+     * @param list<string> $backupImages
+     */
     private function zipBackup(string $backupConfigFile, array $backupImages): string
     {
         $zip = new \ZipArchive();
@@ -274,8 +285,8 @@ class BannersBackupHelper
     }
 
     /**
-     * @param array $bannersIds
-     * @return BannerBackupDTO[]
+     * @param array<int|string, int|string> $bannersIds
+     * @return list<BannerBackupDTO>
      * @throws \Exception
      */
     private function makeBackupConfigFile(array $bannersIds): array
@@ -341,14 +352,22 @@ class BannersBackupHelper
         return array_values($backup);
     }
 
+    /**
+     * @param list<BannerBackupDTO> $backup
+     */
     private function serializeBackupConfigFile(array $backup): ?string
     {
-        $serialized = json_encode($backup, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
+        $serialized = json_encode($backup, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        if ($serialized === false) {
+            return null;
+        }
+
         return preg_replace('/^(  +?)\\1(?=[^ ])/m', '$1', $serialized);
     }
 
     private function createBannerImageLangDTO(object $bannerImageInfo): BannerImageLangBackupDTO
     {
+        /** @var BannerImageLangRow $bannerImageInfo */
         $langInfo = new BannerImageLangBackupDTO();
         $langInfo->setName($bannerImageInfo->name);
         $langInfo->setAlt($bannerImageInfo->alt);

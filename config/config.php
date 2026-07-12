@@ -28,7 +28,7 @@ db_names = utf8mb4
 db_sql_mode = "ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
 
 ;Смещение часового пояса
-;db_timezone = +04:00
+;db_timezone = +02:00
 
 [modules]
 marketplace_url = https://modules.okay-cms.com/
@@ -36,12 +36,13 @@ marketplace_url = https://modules.okay-cms.com/
 [php]
 error_reporting = E_ALL
 php_charset = UTF8
-php_locale_collate = ru_RU
-php_locale_ctype = ru_RU
-php_locale_monetary = ru_RU
-php_locale_numeric = ru_RU
-php_locale_time = ru_RU
-;php_timezone = Europe/Moscow
+php_locale_collate = uk_UA
+php_locale_ctype = uk_UA
+php_locale_monetary = uk_UA
+php_locale_numeric = uk_UA
+php_locale_time = uk_UA
+;php_timezone = Europe/Kyiv
+; Enable only in local overrides such as config/config.local.php.
 debug_mode = false
 tmp_dir = tmp/
 
@@ -69,8 +70,8 @@ preload_footer_js = false
 ;disable_tpl_mod = true
 
 [images]
-;Указываем какую библиотеку использовать для нарезки изображений. Варианты: Gregwar, Imagick или GD. Это имя класса адаптера
-resize_adapter = Gregwar
+;Указываем какую библиотеку использовать для нарезки изображений. Варианты: Intervention, Imagick или GD. Это имя класса адаптера
+resize_adapter = Intervention
 
 ;Директория общих изображений дизайна (лого, фавикон...)
 design_images = files/images/

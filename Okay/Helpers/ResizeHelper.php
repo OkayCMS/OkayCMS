@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Helpers;
-
 
 use Okay\Core\Config;
 use Okay\Core\Image;
@@ -25,17 +23,16 @@ class ResizeHelper
      *     0 => 'path/to/originals/images',
      *     1 => 'path/to/resized/images',
      * ]
-     * 
+     *
      * @param string $object папка с нарезанными картинками
-     * @return array|null
+     * @return list<string>
      * @throws \Exception
      */
     public function getResizeDirs($object)
     {
         $resizeDirs = [];
-        
+
         if (!empty($object)) {
-            
             if ($object == 'products') {
                 $originalImgDir = $this->config->get('original_images_dir');
                 $resizedImgDir = $this->config->get('resized_images_dir');
@@ -87,7 +84,7 @@ class ResizeHelper
                 $resizedImgDir
             ];
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $resizeDirs, func_get_args());
     }
 }

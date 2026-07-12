@@ -32,29 +32,26 @@ if ($request->method("post")) {
     if (empty($order_id) || empty($state)) {
         $result['success '] = false;
     } else {
+        $labelIds = [(int) $label_id];
         switch ($state) {
-            case "add" : {
-                $orderLabelsEntity->addOrderLabels($order_id, (array)$label_id);
+            case "add":
+                $orderLabelsEntity->addOrderLabels($order_id, $labelIds);
                 $orderHistoryHelper->setLabel($order_id, (int)$label_id);
                 $result['success'] = true;
                 break;
-            }
-            case "remove": {
-                $orderLabelsEntity->deleteOrderLabels($order_id, (array)$label_id);
+            case "remove":
+                $orderLabelsEntity->deleteOrderLabels($order_id, $labelIds);
                 $orderHistoryHelper->removeLabel($order_id, (int)$label_id);
                 $result['success'] = true;
                 break;
-            }
         }
         $order = new \stdClass();
         $order->labels = $orderLabelsEntity->getOrdersLabels((array)$order_id);
         $design->assign("order", $order);
         $result['data'] = $design->fetch("labels_ajax.tpl");
-
     }
-
 } else {
-    $result['success ']= false;
+    $result['success '] = false;
 }
 
 $response->setContent(json_encode($result), RESPONSE_JSON);

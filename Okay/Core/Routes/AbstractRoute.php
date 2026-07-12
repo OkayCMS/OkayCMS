@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Routes;
-
 
 use Okay\Core\Languages;
 use Okay\Core\Request;
@@ -17,7 +15,7 @@ abstract class AbstractRoute
      * название свойста Okay\Core\Setting::class, которое отвечает за определение
      * слеша в конце в конкретной группе роутов
      */
-    const SLASH_END = '';
+    public const SLASH_END = '';
 
     /**
      * @var Settings
@@ -38,10 +36,10 @@ abstract class AbstractRoute
 
     // Разрешено ли выполнять SQL запросы для формирования поля slug
     protected static $useSqlToGenerate = true;
-    
+
     // Сочетания урла сущности и поля slug роута
     protected static $routeAliases;
-    
+
     /**
      * Параметры которые были пойманы роутером при помощи регулярных выражения
      */
@@ -59,9 +57,9 @@ abstract class AbstractRoute
     }
 
     /**
-     * Метод сообщает могут ли вообще использоваться SQL запросы для построения конкретного урла сущности 
+     * Метод сообщает могут ли вообще использоваться SQL запросы для построения конкретного урла сущности
      * (допустим доставаться категории или )
-     * 
+     *
      * @return bool
      */
     public function getIsUsesSqlToGenerate()
@@ -72,7 +70,7 @@ abstract class AbstractRoute
     /**
      * Метод возвращает разрешено ли выполнять SQL запросы для формирования поля slug (например доставать доп категории
      * или искать их в RouterCacheEntity)
-     * 
+     *
      * @return bool
      */
     public static function getUseSqlToGenerate()
@@ -88,12 +86,12 @@ abstract class AbstractRoute
     {
         self::$useSqlToGenerate = false;
     }
-    
+
     /**
      * Метод устанавливает связь между урлом сущности и его slug. Может быть необходимо когда весь slug генерируется
-     * динамически (например все родительские категории) и нельзя выполнять запросы в базу (например работаем с 
+     * динамически (например все родительские категории) и нельзя выполнять запросы в базу (например работаем с
      * небуферизированными запросами) можно установить связь урла и полностью поля slug (которое есть у RouterCacheEntity)
-     * 
+     *
      * @param $url
      * @param $routeAlias
      */
@@ -123,7 +121,7 @@ abstract class AbstractRoute
         }
         return false;
     }
-    
+
     public function generateRouteParams()
     {
         $url = $this->prepareUrl(Request::getRequestUri());

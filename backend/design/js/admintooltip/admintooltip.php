@@ -12,9 +12,7 @@ use Okay\Core\Modules\Modules;
 
 chdir('../../../../');
 
-if (!empty($_SERVER['HTTP_USER_AGENT'])){
-    session_name(md5($_SERVER['HTTP_USER_AGENT']));
-}
+session_name('okay_admin_sid');
 
 session_start();
 require_once('vendor/autoload.php');
@@ -53,21 +51,24 @@ $manager = $DI->get(EntityFactory::class)->get(ManagersEntity::class)->get($_SES
 /** @var Design $design */
 $design = $DI->get(Design::class);
 
-if (empty($manager->id)) {
+if (!is_object($manager) || empty($manager->id)) {
     print "not admin :(";
     exit;
 }
+/** @var object{id: int|string, lang?: mixed} $manager */
 
 $design->setTemplatesDir('backend/design/js/admintooltip');
 $design->setCompiledDir('backend/design/compiled');
 
 // Перевод админки
 $backendTranslations = $DI->get(BackendTranslations::class);
-$backendTranslations->initTranslations($manager->lang);
+$managerLang = isset($manager->lang) && is_scalar($manager->lang) ? (string)$manager->lang : '';
+$backendTranslations->initTranslations($managerLang);
 $design->assign('btr', $backendTranslations);
-$language = $manager = $DI->get(EntityFactory::class)->get(LanguagesEntity::class)->get((string)$manager->lang);
+$language = $DI->get(EntityFactory::class)->get(LanguagesEntity::class)->get($managerLang);
 $design->assign('language', $language);
-$design->assign('front_lang_id', $_SESSION['lang_id'] ?? (string)$manager->lang->id);
+$frontLangId = $_SESSION['lang_id'] ?? (is_object($language) && isset($language->id) ? (string)$language->id : $managerLang);
+$design->assign('front_lang_id', $frontLangId);
 
 $menuSelector = [];
 $fastMenu = $managerMenu->getFastMenu();

@@ -1,19 +1,16 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Admin\Helpers\BackendCurrenciesHelper;
 use Okay\Admin\Requests\BackendCurrenciesRequest;
 
 class CurrencyAdmin extends IndexAdmin
 {
-    
     public function fetch(
-        BackendCurrenciesHelper  $backendCurrenciesHelper,
+        BackendCurrenciesHelper $backendCurrenciesHelper,
         BackendCurrenciesRequest $currenciesRequest
-    ){
+    ) {
         // Обработка действий
         if ($this->request->method('post')) {
             $currencies = $currenciesRequest->postCurrencies();
@@ -28,32 +25,27 @@ class CurrencyAdmin extends IndexAdmin
 
             $backendCurrenciesHelper->recalculateCurrencies($currencies);
             $backendCurrenciesHelper->sortCurrencies($currencies);
-            
+
             // Действия с выбранными
             $action = $currenciesRequest->postAction();
             $id     = $currenciesRequest->postactionId();
             if (!empty($action) && !empty($id)) {
                 switch ($action) {
-                    case 'disable': {
+                    case 'disable':
                         $backendCurrenciesHelper->disable($id);
                         break;
-                    }
-                    case 'enable': {
+                    case 'enable':
                         $backendCurrenciesHelper->disable($id);
                         break;
-                    }
-                    case 'show_cents': {
+                    case 'show_cents':
                         $backendCurrenciesHelper->showCents($id);
                         break;
-                    }
-                    case 'hide_cents': {
+                    case 'hide_cents':
                         $backendCurrenciesHelper->hideCents($id);
                         break;
-                    }
-                    case 'delete': {
+                    case 'delete':
                         $backendCurrenciesHelper->delete($id);
                         break;
-                    }
                 }
             }
         }
@@ -62,8 +54,7 @@ class CurrencyAdmin extends IndexAdmin
         $currency   = $backendCurrenciesHelper->getMainCurrency();
         $this->design->assign('currency', $currency);
         $this->design->assign('currencies', $currencies);
-        
+
         $this->response->setContent($this->design->fetch('currency.tpl'));
     }
-    
 }

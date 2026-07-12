@@ -6,6 +6,18 @@ use Okay\Core\Entity\Entity;
 use Okay\Core\Translit;
 use Okay\Entities\LanguagesEntity;
 
+/**
+ * @phpstan-type FeedRow \stdClass&object{
+ *     id: int|string|null,
+ *     name: string,
+ *     url: string,
+ *     position: int|string,
+ *     categories_settings: mixed,
+ *     features_settings: mixed,
+ *     settings: mixed
+ * }
+ * @phpstan-type LanguageRow object{id: int|string}
+ */
 class FeedsEntity extends Entity
 {
     protected static $fields = [
@@ -42,18 +54,21 @@ class FeedsEntity extends Entity
         if (!$field) {
             if (in_array('categories_settings', $resultFields)) {
                 foreach ($results as $result) {
+                    /** @var FeedRow $result */
                     $result->categories_settings = unserialize($result->categories_settings);
                 }
             }
 
             if (in_array('features_settings', $resultFields)) {
                 foreach ($results as $result) {
+                    /** @var FeedRow $result */
                     $result->features_settings = unserialize($result->features_settings);
                 }
             }
 
             if (in_array('features_settings', $resultFields)) {
                 foreach ($results as $result) {
+                    /** @var FeedRow $result */
                     $result->settings = unserialize($result->settings);
                 }
             }
@@ -72,6 +87,7 @@ class FeedsEntity extends Entity
         $translit = $this->serviceLocator->getService(Translit::class);
 
         $feed = (object)$feed;
+        /** @var FeedRow $feed */
         if (empty($feed->url)) {
             $feed->url = $translit->translit($feed->name);
             $feed->url = str_replace('.', '', $feed->url);
@@ -80,10 +96,10 @@ class FeedsEntity extends Entity
         $feed->url = preg_replace("/[\s]+/ui", '', $feed->url);
 
         while ($this->findOne(['url' => $feed->url])) {
-            if(preg_match('/(.+)([0-9]+)$/', $feed->url, $parts)) {
-                $feed->url = $parts[1].''.($parts[2]+1);
+            if (preg_match('/(.+)([0-9]+)$/', $feed->url, $parts)) {
+                $feed->url = $parts[1] . '' . ($parts[2] + 1);
             } else {
-                $feed->url = $feed->url.'2';
+                $feed->url = $feed->url . '2';
             }
         }
 
@@ -138,7 +154,11 @@ class FeedsEntity extends Entity
 
     public function duplicate($feedId)
     {
+        /** @var FeedRow|null $feed */
         $feed = $this->findOne(['id' => $feedId]);
+        if (!$feed) {
+            return false;
+        }
 
         //Запоминаем текущую позицию, на нее станет новая запись
         $position = $feed->position;
@@ -148,7 +168,7 @@ class FeedsEntity extends Entity
         $fields = array_merge($this->getFields(), $this->getLangFields());
 
         foreach ($fields as $field) {
-            if (property_exists($feed, $field)) {
+            if (!empty($field) && property_exists($feed, $field)) {
                 $newFeed->$field = $feed->$field;
             }
         }
@@ -191,6 +211,7 @@ class FeedsEntity extends Entity
             /** @var LanguagesEntity $langEntity */
             $langEntity = $this->entity->get(LanguagesEntity::class);
 
+            /** @var array<int|string, LanguageRow> $languages */
             $languages = $langEntity->find();
             $feedLangFields = $this->getLangFields();
 
@@ -199,9 +220,13 @@ class FeedsEntity extends Entity
                     $this->lang->setLangId($language->id);
 
                     if (!empty($feedLangFields)) {
+                        /** @var object|null $sourceFeed */
                         $sourceFeed = $this->findOne(['id' => $feedId]);
+                        if (!$sourceFeed) {
+                            continue;
+                        }
                         $destinationFeed = new \stdClass();
-                        foreach($feedLangFields as $field) {
+                        foreach ($feedLangFields as $field) {
                             $destinationFeed->{$field} = $sourceFeed->{$field};
                         }
                         $this->update($newFeedId, $destinationFeed);

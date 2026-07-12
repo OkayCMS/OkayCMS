@@ -1,11 +1,12 @@
 <?php
 
-
 namespace Okay\Helpers;
-
 
 use Okay\Core\Modules\Extender\ExtenderFacade;
 
+/**
+ * @phpstan-type PageRow object{visible: mixed}&\stdClass
+ */
 class PagesHelper
 {
     /**
@@ -13,8 +14,8 @@ class PagesHelper
      * можно переопределить логику работы контроллера и отменить дальнейшие действия
      * для этого после реализации другой логики необходимо вернуть true из экстендера
      *
-     * @param object $page
-     * @return object
+     * @param PageRow|false|null $page
+     * @return false|null
      */
     public function setPage($page, $url)
     {

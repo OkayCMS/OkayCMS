@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\Rozetka\Helpers;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Image;
@@ -22,9 +20,28 @@ use Okay\Entities\VariantsEntity;
 use Okay\Helpers\XmlFeedHelper;
 use Okay\Modules\OkayCMS\Rozetka\Entities\RozetkaRelationsEntity;
 
+/**
+ * @phpstan-type CurrencyRow object{id: int|string, code: string, rate_from: int|float, rate_to: int|float}
+ * @phpstan-type FeedProductRow object{
+ *     url: string,
+ *     slug_url: string,
+ *     variant_id: int|string,
+ *     product_name: string,
+ *     variant_name?: string|null,
+ *     price: int|float,
+ *     compare_price: int|float|null,
+ *     currency_id: int|string|null,
+ *     main_category_id: int|string|null,
+ *     images?: list<string>,
+ *     stock: int|float|string|null,
+ *     brand_name?: string|null,
+ *     sku?: string|null,
+ *     description?: string|null,
+ *     features?: array<int|string, array{name: string, values: list<string>}>
+ * }
+ */
 class RozetkaHelper
 {
-
     /** @var Image */
     private $image;
 
@@ -44,16 +61,18 @@ class RozetkaHelper
     private $feedHelper;
 
 
+    /** @var CurrencyRow */
     private $mainCurrency;
 
+    /** @var array<int|string, CurrencyRow> */
     private $allCurrencies;
-    
+
     public function __construct(
-        Image         $image,
-        Money         $money,
-        Settings      $settings,
-        QueryFactory  $queryFactory,
-        Languages     $languages,
+        Image $image,
+        Money $money,
+        Settings $settings,
+        QueryFactory $queryFactory,
+        Languages $languages,
         EntityFactory $entityFactory,
         XmlFeedHelper $feedHelper
     ) {
@@ -73,16 +92,15 @@ class RozetkaHelper
 
     /**
      * Метод возвращает итоговый запрос, который достаёт все товары с изображениями с свойствами.
-     * По результатам замеров, лучшие результаты производительности достигаются при джоине ленговых таблиц 
+     * По результатам замеров, лучшие результаты производительности достигаются при джоине ленговых таблиц
      * после фильтрации.
-     * Фильтрация результатов и группировка свойств с изображениями вынесена в подзапрос, 
+     * Фильтрация результатов и группировка свойств с изображениями вынесена в подзапрос,
      * который формируется методом getSubSelect()
      *
      * @param string|integer $feedId
-     * @param array $uploadCategories
-     * @return Select
+     * @param array<int|string, int|string> $uploadCategories
      */
-    public function getQuery($feedId, $uploadCategories = []) : Select
+    public function getQuery($feedId, $uploadCategories = []): Select
     {
         $subSelect = $this->getSubSelect($feedId, $uploadCategories);
         if ($this->settings->get('use_full_description_in_upload_rozetka')) {
@@ -90,7 +108,7 @@ class RozetkaHelper
         } else {
             $descriptionField = 'lp.annotation';
         }
-        
+
         $sql = $this->queryFactory->newSelect();
         $sql->cols([
             't.*',
@@ -99,22 +117,21 @@ class RozetkaHelper
             'lb.name as brand_name',
             $descriptionField . ' AS description',
         ])->fromSubSelect($subSelect, 't')
-            ->leftJoin(ProductsEntity::getLangTable().' AS lp', 'lp.product_id = t.product_id and lp.lang_id=' . $this->languages->getLangId())
-            ->leftJoin(VariantsEntity::getLangTable().' AS lv', 'lv.variant_id = t.variant_id and lv.lang_id=' . $this->languages->getLangId())
-            ->leftJoin(BrandsEntity::getLangTable().' AS lb', 'lb.brand_id = t.brand_id and lb.lang_id=' . $this->languages->getLangId());
-        
+            ->leftJoin(ProductsEntity::getLangTable() . ' AS lp', 'lp.product_id = t.product_id and lp.lang_id=' . $this->languages->getLangId())
+            ->leftJoin(VariantsEntity::getLangTable() . ' AS lv', 'lv.variant_id = t.variant_id and lv.lang_id=' . $this->languages->getLangId())
+            ->leftJoin(BrandsEntity::getLangTable() . ' AS lb', 'lb.brand_id = t.brand_id and lb.lang_id=' . $this->languages->getLangId());
+
         return ExtenderFacade::execute(__METHOD__, $sql, func_get_args());
     }
 
     /**
-     * Метод возвращает подзапрос, который фильтрует и сортирует результаты, здесь достаются только не мультиязычные 
+     * Метод возвращает подзапрос, который фильтрует и сортирует результаты, здесь достаются только не мультиязычные
      * данные, кроме свойств. Свойства нужно доставать здесь, т.к. их группируем через GROUP_CONCAT()
      *
      * @param string|integer $feedId
-     * @param array $uploadCategories
-     * @return Select
+     * @param array<int|string, int|string> $uploadCategories
      */
-    private function getSubSelect($feedId, $uploadCategories = []) : Select
+    private function getSubSelect($feedId, $uploadCategories = []): Select
     {
         $sql = $this->queryFactory->newSelect();
 
@@ -137,8 +154,8 @@ class RozetkaHelper
             'p.main_category_id',
             'p.brand_id',
         ])  ->from(VariantsEntity::getTable() . ' AS v')
-            ->leftJoin(ProductsEntity::getTable().' AS  p', 'v.product_id=p.id')
-            ->leftJoin(RouterCacheEntity::getTable().' AS r', 'r.url = p.url AND r.type="product"')
+            ->leftJoin(ProductsEntity::getTable() . ' AS  p', 'v.product_id=p.id')
+            ->leftJoin(RouterCacheEntity::getTable() . ' AS r', 'r.url = p.url AND r.type="product"')
             ->where('p.visible')
             ->where("p.id NOT IN (SELECT entity_id FROM " . RozetkaRelationsEntity::getTable() . " WHERE feed_id = :feed_id AND entity_type = 'product' AND include = 0)")
             ->where("(p.id IN (SELECT entity_id FROM " . RozetkaRelationsEntity::getTable() . " WHERE feed_id = :feed_id AND entity_type = 'product' AND include = 1) OR
@@ -151,8 +168,8 @@ class RozetkaHelper
         if (!$this->settings->get('okaycms__rozetka_xml__upload_without_images')) {
             $sql->where('p.main_image_id != \'\' AND p.main_image_id IS NOT NULL');
         }
-        
-        if ($this->settings->get('upload_only_available_to_rozetka')) {
+
+        if ($this->settings->get('upload_only_available_to_rozetka') && !$this->settings->get('is_preorder')) {
             $sql->where('(v.stock >0 OR v.stock is NULL)');
         }
 
@@ -160,20 +177,20 @@ class RozetkaHelper
         // feedHelper чтобы он добавил этот запрос
         $sql = $this->feedHelper->joinImages($sql);
         $sql = $this->feedHelper->joinFeatures($sql);
-        
+
         return ExtenderFacade::execute(__METHOD__, $sql, func_get_args());
     }
 
     /**
      * Формируем описание офера в виде массива
-     * 
-     * @param object $product строка выборки из базы (запрос формирующийся методом getQuery),
+     *
+     * @param FeedProductRow $product строка выборки из базы (запрос формирующийся методом getQuery),
      * но после отработки методов attachFeatures и attachImages.
      * @param bool $addVariantUrl Если true будет добавлен урл на определенный вариант
-     * @return array
+     * @return array<int|string, array<string, mixed>>
      * @throws \Exception
      */
-    public function getItem($product, $addVariantUrl = false) : array
+    public function getItem($product, $addVariantUrl = false): array
     {
         // Указываем связку урла товара и его slug
         ProductRoute::setUrlSlugAlias($product->url, $product->slug_url);
@@ -182,22 +199,23 @@ class RozetkaHelper
         } else {
             $result['url']['data'] = Router::generateUrl('product', ['url' => $product->url], true);
         }
-        
+
         $result['name']['data'] = $this->feedHelper->escape($product->product_name . (!empty($product->variant_name) ? ' ' . $product->variant_name : ''));
 
         $price = $product->price;
         $comparePrice = $product->compare_price;
-        if (isset($this->allCurrencies[$product->currency_id])) {
+        $currencyId = $product->currency_id;
+        if ($currencyId !== null && isset($this->allCurrencies[$currencyId])) {
             // Переводим в основную валюту сайта
-            $variantCurrency = $this->allCurrencies[$product->currency_id];
-            if (!empty($product->currency_id) && $variantCurrency->rate_from != $variantCurrency->rate_to) {
+            $variantCurrency = $this->allCurrencies[$currencyId];
+            if ($variantCurrency->rate_from != $variantCurrency->rate_to) {
                 $price = round($product->price * $variantCurrency->rate_to / $variantCurrency->rate_from, 2);
                 if (!empty($product->compare_price)) {
                     $comparePrice = round($product->compare_price * $variantCurrency->rate_to / $variantCurrency->rate_from, 2);
                 }
             }
         }
-        
+
         $result['price']['data'] = $this->money->convert($price, $this->mainCurrency->id, false);
         if ($product->compare_price > 0) {
             $comparePrice = $this->money->convert($comparePrice, $this->mainCurrency->id, false);
@@ -218,18 +236,18 @@ class RozetkaHelper
                 }
             }
         }
-        
+
         $result['stock_quantity']['data'] = $product->stock;
         $result['delivery']['data'] = 'true';
-        
+
         if (!empty($product->brand_name)) {
             $result['vendor']['data'] = $this->feedHelper->escape($product->brand_name);
         }
-        
+
         if (!empty($product->sku)) {
             $result['vendorCode']['data'] = $this->feedHelper->escape($product->sku);
         }
-        
+
         if (!empty($product->description)) {
             $result['description']['data'] = $this->feedHelper->escape($product->description);
         }

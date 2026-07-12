@@ -4,8 +4,10 @@ namespace Okay\Core\Modules\DTO;
 
 class LicenseDTO
 {
+    /** @var array<int, string>|null */
     private ?array $modulesLicenses = null;
 
+    /** @var array<int, string> */
     private array $officialModules = [];
 
     private ?string $templateLicense = null;
@@ -13,7 +15,7 @@ class LicenseDTO
     private bool $isOfficialTemplate = false;
 
     /**
-     * @return array|null
+     * @return array<int, string>|null
      */
     public function getModulesLicenses(): ?array
     {
@@ -21,7 +23,7 @@ class LicenseDTO
     }
 
     /**
-     * @param array $modulesLicenses
+     * @param array<int, string> $modulesLicenses
      */
     public function setModulesLicenses(array $modulesLicenses): void
     {
@@ -29,7 +31,7 @@ class LicenseDTO
     }
 
     /**
-     * @return array
+     * @return array<int, string>
      */
     public function getOfficialModules(): array
     {
@@ -37,7 +39,7 @@ class LicenseDTO
     }
 
     /**
-     * @param array $officialModules
+     * @param array<int, string> $officialModules
      */
     public function setOfficialModules(array $officialModules): void
     {

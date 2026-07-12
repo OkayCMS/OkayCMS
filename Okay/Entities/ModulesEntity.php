@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Modules\Module;
@@ -52,10 +50,10 @@ class ModulesEntity extends Entity
         $this->db->query($this->select);
         return $this->getResult();
     }
-    
+
     public function enable($ids)
     {
-        return $this->update($ids, ['enabled'=>1]);
+        return $this->update($ids, ['enabled' => 1]);
     }
 
     public function delete($ids)
@@ -66,42 +64,44 @@ class ModulesEntity extends Entity
 
     public function disable($ids)
     {
-        return $this->update($ids, ['enabled'=>0]);
+        return $this->update($ids, ['enabled' => 0]);
     }
 
     // TODO подумать над тем, чтоб модули автоматически индексировались в базу при заходе в вдминку, тогда этот метод будет не нужен
     public function findNotInstalled($filterVendor = null, $filterModuleName = null)
     {
-        
+
         $SL = ServiceLocator::getInstance();
-        
+
         /** @var Module $moduleCore */
         $moduleCore = $SL->getService(Module::class);
-        
-        $modulesDir = __DIR__.'/../Modules/';
+
+        $modulesDir = __DIR__ . '/../Modules/';
         $modulesDirContains = scandir($modulesDir);
 
         $notInstalledModules = [];
         $installedFullModuleNames = $this->installedFullModuleNames();
-        foreach($modulesDirContains as $vendorName) {
-            if ($this->isNotDir($modulesDir.$vendorName)) {
+        foreach ($modulesDirContains as $vendorName) {
+            if ($this->isNotDir($modulesDir . $vendorName)) {
                 continue;
             }
-
-            $modulesByVendor = scandir($modulesDir.$vendorName);
-            foreach($modulesByVendor as $moduleName) {
-                
+            if (!preg_match('~^[\w]+$~', $vendorName)) {
+                continue;
+            }
+            $modulesByVendor = scandir($modulesDir . $vendorName);
+            foreach ($modulesByVendor as $moduleName) {
                 if ($filterVendor !== null && $filterVendor != $vendorName) {
                     continue;
                 }
                 if ($filterModuleName !== null && $filterModuleName != $moduleName) {
                     continue;
                 }
-                
-                if ($this->isNotDir($modulesDir.$vendorName.'/'.$moduleName)) {
+                if ($this->isNotDir($modulesDir . $vendorName . '/' . $moduleName)) {
                     continue;
                 }
-
+                if (!preg_match('~^[\w]+$~', $moduleName)) {
+                    continue;
+                }
                 $fullModuleName = $this->compileFullModuleName($vendorName, $moduleName);
                 if (in_array($fullModuleName, $installedFullModuleNames)) {
                     continue;
@@ -118,7 +118,7 @@ class ModulesEntity extends Entity
 
                 $module->params = $moduleCore->getModuleParams($vendorName, $moduleName);
                 $module->version = $module->params->getVersion();
-                
+
                 $notInstalledModules[] = $module;
             }
         }
@@ -132,7 +132,7 @@ class ModulesEntity extends Entity
             throw new \Exception("Vendor And Name cannot be empty");
         }
 
-        return $vendor.'/'.$moduleName;
+        return $vendor . '/' . $moduleName;
     }
 
     protected function filter__without_system()
@@ -145,7 +145,7 @@ class ModulesEntity extends Entity
         $installedModules = $this->cols(['vendor', 'module_name'])->find();
 
         $installedFullModuleNames = [];
-        foreach($installedModules as $module) {
+        foreach ($installedModules as $module) {
             $installedFullModuleNames[] = $this->compileFullModuleName($module->vendor, $module->module_name);
         }
 

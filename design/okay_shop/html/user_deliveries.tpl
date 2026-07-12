@@ -12,13 +12,13 @@
 				<div class="delivery__item fn_delivery_item">
 					<label class="checkbox delivery__label{if $active_delivery->id == $delivery->id} active{/if}" for="deliveries_{$delivery->id}">
 						{*NOTICE: Обратите внимание, data-total_price хранится в основной валюте сайта*}
-						<input class="checkbox__input delivery__input" 
+						<input class="checkbox__input delivery__input"
 							    id="deliveries_{$delivery->id}"
 							   onchange="okay.change_payment_method();"
 							   data-module_id="{$delivery->module_id}"
-							   data-payment_method_ids="{implode(',', $delivery->payment_methods_ids)}"
+							   data-payment_method_ids="{if !empty($delivery->payment_methods_ids)}{$delivery->payment_methods_ids|join:','}{/if}"
 							   type="radio"
-							   name="delivery_id" 
+							   name="delivery_id"
 							   value="{$delivery->id}"
 								{if $active_delivery->id == $delivery->id} checked{/if} />
 						<svg class="checkbox__icon" viewBox="0 0 20 20">
@@ -39,7 +39,7 @@
 							</span>
 						{/if}
 					</label>
-					
+
 					{$block = {get_design_block block='front_user_delivery' vars=['delivery' => $delivery]}}
 					{if $delivery->description || $block}
 						<div class="delivery__description">
@@ -54,8 +54,8 @@
 				</div>
 			{/foreach}
 		</div>
-    </div> 
-    
+    </div>
+
     {* Payment methods *}
 	{if $payment_methods}
 		<div class="fn_payments_block"{if !$active_delivery->payment_methods_ids} style="display: none;" {/if}>

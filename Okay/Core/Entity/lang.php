@@ -1,15 +1,12 @@
 <?php
 
-
 namespace Okay\Core\Entity;
-
 
 trait lang
 {
-
     /**
-     * @param array $langParams
-     * @return array
+     * @param array<string, mixed> $langParams
+     * @return list<string>
      * Возвращает массив колонок сущности с алиасами.
      * Если через setSelectFields() установили кастомный список колонок, метод вернет их в формате неассоциативного массива
      */
@@ -19,8 +16,8 @@ trait lang
     }
 
     /**
-     * @param array $langParams
-     * @return array
+     * @param array<string, mixed> $langParams
+     * @return array<int|string, string>
      * Возвращает массив колонок сущности с алиасами.
      * Если через setSelectFields() установили кастомный список колонок, метод вернет их в формате ассоциативного массива
      * где ключем будут имена полей без алиасов таблиц
@@ -28,12 +25,14 @@ trait lang
     final public function getAllFieldsKeyLabel($langParams = [])
     {
         if (!empty($this->selectFields)) {
-
             $fields = [];
             $langFields = [];
             $customFields = [];
             foreach ($this->selectFields as $f) {
-                preg_match('~^([\w`\.]*\.)?`?(.+?)`?(:? as (.+))?$~i', $f, $matches);
+                if (!preg_match('~^([\w`\.]*\.)?`?(.+?)`?(:? as (.+))?$~i', $f, $matches)) {
+                    $customFields[] = $f;
+                    continue;
+                }
                 $fieldName = $matches[2];
 
                 if (in_array($fieldName, $this->getLangFields())) {
@@ -49,7 +48,6 @@ trait lang
             $langFields = $this->getFieldsWithAlias($langFields, $langParams);
 
             $fields = array_merge($fields, $customFields);
-
         } else {
             $fields = $this->getFieldsWithAlias($this->getFields(), $langParams);
             $langFields = $this->getFieldsWithAlias($this->getLangFields(), $langParams);
@@ -61,7 +59,7 @@ trait lang
     }
 
     /**
-     * @return array
+     * @return list<string>
      * Метод возвращает список полей сущности без алиасв таблиц указываемых перед именем поля (Пример: l.name => name)
      */
     final public function getAllFieldsWithoutAlias()
@@ -69,7 +67,9 @@ trait lang
         $allFields = $this->getAllFields();
 
         foreach ($allFields as &$f) {
-            preg_match('~^([\w`\.]*\.)?`?(.+?)`?(:? as (.+))?$~i', $f, $matches);
+            if (!preg_match('~^([\w`\.]*\.)?`?(.+?)`?(:? as (.+))?$~i', $f, $matches)) {
+                continue;
+            }
             $f = isset($matches[4]) ? $matches[4] : $matches[2];
         }
         unset($f);
@@ -99,30 +99,27 @@ trait lang
     }
 
     /**
-     * @param array $fields
-     * @param array $params
-     * @return array
+     * @param array<int|string, string> $fields
+     * @param array<string, mixed> $params
+     * @return array<string, string>
      * Метод добавляет алиасы для основных колонок сущности (если их еще не задали)
      */
     protected function getFieldsWithAlias(array $fields, $params = [])
     {
         $result = [];
 
-        if (is_array($fields)) {
-            foreach ($fields as $field) {
+        foreach ($fields as $field) {
+            if (in_array($field, $this->getLangFields())) {
+                $tableAlias = $this->lang->getLangAlias($this->getTableAlias(), $params);
+            } else {
+                $tableAlias = $this->getTableAlias();
+            }
 
-                if (in_array($field, $this->getLangFields())) {
-                    $tableAlias = $this->lang->getLangAlias($this->getTableAlias(), $params);
-                } else {
-                    $tableAlias = $this->getTableAlias();
-                }
-
-                $label = $this->removeAlias($field);
-                if ($this->hasTableAlias($field)) {
-                    $result[$label] = $field;
-                } else {
-                    $result[$label] = $tableAlias . '.' . $field;
-                }
+            $label = $this->removeAlias($field);
+            if ($this->hasTableAlias($field)) {
+                $result[$label] = $field;
+            } else {
+                $result[$label] = $tableAlias . '.' . $field;
             }
         }
 
@@ -138,7 +135,7 @@ trait lang
         return explode('.', $field)[1];
     }
 
-    private function hasTableAlias($field) 
+    private function hasTableAlias($field)
     {
         if (preg_match('~^\w{1,5}\..+$~', $field)) {
             return true;
@@ -146,5 +143,4 @@ trait lang
 
         return false;
     }
-
 }

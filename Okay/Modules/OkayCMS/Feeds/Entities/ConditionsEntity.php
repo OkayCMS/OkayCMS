@@ -5,9 +5,12 @@ namespace Okay\Modules\OkayCMS\Feeds\Entities;
 use Okay\Core\Entity\Entity;
 use Okay\Modules\OkayCMS\Feeds\Init\Init;
 
+/**
+ * @phpstan-type ConditionRow object{id: int|string, feed_id: int|string}
+ */
 class ConditionsEntity extends Entity
 {
-    static protected $fields = [
+    protected static $fields = [
         'id',
         'feed_id',
         'entity',
@@ -21,7 +24,7 @@ class ConditionsEntity extends Entity
     public function find(array $filter = []): array
     {
         $this->select->cols([
-            '(SELECT GROUP_CONCAT(entity_id) FROM '.Init::CONDITIONS_ENTITIES_RELATION_TABLE.' WHERE condition_id = id) AS "entity_ids"'
+            '(SELECT GROUP_CONCAT(entity_id) FROM ' . Init::CONDITIONS_ENTITIES_RELATION_TABLE . ' WHERE condition_id = id) AS "entity_ids"'
         ]);
 
         $conditions = parent::find($filter);
@@ -48,14 +51,18 @@ class ConditionsEntity extends Entity
 
     public function duplicate($conditionId, $newFeedId)
     {
+        /** @var ConditionRow|null $condition */
         $condition = $this->findOne(['id' => $conditionId]);
+        if (!$condition) {
+            return false;
+        }
 
         $newCondition = new \stdClass();
 
         $fields = array_merge($this->getFields(), $this->getLangFields());
 
         foreach ($fields as $field) {
-            if (property_exists($condition, $field)) {
+            if (!empty($field) && property_exists($condition, $field)) {
                 $newCondition->$field = $condition->$field;
             }
         }
@@ -73,7 +80,7 @@ class ConditionsEntity extends Entity
     private function duplicateConditionsEntities($conditionId, $newConditionId): void
     {
         $this->queryFactory->newSqlQuery()
-            ->setStatement('INSERT INTO '.Init::CONDITIONS_ENTITIES_RELATION_TABLE.' SELECT :new_condition_id, `entity_id` FROM '.Init::CONDITIONS_ENTITIES_RELATION_TABLE.' WHERE condition_id = :condition_id;')
+            ->setStatement('INSERT INTO ' . Init::CONDITIONS_ENTITIES_RELATION_TABLE . ' SELECT :new_condition_id, `entity_id` FROM ' . Init::CONDITIONS_ENTITIES_RELATION_TABLE . ' WHERE condition_id = :condition_id;')
             ->bindValues([
                 'condition_id' => $conditionId,
                 'new_condition_id' => $newConditionId
@@ -95,6 +102,9 @@ class ConditionsEntity extends Entity
         $this->delete($ids);
     }
 
+    /**
+     * @param array<int|string, int|string> $entityIds
+     */
     public function updateConditionEntities($conditionId, array $entityIds): void
     {
         $this->queryFactory->newDelete()

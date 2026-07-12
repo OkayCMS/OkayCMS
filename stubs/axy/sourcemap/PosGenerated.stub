@@ -1,0 +1,13 @@
+<?php
+
+namespace axy\sourcemap;
+
+/**
+ * Stub file for PHPStan to recognize PosGenerated class and its properties
+ *
+ * @property int $line Line number in generated file
+ * @property int $column Column number in generated file
+ */
+class PosGenerated
+{
+}

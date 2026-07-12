@@ -1,17 +1,14 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Admin\Helpers\BackendAuthorsHelper;
 use Okay\Admin\Requests\BackendAuthorsRequest;
 
 class AuthorsAdmin extends IndexAdmin
 {
-    
     public function fetch(
-        BackendAuthorsHelper  $backendAuthorsHelper,
+        BackendAuthorsHelper $backendAuthorsHelper,
         BackendAuthorsRequest $authorsRequest
     ) {
         $filter = $backendAuthorsHelper->buildFilter();
@@ -26,22 +23,18 @@ class AuthorsAdmin extends IndexAdmin
             // Действия с выбранными
             $ids = $authorsRequest->postCheck();
             switch ($authorsRequest->postAction()) {
-                case 'enable': {
+                case 'enable':
                     $backendAuthorsHelper->enable($ids);
                     break;
-                }
-                case 'disable': {
+                case 'disable':
                     $backendAuthorsHelper->disable($ids);
                     break;
-                }
-                case 'delete': {
+                case 'delete':
                     $backendAuthorsHelper->delete($ids);
                     break;
-                }
-                case 'duplicate': {
+                case 'duplicate':
                     $backendAuthorsHelper->duplicate($ids);
                     break;
-                }
             }
         }
 
@@ -50,9 +43,9 @@ class AuthorsAdmin extends IndexAdmin
         $authors                    = $backendAuthorsHelper->findAuthors($filter);
 
         $this->design->assign('authors_count', $authorsCount);
-        $this->design->assign('pages_count',   $pagesCount);
-        $this->design->assign('current_page',  $filter['page']);
-        $this->design->assign('authors',       $authors);
+        $this->design->assign('pages_count', $pagesCount);
+        $this->design->assign('current_page', $filter['page']);
+        $this->design->assign('authors', $authors);
         $this->response->setContent($this->design->fetch('authors.tpl'));
     }
 }
