@@ -116,8 +116,8 @@ class BannerSettingsDTO implements \JsonSerializable
 
     public function fromArray(array $array)
     {
-        $this->setAsSlider((bool)($array['asSlider'] ?? true));
-        $this->setAutoplay((bool)($array['autoplay'] ?? true));
+        $this->setAsSlider((bool)($array['asSlider'] ?? false));
+        $this->setAutoplay((bool)($array['autoplay'] ?? false));
         $this->setLoop((bool)($array['loop'] ?? false));
         $this->setNav((bool)($array['nav'] ?? false));
         $this->setDots((bool)($array['dots'] ?? false));
