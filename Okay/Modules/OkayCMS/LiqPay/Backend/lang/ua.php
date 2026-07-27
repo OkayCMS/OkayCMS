@@ -17,3 +17,5 @@ $lang['liq_pay_pay_types_moment_part'] = "Розстрочка";
 $lang['liq_pay_pay_types_cash'] = "Готівкою";
 $lang['liq_pay_pay_types_invoice'] = "Рахунок на e-mail";
 $lang['liq_pay_pay_types_qr'] = "QR код";
+$lang['liq_pay_pay_send_receipts_client_after_fiscalization'] = "Надіслати клієнту квитанції після фіскалізації";
+$lang['liq_pay_pay_send_receipts_admin_after_fiscalization'] = "Надіслати адміну квитанції після фіскалізації";
