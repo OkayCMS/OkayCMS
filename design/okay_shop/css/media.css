@@ -1424,9 +1424,6 @@
   .product_preview__buttons .fast_order_button {
     margin-left: 3px;
   }
-  .header_informers__link i.fa-balance-scale:before {
-    font-size: 24px;
-  }
   .cart_header__logo img {
     height: auto;
     max-height: 50px;

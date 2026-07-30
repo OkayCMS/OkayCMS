@@ -3,8 +3,7 @@
 <div class="admTools">
     <a href="javascript:void(0);" class="openTools"></a>
     <p>{$btr->admintooltip_title_1}</p>
-    <p class="tool-descr">{$btr->admintooltip_descr}</p>
-    <a title="{$btr->admintooltip_go_to_admin}" href="backend/" class="admin_bookmark"></a>
+    <p class="tool-descr">{$btr->admintooltip_descr}</p><br>
     <p class="tool-title">{$btr->admintooltip_fast_edit}</p>
     <a title="{$btr->admintooltip_enable}" href="javascript:void(0);" class="changeTools"><span></span></a>
 </div>
