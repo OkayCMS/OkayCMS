@@ -17,20 +17,24 @@ use Okay\Helpers\ProductsHelper;
 
 class CategoryController extends AbstractController
 {
+    /**
+     * @param string $url
+     * @param string $filtersUrl
+     */
     public function render(
-        BrandsEntity           $brandsEntity,
-        CategoriesEntity       $categoriesEntity,
-        CatalogHelper          $catalogHelper,
-        ProductsHelper         $productsHelper,
-        FilterHelper           $filterHelper,
-        ProductsEntity         $productsEntity,
+        BrandsEntity $brandsEntity,
+        CategoriesEntity $categoriesEntity,
+        CatalogHelper $catalogHelper,
+        ProductsHelper $productsHelper,
+        FilterHelper $filterHelper,
+        ProductsEntity $productsEntity,
         CategoryMetadataHelper $categoryMetadataHelper,
-        CanonicalHelper        $canonicalHelper,
-        MetaRobotsHelper       $metaRobotsHelper,
-        RouteFactory           $routeFactory,
-        CategoriesHelper       $categoriesHelper,
-                               $url,
-                               $filtersUrl = ''
+        CanonicalHelper $canonicalHelper,
+        MetaRobotsHelper $metaRobotsHelper,
+        RouteFactory $routeFactory,
+        CategoriesHelper $categoriesHelper,
+        $url,
+        $filtersUrl = ''
     ) {
         $categoryRoute = $routeFactory->create('category');
         $this->design->assign('url', $categoryRoute->generateSlugUrl($url), true);
@@ -38,6 +42,7 @@ class CategoryController extends AbstractController
         $this->design->assign('ajax_filter_route', 'category_features', true);
 
         $category = $categoriesEntity->get((string)$url);
+        /** @var (object{id: int|string, visible: mixed, children: mixed, subcategories?: array<int|string, object>, path?: array<int|string, object{subcategories?: array<int|string, object>, count_children_visible?: bool|int|string}&\stdClass>, level_depth: int, count_children_visible?: bool|int|string, show_table_content?: bool|int|string, url: string, name: string|null, name_h1: string|null, annotation: string|null, description: string|null, meta_title: string|null, meta_keywords: string|null, meta_description: string|null}&\stdClass)|false|null $category */
 
         if (empty($category) || (!$category->visible && empty($_SESSION['admin']))) {
             return false;
@@ -57,7 +62,7 @@ class CategoryController extends AbstractController
         if (($productsFilter = $categoriesHelper->getProductsFilter($category, $filtersUrl)) === null) {
             return false;
         }
-        
+
         if (($currentPage = $filterHelper->getCurrentPage($filtersUrl)) === false) {
             return false;
         }
@@ -87,11 +92,12 @@ class CategoryController extends AbstractController
             'visible' => 1,
             'product_visible' => 1,
         ]);
-         
+
         $metaArray = $filterHelper->getMetaArray($filtersUrl);
 
         // Если в строке есть параметры которые не должны быть в фильтре, либо параметры с другой категории, бросаем 404
-        if (!empty($metaArray['features_values'])
+        if (
+            !empty($metaArray['features_values'])
             && array_intersect_key($metaArray['features_values'], $catalogFeatures) !== $metaArray['features_values']
             || !empty($metaArray['brand'])
             && array_intersect_key($metaArray['brand'], $catalogBrands) !== $metaArray['brand']
@@ -102,7 +108,7 @@ class CategoryController extends AbstractController
         $isFilterPage = $categoriesHelper->isFilterPage($productsFilter);
         $this->design->assign('is_filter_page', $isFilterPage);
 
-        if (!$this->settings->get('deferred_load_features') || $this->request->get('ajax','boolean')) {
+        if (!$this->settings->get('deferred_load_features') || $this->request->get('ajax', 'boolean')) {
             $categoriesHelper->assignFilterProcedure(
                 $productsFilter,
                 $catalogFeatures,
@@ -126,18 +132,20 @@ class CategoryController extends AbstractController
                     unset($catalogFeatures[$k]);
                 }
             }
-            
+
             $metaRobotsHelper->setAvailableFeatures($catalogFeatures);
         }
 
         $productsFilter = $filterHelper->getCategoryProductsFilter($productsFilter);
 
-        if (!$catalogHelper->paginate(
-            $this->settings->get('products_num'),
-            $currentPage,
-            $productsFilter,
-            $this->design
-        )) {
+        if (
+            !$catalogHelper->paginate(
+                $this->settings->get('products_num'),
+                $currentPage,
+                $productsFilter,
+                $this->design
+            )
+        ) {
             return false;
         }
 
@@ -145,8 +153,8 @@ class CategoryController extends AbstractController
         $products = $productsHelper->getList($productsFilter, $productsSort);
         $products = $productsHelper->attachDescriptionByTemplate($products);
         $this->design->assign('products', $products);
-        
-        if ($this->request->get('ajax','boolean')) {
+
+        if ($this->request->get('ajax', 'boolean')) {
             $this->design->assign('ajax', 1);
             $result = $catalogHelper->getAjaxFilterData();
             $this->response->setContent(json_encode($result), RESPONSE_JSON);
@@ -170,11 +178,13 @@ class CategoryController extends AbstractController
         if (isset($productsFilter['keyword'])) {
             $this->design->assign('noindex_nofollow', true);
         } else {
-            switch ($metaRobotsHelper->getCatalogRobots(
-                $currentPage,
-                $productsFilter['other_filter'] ?? [],
-                $metaArray['features_values'] ?? [],
-                $productsFilter['brand_id'] ?? [])
+            switch (
+                $metaRobotsHelper->getCatalogRobots(
+                    $currentPage,
+                    $productsFilter['other_filter'] ?? [],
+                    $metaArray['features_values'] ?? [],
+                    $productsFilter['brand_id'] ?? []
+                )
             ) {
                 case ROBOTS_NOINDEX_FOLLOW:
                     $this->design->assign('noindex_follow', true);
@@ -210,10 +220,10 @@ class CategoryController extends AbstractController
             if (!empty($chpuUrl)) {
                 $canonical = rtrim($canonical, '/') . '/' . $chpuUrl;
             }
-            
+
             $this->design->assign('canonical', $canonical);
         }
-        
+
         $relPrevNext = $this->design->fetch('products_rel_prev_next.tpl');
         $this->design->assign('rel_prev_next', $relPrevNext);
 
@@ -231,12 +241,16 @@ class CategoryController extends AbstractController
         $this->response->setContent('products.tpl');
     }
 
+    /**
+     * @param string $url
+     * @param string $filtersUrl
+     */
     public function getFilter(
         CategoriesEntity $categoriesEntity,
-        FilterHelper     $filterHelper,
+        FilterHelper $filterHelper,
         CategoriesHelper $categoriesHelper,
-                         $url,
-                         $filtersUrl = ''
+        $url,
+        $filtersUrl = ''
     ) {
 
         // Если ленивая отложенная загрузка фильтра отключена, этот метод должен давать 404

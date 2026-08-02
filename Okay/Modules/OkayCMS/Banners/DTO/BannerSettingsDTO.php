@@ -109,11 +109,15 @@ class BannerSettingsDTO implements \JsonSerializable
         $this->rotationSpeed = $rotationSpeed;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return get_object_vars($this);
     }
 
+    /**
+ * @param array<string, mixed> $array
+ */
     public function fromArray(array $array)
     {
         $this->setAsSlider((bool)($array['asSlider'] ?? true));

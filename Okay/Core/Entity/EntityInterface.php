@@ -1,12 +1,9 @@
 <?php
 
-
 namespace Okay\Core\Entity;
-
 
 interface EntityInterface
 {
-    
     /**
      * @param $id
      * @return object|false
@@ -15,14 +12,14 @@ interface EntityInterface
     public function get($id);
 
     /**
-     * @param array $filter
-     * @return array
+     * @param array<string, mixed> $filter
+     * @return array<int|string, mixed>
      * Поиск сущностей в соответствии с фильтром
      */
     public function find(array $filter = []);
-    
+
     /**
-     * @param array $filter
+     * @param array<string, mixed> $filter
      * @return object|false
      * Поиск одной сущности в соответствии с фильтром.
      * Метод возвращает один кортеж данных
@@ -31,14 +28,14 @@ interface EntityInterface
 
     /**
      * @param string $order
-     * @param array $additionalData кастомный массив данных, который может понадобиться в методе
+     * @param array<string, mixed> $additionalData кастомный массив данных, который может понадобиться в методе
      * @return self
-     * 
+     *
      */
     public function order($order, array $additionalData = []);
 
     /**
-     * @param array $cols
+     * @param array<int|string, string> $cols
      * @return self
      * Метод принимает массив колонок, которые нужно достать.
      * Может пригодиться в случае, когда не все колонки нужны
@@ -46,29 +43,29 @@ interface EntityInterface
     public function cols(array $cols);
 
     /**
-     * @param array $filter
+     * @param array<string, mixed> $filter
      * @return int
      * Подсчет сущностей, в соответствии с фильтром
      */
     public function count(array $filter = []);
 
     /**
-     * @param object|array $object
+     * @param object|array<string, mixed> $object
      * @return int|false
      * Добавление сущности
      */
     public function add($object);
 
     /**
-     * @param int|array $ids
-     * @param object|array $object
+     * @param mixed $ids
+     * @param object|array<string, mixed> $object
      * @return bool
      * Обновление сущности
      */
     public function update($ids, $object);
 
     /**
-     * @param array $ids
+     * @param mixed $ids
      * @return bool
      * Удаление сущности
      */

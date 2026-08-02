@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Helpers;
-
 
 use Okay\Core\Config;
 use Okay\Core\EntityFactory;
@@ -22,12 +20,12 @@ class BackendPaymentsHelper
      * @var Request
      */
     private $request;
-    
+
     /**
      * @var Config
      */
     private $config;
-    
+
     /**
      * @var Image
      */
@@ -45,15 +43,21 @@ class BackendPaymentsHelper
         $this->imageCore = $imageCore;
     }
 
+    /**
+     * @param array<int|string, int|string> $ids
+     */
     public function disable(array $ids)
     {
         if (is_array($ids)) {
-            $this->paymentMethodsEntity->update($ids, ['enabled'=>0]);
+            $this->paymentMethodsEntity->update($ids, ['enabled' => 0]);
         }
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    /**
+     * @param array<int|string, int|string> $ids
+     */
     public function enable(array $ids)
     {
         if (is_array($ids)) {
@@ -63,6 +67,9 @@ class BackendPaymentsHelper
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    /**
+     * @param array<int|string, int|string> $ids
+     */
     public function delete(array $ids)
     {
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
@@ -71,18 +78,21 @@ class BackendPaymentsHelper
         }
     }
 
+    /**
+     * @param array<int|string, int> $positions
+     */
     public function sortPositions(array $positions)
     {
         $ids = array_keys($positions);
         sort($positions);
 
-        foreach ($positions as $i=>$position) {
-            $this->paymentMethodsEntity->update($ids[$i], ['position'=>$position]);
+        foreach ($positions as $i => $position) {
+            $this->paymentMethodsEntity->update($ids[$i], ['position' => $position]);
         }
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
-    
+
     public function buildPaymentMethodsFilter()
     {
         $filter = [];
@@ -130,6 +140,7 @@ class BackendPaymentsHelper
     {
         $payment = $this->paymentMethodsEntity->get($id);
         if (!empty($payment->id)) {
+            /** @var object{id: int|string, payment_deliveries?: list<int>, payment_settings?: array<string, mixed>}&\stdClass $payment */
             $payment->payment_deliveries = $this->paymentMethodsEntity->getPaymentDeliveries($payment->id);
             $payment->payment_settings = $this->paymentMethodsEntity->getPaymentSettings($payment->id);
         } else {
@@ -140,18 +151,25 @@ class BackendPaymentsHelper
         return ExtenderFacade::execute(__METHOD__, $payment, func_get_args());
     }
 
+    /**
+     * @param array<string, mixed> $paymentSettings
+     */
     public function updateSettings($paymentId, array $paymentSettings)
     {
         $this->paymentMethodsEntity->updatePaymentSettings($paymentId, $paymentSettings);
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    /**
+     * @param array<int|string, int|string> $deliveries
+     */
     public function updatePaymentDeliveries($paymentId, array $deliveries)
     {
+        $deliveries = array_values(array_map('intval', $deliveries));
         $this->paymentMethodsEntity->updatePaymentDeliveries($paymentId, $deliveries);
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
-    
+
     public function deleteImage($brand)
     {
         $this->imageCore->deleteImage(
@@ -176,7 +194,7 @@ class BackendPaymentsHelper
                 $this->config->get('resized_payments_dir')
             );
 
-            $this->paymentMethodsEntity->update($brand->id, ['image'=>$filename]);
+            $this->paymentMethodsEntity->update($brand->id, ['image' => $filename]);
         }
 
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Requests;
-
 
 use Okay\Core\Phone;
 use Okay\Core\Request;
@@ -41,12 +39,13 @@ class BackendOrdersRequest
     {
         $purchases = [];
         if ($this->request->post('purchases')) {
-            foreach ($this->request->post('purchases') as $n => $va)
+            foreach ($this->request->post('purchases') as $n => $va) {
                 foreach ($va as $i => $v) {
                     if (empty($purchases[$i])) {
-                        $purchases[$i] = new \stdClass;
+                        $purchases[$i] = new \stdClass();
                     }
                     $purchases[$i]->$n = $v;
+                }
             }
         }
 
@@ -60,8 +59,9 @@ class BackendOrdersRequest
         if ($postDiscounts = $this->request->post('order_discounts')) {
             foreach ($postDiscounts as $field => $values) {
                 foreach ($values as $i => $value) {
-                    if (!isset($discounts[$i]))
+                    if (!isset($discounts[$i])) {
                         $discounts[$i] = new \stdClass();
+                    }
                     $discounts[$i]->{$field} = $value;
                 }
             }
@@ -79,8 +79,9 @@ class BackendOrdersRequest
                 if (!empty($postPurchaseDiscounts)) {
                     foreach ($postPurchaseDiscounts as $field => $values) {
                         foreach ($values as $i => $value) {
-                            if (!isset($discounts[$position][$i]))
+                            if (!isset($discounts[$position][$i])) {
                                 $discounts[$position][$i] = new \stdClass();
+                            }
                             $discounts[$position][$i]->{$field} = $value;
                         }
                     }
@@ -102,8 +103,9 @@ class BackendOrdersRequest
     public function postDiscountPositions()
     {
         $positions = $this->request->post('discount_positions');
-        if (empty($positions))
+        if (empty($positions)) {
             $positions = [];
+        }
         return ExtenderFacade::execute(__METHOD__, $positions, func_get_args());
     }
 }

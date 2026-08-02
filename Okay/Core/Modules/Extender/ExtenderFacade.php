@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Modules\Extender;
-
 
 class ExtenderFacade
 {
@@ -15,6 +13,9 @@ class ExtenderFacade
         $this->chainExtender = $chainExtender;
     }
 
+    /**
+     * @param list<mixed> $input
+     */
     public static function execute($trigger, $output = null, array $input = [])
     {
         if (is_array($trigger)) {
@@ -45,7 +46,7 @@ class ExtenderFacade
         return QueueExtender::extensionLog($trigger);
     }
 
-    public static  function chainExtLog($trigger)
+    public static function chainExtLog($trigger)
     {
         return ChainExtender::extensionLog($trigger);
     }
@@ -53,7 +54,7 @@ class ExtenderFacade
     private static function stringifyTrigger($trigger)
     {
         list($className, $methodName) = $trigger;
-        return $className.'::'.$methodName;
+        return $className . '::' . $methodName;
     }
 
     private function matchExtensionBindings($bindings)

@@ -492,6 +492,36 @@
 
 <script>
     $(function(){
+        $.ajaxPrefilter(function(options) {
+            var token = '{$smarty.session.id}';
+            var method = (options.type || options.method || 'GET').toUpperCase();
+            options.headers = options.headers || {};
+            options.headers['X-Okay-Session-Id'] = token;
+
+            if (method === 'GET') {
+                return;
+            }
+
+            if (options.data instanceof FormData) {
+                options.data.append('session_id', token);
+                return;
+            }
+
+            if (!options.data) {
+                options.data = {};
+            }
+
+            if (typeof options.data === 'string') {
+                if (options.data.indexOf('session_id=') === -1) {
+                    options.data += (options.data.length ? '&' : '') + 'session_id=' + encodeURIComponent(token);
+                }
+                return;
+            }
+
+            if (typeof options.data === 'object' && !options.data.session_id) {
+                options.data.session_id = token;
+            }
+        });
 
         {if $config->dev_mode}
             // При нажатии на лейбл под названием секции меню происходит копирование в буфер обмена
@@ -1190,7 +1220,10 @@
         /*
         * скрипт сворачивания информационных блоков
         * */
-        $(document).on("click", ".fn_toggle_card", function () {
+        $(document).on("click", ".fn_toggle_card", function (e) {
+            if ($(e.target).closest('.fn_share').length) {
+                return;
+            }
             $(this).closest(".fn_toggle_wrap").find('.fn_icon_arrow').toggleClass('rotate_180');
             $(this).closest(".fn_toggle_wrap").find(".fn_card").slideToggle(500);
         });

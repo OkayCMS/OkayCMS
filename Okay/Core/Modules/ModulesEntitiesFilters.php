@@ -1,35 +1,35 @@
 <?php
 
-
 namespace Okay\Core\Modules;
 
-
-use \Exception;
+use Exception;
 
 class ModulesEntitiesFilters
 {
     private $modulesFilters = [];
 
-    public function __construct() {}
-    
+    public function __construct()
+    {
+    }
+
     public function registerFilter($entityClassName, $filterName, $filterClassName, $filterMethod)
     {
 
         if (!is_subclass_of($filterClassName, AbstractModuleEntityFilter::class)) {
             throw new \Exception("Class \"$filterClassName\" must be subclass of " . AbstractModuleEntityFilter::class);
         }
-        
+
         if (!is_callable([$filterClassName, $filterMethod], true)) {
             throw new \Exception("Method \"$filterMethod->$filterMethod()\" must be callable");
         }
-        
+
         if (!class_exists($entityClassName)) {
             throw new Exception("\"$entityClassName\" is not valid Entity class name");
         }
-        
+
         return $this->modulesFilters[$entityClassName][$filterName] = [$filterClassName, $filterMethod];
     }
-    
+
     public function hasFilter($entityClassName, $filterName)
     {
         return !empty($this->modulesFilters[$entityClassName][$filterName]);

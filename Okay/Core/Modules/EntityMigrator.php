@@ -1,10 +1,8 @@
 <?php
 
-
 namespace Okay\Core\Modules;
 
-
-use \Exception;
+use Exception;
 use Okay\Core\Database;
 use Okay\Core\QueryFactory;
 use Okay\Core\Entity\Entity;
@@ -34,11 +32,12 @@ class EntityMigrator
     }
 
     /**
-     * @param string $entityClassName
-     * @param array $entityFields
+     * @param class-string<Entity> $entityClassName
+     * @param list<EntityField> $entityFields
+     *
      * @throws Exception
-     * 
-     * Метод создаёт таблицу в БД 
+     *
+     * Метод создаёт таблицу в БД
      * Метод принимает название класса сущности и массив объектов класса Okay\Core\Modules\EntityField
      */
     public function migrateEntityTable($entityClassName, array $entityFields)
@@ -61,7 +60,7 @@ class EntityMigrator
             throw new \Exception("Property {$langObject} cannot be empty for creating lang table");
         }
 
-        $langObjectField = $langObject.'_id';
+        $langObjectField = $langObject . '_id';
         $langEntityFields = [];
         /** @var EntityField $entityField */
         $langEntityFields[] = (new EntityField('lang_id'))->setTypeInt(11);
@@ -75,31 +74,48 @@ class EntityMigrator
 
         $this->createTable($langTableName, $langEntityFields, $langObjectField);
     }
-    
+
+    /**
+     * @param list<EntityField> $entityFields
+     */
     public function migrateCustomTable($tableName, array $entityFields)
     {
         if (empty($tableName)) {
             return;
         }
-        
+
         $tableName = '__' . preg_replace('~(__)?(.+)~', '$2', $tableName);
         $this->createTable($tableName, $entityFields);
     }
 
+    /**
+     * @param list<EntityField> $entityFields
+     */
     private function createTable($tableName, array $entityFields, $langObjectField = null)
     {
         if (empty($tableName)) {
             return;
         }
-        
+
+        // Перевіряємо, чи таблиця вже існує
+        $checkSql = $this->queryFactory->newSqlQuery();
+        $checkSql->setStatement("SHOW TABLES LIKE '{$tableName}'");
+        $this->db->query($checkSql);
+
+        $existingTables = $this->db->results();
+        if (!empty($existingTables)) {
+            // Таблиця вже існує, пропускаємо створення
+            return;
+        }
+
         $sql = $this->queryFactory->newSqlQuery();
         $sql->setStatement($this->sqlPresentor->createTableQuery($tableName, $entityFields, $langObjectField));
         $this->db->query($sql);
     }
-    
+
     public function migrateFieldSet($entityClassName, $entityFields)
     {
-        foreach($entityFields as $entityField) {
+        foreach ($entityFields as $entityField) {
             $this->migrateField($entityClassName, $entityField);
         }
     }
@@ -108,7 +124,7 @@ class EntityMigrator
      * @param string $entityClassName
      * @param EntityField $entityField
      * @throws Exception
-     * 
+     *
      * Добавление одного поля в базу, к уже существующей таблице
      */
     public function migrateField($entityClassName, EntityField $entityField)
@@ -171,15 +187,17 @@ class EntityMigrator
         }
 
         if (empty($matchedField)) {
-            throw new \Exception('Field "'.$field->getName().'" not exists in table "'.$table.'"');
+            throw new \Exception('Field "' . $field->getName() . '" not exists in table "' . $table . '"');
         }
 
         if (isset($currentField->Type) && $field->getType() != $matchedField->Type) {
             return true;
         }
 
-        if (($field->isNullable() && $matchedField->Null == 'NO') ||
-            ($field->isNotNullable() === false && $matchedField->Null == 'YES')) {
+        if (
+            ($field->isNullable() && $matchedField->Null == 'NO') ||
+            ($field->isNotNullable() === false && $matchedField->Null == 'YES')
+        ) {
             return true;
         }
 

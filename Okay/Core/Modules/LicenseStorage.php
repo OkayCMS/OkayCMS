@@ -34,7 +34,8 @@ class LicenseStorage
             return null;
         }
         $licenseContent = file_get_contents($licenseFilename);
-        if (empty($licenseContent)
+        if (
+            empty($licenseContent)
             || strpos($licenseContent, "\n") !== false
             || strpos($licenseContent, "\r") !== false
         ) {
@@ -55,7 +56,8 @@ class LicenseStorage
 
     private function getLicenseFilename(): string
     {
-        return sprintf('%s%s.license',
+        return sprintf(
+            '%s%s.license',
             $this->compileCodeDir,
             md5(Request::getDomain())
         );

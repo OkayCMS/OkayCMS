@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Routes\Strategies\Product;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Routes\ProductRoute;
@@ -31,6 +29,7 @@ class NoPrefixAndCategoryStrategy extends AbstractRouteStrategy
     protected $isUsesSqlToGenerate = true;
     protected $cacheInitFromDb = false;
 
+    /** @var array{string, array<string, string>, array<string, string>} */
     private $mockRouteParams = ['{$url}/?{$variantId}', ['{$url}' => '', '{$variantId}' => ''], []];
 
     public function __construct()
@@ -43,14 +42,14 @@ class NoPrefixAndCategoryStrategy extends AbstractRouteStrategy
         $this->cacheEntity      = $entityFactory->get(RouterCacheEntity::class);
     }
 
-    public function generateSlugUrl($url) : string
+    public function generateSlugUrl($url): string
     {
         if (empty($url)) {
             return '';
         } elseif ($route = ProductRoute::getUrlSlugAlias($url)) {// Может уже указали для этого урла его slug
             return $route;
         } elseif (ProductRoute::getUseSqlToGenerate() === false) {// Если запретили выполнять запросы для генерации урла
-            $this->logger->notice('For generate route to product "'.$url.'" need execute SQL query. Or set url through "Okay\Core\Routes\ProductRoute::setUrlSlugAlias()"');
+            $this->logger->notice('For generate route to product "' . $url . '" need execute SQL query. Or set url through "Okay\Core\Routes\ProductRoute::setUrlSlugAlias()"');
             return '';
         }
 
@@ -66,12 +65,14 @@ class NoPrefixAndCategoryStrategy extends AbstractRouteStrategy
         }
 
         $product  = $this->productsEntity->get((string) $url);
+        /** @var object{url: string, main_category_id?: int|string|null}&\stdClass $product */
         $slug = $product->url;
         if (empty($product->main_category_id)) {
-            $this->logger->warning('Missing "main_category_id" for product "'.$url.'"');
+            $this->logger->warning('Missing "main_category_id" for product "' . $url . '"');
         } else {
             $category = $this->categoriesEntity->get((int) $product->main_category_id);
-            $slug = $category->url.'/'.$product->url;
+            /** @var object{url: string}&\stdClass $category */
+            $slug = $category->url . '/' . $product->url;
         }
 
         // Запоминаем в оперативке slug для этого урла
@@ -83,11 +84,16 @@ class NoPrefixAndCategoryStrategy extends AbstractRouteStrategy
             'slug_url' => $slug,
             'type' => 'product',
         ]);
-        
+
         return $slug;
     }
 
-    public function generateRouteParams($url) : array
+    /**
+     * @param string $url
+     *
+     * @return array{string, array<string, string>, array<string, string>}
+     */
+    public function generateRouteParams($url): array
     {
         $url = rtrim($url, '/');
         $parts = explode('/', $url);

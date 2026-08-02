@@ -67,7 +67,7 @@
                                 {/if}
                                 <source type="image/jpg" srcset="{$bi->image_mobile|resize:$bi->settings->getMobileWidth():$bi->settings->getMobileHeight():false:$config->resized_banners_images_dir:center:center}">
 
-                                <img src="{$bi->image_mobile|resize:$bi->settings->getMobileWidth():$bi->settings->getMobileHeight():false:$config->resized_banners_images_dir:center:center}" data-src-retina="{$bi->image|resize:$bi->settings->getDesktopWidth():$bi->settings->getDesktopHeight():false:$config->resized_banners_images_dir:center:center}" alt="{$bi->alt|escape}" title="{$bi->title|escape}"/>
+                                <img src="{$bi->image_mobile|resize:$bi->settings->getMobileWidth():$bi->settings->getMobileHeight():false:$config->resized_banners_images_dir:center:center}" data-src-retina="{$bi->image|resize:$bi->settings->getDesktopWidth():$bi->settings->getDesktopHeight():false:$config->resized_banners_images_dir:center:center}" alt="{$bi->alt|escape}" title="{$bi->title|escape}"{if $controller == 'MainController' && $bi@first} loading="eager" fetchpriority="high" decoding="async"{/if}/>
                             </picture>
                         {else}
                             <picture>
@@ -76,7 +76,7 @@
                                 {/if}
                                 <source type="image/jpg" srcset="{$bi->image|resize:$bi->settings->getDesktopWidth():$bi->settings->getDesktopHeight():false:$config->resized_banners_images_dir:center:center}">
 
-                                <img src="{$bi->image|resize:$bi->settings->getDesktopWidth():$bi->settings->getDesktopHeight():false:$config->resized_banners_images_dir:center:center}" data-src-retina="{$bi->image|resize:$bi->settings->getDesktopWidth():$bi->settings->getDesktopHeight():false:$config->resized_banners_images_dir:center:center}" alt="{$bi->alt|escape}" title="{$bi->title|escape}"/>
+                                <img src="{$bi->image|resize:$bi->settings->getDesktopWidth():$bi->settings->getDesktopHeight():false:$config->resized_banners_images_dir:center:center}" data-src-retina="{$bi->image|resize:$bi->settings->getDesktopWidth():$bi->settings->getDesktopHeight():false:$config->resized_banners_images_dir:center:center}" alt="{$bi->alt|escape}" title="{$bi->title|escape}"{if $controller == 'MainController' && $bi@first} loading="eager" fetchpriority="high" decoding="async"{/if}/>
                             </picture>
                         {/if}
                     </div>

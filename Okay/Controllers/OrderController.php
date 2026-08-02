@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Controllers;
-
 
 use Okay\Entities\CouponsEntity;
 use Okay\Entities\CurrenciesEntity;
@@ -13,13 +11,15 @@ use Okay\Helpers\OrdersHelper;
 
 class OrderController extends AbstractController
 {
-    
+    /**
+     * @param string $url
+     */
     public function render(
-        OrdersEntity        $ordersEntity,
-        CouponsEntity       $couponsEntity,
-        OrderStatusEntity   $orderStatusEntity,
-        CurrenciesEntity    $currenciesEntity,
-        OrdersHelper        $ordersHelper,
+        OrdersEntity $ordersEntity,
+        CouponsEntity $couponsEntity,
+        OrderStatusEntity $orderStatusEntity,
+        CurrenciesEntity $currenciesEntity,
+        OrdersHelper $ordersHelper,
         OrderMetadataHelper $orderMetadataHelper,
         $url
     ) {
@@ -28,6 +28,7 @@ class OrderController extends AbstractController
         if (empty($order)) {
             return false;
         }
+        /** @var object{id: int|string, status_id: int|string, coupon_code?: string|null, coupon?: object, total_price: int|float, payment_method_id?: int|string|null}&\stdClass $order */
 
         $purchases = $ordersHelper->getOrderPurchasesList(intval($order->id));
         if (!$purchases) {
@@ -50,35 +51,35 @@ class OrderController extends AbstractController
 
         $orderMetadataHelper->setUp($order);
         $this->setMetadataHelper($orderMetadataHelper);
-        
+
         /*Выбор другого способа оплаты*/
         if ($this->request->method('post')) {
             if ($paymentMethodId = $this->request->post('payment_method_id', 'integer')) {
-                $ordersEntity->update($order->id, ['payment_method_id'=>$paymentMethodId]);
+                $ordersEntity->update($order->id, ['payment_method_id' => $paymentMethodId]);
                 $order = $ordersEntity->get((int)$order->id);
             } elseif ($this->request->post('reset_payment_method')) {
-                $ordersEntity->update($order->id, ['payment_method_id'=>null]);
+                $ordersEntity->update($order->id, ['payment_method_id' => null]);
                 $order = $ordersEntity->get((int)$order->id);
             }
         }
-        
+
         // Способ доставки
         $delivery = $ordersHelper->getOrderDelivery($order);
         $this->design->assign('delivery', $delivery);
         $orderStatuses = $orderStatusEntity->get(intval($order->status_id));
         $this->design->assign('order_status', $orderStatuses);
         $this->design->assign('purchases', $purchases);
-        
+
         // Способ оплаты
         if (!empty($order->payment_method_id)) {
             $paymentMethod = $ordersHelper->getOrderPaymentMethod($order);
             $this->design->assign('payment_method', $paymentMethod);
         }
-        
+
         // Варианты оплаты
         $paymentMethods = $ordersHelper->getOrderPaymentMethodsList($order);
         $this->design->assign('payment_methods', $paymentMethods);
-        
+
         // Все валюты
         $this->design->assign('all_currencies', $currenciesEntity->mappedBy('id')->find());
 
@@ -87,9 +88,8 @@ class OrderController extends AbstractController
         $this->design->assign('discounts', $discounts);
 
         $this->design->assign('noindex_nofollow', true);
-        
+
         // Выводим заказ
         $this->response->setContent('order.tpl');
     }
-    
 }

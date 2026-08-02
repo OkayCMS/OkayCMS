@@ -12,14 +12,12 @@ use Okay\Core\Response;
 use Okay\Core\Managers;
 use Okay\Core\ManagerMenu;
 use Okay\Core\Config;
-use Okay\Core\Entity\Entity;
 use Okay\Core\Languages;
 use Okay\Admin\Helpers\BackendModulesHelper;
+use Okay\Admin\Bootstrap\BackendControllerMethodParams;
+use Okay\Core\Security\AdminSession;
 
 ini_set('display_errors', 'off');
-
-//ini_set('display_errors', 'on');
-//error_reporting(E_ALL);
 
 chdir('..');
 
@@ -36,11 +34,10 @@ $config = $DI->get(Config::class);
 
 // Засекаем время
 $time_start = microtime(true);
-if(!empty($_SERVER['HTTP_USER_AGENT'])){
-    session_name(md5($_SERVER['HTTP_USER_AGENT']));
-}
-ini_set('session.gc_maxlifetime', 86400); // 86400 = 24 часа
-ini_set('session.cookie_lifetime', 0); // 0 - пока браузер не закрыт
+session_name(AdminSession::SESSION_NAME);
+ini_set('session.gc_maxlifetime', '86400'); // 86400 = 24 часа
+ini_set('session.cookie_lifetime', '0'); // 0 - пока браузер не закрыт
+AdminSession::configureCookieParams($_SERVER);
 session_start();
 $_SESSION['id'] = session_id();
 
@@ -51,6 +48,16 @@ if ($config->get('debug_mode') == true) {
 
 /** @var Request $request */
 $request = $DI->get(Request::class);
+
+/** @var Response $response */
+$response = $DI->get(Response::class);
+
+if (!$request->checkSession()) {
+    $response->setStatusCode(403);
+    $response->setContent('Session expired', RESPONSE_TEXT);
+    $response->sendContent();
+    exit;
+}
 
 /** @var Languages $languages */
 $languages = $DI->get(Languages::class);
@@ -75,9 +82,6 @@ $backendModulesHelper->updateModulesAccessExpiresCache();
 
 /** @var BackendTranslations $backendTranslations */
 $backendTranslations = $DI->get(BackendTranslations::class);
-
-/** @var Response $response */
-$response = $DI->get(Response::class);
 
 /** @var Managers $managers */
 $managers = $DI->get(Managers::class);
@@ -124,8 +128,12 @@ $response->addHeader('Pragma: no-cache');
 
 // Берем название модуля из get-запроса
 $backendControllerName = $request->get('controller');
-$backendControllerName = preg_replace("/[^A-Za-z0-9.@]+/", "", $backendControllerName);
-$routeParams = explode('@', $backendControllerName, 2);
+if ($backendControllerName !== null) {
+    $backendControllerName = preg_replace("/[^A-Za-z0-9.@]+/", "", (string)$backendControllerName);
+} else {
+    $backendControllerName = '';
+}
+$routeParams = explode('@', (string)$backendControllerName, 2);
 $backendControllerName = $routeParams[0];
 $methodName = (!empty($routeParams[1]) ? $routeParams[1] : 'fetch');
 
@@ -139,7 +147,8 @@ if (!$manager && $backendControllerName != 'AuthAdmin') {
     $response->redirectTo($request->getRootUrl() . '/backend/index.php?controller=AuthAdmin');
 }
 
-if ($manager && $backendControllerName == 'AuthAdmin') {
+$hasRecoveryCode = $backendControllerName == 'AuthAdmin' && (string)$request->get('code') !== '';
+if ($manager && $backendControllerName == 'AuthAdmin' && !$hasRecoveryCode) {
     $response->redirectTo($request->getRootUrl() . '/backend/index.php');
 }
 
@@ -152,22 +161,19 @@ foreach ($modulesBackendControllers as $backendController) {
 }
 
 if (!empty($manager)) {
-
     $backendTranslations->initTranslations($manager->lang);
     $design->assign('btr', $backendTranslations);
 }
 
 if (($controllerParams = $module->getBackendControllerParams($backendControllerName)) && in_array($backendControllerName, $modulesBackendControllers)) {
-
     $vendor = $controllerParams['vendor'];
     $moduleName = $controllerParams['module'];
     $controllerName = $controllerParams['controller'];
-    
+
     $design->setModuleTemplatesDir($module->getModuleDirectory($vendor, $moduleName) . 'Backend/design/html');
     $design->useModuleDir();
     $controllerName = $module->getBackendControllersNamespace($vendor, $moduleName) . '\\' . $controllerName;
 } else {
-    
     $backendControllerName = preg_replace("/[^A-Za-z0-9]+/", "", $backendControllerName);
 
     // Всегда открываем контроллер, который стоит в меню первым
@@ -179,7 +185,6 @@ if (($controllerParams = $module->getBackendControllerParams($backendControllerN
         }
     }
     if (($controllerParams = $module->getBackendControllerParams($backendControllerName)) && in_array($backendControllerName, $modulesBackendControllers)) {
-
         $vendor = $controllerParams['vendor'];
         $moduleName = $controllerParams['module'];
         $controllerName = $controllerParams['controller'];
@@ -199,42 +204,28 @@ if (($controllerParams = $module->getBackendControllerParams($backendControllerN
 
 $backend = new $controllerName($manager, $backendControllerName, $methodName);
 
-$access = call_user_func_array([$backend, 'onInit'], getMethodParams($backend, 'onInit'));
+$onInitCallback = [$backend, 'onInit'];
+if (!is_callable($onInitCallback)) {
+    throw new Exception("Method \"onInit\" is not callable in \"{$controllerName}\" controller");
+}
+
+$access = call_user_func_array(
+    $onInitCallback,
+    BackendControllerMethodParams::resolve($backend, 'onInit', $serviceLocator, $entityFactory)
+);
 if ($access) {
     if (!method_exists($backend, $methodName)) {
         throw new Exception("Method \"{$methodName}\" is not exists in \"{$controllerName}\" controller");
     }
-    call_user_func_array([$backend, $methodName], getMethodParams($backend, $methodName));
-}
-
-function getMethodParams($controllerName, $methodName)
-{
-    global $serviceLocator, $entityFactory;
-    $methodParams = [];
-
-    // Проходимся рефлексией по параметрам метода, подеделяем их тип, и пытаемся через DI передать нужный объект
-    $reflectionMethod = new \ReflectionMethod($controllerName, $methodName);
-    foreach ($reflectionMethod->getParameters() as $parameter) {
-
-        if (($parameterType = $parameter->getType()) !== null) {
-            
-            $parameterName = $parameterType->getName();
-            // Определяем это Entity или сервис из DI
-            if (is_subclass_of($parameterName, Entity::class)) {
-                $methodParams[] = $entityFactory->get($parameterName);
-            } else {
-                $methodParams[] = $serviceLocator->getService($parameterName);
-            }
-        }
+    $methodCallback = [$backend, $methodName];
+    if (!is_callable($methodCallback)) {
+        throw new Exception("Method \"{$methodName}\" is not callable in \"{$controllerName}\" controller");
     }
 
-    return $methodParams;
-}
-
-// Проверка сессии для защиты от xss
-if (!$request->checkSession()) {
-    unset($_POST);
-    trigger_error('Session expired', E_USER_WARNING);
+    call_user_func_array(
+        $methodCallback,
+        BackendControllerMethodParams::resolve($backend, $methodName, $serviceLocator, $entityFactory)
+    );
 }
 
 $response->sendContent();

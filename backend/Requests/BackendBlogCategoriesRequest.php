@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Requests;
-
 
 use Okay\Core\Request;
 use Okay\Core\Modules\Extender\ExtenderFacade;
@@ -18,7 +16,7 @@ class BackendBlogCategoriesRequest
 
     public function postCategory()
     {
-        $category = new \stdClass;
+        $category = new \stdClass();
         $category->id               = $this->request->post('id', 'integer');
         $category->parent_id        = $this->request->post('parent_id', 'integer');
         $category->name             = $this->request->post('name');

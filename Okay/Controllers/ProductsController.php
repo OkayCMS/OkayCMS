@@ -1,32 +1,37 @@
 <?php
 
-
 namespace Okay\Controllers;
 
-
+use Okay\Core\EntityFactory;
 use Okay\Core\Image;
 use Okay\Core\Money;
 use Okay\Core\Response;
 use Okay\Core\Router;
+use Okay\Entities\ImagesEntity;
 use Okay\Entities\ProductsEntity;
+use Okay\Entities\VariantsEntity;
 use Okay\Helpers\CanonicalHelper;
 use Okay\Helpers\CatalogHelper;
 use Okay\Helpers\FilterHelper;
 use Okay\Helpers\MetadataHelpers\AllProductsMetadataHelper;
 use Okay\Helpers\MetaRobotsHelper;
+use Okay\Helpers\MoneyHelper;
 use Okay\Helpers\ProductsHelper;
 
 class ProductsController extends AbstractController
 {
+    /**
+     * @param string $filtersUrl
+     */
     public function render(
-        CatalogHelper             $catalogHelper,
-        ProductsHelper            $productsHelper,
-        ProductsEntity            $productsEntity,
-        FilterHelper              $filterHelper,
+        CatalogHelper $catalogHelper,
+        ProductsHelper $productsHelper,
+        ProductsEntity $productsEntity,
+        FilterHelper $filterHelper,
         AllProductsMetadataHelper $allProductsMetadataHelper,
-        CanonicalHelper           $canonicalHelper,
-        MetaRobotsHelper          $metaRobotsHelper,
-                                  $filtersUrl = ''
+        CanonicalHelper $canonicalHelper,
+        MetaRobotsHelper $metaRobotsHelper,
+        $filtersUrl = ''
     ) {
         $this->design->assign('filtersUrl', !empty($filtersUrl) ? $filtersUrl : '', true);
         $this->design->assign('ajax_filter_route', 'products_features', true);
@@ -55,7 +60,8 @@ class ProductsController extends AbstractController
         $metaArray = $filterHelper->getMetaArray($filtersUrl);
 
         // Если в строке есть параметры которые не должны быть в фильтре, либо параметры с другой категории, бросаем 404
-        if (!empty($metaArray['features_values'])
+        if (
+            !empty($metaArray['features_values'])
             && array_intersect_key($metaArray['features_values'], $catalogFeatures) !== $metaArray['features_values']
         ) {
             return false;
@@ -64,7 +70,7 @@ class ProductsController extends AbstractController
         $isFilterPage = $productsHelper->isFilterPage($productsFilter);
         $this->design->assign('is_filter_page', $isFilterPage);
 
-        if (!$this->settings->get('deferred_load_features') || $this->request->get('ajax','boolean')) {
+        if (!$this->settings->get('deferred_load_features') || $this->request->get('ajax', 'boolean')) {
             $productsHelper->assignFilterProcedure(
                 $productsFilter,
                 $catalogFeatures
@@ -90,19 +96,22 @@ class ProductsController extends AbstractController
 
             $metaRobotsHelper->setAvailableFeatures($catalogFeatures);
         }
-        
-        if (!$catalogHelper->paginate(
-            $this->settings->get('products_num'),
-            $currentPage,
-            $productsFilter,
-            $this->design
-        )) {
+
+        if (
+            !$catalogHelper->paginate(
+                $this->settings->get('products_num'),
+                $currentPage,
+                $productsFilter,
+                $this->design
+            )
+        ) {
             return false;
         }
 
         // Товары
         $products = $productsHelper->getList($productsFilter, $productsSort);
-        
+        /** @var array<int, object{url: string, name: string, image?: object{filename: string}, variant?: object{price: mixed}}&\stdClass> $products */
+
         // Если нашелся только один товар, перенаправим сразу на него
         if (!empty($productsFilter['keyword']) && count($products) == 1) {
             $product = reset($products);
@@ -110,10 +119,10 @@ class ProductsController extends AbstractController
                 'url' => $product->url,
             ], true));
         }
-        
+
         $this->design->assign('products', $products);
 
-        if ($this->request->get('ajax','boolean')) {
+        if ($this->request->get('ajax', 'boolean')) {
             $this->design->assign('ajax', 1);
             $result = $catalogHelper->getAjaxFilterData();
             $this->response->setContent(json_encode($result), RESPONSE_JSON);
@@ -127,17 +136,20 @@ class ProductsController extends AbstractController
         if ($this->page) {
             $lastModify[] = $this->page->last_modify;
         }
+        /** @var non-empty-array<int|string, mixed> $lastModify */
         $this->response->setHeaderLastModify(max($lastModify));
         //lastModify END
 
         $relPrevNext = $this->design->fetch('products_rel_prev_next.tpl');
         $this->design->assign('rel_prev_next', $relPrevNext);
 
-        switch ($metaRobotsHelper->getCatalogRobots(
-            $currentPage,
-            $productsFilter['other_filter'] ?? [],
-            $metaArray['features_values'] ?? [],
-            $productsFilter['brand_id'] ?? [])
+        switch (
+            $metaRobotsHelper->getCatalogRobots(
+                $currentPage,
+                $productsFilter['other_filter'] ?? [],
+                $metaArray['features_values'] ?? [],
+                $productsFilter['brand_id'] ?? []
+            )
         ) {
             case ROBOTS_NOINDEX_FOLLOW:
                 $this->design->assign('noindex_follow', true);
@@ -183,49 +195,69 @@ class ProductsController extends AbstractController
         );
 
         $this->setMetadataHelper($allProductsMetadataHelper);
-        
+
         $this->response->setContent('products.tpl');
     }
-    
+
     public function ajaxSearch(ProductsHelper $productsHelper, Image $image, Money $money, Router $router)
     {
-
         $filter['keyword'] = $this->request->get('query', null, null, false);
         $filter['keyword'] = strip_tags($filter['keyword']);
         $filter['visible'] = true;
         $filter['limit'] = 10;
 
-        $products = $productsHelper->getList($filter, 'name');
+        $products = $productsHelper->getList($filter);
+        /** @var array<int, object{url: string, name: string, image?: object{filename: string}, variant?: object{price: mixed}}&\stdClass> $products */
 
-        $suggestions = [];
-        if (!empty($products)) {
-            foreach ($products as $product) {
-                $suggestion = new \stdClass();
-                if (isset($product->image)) {
-                    $product->image = $image->getResizeModifier($product->image->filename, 35, 35);
-                }
-
-                $product->url = $router->generateUrl('product', ['url' => $product->url]);
-
-                $suggestion->price = $money->convert($product->variant->price);
-                $suggestion->currency = $this->currency->sign;
-                $suggestion->value = $product->name;
-                $suggestion->data = $product;
-                $suggestions[] = $suggestion;
-            }
+        if (empty($products)) {
+            $res = new \stdClass();
+            $res->query = $filter['keyword'];
+            $res->suggestions = [];
+            $this->response->setContent(json_encode($res), RESPONSE_JSON);
+            return;
         }
 
-        $res = new \stdClass;
+        $suggestions = [];
+        foreach ($products as $product) {
+            $suggestion = new \stdClass();
+            $suggestion->data = new \stdClass();
+
+            // Зображення
+            if (!empty($product->image)) {
+                $suggestion->data->image = $image->getResizeModifier($product->image->filename, 35, 35);
+            }
+
+            // URL товару
+            $suggestion->data->url = $router->generateUrl('product', ['url' => $product->url]);
+
+            // Ціна з варіанту
+            if (!empty($product->variant)) {
+                $suggestion->price = $money->convert($product->variant->price);
+            } else {
+                $suggestion->price = '';
+            }
+
+            /** @var object{sign: string}&\stdClass $currency */
+            $currency = $this->currency;
+            $suggestion->currency = $currency->sign;
+            $suggestion->value = $product->name;
+            $suggestions[] = $suggestion;
+        }
+
+        $res = new \stdClass();
         $res->query = $filter['keyword'];
         $res->suggestions = $suggestions;
 
         $this->response->setContent(json_encode($res), RESPONSE_JSON);
     }
 
+    /**
+     * @param string $filtersUrl
+     */
     public function getFilter(
-        FilterHelper   $filterHelper,
+        FilterHelper $filterHelper,
         ProductsHelper $productsHelper,
-                       $filtersUrl = ''
+        $filtersUrl = ''
     ) {
         // Если ленивая отложенная загрузка фильтра отключена, этот метод должен давать 404
         if (!$this->settings->get('deferred_load_features')) {

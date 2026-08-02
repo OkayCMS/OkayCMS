@@ -1,33 +1,31 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 use Okay\Core\Modules\Modules;
 use Psr\Log\LoggerInterface;
 
+#[\AllowDynamicProperties]
 class BackendTranslations
 {
-    
     private $_logger;
     private $_modules;
     private $_initializedLang;
     private $_debugTranslation;
     private $_langEn;
-    
+
     public function __construct(LoggerInterface $logger, Modules $modules, $debugTranslation = false)
     {
         $this->_logger = $logger;
         $this->_modules = $modules;
         $this->_debugTranslation = (bool)$debugTranslation;
     }
-    
+
     public function getLangLabel()
     {
         return $this->_initializedLang;
     }
-    
+
     public function initTranslations($langLabel = 'en')
     {
         if ($this->_initializedLang === $langLabel) {
@@ -35,15 +33,16 @@ class BackendTranslations
         }
         // Перевод админки
         $lang = [];
-        $file = "backend/lang/" .$langLabel . ".php";
+        $file = "backend/lang/" . $langLabel . ".php";
         if (!file_exists($file)) {
-            foreach (glob("backend/lang/??.php") as $f) {
+            $fallbackFiles = glob("backend/lang/??.php") ?: [];
+            foreach ($fallbackFiles as $f) {
                 $file = "backend/lang/" . pathinfo($f, PATHINFO_FILENAME) . ".php";
                 break;
             }
         }
         require_once($file);
-        foreach ($lang as $var=>$translation) {
+        foreach ($lang as $var => $translation) {
             $this->addTranslation($var, $translation);
         }
 
@@ -63,7 +62,7 @@ class BackendTranslations
             require_once("backend/lang/en.php");
             $this->_langEn = $lang;
         }
-        
+
         if (isset($this->_langEn[$var])) {
             $this->$var = $translation = $this->_langEn[$var];
 
@@ -76,7 +75,7 @@ class BackendTranslations
             return '<b style="color: red!important;">$btr->' . $var . ' not exists</b>';
         }
     }
-    
+
     public function getTranslation($var)
     {
         if (isset($this->$var) && !is_object($this->$var)) {

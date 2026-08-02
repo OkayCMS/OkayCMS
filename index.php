@@ -9,33 +9,33 @@ use Okay\Core\Config;
 use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\Modules\Modules;
 use Okay\Core\OkayContainer\OkayContainer;
+use Okay\Core\Security\AdminSession;
 use Psr\Log\LoggerInterface;
 
 ini_set('display_errors', 'off');
 
 require_once('vendor/autoload.php');
 
-if (!empty($_SERVER['HTTP_USER_AGENT'])) {
-    session_name(md5($_SERVER['HTTP_USER_AGENT']));
-}
+session_name('okay_sid');
 session_start();
+AdminSession::syncFrontendAdmin($_COOKIE, $_SERVER);
 
 /** @var OkayContainer $DI */
 $DI = include 'Okay/Core/config/container.php';
 
-/** Инициализируем панель отладки */
-if (false) {
+/** @var Config $config Конфигурируем в конструкторе сервиса параметры системы */
+$config = $DI->get(Config::class);
+
+/** Инициализируем панель отладки, если включен режим отладки */
+if ($config->get('debug_mode') == true) {
     DebugBar::init();
 }
 DebugBar::startMeasure('init', 'System init');
 
-/** @var Config $config Конфигурируем в конструкторе сервиса параметры системы */
-$config = $DI->get(Config::class);
-
 try {
     /** @var Router $router */
     $router = $DI->get(Router::class);
-    
+
     // Редирект с повторяющихся слешей
     $uri = str_replace(Request::getDomainWithProtocol(), '', Request::getCurrentUrl());
     if (($destination = preg_replace('~//+~', '/', $uri, -1, $countReplace)) && $countReplace > 0) {
@@ -47,10 +47,10 @@ try {
         ini_set('display_errors', 'on');
         error_reporting(E_ALL);
     }
-    
+
     /** @var Response $response */
     $response = $DI->get(Response::class);
-    
+
     /** @var Request $request */
     $request = $DI->get(Request::class);
     // Установим время начала выполнения скрипта
@@ -61,11 +61,18 @@ try {
         unset($_SESSION['modules_request_timeout']);
         unset($_SESSION['support_request_timeout']);
         unset($_SESSION['last_version_data']);
-        setcookie('admin_login', '', time()-100, '/');
-        
+        AdminSession::destroyFromCookie($_COOKIE, $_SERVER);
+        setcookie('admin_login', '', [
+            'expires' => time() - 100,
+            'path' => '/',
+            'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+
         $response->redirectTo($request->getRootUrl());
     }
-    
+
     /** @var Modules $modules */
     $modules = $DI->get(Modules::class);
     DebugBar::stopMeasure('init');
@@ -85,14 +92,13 @@ try {
         print "page generation time: " . $execTime . " seconds\r\n";
         print "-->";
     }
-
 } catch (\Exception $e) {
-    
+
     /** @var LoggerInterface $logger */
     $logger = $DI->get(LoggerInterface::class);
-    
+
     $message = $e->getMessage() . PHP_EOL . $e->getTraceAsString();
-    header($_SERVER['SERVER_PROTOCOL'].' 500 Internal Server Error');
+    header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error');
     if ($config->get('debug_mode') == true) {
         print $message;
     } else {

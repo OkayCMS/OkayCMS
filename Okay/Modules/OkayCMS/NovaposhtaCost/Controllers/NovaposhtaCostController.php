@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\NovaposhtaCost\Controllers;
-
 
 use Okay\Admin\Helpers\BackendOrdersHelper;
 use Okay\Controllers\AbstractController;
@@ -16,6 +14,9 @@ use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPCalcHelper;
 use Okay\Modules\OkayCMS\NovaposhtaCost\VO\NPCalcVO;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @phpstan-type CurrencyRow object{id: int|string, sign: string}&\stdClass
+ */
 class NovaposhtaCostController extends AbstractController
 {
     public function calc(
@@ -33,7 +34,7 @@ class NovaposhtaCostController extends AbstractController
         $cityRef = $this->request->get('city');
         $deliveryId = $this->request->get('delivery_id', 'integer');
         $redelivery = $this->request->get('redelivery', 'boolean');
-        
+
         $orderId = $this->request->get('order_id', 'integer');
         $currencyId = $this->request->get('currency', 'integer', $_SESSION['currency_id']);
 
@@ -82,6 +83,8 @@ class NovaposhtaCostController extends AbstractController
             $currency = $currenciesEntity->get($currencyId);
 
             if ($npCurrency = $currenciesEntity->findOne(['code' => 'UAH'])) {
+                /** @var CurrencyRow $npCurrency */
+                /** @var CurrencyRow $currency */
                 $result['price_response']['success'] = true;
                 // Переводим цену в валюту по умолчанию для сайта
                 $result['price_response']['price'] = (float)$money->convert($deliveryPrice, $npCurrency->id, false, true);

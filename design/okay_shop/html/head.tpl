@@ -48,26 +48,27 @@
         }
     </style>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha512-bnIvzh6FU75ZKxp0GXLH9bewza/OIw6dLVh9ICg0gogclmYGguQJWl8U30WpbsGTqbIiAwxTsbe76DErLq5EDQ==" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha512-H9jrZiiopUdsLpg94A333EfumgUBpO9MdbxStdeITo+KEIMaNfHNvwyjjDJb+ERPaRS6DpyRlKbvPUasNItRyw==" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw==" crossorigin="anonymous">
-
+    
+    <script src="{$rootUrl}/design/{$settings->theme}/js/jquery-3.7.0.min.js"></script>
+    <link rel="stylesheet" href="{$rootUrl}/design/{$settings->theme}/css/jquery.fancybox.min.css">
     {$ok_head}
     
-    {strip}
-    <script>
-        const ut_tracker = {
-            start: function(name) {
-                performance.mark(name + ':start');
-            },
-            end: function(name) {
-                performance.mark(name + ':end');
-                performance.measure(name, name + ':start', name + ':end');
-                console.log(name + ' duration: ' + performance.getEntriesByName(name)[0].duration);
+    {if $config->debug_mode}
+        {strip}
+        <script>
+            const ut_tracker = {
+                start: function(name) {
+                    performance.mark(name + ':start');
+                },
+                end: function(name) {
+                    performance.mark(name + ':end');
+                    performance.measure(name, name + ':start', name + ':end');
+                    console.log(name + ' duration: ' + performance.getEntriesByName(name)[0].duration);
+                }
             }
-        }
-    </script>
-    {/strip}
+        </script>
+        {/strip}
+    {/if}
 
     {* Schema Website *}
     {literal}
@@ -168,7 +169,7 @@
         <meta name="twitter:description" content="{if !empty($annotation)}{$annotation|strip_tags|escape|trim}{else}{$description|strip_tags|escape|trim}{/if}">
         <meta name="twitter:image" content="{$product->image->filename|resize:330:300}">
         <meta name="twitter:data1" content="{$lang->cart_head_price}">
-        <meta name="twitter:label1" content="{$product->variant->price|convert:null:false} {$currency->code|escape}">
+        <meta name="twitter:label1" content="{$product->variant->price|convert:null:false} {if $currency && $currency->code}{$currency->code|escape}{else}USD{/if}">
         <meta name="twitter:data2" content="{$lang->meta_organization}">
         <meta name="twitter:label2" content="{$settings->site_name|escape}">
     {elseif $controller == "CategoryController"} 
@@ -253,7 +254,7 @@
     {/foreach}
 
     {if $settings->captcha_type == "v3"}
-        <script>ut_tracker.start('render:recaptcha');</script>
+        {if $config->debug_mode}<script>ut_tracker.start('render:recaptcha');</script>{/if}
         <script src="https://www.google.com/recaptcha/api.js?render={$settings->public_recaptcha_v3|escape}"></script>
         <script>
             grecaptcha.ready(function () {
@@ -274,9 +275,9 @@
                     });
             });
         </script>
-        <script>ut_tracker.end('render:recaptcha');</script>
+        {if $config->debug_mode}<script>ut_tracker.end('render:recaptcha');</script>{/if}
     {elseif $settings->captcha_type == "v2"}
-        <script>ut_tracker.start('render:recaptcha');</script>
+        {if $config->debug_mode}<script>ut_tracker.start('render:recaptcha');</script>{/if}
         <script type="text/javascript">
             var onloadCallback = function() {
                 mysitekey = "{$settings->public_recaptcha|escape}";
@@ -293,9 +294,9 @@
             };
         </script>
         <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer></script>
-        <script>ut_tracker.end('render:recaptcha');</script>
+        {if $config->debug_mode}<script>ut_tracker.end('render:recaptcha');</script>{/if}
     {elseif $settings->captcha_type == "invisible"}
-        <script>ut_tracker.start('render:recaptcha');</script>
+        {if $config->debug_mode}<script>ut_tracker.start('render:recaptcha');</script>{/if}
         <script>
             function onSubmit(token) {
                 document.getElementById("captcha_id").submit();
@@ -311,7 +312,7 @@
             var onloadReCaptchaInvisible = function() { };
         </script>
         <script src="https://www.google.com/recaptcha/api.js?onload=onloadReCaptchaInvisible"></script>
-        <script>ut_tracker.end('render:recaptcha');</script>
+        {if $config->debug_mode}<script>ut_tracker.end('render:recaptcha');</script>{/if}
     {/if}
 
     <link rel="search" type="application/opensearchdescription+xml" title="{$rootUrl} Search" href="{url_generator route='opensearch' absolute=1}" />
@@ -325,12 +326,12 @@
     <link href="{$rootUrl}/{$config->design_images|escape}{$settings->site_favicon|escape}?v={$settings->site_favicon_version|escape}" type="{$faviconType}" rel="shortcut icon">
 
     {* JQuery *}
-    <script>ut_tracker.start('parsing:page');</script>
+    {if $config->debug_mode}<script>ut_tracker.start('parsing:page');</script>{/if}
 
     {if !empty($counters['head'])}
-    <script>ut_tracker.start('parsing:head:counters');</script>
+    {if $config->debug_mode}<script>ut_tracker.start('parsing:head:counters');</script>{/if}
     {foreach $counters['head'] as $counter}
     {$counter->code}
     {/foreach}
-    <script>ut_tracker.end('parsing:head:counters');</script>
+    {if $config->debug_mode}<script>ut_tracker.end('parsing:head:counters');</script>{/if}
     {/if}

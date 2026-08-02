@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\GoogleMerchant\Extenders;
-
 
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
@@ -11,6 +9,9 @@ use Okay\Modules\OkayCMS\GoogleMerchant\Entities\GoogleMerchantFeedsEntity;
 use Okay\Modules\OkayCMS\GoogleMerchant\Entities\GoogleMerchantRelationsEntity;
 use Okay\Modules\OkayCMS\GoogleMerchant\Init\Init;
 
+/**
+ * @phpstan-type FeedRow object{id: int|string}
+ */
 class BackendExtender implements ExtensionInterface
 {
     /** @var Design */
@@ -24,20 +25,21 @@ class BackendExtender implements ExtensionInterface
     private $relationsEntity;
 
 
-    /** @var array */
+    /** @var array<int|string, FeedRow> */
     private $currentFeeds  = [];
 
     public function __construct(
         EntityFactory $entityFactory,
-        Design        $design
-    )
-    {
+        Design $design
+    ) {
         $this->design = $design;
 
         $this->feedsEntity     = $entityFactory->get(GoogleMerchantFeedsEntity::class);
         $this->relationsEntity = $entityFactory->get(GoogleMerchantRelationsEntity::class);
 
-        $this->currentFeeds = $this->feedsEntity->find(['limit' => $this->feedsEntity->count()]);
+        /** @var array<int|string, FeedRow> $currentFeeds */
+        $currentFeeds = $this->feedsEntity->find(['limit' => $this->feedsEntity->count()]);
+        $this->currentFeeds = $currentFeeds;
     }
 
     public function parseProductData($product)

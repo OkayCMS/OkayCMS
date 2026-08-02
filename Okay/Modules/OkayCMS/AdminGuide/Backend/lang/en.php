@@ -1,4 +1,5 @@
 <?php
+
 $lang['description__title'] = 'Admin Panel Documentation';
 $lang['description__description'] = 'This section provides examples of ready-made solutions for the design of the admin panel.';
 $lang['description_context'] = 'Content';
@@ -58,8 +59,8 @@ $lang['description_alerts2'] = '<p>This is a notification of error output, hazar
 $lang['description_alerts3'] = '<p>This is a success notice. Used when saving any successful actions.</p>';
 $lang['description_alerts4'] = '<p>This is an info notification, it is better to use it to write instructions for any actions</p>';
 $lang['description_alerts5'] = '<p>This notice can be used both for withdrawal of advice and for warning.</p>';
-$lang['description_promo_buttons'] = '<p>The system has predefined button styles, each of which has its own semantic purpose, and has additional parameters for greater control and flexibility.</p>
-                                      <p>The <strong> .btn </strong> class can be used for both the <strong> button </strong> and the <strong> input </strong> and links. The classes <strong> .btn_blue </strong>, <strong> .btn-outline-info </strong>, etc., define a specific style for the buttons, and the classes <strong> .btn_big </strong>, <strong> .btn_small </strong> and <strong> .btn_mini </strong> resize buttons</p>';
+$lang['description_promo_buttons'] = '<p>The system has predefined button styles, each with its own semantic purpose and additional parameters for greater control and flexibility.</p>
+                                      <p>The <strong>.btn</strong> class can be used for <strong>button</strong>, <strong>input</strong>, and links. Filled variants: <strong>.btn_blue</strong>, <strong>.btn-info</strong>, <strong>.btn_yellow</strong>, <strong>.btn-danger</strong>, <strong>.btn-warning</strong>. Outline variants: <strong>.btn_border_blue</strong>, <strong>.btn_border-info</strong>, <strong>.btn_border_yellow</strong>, <strong>.btn-outline-danger</strong>, <strong>.btn-outline-warning</strong>. The <strong>.btn_big</strong>, <strong>.btn_small</strong>, and <strong>.btn_mini</strong> classes change button size.</p>';
 $lang['description_title2_buttons'] = 'Example of buttons with a background:';
 $lang['description_title3_buttons'] = 'Example of buttons without a background:';
 $lang['description_title4_buttons'] = 'Example of large buttons:';
@@ -73,11 +74,11 @@ $lang['description_title3_tooltips'] = 'Tips for displaying the name:';
 $lang['description_info_switcher'] = '<p>This section provides examples and recommendations for using form-control styles and custom components for widespread use.</p>';
 $lang['description_title2_switcher'] = 'Switch';
 $lang['description_title2_switcher_label'] = 'Activity';
-$lang['description_info_add_images'] = '<p>There are two options for downloading files or images. The first is downloading a text file, and the second option is perfect for downloading images and managing them.</p>';
+$lang['description_info_add_images'] = '<p>There are two options for uploading files or images. The first is a single file input with the <strong>.input_file</strong> and <strong>.input_file_trigger</strong> classes; the shared admin template initializes it and prints the selected filename to <strong>.input_file_return</strong>. The second option is used for image uploads, previews, and sorting through <strong>.fn_droplist_wrap</strong>, <strong>.fn_dropzone</strong>, and <strong>.fn_new_image_item</strong>.</p>';
 $lang['description_title2_add_images'] = 'File Download:';
 $lang['description_title3_add_images'] = 'Image upload:';
-$lang['description_info3_add_images'] = '<p>This method is used to upload photos to banners, products, categories, etc. You can upload multiple photos at once, delete them and move them in priority. To configure it, you must substitute your variables in <strong>&#123;foreach&#125;</strong> and in <strong>&#123;if&#125;</strong></p>';
+$lang['description_info3_add_images'] = '<p>This method is used to upload photos to banners, products, categories, etc. You can upload multiple photos at once, delete them, and change their priority. Existing images are rendered through <strong>&#123;foreach&#125;</strong>, and the hidden <strong>.fn_new_image_item</strong> element is used as the JS preview template for new files. To configure it, substitute your variables in <strong>&#123;foreach&#125;</strong> and <strong>&#123;if&#125;</strong>.</p>';
 $lang['description_text_clip_clipboard'] = 'Click to copy to clipboard.';
-$lang['description_info_icons'] = '<p>The system uses icons <a href="https://fontawesome.com/v4.7.0/icons/" target="_blank">fontawesome</a> and the default svg konok set, which is located in <strong> svg_icon.tpl </strong>. In order to display a specific icon, you need to connect <strong> svg_icon.tpl </strong> with the parameter <strong> svgId = "" </strong>, in which we indicate the id of the desired icon.</p>
-                                   <p>For example, to display the basket icon, insert <strong>&#123;include file="svg_icon.tpl" svgId="trash"&#125;</strong> and in <strong>svgId</strong> specify the id of the basket icon..</p> Our icon:  {include file="svg_icon.tpl" svgId="trash"}';
-$lang['description_title2_icons'] = 'List of default icons:';
+$lang['description_info_icons'] = '<p>The system uses <a href="https://fontawesome.com/v4.7.0/icons/" target="_blank">fontawesome</a> icons and the SVG icon set in <strong>svg_icon.tpl</strong>. To display a specific SVG icon, include <strong>svg_icon.tpl</strong> with the <strong>svgId=""</strong> parameter and pass the required icon id.</p>
+                                   <p>For example, to display the trash icon, insert <strong>&#123;include file="svg_icon.tpl" svgId="trash"&#125;</strong> and pass the trash icon id in <strong>svgId</strong>.</p> Our icon:  {include file="svg_icon.tpl" svgId="trash"}';
+$lang['description_title2_icons'] = 'Current SVG icon list:';

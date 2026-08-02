@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\Banners\Helpers;
-
 
 use Okay\Core\Config;
 use Okay\Core\Design;
@@ -17,7 +15,9 @@ use Okay\Modules\OkayCMS\Banners\DTO\BannerSettingsDTO;
 use Okay\Modules\OkayCMS\Banners\Entities\BannersEntity;
 use Okay\Modules\OkayCMS\Banners\Entities\BannersImagesEntity;
 
-
+/**
+ * @phpstan-type BannerSelectedRow object{categories?: string|null, brands?: string|null, pages?: string|null, category_selected?: list<string>, brand_selected?: list<string>, page_selected?: list<string>}&\stdClass
+ */
 class BannersHelper
 {
     /**
@@ -44,9 +44,9 @@ class BannersHelper
 
     public function __construct(
         EntityFactory $entityFactory,
-        Request       $request,
-        Design        $design,
-        Config        $config
+        Request $request,
+        Design $design,
+        Config $config
     ) {
         $this->bannersEntity = $entityFactory->get(BannersEntity::class);
         $this->request       = $request;
@@ -104,14 +104,15 @@ class BannersHelper
 
     public function getSelectedEntities($banner)
     {
+        /** @var BannerSelectedRow $banner */
         if (!empty($banner->categories)) {
             $banner->category_selected = explode(",", $banner->categories);//Создаем массив категорий
         }
         if (!empty($banner->brands)) {
-            $banner->brand_selected = explode(",",$banner->brands);//Создаем массив брендов
+            $banner->brand_selected = explode(",", $banner->brands);//Создаем массив брендов
         }
         if (!empty($banner->pages)) {
-            $banner->page_selected = explode(",",$banner->pages);//Создаем массив страниц
+            $banner->page_selected = explode(",", $banner->pages);//Создаем массив страниц
         }
         return ExtenderFacade::execute(__METHOD__, $banner, func_get_args());
     }
@@ -146,7 +147,6 @@ class BannersHelper
             if ($bannersImages = $bannersImagesEntity->find(['banner_id' => array_keys($banners), 'visible' => true])) {
                 foreach ($bannersImages as $bannersImage) {
                     if (isset($banners[$bannersImage->banner_id])) {
-
                         if (!empty($bannersImage->settings)) {
                             $bannersImage->settings = unserialize($bannersImage->settings);
                         } else {
@@ -155,7 +155,6 @@ class BannersHelper
 
                         // Убираем урл у баннеров на странице, на которой они выведены
                         if ($this->config->get('banners_hide_self_url')) {
-                        
                             // Делаем путь относительным, если он указан абсолютно на этот домен
                             $bannersImage->url = ltrim(str_replace(Request::getRootUrl(), '', $bannersImage->url), '/');
                             $requestUrl = explode('?', Request::getRequestUri())[0];
@@ -180,22 +179,22 @@ class BannersHelper
             $categories = $this->entityFactory->get(CategoriesEntity::class)->find();
             $brands     = $this->entityFactory->get(BrandsEntity::class)->find();
             $pages      = $this->entityFactory->get(PagesEntity::class)->find();
-            foreach ($banners as $banner){
-                $banner->category_selected  = explode(",",$banner->categories);//Создаем массив категорий
-                $banner->brand_selected     = explode(",",$banner->brands);//Создаем массив брендов
-                $banner->page_selected      = explode(",",$banner->pages);//Создаем массив страниц
-                foreach ($brands as $b){
-                    if (in_array($b->id, $banner->brand_selected)){
+            foreach ($banners as $banner) {
+                $banner->category_selected  = explode(",", $banner->categories);//Создаем массив категорий
+                $banner->brand_selected     = explode(",", $banner->brands);//Создаем массив брендов
+                $banner->page_selected      = explode(",", $banner->pages);//Создаем массив страниц
+                foreach ($brands as $b) {
+                    if (in_array($b->id, $banner->brand_selected)) {
                         $banner->brands_show[] = $b;
                     }
                 }
-                foreach ($categories as $c){
-                    if (in_array($c->id, $banner->category_selected)){
+                foreach ($categories as $c) {
+                    if (in_array($c->id, $banner->category_selected)) {
                         $banner->category_show[] = $c;
                     }
                 }
-                foreach ($pages as $p){
-                    if (in_array($p->id, $banner->page_selected)){
+                foreach ($pages as $p) {
+                    if (in_array($p->id, $banner->page_selected)) {
                         $banner->page_show[] = $p;
                     }
                 }
@@ -209,7 +208,7 @@ class BannersHelper
         $filter = [];
         $filter['page'] = max(1, $this->request->get('page', 'integer'));
         $filter['limit'] = 20;
-        
+
         return ExtenderFacade::execute(__METHOD__, $filter, func_get_args());
     }
 
@@ -226,7 +225,7 @@ class BannersHelper
         }
 
         if ($filter['limit'] > 0) {
-            $pagesCount = ceil($bannersImagesCount/$filter['limit']);
+            $pagesCount = ceil($bannersImagesCount / $filter['limit']);
         } else {
             $pagesCount = 0;
         }
@@ -235,5 +234,4 @@ class BannersHelper
 
         return [$filter, $pagesCount];
     }
-    
 }

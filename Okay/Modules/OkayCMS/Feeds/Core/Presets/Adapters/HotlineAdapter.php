@@ -9,26 +9,50 @@ use Okay\Core\Routes\ProductRoute;
 use Okay\Entities\CurrenciesEntity;
 use Okay\Modules\OkayCMS\Feeds\Core\Presets\AbstractPresetAdapter;
 
+/**
+ * @phpstan-type CurrencyRow object{id: int|string, code: string, rate_from: int|float, rate_to: int|float}
+ * @phpstan-type CategoryRow object{id: int|string, name: string, parent_id?: int|string|null}
+ * @phpstan-type HotlineFeatureRow array{id: int|string, name: string, values: list<string>, values_string: string}
+ * @phpstan-type HotlineProductRow object{
+ *     product_id: int|string,
+ *     variant_id: int|string,
+ *     main_category_id: int|string|null,
+ *     product_name: string,
+ *     variant_name?: string|null,
+ *     slug_url: string,
+ *     url: string,
+ *     description?: string|null,
+ *     annotation?: string|null,
+ *     sku?: string|null,
+ *     price: int|float,
+ *     currency_id: int|string|null,
+ *     stock: int|string|null,
+ *     brand_name?: string|null,
+ *     features?: array<int|string, HotlineFeatureRow>,
+ *     images?: list<string>
+ * }&\stdClass
+ */
 class HotlineAdapter extends AbstractPresetAdapter
 {
     /** @var string */
-    static protected $headerTemplate = 'presets/hotline/header.tpl';
+    protected static $headerTemplate = 'presets/hotline/header.tpl';
 
     /** @var string */
-    static protected $footerTemplate = 'presets/hotline/footer.tpl';
+    protected static $footerTemplate = 'presets/hotline/footer.tpl';
 
 
-    /** @var object */
-    protected $UAH_currency;
+    /** @var CurrencyRow|null */
+    protected $UAH_currency = null;
 
-    /** @var object */
-    protected $USD_currency;
+    /** @var CurrencyRow|null */
+    protected $USD_currency = null;
 
     protected function init(): void
     {
         parent::init();
 
         foreach ($this->allCurrencies as $currency) {
+            /** @var CurrencyRow $currency */
             if ($currency->code === "UAH") {
                 $this->UAH_currency = $currency;
             } elseif ($currency->code === "USD") {
@@ -39,6 +63,9 @@ class HotlineAdapter extends AbstractPresetAdapter
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    /**
+     * @param CategoryRow $dbCategory
+     */
     protected function buildCategory(object $dbCategory): array
     {
         $categorySettings = $this->getCategorySettings($dbCategory->id);
@@ -66,7 +93,7 @@ class HotlineAdapter extends AbstractPresetAdapter
         return ExtenderFacade::execute(__METHOD__, $xmlCategory, func_get_args());
     }
 
-    public function getQuery($feedId): Select
+    public function getQuery(int|string $feedId): Select
     {
         $sql = parent::getQuery(...func_get_args());
 
@@ -79,7 +106,7 @@ class HotlineAdapter extends AbstractPresetAdapter
         return ExtenderFacade::execute(__METHOD__, $sql, func_get_args());
     }
 
-    protected function getSubSelect($feedId): Select
+    protected function getSubSelect(int|string $feedId): Select
     {
         $sql = parent::getSubSelect(...func_get_args());
 
@@ -87,22 +114,22 @@ class HotlineAdapter extends AbstractPresetAdapter
             $sql->where('p.main_image_id != \'\' AND p.main_image_id IS NOT NULL');
         }
 
-        if ($this->feed->settings['upload_only_products_in_stock']) {
+        if ($this->feed->settings['upload_only_products_in_stock'] && !$this->settings->get('is_preorder')) {
             $sql->where('(v.stock >0 OR v.stock is NULL)');
         }
 
         if (($value = $this->feed->settings['filter_price']['value']) !== null) {
-            $operator = $this->feed->settings['filter_price']['operator'];
+            $operator = $this->normalizeComparisonOperator($this->feed->settings['filter_price']['operator'] ?? null);
 
-            $sql->join('left', CurrenciesEntity::getTable().' AS cur', 'cur.id = v.currency_id')
+            $sql->join('left', CurrenciesEntity::getTable() . ' AS cur', 'cur.id = v.currency_id')
                 ->where("(v.price*cur.rate_to/cur.rate_from) {$operator} :filter_price_value")
                 ->bindValues(['filter_price_value' => $value]);
         }
 
         if (($value = $this->feed->settings['filter_stock']['value']) !== null) {
-            $operator = $this->feed->settings['filter_stock']['operator'];
+            $operator = $this->normalizeComparisonOperator($this->feed->settings['filter_stock']['operator'] ?? null);
 
-            $sql->where("IF(v.stock IS NULL, IF ('{$operator}' = '<' OR '{$operator}' = '=', false, true), v.stock {$operator} :filter_stock_value)")
+            $sql->where("v.stock IS NOT NULL AND v.stock {$operator} :filter_stock_value")
                 ->bindValues(['filter_stock_value' => $value]);
         }
 
@@ -111,6 +138,7 @@ class HotlineAdapter extends AbstractPresetAdapter
 
     public function getItem(object $product, bool $addVariantUrl = false): array
     {
+        /** @var HotlineProductRow $product */
         $result['id']['data'] = $product->variant_id;
 
         $result['group_id']['data'] = $product->product_id;
@@ -132,7 +160,7 @@ class HotlineAdapter extends AbstractPresetAdapter
             if (empty($product->description) && empty($product->annotation)) {
                 $result['description']['data'] = '';
             } else {
-                $result['description']['data'] = '<![CDATA['. ($product->description ?? $product->annotation) .']]>';
+                $result['description']['data'] = '<![CDATA[' . ($product->description ?? $product->annotation) . ']]>';
             }
         } else {
             $result['description']['data'] = $this->xmlFeedHelper->escape($product->description ?? $product->annotation);
@@ -146,10 +174,16 @@ class HotlineAdapter extends AbstractPresetAdapter
             $result['url']['data'] = Router::generateUrl('product', ['url' => $product->url], true);
         }
 
-        if ($product->stock || $product->stock === null) {
+        if (
+            $this->settings->get('is_preorder')
+            || (int) $product->stock > 0
+            || ($product->stock === null && !$this->settings->get('use_backorder_status'))
+        ) {
             $result['stock']['data'] = 'В наличии';
-        } else {
+        } elseif ($product->stock === null) {
             $result['stock']['data'] = 'Под заказ';
+        } else {
+            $result['stock']['data'] = 'Нет в наличии';
         }
 
         $price = $product->price;
@@ -158,10 +192,12 @@ class HotlineAdapter extends AbstractPresetAdapter
             $price = $price + $price / 100 * $this->feed->settings['price_change'];
         }
 
-        if (isset($this->allCurrencies[$product->currency_id])) {
+        $currencyId = $product->currency_id;
+        if ($currencyId !== null && isset($this->allCurrencies[$currencyId])) {
             // Переводим в основную валюту сайта
-            $variantCurrency = $this->allCurrencies[$product->currency_id];
-            if (!empty($product->currency_id) && $variantCurrency->rate_from != $variantCurrency->rate_to) {
+            /** @var CurrencyRow $variantCurrency */
+            $variantCurrency = $this->allCurrencies[$currencyId];
+            if ($variantCurrency->rate_from != $variantCurrency->rate_to) {
                 $price = round($price * $variantCurrency->rate_to / $variantCurrency->rate_from, 2);
             }
 
@@ -169,7 +205,9 @@ class HotlineAdapter extends AbstractPresetAdapter
             if ($this->UAH_currency) {
                 $result['priceRUAH']['data'] = $this->money->convert($price, $this->UAH_currency->id, false);
             } else {
-                $result['priceRUAH']['data'] = $this->money->convert($price, $this->mainCurrency->id, false);
+                /** @var CurrencyRow $mainCurrency */
+                $mainCurrency = $this->mainCurrency;
+                $result['priceRUAH']['data'] = $this->money->convert($price, $mainCurrency->id, false);
             }
 
             // Приводим цены в долларах

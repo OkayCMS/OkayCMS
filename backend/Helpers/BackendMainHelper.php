@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Helpers;
-
 
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
@@ -18,7 +16,6 @@ use Okay\Entities\OrderStatusEntity;
 
 class BackendMainHelper
 {
-
     private $entityFactory;
     private $managerMenu;
     private $design;
@@ -60,17 +57,17 @@ class BackendMainHelper
         if ($statusId = $orderStatusesEntity->order('position_asc')->cols(['id'])->find(['limit' => 1])) {
             $statusId = reset($statusId);
 
-            $newOrdersCounter = $ordersEntity->count(['status_id' => $statusId]);
+            $newOrdersCounter = (int) $ordersEntity->count(['status_id' => $statusId]);
             $this->design->assign("new_orders_counter", $newOrdersCounter);
         }
 
-        $newCommentsCounter = $commentsEntity->count(['approved'=>0]);
+        $newCommentsCounter = (int) $commentsEntity->count(['approved' => 0]);
         $this->design->assign("new_comments_counter", $newCommentsCounter);
 
-        $newFeedbacksCounter = $feedbacksEntity->count(['processed'=>0]);
+        $newFeedbacksCounter = (int) $feedbacksEntity->count(['processed' => 0]);
         $this->design->assign("new_feedbacks_counter", $newFeedbacksCounter);
 
-        $newCallbacksCounter = $callbacksEntity->count(['processed'=>0]);
+        $newCallbacksCounter = (int) $callbacksEntity->count(['processed' => 0]);
         $this->design->assign("new_callbacks_counter", $newCallbacksCounter);
 
         $modulesAccessExpireCounter = $this->modules->getExpireModulesNum();
@@ -85,23 +82,25 @@ class BackendMainHelper
             $this->design->assign("template_error_counter", $templateErrorCounter);
         }
 
-        $this->design->assign("all_counter",
+        $this->design->assign(
+            "all_counter",
             $newOrdersCounter
-            +$newCommentsCounter
-            +$newFeedbacksCounter
-            +$newCallbacksCounter
-            +$modulesAccessExpireCounter
-            +$notLicensedModulesCounter
-            +$templateErrorCounter
+            + $newCommentsCounter
+            + $newFeedbacksCounter
+            + $newCallbacksCounter
+            + $modulesAccessExpireCounter
+            + $notLicensedModulesCounter
+            + $templateErrorCounter
         );
-        
+
         $this->managerMenu->addCounter('left_orders_title', $newOrdersCounter);
         $this->managerMenu->addCounter('left_comments_title', $newCommentsCounter);
         $this->managerMenu->addCounter('left_feedbacks_title', $newFeedbacksCounter);
         $this->managerMenu->addCounter('left_callbacks_title', $newCallbacksCounter);
-        $this->managerMenu->addCounter('left_modules_list',
+        $this->managerMenu->addCounter(
+            'left_modules_list',
             $modulesAccessExpireCounter
-            +$notLicensedModulesCounter
+            + $notLicensedModulesCounter
         );
         $this->managerMenu->addCounter('left_theme_title', $templateErrorCounter);
 

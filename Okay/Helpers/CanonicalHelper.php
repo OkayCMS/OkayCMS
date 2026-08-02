@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Helpers;
-
 
 class CanonicalHelper
 {
@@ -18,7 +16,7 @@ class CanonicalHelper
     private $maxFeaturesFilterDepth;
     private $maxFeaturesValuesFilterDepth;
     private $maxFilterDepth;
-    
+
     public function setParams(
         $catalogPagination,
         $catalogPageAll,
@@ -45,20 +43,20 @@ class CanonicalHelper
         $this->maxFeaturesValuesFilterDepth = (int)$maxFeaturesValuesFilterDepth;
         $this->maxFilterDepth = (int)$maxFilterDepth;
     }
-    
+
     /**
      * @param string|int $page текущая страница, может быть all
-     * @param array $otherFilter одномерный массив, содержащий значения ['discounted', 'featured'...]
-     * @param array $featuresFilter
-     * @param array $brandsFilter
-     * @return array|false
-     * 
+     * @param list<string> $otherFilter одномерный массив, содержащий значения ['discounted', 'featured'...]
+     * @param array<string, list<string>> $featuresFilter
+     * @param list<string> $brandsFilter
+     * @return array<string, int|string|null>|false
+     *
      * Определение canonical для категории
      */
     public function getCatalogCanonicalData($page, array $otherFilter, array $featuresFilter, array $brandsFilter)
     {
         $result = [];
-        
+
         // Подсчитываем общую глубину фильтра
         $filterDepth = 0;
         if (!empty($otherFilter)) {
@@ -67,7 +65,8 @@ class CanonicalHelper
         }
         if (!empty($featuresFilter)) {
             $filterDepth += count($featuresFilter);
-            $result = array_merge($result,
+            $result = array_merge(
+                $result,
                 array_fill_keys(array_keys($featuresFilter), null)
             );
         }
@@ -75,7 +74,7 @@ class CanonicalHelper
             $result['brand'] = null;
             $filterDepth++;
         }
-        
+
         if ($filterDepth > $this->maxFilterDepth) {
             if (!empty($page)) {
                 $result['page'] = null;
@@ -83,7 +82,7 @@ class CanonicalHelper
             $result['sort'] = null;
             return $result; // no ExtenderFacade
         }
-        
+
         // Т.к. getCatalogCanonicalDataExecutor не может вернуть связку для доп. фильтров и свойств или бренда,
         // определяем эту связку здесь
         if (!empty($otherFilter)) {
@@ -96,18 +95,24 @@ class CanonicalHelper
                 return $result; // no ExtenderFacade
             }
         }
-        
+
         if (($baseCatalogData = $this->getBaseCatalogCanonicalData($page, $otherFilter)) === false) {
             return false; // no ExtenderFacade
         }
-        
+
         if (($catalogData = $this->getCatalogCanonicalDataExecutor($page, $featuresFilter, $brandsFilter)) === false) {
             return false; // no ExtenderFacade
         }
-        
+
         return $catalogData + $baseCatalogData; // no ExtenderFacade
     }
-    
+
+    /**
+     * @param string|int $page
+     * @param array<string, list<string>> $featuresFilter
+     * @param list<string> $brandsFilter
+     * @return array<string, int|string|null>|false
+     */
     private function getCatalogCanonicalDataExecutor($page, array $featuresFilter, array $brandsFilter)
     {
         $result = [];
@@ -115,7 +120,8 @@ class CanonicalHelper
         // Определяем не превысили ли максимальное кол-во свойств или значений одного свойства
         if (!empty($featuresFilter)) {
             if (count($featuresFilter) > $this->maxFeaturesFilterDepth) {
-                $result = array_merge($result,
+                $result = array_merge(
+                    $result,
                     array_fill_keys(array_keys($featuresFilter), null)
                 );
                 if (!empty($brandsFilter)) {
@@ -124,7 +130,8 @@ class CanonicalHelper
             } else {
                 foreach ($featuresFilter as $values) {
                     if (count($values) > $this->maxFeaturesValuesFilterDepth) {
-                        $result = array_merge($result,
+                        $result = array_merge(
+                            $result,
                             array_fill_keys(array_keys($featuresFilter), null)
                         );
                         if (!empty($brandsFilter)) {
@@ -135,29 +142,30 @@ class CanonicalHelper
                 }
             }
         }
-        
+
         // Не превысили ли максимальное кол-во брендов
         if (!empty($brandsFilter)) {
             if (count($brandsFilter) > $this->maxBrandFilterDepth) {
                 $result['brand'] = null;
             }
         }
-        
+
         if (!empty($result)) {
             if (!empty($page)) {
                 $result['page'] = null;
             }
             return $result; // no ExtenderFacade
         }
-        
+
         if (!empty($page) && (!empty($featuresFilter) || !empty($brandsFilter))) {
             switch ($this->catalogFilterPagination) {
                 case CANONICAL_WITHOUT_FILTER_FIRST_PAGE:
                     $result['page'] = null;
-                    
+
                     if (!empty($featuresFilter)) {
                         // Заполняем массив, где ключи - транслиты свойств, значение null, чтобы удалить эти значения
-                        $result = array_merge($result,
+                        $result = array_merge(
+                            $result,
                             array_fill_keys(array_keys($featuresFilter), null)
                         );
                     }
@@ -174,16 +182,16 @@ class CanonicalHelper
             }
             return $result; // no ExtenderFacade
         }
-        
+
         if (!empty($featuresFilter)) {
             switch ($this->catalogFeatures) {
                 case CANONICAL_WITHOUT_FILTER:
-                    
                     // Заполняем массив, где ключи - транслиты свойств, значение null, чтобы удалить эти значения
-                    $result = array_merge($result,
+                    $result = array_merge(
+                        $result,
                         array_fill_keys(array_keys($featuresFilter), null)
                     );
-                    
+
                     break;
                 case CANONICAL_WITH_FILTER:
                     break;
@@ -191,7 +199,7 @@ class CanonicalHelper
                     return false; // no ExtenderFacade
             }
         }
-        
+
         if (!empty($brandsFilter)) {
             switch ($this->catalogBrand) {
                 case CANONICAL_WITHOUT_FILTER:
@@ -203,15 +211,15 @@ class CanonicalHelper
                     return false; // no ExtenderFacade
             }
         }
-        
+
         return $result; // no ExtenderFacade
     }
 
     /**
      * @param string|int $page текущая страница, может быть all
-     * @param array $otherFilter одномерный массив, содержащий значения ['discounted', 'featured'...]
-     * @return array|false
-     * 
+     * @param list<string> $otherFilter одномерный массив, содержащий значения ['discounted', 'featured'...]
+     * @return array<string, int|string|null>|false
+     *
      * Определение canonical для страниц списков товаров (discounted, all-products, brand)
      */
     private function getBaseCatalogCanonicalData($page, array $otherFilter)
@@ -231,7 +239,7 @@ class CanonicalHelper
                 return $result; // no ExtenderFacade
             }
         }
-        
+
         if (!empty($page) && !empty($otherFilter)) {
             switch ($this->catalogFilterPagination) {
                 case CANONICAL_WITHOUT_FILTER_FIRST_PAGE:
@@ -249,7 +257,7 @@ class CanonicalHelper
             }
             return $result; // no ExtenderFacade
         }
-        
+
         if (!empty($page)) {
             if ($page == 'all') {
                 switch ($this->catalogPageAll) {
@@ -278,7 +286,7 @@ class CanonicalHelper
                 }
             }
         }
-        
+
         if (!empty($otherFilter)) {
             switch ($this->catalogOtherFilter) {
                 case CANONICAL_WITHOUT_FILTER:
@@ -290,7 +298,7 @@ class CanonicalHelper
                     return false; // no ExtenderFacade
             }
         }
-        
+
         return $result; // no ExtenderFacade
     }
 }

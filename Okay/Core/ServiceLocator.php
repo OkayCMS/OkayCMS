@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 use Okay\Core\OkayContainer\OkayContainer;
 
@@ -12,10 +10,10 @@ class ServiceLocator
      * @var OkayContainer
      */
     private $DI;
-    
+
     private static $instance;
     private static $isSingleton = false;
-    
+
     public function __construct()
     {
         $this->DI = include 'Okay/Core/config/container.php';
@@ -25,7 +23,9 @@ class ServiceLocator
         self::$isSingleton = false;
     }
 
-    private function __clone() {}
+    private function __clone()
+    {
+    }
 
     public static function getInstance()
     {
@@ -35,7 +35,7 @@ class ServiceLocator
         }
         return self::$instance;
     }
-    
+
     /**
      * @param $service
      * @return object
@@ -44,7 +44,7 @@ class ServiceLocator
     {
         return $this->DI->get($service);
     }
-    
+
     public function hasService($service)
     {
         return $this->DI->has($service);

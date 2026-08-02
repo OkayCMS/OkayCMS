@@ -33,11 +33,11 @@ class BackendRozetkaAdapter extends AbstractBackendPresetAdapter
             'price_change' => $postSettings['price_change'],
             'variant_name_param' => $postSettings['variant_name_param'],
             'filter_price' => [
-                'operator' => $postSettings['filter_price']['operator'],
+                'operator' => $this->normalizeComparisonOperator($postSettings['filter_price']['operator'] ?? null),
                 'value' => $postSettings['filter_price']['value'] === '' ? null : (float) str_replace(',', '.', $postSettings['filter_price']['value']),
             ],
             'filter_stock' => [
-                'operator' => $postSettings['filter_stock']['operator'],
+                'operator' => $this->normalizeComparisonOperator($postSettings['filter_stock']['operator'] ?? null),
                 'value' => $postSettings['filter_stock']['value'] === '' ? null : (float) str_replace(',', '.', $postSettings['filter_stock']['value']),
             ],
         ];
@@ -49,7 +49,7 @@ class BackendRozetkaAdapter extends AbstractBackendPresetAdapter
     {
         $this->designBlocks->registerBlock(
             'okay_cms__feeds__feed__categories_settings__settings_custom_block',
-            dirname(__DIR__, 3).'/design/html/presets/rozetka/category_settings.tpl'
+            dirname(__DIR__, 3) . '/design/html/presets/rozetka/category_settings.tpl'
         );
 
         parent::registerCategorySettingsBlock();

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Admin\Helpers\BackendMenuHelper;
 use Okay\Admin\Requests\BackendMenuRequest;
@@ -11,7 +9,6 @@ use Okay\Entities\MenuItemsEntity;
 
 class MenuAdmin extends IndexAdmin
 {
-
     public function fetch(
         BackendMenuRequest $backendMenuRequest,
         BackendMenuHelper $backendMenuHelper,
@@ -20,13 +17,17 @@ class MenuAdmin extends IndexAdmin
     ) {
 
         $menuItems = [];
-        
+
         /*Принимаем данные о меню*/
         if ($this->request->method('POST')) {
             $menu = $backendMenuRequest->postMenu();
+            /** @var object{id: int|string|null, group_id: string|null}&\stdClass $menu */
             $menuItems = $backendMenuRequest->postMenuItems();
 
-            if (($m = $menuEntity->get((string)$menu->group_id)) && $m->id!=$menu->id) {
+            if (($m = $menuEntity->get((string)$menu->group_id))) {
+                /** @var object{id: int|string|null}&\stdClass $m */
+            }
+            if ($m && $m->id != $menu->id) {
                 $this->design->assign('message_error', 'group_id_exists');
                 $menuItems = $backendMenuHelper->buildTree($menuItems);
             } elseif (empty($menu->group_id)) {
@@ -42,14 +43,14 @@ class MenuAdmin extends IndexAdmin
                 } else {
                     $preparedMenu = $backendMenuHelper->prepareUpdate($menu);
                     $backendMenuHelper->update($preparedMenu);
-                    
+
                     $this->design->assign('message_success', 'updated');
                 }
-                
+
                 if ($menu->id) {
                     $menuItemsIds = [];
                     if (is_array($menuItems)) {
-                        foreach ($menuItems as $i=>$item) {
+                        foreach ($menuItems as $i => $item) {
                             if ($item->parent_index > 0) {
                                 if (!isset($menuItems[$item->parent_index]->id)) {
                                     unset($menuItems[$i]);
@@ -88,8 +89,8 @@ class MenuAdmin extends IndexAdmin
                     // Отсортировать  элементы меню
                     asort($menuItemsIds);
                     $i = 0;
-                    foreach($menuItemsIds as $menu_item_id) {
-                        $menuItemsEntity->update($menuItemsIds[$i], ['position'=>$menu_item_id]);
+                    foreach ($menuItemsIds as $menu_item_id) {
+                        $menuItemsEntity->update($menuItemsIds[$i], ['position' => $menu_item_id]);
                         $i++;
                     }
 

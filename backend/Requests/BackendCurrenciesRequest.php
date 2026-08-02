@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Requests;
-
 
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Request;
@@ -19,10 +17,10 @@ class BackendCurrenciesRequest
     public function postCurrencies()
     {
         $currencies = [];
-        foreach ($this->request->post('currency') as $n=>$va) {
-            foreach ($va as $i=>$v) {
-                if(empty($currencies[$i])) {
-                    $currencies[$i] = new \stdClass;
+        foreach ($this->request->post('currency') as $n => $va) {
+            foreach ($va as $i => $v) {
+                if (empty($currencies[$i])) {
+                    $currencies[$i] = new \stdClass();
                 }
                 $currencies[$i]->$n = $v;
             }

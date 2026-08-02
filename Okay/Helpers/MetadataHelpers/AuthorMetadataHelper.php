@@ -1,15 +1,16 @@
 <?php
 
-
 namespace Okay\Helpers\MetadataHelpers;
-
 
 use Okay\Core\FrontTranslations;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 
+/**
+ * @phpstan-type AuthorRow object{name: string|null, description: string|null, meta_title: string|null, meta_keywords: string|null, meta_description: string|null}&\stdClass
+ */
 class AuthorMetadataHelper extends CommonMetadataHelper
 {
-    /** @var object */
+    /** @var AuthorRow */
     private $author;
 
     /** @var bool */
@@ -18,6 +19,9 @@ class AuthorMetadataHelper extends CommonMetadataHelper
     /** @var int */
     private $currentPageNum;
 
+    /**
+     * @param AuthorRow $author
+     */
     public function setUp($author, bool $isAllPages = false, int $currentPageNum = 1): void
     {
         $this->author         = $author;
@@ -100,25 +104,25 @@ class AuthorMetadataHelper extends CommonMetadataHelper
         } else {
             $metaDescription = (string)$this->author->meta_description;
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $metaDescription, func_get_args());
     }
-    
+
     /**
      * @inheritDoc
+     * @return array<string, mixed>
      */
     protected function getParts(): array
     {
         if (!empty($this->parts)) {
             return $this->parts; // no ExtenderFacade
         }
-        
+
         $this->parts = [
             '{$author}' => ($this->author->name ? $this->author->name : ''),
             '{$sitename}' => ($this->settings->get('site_name') ? $this->settings->get('site_name') : ''),
         ];
-        
+
         return $this->parts = ExtenderFacade::execute(__METHOD__, $this->parts, func_get_args());
     }
-    
 }

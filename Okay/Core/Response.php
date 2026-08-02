@@ -1,15 +1,11 @@
 <?php
 
-
 namespace Okay\Core;
 
-
 use Okay\Core\Adapters\Response\AdapterManager;
-use Okay\Core\Modules\LicenseModulesTemplates;
 
 class Response
 {
-    
     private $content = [];
     private $adapterManager;
     private $headers;
@@ -78,14 +74,13 @@ class Response
         520 => 'Unknown Error',
         521 => 'Web Server Is Down',
     ];
-    
-    public function __construct(AdapterManager $adapterManager, string $version)
+
+    public function __construct(AdapterManager $adapterManager)
     {
         $this->adapterManager = $adapterManager;
         $this->type = RESPONSE_HTML;
-        $this->addHeader('X-Powered-CMS: OkayCMS ' . $version);
     }
-    
+
     /**
      * Метод перенаправления на другой ресурс. При помощи функции exit()
      * прекращает исполнение кода расположенного ниже вызова метода.
@@ -101,12 +96,12 @@ class Response
         if (!in_array($responseCode, [301, 302, 303, 307, 308])) {
             throw new \Exception("$responseCode is not a valid redirect response code.");
         }
-        
+
         $headerContent = 'Location: ' . $resource;
         header($headerContent, false, $responseCode);
         exit;
     }
-    
+
     public function setStatusCode($statusCode): self
     {
         if (empty($statusCode)) {
@@ -119,13 +114,13 @@ class Response
         $this->statusCode = $statusCode;
         return $this;
     }
-    
+
     public function addHeader($headerContent, $replace = true, $responseCode = null): self
     {
         $this->headers[] = [$headerContent, $replace, $responseCode];
         return $this;
     }
-    
+
     public function setContent($content, $type = null): self
     {
         if ($type !== null) {
@@ -134,23 +129,26 @@ class Response
         $this->content[] = $content;
         return $this;
     }
-    
+
     public function setContentType(string $type): self
     {
         $this->type = trim($type);
         return $this;
     }
-    
+
     public function getContentType(): string
     {
         return $this->type;
     }
-    
+
+    /**
+     * @return list<mixed>
+     */
     public function getContent(): array
     {
         return $this->content;
     }
-    
+
     /**
      * В отличие от метода sendContent(), этот метод непосредственно сейчас отправляет данные.
      * Нужно обязательно до первого его вызова установить тип данных setContent(), и вызвать sendHeaders()
@@ -164,94 +162,98 @@ class Response
      * @param string $content
      * @param string|null $type
      */
-    public function sendStream(string $content, string $type = null): void
+    public function sendStream(string $content, ?string $type = null): void
     {
         $this->isStream = true;
-        
+
         if ($type !== null) {
             $this->type = trim($type);
         }
-        
+
         /** @var Adapters\Response\AbstractResponse $adapter */
         $adapter = $this->adapterManager->getAdapter($this->type);
-        
+
         $adapter->send([$content]);
     }
-    
+
     public function sendContent(): self
     {
         if ($this->isStream === true) {
             return $this;
         }
-        
+
         /** @var Adapters\Response\AbstractResponse $adapter */
         $adapter = $this->adapterManager->getAdapter($this->type);
-        
+
         $this->sendHeaders();
-        
+
         $adapter->send($this->content);
 
         return $this;
     }
-    
+
     public function sendHeaders(): self
     {
 //        return $this;
         $this->commitStatusCode();
-        
+
         /** @var Adapters\Response\AbstractResponse $adapter */
         $adapter = $this->adapterManager->getAdapter($this->type);
-        
+
         // Добавляем специальные заголовки, от драйвера
         foreach ($adapter->getSpecialHeaders() as $header) {
             $this->addHeader($header);
         }
-        
+
         if (!empty($this->headers)) {
             foreach ($this->headers as $k => $header) {
                 list($headerContent, $replace, $responseCode) = $header;
-                
+
                 if (is_null($responseCode)) {
                     header($headerContent, $replace);
                     continue;
                 }
-                
+
                 header($headerContent, $replace, $responseCode);
                 unset($this->headers[$k]);
             }
         }
         return $this;
     }
-    
+
     public function setHeaderLastModify(string $lastModify): self
     {
         $lastModifiedUnix = $lastModify ? strtotime($lastModify) : time();
-        
+        if ($lastModifiedUnix === false) {
+            $lastModifiedUnix = time();
+        }
+
         // Проверка модификации страницы
         $lastModified = gmdate("D, d M Y H:i:s \G\M\T", $lastModifiedUnix);
         $ifModifiedSince = false;
-        
+
         if (isset($_ENV['HTTP_IF_MODIFIED_SINCE'])) {
             $ifModifiedSince = strtotime(substr($_ENV['HTTP_IF_MODIFIED_SINCE'], 5));
         }
-        
+
         if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
             $ifModifiedSince = strtotime(substr($_SERVER['HTTP_IF_MODIFIED_SINCE'], 5));
         }
-        
+
         if ($ifModifiedSince && $ifModifiedSince >= $lastModifiedUnix) {
             $this->setStatusCode(304)->sendHeaders();
             exit;
         }
-        
+
         $this->addHeader('Last-Modified: ' . $lastModified);
-        
+
         return $this;
     }
-    
+
     private function commitStatusCode(): void
     {
-        $this->addHeader(sprintf('%s %d %s',
+        $this->addHeader(sprintf(
+            '%s %d %s',
             $_SERVER['SERVER_PROTOCOL'],
             $this->statusCode,
             self::STATUS_CODES_MESSAGES[$this->statusCode]

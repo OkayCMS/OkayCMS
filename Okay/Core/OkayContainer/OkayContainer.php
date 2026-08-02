@@ -2,7 +2,6 @@
 
 namespace Okay\Core\OkayContainer;
 
-
 use Okay\Core\OkayContainer\Exception\ContainerException;
 use Okay\Core\OkayContainer\Exception\ParameterNotFoundException;
 use Okay\Core\OkayContainer\Exception\ServiceNotFoundException;
@@ -16,14 +15,10 @@ use Okay\Core\Settings;
  */
 class OkayContainer implements ContainerInterface
 {
-    /**
-     * @var array
-     */
+    /** @var array<string, mixed> */
     private $services;
 
-    /**
-     * @var array
-     */
+    /** @var array<string, mixed> */
     private $parameters;
 
     /**
@@ -31,39 +26,43 @@ class OkayContainer implements ContainerInterface
      */
     private static $instance;
 
-    /**
-     * @var array
-     */
+    /** @var array<string, mixed> */
     private $serviceStore;
 
     public const SETTINGS_DI = 'SettingsDI';
 
     public static function getInstance($services = [], $parameters = []): self
     {
-        
+
         if (empty(self::$instance)) {
             self::$instance = new self($services, $parameters);
         }
 
         return self::$instance;
     }
-    
+
+    /**
+     * @param array<string, mixed> $services
+     * @param array<string, mixed> $parameters
+     */
     private function __construct(array $services = [], array $parameters = [])
     {
         $this->services     = $services;
         $this->parameters   = $parameters;
         $this->serviceStore = [];
     }
-    private function __clone(){}
+    private function __clone()
+    {
+    }
 
     /**
      * {@inheritDoc}
      */
     public function get(string $id)
     {
-        
+
         if (!$this->has($id)) {
-            throw new ServiceNotFoundException('Service not found: '.$id);
+            throw new ServiceNotFoundException('Service not found: ' . $id);
         }
 
         // If we haven't created it, create it and save to store
@@ -78,6 +77,9 @@ class OkayContainer implements ContainerInterface
         return $this->serviceStore[$id];
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     public function bindParameters(array $parameters)
     {
         $this->parameters = array_merge_recursive($this->parameters, $parameters);
@@ -87,8 +89,11 @@ class OkayContainer implements ContainerInterface
     {
         $this->services[$name] = $service;
     }
-    
-    
+
+
+    /**
+     * @param array<string, mixed> $services
+     */
     public function bindServices(array $services)
     {
         $this->services = array_merge($this->services, $services);
@@ -134,7 +139,7 @@ class OkayContainer implements ContainerInterface
 
         return true;
     }
-    
+
     /**
      * Attempt to create a service.
      * @param string $name The service name.
@@ -147,11 +152,11 @@ class OkayContainer implements ContainerInterface
         $entry = &$this->services[$name];
 
         if (!is_array($entry) || !isset($entry['class'])) {
-            throw new ContainerException($name.' service entry must be an array containing a \'class\' key');
+            throw new ContainerException($name . ' service entry must be an array containing a \'class\' key');
         } elseif (!class_exists($entry['class'])) {
-            throw new ContainerException($name.' service class does not exist: '.$entry['class']);
+            throw new ContainerException($name . ' service class does not exist: ' . $entry['class']);
         } elseif (isset($entry['lock'])) {
-            throw new ContainerException($name.' contains circular reference');
+            throw new ContainerException($name . ' contains circular reference');
         }
 
         $entry['lock'] = true;
@@ -167,8 +172,8 @@ class OkayContainer implements ContainerInterface
 
     /**
      * Resolve argument definitions into an array of arguments.
-     * @param array  $argumentDefinitions The service arguments definition.
-     * @return array The service constructor arguments.
+     * @param list<mixed> $argumentDefinitions The service arguments definition.
+     * @return list<mixed> The service constructor arguments.
      */
     private function resolveArguments(array $argumentDefinitions)
     {
@@ -196,7 +201,7 @@ class OkayContainer implements ContainerInterface
      *
      * @param object $service         The service.
      * @param string $name            The service name.
-     * @param array  $callDefinitions The service calls definition.
+     * @param list<mixed> $callDefinitions The service calls definition.
      *
      * @throws ContainerException On failure.
      */
@@ -204,9 +209,9 @@ class OkayContainer implements ContainerInterface
     {
         foreach ($callDefinitions as $callDefinition) {
             if (!is_array($callDefinition) || !isset($callDefinition['method'])) {
-                throw new ContainerException($name.' service calls must be arrays containing a \'method\' key');
+                throw new ContainerException($name . ' service calls must be arrays containing a \'method\' key');
             } elseif (!is_callable([$service, $callDefinition['method']], true)) {
-                throw new ContainerException($name.' service asks for call to uncallable method: '.$callDefinition['method']);
+                throw new ContainerException($name . ' service asks for call to uncallable method: ' . $callDefinition['method']);
             }
 
             $arguments = isset($callDefinition['arguments']) ? $this->resolveArguments($callDefinition['arguments']) : [];
@@ -219,7 +224,7 @@ class OkayContainer implements ContainerInterface
     {
 
         if (is_array($parameter)) {
-            foreach ($parameter as $k=>$item) {
+            foreach ($parameter as $k => $item) {
                 $parameter[$k] = $this->settingsParameters($item);
             }
         }
@@ -233,8 +238,9 @@ class OkayContainer implements ContainerInterface
                 if (!empty($param = $settings->$var)) {
                     if (is_array($param) || is_object($param)) {
                         $parameter = $param;
+                        break;
                     } else {
-                        $parameter = strtr($parameter, [$match => $param]);
+                        $parameter = strtr($parameter, [$match => (string) $param]);
                     }
                 } else {
                     $parameter = strtr($parameter, [$match => '']);
@@ -249,7 +255,7 @@ class OkayContainer implements ContainerInterface
     {
 
         if (is_array($parameter)) {
-            foreach ($parameter as $k=>$item) {
+            foreach ($parameter as $k => $item) {
                 $parameter[$k] = $this->configParameters($item);
             }
         }
@@ -270,5 +276,4 @@ class OkayContainer implements ContainerInterface
 
         return $parameter;
     }
-    
 }

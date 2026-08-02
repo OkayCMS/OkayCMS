@@ -4,7 +4,6 @@ namespace Okay\Core\OkayContainer;
 
 use Psr\Container\ContainerInterface as PsrContainerInterface;
 
-
 interface ContainerInterface extends PsrContainerInterface
 {
     /**
@@ -20,9 +19,12 @@ interface ContainerInterface extends PsrContainerInterface
      * @return bool True if the container has the parameter, false otherwise.
      */
     public function hasParameter(string $name): bool;
-    
-    
+
+
     public function bindService($name, $service);
-    
+
+    /**
+     * @param array<string, mixed> $services
+     */
     public function bindServices(array $services);
 }

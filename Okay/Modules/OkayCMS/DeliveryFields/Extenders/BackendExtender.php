@@ -1,8 +1,6 @@
-<?php 
-
+<?php
 
 namespace Okay\Modules\OkayCMS\DeliveryFields\Extenders;
-
 
 use Okay\Core\Design;
 use Okay\Core\Request;
@@ -12,6 +10,11 @@ use Okay\Modules\OkayCMS\DeliveryFields\Entities\DeliveryFieldsEntity;
 use Okay\Modules\OkayCMS\DeliveryFields\Helpers\DeliveryFieldsHelper;
 use Okay\Modules\OkayCMS\DeliveryFields\Entities\DeliveryFieldsValuesEntity;
 
+/**
+ * @phpstan-type OrderRow object{id: int|string, delivery_id?: int|string|null}&\stdClass
+ * @phpstan-type DeliveryFieldRow object{value?: mixed, value_id?: int|string|null}&\stdClass
+ * @phpstan-type DeliveryFieldValueRow object{id: int|string, field_id: int|string, value: mixed}&\stdClass
+ */
 class BackendExtender implements ExtensionInterface
 {
     private DeliveryFieldsEntity $deliveryFieldsEntity;
@@ -35,6 +38,7 @@ class BackendExtender implements ExtensionInterface
 
     public function extendUpdateOrder($order)
     {
+        /** @var OrderRow $order */
         if (empty($order->delivery_id)) {
             return;
         }
@@ -63,6 +67,7 @@ class BackendExtender implements ExtensionInterface
 
     public function extendFindOrderDelivery($delivery, $order): void
     {
+        /** @var OrderRow|null $order */
         if (empty($order) || empty($order->delivery_id)) {
             return;
         }
@@ -72,16 +77,22 @@ class BackendExtender implements ExtensionInterface
         ]);
 
         foreach ($deliveryFieldsValues as $fieldValue) {
+            /** @var DeliveryFieldValueRow $fieldValue */
             if (!isset($fields[$fieldValue->field_id])) {
                 continue;
             }
-            $fields[$fieldValue->field_id]->value = $fieldValue->value;
-            $fields[$fieldValue->field_id]->value_id = $fieldValue->id;
+            /** @var DeliveryFieldRow $field */
+            $field = $fields[$fieldValue->field_id];
+            $field->value = $fieldValue->value;
+            $field->value_id = $fieldValue->id;
         }
         $this->design->assign('deliveryFields', $fields);
         $this->design->assign('deliveryFieldsValues', $deliveryFieldsValues);
     }
 
+    /**
+     * @param array<int|string, int|string> $deliveriesIds
+     */
     public function extendDeleteDelivery($result, array $deliveriesIds)
     {
         foreach ($deliveriesIds as $deliveriesId) {

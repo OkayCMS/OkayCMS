@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Entity\RelatedProductsInterface;
@@ -11,7 +9,6 @@ use Okay\Core\Modules\Extender\ExtenderFacade;
 
 class BlogEntity extends Entity implements RelatedProductsInterface
 {
-    
     protected static $fields = [
         'id',
         'url',
@@ -27,7 +24,7 @@ class BlogEntity extends Entity implements RelatedProductsInterface
         'rating',
         'votes',
     ];
-    
+
     protected static $langFields = [
         'name',
         'meta_title',
@@ -36,12 +33,12 @@ class BlogEntity extends Entity implements RelatedProductsInterface
         'annotation',
         'description',
     ];
-    
+
     protected static $searchFields = [
         'name',
         'meta_keywords',
     ];
-    
+
     protected static $defaultOrderFields = [
         'date DESC',
         'visible DESC',
@@ -64,13 +61,13 @@ class BlogEntity extends Entity implements RelatedProductsInterface
         $routerCacheEntity->deleteWrongCache();
         return $res;
     }
-    
+
     public function delete($ids)
     {
         if (empty($ids)) {
             parent::delete($ids);
         }
-        
+
         $ids = (array)$ids;
 
         $comments = $this->entity->get(CommentsEntity::class);
@@ -94,7 +91,7 @@ class BlogEntity extends Entity implements RelatedProductsInterface
                 $this->config->resized_blog_dir
             );
         }
-        
+
         parent::delete($ids);
 
         /** @var RouterCacheEntity $routerCacheEntity */
@@ -125,6 +122,7 @@ class BlogEntity extends Entity implements RelatedProductsInterface
 
         $this->db->query($select);
         $pid = $this->db->result('id');
+        /** @var int|string|null|false $pid */
         if ($pid) {
             $pIds[$pid] = 'prev';
         }
@@ -147,21 +145,23 @@ class BlogEntity extends Entity implements RelatedProductsInterface
 
         $this->db->query($select);
         $pid = $this->db->result('id');
-        
+        /** @var int|string|null|false $pid */
+
         if ($pid) {
             $pIds[$pid] = 'next';
         }
-        
-        $result = ['next'=>'', 'prev'=>''];
+
+        $result = ['next' => '', 'prev' => ''];
         if (!empty($pIds)) {
-            foreach ($this->find(array('id'=>array_keys($pIds))) as $p) {
+            foreach ($this->find(array('id' => array_keys($pIds))) as $p) {
+                /** @var object{id: int|string}&\stdClass $p */
                 $result[$pIds[$p->id]] = $p;
             }
         }
-        
+
         return ExtenderFacade::execute([static::class, __FUNCTION__], $result, func_get_args());
     }
-    
+
     public function getRelatedProducts(array $filter = [])
     {
         $select = $this->queryFactory->newSelect();
@@ -172,8 +172,8 @@ class BlogEntity extends Entity implements RelatedProductsInterface
                 'position',
             ])
             ->orderBy(['position']);
-        
-        
+
+
         if (!empty($filter['post_id'])) {
             $select->where('post_id IN (:post_id)')
                 ->bindValue('post_id', (array)$filter['post_id']);
@@ -182,7 +182,7 @@ class BlogEntity extends Entity implements RelatedProductsInterface
             $select->where('related_id IN (:related_id)')
                 ->bindValue('related_id', (array)$filter['product_id']);
         }
-        
+
         $this->db->query($select);
 
         $results = $this->db->results();
@@ -241,5 +241,4 @@ class BlogEntity extends Entity implements RelatedProductsInterface
         $this->select->where("(SELECT count(*)=0 FROM __blog_categories_relation bc WHERE bc.post_id=b.id)=:without_category");
         $this->select->bindValue('without_category', $categoriesIds);
     }
-    
 }

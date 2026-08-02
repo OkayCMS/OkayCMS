@@ -1,34 +1,35 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 class Import
 {
-
     /*Соответствие полей в базе и имён колонок в файле*/
+
+    /**
+     * @var array<string, list<string>>
+     */
     private $columnsNames = [
-        'category'=>         ['category', 'категория'],
-        'brand'=>            ['brand', 'бренд'],
-        'name'=>             ['product', 'name', 'товар', 'название', 'наименование'],
-        'variant'=>          ['variant', 'вариант'],
-        'sku'=>              ['sku', 'артикул'],
-        'price'=>            ['price', 'цена'],
-        'compare_price'=>    ['compare price', 'old price', 'старая цена'],
-        'currency'=>         ['currency_id', 'currency', 'currency id', 'ID валюты'],
-        'weight'=>           ['weight', 'вес варианта'],
-        'stock'=>            ['stock', 'склад', 'на складе'],
-        'units'=>            ['units', 'ед. изм.'],
-        'visible'=>          ['visible', 'published', 'видим'],
-        'featured'=>         ['featured', 'hit', 'хит', 'рекомендуемый'],
-        'meta_title'=>       ['meta title', 'заголовок страницы'],
-        'meta_keywords'=>    ['meta keywords', 'ключевые слова'],
-        'meta_description'=> ['meta description', 'описание страницы'],
-        'annotation'=>       ['annotation', 'аннотация', 'краткое описание'],
-        'description'=>      ['description', 'описание'],
-        'images'=>           ['images', 'изображения'],
-        'url'=>              ['url', 'адрес']
+        'category' =>         ['category', 'категория'],
+        'brand' =>            ['brand', 'бренд'],
+        'name' =>             ['product', 'name', 'товар', 'название', 'наименование'],
+        'variant' =>          ['variant', 'вариант'],
+        'sku' =>              ['sku', 'артикул'],
+        'price' =>            ['price', 'цена'],
+        'compare_price' =>    ['compare price', 'old price', 'старая цена'],
+        'currency' =>         ['currency_id', 'currency', 'currency id', 'ID валюты'],
+        'weight' =>           ['weight', 'вес варианта'],
+        'stock' =>            ['stock', 'qty', 'quantity', 'склад', 'на складе'],
+        'units' =>            ['units', 'ед. изм.'],
+        'visible' =>          ['visible', 'published', 'видим'],
+        'featured' =>         ['featured', 'hit', 'хит', 'рекомендуемый'],
+        'meta_title' =>       ['meta title', 'заголовок страницы'],
+        'meta_keywords' =>    ['meta keywords', 'ключевые слова'],
+        'meta_description' => ['meta description', 'описание страницы'],
+        'annotation' =>       ['annotation', 'аннотация', 'краткое описание'],
+        'description' =>      ['description', 'описание'],
+        'images' =>           ['images', 'изображения'],
+        'url' =>              ['url', 'адрес']
 
     ];
 
@@ -41,6 +42,10 @@ class Import
     protected $subCategoryDelimiter = '/';                     // Разделитель подкаегорий в файле
     protected $valuesDelimiter      = ',,';                    // Разделитель значений свойства в товаре
     protected $columnDelimiter      = ';';
+
+    /**
+     * @var list<string>
+     */
     protected $columns              = [];
     protected $locale               = 'ru_RU.UTF-8';
 
@@ -54,7 +59,7 @@ class Import
             return false;
         }
         if (!empty($fields)) {
-            foreach ($fields as $csv=>$inner) {
+            foreach ($fields as $csv => $inner) {
                 if (isset($this->columnsNames[$inner]) && !in_array(mb_strtolower($csv), array_map("mb_strtolower", $this->columnsNames[$inner]))) {
                     $this->columnsNames[$inner][] = $csv;
                 }
@@ -73,8 +78,14 @@ class Import
     // Определяем колонки из первой строки файла
     public function initColumns()
     {
-        $f = fopen($this->importFilesDir.$this->import_file, 'r');
-        $this->columns = fgetcsv($f, null, $this->columnDelimiter);
+        $f = fopen($this->importFilesDir . $this->import_file, 'r');
+        if ($f === false) {
+            $this->columns = [];
+            return;
+        }
+
+        $columns = fgetcsv($f, 0, $this->columnDelimiter, '"', '\\');
+        $this->columns = is_array($columns) ? array_values(array_filter($columns, 'is_string')) : [];
         fclose($f);
     }
 
@@ -84,9 +95,9 @@ class Import
         $name = trim($name);
         $name = str_replace('/', '', $name);
         $name = str_replace('\/', '', $name);
-        foreach($this->columnsNames as $i=>$names) {
-            foreach($names as $n) {
-                if(!empty($name) && preg_match("/^".preg_quote($name)."$/ui", $n)) {
+        foreach ($this->columnsNames as $i => $names) {
+            foreach ($names as $n) {
+                if (!empty($name) && preg_match("/^" . preg_quote($name) . "$/ui", $n)) {
                     return $i;
                 }
             }
@@ -100,7 +111,7 @@ class Import
     }
 
     /**
-     * @param array
+     * @param list<string> $columns
      * @return void
      */
     public function setColumns($columns)
@@ -109,7 +120,7 @@ class Import
     }
 
     /**
-     * @return array
+     * @return list<string>
      */
     public function getColumns()
     {
@@ -149,7 +160,7 @@ class Import
     }
 
     /**
-     * @return array
+     * @return array<string, list<string>>
      */
     public function getColumnsNames()
     {
@@ -179,5 +190,4 @@ class Import
     {
         return $this->import_file;
     }
-
 }

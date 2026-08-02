@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\Banners\Init;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\AbstractInit;
@@ -23,20 +21,19 @@ use Okay\Modules\OkayCMS\Banners\Extenders\FrontExtender;
 
 class Init extends AbstractInit
 {
+    public const PERMISSION = 'okaycms_banners';
 
-    const PERMISSION = 'okaycms_banners';
-    
     public function install()
     {
-        
+
         if (!is_dir('files/originals/slides')) {
             mkdir('files/originals/slides');
         }
-        
+
         if (!is_dir('files/resized/slides')) {
             mkdir('files/resized/slides');
         }
-        
+
         $this->setBackendMainController('BannersAdmin');
         $this->migrateEntityTable(BannersEntity::class, [
             (new EntityField('id'))->setTypeInt(11)->setAutoIncrement(),
@@ -52,7 +49,7 @@ class Init extends AbstractInit
             (new EntityField('as_individual_shortcode'))->setTypeTinyInt(1, true)->setDefault(0),
             (new EntityField('settings'))->setTypeText(),
         ]);
-        
+
         $this->migrateEntityTable(BannersImagesEntity::class, [
             (new EntityField('id'))->setTypeInt(11)->setAutoIncrement(),
             (new EntityField('banner_id'))->setTypeInt(11)->setIndex(),
@@ -67,57 +64,57 @@ class Init extends AbstractInit
             (new EntityField('settings'))->setTypeText(),
         ]);
     }
-    
+
     public function init()
     {
         $this->registerBackendController('BannersAdmin');
         $this->registerBackendController('BannerAdmin');
         $this->registerBackendController('BannersImageAdmin');
         $this->registerBackendController('BannersImagesAdmin');
-        
+
         $this->addBackendControllerPermission('BannersAdmin', self::PERMISSION);
         $this->addBackendControllerPermission('BannerAdmin', self::PERMISSION);
         $this->addBackendControllerPermission('BannersImageAdmin', self::PERMISSION);
         $this->addBackendControllerPermission('BannersImagesAdmin', self::PERMISSION);
-        
+
         $this->registerQueueExtension(
             [MainHelper::class, 'commonAfterControllerProcedure'],
             [FrontExtender::class, 'assignCurrentBanners']
         );
-        
+
         $this->registerChainExtension(
             [CategoryMetadataHelper::class, 'getParts'],
             [FrontExtender::class, 'metadataGetParts']
         );
-        
+
         $this->registerChainExtension(
             [BrandMetadataHelper::class, 'getParts'],
             [FrontExtender::class, 'metadataGetParts']
         );
-        
+
         $this->registerChainExtension(
             [ProductMetadataHelper::class, 'getParts'],
             [FrontExtender::class, 'metadataGetParts']
         );
-        
+
         $this->registerChainExtension(
             [PostMetadataHelper::class, 'getParts'],
             [FrontExtender::class, 'metadataGetParts']
         );
-        
+
         $this->registerChainExtension(
             [CommonMetadataHelper::class, 'getParts'],
             [FrontExtender::class, 'metadataGetParts']
         );
-        
+
         $this->extendBackendMenu('left_banners', [
             'left_banners_title' => ['BannersAdmin', 'BannerAdmin'],
             'left_banners_images_title' => ['BannersImagesAdmin', 'BannersImageAdmin'],
         ], '<svg width="20" height="20" viewBox="0 0 24 15" xmlns="http://www.w3.org/2000/svg">
             <path d="M.918.04h22.164v14.92H.918V.04zM2.2 1.349v12.344h19.614V1.348H2.2zm1.616 5.939l3.968-3.608v7.216L3.816 7.287zm16.475 0l-4 3.636V3.651l4 3.636z" fill="currentColor" />
         </svg>');
-        
-        
+
+
         $this->addFastMenuItem('slide', [
             'controller' => 'OkayCMS.Banners.BannerAdmin',
             'translation' => 'admintooltip_edit_banner',
@@ -142,28 +139,27 @@ class Init extends AbstractInit
                 'banner_slide_id_add' => 'id',
             ],
         ]);
-        
+
         $this->addResizeObject('banners_images_dir', 'resized_banners_images_dir');
 
         $this->extendUpdateObject('okay_cms__banners', self::PERMISSION, BannersEntity::class);
         $this->extendUpdateObject('okay_cms__banners_images', self::PERMISSION, BannersImagesEntity::class);
     }
-    
+
     public function update_1_0_1()
     {
         $SL = ServiceLocator::getInstance();
 
         /** @var QueryFactory $queryFactory */
         $queryFactory = $SL->getService(QueryFactory::class);
-        
+
         $sql = $queryFactory->newSqlQuery();
         $sql->setStatement("ALTER TABLE " . BannersImagesEntity::getLangTable() . " ADD `image` varchar(255) NULL DEFAULT ''")->execute();
 
         $sql = $queryFactory->newSqlQuery();
         $sql->setStatement("UPDATE " . BannersImagesEntity::getLangTable() . " AS l LEFT JOIN " . BannersImagesEntity::getTable() . " AS b ON l." . BannersImagesEntity::getLangObject() . "_id = b.id SET l.image=b.image")->execute();
-        
+
         $this->migrateEntityField(BannersImagesEntity::class, (new EntityField('is_lang_banner'))->setTypeTinyInt(1, true)->setDefault(1));
-        
     }
 
     public function update_1_1_0()

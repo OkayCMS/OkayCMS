@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\RozetkaPay\Models\Gateway;
 
 use Okay\Core\EntityFactory;
@@ -12,7 +11,7 @@ use Okay\Core\QueryFactory;
 
 class Refund
 {
-    const REFUND_URL = 'refund';
+    public const REFUND_URL = 'refund';
 
     /**
      * @var HttpCurl
@@ -38,8 +37,7 @@ class Refund
         HttpCurl $client,
         EntityFactory $entityFactory,
         QueryFactory $queryFactory
-    )
-    {
+    ) {
         $this->client = $client;
         $this->entityFactory = $entityFactory;
         $this->queryFactory = $queryFactory;
@@ -53,12 +51,15 @@ class Refund
         $currenciesEntity = $this->entityFactory->get(CurrenciesEntity::class);
         $paymentCurrency = $currenciesEntity->get(intval($paymentMethod->currency_id));
         $orderArray = (array)$order;
-        if($settings['rozetkapay_secretkey'] === 'XChz3J8qrr') {
+        if ($settings['rozetkapay_secretkey'] === 'XChz3J8qrr') {
             $postfix = \Okay\Modules\OkayCMS\RozetkaPay\Models\Gateway\CreatePayment::POSTFIX_FOR_TEST;
             $orderArray['id'] = $order->id . $postfix;
         }
         $orderArray['currency'] = (array)$paymentCurrency;
         $data = json_encode($this->prepareRequest($orderArray));
+        if ($data === false) {
+            $data = '';
+        }
         return $this->client->request('post', self::REFUND_URL, $data, $settings);
     }
 

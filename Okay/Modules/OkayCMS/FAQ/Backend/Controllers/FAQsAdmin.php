@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\FAQ\Backend\Controllers;
-
 
 use Okay\Modules\OkayCMS\FAQ\Entities\FAQEntity;
 use Okay\Admin\Controllers\IndexAdmin;
@@ -19,18 +17,15 @@ class FAQsAdmin extends IndexAdmin
             $ids = $this->request->post('check');
             if (is_array($ids)) {
                 switch ($this->request->post('action')) {
-                    case 'disable': {
-                        $FAQEntity->update($ids, ['visible'=>0]);
+                    case 'disable':
+                        $FAQEntity->update($ids, ['visible' => 0]);
                         break;
-                    }
-                    case 'enable': {
-                        $FAQEntity->update($ids, ['visible'=>1]);
+                    case 'enable':
+                        $FAQEntity->update($ids, ['visible' => 1]);
                         break;
-                    }
-                    case 'delete': {
+                    case 'delete':
                         $FAQEntity->delete($ids);
                         break;
-                    }
                 }
             }
 
@@ -39,8 +34,8 @@ class FAQsAdmin extends IndexAdmin
             if (!empty($positions)) {
                 $ids = array_keys($positions);
                 sort($positions);
-                foreach($positions as $i=>$position) {
-                    $FAQEntity->update($ids[$i], ['position'=>$position]);
+                foreach ($positions as $i => $position) {
+                    $FAQEntity->update($ids[$i], ['position' => $position]);
                 }
             }
         }
@@ -50,19 +45,19 @@ class FAQsAdmin extends IndexAdmin
         $filter['limit'] = 20;
 
         $keyword = $this->request->get('keyword', 'string');
-        if(!empty($keyword)) {
+        if (!empty($keyword)) {
             $filter['keyword'] = $keyword;
             $this->design->assign('keyword', $keyword);
         }
 
         $faqs_count = $FAQEntity->count($filter);
-        if($this->request->get('page') == 'all') {
+        if ($this->request->get('page') == 'all') {
             $filter['limit'] = $faqs_count;
         }
 
         $faqs = $FAQEntity->find($filter);
         $this->design->assign('faqs_count', $faqs_count);
-        $this->design->assign('pages_count', ceil($faqs_count/$filter['limit']));
+        $this->design->assign('pages_count', ceil($faqs_count / $filter['limit']));
         $this->design->assign('current_page', $filter['page']);
         $this->design->assign('faqs', $faqs);
         $this->response->setContent($this->design->fetch('faqs.tpl'));

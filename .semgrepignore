@@ -1,0 +1,38 @@
+# Dependency and generated artifacts
+vendor/
+cache/
+compiled/
+var/
+tests/
+
+# User/runtime files
+files/
+backend/files/
+Okay/log/
+
+# Bundled frontend libraries that create noisy SAST output and timeouts
+backend/design/js/**/*.min.js
+backend/design/js/codemirror/
+backend/design/js/colorpicker/
+backend/design/js/fancybox/
+backend/design/js/filemanager/*.php
+backend/design/js/filemanager/**/*.php
+backend/design/js/filemanager/js/
+backend/design/js/highcharts/
+backend/design/js/intro_js/
+backend/design/js/jquery/
+backend/design/js/tinymce_jq/
+backend/design/js/Sortable.js
+design/okay_shop/js/**/*.min.js
+design/okay_shop/js/jquery-*.js
+design/okay_shop/js/select2*.js
+design/okay_shop/js/swiper*.js
+
+# Local environment state
+.claude/
+.codex/
+.compound-engineering/
+.cursor/
+.ddev/
+.devcontainer/
+.phpunit.cache/

@@ -11,6 +11,9 @@ use Okay\Core\Translit;
 use Okay\Entities\FeaturesEntity;
 use Okay\Entities\FeaturesValuesEntity;
 
+/**
+ * @phpstan-type CategoryRow object{id: int|string, visible: mixed, children: mixed, subcategories?: array<int|string, object>, path?: array<int|string, object{subcategories?: array<int|string, object>, count_children_visible?: int|string|bool}&\stdClass>, level_depth: int, count_children_visible?: int|string|bool, description?: string|null}&\stdClass
+ */
 class CategoriesHelper
 {
     /** @var CatalogHelper */
@@ -35,9 +38,9 @@ class CategoriesHelper
     public function __construct(
         CatalogHelper $catalogHelper,
         EntityFactory $entityFactory,
-        Settings      $settings,
-        Design        $design,
-        FilterHelper  $filterHelper
+        Settings $settings,
+        Design $design,
+        FilterHelper $filterHelper
     ) {
         $this->catalogHelper = $catalogHelper;
         $this->settings      = $settings;
@@ -48,14 +51,19 @@ class CategoriesHelper
         $this->featuresValuesEntity = $entityFactory->get(FeaturesValuesEntity::class);
     }
 
+    /**
+     * @param array<string, mixed> $productsFilter
+     * @param array<int|string, object{id: int|string, url: string, features_values?: mixed}&\stdClass> $catalogFeatures
+     * @param CategoryRow $category
+     */
     public function assignFilterProcedure(
-        array  $productsFilter,
-        array  $catalogFeatures,
+        array $productsFilter,
+        array $catalogFeatures,
         object $category
     ): void {
         if (!empty($category->subcategories) && $category->count_children_visible) {
             $catalogCategories = $category->subcategories;
-        } else if (!empty($category->path[$category->level_depth - 2]->subcategories) && $category->path[$category->level_depth - 2]->count_children_visible) {
+        } elseif (!empty($category->path[$category->level_depth - 2]->subcategories) && $category->path[$category->level_depth - 2]->count_children_visible) {
             $catalogCategories = $category->path[$category->level_depth - 2]->subcategories;
         } else {
             $catalogCategories = [];
@@ -70,6 +78,10 @@ class CategoriesHelper
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
+    /**
+     * @param CategoryRow $category
+     * @return array<int|string, object{id: int|string, url: string, features_values?: array<int|string, object>}&\stdClass>
+     */
     public function getCatalogFeatures(object $category): array
     {
         $filter = $this->catalogHelper->getCatalogFeaturesFilter();
@@ -81,12 +93,20 @@ class CategoriesHelper
         return ExtenderFacade::execute(__METHOD__, $features, func_get_args());
     }
 
+    /**
+     * @param array<string, mixed> $filter
+     */
     public function isFilterPage(array $filter): bool
     {
         return ExtenderFacade::execute(__METHOD__, $this->filterHelper->isFilterPage($filter), func_get_args());
     }
 
-    public function getProductsFilter(object $category, string $filtersUrl = null, array $filter = []): ?array
+    /**
+     * @param array<string, mixed> $filter
+     * @param CategoryRow $category
+     * @return array<string, mixed>|null
+     */
+    public function getProductsFilter(object $category, ?string $filtersUrl = null, array $filter = []): ?array
     {
         if (($filter = $this->catalogHelper->getProductsFilter($filtersUrl, $filter)) === null) {
             return ExtenderFacade::execute(__METHOD__, null, func_get_args());
@@ -102,10 +122,10 @@ class CategoriesHelper
      * если категория корректна, можно переопределить логику работы контроллера и отменить дальнейшие действия
      * для этого после реализации другой логики необходимо вернуть true из экстендера
      *
-     * @param object $category
-     * @return object
+     * @param CategoryRow|false $category
+     * @return mixed
      */
-    public function setCatalogCategory(object $category)
+    public function setCatalogCategory($category)
     {
         if (empty($category) || (!$category->visible && empty($_SESSION['admin']))) {
             return ExtenderFacade::execute(__METHOD__, false, func_get_args());
@@ -134,8 +154,7 @@ class CategoriesHelper
 
         if (!empty($items[4])) {
             $parts = [];
-            foreach ($items[4] as $key=>$string) {
-
+            foreach ($items[4] as $key => $string) {
                 $sourceHeader = $items[0][$key];
 
                 $id = Translit::translit(strip_tags($string));
@@ -143,11 +162,12 @@ class CategoriesHelper
                 $anchorUrl = $objectUrl . '#' . $id;
 
                 // формируем массив где ключ оригинальный заголовок (H) значение заголовок со вставленным в него якорем
-                $parts[$sourceHeader] = str_replace($string, '<a id="'.$id.'" href="'.$anchorUrl.'" class="fn_auto_navigation_anchor"></a>'.$string, $sourceHeader);
+                $parts[$sourceHeader] = str_replace($string, '<a id="' . $id . '" href="' . $anchorUrl . '" class="fn_auto_navigation_anchor"></a>' . $string, $sourceHeader);
 
                 // Если у заголовка есть свой клас, добавим наш клас к существующим
-                if (preg_match("~.*?class=['\"](.*?)?['\"].*~", $items[3][$key], $headerAttr)) {
-                    $parts[$sourceHeader] = str_replace($headerAttr[1], "{$headerAttr[1]} fn_auto_navigation_header", $parts[$sourceHeader]);
+                if (preg_match("~.*?class=['\"](.*?)?['\"].*~", $items[3][$key], $headerAttr) && isset($headerAttr[1])) {
+                    $headerClass = $headerAttr[1];
+                    $parts[$sourceHeader] = str_replace($headerClass, "{$headerClass} fn_auto_navigation_header", $parts[$sourceHeader]);
                     // Иначе добавляем только наш клас
                 } else {
                     $parts[$sourceHeader] = str_replace("<{$items[1][$key]}", "<{$items[1][$key]} class=\"fn_auto_navigation_header\"", $parts[$sourceHeader]);

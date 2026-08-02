@@ -2,18 +2,44 @@
 <?php
 
 use Okay\Core\Console\Application;
+use Okay\Core\Config;
 use Okay\Core\ServiceLocator;
+use Psr\Log\LoggerInterface;
 
-ini_set('display_errors', false);
-error_reporting(false);
+ini_set('display_errors', '0');
+ini_set('display_startup_errors', '0');
 
-chdir(__DIR__);
+try {
+    chdir(__DIR__);
 
-require __DIR__.'/vendor/autoload.php';
+    require __DIR__ . '/vendor/autoload.php';
 
-$serviceLocator = ServiceLocator::getInstance();
+    $serviceLocator = ServiceLocator::getInstance();
 
-/** @var Application $app */
-$app = $serviceLocator->getService(Application::class);
+    /** @var Config $config */
+    $config = $serviceLocator->getService(Config::class);
+    $debugMode = $config->get('debug_mode') == true;
 
-$app->run();
+    ini_set('display_errors', $debugMode ? '1' : '0');
+    ini_set('display_startup_errors', $debugMode ? '1' : '0');
+    if ($debugMode) {
+        error_reporting(E_ALL);
+    }
+
+    /** @var Application $app */
+    $app = $serviceLocator->getService(Application::class);
+
+    exit($app->run());
+} catch (Throwable $e) {
+    fwrite(STDERR, $e::class . ': ' . $e->getMessage() . PHP_EOL);
+
+    if (!empty($debugMode)) {
+        fwrite(STDERR, $e->getFile() . ':' . $e->getLine() . PHP_EOL);
+    } elseif (!empty($serviceLocator)) {
+        /** @var LoggerInterface $logger */
+        $logger = $serviceLocator->getService(LoggerInterface::class);
+        $logger->critical($e->getMessage() . PHP_EOL . $e->getTraceAsString());
+    }
+
+    exit(1);
+}

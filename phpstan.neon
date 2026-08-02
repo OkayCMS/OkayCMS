@@ -1,0 +1,48 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 8
+    paths:
+        - Okay
+        - backend
+    excludePaths:
+        - Okay/Modules/OkayCMS/AutoDeploy/bin
+        # Vendored snowplow/referer-parser (M7-08); MIT copy — keep parity with upstream signatures
+        - Okay/Core/UserReferer/Snowplow
+        - */vendor/*
+        - */compiled/*
+        - */cache/*
+    bootstrapFiles:
+        # Ensure Composer autoloader is always loaded so PHPStan can discover all project classes
+        - vendor/autoload.php
+    tmpDir: var/phpstan
+    # Default PHPStan caps parallel workers at 8; on 8 GB RAM that often causes swap and feels "stuck".
+    # Fewer processes: same rules, paths, and completeness — only wall-clock and peak RAM change.
+    parallel:
+        maximumNumberOfProcesses: 3
+    # Stub files for third-party libraries with magic properties
+    stubFiles:
+        - stubs/axy/sourcemap/SourceMap.stub
+        - stubs/axy/sourcemap/PosMap.stub
+        - stubs/axy/sourcemap/PosGenerated.stub
+        - stubs/axy/sourcemap/PosSource.stub
+    ignoreErrors:
+        # Ignore missing array value typehints during migration (IGN-MIG-01) — removal: epic `phase-7-m7-13-ign-mig-01-epic.md`
+        # Will be addressed when migrating to stricter type declarations
+        # [IGN-MIG-01] removed 2026-04-21 — epic complete
+        # Smarty 5 Security API - dynamic properties (Smarty 5 uses dynamic properties)
+        # All Smarty Security API errors are covered in baseline
+        # PHP 8.5: GD adapter — same as core Okay/Core/Adapters/Resize/GD.php (see M7-03). Filemanager: line-level @phpstan-ignore in UploadHandler / php_image_magician.
+        -
+            identifier: booleanNot.alwaysFalse
+            path: Okay/Core/Adapters/Resize/GD.php
+        # Legacy bundled Responsive Filemanager image library. Keep it discoverable for imageLib consumers,
+        # but isolate its dense GD mutation tail from the level-7 filemanager cleanup.
+        -
+            message: '#^.*$#'
+            path: backend/design/js/filemanager/include/php_image_magician.php
+            reportUnmatched: false
+
+    # PHP version for analysis (align with Phase 5 PHP 8.5 compatibility target)
+    phpVersion: 80500

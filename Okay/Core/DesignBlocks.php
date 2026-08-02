@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\OkayContainer\MethodDI;
@@ -10,10 +8,10 @@ use Okay\Core\OkayContainer\MethodDI;
 /**
  * Class DesignBlocks
  * @package Okay\Core
- * 
+ *
  * Класс для работы с блоками в админке. Чтобы зарегистрировать ещё один блок,
  * нужно добавить его здесь и добавить его вызов в соответствующем месте админки
- * 
+ *
  * Пример вызова:
     <div class="okay_block_wrap">
         {$block = {get_design_block block="product_variant"}}
@@ -31,12 +29,14 @@ class DesignBlocks
     use MethodDI;
 
     /**
-     * @var array список зарегистрированных блоков
+     * Block name => list of .tpl paths registered for that block.
+     *
+     * @var array<string, array<int, string>>
      */
     private $registeredBlocks;
-    
+
     private $callbacks = [];
-    
+
     private $design;
     private $entityFactory;
     private $SL;
@@ -62,11 +62,11 @@ class DesignBlocks
         if (!is_file($blockTplFile)) {
             throw new \Exception('File ' . $blockTplFile . ' not found');
         }
-        
+
         if (!empty($callback)) {
             $this->callbacks[$blockName][$blockTplFile][] = $callback;
         }
-        
+
         $this->registeredBlocks[$blockName][] = $blockTplFile;
     }
 
@@ -91,12 +91,11 @@ class DesignBlocks
                         call_user_func_array($callback, $this->getMethodArguments(new \ReflectionFunction($callback)));
                     }
                 }
-                
+
                 $blockHtml .= $this->design->fetch($blockTplFile);
                 DebugBar::finishDesignBlockFetch($blockName, $blockTplFile);
             }
         }
         return $blockHtml;
     }
-
 }

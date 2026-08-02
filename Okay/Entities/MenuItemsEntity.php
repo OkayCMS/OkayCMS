@@ -1,15 +1,12 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 
 class MenuItemsEntity extends Entity
 {
-
     // Список указателей на элементы меню в дереве элементов меню (ключ = id элемента меню)
     private $allMenuItems;
     // Дерево элементов меню
@@ -84,11 +81,11 @@ class MenuItemsEntity extends Entity
     private function initMenuItems()
     {
         $menuItems = $this->menuItemsTree = $this->allMenuItems = [];
-        
+
         $items = $this->find();
-        
+
         foreach ($items as $item) {
-            if (!isset($menuItems[$item->menu_id]))  {
+            if (!isset($menuItems[$item->menu_id])) {
                 $menuItems[$item->menu_id] = [];
             }
             $menuItems[$item->menu_id][] = $item;
@@ -127,7 +124,9 @@ class MenuItemsEntity extends Entity
                         $flag = true;
                     }
                 }
-                if (!$flag) $finish = true;
+                if (!$flag) {
+                    $finish = true;
+                }
             }
 
             // Для каждого элемента id всех его деток узнаем
@@ -146,10 +145,9 @@ class MenuItemsEntity extends Entity
             unset($pointers[0]);
             unset($ids);
             $this->menuItemsTree[$menu_id] = $tree->submenus;
-            $this->allMenuItems = $this->allMenuItems+$pointers;
+            $this->allMenuItems = $this->allMenuItems + $pointers;
         }
 
         ExtenderFacade::execute([static::class, __FUNCTION__], null, func_get_args());
     }
-    
 }

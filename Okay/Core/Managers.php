@@ -1,15 +1,14 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 class Managers
 {
-    
+    private const LEGACY_MD5_PASSWORD_SALT = '8e86a279d6e182b3c811c559e6b15484';
+
     private $modulesPermissionsList = [];
     private $modulesControllersPermissions = [];
-    
+
     /*Список параметров доступа для менеджера сайта*/
     private $permissionsList = [
         'products',
@@ -144,7 +143,7 @@ class Managers
         'SettingsIndexingAdmin'     => 'settings_indexing',
         'OpenAiAdmin'     => 'open_ai',
     ];
-    
+
     /**
      * Добавление разрешения для модуля.
      * @param $permission
@@ -174,7 +173,7 @@ class Managers
     {
         return $this->modulesPermissionsList;
     }
-    
+
     /**
      * Добавление связки разрешения и контроллера админки.
      * Используется модулями, которые регистрируют контроллеры для админки
@@ -184,14 +183,14 @@ class Managers
      */
     public function addModuleControllerPermission($vendorModuleController, $permission)
     {
-        
+
         if (isset($this->modulesControllersPermissions[$vendorModuleController])) {
             throw new \Exception("Permission for controller \"{$vendorModuleController}\" already exists");
         }
-        
+
         $this->modulesControllersPermissions[$vendorModuleController] = $permission;
     }
-    
+
     public function setManagerPermissions($manager)
     {
         if (empty($manager)) {
@@ -211,7 +210,7 @@ class Managers
 
         return true;
     }
-    
+
     public function getAllPermissions()
     {
         return array_merge($this->permissionsList, array_keys($this->modulesPermissionsList));
@@ -220,7 +219,7 @@ class Managers
     public function getControllersPermissions()
     {
         $controllersPermissions = $this->controllersPermissions;
-        foreach ($this->modulesControllersPermissions as $controller => $modulePermission)  {
+        foreach ($this->modulesControllersPermissions as $controller => $modulePermission) {
             $controllersPermissions[$controller] = $modulePermission;
         }
 
@@ -243,7 +242,7 @@ class Managers
     public function getPermissionByController($controller)
     {
         $controllersPermissions = $this->getControllersPermissions();
-        
+
         if (!isset($controllersPermissions[$controller])) {
             return false;
         }
@@ -259,11 +258,10 @@ class Managers
         }
 
         $allowToUpdatePermissions = $activeManager->permissions;
-        foreach($allowToUpdatePermissions as $permission) {
+        foreach ($allowToUpdatePermissions as $permission) {
             if (in_array($permission, $updatePermissions) && !in_array($permission, $permissions)) {
                 $permissions[] = $permission;
-            }
-            elseif(!in_array($permission, $updatePermissions) && in_array($permission, $permissions)) {
+            } elseif (!in_array($permission, $updatePermissions) && in_array($permission, $permissions)) {
                 $targetKey = array_search($permission, $permissions);
                 unset($permissions[$targetKey]);
             }
@@ -275,9 +273,56 @@ class Managers
     /*Проверка пароля*/
     public function checkPassword($password, $crypt_pass)
     {
-        $salt = explode('$', $crypt_pass);
-        $salt = $salt[2];
-        return ($crypt_pass == $this->cryptApr1Md5($password, $salt));
+        if (!is_string($password) || !is_string($crypt_pass) || $password === '' || $crypt_pass === '') {
+            return false;
+        }
+
+        return $this->verifyPassword($password, $crypt_pass);
+    }
+
+    public function hashPassword(string $password): string
+    {
+        if (defined('PASSWORD_ARGON2ID')) {
+            return password_hash($password, PASSWORD_ARGON2ID, [
+                'memory_cost' => PASSWORD_ARGON2_DEFAULT_MEMORY_COST,
+                'time_cost' => PASSWORD_ARGON2_DEFAULT_TIME_COST,
+                'threads' => PASSWORD_ARGON2_DEFAULT_THREADS,
+            ]);
+        }
+
+        return password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
+    }
+
+    public function verifyPassword(string $password, string $hash): bool
+    {
+        $salt = $this->legacyApr1Salt($hash);
+        if ($salt !== null) {
+            return hash_equals($hash, $this->cryptApr1Md5($password, $salt));
+        }
+
+        if ($this->isLegacyMd5Hash($hash)) {
+            return hash_equals($hash, md5(self::LEGACY_MD5_PASSWORD_SALT . $password . md5($password)))
+                || hash_equals($hash, md5($password));
+        }
+
+        return password_verify($password, $hash);
+    }
+
+    public function needsPasswordRehash(string $hash): bool
+    {
+        if ($this->legacyApr1Salt($hash) !== null || $this->isLegacyMd5Hash($hash)) {
+            return true;
+        }
+
+        if (defined('PASSWORD_ARGON2ID')) {
+            return password_needs_rehash($hash, PASSWORD_ARGON2ID, [
+                'memory_cost' => PASSWORD_ARGON2_DEFAULT_MEMORY_COST,
+                'time_cost' => PASSWORD_ARGON2_DEFAULT_TIME_COST,
+                'threads' => PASSWORD_ARGON2_DEFAULT_THREADS,
+            ]);
+        }
+
+        return password_needs_rehash($hash, PASSWORD_BCRYPT, ['cost' => 12]);
     }
 
     /*Шифрование пароля*/
@@ -287,15 +332,23 @@ class Managers
             $salt = substr(str_shuffle("abcdefghijklmnopqrstuvwxyz0123456789"), 0, 8);
         }
         $len = strlen($plainpasswd);
-        $text = $plainpasswd.'$apr1$'.$salt;
-        $bin = pack("H32", md5($plainpasswd.$salt.$plainpasswd));
-        for($i = $len; $i > 0; $i -= 16) { $text .= substr($bin, 0, min(16, $i)); }
-        for($i = $len; $i > 0; $i >>= 1) { $text .= ($i & 1) ? chr(0) : $plainpasswd[0]; }
+        $text = $plainpasswd . '$apr1$' . $salt;
+        $bin = pack("H32", md5($plainpasswd . $salt . $plainpasswd));
+        for ($i = $len; $i > 0; $i -= 16) {
+            $text .= substr($bin, 0, min(16, $i));
+        }
+        for ($i = $len; $i > 0; $i >>= 1) {
+            $text .= ($i & 1) ? chr(0) : $plainpasswd[0];
+        }
         $bin = pack("H32", md5($text));
-        for($i = 0; $i < 1000; $i++) {
+        for ($i = 0; $i < 1000; $i++) {
             $new = ($i & 1) ? $plainpasswd : $bin;
-            if ($i % 3) $new .= $salt;
-            if ($i % 7) $new .= $plainpasswd;
+            if ($i % 3) {
+                $new .= $salt;
+            }
+            if ($i % 7) {
+                $new .= $plainpasswd;
+            }
             $new .= ($i & 1) ? $bin : $plainpasswd;
             $bin = pack("H32", md5($new));
         }
@@ -303,14 +356,32 @@ class Managers
         for ($i = 0; $i < 5; $i++) {
             $k = $i + 6;
             $j = $i + 12;
-            if ($j == 16) $j = 5;
-            $tmp = $bin[$i].$bin[$k].$bin[$j].$tmp;
+            if ($j == 16) {
+                $j = 5;
+            }
+            $tmp = $bin[$i] . $bin[$k] . $bin[$j] . $tmp;
         }
-        $tmp = chr(0).chr(0).$bin[11].$tmp;
-        $tmp = strtr(strrev(substr(base64_encode($tmp), 2)),
+        $tmp = chr(0) . chr(0) . $bin[11] . $tmp;
+        $tmp = strtr(
+            strrev(substr(base64_encode($tmp), 2)),
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
-            "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
-        return "$"."apr1"."$".$salt."$".$tmp;
+            "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+        );
+        return "$" . "apr1" . "$" . $salt . "$" . $tmp;
+    }
+
+    private function legacyApr1Salt(string $hash): ?string
+    {
+        if (!preg_match('/^\$apr1\$([.\/A-Za-z0-9]{1,8})\$[.\/A-Za-z0-9]{22}$/', $hash, $matches)) {
+            return null;
+        }
+
+        return $matches[1];
+    }
+
+    private function isLegacyMd5Hash(string $hash): bool
+    {
+        return strlen($hash) === 32 && ctype_xdigit($hash);
     }
 
     public function canVisibleSystemModules($manager)

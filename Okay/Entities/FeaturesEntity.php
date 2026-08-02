@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Translit;
@@ -10,7 +8,6 @@ use Okay\Core\Modules\Extender\ExtenderFacade;
 
 class FeaturesEntity extends Entity
 {
-
     protected static $fields = [
         'id',
         'position',
@@ -52,28 +49,33 @@ class FeaturesEntity extends Entity
     public function __construct()
     {
         parent::__construct();
-        $this->translit = $this->serviceLocator->getService(Translit::class);
+        /** @var Translit $translit */
+        $translit = $this->serviceLocator->getService(Translit::class);
+        $this->translit = $translit;
     }
 
     public function add($feature)
     {
         $feature = (array)$feature;
+        /** @var array{name?: mixed, url?: mixed} $feature */
 
         if (empty($feature['url'])) {
-            $feature['url'] = $this->translit->translitAlpha($feature['name']);
+            $feature['url'] = $this->translit->translitAlpha((string)($feature['name'] ?? ''));
         }
-        $feature['url'] = preg_replace("/[\s]+/ui", '', $feature['url']);
-        $feature['url'] = strtolower(preg_replace("/[^0-9a-z]+/ui", '', $feature['url']));
+        $feature['url'] = preg_replace("/[\s]+/ui", '', (string)$feature['url']);
+        $feature['url'] = is_string($feature['url']) ? $feature['url'] : '';
+        $url = preg_replace("/[^0-9a-z]+/ui", '', $feature['url']);
+        $feature['url'] = strtolower(is_string($url) ? $url : '');
         while ($this->get((string)$feature['url'])) {
             if (preg_match('/(.+)([0-9]+)$/', $feature['url'], $parts)) {
-                $feature['url'] = $parts[1].''.($parts[2]+1);
+                $feature['url'] = $parts[1] . '' . ($parts[2] + 1);
             } else {
-                $feature['url'] = $feature['url'].'2';
+                $feature['url'] = $feature['url'] . '2';
             }
         }
-        
+
         $feature = (object)$feature;
-        
+
         return parent::add($feature);
     }
 
@@ -84,7 +86,6 @@ class FeaturesEntity extends Entity
         if (isset($feature['name']) && !empty($feature['name']) && !is_array($id)) {
             $oldFeature = $this->get((int)$id);
             if ($oldFeature->name != $feature['name']) {
-                
                 $select = $this->queryFactory->newSelect();
                 $select->cols(['pv.product_id'])
                     ->from('__products_features_values AS pv')
@@ -92,11 +93,10 @@ class FeaturesEntity extends Entity
                     ->bindValues([
                         'feature_id' => (int)$id
                     ]);
-                
+
                 $this->db->query($select);
                 $productsIds = $this->db->results('product_id');
                 if (!empty($productsIds)) {
-                    
                     $update = $this->queryFactory->newUpdate();
                     $update->table('__products')
                         ->set('last_modify', 'NOW()')
@@ -106,9 +106,8 @@ class FeaturesEntity extends Entity
                 }
             }
         }
-        
+
         return parent::update($id, $feature);
-        
     }
 
     /*Удаление свойства*/
@@ -118,7 +117,7 @@ class FeaturesEntity extends Entity
             return ExtenderFacade::execute([static::class, __FUNCTION__], false, func_get_args());
         }
         $ids = (array)$ids;
-        
+
         if (!empty($ids)) {
             //lastModify
             $select = $this->queryFactory->newSelect();
@@ -126,7 +125,7 @@ class FeaturesEntity extends Entity
                 ->from('__products_features_values AS pf')
                 ->join('INNER', '__features_values AS fv', 'pf.value_id=fv.id AND fv.feature_id IN (:features_ids)')
                 ->bindValue('features_ids', $ids);
-            
+
             $this->db->query($select);
             $productsIds = $this->db->results('product_id');
             if (!empty($productsIds)) {
@@ -144,13 +143,13 @@ class FeaturesEntity extends Entity
             if ($valuesIds = $featuresValues->cols(['id'])->find(['feature_id' => $ids])) {
                 $featuresValues->delete($valuesIds);
             }
-            
+
             $delete = $this->queryFactory->newDelete();
             $delete->from(FeaturesValuesAliasesValuesEntity::getTable())
                 ->where('feature_id IN (:feature_id)')
                 ->bindValue('feature_id', $ids);
             $this->db->query($delete);
-            
+
             $delete = $this->queryFactory->newDelete();
             $delete->from('__categories_features')
                 ->where('feature_id IN (:feature_id)')
@@ -161,31 +160,33 @@ class FeaturesEntity extends Entity
     }
 
     /**
-     * @var $featureId - id свойства
-     * @return array
      * Выборка категорий, закрепленных за свойством
+     *
+     * @return list<int> category ids
      */
-    public function getFeatureCategories($featureId)
+    public function getFeatureCategories(int $featureId)
     {
         $select = $this->queryFactory->newSelect();
         $select->from('__categories_features AS cf')
             ->cols(['cf.category_id'])
             ->where('cf.feature_id=:feature_id')
             ->bindValue('feature_id', (int)$featureId);
-        
+
         $this->db->query($select);
         $results = $this->db->results('category_id');
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], $results, func_get_args());
     }
-    
+
     /**
-     * @var $featureId
-     * @var $categoryId
      * Добавление связки категории и свойства
+     *
+     * @param int $featureId
+     * @param int $categoryId
      */
-    public function addFeatureCategory($featureId, $categoryId) {
-        
+    public function addFeatureCategory(int $featureId, int $categoryId): mixed
+    {
+
         $insert = $this->queryFactory->newInsert();
         $insert->into('__categories_features')
             ->cols([
@@ -193,34 +194,32 @@ class FeaturesEntity extends Entity
                 'category_id' => $categoryId,
             ])
             ->ignore();
-        
+
         $this->db->query($insert);
         return ExtenderFacade::execute([static::class, __FUNCTION__], true, func_get_args());
     }
 
     /**
-     * @var int $featureId
-     * @var array $categoriesIds
      * Обновление связки категории и свойства
+     *
+     * @param int $featureId
+     * @param list<int> $categoriesIds
      * @throws \Exception
-     * @return
      */
-    public function updateFeatureCategories($featureId, array $categoriesIds)
+    public function updateFeatureCategories(int $featureId, array $categoriesIds): mixed
     {
-        $featureId = (int)$featureId;
-        
         //lastModify
         if (!empty($categoriesIds)) {
             $select = $this->queryFactory->newSelect();
             $select->from('__categories_features')
                 ->cols(['category_id'])
                 ->where('feature_id=:feature_id')
-                ->bindValue('feature_id', $featureId);
-            
+                ->bindValue('feature_id', (int)$featureId);
+
             $this->db->query($select);
             $cIds = $this->db->results('category_id');
             $diffCategoriesIds = array_diff($cIds, $categoriesIds);
-            
+
             if (!empty($diffCategoriesIds)) {
                 $select = $this->queryFactory->newSelect();
                 $select->from('__products_features_values AS pv')
@@ -235,7 +234,7 @@ class FeaturesEntity extends Entity
                     ]);
                 $this->db->query($select);
                 $productsIds = $this->db->results('product_id');
-                
+
                 if (!empty($productsIds)) {
                     $update = $this->queryFactory->newUpdate();
                     $update->table('__products')
@@ -246,7 +245,6 @@ class FeaturesEntity extends Entity
                 }
             }
         } else {
-
             $select = $this->queryFactory->newSelect();
             $select->from('__products_features_values AS pf')
                 ->cols(['pf.product_id'])
@@ -254,10 +252,10 @@ class FeaturesEntity extends Entity
                 ->bindValues([
                     'feature_id' => $featureId,
                 ]);
-            
+
             $this->db->query($select);
             $productsIds = $this->db->results('product_id');
-            
+
             if (!empty($productsIds)) {
                 $update = $this->queryFactory->newUpdate();
                 $update->table('__products')
@@ -271,12 +269,11 @@ class FeaturesEntity extends Entity
         $delete = $this->queryFactory->newDelete();
         $delete->from('__categories_features ')
             ->where('feature_id=:feature_id')
-            ->bindValue('feature_id', $featureId);
+            ->bindValue('feature_id', (int)$featureId);
         $this->db->query($delete);
-        
+
         if (!empty($categoriesIds)) {
-            
-            foreach($categoriesIds as $categoryId) {
+            foreach ($categoriesIds as $categoryId) {
                 $insert = $this->queryFactory->newInsert();
                 $insert->into('__categories_features');
                 $insert->cols([
@@ -286,25 +283,25 @@ class FeaturesEntity extends Entity
                 ->ignore();
                 $this->db->query($insert);
             }
-            
+
             // Удаляем значения свойств из категорий которые не запостили (их могли отжать)
             $sql = $this->queryFactory->newSqlQuery();
             $sql->setStatement("DELETE `pv` FROM `__products_features_values` AS `pv`
                             INNER JOIN `__features_values` AS `fv` ON `pv`.`value_id`=`fv`.`id`
                             LEFT JOIN `__products_categories` AS `pc` ON `pc`.`product_id`=`pv`.`product_id`
-                            WHERE 
+                            WHERE
                                 `fv`.`feature_id`=:feature_id
-                                AND `pc`.`position`=(SELECT MIN(`pc2`.`position`) FROM `__products_categories` AS `pc2` WHERE `pc`.`product_id`=`pc2`.`product_id`) 
+                                AND `pc`.`position`=(SELECT MIN(`pc2`.`position`) FROM `__products_categories` AS `pc2` WHERE `pc`.`product_id`=`pc2`.`product_id`)
                                 AND `pc`.`category_id` NOT IN (:categories_ids)");
-            $sql->bindValue('feature_id', $featureId);
-            $sql->bindValue('categories_ids', $categoriesIds);
+            $sql->bindValue('feature_id', (int)$featureId);
+            $sql->bindValue('categories_ids', (array)$categoriesIds);
             $this->db->query($sql);
         } else {
             // Если не прислали категорий, тогда удаляем все значения этого свойства для товаров
             $sql = $this->queryFactory->newSqlQuery();
             $sql->setStatement("DELETE `pf` FROM `__products_features_values` AS `pf`
                             INNER JOIN `__features_values` AS `fv` ON `pf`.`value_id`=`fv`.`id` AND `fv`.`feature_id` = :feature_id");
-            $sql->bindValue('feature_id', $featureId);
+            $sql->bindValue('feature_id', (int)$featureId);
             $this->db->query($sql);
         }
 
@@ -324,7 +321,7 @@ class FeaturesEntity extends Entity
             ->bindValues([
                 'field_value' => $autoId,
             ]);
-        
+
         $this->db->query($select);
         $existId = $this->db->result('id');
         return (!$existId || $featureId == $existId);
@@ -332,7 +329,8 @@ class FeaturesEntity extends Entity
 
     protected function filter__category_id($categoriesIds)
     {
-        $this->select->join('INNER',
+        $this->select->join(
+            'INNER',
             '__categories_features AS cf',
             'cf.feature_id = ' . $this->getTableAlias() . '.id AND cf.category_id IN(:categories_ids)'
         );
@@ -344,20 +342,20 @@ class FeaturesEntity extends Entity
     {
         $this->select->join(
             'LEFT',
-            FeaturesValuesEntity::getTable().' AS '.FeaturesValuesEntity::getTableAlias(),
-            FeaturesValuesEntity::getTableAlias().'.feature_id = '.FeaturesEntity::getTableAlias().'.id'
+            FeaturesValuesEntity::getTable() . ' AS ' . FeaturesValuesEntity::getTableAlias(),
+            FeaturesValuesEntity::getTableAlias() . '.feature_id = ' . FeaturesEntity::getTableAlias() . '.id'
         );
 
         $this->select->join(
             'LEFT',
             '__products_features_values AS pv',
-            'pv.value_id = '.FeaturesValuesEntity::getTableAlias().'.id'
+            'pv.value_id = ' . FeaturesValuesEntity::getTableAlias() . '.id'
         );
 
         $this->select->join(
             'INNER',
-            ProductsEntity::getTable().' AS '.ProductsEntity::getTableAlias(),
-            'pv.product_id = '.ProductsEntity::getTableAlias().'.id AND '.ProductsEntity::getTableAlias().'.brand_id IN (:brands_ids)'
+            ProductsEntity::getTable() . ' AS ' . ProductsEntity::getTableAlias(),
+            'pv.product_id = ' . ProductsEntity::getTableAlias() . '.id AND ' . ProductsEntity::getTableAlias() . '.brand_id IN (:brands_ids)'
         );
 
         $this->select->bindValue('brands_ids', (array)$brandsIds);
@@ -367,29 +365,33 @@ class FeaturesEntity extends Entity
     // у товаров указанной категории.
     protected function filter__product_category_id($categoriesIds)
     {
-        
-        $this->select->join('INNER',
+
+        $this->select->join(
+            'INNER',
             '__features_values AS fv',
             'fv.feature_id = ' . $this->getTableAlias() . '.id'
         );
-        
-        $this->select->join('INNER',
+
+        $this->select->join(
+            'INNER',
             '__products_features_values AS pv',
             'pv.value_id = fv.id'
         );
-        
-        $this->select->join('INNER',
+
+        $this->select->join(
+            'INNER',
             '__products AS p',
             'p.id = pv.product_id'
         );
-        
-        $this->select->join('INNER',
+
+        $this->select->join(
+            'INNER',
             '__products_categories AS pc',
             'p.id = pc.product_id AND pc.category_id IN(:export_categories_ids)'
         );
-        
+
         $this->select->groupBy([$this->getTableAlias() . '.id']);
-            
+
         $this->select->bindValue('export_categories_ids', (array)$categoriesIds);
     }
 
@@ -408,21 +410,64 @@ class FeaturesEntity extends Entity
             ->join(
                 'LEFT',
                 '__products_features_values AS pfv',
-                'pfv.product_id = '.ProductsEntity::getTableAlias().'.id'
+                'pfv.product_id = ' . ProductsEntity::getTableAlias() . '.id'
             )
             ->join(
                 'LEFT',
-                FeaturesValuesEntity::getTable().' AS '.FeaturesValuesEntity::getTableAlias(),
-                FeaturesValuesEntity::getTableAlias().'.id = pfv.value_id'
+                FeaturesValuesEntity::getTable() . ' AS ' . FeaturesValuesEntity::getTableAlias(),
+                FeaturesValuesEntity::getTableAlias() . '.id = pfv.value_id'
             )
-            ->cols([FeaturesValuesEntity::getTableAlias().'.feature_id as product_feature_id']);
+            ->cols([FeaturesValuesEntity::getTableAlias() . '.feature_id as product_feature_id']);
 
+        // ВАЖНО: Передаємо bindValues ДО joinSubSelect (згідно з docs/migration/aura-74-8.md та FILTER_BUG_SUMMARY.md)
+        // Це критично важливо для правильної обробки підзапитів в Aura SQL Query
+        // Метод getStatement() повертає лише SQL-рядок, тому біндінги потрібно передавати вручну
+        $subQueryBindValues = $productsSelect->getBindValues();
+
+        // ВАЖНО: Розгортаємо масиви в біндінгах для підзапиту, оскільки perform() може не розгорнути
+        // масиви для плейсхолдерів підзапиту (підзапит вже є частиною SQL-рядка)
+        // Метод perform() автоматично замінює IN (:id) на IN (:id_0, :id_1, ...) для масивів,
+        // але це працює тільки для основних запитів, а не для підзапитів
+        $expandedBindValues = [];
+        foreach ($subQueryBindValues as $key => $value) {
+            if (is_array($value)) {
+                // Розгортаємо масив на окремі плейсхолдери
+                foreach ($value as $index => $item) {
+                    $expandedBindValues[$key . '_' . $index] = $item;
+                }
+            } else {
+                $expandedBindValues[$key] = $value;
+            }
+        }
+
+        // Замінюємо IN (:placeholder) на IN (:placeholder_0, :placeholder_1, ...) в SQL
+        // ВАЖНО: Використовуємо str_ireplace для заміни всіх входжень (якщо є кілька однакових плейсхолдерів)
+        $subQueryStatement = $productsSelect->getStatement();
+        foreach ($subQueryBindValues as $key => $value) {
+            if (is_array($value)) {
+                $placeholders = [];
+                foreach ($value as $index => $item) {
+                    $placeholders[] = ':' . $key . '_' . $index;
+                }
+                // Замінюємо всі входження, не тільки перше
+                $subQueryStatement = str_ireplace('IN (:' . $key . ')', 'IN (' . implode(', ', $placeholders) . ')', $subQueryStatement);
+            }
+        }
+
+        // ВАЖНО: Об'єднуємо біндінги з попередніми, а не перезаписуємо їх
+        // Це критично важливо, коли є кілька фільтрів
+        $existingBindValues = $this->select->getBindValues();
+        $mergedBindValues = array_merge($existingBindValues, $expandedBindValues);
+
+        // Передаємо об'єднані біндінги в основний запит
+        $this->select->bindValues($mergedBindValues);
 
         $this->select->joinSubSelect(
             'INNER',
-            $productsSelect,
-            __FUNCTION__.'__'.ProductsEntity::getTableAlias(),
-            __FUNCTION__.'__'.ProductsEntity::getTableAlias().'.product_feature_id = f.id');
+            $subQueryStatement,
+            __FUNCTION__ . '__' . ProductsEntity::getTableAlias(),
+            __FUNCTION__ . '__' . ProductsEntity::getTableAlias() . '.product_feature_id = f.id'
+        );
     }
 
     protected function filter__brand($value)
@@ -440,20 +485,63 @@ class FeaturesEntity extends Entity
             ->join(
                 'LEFT',
                 '__products_features_values AS pfv',
-                'pfv.product_id = '.ProductsEntity::getTableAlias().'.id'
+                'pfv.product_id = ' . ProductsEntity::getTableAlias() . '.id'
             )
             ->join(
                 'LEFT',
-                FeaturesValuesEntity::getTable().' AS '.FeaturesValuesEntity::getTableAlias(),
-                FeaturesValuesEntity::getTableAlias().'.id = pfv.value_id'
+                FeaturesValuesEntity::getTable() . ' AS ' . FeaturesValuesEntity::getTableAlias(),
+                FeaturesValuesEntity::getTableAlias() . '.id = pfv.value_id'
             )
-            ->cols([FeaturesValuesEntity::getTableAlias().'.feature_id as product_feature_id']);
+            ->cols([FeaturesValuesEntity::getTableAlias() . '.feature_id as product_feature_id']);
 
+        // ВАЖНО: Передаємо bindValues ДО joinSubSelect (згідно з docs/migration/aura-74-8.md та FILTER_BUG_SUMMARY.md)
+        // Це критично важливо для правильної обробки підзапитів в Aura SQL Query
+        // Метод getStatement() повертає лише SQL-рядок, тому біндінги потрібно передавати вручну
+        $subQueryBindValues = $productsSelect->getBindValues();
+
+        // ВАЖНО: Розгортаємо масиви в біндінгах для підзапиту, оскільки perform() може не розгорнути
+        // масиви для плейсхолдерів підзапиту (підзапит вже є частиною SQL-рядка)
+        // Метод perform() автоматично замінює IN (:id) на IN (:id_0, :id_1, ...) для масивів,
+        // але це працює тільки для основних запитів, а не для підзапитів
+        $expandedBindValues = [];
+        foreach ($subQueryBindValues as $key => $value) {
+            if (is_array($value)) {
+                // Розгортаємо масив на окремі плейсхолдери
+                foreach ($value as $index => $item) {
+                    $expandedBindValues[$key . '_' . $index] = $item;
+                }
+            } else {
+                $expandedBindValues[$key] = $value;
+            }
+        }
+
+        // Замінюємо IN (:placeholder) на IN (:placeholder_0, :placeholder_1, ...) в SQL
+        // ВАЖНО: Використовуємо str_ireplace для заміни всіх входжень (якщо є кілька однакових плейсхолдерів)
+        $subQueryStatement = $productsSelect->getStatement();
+        foreach ($subQueryBindValues as $key => $value) {
+            if (is_array($value)) {
+                $placeholders = [];
+                foreach ($value as $index => $item) {
+                    $placeholders[] = ':' . $key . '_' . $index;
+                }
+                // Замінюємо всі входження, не тільки перше
+                $subQueryStatement = str_ireplace('IN (:' . $key . ')', 'IN (' . implode(', ', $placeholders) . ')', $subQueryStatement);
+            }
+        }
+
+        // ВАЖНО: Об'єднуємо біндінги з попередніми, а не перезаписуємо їх
+        // Це критично важливо, коли є кілька фільтрів
+        $existingBindValues = $this->select->getBindValues();
+        $mergedBindValues = array_merge($existingBindValues, $expandedBindValues);
+
+        // Передаємо об'єднані біндінги в основний запит
+        $this->select->bindValues($mergedBindValues);
 
         $this->select->joinSubSelect(
             'INNER',
-            $productsSelect,
-            __FUNCTION__.'__'.ProductsEntity::getTableAlias(),
-            __FUNCTION__.'__'.ProductsEntity::getTableAlias().'.product_feature_id = f.id');
+            $subQueryStatement,
+            __FUNCTION__ . '__' . ProductsEntity::getTableAlias(),
+            __FUNCTION__ . '__' . ProductsEntity::getTableAlias() . '.product_feature_id = f.id'
+        );
     }
 }

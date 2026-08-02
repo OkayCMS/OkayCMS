@@ -24,6 +24,7 @@ class ModuleCache
         if (!empty(self::$modules)) {
             if (self::$timeExpire > time()) {
                 foreach (self::$modules as $moduleItem) {
+                    /** @var object{vendor: string, module_name: string}&\stdClass $moduleItem */
                     if ($moduleItem->vendor == $vendor && $moduleItem->module_name == $moduleName) {
                         $module = $moduleItem;
                     }

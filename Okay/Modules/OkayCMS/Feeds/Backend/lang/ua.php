@@ -1,4 +1,5 @@
 <?php
+
 // Боковое меню
 $lang['okay_cms__feeds__menu'] = "Товарні фіди";
 
@@ -92,6 +93,7 @@ $lang['okay_cms__feeds__feed__settings__google_merchant__google_merchant__compan
 $lang['okay_cms__feeds__feed__settings__google_merchant__color'] = "Колір";
 $lang['okay_cms__feeds__feed__settings__google_merchant__color_notify'] = "Виберіть властивість";
 $lang['okay_cms__feeds__feed__settings__google_merchant__gtin'] = "Код GTIN (gtin)";
+$lang['okay_cms__feeds__feed__settings__google_merchant__mpn'] = "Код MPN (mpn)";
 $lang['okay_cms__feeds__feed__settings__google_merchant__gender'] = "Пол (gender)";
 $lang['okay_cms__feeds__feed__settings__google_merchant__material'] = "Матеріал (material)";
 $lang['okay_cms__feeds__feed__settings__google_merchant__full_description_if_not_exist_annotation'] = "Передавати у фід повний опис товару, тільки якщо немає короткого";

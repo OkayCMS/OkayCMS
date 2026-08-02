@@ -130,9 +130,11 @@
         let video = $(this).find('.video_open').data('video');
         $('iframe.youtube').attr('src', video);
 
-        $.fancybox.open({
-            src: '#fn_video'
-        })
+        if (typeof $.fancybox !== 'undefined' && typeof $.fancybox.open === 'function') {
+            $.fancybox.open({
+                src: '#fn_video'
+            });
+        }
     });
 </script>
 {/literal}

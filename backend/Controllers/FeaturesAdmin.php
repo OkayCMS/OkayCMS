@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Aura\SqlQuery\QueryFactory;
 use Okay\Admin\Helpers\BackendCategoriesHelper;
@@ -13,11 +11,10 @@ use Okay\Entities\FeaturesEntity;
 
 class FeaturesAdmin extends IndexAdmin
 {
-    
     public function fetch(
-        BackendFeaturesRequest  $featuresRequest,
-        CategoriesEntity        $categoriesEntity,
-        BackendFeaturesHelper   $backendFeaturesHelper,
+        BackendFeaturesRequest $featuresRequest,
+        CategoriesEntity $categoriesEntity,
+        BackendFeaturesHelper $backendFeaturesHelper,
         BackendCategoriesHelper $backendCategoriesHelper
     ) {
         $filter = $backendFeaturesHelper->buildFeaturesFilter();
@@ -31,32 +28,26 @@ class FeaturesAdmin extends IndexAdmin
             $action = $featuresRequest->postAction();
 
             if (is_array($ids)) {
-                switch($action) {
-                    case 'enable': {
+                switch ($action) {
+                    case 'enable':
                         $backendFeaturesHelper->enable($ids);
                         break;
-                    }
-                    case 'disable': {
+                    case 'disable':
                         $backendFeaturesHelper->disable($ids);
                         break;
-                    }
-                    case 'set_in_filter': {
+                    case 'set_in_filter':
                         $backendFeaturesHelper->setInFilter($ids);
                         break;
-                    }
-                    case 'unset_in_filter': {
+                    case 'unset_in_filter':
                         $backendFeaturesHelper->unsetInFilter($ids);
                         break;
-                    }
-                    case 'delete': {
+                    case 'delete':
                         $backendFeaturesHelper->delete($ids);
                         break;
-                    }
-                    case 'move_to_page': {
+                    case 'move_to_page':
                         $targetPage = $featuresRequest->postTargetPage();
                         $backendFeaturesHelper->moveToPage($ids, $targetPage, $filter);
                         break;
-                    }
                 }
             }
         }
@@ -79,19 +70,18 @@ class FeaturesAdmin extends IndexAdmin
         } else {
             $filter['page'] = min($filter['page'], $pagesCount);
         }
-        
+
         $features       = $backendFeaturesHelper->findFeatures($filter, 'position_desc');
 
-        $this->design->assign('features_count',  $featuresCount);
-        $this->design->assign('pages_count',     $pagesCount);
-        $this->design->assign('current_page',    $filter['page']);
-        $this->design->assign('keyword',         $keyword);
-        $this->design->assign('categories',      $categories);
+        $this->design->assign('features_count', $featuresCount);
+        $this->design->assign('pages_count', $pagesCount);
+        $this->design->assign('current_page', $filter['page']);
+        $this->design->assign('keyword', $keyword);
+        $this->design->assign('categories', $categories);
         $this->design->assign('categories_tree', $categoriesEntity->getCategoriesTree());
-        $this->design->assign('category',        $category);
-        $this->design->assign('features',        $features);
+        $this->design->assign('category', $category);
+        $this->design->assign('features', $features);
 
         $this->response->setContent($this->design->fetch('features.tpl'));
     }
-    
 }

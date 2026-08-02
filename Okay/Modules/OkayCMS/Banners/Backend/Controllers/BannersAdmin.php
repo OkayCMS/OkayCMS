@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\Banners\Backend\Controllers;
-
 
 use Okay\Admin\Controllers\IndexAdmin;
 use Okay\Modules\OkayCMS\Banners\Entities\BannersEntity;
@@ -20,44 +18,45 @@ class BannersAdmin extends IndexAdmin
 
         $filter = $bannersHelper->buildFilter();
 
-        if (($backupZipFile = $this->request->files('banners'))) {
-            if ($backupZipFile['error'] == UPLOAD_ERR_OK
+        $backupZipFile = $this->request->files('banners');
+        if (is_array($backupZipFile)) {
+            if (
+                $backupZipFile['error'] == UPLOAD_ERR_OK
                 && pathinfo($backupZipFile['name'], PATHINFO_EXTENSION) == 'zip'
             ) {
                 $destination = sys_get_temp_dir() . '/backup_' . uniqid() . '.zip';
                 if (move_uploaded_file($backupZipFile['tmp_name'], $destination)) {
                     $errors = $bannersBackupHelper->restoreBackup($destination);
-                     if (file_exists($destination)) {
-                         unlink($destination);
-                     }
+                    if (file_exists($destination)) {
+                        unlink($destination);
+                    }
                      $this->design->assign('restore_backup_errors', $errors);
                 } else {
                     $this->design->assign('restore_backup_errors', [new RestoreBackupErrorVO(RestoreBackupErrorVO::UNZIP_ERROR)]);
                 }
             }
-
         } elseif ($this->request->method('post')) {
             $ids = $this->request->post('check');
             if (is_array($ids)) {
                 switch ($this->request->post('action')) {
-                    case 'disable': {
+                    case 'disable':
                         /*Выключаем группы баннеров*/
                         $bannersEntity->update($ids, ['visible' => 0]);
                         break;
-                    }
-                    case 'enable': {
+                    case 'enable':
                         /*Включаем группы баннеров*/
                         $bannersEntity->update($ids, ['visible' => 1]);
                         break;
-                    }
-                    case 'delete': {
+                    case 'delete':
                         /*Удаляем группы баннеров*/
                         $bannersEntity->delete($ids);
                         break;
-                    }
-                    case 'backup': {
+                    case 'backup':
                         /*Створюємо бекап обраних груп баннерів*/
                         $backupFilename = $bannersBackupHelper->backup($ids);
+                        if (!is_string($backupFilename)) {
+                            break;
+                        }
                         $archiveName = "backup.zip";
                         $this->response->addHeader("Content-type: application/zip");
                         $this->response->addHeader("Content-Disposition: attachment; filename=\"{$archiveName}\"");
@@ -70,16 +69,15 @@ class BannersAdmin extends IndexAdmin
                         readfile($backupFilename);
                         unlink($backupFilename);
                         exit();
-                    }
                 }
             }
-            
+
             // Сортировка
             $positions = $this->request->post('positions');
             $ids = array_keys($positions);
             sort($positions);
-            foreach($positions as $i=>$position) {
-                $bannersEntity->update($ids[$i], ['position'=>$position]);
+            foreach ($positions as $i => $position) {
+                $bannersEntity->update($ids[$i], ['position' => $position]);
             }
         }
 
@@ -90,10 +88,9 @@ class BannersAdmin extends IndexAdmin
         $this->design->assign('banners_count', $bannersCount);
         $this->design->assign('pages_count', $pagesCount);
         $this->design->assign('current_page', $filter['page']);
-        
+
         $this->design->assign('banners', $banners);
 
         $this->response->setContent($this->design->fetch('banners.tpl'));
     }
-    
 }

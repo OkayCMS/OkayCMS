@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\Banners\Backend\Controllers;
-
 
 use Okay\Admin\Controllers\IndexAdmin;
 use Okay\Modules\OkayCMS\Banners\Entities\BannersEntity;
@@ -11,7 +9,6 @@ use Okay\Modules\OkayCMS\Banners\Requests\BannersImagesRequest;
 
 class BannersImageAdmin extends IndexAdmin
 {
-    
     public function fetch(
         BannersEntity $bannersEntity,
         BannersImagesRequest $bannersImagesRequest,
@@ -20,7 +17,8 @@ class BannersImageAdmin extends IndexAdmin
         /*Принимаем данные о слайде*/
         if ($this->request->method('post')) {
             $bannersImage = $bannersImagesRequest->postBannerImage();
-            
+            /** @var object{id?: int|string|null, is_lang_banner: int|string|bool, image?: string|null, image_mobile?: string|null}&\stdClass $bannersImage */
+
             /*Добавляем/удаляем слайд*/
             if (empty($bannersImage->id)) {
                 $preparedBannersImage = $bannersImagesHelper->prepareAdd($bannersImage);
@@ -29,7 +27,6 @@ class BannersImageAdmin extends IndexAdmin
                 $this->postRedirectGet->storeNewEntityId($bannersImage->id);
                 $isNewBannersImage = true;
             } else {
-                
                 // если сняли галочку "Мультиязычный баннер", проставим изображение баннера с основного языка для всех
                 if (!$bannersImage->is_lang_banner) {
                     $currentLangId = $this->languages->getLangId();
@@ -37,7 +34,6 @@ class BannersImageAdmin extends IndexAdmin
                     $this->languages->setLangId($mainLang->id);
                     $currentBannersImage = $bannersImagesHelper->getBannerImage((int)$bannersImage->id);
                     if ($currentBannersImage->is_lang_banner != $bannersImage->is_lang_banner) {
-                        
                         foreach ($this->languages->getAllLanguages() as $lang) {
                             $this->languages->setLangId($lang->id);
                             $bannersImagesHelper->update($bannersImage->id, [
@@ -45,11 +41,10 @@ class BannersImageAdmin extends IndexAdmin
                                 'image_mobile' => $currentBannersImage->image_mobile,
                             ]);
                         }
-                        
                     }
                     $this->languages->setLangId($currentLangId);
                 }
-                
+
                 $preparedBannersImage = $bannersImagesHelper->prepareUpdate($bannersImage);
                 $bannersImagesHelper->update($preparedBannersImage->id, $preparedBannersImage);
                 $this->postRedirectGet->storeMessageSuccess('updated');
@@ -75,7 +70,6 @@ class BannersImageAdmin extends IndexAdmin
             }
 
             $this->postRedirectGet->redirect();
-
         } else {
             $bannersImageId = $this->request->get('id', 'integer');
 
@@ -86,10 +80,10 @@ class BannersImageAdmin extends IndexAdmin
                 list($bannerId) = explode(':', $bannerSlideId);
                 $this->design->assign('banner_id', $bannerId);
             }
-            
+
             $bannersImage = $bannersImagesHelper->getBannerImage($bannersImageId);
         }
-        
+
         $banners = $bannersEntity->find();//todo
 
         $this->design->assign('banners_image', $bannersImage);
@@ -97,5 +91,4 @@ class BannersImageAdmin extends IndexAdmin
 
         $this->response->setContent($this->design->fetch('banners_image.tpl'));
     }
-    
 }

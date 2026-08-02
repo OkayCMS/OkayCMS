@@ -1,30 +1,30 @@
-# Миграции БД модулей
+# Оновлення таблиць БД модулів
 
-Миграции для модулей могут быть трёх видов:
-* [Добавление поля к существующему классу Entity](#migrateEntityField)
-* [Создание новой таблицы для Entity модуля](#migrateEntityTable)
-* [Создание новой таблицы связи](#migrateCustomTable)
+Для модулів доступні три способи змінити структуру БД під час встановлення:
+* [Додавання поля до наявного класу Entity](#migrateEntityField)
+* [Створення нової таблиці для Entity модуля](#migrateEntityTable)
+* [Створення нової таблиці звʼязку](#migrateCustomTable)
 
-#### Добавление поля к существующему классу Entity <a name="migrateEntityField"></a>
-Чтобы добавить новое поле к существующему классу [Entity](./../entities.md),
-нужно в методе [install() класса Init](./README.md#configuratinFiles) вызвать метод migrateEntityField(),
-который принимает два параметра:
-* Имя класса Entity, к которому нужно добавить поле
-* Экземпляр класса [Okay\Core\Modules\EntityField](#EntityField)
+#### Додавання поля до наявного класу Entity <a name="migrateEntityField"></a>
+Щоб додати нове поле до наявного класу [Entity](./../entities.md),
+потрібно в методі [install() класу Init](./README.md#configuratinFiles) викликати метод `migrateEntityField()`,
+який приймає два параметри:
+* Імʼя класу Entity, до якого потрібно додати поле
+* Екземпляр класу [Okay\Core\Modules\EntityField](#EntityField)
 
-Пример:
+Приклад:
 ```php
 $this->migrateEntityField(VariantsEntity::class, (new EntityField('field_name'))->setTypeVarchar(255)->setIndex());
 ```
 
-Также при добавлении поля к уже существующим сущностям, нужно его зарегистрировать в системе, чтобы оно учавствовало
-в SELECT и фильтрации ([подробнее об Entities](./../entities.md)).
+Також під час додавання поля до вже наявних сутностей потрібно зареєструвати його в системі, щоб воно брало участь
+у SELECT і фільтрації ([докладніше про Entities](./../entities.md)).
 
-Пример:
+Приклад:
 ```php
 $this->registerEntityField(VariantsEntity::class, 'field_name');
 ```
-Это тоже самое, если бы это поле было прописано в одно из свойств класса VariantsEntity
+Це те саме, якби це поле було прописано в одну з властивостей класу VariantsEntity
 ```php
 use Okay\Core\Entity\Entity;
 
@@ -51,16 +51,16 @@ class VariantsEntity extends Entity
 }
 ```
 
-#### Создание новой таблицы для Entity <a name="migrateEntityTable"></a>
-Чтобы создать таблицу для нового Entity (который добавляет модуль),
-нужно в методе [install() класса Init](./README.md#configuratinFiles) вызвать метод migrateEntityTable(),
-который принимает два параметра:
-* Имя класса Entity, к которому нужно добавить поле
-* Массив экземпляров класса [Okay\Core\Modules\EntityField](#EntityField)
+#### Створення нової таблиці для Entity <a name="migrateEntityTable"></a>
+Щоб створити таблицю для нового Entity (який додає модуль),
+потрібно в методі [install() класу Init](./README.md#configuratinFiles) викликати метод `migrateEntityTable()`,
+який приймає два параметри:
+* Імʼя класу Entity, для якого потрібно створити таблицю
+* Масив екземплярів класу [Okay\Core\Modules\EntityField](#EntityField)
 
-В массиве полей, нужно описать каждое поле, которое объявлено в Entity модуля.
+У масиві полів потрібно описати кожне поле, оголошене в Entity модуля.
 
-Пример:
+Приклад:
 ```php
 $this->migrateEntityTable(NPCostDeliveryDataEntity::class, [
     (new EntityField('id'))->setIndexPrimaryKey()->setTypeInt(11, false)->setAutoIncrement(),
@@ -75,10 +75,10 @@ $this->migrateEntityTable(NPCostDeliveryDataEntity::class, [
 
 <a name="compositeIndex"></a>
 
-Чтобы создать составной индекс, нужно в метод setIndex() или setIndexUnique() передать в виде второго и последующих 
-аргументов поля (объекты класса EntityField), по которым в паре с текущим полем должен быть составной индекс.
+Щоб створити складений індекс, у метод `setIndex()` або `setIndexUnique()` потрібно передати другим і наступними
+аргументами поля (обʼєкти класу EntityField), за якими в парі з поточним полем має бути складений індекс.
 
-Пример:
+Приклад:
 
 ```php
 $cityIdField = (new EntityField('city_id'))->setTypeVarchar(255, true);
@@ -90,17 +90,17 @@ $this->migrateEntityTable(NPCostDeliveryDataEntity::class, [
 ]);
 ```
 
-Таким образом будет создан индекс order_id, city_id (`order_id_city_id`).
+Таким чином буде створено індекс order_id, city_id (`order_id_city_id`).
 
-#### Создание новой таблицы связи <a name="migrateCustomTable"></a>
-Чтобы создать таблицу связи, нужно в методе [install() класса Init](./README.md#configuratinFiles)
-вызвать метод migrateCustomTable(), который принимает два параметра:
-* Название таблицы (без приставки ok_, можно с приставкой __)
-* Массив экземпляров класса [Okay\Core\Modules\EntityField](#EntityField)
+#### Створення нової таблиці звʼязку <a name="migrateCustomTable"></a>
+Щоб створити таблицю звʼязку, у методі [install() класу Init](./README.md#configuratinFiles)
+потрібно викликати метод `migrateCustomTable()`, який приймає два параметри:
+* Назва таблиці (без префікса ok_, можна з префіксом __)
+* Масив екземплярів класу [Okay\Core\Modules\EntityField](#EntityField)
 
-В массиве полей, нужно описать каждое поле, которое объявлено в Entity модуля.
+У масиві полів потрібно описати кожне поле, яке оголошено в Entity модуля.
 
-Пример:
+Приклад:
 ```php
 $this->migrateCustomTable('some_table_name', [
     (new EntityField('redelivery'))->setTypeTinyInt(1),
@@ -112,15 +112,14 @@ $this->migrateCustomTable('__second_some_table_name', [
 ]);
 ```
 
-### Класс Okay\Core\Modules\EntityField <a name="EntityField"></a>
+### Клас Okay\Core\Modules\EntityField <a name="EntityField"></a>
 
-Данный класс нужен для настройки поля (колонки) в базе данных, для их последующей миграции.
-Документацию по методам, см. в аннотации к методам.
-Метод в конструктор принимает название колонки, далее вся настройка происходит через fluent interface.
+Цей клас потрібен для налаштування поля (колонки) в базі даних.
+Документацію щодо методів див. в анотаціях до методів.
+Конструктор приймає назву колонки, далі всі налаштування відбуваються через fluent interface.
 
-Пример:
+Приклад:
 ```php
 $notLangField = (new EntityField('not_lang_field'))->setTypeVarchar(255)->setIndex();
 $langField = (new EntityField('lang_field'))->setTypeVarchar(255)->setIndex()->setIsLang();
 ```
-

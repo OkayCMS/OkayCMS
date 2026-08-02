@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\QueryFactory;
-
 
 use Aura\SqlQuery\QueryInterface;
 use Aura\SqlQuery\Common\Insert as AuraInsert;
@@ -25,6 +23,16 @@ class Insert extends AbstractQuery
         return $this;
     }
 
+    /**
+     * @param array<string, string> $lastInsertIdNames
+     */
+    public function setLastInsertIdNames(array $lastInsertIdNames): void
+    {
+        if ($this->queryObject instanceof AuraInsert) {
+            $this->queryObject->setLastInsertIdNames($lastInsertIdNames);
+        }
+    }
+
     public function ignore($ignore = true)
     {
         if (method_exists($this->queryObject, 'ignore')) {
@@ -39,12 +47,19 @@ class Insert extends AbstractQuery
         return $this->queryObject->getLastInsertIdName($col);
     }
 
+    /**
+     * @return $this
+     */
     public function col($col)
     {
         $this->queryObject->col($col);
         return $this;
     }
 
+    /**
+     * @param array<int|string, mixed> $cols
+     * @return $this
+     */
     public function cols(array $cols)
     {
         $this->queryObject->cols($cols);
@@ -57,17 +72,28 @@ class Insert extends AbstractQuery
         return $this;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getBindValues()
     {
         return $this->queryObject->getBindValues();
     }
 
+    /**
+     * @param list<array<int|string, mixed>> $rows
+     * @return $this
+     */
     public function addRows(array $rows)
     {
         $this->queryObject->addRows($rows);
         return $this;
     }
 
+    /**
+     * @param array<int|string, mixed> $cols
+     * @return $this
+     */
     public function addRow(array $cols = [])
     {
         $this->queryObject->addRow($cols);
@@ -110,6 +136,10 @@ class Insert extends AbstractQuery
         return $this;
     }
 
+    /**
+     * @param array<int|string, string> $cols
+     * @return $this
+     */
     public function onDuplicateKeyUpdateCols(array $cols)
     {
         if (method_exists($this->queryObject, 'onDuplicateKeyUpdateCols')) {
@@ -127,6 +157,4 @@ class Insert extends AbstractQuery
 
         return $this;
     }
-
-
 }

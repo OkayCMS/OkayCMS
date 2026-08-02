@@ -12,6 +12,7 @@
         <div class="f_row flex-lg-row align-items-md-start">
             <div class="form_wrap f_col-lg-6">
                 <form method="post" class="fn_validate_login form form--boxed">
+                    <input type="hidden" name="customer_csrf_token" value="{$customer_csrf_token|escape}">
                     <div class="form__header">
                         <div class="form__title">
                             {include file="svg.tpl" svgId="note_icon"}
@@ -22,9 +23,13 @@
                     <div class="form__body">
                         {* Form error messages *}
                         {if $error}
-                        <div class="message_error">
+                        <div class="message_error" role="alert">
                             {if $error == 'login_incorrect'}
                             <span data-language="login_error_pass">{$lang->login_error_pass}</span>
+                            {elseif $error == 'csrf'}
+                            <span data-language="form_error_csrf">{$lang->form_error_csrf}</span>
+                            {elseif $error == 'rate_limit'}
+                            <span data-language="form_error_rate_limit">{$lang->form_error_rate_limit}</span>
                             {else}
                             {$error|escape}
                             {/if}
@@ -33,12 +38,12 @@
 
                         {* User's email *}
                         <div class="form__group">
-                            <input class="form__input form__placeholder--focus" type="text" name="email" value="{$request_data.email|escape}"  data-language="form_email" />
+                            <input class="form__input form__placeholder--focus" type="text" name="email" value="{$request_data.email|escape}" autocomplete="email" data-language="form_email" />
                             <span class="form__placeholder">{$lang->form_email}*</span>
                         </div>
                         {* User's password *}
                         <div class="form__group">
-                            <input class="form__input form__placeholder--focus" type="password" name="password" value="" data-language="form_password" />
+                            <input class="form__input form__placeholder--focus" type="password" name="password" value="" autocomplete="current-password" data-language="form_password" />
                             <span class="form__placeholder">{$lang->form_password}*</span>
                             {*  Remind password link *}
                             <a class="password_remind" href="{url_generator route="password_remind"}">

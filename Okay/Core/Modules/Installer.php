@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Modules;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Entities\ModulesEntity;
@@ -14,7 +12,7 @@ class Installer
 
     /** @var Module */
     private $module;
-    
+
     public function __construct(EntityFactory $entityFactory, Module $module)
     {
         $this->modulesEntity = $entityFactory->get(ModulesEntity::class);
@@ -25,19 +23,18 @@ class Installer
     {
 
         $moduleId = false;
-        
+
         list($vendor, $moduleName) = explode('/', $fullModuleName);
-        
+
         // Директорию получаем чтобы провалидировать, что такой модуль существует в ФС
         if ($this->module->getModuleDirectory($vendor, $moduleName)) {
-            
             $findModules = $this->modulesEntity->cols(['id', 'type'])->find([
                 'vendor' => $vendor,
                 'module_name' => $moduleName,
             ]);
 
             if (count($findModules) > 0) {
-                throw new \Exception('Module name "'.$vendor.'/'.$moduleName.'" is already exists');
+                throw new \Exception('Module name "' . $vendor . '/' . $moduleName . '" is already exists');
             }
 
             $module = new \stdClass();
@@ -46,14 +43,18 @@ class Installer
             $module->enabled = 1;
 
             $moduleParams = $this->module->getModuleParams($vendor, $moduleName);
-            
+
             $module->version = $moduleParams->getVersion();
-            
+
             if (!$moduleId = $this->modulesEntity->add($module)) {
                 // todo ошибка во время утановки
             }
-            
+
             if ($initClassName = $this->module->getInitClassName($vendor, $moduleName)) {
+                if (!class_exists($initClassName)) {
+                    return $moduleId;
+                }
+
                 /** @var AbstractInit $initObject */
                 $initObject = $this->getInitObject($initClassName, $moduleId, $vendor, $moduleName);
                 $initObject->install();
@@ -68,31 +69,34 @@ class Installer
                         $initObject->$method();
                     }
                 }
-                
             }
         }
-        
+
         return $moduleId;
     }
-    
+
     public function update($moduleId)
     {
         if (!$module = $this->modulesEntity->findOne(['id' => $moduleId])) {
             return;
         }
 
+        /** @var object{version: string, vendor: string, module_name: string}&\stdClass $module */
         if (!$moduleMathVersion = $this->module->getMathVersion($module->version)) {
             return;
         }
-        
+
         if (!($moduleParams = $this->module->getModuleParams($module->vendor, $module->module_name)) || empty($moduleParams->getMathVersion())) {
             return;
         }
 
         if ($initClassName = $this->module->getInitClassName($module->vendor, $module->module_name)) {
+            if (!class_exists($initClassName)) {
+                return;
+            }
 
             $updateMethods = $this->getUpdateMethods($initClassName, $moduleParams->getMathVersion(), $moduleMathVersion);
-            
+
             // Вызываем поочередно методы для обновления модуля
             if (!empty($updateMethods)) {
                 $initObject = $this->getInitObject($initClassName, $moduleId, $module->vendor, $module->module_name);
@@ -105,20 +109,22 @@ class Installer
             $this->modulesEntity->update($moduleId, ['version' => $moduleParams->getVersion()]);
         }
     }
-    
+
     protected function getInitObject($init, $moduleId, $vendorName, $moduleName)
     {
         return new $init($moduleId, $vendorName, $moduleName);
     }
 
     /**
-     * @param $initClassName
+     * @param class-string $initClassName
      * @param int|string $moduleCurrentMathVersion текущая версия модуля в файле module.json, до которой нужно обновиться
      * @param int|string $moduleInstallMathVersion текущая установленная версия модуля с которой будем обновляться
-     * @return array
+     *
+     * @return array<int, string>
+     *
      * @throws \ReflectionException
      */
-    private function getUpdateMethods($initClassName, $moduleCurrentMathVersion, $moduleInstallMathVersion) : array
+    private function getUpdateMethods($initClassName, $moduleCurrentMathVersion, $moduleInstallMathVersion): array
     {
         $reflection = new \ReflectionClass($initClassName);
         $updateMethods = [];
@@ -134,10 +140,9 @@ class Installer
                 }
             }
         }
-        
+
         ksort($updateMethods, SORT_NATURAL);
-        
+
         return $updateMethods;
     }
-    
 }

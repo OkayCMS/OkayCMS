@@ -9,15 +9,46 @@ use Okay\Core\Routes\ProductRoute;
 use Okay\Entities\CurrenciesEntity;
 use Okay\Modules\OkayCMS\Feeds\Core\Presets\AbstractPresetAdapter;
 
+/**
+ * @phpstan-type CurrencyRow object{id: int|string, code: string, rate_from: int|float, rate_to: int|float}
+ * @phpstan-type YmlFeatureRow array{
+ *     id: int|string,
+ *     name: string,
+ *     values: list<string>,
+ *     values_string: string
+ * }
+ * @phpstan-type YmlProductRow object{
+ *     product_id: int|string,
+ *     variant_id: int|string,
+ *     product_name: string,
+ *     variant_name?: string|null,
+ *     slug_url: string,
+ *     url: string,
+ *     description?: string|null,
+ *     annotation?: string|null,
+ *     weight?: int|float|string|null,
+ *     sku?: string|null,
+ *     price: int|float,
+ *     compare_price: int|float,
+ *     currency_id: int|string|null,
+ *     stock: int|string|null,
+ *     brand_name?: string|null,
+ *     features?: array<int|string, YmlFeatureRow>,
+ *     main_category_id: int|string|null,
+ *     images_string?: string|null,
+ *     images?: list<string>,
+ *     total_variants: int|string
+ * }&\stdClass
+ */
 class YmlAdapter extends AbstractPresetAdapter
 {
     /** @var string */
-    static protected $headerTemplate = 'presets/yml/header.tpl';
+    protected static $headerTemplate = 'presets/yml/header.tpl';
 
     /** @var string */
-    static protected $footerTemplate = 'presets/yml/footer.tpl';
+    protected static $footerTemplate = 'presets/yml/footer.tpl';
 
-    public function getQuery($feedId): Select
+    public function getQuery(int|string $feedId): Select
     {
         $sql = parent::getQuery(...func_get_args());
 
@@ -30,7 +61,7 @@ class YmlAdapter extends AbstractPresetAdapter
         return ExtenderFacade::execute(__METHOD__, $sql, func_get_args());
     }
 
-    protected function getSubSelect($feedId): Select
+    protected function getSubSelect(int|string $feedId): Select
     {
         $sql = parent::getSubSelect(...func_get_args());
 
@@ -39,7 +70,7 @@ class YmlAdapter extends AbstractPresetAdapter
             'v.weight'
         ]);
 
-        if ($this->feed->settings['upload_only_products_in_stock']) {
+        if ($this->feed->settings['upload_only_products_in_stock'] && !$this->settings->get('is_preorder')) {
             $sql->where('(v.stock >0 OR v.stock is NULL)');
         }
 
@@ -52,17 +83,17 @@ class YmlAdapter extends AbstractPresetAdapter
         }
 
         if (($value = $this->feed->settings['filter_price']['value']) !== null) {
-            $operator = $this->feed->settings['filter_price']['operator'];
+            $operator = $this->normalizeComparisonOperator($this->feed->settings['filter_price']['operator'] ?? null);
 
-            $sql->join('left', CurrenciesEntity::getTable().' AS cur', 'cur.id = v.currency_id')
+            $sql->join('left', CurrenciesEntity::getTable() . ' AS cur', 'cur.id = v.currency_id')
                 ->where("(v.price*cur.rate_to/cur.rate_from) {$operator} :filter_price_value")
                 ->bindValues(['filter_price_value' => $value]);
         }
 
         if (($value = $this->feed->settings['filter_stock']['value']) !== null) {
-            $operator = $this->feed->settings['filter_stock']['operator'];
+            $operator = $this->normalizeComparisonOperator($this->feed->settings['filter_stock']['operator'] ?? null);
 
-            $sql->where("IF(v.stock IS NULL, IF ('{$operator}' = '<' OR '{$operator}' = '=', false, true), v.stock {$operator} :filter_stock_value)")
+            $sql->where("v.stock IS NOT NULL AND v.stock {$operator} :filter_stock_value")
                 ->bindValues(['filter_stock_value' => $value]);
         }
 
@@ -71,6 +102,7 @@ class YmlAdapter extends AbstractPresetAdapter
 
     public function getItem(object $product, bool $addVariantUrl = false): array
     {
+        /** @var YmlProductRow $product */
         // Указываем связку урла товара и его slug
         ProductRoute::setUrlSlugAlias($product->url, $product->slug_url);
         if ($addVariantUrl) {
@@ -83,10 +115,12 @@ class YmlAdapter extends AbstractPresetAdapter
 
         $price = $product->price;
         $comparePrice = $product->compare_price;
-        if (isset($this->allCurrencies[$product->currency_id])) {
+        $currencyId = $product->currency_id;
+        if ($currencyId !== null && isset($this->allCurrencies[$currencyId])) {
             // Переводим в основную валюту сайта
-            $variantCurrency = $this->allCurrencies[$product->currency_id];
-            if (!empty($product->currency_id) && $variantCurrency->rate_from != $variantCurrency->rate_to) {
+            /** @var CurrencyRow $variantCurrency */
+            $variantCurrency = $this->allCurrencies[$currencyId];
+            if ($variantCurrency->rate_from != $variantCurrency->rate_to) {
                 $price = round($product->price * $variantCurrency->rate_to / $variantCurrency->rate_from, 2);
                 if (!empty($product->compare_price)) {
                     $comparePrice = round($product->compare_price * $variantCurrency->rate_to / $variantCurrency->rate_from, 2);
@@ -99,17 +133,19 @@ class YmlAdapter extends AbstractPresetAdapter
             $comparePrice = $comparePrice + $comparePrice / 100 * $this->feed->settings['price_change'];
         }
 
-        $result['price']['data'] = $this->money->convert($price, $this->mainCurrency->id, false);
+        /** @var CurrencyRow $mainCurrency */
+        $mainCurrency = $this->mainCurrency;
+        $result['price']['data'] = $this->money->convert($price, $mainCurrency->id, false);
         if ($product->compare_price > 0) {
-            $comparePrice = $this->money->convert($comparePrice, $this->mainCurrency->id, false);
+            $comparePrice = $this->money->convert($comparePrice, $mainCurrency->id, false);
             $result['oldprice']['data'] = $comparePrice;
         }
 
-        $result['currencyId']['data'] = $this->mainCurrency->code;
+        $result['currencyId']['data'] = $mainCurrency->code;
         $result['categoryId']['data'] = $product->main_category_id;
 
-        if ($this->feed->settings['count']) {
-            $result['count']['data'] = $product->stock ?? $this->settings->get('max_order_amount');
+        if ($this->feed->settings['count'] && $product->stock !== null) {
+            $result['count']['data'] = $product->stock;
         }
 
         if (!empty($product->images)) {
@@ -141,13 +177,13 @@ class YmlAdapter extends AbstractPresetAdapter
         //  добавляем описание
         if (!empty($product->description)) {
             if (!empty($this->feed->settings['description_in_html']) && $this->feed->settings['description_in_html'] == 1) {    //  передаем html полностью в CDATA
-                $result['description']['data'] = '<![CDATA['. $product->description .']]>';
+                $result['description']['data'] = '<![CDATA[' . $product->description . ']]>';
             } else {
                 $result['description']['data'] = $this->xmlFeedHelper->escape($product->description);
             }
-        } else if (!empty($product->annotation)) {
+        } elseif (!empty($product->annotation)) {
             if (!empty($this->feed->settings['description_in_html']) && $this->feed->settings['description_in_html'] == 1) {    //  передаем html полностью в CDATA
-                $result['description']['data'] = '<![CDATA['. $product->annotation .']]>';
+                $result['description']['data'] = '<![CDATA[' . $product->annotation . ']]>';
             } else {
                 $result['description']['data'] = $this->xmlFeedHelper->escape($product->annotation);
             }
@@ -189,7 +225,7 @@ class YmlAdapter extends AbstractPresetAdapter
             'tag' => 'offer',
             'attributes' => [
                 'id' => $product->variant_id,
-                'available' => ($product->stock > 0 || $product->stock === null ? 'true' : 'false'),
+                'available' => ($this->feedVariantIsAvailable($product->stock) ? 'true' : 'false'),
             ],
             'data' => $result
         ];

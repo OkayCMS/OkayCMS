@@ -4,14 +4,14 @@ namespace Okay\Modules\OkayCMS\Banners\DTO;
 
 class BannerImageSettingsDTO implements \JsonSerializable
 {
-    const SHOW_DEFAULT = 'default';
-    const SHOW_DARK = 'dark';
-    const SHOW_IMAGE_LEFT = 'image_left';
-    const SHOW_IMAGE_RIGHT = 'image_right';
-    const DEFAULT_DESKTOP_W = 1200;
-    const DEFAULT_DESKTOP_H = 700;
-    const DEFAULT_MOBILE_W = 500;
-    const DEFAULT_MOBILE_H = 320;
+    public const SHOW_DEFAULT = 'default';
+    public const SHOW_DARK = 'dark';
+    public const SHOW_IMAGE_LEFT = 'image_left';
+    public const SHOW_IMAGE_RIGHT = 'image_right';
+    public const DEFAULT_DESKTOP_W = 1200;
+    public const DEFAULT_DESKTOP_H = 700;
+    public const DEFAULT_MOBILE_W = 500;
+    public const DEFAULT_MOBILE_H = 320;
 
     private string $variantShow = self::SHOW_DEFAULT;
     private ?string $mobileVariantShow = self::SHOW_DEFAULT;
@@ -33,12 +33,14 @@ class BannerImageSettingsDTO implements \JsonSerializable
      */
     public function setVariantShow(string $variantShow): void
     {
-        if (!in_array($variantShow, [
+        if (
+            !in_array($variantShow, [
             self::SHOW_DEFAULT,
             self::SHOW_DARK,
             self::SHOW_IMAGE_LEFT,
             self::SHOW_IMAGE_RIGHT,
-        ])) {
+            ])
+        ) {
             return;
         }
         $this->variantShow = $variantShow;
@@ -57,12 +59,14 @@ class BannerImageSettingsDTO implements \JsonSerializable
      */
     public function setMobileVariantShow(?string $mobileVariantShow): void
     {
-        if (!in_array($mobileVariantShow, [
+        if (
+            !in_array($mobileVariantShow, [
                 self::SHOW_DEFAULT,
                 self::SHOW_DARK,
                 self::SHOW_IMAGE_LEFT,
                 self::SHOW_IMAGE_RIGHT,
-            ])) {
+            ])
+        ) {
             return;
         }
 
@@ -141,11 +145,15 @@ class BannerImageSettingsDTO implements \JsonSerializable
         }
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return get_object_vars($this);
     }
 
+    /**
+ * @param array<string, mixed> $array
+ */
     public function fromArray(array $array)
     {
         $this->setVariantShow($array['variantShow'] ?? self::SHOW_DEFAULT);

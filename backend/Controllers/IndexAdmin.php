@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Admin\Helpers\BackendMainHelper;
 use Okay\Core\Config;
@@ -30,11 +28,10 @@ use Okay\Entities\SupportInfoEntity;
 
 class IndexAdmin
 {
-
     protected $manager;
     protected $backendController;
     protected $controllerMethod;
-    
+
     /**
      * @var EntityFactory
      */
@@ -134,16 +131,16 @@ class IndexAdmin
         $this->support       = $support;
         $this->supportInfoEntity = $supportInfoEntity;
         $this->postRedirectGet   = $postRedirectGet;
-        
+
         $design->assign('is_mobile', $design->isMobile());
         $design->assign('is_tablet', $design->isTablet());
         $design->assign('is_module', $module->isBackendControllerName($this->backendController));
 
         $design->assign('ok_head', $backendTemplateConfig->head());
         $design->assign('ok_footer', $backendTemplateConfig->footer());
-        
-        $design->assign('settings',  $this->settings);
-        $design->assign('config',    $this->config);
+
+        $design->assign('settings', $this->settings);
+        $design->assign('config', $this->config);
 
         $this->design->assign('rootUrl', $this->request->getRootUrl());
 
@@ -151,11 +148,11 @@ class IndexAdmin
             $modulesEntity = $this->entityFactory->get(ModulesEntity::class);
             $modules = $modulesEntity->cols(['module_name'])->find();
             $themes = [];
-            if(is_dir('design/')){
+            if (is_dir('design/')) {
                 $dirs = scandir('design/');
-                foreach($dirs as $dir){
-                    if($dir != '.' && $dir != '..' && $dir != '.htaccess'){
-                        $themes [] = $dir;
+                foreach ($dirs as $dir) {
+                    if ($dir != '.' && $dir != '..' && $dir != '.htaccess') {
+                        $themes[] = $dir;
                     }
                 }
             }
@@ -171,27 +168,28 @@ class IndexAdmin
             curl_setopt($ch, CURLOPT_URL, 'https://okay-cms.com/last_version.json?' . $query);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_HEADER, 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 10);
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
             $versionData = curl_exec($ch);
-            curl_close($ch);
-            
-            if ($versionData) {
+
+            if (is_string($versionData) && $versionData !== '') {
                 $versionData = json_decode($versionData, true);
                 $_SESSION['last_version_data'] = $versionData;
             } else {
                 $_SESSION['last_version_data'] = false;
             }
         }
-        
-        if (isset($_SESSION['last_version_data'])
+
+        if (
+            isset($_SESSION['last_version_data'])
             && !empty($_SESSION['last_version_data'])
-            && $module->getMathVersion($_SESSION['last_version_data']['version']) > $module->getMathVersion($config->version)) {
+            && $module->getMathVersion($_SESSION['last_version_data']['version']) > $module->getMathVersion($config->version)
+        ) {
             $design->assign('has_new_version', $_SESSION['last_version_data']);
         }
-        
+
         $design->assign('manager', $this->manager);
         $design->assign('registered_front_css', $frontTemplateConfig->getRegisteredCss());
 
@@ -199,7 +197,7 @@ class IndexAdmin
         $this->design->assign('support_info', $supportInfo);
 
         $this->design->assign('front_routes', $router->getFrontRoutes());
-        
+
         $isNotLocalServer = !in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '0:0:0:0:0:0:0:1']);
         if (empty($supportInfo->public_key) && !empty($supportInfo->is_auto) && $isNotLocalServer) {
             $supportInfoEntity->updateInfo(['is_auto' => 0]);
@@ -215,15 +213,15 @@ class IndexAdmin
             $activeControllerName = $managerMenu->getActiveControllerName($this->manager, $this->backendController);
             $design->assign('left_menu', $menu);
             $design->assign('menu_selected', $activeControllerName);
-            
+
             if (!empty($menu)) {
                 $subMenu = reset($menu);
                 $backendControllerName = reset($subMenu);
                 $design->assign('manager_main_controller', $backendControllerName['controller']);
             }
-            
+
             $activeController = $this->backendController;
-            
+
             if ($this->controllerMethod != 'fetch') {
                 $activeController = $this->backendController . '@' . $this->controllerMethod;
             }
@@ -236,18 +234,18 @@ class IndexAdmin
         $currenciesEntity = $this->entityFactory->get(CurrenciesEntity::class);
         $this->design->assign("currency", $currenciesEntity->getMainCurrency());
         $backendMainHelper->evensCounters();
-        
+
         // Язык
         $languagesList = $languagesEntity->mappedBy('id')->find();
         $design->assign('languages', $languagesList);
-        
+
         if (count($languagesList)) {
             $this->design->assign('current_language', $languagesList[$languages->getLangId()]);
         }
 
         $langId = $languages->getLangId();
         $design->assign('lang_id', $langId);
-        
+
         $mainLanguage = $languages->getMainLanguage();
         if (!empty($mainLanguage->id)) {
             $design->assign('main_lang_id', $mainLanguage->id);
@@ -276,7 +274,7 @@ class IndexAdmin
 
         // Запоминаем логин менеджера для работы темы под админом
         if (!empty($this->manager->login)) {
-            setcookie('admin_login', $this->manager->login, time() + 60 * 60 * 24 * 3, '/');
+            $this->setAdminLoginCookie((string)$this->manager->login, time() + 60 * 60 * 24 * 3);
         }
 
         if (isset($_SESSION['show_learn'])) {
@@ -296,5 +294,21 @@ class IndexAdmin
         $this->manager = $manager;
         $this->backendController  = $backendController;
         $this->controllerMethod  = $controllerMethod;
+    }
+
+    private function setAdminLoginCookie(string $value, int $expires): void
+    {
+        setcookie('admin_login', $value, [
+            'expires' => $expires,
+            'path' => '/',
+            'secure' => $this->isHttpsRequest(),
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+    }
+
+    private function isHttpsRequest(): bool
+    {
+        return !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
     }
 }

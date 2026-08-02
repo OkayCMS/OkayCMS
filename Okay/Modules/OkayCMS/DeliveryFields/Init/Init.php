@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\DeliveryFields\Init;
-
 
 use Okay\Admin\Helpers\BackendDeliveriesHelper;
 use Okay\Admin\Helpers\BackendOrdersHelper;
@@ -25,8 +23,8 @@ use Okay\Modules\OkayCMS\DeliveryFields\Extenders\ValidateHelperExtender;
 
 class Init extends AbstractInit
 {
-    const PERMISSION = 'okay_cms__delivery_fields';
-    const FIELD_DELIVERY_RELATION_TABLE = '__okaycms__delivery_fields_relations';
+    public const PERMISSION = 'okay_cms__delivery_fields';
+    public const FIELD_DELIVERY_RELATION_TABLE = '__okaycms__delivery_fields_relations';
 
     public function install()
     {
@@ -62,7 +60,7 @@ class Init extends AbstractInit
         $this->registerBackendController('DeliveryFieldsAdmin');
         $this->addBackendControllerPermission('DeliveryFieldsAdmin', self::PERMISSION);
 
-        $this->addBackendBlock('email_order_admin_contact_info','email_order_delivery_fields.tpl');
+        $this->addBackendBlock('email_order_admin_contact_info', 'email_order_delivery_fields.tpl');
         $this->addBackendBlock('order_print_user_info', 'order_print.tpl');
 
         $this->addFrontBlock('front_cart_delivery', 'cart_delivery_fields.tpl');
@@ -149,9 +147,9 @@ class Init extends AbstractInit
             // Переносимо поле адресу в модуль
             $query = $queryFactory->newSqlQuery();
             $query->setStatement(
-                    'INSERT INTO __okaycms__delivery_fields_values (value, field_id, order_id)
+                'INSERT INTO __okaycms__delivery_fields_values (value, field_id, order_id)
                     SELECT address, :field_id, id FROM __orders WHERE address != ""'
-                )->bindValue('field_id', $deliveryFieldId)
+            )->bindValue('field_id', $deliveryFieldId)
                 ->execute();
 
             $languages->setLangId($currentLangId);

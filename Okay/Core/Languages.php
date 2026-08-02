@@ -2,26 +2,51 @@
 
 namespace Okay\Core;
 
-
-use HaydenPierce\ClassFinder\ClassFinder;
 use Okay\Core\Entity\Entity;
 use Okay\Entities\LanguagesEntity;
 
 class Languages
 {
-    
+    /**
+     * @var list<class-string<Entity>>
+     */
+    private const CORE_MULTILINGUAL_ENTITY_CLASSES = [
+        \Okay\Entities\AuthorsEntity::class,
+        \Okay\Entities\BlogCategoriesEntity::class,
+        \Okay\Entities\BlogEntity::class,
+        \Okay\Entities\BrandsEntity::class,
+        \Okay\Entities\CategoriesEntity::class,
+        \Okay\Entities\CurrenciesEntity::class,
+        \Okay\Entities\DeliveriesEntity::class,
+        \Okay\Entities\DiscountsEntity::class,
+        \Okay\Entities\FeaturesAliasesEntity::class,
+        \Okay\Entities\FeaturesAliasesValuesEntity::class,
+        \Okay\Entities\FeaturesEntity::class,
+        \Okay\Entities\FeaturesValuesEntity::class,
+        \Okay\Entities\LanguagesEntity::class,
+        \Okay\Entities\LessonsEntity::class,
+        \Okay\Entities\MenuItemsEntity::class,
+        \Okay\Entities\OrderLabelsEntity::class,
+        \Okay\Entities\OrderStatusEntity::class,
+        \Okay\Entities\PagesEntity::class,
+        \Okay\Entities\PaymentsEntity::class,
+        \Okay\Entities\ProductsEntity::class,
+        \Okay\Entities\SEOFilterPatternsEntity::class,
+        \Okay\Entities\VariantsEntity::class,
+    ];
+
     private $languagesList = [];
     private $mainLanguage;
     private $langId;
     private $availableLanguages;
 
     /**
-     * @var Database 
+     * @var Database
      */
     private $db;
 
     /**
-     * @var Request 
+     * @var Request
      */
     private $request;
 
@@ -44,13 +69,13 @@ class Languages
         $select->cols(['*'])
             ->from(LanguagesEntity::getTable())
             ->orderBy(['position ASC']);
-        
+
         $this->db->query($select);
         $this->languagesList = $this->db->results(null, 'id');
-        
+
         $this->mainLanguage = reset($this->languagesList);
     }
-    
+
     /*Выборка списка языков сайта*/
     public function getLangList()
     {
@@ -60,28 +85,28 @@ class Languages
         }
         return $this->availableLanguages;
     }
-    
+
     public function getAllLanguages()
     {
         return $this->languagesList;
     }
-    
+
     public function getMainLanguage()
     {
         return $this->mainLanguage;
     }
-    
+
     /*Выборка ID текущего языка*/
     public function getLangId()
     {
         if (empty($this->languagesList)) {
             return null;
         }
-        
+
         if (!empty($this->langId)) {
             return $this->langId;
         }
-        
+
         if (empty($this->langId) && !empty($_SESSION['lang_id']) && !empty($this->languagesList[$_SESSION['lang_id']])) {
             $this->langId  = intval($_SESSION['lang_id']);
         }
@@ -99,7 +124,7 @@ class Languages
         if (!isset($this->languagesList[$id])) {
             $id = (int)$this->mainLanguage->id;
         }
-        
+
         $this->langId = $_SESSION['lang_id'] = $id;
     }
 
@@ -130,20 +155,20 @@ class Languages
         $currentLanguage = $this->languagesList[$langId];
         return $currentLanguage->href_lang;
     }
-    
+
     public function getLangLink($langId = null)
     {
         $langLink = '';
         if ($langId === null) {
             $langId = $this->getLangId();
         }
-        
+
         if (!isset($this->languagesList[$langId])) {
             return false;
         }
-        
+
         $currentLanguage = $this->languagesList[$langId];
-        
+
         if (!empty($this->mainLanguage) && !empty($currentLanguage) && $currentLanguage->id !== $this->mainLanguage->id) {
             $langLink = $currentLanguage->label . '/';
         }
@@ -156,10 +181,10 @@ class Languages
         if (empty($this->languagesList)) {
             return false;
         }
-        
+
         $intersect = array_intersect($fields, array_keys((array)$data));
         if (!empty($intersect)) {
-            $description = new \stdClass;
+            $description = new \stdClass();
             foreach ($fields as $f) {
                 if (isset($data->$f)) {
                     $description->$f = $data->$f;
@@ -185,7 +210,7 @@ class Languages
             } else {
                 $upd_languages = $this->languagesList;
             }
-            
+
             foreach ($upd_languages as $lang) {
                 $description->lang_id = $lang->id;
                 foreach ($objectIds as $objectId) {
@@ -204,7 +229,7 @@ class Languages
         if (empty($langTable)) {
             return null;
         }
-        
+
         $langAlias = $this->getLangAlias($tableAlias, $params);
 
         $lang = (isset($params['lang']) && $params['lang'] ? $params['lang'] : $this->getLangId());
@@ -217,7 +242,7 @@ class Languages
 
         if (!empty($lang) && $this->getLangId() !== null) {
             $langJoin = $langTable . ' AS ' . $langAlias;
-            $cond = $langAlias . '.' . $langObject . '_id = ' . $px . '.id AND ' . $langAlias.'.lang_id = '.(int)$lang;
+            $cond = $langAlias . '.' . $langObject . '_id = ' . $px . '.id AND ' . $langAlias . '.lang_id = ' . (int)$lang;
         } else {
             $langJoin = '';
             $cond = '';
@@ -244,48 +269,59 @@ class Languages
         } else {
             $langAlias = $px;
         }
-        
+
         return $langAlias;
     }
 
     public function getEntitiesLangInfo()
     {
         $results = [];
-        $namespace = 'Okay\Entities';
-        if ($classes = ClassFinder::getClassesInNamespace($namespace)) {
-            /** @var Entity $class */
-            foreach ($classes as $class) {
-                if ($class::getLangTable()) {
-                    $result = new \stdClass();
-                    $result->langTable = $class::getLangTable();
-                    $result->table = $class::getTable();
-                    $result->object = $class::getLangObject();
-                    $result->fields = $class::getLangFields();
+
+        foreach (self::CORE_MULTILINGUAL_ENTITY_CLASSES as $class) {
+            $result = $this->buildEntityLangInfo($class);
+            if ($result !== null) {
+                $results[] = $result;
+            }
+        }
+
+        foreach (glob('Okay/Modules/*/*/Entities/*.php') ?: [] as $file) {
+            $file = preg_replace('~^(.*)\.php$~', '$1', $file);
+            if (!is_string($file)) {
+                continue;
+            }
+
+            $class = str_replace('/', '\\', $file);
+            if (class_exists($class) && is_subclass_of($class, 'Okay\Core\Entity\Entity')) {
+                /** @var class-string<Entity> $class */
+                $result = $this->buildEntityLangInfo($class);
+                if ($result !== null) {
                     $results[] = $result;
                 }
             }
         }
 
-        foreach (glob('Okay/Modules/*/*/Entities/*.php') as $file) {
-            $file = preg_replace('~^(.*)\.php$~', '$1', $file);
-            
-            $class = str_replace('/', '\\', $file);
-            if (class_exists($class) && is_subclass_of($class, 'Okay\Core\Entity\Entity')) {
-                if ($class::getLangTable()) {
-                    $result = new \stdClass();
-                    $result->langTable = $class::getLangTable();
-                    $result->table = $class::getTable();
-                    $result->object = $class::getLangObject();
-                    $result->fields = $class::getLangFields();
-                    $results[] = $result;
-                }
-            }
-        }
-        
-        
+
         return $results;
     }
-    
+
+    /**
+     * @param class-string<Entity> $class
+     */
+    private function buildEntityLangInfo(string $class): ?\stdClass
+    {
+        if (!$class::getLangTable()) {
+            return null;
+        }
+
+        $result = new \stdClass();
+        $result->langTable = $class::getLangTable();
+        $result->table = $class::getTable();
+        $result->object = $class::getLangObject();
+        $result->fields = $class::getLangFields();
+
+        return $result;
+    }
+
     /*Действия над мультиязычным контентом*/
     private function actionData($objectId, $data, $langObject, $langTable)
     {
@@ -294,24 +330,24 @@ class Languages
             ->from($langTable)
             ->where('lang_id = :action_object_lang_id')
             ->where($langObject . '_id = :action_object_id');
-        
+
         $select->bindValues([
             'action_object_lang_id' => $data->lang_id,
             'action_object_id' => $objectId
         ]);
-        
+
         $this->db->query($select);
-        
+
         $dataLang = $this->db->result('count');
-        
+
         if ($dataLang == 0) {
             $insert = $this->queryFactory->newInsert();
             $objectField   = $langObject . '_id';
             $data->$objectField = $objectId;
-            
+
             $insert->into($langTable)
                 ->cols((array)$data);
-            
+
             $this->db->query($insert);
         } elseif ($dataLang == 1) {
             $update = $this->queryFactory->newUpdate();
@@ -324,9 +360,8 @@ class Languages
                 'action_object_lang_id' => $data->lang_id,
                 'action_object_id' => $objectId
             ]);
-            
+
             $this->db->query($update);
         }
     }
-    
 }

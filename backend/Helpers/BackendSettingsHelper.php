@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Helpers;
-
 
 use Okay\Core\Config;
 use Okay\Core\DataCleaner;
@@ -83,6 +81,11 @@ class BackendSettingsHelper
      */
     private $imageCore;
 
+    /**
+     * @var LicenseModulesTemplates
+     */
+    private $licenseModulesTemplates;
+
     private $allowedImageExtensions = ['png', 'gif', 'jpg', 'jpeg', 'ico', 'svg'];
 
     public function __construct(
@@ -98,8 +101,7 @@ class BackendSettingsHelper
         JsSocial $jsSocial,
         Image $imageCore,
         LicenseModulesTemplates $licenseModulesTemplates
-    )
-    {
+    ) {
         $this->managersEntity = $entityFactory->get(ManagersEntity::class);
         $this->languagesEntity = $entityFactory->get(LanguagesEntity::class);
         $this->settings = $settings;
@@ -133,11 +135,12 @@ class BackendSettingsHelper
         $this->settings->set('features_max_count_products', $this->request->post('features_max_count_products', 'int'));
         $this->settings->update('units', $this->request->post('units'));
 
-        if ($this->request->post('is_preorder', 'integer')) {
-            $this->settings->set('is_preorder', $this->request->post('is_preorder', 'integer'));
-        } else {
-            $this->settings->set('is_preorder', 0);
-        }
+        $isPreorder = $this->request->post('is_preorder', 'integer') ? 1 : 0;
+        $this->settings->set('is_preorder', $isPreorder);
+        $this->settings->set(
+            'use_backorder_status',
+            $isPreorder ? 0 : ($this->request->post('use_backorder_status', 'integer') ? 1 : 0)
+        );
 
         if ($this->request->post('show_empty_categories', 'integer')) {
             $this->settings->set('show_empty_categories', $this->request->post('show_empty_categories', 'integer'));
@@ -215,7 +218,13 @@ class BackendSettingsHelper
         }
 
         $watermark = $this->request->files('watermark_file', 'tmp_name');
-        if (!empty($watermark) && in_array(pathinfo($this->request->files('watermark_file', 'name'), PATHINFO_EXTENSION), $this->allowedImageExtensions)) {
+        $watermarkName = $this->request->files('watermark_file', 'name');
+        if (
+            is_string($watermark)
+            && is_string($watermarkName)
+            && $watermark !== ''
+            && in_array(pathinfo($watermarkName, PATHINFO_EXTENSION), $this->allowedImageExtensions)
+        ) {
             $this->config->watermark_file = 'backend/files/watermark/watermark.png';
             if (@move_uploaded_file($watermark, $this->config->root_dir . $this->config->watermark_file)) {
                 $clearImageCache = true;
@@ -273,8 +282,10 @@ class BackendSettingsHelper
         $this->settings->set('public_recaptcha_v3', $this->request->post('public_recaptcha_v3'));
         $this->settings->set('secret_recaptcha_v3', $this->request->post('secret_recaptcha_v3'));
 
-        if (!empty($this->request->post('email_for_module')) && $this->settings->get('email_for_module') != $this->request->post('email_for_module')
-            || empty($this->request->post('email_for_module'))){
+        if (
+            !empty($this->request->post('email_for_module')) && $this->settings->get('email_for_module') != $this->request->post('email_for_module')
+            || empty($this->request->post('email_for_module'))
+        ) {
             $this->settings->set('modules_access_expires', '');
             $this->licenseModulesTemplates->setLicenseEmail($this->request->post('email_for_module'));
             $this->licenseModulesTemplates->updateLicenseInfo();
@@ -357,11 +368,14 @@ class BackendSettingsHelper
             $this->frontTemplateConfig->updateCssVariables($cssColors);
         }
 
-        if ($this->settings->get('social_share_theme') != $this->request->post('social_share_theme')) {
+        $socialShareTheme = $this->request->post('social_share_theme');
+        if ($socialShareTheme === '' || in_array($socialShareTheme, ['flat', 'classic', 'minima', 'plain'], true)) {
+            $socialShareTheme = 'default';
+        }
+        if ($this->settings->get('social_share_theme') !== $socialShareTheme) {
             $this->frontTemplateConfig->clearCompiled();
         }
-
-        $this->settings->set('social_share_theme', $this->request->post('social_share_theme'));
+        $this->settings->set('social_share_theme', $socialShareTheme);
         $this->settings->set('sj_shares', $this->request->post('sj_shares'));
         $this->settings->set('site_email', $this->request->post('site_email'));
 
@@ -439,19 +453,24 @@ class BackendSettingsHelper
 
         $designImagesDir = $this->config->get('root_dir') . '/' . $this->config->get('design_images');
         $tmpName = $_FILES['site_favicon']['tmp_name'];
-        $ext = pathinfo($_FILES['site_favicon']['name'], PATHINFO_EXTENSION);
+        $faviconName = $_FILES['site_favicon']['name'];
+        if (!is_string($tmpName) || !is_string($faviconName)) {
+            return ExtenderFacade::execute(__METHOD__, null, func_get_args());
+        }
+
+        $ext = pathinfo($faviconName, PATHINFO_EXTENSION);
         $siteFaviconName = 'favicon.' . $ext;
 
         @unlink($designImagesDir . $this->settings->get('site_favicon'));
         if (move_uploaded_file($tmpName, $designImagesDir . $siteFaviconName)) {
             $this->settings->set('site_favicon', $siteFaviconName);
-            $siteFaviconVersion = ltrim($this->settings->get('site_favicon_version'), '0');
+            $siteFaviconVersion = (int) ltrim($this->settings->get('site_favicon_version'), '0');
 
             if (!$siteFaviconVersion) {
                 $siteFaviconVersion = 0;
             }
 
-            $this->settings->set('site_favicon_version', str_pad(++$siteFaviconVersion, 3, 0, STR_PAD_LEFT));
+            $this->settings->set('site_favicon_version', str_pad((string) ++$siteFaviconVersion, 3, 0, STR_PAD_LEFT));
         }
 
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
@@ -482,14 +501,40 @@ class BackendSettingsHelper
         return ExtenderFacade::execute(__METHOD__, $this->allowedImageExtensions, func_get_args());
     }
 
-    public function getJsSocials()
+    /**
+     * Список іконок поширення для адмінки: copy_url + мережі з JsSocial (id, label, logo).
+     *
+     * @return array<int, array{id: string, label: string, logo: string}>
+     */
+    public function getShareIcons(): array
     {
-        return ExtenderFacade::execute(__METHOD__, $this->jsSocial->getSocials(), func_get_args());
+        $copyUrl = [
+            'id' => 'copy_url',
+            'label' => 'copy_url',
+            'logo' => 'copy',
+        ];
+        $networks = $this->jsSocial->getShareNetworks();
+        return ExtenderFacade::execute(__METHOD__, array_merge([$copyUrl], $networks), func_get_args());
     }
 
-    public function getJsCustomSocials()
+    /**
+     * Список тем іконок поширення (підпапки design/<theme>/images/).
+     *
+     * @return array<string, string>
+     */
+    public function getShareThemes(): array
     {
-        return ExtenderFacade::execute(__METHOD__, $this->jsSocial->getCustomSocials(), func_get_args());
+        return ExtenderFacade::execute(__METHOD__, ['default' => 'default'], func_get_args());
+    }
+
+    /**
+     * Base URL до папки іконок поширення поточної фронт-теми (design/<theme>/images/default/).
+     */
+    public function getShareIconsBaseUrl(): string
+    {
+        $theme = $this->frontTemplateConfig->getTheme();
+        $baseUrl = Request::getRootUrl() . '/design/' . $theme . '/images/default';
+        return ExtenderFacade::execute(__METHOD__, $baseUrl, func_get_args());
     }
 
     public function getSiteSocialLinks()
@@ -526,7 +571,12 @@ class BackendSettingsHelper
 
         if ($_FILES['site_logo']['error'] == UPLOAD_ERR_OK) {
             $tmpName = $_FILES['site_logo']['tmp_name'];
-            $ext = pathinfo($_FILES['site_logo']['name'], PATHINFO_EXTENSION);
+            $logoName = $_FILES['site_logo']['name'];
+            if (!is_string($tmpName) || !is_string($logoName)) {
+                return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
+            }
+
+            $ext = pathinfo($logoName, PATHINFO_EXTENSION);
             $siteLogoName = 'logo' . $logoLang . '.' . $ext;
 
             if (in_array($ext, $this->allowedImageExtensions)) {
@@ -535,7 +585,7 @@ class BackendSettingsHelper
 
                 // Загружаем новое лого
                 if (move_uploaded_file($tmpName, $designImagesDir . $siteLogoName)) {
-                    $siteLogoVersion = ltrim($this->settings->get('site_logo_version'), '0');
+                    $siteLogoVersion = (int) ltrim($this->settings->get('site_logo_version'), '0');
                     if (!$siteLogoVersion) {
                         $siteLogoVersion = 0;
                     }
@@ -546,7 +596,7 @@ class BackendSettingsHelper
                         $this->settings->set('site_logo', $siteLogoName);
                     }
 
-                    $this->settings->set('site_logo_version', str_pad(++$siteLogoVersion, 3, 0, STR_PAD_LEFT));
+                    $this->settings->set('site_logo_version', str_pad((string) ++$siteLogoVersion, 3, 0, STR_PAD_LEFT));
                 }
             } else {
                 $siteLogoName = '';
@@ -578,8 +628,8 @@ class BackendSettingsHelper
             }
 
             $this->languages->setLangId($currentLang->id);
-        } // Если раньше лого было мультиязычным, а теперь будет не мультиязычным, нужно сохранить его из основного языка
-        elseif ($this->settings->get('multilang_logo') == 1 && $multiLangLogo == 0) {
+        } elseif ($this->settings->get('multilang_logo') == 1 && $multiLangLogo == 0) {
+            // Preserve the logo from the main language when multilingual logos are disabled.
             $currentLangId = $this->languages->getLangId();
             $mainLang = $this->languagesEntity->getMainLanguage();
             $ext = pathinfo($siteLogoName, PATHINFO_EXTENSION);

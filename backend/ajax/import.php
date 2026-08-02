@@ -1,6 +1,5 @@
 <?php
 
-
 use Okay\Entities\ManagersEntity;
 use Okay\Core\QueryFactory;
 use Okay\Core\Import;
@@ -38,7 +37,17 @@ $result = new \stdClass();
 
 // Определяем колонки из первой строки файла
 $f = fopen($import->getImportFilesDir() . $import->getImportFile(), 'r');
-$import->setColumns(fgetcsv($f, null, $import->getColumnDelimiter()));
+if ($f === false) {
+    exit;
+}
+
+$columns = fgetcsv($f, 0, $import->getColumnDelimiter(), '"', '\\');
+if ($columns === false) {
+    fclose($f);
+    exit;
+}
+
+$import->setColumns(array_map('strval', $columns));
 $import->initInternalColumns($fields);
 
 // Если нет названия товара - не будем импортировать
@@ -51,7 +60,7 @@ $sql->setStatement('START TRANSACTION');
 $sql->execute();
 
 // Переходим на заданную позицию, если импортируем не сначала
-if($from = $request->get('from')) {
+if ($from = $request->get('from')) {
     fseek($f, $from);
 } else {
     $sql = $queryBuilder->newSqlQuery()->setStatement("TRUNCATE __import_log")->execute();
@@ -62,15 +71,15 @@ $importedItems = [];
 
 // Проходимся по строкам, пока не конец файла
 // или пока не импортировано достаточно строк для одного запроса
-for($k=0; !feof($f) && $k < $productsCount; $k++) {
+for ($k = 0; !feof($f) && $k < $productsCount; $k++) {
     // Читаем строку
-    $line = fgetcsv($f, 0, $import->getColumnDelimiter());
+    $line = fgetcsv($f, 0, $import->getColumnDelimiter(), '"', '\\');
 
     $product = null;
-    if(is_array($line) && !empty($line)) {
+    if (is_array($line) && !empty($line)) {
         $i = 0;
         // Проходимся по колонкам строки
-        foreach ($fields as $csv=>$inner) {
+        foreach ($fields as $csv => $inner) {
             // Создаем массив item[название_колонки]=значение
             if (isset($line[$i]) && !empty($inner)) {
                 $product[$inner] = $line[$i];
@@ -78,9 +87,9 @@ for($k=0; !feof($f) && $k < $productsCount; $k++) {
             $i++;
         }
     }
-    
+
     // Импортируем этот товар
-    if($importedItem = $importHelper->importItem($product)) {
+    if ($importedItem = $importHelper->importItem($product)) {
         $importedItems[] = $importedItem;
     }
 }

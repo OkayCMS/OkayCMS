@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Helpers;
-
 
 use Okay\Admin\Requests\BackendOrdersRequest;
 use Okay\Core\BackendTranslations;
@@ -24,33 +22,32 @@ use Okay\Entities\VariantsEntity;
 
 class BackendOrderHistoryHelper
 {
-    
     /** @var OrderHistoryEntity */
     private $orderHistoryEntity;
-    
+
     /** @var EntityFactory */
     private $entityFactory;
-    
+
     /** @var BackendOrdersRequest */
     private $ordersRequest;
-    
+
     /** @var Request */
     private $request;
-    
+
     /** @var BackendTranslations */
     private $BT;
 
     /** @var QueryFactory */
     private $queryFactory;
-    
+
     private static $purchasesNames;
-    
+
     public function __construct(
-        EntityFactory        $entityFactory,
+        EntityFactory $entityFactory,
         BackendOrdersRequest $ordersRequest,
-        Request              $request,
-        BackendTranslations  $backendTranslations,
-        QueryFactory         $queryFactory
+        Request $request,
+        BackendTranslations $backendTranslations,
+        QueryFactory $queryFactory
     ) {
         $this->request       = $request;
         $this->entityFactory = $entityFactory;
@@ -63,7 +60,7 @@ class BackendOrderHistoryHelper
 
     /**
      * Метод обновляет историю заказа, вычисляя разницу между данными заказа до и после обновления
-     * 
+     *
      * @param $orderBeforeUpdate
      * @param $orderAfterUpdate
      * @param $purchasesBeforeUpdate
@@ -83,10 +80,10 @@ class BackendOrderHistoryHelper
             $tmp[$purchase->id] = $purchase;
         }
         $purchasesBeforeUpdate = $tmp;
-        
+
         /** @var ManagersEntity $managersEntity */
         $managersEntity = $this->entityFactory->get(ManagersEntity::class);
-        
+
         /** @var PurchasesEntity $purchasesEntity */
         $purchasesEntity = $this->entityFactory->get(PurchasesEntity::class);
 
@@ -94,8 +91,9 @@ class BackendOrderHistoryHelper
         $discountsEntity = $this->entityFactory->get(DiscountsEntity::class);
 
         foreach ($discountsBeforeUpdate as $discountBeforeUpdate) {
-            if ($discountBeforeUpdate->entity == 'purchase')
+            if ($discountBeforeUpdate->entity == 'purchase') {
                 $discountBeforeUpdate->purchase = $tmp[$discountBeforeUpdate->entity_id];
+            }
         }
 
         $purchasesAfterUpdate = [];
@@ -119,18 +117,18 @@ class BackendOrderHistoryHelper
                 if ($discountAfterUpdate->entity == 'purchase') {
                     if (isset($purchasesBeforeUpdate[$discountAfterUpdate->entity_id])) {
                         $discountAfterUpdate->purchase = $purchasesBeforeUpdate[$discountAfterUpdate->entity_id];
-                    } else if ($discountAfterUpdate->purchase = $purchasesAfterUpdate[$discountAfterUpdate->entity_id]) {
+                    } elseif ($discountAfterUpdate->purchase = $purchasesAfterUpdate[$discountAfterUpdate->entity_id]) {
                         $discountAfterUpdate->purchase = $purchasesAfterUpdate[$discountAfterUpdate->entity_id];
                     }
                 }
             }
         }
-        
+
         $managerId = null;
         if (!empty($_SESSION['admin']) && ($manager = $managersEntity->get($_SESSION['admin']))) {
             $managerId = $manager->id;
         }
-        
+
         if (empty($orderBeforeUpdate) || $orderBeforeUpdate->status_id != $orderAfterUpdate->status_id) {
             $this->orderHistoryEntity->add([
                 'order_id' => $orderAfterUpdate->id,
@@ -138,14 +136,17 @@ class BackendOrderHistoryHelper
                 'new_status_id' => $orderAfterUpdate->status_id,
             ]);
         }
-        
-        if ($changeText = $this->getChangeOrderMessage(
-            $orderBeforeUpdate,
-            $orderAfterUpdate,
-            $purchasesBeforeUpdate,
-            $purchasesAfterUpdate,
-            $discountsBeforeUpdate,
-            $discountsAfterUpdate)) {
+
+        if (
+            $changeText = $this->getChangeOrderMessage(
+                $orderBeforeUpdate,
+                $orderAfterUpdate,
+                $purchasesBeforeUpdate,
+                $purchasesAfterUpdate,
+                $discountsBeforeUpdate,
+                $discountsAfterUpdate
+            )
+        ) {
             $this->orderHistoryEntity->add([
                 'order_id' => $orderAfterUpdate->id,
                 'manager_id' => $managerId,
@@ -163,12 +164,12 @@ class BackendOrderHistoryHelper
 
         /** @var OrderLabelsEntity $orderLabelsEntity */
         $orderLabelsEntity = $this->entityFactory->get(OrderLabelsEntity::class);
-        
+
         $managerId = null;
         if (!empty($_SESSION['admin']) && ($manager = $managersEntity->get($_SESSION['admin']))) {
             $managerId = $manager->id;
         }
-        
+
         $orderLabel = $orderLabelsEntity->findOne(['id' => $labelId]);
 
         $changeMessage = $this->BT->getTranslation('order_history_add')
@@ -182,7 +183,7 @@ class BackendOrderHistoryHelper
             'text' =>  $changeMessage,
         ]);
     }
-    
+
     public function removeLabel($orderId, $labelId)
     {
         /** @var ManagersEntity $managersEntity */
@@ -202,24 +203,24 @@ class BackendOrderHistoryHelper
             . " "
             . $this->BT->getTranslation('order_history_label')
             . " \"{$orderLabel->name}\"";
-        
+
         $this->orderHistoryEntity->add([
             'order_id' => $orderId,
             'manager_id' => $managerId,
             'text' =>  $changeMessage,
         ]);
     }
-    
+
     /**
      * Метод сравнивает заказ до обновления и после, на предмет изменений
-     * 
+     *
      * @param $orderBeforeUpdate
      * @param $orderAfterUpdate
-     * @param array $purchasesBeforeUpdate
-     * @param array $purchasesAfterUpdate
-     * @param array $discountsBeforeUpdate
-     * @param array $discountsAfterUpdate
-     * @return array
+     * @param array<int|string, object> $purchasesBeforeUpdate
+     * @param array<int|string, object> $purchasesAfterUpdate
+     * @param array<int|string, object{name: string, entity: string, purchase?: object, value?: int|float|string, type?: string}&\stdClass> $discountsBeforeUpdate
+     * @param array<int|string, object{name: string, entity: string, purchase?: object, value?: int|float|string, type?: string}&\stdClass> $discountsAfterUpdate
+     * @return list<string>
      * @throws \Exception
      */
     private function getChangeOrderMessage(
@@ -237,25 +238,26 @@ class BackendOrderHistoryHelper
         if ($historyComment = $this->request->post('history_comment')) {
             $changeOrderMessage[] = $historyComment;
         }
-        
+
         // Все изменения только в созданном заказе
         if (!empty($orderBeforeUpdate->id) && !empty($orderAfterUpdate->id)) {
-            
-            if (property_exists($orderBeforeUpdate, 'delivery_id') 
+            if (
+                property_exists($orderBeforeUpdate, 'delivery_id')
                 && property_exists($orderAfterUpdate, 'delivery_id')
                 && $orderBeforeUpdate->delivery_id != $orderAfterUpdate->delivery_id
-                && (!empty($orderBeforeUpdate->delivery_id) || !empty($orderAfterUpdate->delivery_id))) {
+                && (!empty($orderBeforeUpdate->delivery_id) || !empty($orderAfterUpdate->delivery_id))
+            ) {
                 /** @var DeliveriesEntity $deliveriesEntity */
                 $deliveriesEntity = $this->entityFactory->get(DeliveriesEntity::class);
                 $deliveries = $deliveriesEntity->mappedBy('id')->find();
-                
-                
+
+
                 $oldDeliveryName = isset($deliveries[$orderBeforeUpdate->delivery_id]) ? $deliveries[$orderBeforeUpdate->delivery_id]->name : '';
                 $newDeliveryName = isset($deliveries[$orderAfterUpdate->delivery_id]) ? $deliveries[$orderAfterUpdate->delivery_id]->name : '';
-                
+
                 // Добавили доставку
                 if (empty($orderBeforeUpdate->delivery_id)) {
-                    $changeOrderMessage[] = $this->BT->getTranslation('order_history_add') 
+                    $changeOrderMessage[] = $this->BT->getTranslation('order_history_add')
                         . " "
                         . $this->BT->getTranslation('order_history_delivery')
                         . " \"{$newDeliveryName}\"";
@@ -279,9 +281,11 @@ class BackendOrderHistoryHelper
             }
 
             // Изменили стоимость доставки
-            if (property_exists($orderBeforeUpdate, 'delivery_price')
-                && property_exists($orderAfterUpdate, 'delivery_price') 
-                && $orderBeforeUpdate->delivery_price != $orderAfterUpdate->delivery_price) {
+            if (
+                property_exists($orderBeforeUpdate, 'delivery_price')
+                && property_exists($orderAfterUpdate, 'delivery_price')
+                && $orderBeforeUpdate->delivery_price != $orderAfterUpdate->delivery_price
+            ) {
                 $changeOrderMessage[] = $this->BT->getTranslation('order_history_change')
                     . " "
                     . $this->BT->getTranslation('order_history_delivery_price')
@@ -291,11 +295,13 @@ class BackendOrderHistoryHelper
                     . $this->BT->getTranslation('order_history_to')
                     . " \"{$orderAfterUpdate->delivery_price}\"";
             }
-            
-            if (property_exists($orderBeforeUpdate, 'payment_method_id')
+
+            if (
+                property_exists($orderBeforeUpdate, 'payment_method_id')
                 && property_exists($orderAfterUpdate, 'payment_method_id')
                 && $orderBeforeUpdate->payment_method_id != $orderAfterUpdate->payment_method_id
-                && (!empty($orderBeforeUpdate->payment_method_id) || !empty($orderAfterUpdate->payment_method_id))) {
+                && (!empty($orderBeforeUpdate->payment_method_id) || !empty($orderAfterUpdate->payment_method_id))
+            ) {
                 /** @var PaymentsEntity $paymentsEntity */
                 $paymentsEntity = $this->entityFactory->get(PaymentsEntity::class);
                 $payments = $paymentsEntity->mappedBy('id')->find();
@@ -328,10 +334,11 @@ class BackendOrderHistoryHelper
                 }
             }
 
-            if (property_exists($orderBeforeUpdate, 'paid')
+            if (
+                property_exists($orderBeforeUpdate, 'paid')
                 && property_exists($orderAfterUpdate, 'paid')
-                && $orderBeforeUpdate->paid != $orderAfterUpdate->paid) {
-                
+                && $orderBeforeUpdate->paid != $orderAfterUpdate->paid
+            ) {
                 // Снял отметку оплачен
                 if ($orderBeforeUpdate->paid) {
                     $changeOrderMessage[] = $this->BT->getTranslation('order_history_unset_paid');
@@ -342,9 +349,11 @@ class BackendOrderHistoryHelper
             }
 
             // Изменил имя
-            if (property_exists($orderBeforeUpdate, 'name')
+            if (
+                property_exists($orderBeforeUpdate, 'name')
                 && property_exists($orderAfterUpdate, 'name')
-                && $orderBeforeUpdate->name != $orderAfterUpdate->name) {
+                && $orderBeforeUpdate->name != $orderAfterUpdate->name
+            ) {
                 $changeOrderMessage[] = $this->BT->getTranslation('order_history_change')
                     . " "
                     . $this->BT->getTranslation('order_history_name')
@@ -356,9 +365,11 @@ class BackendOrderHistoryHelper
             }
 
             // Изменил фамилию
-            if (property_exists($orderBeforeUpdate, 'last_name')
+            if (
+                property_exists($orderBeforeUpdate, 'last_name')
                 && property_exists($orderAfterUpdate, 'last_name')
-                && $orderBeforeUpdate->last_name != $orderAfterUpdate->last_name) {
+                && $orderBeforeUpdate->last_name != $orderAfterUpdate->last_name
+            ) {
                 $changeOrderMessage[] = $this->BT->getTranslation('order_history_change')
                     . " "
                     . $this->BT->getTranslation('order_history_last_name')
@@ -370,9 +381,11 @@ class BackendOrderHistoryHelper
             }
 
             // Изменил телефон (Изменения сравниваются и выводятся с учетом форматирования)
-            if (property_exists($orderBeforeUpdate, 'phone')
+            if (
+                property_exists($orderBeforeUpdate, 'phone')
                 && property_exists($orderAfterUpdate, 'phone')
-                && ($bPhone = Phone::format($orderBeforeUpdate->phone)) != ($aPhone = Phone::format($orderAfterUpdate->phone))) {
+                && ($bPhone = Phone::format($orderBeforeUpdate->phone)) != ($aPhone = Phone::format($orderAfterUpdate->phone))
+            ) {
                 $changeOrderMessage[] = $this->BT->getTranslation('order_history_change')
                     . " "
                     . $this->BT->getTranslation('order_history_phone')
@@ -384,9 +397,11 @@ class BackendOrderHistoryHelper
             }
 
             // Изменил почту
-            if (property_exists($orderBeforeUpdate, 'email')
+            if (
+                property_exists($orderBeforeUpdate, 'email')
                 && property_exists($orderAfterUpdate, 'email')
-                && $orderBeforeUpdate->email != $orderAfterUpdate->email) {
+                && $orderBeforeUpdate->email != $orderAfterUpdate->email
+            ) {
                 $changeOrderMessage[] = $this->BT->getTranslation('order_history_change')
                     . " "
                     . $this->BT->getTranslation('order_history_email')
@@ -402,15 +417,15 @@ class BackendOrderHistoryHelper
 
     /**
      * Метод сравнивает все покупки на предмет добавления, удаления или изменения
-     * 
-     * @param $purchasesBeforeUpdate
-     * @param $purchasesAfterUpdate
-     * @return array
+     *
+     * @param array<int|string, object> $purchasesBeforeUpdate
+     * @param array<int|string, object> $purchasesAfterUpdate
+     * @return list<string>
      */
     private function getChangePurchasesMessage($purchasesBeforeUpdate, $purchasesAfterUpdate)
     {
         $changePurchasesMessage = [];
-        
+
         foreach ($purchasesBeforeUpdate as $purchaseId => $purchase) {
             // Удалили покупку
             if (!isset($purchasesAfterUpdate[$purchaseId])) {
@@ -438,25 +453,27 @@ class BackendOrderHistoryHelper
                     . $this->BT->getTranslation('order_history_to_order');
             }
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $changePurchasesMessage, func_get_args());
     }
 
     /**
      * Метод сравнивает две покупки, до обновления и после, на предмет изменений
-     * 
+     *
      * @param $purchaseBeforeUpdate
      * @param $purchaseAfterUpdate
-     * @return array
+     * @return list<string>
      */
     private function getChangePurchaseMessage($purchaseBeforeUpdate, $purchaseAfterUpdate)
     {
         $purchaseChanges = [];
         // Изменили вариант
-        if (property_exists($purchaseBeforeUpdate, 'variant_id')
+        if (
+            property_exists($purchaseBeforeUpdate, 'variant_id')
             && property_exists($purchaseAfterUpdate, 'variant_id')
             && $purchaseBeforeUpdate->variant_id != $purchaseAfterUpdate->variant_id
-            && (!empty($purchaseBeforeUpdate->variant_name) || !empty($purchaseAfterUpdate->variant_name))) {
+            && (!empty($purchaseBeforeUpdate->variant_name) || !empty($purchaseAfterUpdate->variant_name))
+        ) {
             $purchaseChanges[] = $this->BT->getTranslation('order_history_change')
                 . " "
                 . $this->BT->getTranslation('order_history_variant')
@@ -468,9 +485,11 @@ class BackendOrderHistoryHelper
         }
 
         // Изменили цену
-        if (property_exists($purchaseBeforeUpdate, 'undiscounted_price')
+        if (
+            property_exists($purchaseBeforeUpdate, 'undiscounted_price')
             && property_exists($purchaseAfterUpdate, 'undiscounted_price')
-            && $purchaseBeforeUpdate->undiscounted_price != $purchaseAfterUpdate->undiscounted_price) {
+            && $purchaseBeforeUpdate->undiscounted_price != $purchaseAfterUpdate->undiscounted_price
+        ) {
             $purchaseName = $this->getPurchaseName($purchaseAfterUpdate);
             $purchaseChanges[] = $this->BT->getTranslation('order_history_change')
                 . " "
@@ -483,9 +502,11 @@ class BackendOrderHistoryHelper
         }
 
         // Изменили количество
-        if (property_exists($purchaseBeforeUpdate, 'amount')
+        if (
+            property_exists($purchaseBeforeUpdate, 'amount')
             && property_exists($purchaseAfterUpdate, 'amount')
-            && $purchaseBeforeUpdate->amount != $purchaseAfterUpdate->amount) {
+            && $purchaseBeforeUpdate->amount != $purchaseAfterUpdate->amount
+        ) {
             $purchaseName = $this->getPurchaseName($purchaseAfterUpdate);
             $purchaseChanges[] = $this->BT->getTranslation('order_history_change')
                 . " "
@@ -502,18 +523,18 @@ class BackendOrderHistoryHelper
     /**
      * Метод сравнивает все скидки на предмет добавления, удаления или изменения
      *
-     * @param $discountsBeforeUpdate
-     * @param $discountsAfterUpdate
-     * @return array
+     * @param array<int|string, object{name: string, entity: string, purchase?: object, value?: int|float|string, type?: string}&\stdClass> $discountsBeforeUpdate
+     * @param array<int|string, object{name: string, entity: string, purchase?: object, value?: int|float|string, type?: string}&\stdClass> $discountsAfterUpdate
+     * @return list<string>
      * @throws \Exception
      */
-    private function getChangeDiscountsMessage($discountsBeforeUpdate, $discountsAfterUpdate) : array
+    private function getChangeDiscountsMessage($discountsBeforeUpdate, $discountsAfterUpdate): array
     {
 
         /** @var CurrenciesEntity $currenciesEntity */
         $currenciesEntity = $this->entityFactory->get(CurrenciesEntity::class);
         $mainCurrency = $currenciesEntity->getMainCurrency();
-        
+
         $changeDiscountsMessage = [];
 
         foreach ($discountsBeforeUpdate as $discountId => $discount) {
@@ -567,24 +588,26 @@ class BackendOrderHistoryHelper
      *
      * @param $discountBeforeUpdate
      * @param $discountAfterUpdate
-     * @return array
+     * @return list<string>
      * @throws \Exception
      */
-    private function getChangeDiscountMessage($discountBeforeUpdate, $discountAfterUpdate) : array
+    private function getChangeDiscountMessage($discountBeforeUpdate, $discountAfterUpdate): array
     {
-        
+
         /** @var CurrenciesEntity $currenciesEntity */
         $currenciesEntity = $this->entityFactory->get(CurrenciesEntity::class);
         $mainCurrency = $currenciesEntity->getMainCurrency();
-        
+
         $discountChanges = [];
         // Изменили значение или тип
-        if (property_exists($discountBeforeUpdate, 'value')
+        if (
+            property_exists($discountBeforeUpdate, 'value')
             && property_exists($discountAfterUpdate, 'value')
             && property_exists($discountBeforeUpdate, 'type')
             && property_exists($discountAfterUpdate, 'value')
             && ($discountBeforeUpdate->value != $discountAfterUpdate->value
-                || $discountBeforeUpdate->type != $discountAfterUpdate->type)) {
+                || $discountBeforeUpdate->type != $discountAfterUpdate->type)
+        ) {
             $message = $this->BT->getTranslation('order_history_change')
                 . " "
                 . $this->BT->getTranslation('order_history_discount_value')
@@ -607,9 +630,11 @@ class BackendOrderHistoryHelper
         }
 
         // Изменили название
-        if (property_exists($discountBeforeUpdate, 'name')
+        if (
+            property_exists($discountBeforeUpdate, 'name')
             && property_exists($discountAfterUpdate, 'name')
-            && $discountBeforeUpdate->name != $discountAfterUpdate->name) {
+            && $discountBeforeUpdate->name != $discountAfterUpdate->name
+        ) {
             $message = $this->BT->getTranslation('order_history_change')
                 . " "
                 . $this->BT->getTranslation('order_history_discount_name')
@@ -630,9 +655,11 @@ class BackendOrderHistoryHelper
         }
 
         // Изменили описание
-        if (property_exists($discountBeforeUpdate, 'description')
+        if (
+            property_exists($discountBeforeUpdate, 'description')
             && property_exists($discountAfterUpdate, 'description')
-            && $discountBeforeUpdate->description != $discountAfterUpdate->description) {
+            && $discountBeforeUpdate->description != $discountAfterUpdate->description
+        ) {
             $message = $this->BT->getTranslation('order_history_change')
                 . " "
                 . $this->BT->getTranslation('order_history_discount_description')
@@ -653,9 +680,11 @@ class BackendOrderHistoryHelper
         }
 
         // Изменили "от последней скидки"
-        if (property_exists($discountBeforeUpdate, 'from_last_discount')
+        if (
+            property_exists($discountBeforeUpdate, 'from_last_discount')
             && property_exists($discountAfterUpdate, 'from_last_discount')
-            && $discountBeforeUpdate->from_last_discount != $discountAfterUpdate->from_last_discount) {
+            && $discountBeforeUpdate->from_last_discount != $discountAfterUpdate->from_last_discount
+        ) {
             $message = $this->BT->getTranslation('order_history_change')
                 . " \""
                 . $this->BT->getTranslation('order_history_discount_from_last_discount')
@@ -681,74 +710,85 @@ class BackendOrderHistoryHelper
 
         return ExtenderFacade::execute(__METHOD__, $discountChanges, func_get_args());
     }
-    
+
+    /**
+     * @param object $purchase
+     */
     private function getPurchaseName($purchase)
     {
         $purchaseName = '';
+        if (!isset($purchase->id)) {
+            return $purchaseName;
+        }
+
+        /** @var object{id: int|string, product_name?: string, variant_name?: string, product_id?: int|string, variant_id?: int|string}&\stdClass $purchase */
         if (isset(self::$purchasesNames[$purchase->id])) {
             return self::$purchasesNames[$purchase->id];
         }
-        
+
         if (!empty($purchase->product_name)) {
             $purchaseName = $purchase->product_name . (!empty($purchase->variant_name) ? " ({$purchase->variant_name})" : '');
         } elseif (!empty($purchase->product_id)) {
             /** @var ProductsEntity $productsEntity */
             $productsEntity = $this->entityFactory->get(ProductsEntity::class);
-            $purchaseName = $productsEntity->cols(['name'])->findOne(['id' => $purchase->product_id]);
-            
+            $productName = $productsEntity->cols(['name'])->findOne(['id' => $purchase->product_id]);
+            /** @var object{name?: string}|false|null $productName */
+            $purchaseName = !empty($productName->name) ? $productName->name : '';
+
             if (!empty($purchase->variant_id)) {
                 /** @var VariantsEntity $variantsEntity */
                 $variantsEntity = $this->entityFactory->get(VariantsEntity::class);
                 if ($variantName = $variantsEntity->cols(['name'])->findOne(['id' => $purchase->variant_id])) {
-                    $purchaseName .= " ({$variantName})";
+                    /** @var object{name?: string} $variantName */
+                    $purchaseName .= !empty($variantName->name) ? " ({$variantName->name})" : '';
                 }
             }
         }
 
         self::$purchasesNames[$purchase->id] = $purchaseName;
-        
+
         return $purchaseName;
     }
-    
+
     public function getHistory($orderId)
     {
         $orderHistory = [];
         if (!empty($orderId)) {
-            
+
             /** @var ManagersEntity $managersEntity */
             $managersEntity = $this->entityFactory->get(ManagersEntity::class);
             $managers = $managersEntity->mappedBy('id')->find();
             $orderHistory = $this->orderHistoryEntity->find(['order_id' => $orderId]);
 
             foreach ($orderHistory as $item) {
-                $item->text = strip_tags($item->text,'<a><p><b><u><s><strong><i><br><span><div><ol><ul><li><table><tbody><tr><td></td><blockquote>');
+                $item->text = strip_tags((string) $item->text, '<a><p><b><u><s><strong><i><br><span><div><ol><ul><li><table><tbody><tr><td></td><blockquote>');
                 if ($item->manager_id && isset($managers[$item->manager_id])) {
                     $item->manager_name = $managers[$item->manager_id]->login;
                 }
             }
-            
         }
         return ExtenderFacade::execute(__METHOD__, $orderHistory, func_get_args());
     }
-    
+
+    /**
+     * @param array<int|string, int|string> $ordersIds
+     */
     public function findOrdersHistory(array $ordersIds)
     {
         $ordersHistory = [];
         if (!empty($ordersIds)) {
-            
+
             /** @var ManagersEntity $managersEntity */
             $managersEntity = $this->entityFactory->get(ManagersEntity::class);
             $managers = $managersEntity->mappedBy('id')->find();
-            
+
             foreach ($this->orderHistoryEntity->find(['order_id' => $ordersIds]) as $item) {
                 if ($item->manager_id && isset($managers[$item->manager_id])) {
                     $item->manager_name = $managers[$item->manager_id]->login;
                 }
                 $ordersHistory[$item->order_id][] = $item;
             }
-            
         }
         return ExtenderFacade::execute(__METHOD__, $ordersHistory, func_get_args());
     }
-    
 }

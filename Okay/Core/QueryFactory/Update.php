@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\QueryFactory;
-
 
 use Aura\SqlQuery\QueryInterface;
 use Aura\SqlQuery\Common\Update as AuraUpdate;
@@ -25,24 +23,40 @@ class Update extends AbstractQuery implements QueryInterface
         return $this;
     }
 
-    public function where($cond, ...$binds)
+    /**
+     * @param array<string, mixed> $bind
+     * @return $this
+     */
+    public function where($cond, array $bind = [])
     {
-        $this->queryObject->where(...func_get_args());
+        $this->queryObject->where($cond, $bind);
         return $this;
     }
 
-    public function orWhere($cond)
+    /**
+     * @param array<string, mixed> $bind
+     * @return $this
+     */
+    public function orWhere($cond, array $bind = [])
     {
-        $this->queryObject->orWhere(...func_get_args());
+        $this->queryObject->orWhere($cond, $bind);
         return $this;
     }
 
-    public function col($col)
+    /**
+     * @param list<string|int|float|bool|null> $binds
+     * @return $this
+     */
+    public function col($col, array $binds = [])
     {
-        $this->queryObject->col(...func_get_args());
+        $this->queryObject->col($col, $binds);
         return $this;
     }
 
+    /**
+     * @param array<int|string, mixed> $cols
+     * @return $this
+     */
     public function cols(array $cols)
     {
         $this->queryObject->cols($cols);
@@ -91,6 +105,10 @@ class Update extends AbstractQuery implements QueryInterface
         return null;
     }
 
+    /**
+     * @param list<string> $spec
+     * @return $this
+     */
     public function orderBy(array $spec)
     {
         if (method_exists($this->queryObject, 'orderBy')) {

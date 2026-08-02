@@ -1,21 +1,18 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Entities\SupportInfoEntity;
 use Okay\Core\Support;
 
 class SupportAdmin extends IndexAdmin
 {
-
     public function fetch(Support $support, SupportInfoEntity $supportInfoEntity)
     {
         $error = '';
         if ($this->request->method('post') && !empty($this->request->post('get_new_keys'))) {
             $result = $support->getNewKeys($this->manager->email);
-            if (is_null($result) || (empty($result) && $result!==false)) {
+            if (is_null($result) || (empty($result) && $result !== false)) {
                 $error = 'unknown_error';
             } elseif ($result === false) {
                 $error = 'request_has_already_sent';
@@ -27,7 +24,7 @@ class SupportAdmin extends IndexAdmin
                 exit();
             }
         }
-        
+
         if ($this->request->method('post') && !empty($this->request->post('manual_save_keys'))) {
             $supportInfoEntity->updateInfo([
                 'public_key' => str_replace("\r\n", "\n", trim($this->request->post('public_key')) . "\r\n"),
@@ -52,10 +49,9 @@ class SupportAdmin extends IndexAdmin
                 $ids = $this->request->post('check');
                 if (is_array($ids)) {
                     switch ($this->request->post('action')) {
-                        case 'close': {
+                        case 'close':
                             // TODO close topic
                             break;
-                        }
                     }
                 }
             }*/
@@ -86,5 +82,4 @@ class SupportAdmin extends IndexAdmin
 
         $this->response->setContent($this->design->fetch('support.tpl'));
     }
-
 }

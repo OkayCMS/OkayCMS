@@ -1,14 +1,15 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 use Monolog\Handler\ChromePHPHandler;
 use Monolog\Handler\RotatingFileHandler;
-use Okay\Core\Console\Application AS ConsoleApplication;
+use Okay\Core\Console\Application as ConsoleApplication;
 use Okay\Core\Entity\UrlUniqueValidator;
+use Okay\Core\Filesystem\KeepFolderDirectoryCleaner;
 use Okay\Core\Modules\LicenseModulesTemplates;
+use Okay\Core\Runtime\RuntimeArtifactsClearerFactory;
+use Okay\Core\Stock\VariantAvailabilityFactory;
 use Okay\Core\Modules\LicenseStorage;
 use Okay\Core\Modules\ModuleDesign;
 use Okay\Core\Modules\ModulesEntitiesFilters;
@@ -27,11 +28,14 @@ use Okay\Core\TplMod\TplMod;
 use Okay\Helpers\OrdersHelper;
 use Psr\Log\LoggerInterface;
 use Bramus\Router\Router as BRouter;
-use Smarty;
-use Mobile_Detect;
+use Detection\MobileDetect;
+use Smarty\Smarty;
 use Aura\SqlQuery\QueryFactory as AuraQueryFactory;
 use Aura\Sql\ExtendedPdo;
 use Okay\Core\Import as ImportCore;
+use Okay\Core\Import\CsvImportNormalizer;
+use Okay\Core\Import\CsvImportValueNormalizer;
+use Okay\Core\Export\CsvExportWriter;
 use PHPMailer\PHPMailer\PHPMailer;
 use Okay\Helpers\ProductsHelper;
 use Okay\Helpers\MoneyHelper;
@@ -58,8 +62,8 @@ $services = [
     Smarty::class => [
         'class' => Smarty::class,
     ],
-    Mobile_Detect::class => [
-        'class' => Mobile_Detect::class,
+    MobileDetect::class => [
+        'class' => MobileDetect::class,
     ],
     Router::class => [
         'class' => Router::class,
@@ -120,12 +124,13 @@ $services = [
     Request::class => [
         'class' => Request::class,
     ],
+    VariantAvailabilityFactory::class => [
+        'class' => VariantAvailabilityFactory::class,
+    ],
     Response::class => [
         'class' => Response::class,
         'arguments' => [
             new SR(Adapters\Response\AdapterManager::class),
-            new PR('config.version'),
-            new SR(LicenseModulesTemplates::class),
         ],
     ],
     Languages::class => [
@@ -159,6 +164,18 @@ $services = [
             new SR(QueryFactory::class),
         ],
     ],
+    KeepFolderDirectoryCleaner::class => [
+        'class' => KeepFolderDirectoryCleaner::class,
+    ],
+    RuntimeArtifactsClearerFactory::class => [
+        'class' => RuntimeArtifactsClearerFactory::class,
+        'arguments' => [
+            new SR(Design::class),
+            new SR(KeepFolderDirectoryCleaner::class),
+            new PR('template_config.compile_css_dir'),
+            new PR('template_config.compile_js_dir'),
+        ],
+    ],
     FrontTemplateConfig::class => [
         'class' => FrontTemplateConfig::class,
         'arguments' => [
@@ -166,6 +183,7 @@ $services = [
             new SR(Module::class),
             new SR(Settings::class),
             new SR(Config::class),
+            new SR(KeepFolderDirectoryCleaner::class),
             new PR('root_dir'),
             new PR('template_config.scripts_defer'),
             new PR('template_config.them_settings_filename'),
@@ -189,11 +207,12 @@ $services = [
         'class' => Design::class,
         'arguments' => [
             new SR(Smarty::class),
-            new SR(Mobile_Detect::class),
+            new SR(MobileDetect::class),
             new SR(FrontTemplateConfig::class),
             new SR(Module::class),
             new SR(Modules::class),
             new SR(TplMod::class),
+            new SR(KeepFolderDirectoryCleaner::class),
             new PR('design.smarty_cache_lifetime'),
             new PR('design.smarty_compile_check'),
             new PR('design.smarty_html_minify'),
@@ -210,6 +229,7 @@ $services = [
             new SR(Settings::class),
             new SR(Config::class),
             new SR(Adapters\Resize\AdapterManager::class),
+            new SR(Adapters\Resize\WebpConverter::class),
             new SR(Request::class),
             new SR(Response::class),
             new SR(QueryFactory::class),
@@ -225,6 +245,9 @@ $services = [
                 ]
             ],
         ],
+    ],
+    Adapters\Resize\WebpConverter::class => [
+        'class' => Adapters\Resize\WebpConverter::class,
     ],
     Notify::class => [
         'class' => Notify::class,
@@ -345,10 +368,20 @@ $services = [
             new SR(Database::class),
             new SR(Config::class),
             new SR(QueryFactory::class),
+            new SR(KeepFolderDirectoryCleaner::class),
         ],
     ],
     ImportCore::class => [
         'class' => ImportCore::class
+    ],
+    CsvImportNormalizer::class => [
+        'class' => CsvImportNormalizer::class,
+    ],
+    CsvImportValueNormalizer::class => [
+        'class' => CsvImportValueNormalizer::class,
+    ],
+    CsvExportWriter::class => [
+        'class' => CsvExportWriter::class,
     ],
     Cart::class => [
         'class' => Cart::class,

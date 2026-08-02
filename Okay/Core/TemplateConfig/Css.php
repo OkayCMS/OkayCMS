@@ -1,7 +1,7 @@
 <?php
 
-
 namespace Okay\Core\TemplateConfig;
 
-
-class Css extends Common {}
+class Css extends Common
+{
+}

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Modules;
-
 
 use Okay\Admin\Controllers\IndexAdmin;
 use Okay\Core\DesignBlocks;
@@ -33,10 +31,10 @@ abstract class AbstractInit
 
     /** @var Module */
     private $module;
-    
+
     /** @var Managers */
     private $managers;
-    
+
     /** @var ModulesEntitiesFilters */
     private $entitiesFilters;
 
@@ -68,16 +66,16 @@ abstract class AbstractInit
     private $moduleId;
     private $vendor;
     private $moduleName;
-    
-    /** @var array Список зарегестрированных контроллеров админки */
+
+    /** @var list<string> Список зарегестрированных контроллеров админки */
     private $backendControllers = [];
-    
+
     public function __construct($moduleId, $vendor, $moduleName)
     {
         if (!is_int($moduleId)) {
             throw new \Exception('"$moduleId" must be integer');
         }
-        
+
         $serviceLocator            = ServiceLocator::getInstance();
         $this->entityFactory       = $serviceLocator->getService(EntityFactory::class);
         $this->entityMigrator      = $serviceLocator->getService(EntityMigrator::class);
@@ -116,7 +114,7 @@ abstract class AbstractInit
         $modulesEntity = $this->entityFactory->get(ModulesEntity::class);
         $modulesEntity->update($this->moduleId, ['system' => 1]);
     }
-    
+
     /**
      * Регистрация блока в админке. Чтобы узнать имя блока, к которому хотите зацепиться,
      * нужно в конфиге включить директиву dev_mode = true,
@@ -126,8 +124,8 @@ abstract class AbstractInit
      *
      * @param string $blockName название блока
      * @param string $blockTplFile имя tpl файла блока из директории /backend/design/html модуля
-     * @param callable $callback ф-ция которую нужно вызвать перед отрисовкой шортблока. Может использоваться для 
-     * передачи в дизайн данных, нужных для отрисовки шортблока. Можно указывать как аргументы с указанием 
+     * @param callable $callback ф-ция которую нужно вызвать перед отрисовкой шортблока. Может использоваться для
+     * передачи в дизайн данных, нужных для отрисовки шортблока. Можно указывать как аргументы с указанием
      * type hint Services, Entities etc.
      * @throws \Exception
      */
@@ -155,16 +153,16 @@ abstract class AbstractInit
     protected function addFrontBlock($blockName, $blockTplFile, $callback = null)
     {
         $blockTplFile = pathinfo($blockTplFile, PATHINFO_BASENAME);
-        $themeModuleHtmlDir = __DIR__.'/../../../design/'.$this->frontTemplateConfig->getTheme().'/modules/'.$this->vendor.'/'.$this->moduleName.'/html/';
-        if (file_exists($themeModuleHtmlDir.$blockTplFile)) {
-            $blockTplFile = $themeModuleHtmlDir.$blockTplFile;
+        $themeModuleHtmlDir = __DIR__ . '/../../../design/' . $this->frontTemplateConfig->getTheme() . '/modules/' . $this->vendor . '/' . $this->moduleName . '/html/';
+        if (file_exists($themeModuleHtmlDir . $blockTplFile)) {
+            $blockTplFile = $themeModuleHtmlDir . $blockTplFile;
         } else {
             $blockTplFile = $this->module->getModuleDirectory($this->vendor, $this->moduleName) . 'design/html/' . $blockTplFile;
         }
 
         $this->addDesignBlock($blockName, $blockTplFile, $callback);
     }
-    
+
     /**
      * Метод расширяет коллекцию объектов доступную для использования в файле ajax/update_object.php,
      * который обновляет определенную по алиасу сущность поcредством AJAX запроса из админ панели сайта
@@ -188,7 +186,7 @@ abstract class AbstractInit
     {
         $this->image->addResizeObject($originalImgDirDirective, $resizedImgDirDirective);
     }
-    
+
     /**
      * Данный метод позволяет расширять меню админ панели посредством добавления новых пунктов меню в оную
      *
@@ -201,19 +199,21 @@ abstract class AbstractInit
             'lang_name_menu_item_1' => ['SomeOneAdmin'],
             'lang_name_menu_item_2' => ['SomeTwoAdmin', 'SomeThreeAdmin'],
         ], 'icon');
+     *
+     * @param array<string, list<string>> $menuItemsByControllers
      */
     protected function extendBackendMenu($firstLevelName, array $menuItemsByControllers, $icon = null)
     {
         $moduleDirectory = $this->module->getModuleDirectory($this->vendor, $this->moduleName);
 
-        foreach($menuItemsByControllers as $item => $controllers) {
-            foreach($controllers as $key => $controller) {
+        foreach ($menuItemsByControllers as $item => $controllers) {
+            foreach ($controllers as $key => $controller) {
                 $menuItemsByControllers[$item][$key] = $this->module->getBackendControllerName($this->vendor, $this->moduleName, $controller);
             }
         }
 
-        if (!empty($icon) && is_file($moduleDirectory.$icon)) {
-            $icon = $moduleDirectory.$icon;
+        if (!empty($icon) && is_file($moduleDirectory . $icon)) {
+            $icon = $moduleDirectory . $icon;
         }
 
         $this->managerMenu->extendMenu($firstLevelName, $menuItemsByControllers, $icon);
@@ -221,11 +221,11 @@ abstract class AbstractInit
 
     /**
      * Добавление элемента меню быстрого редактирования для администратора.
-     * 
+     *
      * @param string $dataProperty data атрибут который должен быть у html элемента, и при наведении на который будет
      * открываться данное меню
      * @param array ...$menuItems массив описаний ссылок меню
-     * 
+     *
      * @example $this->extendBackendMenu('property', [
             'controller' => 'Vendor.Module.Controller',
             'translation' => 'translation_var_add',
@@ -237,8 +237,10 @@ abstract class AbstractInit
             ],
             'action' => 'edit',
         ]);
-     * При наведении на элемент с атрибутом data-property="1" будут построены ссылки на добавление сущности через 
+     * При наведении на элемент с атрибутом data-property="1" будут построены ссылки на добавление сущности через
      * контроллер Vendor.Module.Controller и на редактирование с GET параметром id=1 (указанным в data-property).
+     *
+     * @param array<string, mixed> ...$menuItems
      */
     protected function addFastMenuItem($dataProperty, ...$menuItems)
     {
@@ -303,10 +305,10 @@ abstract class AbstractInit
      * Создание таблицы новой сущности. Саму сущность регистрировать нигде не нужно,
      * просто вызываем по неймспейсу из EntityFactory
      *
-     * @var string $entityClassName Имя класса сущности, которая создается модулем
-     * @var array $fields массив объектов Okay\Core\Modules\EntityField, описывающих поля таблицы
+     * @param class-string<Entity> $entityClassName Имя класса сущности, которая создается модулем
+     * @param list<EntityField> $fields массив объектов Okay\Core\Modules\EntityField, описывающих поля таблицы
      * @throws \Exception
-     * 
+     *
      * @example $this->migrateEntityTable(MyEntityClass::class, [
             (new EntityField('id'))->setIndexPrimaryKey()->setTypeInt(11, false)->setAutoIncrement(),
             (new EntityField('name'))->setTypeVarchar(255)->setIsLang(),
@@ -321,8 +323,8 @@ abstract class AbstractInit
 
     /**
      * @param string $tableName название таблицы
-     * @param array $fields массив объектов Okay\Core\Modules\EntityField, описывающих поля таблицы
-     * 
+     * @param list<EntityField> $fields массив объектов Okay\Core\Modules\EntityField, описывающих поля таблицы
+     *
      * Создание таблицы в БД. В основном используется для создания таблиц связей.
      * Таблицы сущностей лучше создавать через migrateEntityTable()
      */
@@ -355,7 +357,7 @@ abstract class AbstractInit
     /**
      * @param $entityClassName
      * @param $fieldName
-     * 
+     *
      * Регистрация дополнительных полей к существующим сущностям.
      * Это поле не обязательно должно быть в таблице сущности, это может быть дополнительный запрос и результат как колонка сущности
      */
@@ -367,8 +369,8 @@ abstract class AbstractInit
     /**
      * Метод необходим для инициализации логики добавляет новые столбцов в переменную для сортировки по умолчанию или переопределяет переменной дефолтных полей сортировки у необходимой сущности.
      *
-     * @param $entityClassName рабочая сущночть
-     * @param array $newOrderFields массив со значениями полями сортировки
+     * @param class-string<Entity> $entityClassName рабочая сущночть
+     * @param list<string> $newOrderFields массив со значениями полями сортировки
      * @param bool $redefine признак о необходимости полного переопределения значения переменной
      *
      * @example $this->setDefaultOrderFields(
@@ -387,9 +389,9 @@ abstract class AbstractInit
     }
 
     /**
-     * Регистрация ленговой таблицы для указанного Entity. Нужно в случае, если стандартный Entity был не мультиязычна, 
+     * Регистрация ленговой таблицы для указанного Entity. Нужно в случае, если стандартный Entity был не мультиязычна,
      * а нужно чтобы он стал мультиязычным.
-     * 
+     *
      * @param $entityClassName
      * @param $langTable
      * @param $langObject
@@ -417,12 +419,12 @@ abstract class AbstractInit
     {
         $this->entityMigrator->migrateField($entityClassName, $field);
     }
-    
+
     /**
      * Имя контроллера, который будет в админке обрабатываться как основной.
      * Когда со списка модулей переход внутрь модуля, попадаем на этот контроллер
      *
-     * @param $className 
+     * @param $className
      * @throws \Exception
      */
     protected function setBackendMainController($className)
@@ -476,7 +478,6 @@ abstract class AbstractInit
     protected function registerBackendController($controllerClass)
     {
         if (is_dir($this->module->getBackendControllersDirectory($this->vendor, $this->moduleName))) {
-
             // Вырезаем namespace из названия контроллера
             $controllerClass = str_replace(
                 $this->module->getBackendControllersNamespace($this->vendor, $this->moduleName) . '\\',
@@ -508,14 +509,14 @@ abstract class AbstractInit
 
         /** @var ModulesEntity $modulesEntity */
         $modulesEntity = $this->entityFactory->get(ModulesEntity::class);
-        
+
         $modulesEntity->update($this->moduleId, ['type' => $type]);
     }
 
     /**
      * Метод возвращает массив котроллеров модулей для админки
      *
-     * @return array
+     * @return list<string>
      */
     public function getBackendControllers()
     {
@@ -538,13 +539,13 @@ abstract class AbstractInit
 
         $backendControllersNamespace = $this->module->getBackendControllersNamespace($this->vendor, $this->moduleName);
         if (!is_subclass_of($backendControllersNamespace . '\\' . $className, IndexAdmin::class)) {
-            throw new \Exception("Controller \"$fullControllerName\" must be a subclass of \"". IndexAdmin::class . "\"");
+            throw new \Exception("Controller \"$fullControllerName\" must be a subclass of \"" . IndexAdmin::class . "\"");
         }
-        
+
         if (!method_exists($backendControllersNamespace . '\\' . $className, 'fetch')) {
             throw new \Exception("Controller \"$fullControllerName\" must have a method \"fetch()\"");
         }
-        
+
         return true;
     }
 

@@ -1,0 +1,33 @@
+# https://editorconfig.org
+root = true
+
+# --- Базові налаштування для всіх файлів ---
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 2
+end_of_line = lf              # Важливо для Docker/DDEV! Примусово ставимо Linux-переклади рядків.
+insert_final_newline = true   # Git любить порожній рядок наприкінці файлу
+trim_trailing_whitespace = true # Видаляє зайві пробіли в кінці рядків під час збереження
+
+# --- Налаштування для WEB (Frontend) ---
+# Для JSON, YAML, JS, HTML часто зручніше 2 пробіли (економить місце на екрані ноутбука)
+[*.{json,yaml,yml,js,css,scss,html}]
+indent_size = 2
+
+# --- Налаштування для PHP (Backend) ---
+# Стандарт PSR-12 вимагає 4 пробіли
+[*.php]
+indent_size = 4
+
+# --- Налаштування для Smarty ---
+# Зазвичай у CMS використовують 4 пробіли (як у PHP) або таби.
+# Ставимо 4 пробіли для сумісності.
+[*.{tpl,tpl.php}]
+indent_size = 4
+
+[*Dockerfile*]
+indent_size = 4
+
+[*.{md,mdc}]
+trim_trailing_whitespace = false

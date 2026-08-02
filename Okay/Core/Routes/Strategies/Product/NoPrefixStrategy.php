@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Routes\Strategies\Product;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Routes\Strategies\AbstractRouteStrategy;
@@ -11,10 +9,10 @@ use Okay\Entities\ProductsEntity;
 
 class NoPrefixStrategy extends AbstractRouteStrategy
 {
-
     /** @var ProductsEntity */
     private $productsEntity;
-    
+
+    /** @var array{string, array<string, string>, array<string, string>} */
     private $mockRouteParams = ['{$url}/?{$variantId}', ['{$url}' => '', '{$variantId}' => ''], []];
 
     public function __construct()
@@ -24,8 +22,13 @@ class NoPrefixStrategy extends AbstractRouteStrategy
 
         $this->productsEntity = $entityFactory->get(ProductsEntity::class);
     }
-    
-    public function generateRouteParams($url) : array
+
+    /**
+     * @param string $url
+     *
+     * @return array{string, array<string, string>, array<string, string>}
+     */
+    public function generateRouteParams($url): array
     {
         list($productUrl, $variantId) = $this->matchProductUrlFromUri($url);
         $productId = $this->productsEntity->col('id')->get((string) $productUrl);
@@ -47,9 +50,17 @@ class NoPrefixStrategy extends AbstractRouteStrategy
         ];
     }
 
-    private function matchProductUrlFromUri($url) : array
+    /**
+     * @param string $url
+     *
+     * @return list{string, string}
+     */
+    private function matchProductUrlFromUri($url): array
     {
         $urlParams = explode('/', trim($url, '/'));
-        return array_pad($urlParams, 2, '');
+        return [
+            $urlParams[0],
+            $urlParams[1] ?? '',
+        ];
     }
 }

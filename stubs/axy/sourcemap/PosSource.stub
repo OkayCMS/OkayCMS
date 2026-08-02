@@ -1,0 +1,14 @@
+<?php
+
+namespace axy\sourcemap;
+
+/**
+ * Stub file for PHPStan to recognize PosSource class and its properties
+ *
+ * @property int $line Line number in source file
+ * @property int $column Column number in source file
+ * @property string $fileName Source file name
+ */
+class PosSource
+{
+}

@@ -1,14 +1,12 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 
-class CurrenciesEntity extends Entity {
-    
+class CurrenciesEntity extends Entity
+{
     protected static $fields = [
         'id',
         'code',
@@ -35,7 +33,7 @@ class CurrenciesEntity extends Entity {
     protected static $alternativeIdField = 'code';
 
     private $mainCurrency;
-    
+
     public function getMainCurrency()
     {
         if (empty($this->mainCurrency)) {

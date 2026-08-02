@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Core\Request;
 use Okay\Core\QueryFactory;
@@ -12,7 +10,6 @@ use Okay\Entities\ProductsEntity;
 
 class ImportLogAdmin extends IndexAdmin
 {
-
     /**
      * @var Request
      */
@@ -65,26 +62,26 @@ class ImportLogAdmin extends IndexAdmin
         $this->design->assign('current_limit', $filter['limit']);
 
         // Текущий фильтр
-        if($f = $this->request->get('filter', 'string')) {
+        if ($f = $this->request->get('filter', 'string')) {
             $filter['status'] = $f;
             $this->design->assign('filter', $f);
         }
 
         // Поиск
         $keyword = $this->request->get('keyword');
-        if(!empty($keyword)) {
+        if (!empty($keyword)) {
             $filter['keyword'] = $keyword;
             $this->design->assign('keyword', $keyword);
         }
 
         $logs_count = $this->getLogs($filter);
         // Показать все страницы сразу
-        if($this->request->get('page') == 'all') {
+        if ($this->request->get('page') == 'all') {
             $filter['limit'] = $logs_count;
         }
 
-        if($filter['limit']>0) {
-            $pages_count = ceil($logs_count/$filter['limit']);
+        if ($filter['limit'] > 0) {
+            $pages_count = ceil($logs_count / $filter['limit']);
         } else {
             $pages_count = 0;
         }
@@ -93,21 +90,21 @@ class ImportLogAdmin extends IndexAdmin
         $this->design->assign('pages_count', $pages_count);
         $this->design->assign('current_page', $filter['page']);
         $logs = $this->getLogs($filter, false);
-        if(!empty($logs)) {
+        if (!empty($logs)) {
             $products_ids = array();
-            foreach($logs as $l) {
+            foreach ($logs as $l) {
                 $products_ids[] = $l->product_id;
             }
 
             $products = array();
             $images_ids = array();
-            foreach($this->productsEntity->find(['id'=>array_unique($products_ids)]) as $p) {
+            foreach ($this->productsEntity->find(['id' => array_unique($products_ids)]) as $p) {
                 $products[$p->id] = $p;
                 $images_ids[] = $p->main_image_id;
             }
 
             if (!empty($images_ids)) {
-                $images = $this->imagesEntity->find(['id'=>$images_ids]);
+                $images = $this->imagesEntity->find(['id' => $images_ids]);
                 foreach ($images as $image) {
                     if (isset($products[$image->product_id])) {
                         $products[$image->product_id]->image = $image;
@@ -127,7 +124,8 @@ class ImportLogAdmin extends IndexAdmin
     }
 
     /*Выборка лога последнего успешного импорта*/
-    private function getLogs($filter = array(), $is_count = true) {
+    private function getLogs($filter = array(), $is_count = true)
+    {
         $keyword_filter = '';
         $status_filter = '';
         $sql_limit = '';
@@ -154,14 +152,14 @@ class ImportLogAdmin extends IndexAdmin
         } else {
             $select = 'il.*';
             $limit = 100;
-            if(isset($filter['limit'])) {
+            if (isset($filter['limit'])) {
                 $limit = max(1, intval($filter['limit']));
             }
-            if(isset($filter['page'])) {
+            if (isset($filter['page'])) {
                 $page = max(1, intval($filter['page']));
             }
 
-            $firstParam  = ($page-1)*$limit;
+            $firstParam  = ($page - 1) * $limit;
             $secondParam = $limit;
             $sql_limit = " LIMIT $firstParam, $secondParam ";
         }
@@ -186,5 +184,4 @@ class ImportLogAdmin extends IndexAdmin
             return $this->db->results();
         }
     }
-
 }

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Requests;
-
 
 use Okay\Core\Phone;
 use Okay\Core\Request;
@@ -23,17 +21,17 @@ class BackendUsersRequest
 
     public function postUser()
     {
-        $user = new \stdClass;
+        $user = new \stdClass();
         $user->id = $this->request->post('id', 'integer');
         $user->name = $this->request->post('name');
         $user->last_name = $this->request->post('last_name');
         $user->email = $this->request->post('email');
         $user->phone = Phone::toSave($this->request->post('phone'));
         $user->group_id = $this->request->post('group_id');
-    
+
         return ExtenderFacade::execute(__METHOD__, $user, func_get_args());
     }
-    
+
     public function postCheck()
     {
         $check = (array) $this->request->post('check');

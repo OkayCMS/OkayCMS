@@ -15,14 +15,17 @@ $(document).on('click', '.fn_fast_order_button', function (e) {
 
     $("#fast_order_variant_id").val(variant);
 
-    $.fancybox.open({
-        src: '#fn_fast_order',
-        type : 'inline'
-    });
+    if (typeof $.fancybox !== 'undefined' && typeof $.fancybox.open === 'function') {
+        $.fancybox.open({
+            src: '#fn_fast_order',
+            type : 'inline'
+        });
+    }
 });
 
-function sendAjaxFastOrderForm() {
-    
+function sendAjaxFastOrderForm()
+{
+
     let $form      = $("#fn_fast_order"),
         action     = $form.attr('action'),
         $errorBlock = $form.find('.fn_fast_order_errors');
@@ -32,11 +35,10 @@ function sendAjaxFastOrderForm() {
         type: 'post',
         data: $form.serialize(),
         dataType: 'json'
-    }).done(function(response) {
+    }).done(function (response) {
         if (response.hasOwnProperty('success') && response.hasOwnProperty('redirect_location')) {
             window.location = response.redirect_location;
         } else if (response.hasOwnProperty('errors')) {
-
             if (typeof resetFastOrderCaptcha === "function") {
                 resetFastOrderCaptcha();
             }
@@ -45,10 +47,9 @@ function sendAjaxFastOrderForm() {
                 errorString += '<div>' + response.errors[error] + '</div>';
             }
             $errorBlock.html(errorString).show();
-            
         }
     });
-    
+
 }
 
 

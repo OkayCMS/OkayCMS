@@ -1,20 +1,15 @@
 <?php
 
-
 namespace Core\Modules\Extender;
-
 
 use Okay\Core\Modules\Extender\AbstractExtender;
 use Okay\Core\Modules\Extender\ExtensionInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class AbstractExtenderTest extends TestCase
 {
-    /**
-     * @param $path
-     * @param $expectedResult
-     * @dataProvider deprecatedMethodsDataProvider
-     */
+    #[DataProvider('deprecatedMethodsDataProvider')]
     public function testLoadDeprecatedMethods($config, $expectedResult)
     {
         /** @var AbstractExtender $abstractExtender */
@@ -22,7 +17,6 @@ class AbstractExtenderTest extends TestCase
 
         $reflector = new \ReflectionClass($abstractExtender);
         $property = $reflector->getProperty('deprecatedMethods');
-        $property->setAccessible(true);
 
         $abstractExtender->setDeprecated($config);
 
@@ -30,17 +24,14 @@ class AbstractExtenderTest extends TestCase
         $property->setValue($abstractExtender, []);
     }
 
-    /**
-     * @param $deprecated
-     * @dataProvider newExtensionsDataProvider
-     */
+    #[DataProvider('newExtensionsDataProvider')]
     public function testNewExtension($deprecated, $expectedResult)
     {
         $abstractExtenderBuilder = $this
             ->getMockBuilder(AbstractExtender::class)
             ->onlyMethods(['checkAndCorrectDeprecatedMethod', 'validateExtension']);
 
-        $abstractExtender = $abstractExtenderBuilder->getMockForAbstractClass();
+        $abstractExtender = $abstractExtenderBuilder->getMock();
         if ($deprecated) {
             $abstractExtender
                 ->expects($this->once())
@@ -59,7 +50,6 @@ class AbstractExtenderTest extends TestCase
 
         $reflector = new \ReflectionClass($abstractExtender);
         $property = $reflector->getProperty('triggers');
-        $property->setAccessible(true);
 
         $abstractExtender->newExtension(
             'Okay\ClassTest1',
@@ -67,8 +57,9 @@ class AbstractExtenderTest extends TestCase
             'Okay\ClassTest2',
             'testMethod2');
 
-        $this->assertEquals($property->getValue(), $expectedResult);
-        $property->setValue([]);
+        // For static properties, pass null as first argument in PHP 8.3+
+        $this->assertEquals($property->getValue(null), $expectedResult);
+        $property->setValue(null, []);
     }
 
     public function testCompileTrigger()
@@ -78,18 +69,13 @@ class AbstractExtenderTest extends TestCase
 
         $reflector = new \ReflectionClass($abstractExtender);
         $method = $reflector->getMethod('compileTrigger');
-        $method->setAccessible(true);
 
         $actualResult = $method->invoke($abstractExtender, 'Okay\TestClass', 'testMethod');
 
         $this->assertEquals('Okay\TestClass::testMethod', $actualResult);
     }
 
-    /**
-     * @param $trigger
-     * @param $expectedResult
-     * @dataProvider correctDeprecatedMethodsDataProvider
-     */
+    #[DataProvider('correctDeprecatedMethodsDataProvider')]
     public function testCheckAndCorrectDeprecatedMethod($trigger, $error, $expectedResult)
     {
         /** @var AbstractExtender $abstractExtender */
@@ -97,7 +83,6 @@ class AbstractExtenderTest extends TestCase
 
         $reflector = new \ReflectionClass($abstractExtender);
         $property = $reflector->getProperty('deprecatedMethods');
-        $property->setAccessible(true);
         $property->setValue($abstractExtender, [
             'Okay\TestClass1::testMethod1' => [
                 ['Okay\TestClass1', 'testMethod1'],
@@ -110,30 +95,34 @@ class AbstractExtenderTest extends TestCase
         ]);
 
         $method = $reflector->getMethod('checkAndCorrectDeprecatedMethod');
-        $method->setAccessible(true);
 
-        switch ($error) {
-            case E_USER_WARNING:
-                $this->expectWarning();
-                break;
+        $restoreHandler = false;
 
-            case E_USER_DEPRECATED:
-                $this->expectDeprecation();
-                break;
+        if ($error === E_USER_WARNING || $error === E_USER_DEPRECATED) {
+            set_error_handler(
+                function (int $errno, string $errstr) use ($error): bool {
+                    if ($errno === $error) {
+                        return true;
+                    }
+
+                    return false;
+                }
+            );
+            $restoreHandler = true;
         }
 
-        $actualResult = $method->invoke($abstractExtender, $trigger);
+        try {
+            $actualResult = $method->invoke($abstractExtender, $trigger);
+        } finally {
+            if ($restoreHandler) {
+                restore_error_handler();
+            }
+        }
 
         $this->assertEquals($actualResult, $expectedResult);
     }
 
-    /**
-     * @param $classExpandable
-     * @param $classExtender
-     * @param $exception
-     * @param $exceptionMessage
-     * @dataProvider extensionsValidateDataProvider
-     */
+    #[DataProvider('extensionsValidateDataProvider')]
     public function testValidateExtension($classExpandable, $classExtender, $exceptionMessage)
     {
         /** @var AbstractExtender $abstractExtender */
@@ -141,7 +130,6 @@ class AbstractExtenderTest extends TestCase
 
         $reflector = new \ReflectionClass($abstractExtender);
         $method = $reflector->getMethod('validateExtension');
-        $method->setAccessible(true);
 
         $actualResult = null;
         try {
@@ -153,30 +141,24 @@ class AbstractExtenderTest extends TestCase
         $this->assertEquals($actualResult, $exceptionMessage);
     }
 
-    /**
-     * @param $trigger
-     * @dataProvider triggersDataProvider
-     */
+    #[DataProvider('triggersDataProvider')]
     public function testExtensionLog($trigger, $expectedResult)
     {
-        $abstractExtender = $this
-            ->getMockBuilder(AbstractExtender::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $abstractExtender = new class extends AbstractExtender {};
 
         $reflector = new \ReflectionClass($abstractExtender);
         $property = $reflector->getProperty('triggers');
-        $property->setAccessible(true);
-        $property->setValue([
-            'Okay\TestClass::testMethod' => ['test']
+        $property->setValue(null, [
+            'Okay\TestClass::testMethod' => ['test'],
         ]);
 
         $actualResult = $abstractExtender::extensionLog($trigger);
 
         $this->assertEquals($actualResult, $expectedResult);
+        $property->setValue(null, []);
     }
 
-    public function deprecatedMethodsDataProvider()
+    public static function deprecatedMethodsDataProvider()
     {
         return [
             'Not empty config' => [
@@ -208,7 +190,7 @@ class AbstractExtenderTest extends TestCase
         ];
     }
 
-    public function newExtensionsDataProvider()
+    public static function newExtensionsDataProvider()
     {
         return [
             'With deprecated method' => [
@@ -236,7 +218,7 @@ class AbstractExtenderTest extends TestCase
         ];
     }
 
-    public function extensionsValidateDataProvider()
+    public static function extensionsValidateDataProvider()
     {
         return [
             'Wrong expandable method' => [
@@ -304,7 +286,7 @@ class AbstractExtenderTest extends TestCase
         ];
     }
 
-    public function triggersDataProvider()
+    public static function triggersDataProvider()
     {
         return [
             'Correct string trigger' => [
@@ -325,7 +307,7 @@ class AbstractExtenderTest extends TestCase
         ];
     }
 
-    public function correctDeprecatedMethodsDataProvider()
+    public static function correctDeprecatedMethodsDataProvider()
     {
         return [
             'Deprecated method with replace' => [

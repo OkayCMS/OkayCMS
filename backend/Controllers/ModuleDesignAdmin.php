@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Core\Modules\Module;
 use Okay\Core\Modules\ModuleDesign;
@@ -19,17 +17,17 @@ class ModuleDesignAdmin extends IndexAdmin
         if (empty($module)) {
             return;
         }
+        /** @var object{vendor: string, module_name: string}&\stdClass $module */
 
         if ($this->request->method('post')) {
             $action = $this->request->post('action');
-            $files  = (array) $this->request->post('check');
+            $files  = array_values(array_filter((array) $this->request->post('check'), 'is_string'));
 
             if (!empty($action) && !empty($files)) {
-                switch($action) {
-                    case 'clone_to_theme': {
+                switch ($action) {
+                    case 'clone_to_theme':
                         $moduleDesign->cloneFileSetToTheme($files, $module->vendor, $module->module_name);
                         break;
-                    }
                 }
             }
 
@@ -41,7 +39,7 @@ class ModuleDesignAdmin extends IndexAdmin
 
         $files = $moduleDesign->getAllFiles($module->vendor, $module->module_name);
 
-        $this->design->assign('files',  $files);
+        $this->design->assign('files', $files);
         $this->design->assign('module', $module);
         $this->response->setContent($this->design->fetch('module_design.tpl'));
     }

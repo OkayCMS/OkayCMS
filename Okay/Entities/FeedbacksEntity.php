@@ -1,15 +1,12 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 
 class FeedbacksEntity extends Entity
 {
-
     protected static $fields = [
         'id',
         'name',
@@ -41,6 +38,7 @@ class FeedbacksEntity extends Entity
     public function add($feedback)
     {
         $feedback = (object)$feedback;
+        /** @var object{date?: string}&\stdClass $feedback */
         $feedback->date = 'now()';
         return parent::add($feedback);
     }
@@ -76,5 +74,4 @@ class FeedbacksEntity extends Entity
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], $orderFields, func_get_args());
     }
-    
 }

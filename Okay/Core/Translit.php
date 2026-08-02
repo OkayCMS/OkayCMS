@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 class Translit
 {
@@ -73,7 +71,7 @@ class Translit
     {
         return self::$translitPairs;
     }
-    
+
     public static function translit($text)
     {
         $res = $text;
@@ -85,7 +83,7 @@ class Translit
 
         $res = preg_replace("/[\s]+/ui", '-', $res);
         $res = preg_replace("/[^a-zA-Z0-9\.\-\_]+/ui", '', $res);
-        $res = strtolower($res);
+        $res = is_scalar($res) ? strtolower((string)$res) : '';
         return $res;
     }
 
@@ -103,12 +101,13 @@ class Translit
 
         $res = preg_replace("/[\s]+/ui", '', $res);
         $res = preg_replace("/[^a-zA-Z0-9]+/ui", '', $res);
-        $res = strtolower($res);
+        $res = is_scalar($res) ? strtolower((string)$res) : '';
         return $res;
     }
 
     //Добавляет к массиву пар для транслита, пары для замены спецсимволов на буквенные обозначения
-    private static function specPairs($pair) {
+    private static function specPairs($pair)
+    {
         foreach (self::$specPairs as $symbol => $alias) {
             $pair['from'][] = $symbol;
             $pair['to'][]   = $alias;
@@ -116,5 +115,4 @@ class Translit
 
         return $pair;
     }
-    
 }

@@ -1,8 +1,6 @@
-<?php 
-
+<?php
 
 namespace Okay\Modules\OkayCMS\DeliveryFields\Extenders;
-
 
 use Okay\Core\Design;
 use Okay\Core\Request;
@@ -12,6 +10,9 @@ use Okay\Entities\OrdersEntity;
 use Okay\Modules\OkayCMS\DeliveryFields\Helpers\DeliveryFieldsHelper;
 use Okay\Modules\OkayCMS\DeliveryFields\Entities\DeliveryFieldsValuesEntity;
 
+/**
+ * @phpstan-type OrderRow object{id: int|string, delivery_id?: int|string|null}&\stdClass
+ */
 class OrdersHelperExtender implements ExtensionInterface
 {
     private DeliveryFieldsValuesEntity $deliveryFieldsValuesEntity;
@@ -42,6 +43,7 @@ class OrdersHelperExtender implements ExtensionInterface
      */
     public function extendFinalCreateOrderProcedure($result, $order)
     {
+        /** @var OrderRow $order */
         if (empty($order->delivery_id)) {
             return;
         }
@@ -64,7 +66,7 @@ class OrdersHelperExtender implements ExtensionInterface
     /**
      * @param $result
      * @param $orderId
-     * @return array|void
+     * @return array<int|string, mixed>|void
      * @throws \Exception
      *
      * Передаємо поля з даними на сторінку замовлення та в лист замовлення.

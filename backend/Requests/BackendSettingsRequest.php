@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Requests;
-
 
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Request;
@@ -37,10 +35,10 @@ class BackendSettingsRequest
     {
         $counters = [];
         if ($this->request->post('counters')) {
-            foreach ($this->request->post('counters') as $n=>$co) {
-                foreach ($co as $i=>$c) {
+            foreach ($this->request->post('counters') as $n => $co) {
+                foreach ($co as $i => $c) {
                     if (empty($counters[$i])) {
-                        $counters[$i] = new \stdClass;
+                        $counters[$i] = new \stdClass();
                     }
                     $counters[$i]->$n = $c;
                 }

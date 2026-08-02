@@ -6,6 +6,11 @@ use Okay\Core\EntityFactory;
 use Okay\Modules\OkayCMS\DeliveryFields\Entities\DeliveryFieldsEntity;
 use Okay\Modules\OkayCMS\DeliveryFields\Entities\DeliveryFieldsValuesEntity;
 
+/**
+ * @phpstan-type DeliveryFieldRow object{visible?: int|string|bool|null, value?: mixed, deliveries?: list<int|string>}&\stdClass
+ * @phpstan-type FieldDeliveryRow object{field_id: int|string, delivery_id: int|string}&\stdClass
+ * @phpstan-type FieldValueRow object{field_id: int|string, value: mixed}&\stdClass
+ */
 class DeliveryFieldsHelper
 {
     private DeliveryFieldsEntity $deliveryFieldsEntity;
@@ -18,8 +23,8 @@ class DeliveryFieldsHelper
     }
 
     /**
-     * @param array $filter
-     * @return array
+     * @param array<string, mixed> $filter
+     * @return array<int|string, DeliveryFieldRow>
      * @throws \Exception
      *
      * Пошук полів з додаванням інформації, яке поле яким способам доставки належить.
@@ -29,6 +34,7 @@ class DeliveryFieldsHelper
         $deliveryFields = $this->deliveryFieldsEntity->mappedBy('id')->find($filter);
         if ($deliveryFields) {
             foreach ($this->deliveryFieldsEntity->getFieldsDeliveries(array_keys($deliveryFields)) as $fieldDelivery) {
+                /** @var FieldDeliveryRow $fieldDelivery */
                 $deliveryFields[$fieldDelivery->field_id]->deliveries[] = $fieldDelivery->delivery_id;
             }
         }
@@ -39,7 +45,7 @@ class DeliveryFieldsHelper
     /**
      * @param int $orderId
      * @param int $deliveryId
-     * @return array
+     * @return array<int|string, DeliveryFieldRow>
      * @throws \Exception
      *
      * Пошук полів для способів доставки зі значеннями для конкретного замовлення (фронт).
@@ -57,6 +63,7 @@ class DeliveryFieldsHelper
                 'order_id' => $orderId,
             ]);
             foreach ($fieldValues as $fieldValue) {
+                /** @var FieldValueRow $fieldValue */
                 $deliveryFields[$fieldValue->field_id]->value = $fieldValue->value;
             }
             foreach ($deliveryFields as $key => $deliveryField) {

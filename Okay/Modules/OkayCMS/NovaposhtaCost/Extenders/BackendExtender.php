@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\NovaposhtaCost\Extenders;
-
 
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
@@ -17,9 +15,11 @@ use Okay\Modules\OkayCMS\NovaposhtaCost\Entities\NPCostDeliveryDataEntity;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPDeliveryDataHelper;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Init\Init;
 
+/**
+ * @phpstan-type VariantVolumeRow object{volume?: int|float|string|null}&\stdClass
+ */
 class BackendExtender implements ExtensionInterface
 {
-    
     private Request $request;
     private EntityFactory $entityFactory;
     private Design $design;
@@ -51,10 +51,10 @@ class BackendExtender implements ExtensionInterface
 
         return ExtenderFacade::execute(__METHOD__, $variant, func_get_args());
     }
-    
+
     /**
-     * @param $variants
-     * @return mixed
+     * @param array<int|string, VariantVolumeRow> $variants
+     * @return array<int|string, VariantVolumeRow>
      * Метод корректирует данные для поля volume, т.к. оно decimal, туда нельзя строку писать
      */
     public function correctVariantsVolume(array $variants)
@@ -67,7 +67,7 @@ class BackendExtender implements ExtensionInterface
 
         return ExtenderFacade::execute(__METHOD__, $variants, func_get_args());
     }
-    
+
     public function getDeliveryDataProcedure($order)
     {
         $moduleId = $this->module->getModuleIdByNamespace(__NAMESPACE__);
@@ -86,8 +86,10 @@ class BackendExtender implements ExtensionInterface
             foreach ($deliveriesEntity->find() as $delivery) {
                 if ($delivery->module_id == $moduleId) {
                     $deliverySettings = unserialize($delivery->settings);
-                    if ($deliverySettings['service_type'] == 'DoorsDoors'
-                        || $deliverySettings['service_type'] == 'WarehouseDoors') {
+                    if (
+                        $deliverySettings['service_type'] == 'DoorsDoors'
+                        || $deliverySettings['service_type'] == 'WarehouseDoors'
+                    ) {
                         $doorsDeliveries[] = $delivery->id;
                     } else {
                         $warehousesDeliveries[] = $delivery->id;
@@ -99,30 +101,29 @@ class BackendExtender implements ExtensionInterface
             $this->design->assign('warehousesDeliveries', $warehousesDeliveries);
         }
     }
-    
+
     public function updateDeliveryDataProcedure($order)
     {
         if (!empty($order->id)) {
-            
             $moduleId = $this->module->getModuleIdByNamespace(__NAMESPACE__);
-            
+
             /** @var NPCostDeliveryDataEntity $npDdEntity */
             $npDdEntity = $this->entityFactory->get(NPCostDeliveryDataEntity::class);
             if (!$npDeliveryData = $npDdEntity->getByOrderId($order->id)) {
                 $npDeliveryData = new \stdClass();
             }
-            
+
             if (!empty($order->delivery_id)) {
                 /** @var DeliveriesEntity $deliveryEntity */
                 $deliveryEntity = $this->entityFactory->get(DeliveriesEntity::class);
                 $delivery = $deliveryEntity->get($order->delivery_id);
-                
+
                 if ($delivery->module_id == $moduleId) {
                     $npDeliveryData->city_id = $this->request->post('novaposhta_city_id');
                     $npDeliveryData->warehouse_id = $this->request->post('novaposhta_warehouse_id');
                     $npDeliveryData->delivery_term = $this->request->post('novaposhta_delivery_term');
                     $npDeliveryData->redelivery = $this->request->post('novaposhta_redelivery');
-                    
+
                     if ($this->request->post('novaposhta_door_delivery')) {
                         $npDeliveryData->warehouse_id = '';
                         if (!$npDeliveryData->city_name = $this->request->post('novaposhta_city_name')) {
@@ -145,7 +146,7 @@ class BackendExtender implements ExtensionInterface
                         $npDeliveryData->apartment = '';
                         $npDeliveryData->warehouse_id = $this->request->post('novaposhta_warehouse_id');
                     }
-                    
+
                     if (!empty($npDeliveryData->id)) {
                         $npDdEntity->update($npDeliveryData->id, $npDeliveryData);
                     } else {
@@ -158,8 +159,8 @@ class BackendExtender implements ExtensionInterface
             } elseif (!empty($npDeliveryData->id)) {
                 $npDdEntity->delete($npDeliveryData->id);
             }
-            
-            
+
+
             $this->design->assign('novaposhta_delivery_data', $npDeliveryData);
         }
     }

@@ -1,21 +1,12 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 use Okay\Core\Settings;
 use Okay\Core\ServiceLocator;
 
 class Validator
 {
-
-    private $denied = [
-        "<script", "</script",
-        "<iframe", "</iframe",
-
-    ];
-
     private $settings;
     private $recaptcha;
 
@@ -87,7 +78,7 @@ class Validator
         // ...
         return true;
     }
-    
+
     public function isDomain($url = "", $is_required = false)
     {
         // general
@@ -127,33 +118,31 @@ class Validator
      */
     public function isSafe($src = "", $is_required = false)
     {
-        if (!empty($src)) {
-            foreach ($this->denied as $item) {
-                if (strpos($src, $item) !== false) {
-                    return false;
-                }
-            }
-        } elseif ($is_required) {
-            return false;
+        $src = (string)$src;
+
+        if ($src === '') {
+            return !$is_required;
         }
-        return true;
+
+        return $src === strip_tags($src);
     }
 
     public function verifyCaptcha($form, $captcha_code = '')
     {
         if ($this->settings->$form) {
-            if ($this->settings->captcha_type == 'default'){
-                if ($_SESSION[$form] != $captcha_code || empty($captcha_code)){
+            if ($this->settings->captcha_type == 'default') {
+                if ($_SESSION[$form] != $captcha_code || empty($captcha_code)) {
                     return false;
                 }
                 return true;
-            } elseif ($this->settings->captcha_type == 'v2' 
+            } elseif (
+                $this->settings->captcha_type == 'v2'
                 || $this->settings->captcha_type == 'invisible'
-                || $this->settings->captcha_type == 'v3'){
+                || $this->settings->captcha_type == 'v3'
+            ) {
                 return $this->recaptcha->check();
             }
         }
         return true;
     }
-
 }

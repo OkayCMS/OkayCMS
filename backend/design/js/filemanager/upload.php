@@ -6,10 +6,51 @@ try {
     }
 
     include 'include/utils.php';
+    require_once 'include/okay_access.php';
+
+    if (!function_exists('sendUploadErrorResponse')) {
+        function sendUploadErrorResponse(string $message, int $statusCode = 200): void
+        {
+            $files = array();
+            $names = $_FILES['files']['name'] ?? array();
+
+            if (is_array($names)) {
+                foreach ($names as $i => $name) {
+                    $files[] = array(
+                        'name' => $name,
+                        'error' => $message,
+                        'size' => $_FILES['files']['size'][$i] ?? 0,
+                        'type' => $_FILES['files']['type'][$i] ?? '',
+                    );
+                }
+            } elseif (is_string($names) && $names !== '') {
+                $files[] = array(
+                    'name' => $names,
+                    'error' => $message,
+                    'size' => $_FILES['files']['size'] ?? 0,
+                    'type' => $_FILES['files']['type'] ?? '',
+                );
+            }
+
+            if ($files === array()) {
+                $files[] = array(
+                    'name' => '',
+                    'error' => $message,
+                    'size' => 0,
+                    'type' => '',
+                );
+            }
+
+            $payload = json_encode(array('files' => $files));
+            response(is_string($payload) ? $payload : '{"files":[]}', $statusCode, array(
+                'Content-Type' => 'application/json',
+            ))->send();
+            exit;
+        }
+    }
 
     if ($_SESSION['RF']["verify"] != "RESPONSIVEfilemanager") {
-        response(trans('forbidden') . AddErrorLocation(), 403)->send();
-        exit;
+        sendUploadErrorResponse(trans('forbidden') . AddErrorLocation(), 403);
     }
 
     include 'include/mime_type_lib.php';
@@ -26,18 +67,18 @@ try {
 
     if (isset($_POST["fldr"])) {
         $_POST['fldr'] = str_replace('undefined', '', $_POST['fldr']);
-        $storeFolder = $source_base . $_POST["fldr"];
-        $storeFolderThumb = $thumb_base . $_POST["fldr"];
     } else {
         return;
     }
 
-    $fldr = rawurldecode(trim(strip_tags($_POST['fldr']), "/") . "/");
+    $fldr = normalizeFilemanagerUploadFolder($_POST['fldr']);
 
-    if (!checkRelativePath($fldr)) {
-        response(trans('wrong path') . AddErrorLocation())->send();
-        exit;
+    if ($fldr === null) {
+        sendUploadErrorResponse(trans('wrong path') . AddErrorLocation());
     }
+
+    $storeFolder = $source_base . $fldr;
+    $storeFolderThumb = $thumb_base . $fldr;
 
     $path = $storeFolder;
     $cycle = true;
@@ -64,35 +105,13 @@ try {
         $messages = trans("Upload_error_messages");
     }
 
-    // make sure the length is limited to avoid DOS attacks
-    if (isset($_POST['url']) && strlen($_POST['url']) < 2000) {
-        $url = $_POST['url'];
-        $urlPattern = '/^(https?:\/\/)?([\da-z\.-]+\.[a-z\.]{2,6}|[\d\.]+)([\/?=&#]{1}[\da-z\.-]+)*[\/\?]?$/i';
+    if (isset($_POST['url'])) {
+        http_response_code(403);
+        sendUploadErrorResponse(trans('forbidden') . AddErrorLocation(), 403);
+    }
 
-        if (preg_match($urlPattern, $url)) {
-            $temp = tempnam('/tmp','RF');
-
-            $ch = curl_init($url);
-            $fp = fopen($temp, 'wb');
-            curl_setopt($ch, CURLOPT_FILE, $fp);
-            curl_setopt($ch, CURLOPT_HEADER, 0);
-            curl_exec($ch);
-            if (curl_errno($ch)) {
-                curl_close($ch);
-                throw new Exception('Invalid URL');
-            }
-            curl_close($ch);
-            fclose($fp);
-
-            $_FILES['files'] = array(
-                'name' => array(basename($_POST['url'])),
-                'tmp_name' => array($temp),
-                'size' => array(filesize($temp)),
-                'type' => null
-            );
-        } else {
-            throw new Exception('Is not a valid URL.');
-        }
+    if (empty($_FILES['files']['name'][0])) {
+        sendUploadErrorResponse('No file was uploaded', 400);
     }
 
 
@@ -103,37 +122,43 @@ try {
             $mime_type = mime_content_type($_FILES['files']['tmp_name'][0]);
         } elseif (function_exists('finfo_open')) {
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $mime_type = finfo_file($finfo, $_FILES['files']['tmp_name'][0]);
+            $mime_type = $finfo === false ? false : finfo_file($finfo, $_FILES['files']['tmp_name'][0]);
         } else {
             $mime_type = get_file_mime_type($_FILES['files']['tmp_name'][0]);
+        }
+        if ($mime_type === false) {
+            $mime_type = '';
         }
         $extension = get_extension_from_mime($mime_type);
 
         if ($extension == 'so' || $extension == '' || $mime_type == "text/troff") {
-            $extension = $info['extension'];
+            $extension = $info['extension'] ?? '';
         }
         $filename = $info['filename'] . "." . $extension;
     } else {
         $filename = $_FILES['files']['name'][0];
     }
     $_FILES['files']['name'][0] = fix_filename($filename, $config);
+    $extension = fix_strtolower(pathinfo($_FILES['files']['name'][0], PATHINFO_EXTENSION));
+    if (!check_extension($extension, $config)) {
+        sendUploadErrorResponse(trans('wrong extension') . AddErrorLocation());
+    }
+    if ($extension === 'svg') {
+        $uploadedFile = $_FILES['files']['tmp_name'][0] ?? '';
+        if (!is_string($uploadedFile) || !sanitizeFilemanagerSvg($uploadedFile)) {
+            sendUploadErrorResponse(trans('wrong extension') . AddErrorLocation());
+        }
+    }
 
-    if(!$_FILES['files']['type'][0]){
+    if (!$_FILES['files']['type'][0]) {
         $_FILES['files']['type'][0] = $mime_type;
-
     }
     // LowerCase
     if ($config['lower_case']) {
         $_FILES['files']['name'][0] = fix_strtolower($_FILES['files']['name'][0]);
     }
     if (!checkresultingsize($_FILES['files']['size'][0])) {
-    	if ( !isset($upload_handler->response['files'][0]) ) {
-            // Avoid " Warning: Creating default object from empty value ... "
-            $upload_handler->response['files'][0] = new stdClass();
-        }
-        $upload_handler->response['files'][0]->error = sprintf(trans('max_size_reached'), $config['MaxSizeTotal']) . AddErrorLocation();
-        echo json_encode($upload_handler->response);
-        exit();
+        sendUploadErrorResponse(sprintf(trans('max_size_reached'), $config['MaxSizeTotal']) . AddErrorLocation());
     }
 
     $uploadConfig = array(
@@ -142,7 +167,7 @@ try {
         'storeFolderThumb' => $storeFolderThumb,
         'ftp' => $ftp,
         'upload_dir' => dirname($_SERVER['SCRIPT_FILENAME']) . '/' . $storeFolder,
-        'upload_url' => $config['base_url'] . $config['upload_dir'] . $_POST['fldr'],
+        'upload_url' => $config['base_url'] . $config['upload_dir'] . $fldr,
         'mkdir_mode' => $config['folderPermission'],
         'max_file_size' => $config['MaxSizeUpload'] * 1024 * 1024,
         'correct_image_extensions' => true,

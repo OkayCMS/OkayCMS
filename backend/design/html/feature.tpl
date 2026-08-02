@@ -63,7 +63,7 @@
                         {$btr->feature_auto_value_id_exists|escape}
                     {elseif $message_error == 'forbidden_name'}
                         {$btr->feature_forbidden_name|escape}:<BR>
-                        {implode(", ", $forbidden_names)}
+                        {$forbidden_names|join:", "}
                     {else}
                         {$message_error|escape}
                     {/if}
@@ -497,7 +497,7 @@
                             {/section}
                         </select>
                     </div>
-                    
+
                     <div class="row">
                         <div class="col-lg-12 col-md-12 col-sm 12 txt_center">
                             {include file='pagination.tpl'}

@@ -10,8 +10,14 @@ class RestoreBackupErrorVO
 
     private string $errorLangDirective;
 
+    /**
+     * @var list<mixed>
+     */
     private array $errorTextParams;
 
+    /**
+     * @param list<mixed> $errorTextParams
+     */
     public function __construct(int $errorCode, array $errorTextParams = [])
     {
         switch ($errorCode) {
@@ -29,7 +35,7 @@ class RestoreBackupErrorVO
     }
 
     /**
-     * @return array
+     * @return list<mixed>
      */
     public function getErrorTextParams(): array
     {

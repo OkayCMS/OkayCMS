@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\Rozetka\Init;
-
 
 use Okay\Admin\Helpers\BackendExportHelper;
 use Okay\Admin\Helpers\BackendImportHelper;
@@ -18,9 +16,9 @@ use Okay\Modules\OkayCMS\Rozetka\Extenders\BackendExtender;
 
 class Init extends AbstractInit
 {
-    const TO_FEED_FIELD = 'to__okaycms__rozetka';
-    const FILTER_FEEDS  = 'okaycms__rozetka__feeds';
-    const PERMISSION    = 'okaycms__rozetka';
+    public const TO_FEED_FIELD = 'to__okaycms__rozetka';
+    public const FILTER_FEEDS  = 'okaycms__rozetka__feeds';
+    public const PERMISSION    = 'okaycms__rozetka';
 
     public function install()
     {
@@ -52,11 +50,12 @@ class Init extends AbstractInit
         $this->registerBackendController('RozetkaXmlAdmin');
         $this->addBackendControllerPermission('RozetkaXmlAdmin', self::PERMISSION);
 
-        $this->addBackendBlock('import_fields_association',
+        $this->addBackendBlock(
+            'import_fields_association',
             'import_fields_association.tpl',
-            function(
+            function (
                 RozetkaFeedsEntity $feedsEntity,
-                Design             $design
+                Design $design
             ) {
                 $design->assign('rozetkaFeeds', $feedsEntity->find());
             }

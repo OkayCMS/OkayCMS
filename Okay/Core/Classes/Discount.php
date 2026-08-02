@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Classes;
-
 
 use Okay\Core\Modules\Extender\ExtenderFacade;
 
@@ -32,10 +30,10 @@ class Discount
     /** @var string|int|float */
     public $percentDiscount;
 
-    /** @var array */
+    /** @var array<string, string> */
     public $lang = [];
 
-    /** @var array */
+    /** @var array<string, string> */
     public $langParts = [];
 
     /** @var string */
@@ -47,7 +45,7 @@ class Discount
     /**
      * @param string $entity
      * @param string|int $entityId
-     * @return object
+     * @return object{id?: string|int|null, entity: string, entity_id: string|int, type: string, value: string|int|float, from_last_discount: int, name: string, description: string}&\stdClass
      */
     public function getForDB($entity, $entityId)
     {
@@ -69,25 +67,30 @@ class Discount
      */
     public function calculate($undiscountedInitialPrice)
     {
+        $undiscountedInitialPrice = (float)$undiscountedInitialPrice;
+        $value = (float)$this->value;
+        $priceBeforeDiscount = (float)$this->priceBeforeDiscount;
+
         switch ($this->type) {
             case 'absolute':
                 $this->absoluteDiscount = $this->value;
-                $this->percentDiscount = round($this->absoluteDiscount / ($undiscountedInitialPrice / 100), 2);
+                $this->percentDiscount = round((float)$this->absoluteDiscount / ($undiscountedInitialPrice / 100), 2);
                 break;
 
             case 'percent':
                 if ($this->fromLastDiscount) {
-                    $this->absoluteDiscount = $this->priceBeforeDiscount * ($this->value / 100);
-                    $this->percentDiscount = round($this->absoluteDiscount / ($undiscountedInitialPrice / 100), 2);
+                    $this->absoluteDiscount = $priceBeforeDiscount * ($value / 100);
+                    $this->percentDiscount = round((float)$this->absoluteDiscount / ($undiscountedInitialPrice / 100), 2);
                 } else {
-                    $this->absoluteDiscount = $undiscountedInitialPrice * ($this->value / 100);
+                    $this->absoluteDiscount = $undiscountedInitialPrice * ($value / 100);
                     $this->percentDiscount = $this->value;
                 }
                 break;
         }
-        $this->priceAfterDiscount = $this->priceBeforeDiscount - $this->absoluteDiscount;
-        if ($this->priceAfterDiscount < 0)
+        $this->priceAfterDiscount = $priceBeforeDiscount - (float)$this->absoluteDiscount;
+        if ($this->priceAfterDiscount < 0) {
             $this->priceAfterDiscount = 0;
+        }
         ExtenderFacade::execute(__METHOD__, $this, func_get_args());
     }
 }

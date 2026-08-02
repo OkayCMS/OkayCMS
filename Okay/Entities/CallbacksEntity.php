@@ -1,14 +1,11 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 
 class CallbacksEntity extends Entity
 {
-
     protected static $fields = [
         'id',
         'name',
@@ -34,12 +31,12 @@ class CallbacksEntity extends Entity
     protected static $tableAlias = 'c';
     protected static $langTable;
     protected static $langObject;
-    
+
     public function add($callback)
     {
         $callback = (object)$callback;
+        /** @var object{date?: string}&\stdClass $callback */
         $callback->date = 'now()';
         return parent::add($callback);
     }
-    
 }

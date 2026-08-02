@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\Banners\Backend\Controllers;
-
 
 use Okay\Admin\Controllers\IndexAdmin;
 use Okay\Modules\OkayCMS\Banners\Entities\BannersEntity;
@@ -28,9 +26,11 @@ class BannerAdmin extends IndexAdmin
 
         /*Принимаем данные о группе баннеров*/
         if ($this->request->method('POST')) {
-
             $banner = $bannersRequest->postBanner();
-            if (!empty($banner->as_individual_shortcode) && ($b = $bannersEntity->findOne(['group_name' => $banner->group_name])) && $b->id!=$banner->id) {
+            /** @var object{id?: int|string|null, group_name: string, as_individual_shortcode?: int|string|bool|null}&\stdClass $banner */
+            $shortcodeBanner = $bannersEntity->findOne(['group_name' => $banner->group_name]);
+            /** @var (object{id: int|string}&\stdClass)|false $shortcodeBanner */
+            if (!empty($banner->as_individual_shortcode) && $shortcodeBanner !== false && $shortcodeBanner->id != $banner->id) {
                 $this->design->assign('message_error', 'shortcode_exists');
             } else {
                 if (empty($banner->id)) {
@@ -54,16 +54,16 @@ class BannerAdmin extends IndexAdmin
             if ($bannerSlideId = $this->request->get('banner_slide_id')) {
                 list($bannerId, $slideId) = explode(':', $bannerSlideId);
             }
-            
+
             $banner   = $bannersHelper->getBanner((int)$bannerId);
             $banner   = $bannersHelper->getSelectedEntities($banner);
         }
 
-        $this->design->assign('banner',     $banner);
+        $this->design->assign('banner', $banner);
         $this->design->assign('categories', $categories);
-        $this->design->assign('brands',     $brands);
-        $this->design->assign('pages',      $pages);
-        
+        $this->design->assign('brands', $brands);
+        $this->design->assign('pages', $pages);
+
         $this->response->setContent($this->design->fetch('banner.tpl'));
     }
 }

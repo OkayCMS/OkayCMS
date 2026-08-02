@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\WayForPay\Controllers;
-
 
 use Okay\Core\Money;
 use Okay\Core\Notify;
@@ -32,8 +30,9 @@ class CallbackController extends AbstractController
         ];
 
         $this->response->setContentType(RESPONSE_TEXT);
-        
-        $data = json_decode(file_get_contents("php://input"));
+
+        $rawCallback = file_get_contents("php://input");
+        $data = json_decode($rawCallback === false ? '' : $rawCallback);
         if (empty($data->orderReference)) {
             $this->response->setContent("Wrong data")->setStatusCode(400);
             $this->response->sendContent();

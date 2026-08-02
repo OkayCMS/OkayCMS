@@ -1,14 +1,12 @@
 <?php
 
-
 namespace Okay\Core\Routes;
-
 
 use Okay\Core\Routes\Strategies\AllProducts\DefaultStrategy;
 
 class AllProductsRoute extends AbstractRoute
 {
-    const SLASH_END = 'all_products_routes_template_slash_end';
+    public const SLASH_END = 'all_products_routes_template_slash_end';
 
     public function hasSlashAtEnd()
     {

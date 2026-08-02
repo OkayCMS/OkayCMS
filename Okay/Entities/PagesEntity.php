@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
@@ -10,7 +8,6 @@ use Okay\Core\Translit;
 
 class PagesEntity extends Entity
 {
-
     // Системные url
     private $systemPages = [
         '',
@@ -54,7 +51,7 @@ class PagesEntity extends Entity
     protected static $langTable = 'pages';
     protected static $tableAlias = 'p';
     protected static $alternativeIdField = 'url';
-    
+
     public function getSystemPages()
     {
         return $this->systemPages;
@@ -77,7 +74,7 @@ class PagesEntity extends Entity
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], $this->getResult(), func_get_args());
     }
-    
+
     public function delete($ids)
     {
         $ids = (array)$ids;
@@ -128,6 +125,7 @@ class PagesEntity extends Entity
         $translit = $this->serviceLocator->getService(Translit::class);
 
         $page = (object)$page;
+        /** @var object{name: string, url?: string|null}&\stdClass $page */
         if (empty($page->url)) {
             $page->url = $translit->translit($page->name);
             $page->url = str_replace('.', '', $page->url);
@@ -136,10 +134,10 @@ class PagesEntity extends Entity
         $page->url = preg_replace("/[\s]+/ui", '', $page->url);
 
         while ($this->get((string)$page->url)) {
-            if(preg_match('/(.+)([0-9]+)$/', $page->url, $parts)) {
-                $page->url = $parts[1].''.($parts[2]+1);
+            if (preg_match('/(.+)([0-9]+)$/', $page->url, $parts)) {
+                $page->url = $parts[1] . '' . ($parts[2] + 1);
             } else {
-                $page->url = $page->url.'2';
+                $page->url = $page->url . '2';
             }
         }
 
@@ -149,6 +147,10 @@ class PagesEntity extends Entity
     public function duplicate($pageId)
     {
         $page = $this->findOne(['id' => $pageId]);
+        if ($page === false) {
+            return false;
+        }
+        /** @var object{position: int|string|float}&\stdClass $page */
 
         //Запоминаем текущую позицию, на нее станет новая запись
         $position = $page->position;
@@ -158,7 +160,7 @@ class PagesEntity extends Entity
         $fields = array_merge($this->getFields(), $this->getLangFields());
 
         foreach ($fields as $field) {
-            if (property_exists($page, $field)) {
+            if (!empty($field) && property_exists($page, $field)) {
                 $newPage->$field = $page->$field;
             }
         }
@@ -191,7 +193,8 @@ class PagesEntity extends Entity
         return $newPageId;
     }
 
-    private function multiDuplicatePage($pageId, $newPageId) {
+    private function multiDuplicatePage($pageId, $newPageId)
+    {
         $langId = $this->lang->getLangId();
         if (!empty($langId)) {
 
@@ -208,7 +211,7 @@ class PagesEntity extends Entity
                     if (!empty($pageLangFields)) {
                         $sourcePage = $this->findOne(['id' => $pageId]);
                         $destinationPage = new \stdClass();
-                        foreach($pageLangFields as $field) {
+                        foreach ($pageLangFields as $field) {
                             $destinationPage->{$field} = $sourcePage->{$field};
                         }
                         $this->update($newPageId, $destinationPage);

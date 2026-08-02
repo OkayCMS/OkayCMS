@@ -1,19 +1,16 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Admin\Helpers\BackendBrandsHelper;
 use Okay\Admin\Requests\BackendBrandsRequest;
 
 class BrandsAdmin extends IndexAdmin
 {
-    
     public function fetch(
-        BackendBrandsHelper  $backendBrandsHelper,
+        BackendBrandsHelper $backendBrandsHelper,
         BackendBrandsRequest $brandsRequest
-    ){
+    ) {
         $filter = $backendBrandsHelper->buildFilter();
         $this->design->assign('current_limit', $filter['limit']);
 
@@ -30,27 +27,22 @@ class BrandsAdmin extends IndexAdmin
             // Действия с выбранными
             $ids = $brandsRequest->postCheck();
             switch ($brandsRequest->postAction()) {
-                case 'enable': {
+                case 'enable':
                     $backendBrandsHelper->enable($ids);
                     break;
-                }
-                case 'disable': {
+                case 'disable':
                     $backendBrandsHelper->disable($ids);
                     break;
-                }
-                case 'delete': {
+                case 'delete':
                     $backendBrandsHelper->delete($ids);
                     break;
-                }
-                case 'move_to_page': {
+                case 'move_to_page':
                     $targetPage = $this->request->post('target_page', 'integer');
                     $backendBrandsHelper->moveToPage($ids, $targetPage, $filter);
                     break;
-                }
-                case 'duplicate': {
+                case 'duplicate':
                     $backendBrandsHelper->duplicate($ids);
                     break;
-                }
             }
         }
 
@@ -60,10 +52,10 @@ class BrandsAdmin extends IndexAdmin
         $keyword                   = isset($filter['keyword']) ? $filter['keyword'] : '';
 
         $this->design->assign('brands_count', $brandsCount);
-        $this->design->assign('pages_count',  $pagesCount);
+        $this->design->assign('pages_count', $pagesCount);
         $this->design->assign('current_page', $filter['page']);
-        $this->design->assign('keyword',      $keyword);
-        $this->design->assign('brands',       $brands);
+        $this->design->assign('keyword', $keyword);
+        $this->design->assign('brands', $brands);
         $this->response->setContent($this->design->fetch('brands.tpl'));
     }
 }

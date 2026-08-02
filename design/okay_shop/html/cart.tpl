@@ -46,6 +46,8 @@
                     
                     <div class="block__body">
                         <form id="captcha_id" method="post" name="cart" class="fn_validate_cart">
+                            <input type="hidden" name="customer_csrf_token" value="{$customer_csrf_token|escape}">
+                            <input type="hidden" name="checkout_token" value="{$checkout_token|escape}">
                             <div class="f_row flex-column align-items-start flex-lg-row">
                                 <div class="position_sticky f_col f_col-lg-6 f_col-xl-5">
                                     {* The list of products in the cart *}
@@ -134,6 +136,8 @@
                                                                 <span data-language="form_error_captcha">{$lang->form_error_captcha}</span>
                                                             {elseif $error == 'empty_phone'}
                                                                 <span data-language="form_error_phone">{$lang->form_error_phone} {$lang->form_error_phone_example} {$phone_example}</span>
+                                                            {elseif $error == 'csrf'}
+                                                                <span data-language="form_error_csrf">{$lang->form_error_csrf}</span>
                                                             {else}
                                                                 <span>{$error|escape}</span>
                                                             {/if}

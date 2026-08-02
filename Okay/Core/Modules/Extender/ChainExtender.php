@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Modules\Extender;
-
 
 use Okay\Core\DebugBar\DebugBar;
 use Okay\Core\ServiceLocator;
@@ -11,6 +9,9 @@ class ChainExtender extends AbstractExtender
 {
     protected static $triggers = [];
 
+    /**
+     * @param list<mixed> $input
+     */
     public static function execute($trigger, $output = null, array $input = [])
     {
         if (self::triggerNotUse($trigger)) {
@@ -23,7 +24,7 @@ class ChainExtender extends AbstractExtender
 
         $extendedOutput = null;
         $countExtensions = count($extensions);
-        for($i = 0; $i < $countExtensions; $i++) {
+        for ($i = 0; $i < $countExtensions; $i++) {
             $currentExtensions = $extensions[$i];
 
             $classExtender = $currentExtensions->class;
@@ -35,11 +36,16 @@ class ChainExtender extends AbstractExtender
                 throw new \Exception("Class \"{$classExtender}\" not found");
             }
 
+            $callback = [$classExtender, $currentExtensions->method];
+            if (!is_callable($callback)) {
+                throw new \Exception("Method \"{$currentExtensions->method}\" not found");
+            }
+
             DebugBar::startExtensionExecution($trigger, $currentExtensions);
             if (static::isFirstExtension($i, $extensions)) {
-                $extendedOutput = call_user_func_array([$classExtender, $currentExtensions->method], array_merge([$output], $input));
+                $extendedOutput = call_user_func_array($callback, array_merge([$output], $input));
             } else {
-                $extendedOutput = call_user_func_array([$classExtender, $currentExtensions->method], array_merge([$extendedOutput], $input));
+                $extendedOutput = call_user_func_array($callback, array_merge([$extendedOutput], $input));
             }
             DebugBar::finishExtensionExecution($trigger, $currentExtensions);
         }

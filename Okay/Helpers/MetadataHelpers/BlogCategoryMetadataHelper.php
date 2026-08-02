@@ -1,15 +1,16 @@
 <?php
 
-
 namespace Okay\Helpers\MetadataHelpers;
-
 
 use Okay\Core\FrontTranslations;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 
+/**
+ * @phpstan-type BlogCategoryRow object{name: string|null, name_h1: string|null, annotation: string|null, description: string|null, meta_title: string|null, meta_keywords: string|null, meta_description: string|null}&\stdClass
+ */
 class BlogCategoryMetadataHelper extends CommonMetadataHelper
 {
-    /** @var object */
+    /** @var BlogCategoryRow */
     private $category;
 
     /** @var bool */
@@ -18,6 +19,9 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
     /** @var int */
     private $currentPageNum;
 
+    /**
+     * @param BlogCategoryRow $category
+     */
     public function setUp($category, bool $isAllPages = false, int $currentPageNum = 1): void
     {
         $this->category       = $category;
@@ -71,7 +75,7 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
 
         return ExtenderFacade::execute(__METHOD__, $description, func_get_args());
     }
-    
+
     public function getMetaTitleTemplate(): string
     {
         if ($pageTitle = parent::getMetaTitleTemplate()) {
@@ -86,10 +90,10 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
             $translations = $this->SL->getService(FrontTranslations::class);
             $metaTitle .= $translations->getTranslation('meta_page') . ' ' . $this->currentPageNum;
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $metaTitle, func_get_args());
     }
-    
+
     public function getMetaKeywordsTemplate(): string
     {
         if ($pageKeywords = parent::getMetaKeywordsTemplate()) {
@@ -100,7 +104,7 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
 
         return ExtenderFacade::execute(__METHOD__, $metaKeywords, func_get_args());
     }
-    
+
     public function getMetaDescriptionTemplate(): string
     {
         if ($pageMetaDescription = parent::getMetaDescriptionTemplate()) {
@@ -111,9 +115,10 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
 
         return ExtenderFacade::execute(__METHOD__, $metaDescription, func_get_args());
     }
-    
+
     /**
      * @inheritDoc
+     * @return array<string, mixed>
      */
     protected function getParts(): array
     {
@@ -130,5 +135,4 @@ class BlogCategoryMetadataHelper extends CommonMetadataHelper
 
         return $this->parts = ExtenderFacade::execute(__METHOD__, $this->parts, func_get_args());
     }
-    
 }

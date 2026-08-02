@@ -1,50 +1,51 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\Integration1C\Integration\Import;
-
 
 use Okay\Entities\CurrenciesEntity;
 use Okay\Entities\VariantsEntity;
 use Okay\Modules\OkayCMS\Integration1C\Integration\Integration1C;
 
+/**
+ * @phpstan-type CurrencyRow object{id: int|string, code: string, sign: string, rate_from: int|float, rate_to: int|float}
+ */
 class ImportOffers extends AbstractImport
 {
-
     /**
-     * @var array список валют, ключ массива - code
+     * @var array<string, CurrencyRow> список валют, ключ массива - code
      */
-    protected $currenciesByCode;
+    protected $currenciesByCode = [];
 
     /**
-     * @var array список валют, ключ массива - sign
+     * @var array<string, CurrencyRow> список валют, ключ массива - sign
      */
-    protected $currenciesBySign;
+    protected $currenciesBySign = [];
 
     /**
-     * @var bool false - на сайте одна валюта, true - много. 
+     * @var bool false - на сайте одна валюта, true - много.
      */
     protected $isMultiCurrency = false;
 
     /**
-     * @var object основная валюта сайта
+     * @var CurrencyRow основная валюта сайта
      */
     protected $baseCurrency;
-    
+
     public function __construct(Integration1C $integration1C)
     {
         parent::__construct($integration1C);
         $this->initCurrencies();
     }
-    
+
     /**
      * @param string $xml_file Full path to xml file
      * @return string
      */
-    public function import($xml_file) {
-        
+    public function import($xml_file)
+    {
+
         // Варианты
-        $z = new \XMLReader;
+        $z = new \XMLReader();
         $z->open($xml_file);
 
         while ($z->read() && $z->name !== 'Предложение');
@@ -65,8 +66,7 @@ class ImportOffers extends AbstractImport
                 $this->importVariant($xml);
 
                 $execTime = microtime(true) - $this->integration1C->startTime;
-                if ($execTime+1 >= $this->integration1C->maxExecTime) {
-                    
+                if ($execTime + 1 >= $this->integration1C->maxExecTime) {
                     // Запоминаем на каком предложении остановились
                     $this->integration1C->setToStorage('imported_variant_num', $currentVariantNum);
 
@@ -76,10 +76,10 @@ class ImportOffers extends AbstractImport
                 }
             }
             $z->next('Предложение');
-            $currentVariantNum ++;
+            $currentVariantNum++;
         }
         $z->close();
-        
+
         $this->integration1C->setToStorage('imported_product_num', '');
         return "success\n";
     }
@@ -90,18 +90,18 @@ class ImportOffers extends AbstractImport
      */
     protected function importVariant($xmlVariant)
     {
-        
+
         /** @var VariantsEntity $variantsEntity */
         $variantsEntity = $this->integration1C->entityFactory->get(VariantsEntity::class);
-        
-        $variant = new \stdClass;
-        
+
+        $variant = new \stdClass();
+
         //  Id товара и варианта (если есть) по 1С
         @list($product1cId, $variant1cId) = explode('#', $xmlVariant->Ид);
         if (empty($variant1cId)) {
             $variant1cId = '';
         }
-        
+
         if (empty($product1cId)) {
             return false;
         }
@@ -133,7 +133,7 @@ class ImportOffers extends AbstractImport
         if ($this->integration1C->eraseComparePrice) {
             $variant->compare_price = 0;
         }
-        
+
         if ($this->integration1C->guidComparePriceFrom1C) {
             foreach ($xmlVariant->Цены->Цена as $priceElement) {
                 if ($this->integration1C->guidComparePriceFrom1C == (string)$priceElement->ИдТипаЦены) {
@@ -141,7 +141,7 @@ class ImportOffers extends AbstractImport
                 }
             }
         }
-        
+
         if ($this->integration1C->guidPriceFrom1C) {
             foreach ($xmlVariant->Цены->Цена as $priceElement) {
                 if ($this->integration1C->guidPriceFrom1C == (string)$priceElement->ИдТипаЦены) {
@@ -151,7 +151,7 @@ class ImportOffers extends AbstractImport
         } elseif (isset($xmlVariant->Цены->Цена->ЦенаЗаЕдиницу)) {
             $xmlVariantPrice = $xmlVariant->Цены->Цена;
         }
-        
+
         if (!empty($xmlVariantPrice)) {
             $variant->price = (float)$xmlVariantPrice->ЦенаЗаЕдиницу;
         }
@@ -160,7 +160,7 @@ class ImportOffers extends AbstractImport
         if ($this->integration1C->eraseComparePriceEqual && $variant->price >= $variant->compare_price) {
             $variant->compare_price = 0;
         }
-        
+
         if (isset($xmlVariant->ХарактеристикиТовара->ХарактеристикаТовара)) {
             foreach ($xmlVariant->ХарактеристикиТовара->ХарактеристикаТовара as $xmlProperty) {
                 $values[] = $xmlProperty->Значение;
@@ -177,7 +177,6 @@ class ImportOffers extends AbstractImport
         $variantCurrency = null;
         // Конвертируем цену из валюты 1С в базовую валюту магазина
         if (!empty($xmlVariantPrice->Валюта)) {
-            
             $currency_code = (string)$xmlVariantPrice->Валюта;
             // Ищем валюту по коду или обозначению
             if (isset($this->currenciesByCode[$currency_code])) {
@@ -185,10 +184,10 @@ class ImportOffers extends AbstractImport
             } elseif (isset($this->currenciesBySign[$currency_code])) {
                 $variantCurrency = $this->currenciesBySign[$currency_code];
             }
-            
+
             // Если нашли валюту - конвертируем из нее в базовую
-            if ($variantCurrency && $variantCurrency->rate_from>0 && $variantCurrency->rate_to>0 && !$this->isMultiCurrency) {
-                $variant->price = floatval($variant->price)*$variantCurrency->rate_to/$variantCurrency->rate_from;
+            if ($variantCurrency && $variantCurrency->rate_from > 0 && $variantCurrency->rate_to > 0 && !$this->isMultiCurrency) {
+                $variant->price = floatval($variant->price) * $variantCurrency->rate_to / $variantCurrency->rate_from;
             }
         }
 
@@ -196,9 +195,9 @@ class ImportOffers extends AbstractImport
         if ($this->integration1C->stockFrom1c) {
             $variant->stock = (int)$xmlVariant->Количество;
         } else {
-            $variant->stock = NULL;
+            $variant->stock = null;
         }
-        
+
         // Устанавливаем валюту товара или оригинал или если пересчитали то базовую (единственную активную)
         $variant->currency_id = ($this->isMultiCurrency === true && !empty($variantCurrency->id) ? $variantCurrency->id : $this->baseCurrency->id);
 
@@ -220,10 +219,10 @@ class ImportOffers extends AbstractImport
      */
     protected function initCurrencies()
     {
-        
+
         /** @var CurrenciesEntity $currenciesEntity */
         $currenciesEntity = $this->integration1C->entityFactory->get(CurrenciesEntity::class);
-        
+
         $currencyFilter = [];
         if ($this->integration1C->onlyEnabledCurrencies) {
             $currencyFilter['enabled'] = 1;
@@ -235,6 +234,8 @@ class ImportOffers extends AbstractImport
         }
 
         $this->isMultiCurrency = count($this->currenciesByCode) > 1;
-        $this->baseCurrency = reset($this->currenciesByCode);
+        /** @var CurrencyRow $baseCurrency */
+        $baseCurrency = reset($this->currenciesByCode);
+        $this->baseCurrency = $baseCurrency;
     }
 }

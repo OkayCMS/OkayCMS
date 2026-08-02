@@ -60,9 +60,8 @@ foreach ($products as $product) {
     $suggestions[] = $suggestion;
 }
 
-$result = new stdClass;
+$result = new stdClass();
 $result->query = $keyword;
 $result->suggestions = $suggestions;
 $response->setContent(json_encode($result), RESPONSE_JSON);
 $response->sendContent();
-

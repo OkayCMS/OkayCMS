@@ -1,33 +1,38 @@
-# Экспорт (Export)
+# Експорт (Export)
 
-Экспорт производится в файл csv. 
-В дефолном функционале возможен экспорт всех товаров, товаров определенной категории или бренда.
-Для того, чтобы из модуля добавить возможность экспортировать товары по какому-то своему признаку, можно расширить метод getCategoriesForExportFilter() класса BackendExportHelper и в методе своего [экстендера](./modules/extenders.md) передать в дизайн необходимую переменную.
-Далее можно расширить метод setUp() класса BackendExportHelper, приняв в качестве аргумента массив. Нулевым элементом данного массива будет фильтр, по которому выбираются товары для экспорта.
+Експорт виконується у файл CSV.
+У базовому функціоналі можливий експорт усіх товарів, товарів певної категорії або бренда.
+Щоб із модуля додати можливість експортувати товари за якоюсь власною ознакою, можна розширити метод `getCategoriesForExportFilter()` класу BackendExportHelper і в методі свого [extender](./modules/extenders.md) передати в дизайн потрібну змінну.
+Далі можна розширити метод `setUp()` класу BackendExportHelper, прийнявши як аргумент масив. Нульовим елементом цього масиву буде фільтр, за яким вибираються товари для експорту.
 
- Пример:
+Приклад:
 
 ```php
-     public function extendSetUp($array)
-    {
-        $supplier_id = //...abstract
+public function extendFilter($params)
+{
+    [$filter, $page] = $params;
+    $supplierId = $this->request->get('supplier_id', 'integer');
 
-        $array[0] = $array[0] + ['supplier_id' => $supplier_id];
-        return $array;
+    if ($supplierId) {
+        $filter['supplier_id'] = $supplierId;
     }
+
+    return [$filter, $page];
+}
 ```
 
 
-Для того, чтобы отрабатывал фильтр, допленный как указано в примере в методе extendSetUp необходимо создать пользовательский фильтр для [сущности](./entities.md) ProductsEntity.  
+Щоб фільтр, доданий як у прикладі, спрацьовував, потрібно створити користувацький фільтр для [сутності](./entities.md) ProductsEntity.
 
-Чтобы добвить колонки из модуля в экспорт товаров, необходимо расширить метод getColumnsNames() класса BackendExportHelper.
+Щоб додати колонки з модуля в експорт товарів, потрібно розширити метод `getColumnsNames()` класу BackendExportHelper.
 
-Пример:
+Приклад:
 
 ```php
-    public function extendExportColumnsNames($columnsNames)
-    {
-        $columnsNames['supplier'] = 'Supplier';
-        return $columnsNames;
-    }
+public function extendExportColumnsNames($columnsNames)
+{
+    $columnsNames['supplier'] = 'Supplier';
+
+    return $columnsNames;
+}
 ```

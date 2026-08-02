@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Aura\SqlQuery\QueryFactory;
 use Okay\Core\Languages;
@@ -27,7 +25,7 @@ class FeaturesAliasesAdmin extends IndexAdmin
         $this->design->setTemplatesDir('backend/design/html');
         $this->design->setCompiledDir('backend/design/compiled');
 
-        if ($this->request->post("ajax")){
+        if ($this->request->post("ajax")) {
             $result = new \stdClass();
 
             /*Обновление шаблона данных категории*/
@@ -44,10 +42,10 @@ class FeaturesAliasesAdmin extends IndexAdmin
                     $featuresAliasesIds = [];
                     $featuresAliasesValues = [];
                     if ($this->request->post('features_aliases')) {
-                        foreach ($this->request->post('features_aliases') as $n=>$fa) {
-                            foreach ($fa as $i=>$a) {
+                        foreach ($this->request->post('features_aliases') as $n => $fa) {
+                            foreach ($fa as $i => $a) {
                                 if (empty($featuresAliases[$i])) {
-                                    $featuresAliases[$i] = new \stdClass;
+                                    $featuresAliases[$i] = new \stdClass();
                                 }
                                 $featuresAliases[$i]->$n = $a;
                             }
@@ -55,17 +53,17 @@ class FeaturesAliasesAdmin extends IndexAdmin
                     }
 
                     if ($this->request->post('feature_aliases_value')) {
-                        foreach ($this->request->post('feature_aliases_value') as $n=>$fav) {
-                            foreach ($fav as $i=>$av) {
+                        foreach ($this->request->post('feature_aliases_value') as $n => $fav) {
+                            foreach ($fav as $i => $av) {
                                 if (empty($featuresAliasesValues[$i])) {
-                                    $featuresAliasesValues[$i] = new \stdClass;
+                                    $featuresAliasesValues[$i] = new \stdClass();
                                 }
                                 $featuresAliasesValues[$i]->$n = $av;
                             }
                         }
                     }
 
-                    foreach ($featuresAliases as $k=>$featuresAlias) {
+                    foreach ($featuresAliases as $k => $featuresAlias) {
                         if ($featuresAlias->name) {
                             if (!empty($featuresAlias->id)) {
                                 $featuresAliasesEntity->update($featuresAlias->id, $featuresAlias);
@@ -98,7 +96,7 @@ class FeaturesAliasesAdmin extends IndexAdmin
                     $currentFeaturesAliases = $featuresAliasesEntity->find();
                     foreach ($currentFeaturesAliases as $currentFeaturesAlias) {
                         if (!in_array($currentFeaturesAlias->id, $featuresAliasesIds)) {
-                            $currentFeatureAliasValues = $featuresAliasesValuesEntity->find(['feature_alias_id'=>$currentFeaturesAlias->id]);
+                            $currentFeatureAliasValues = $featuresAliasesValuesEntity->find(['feature_alias_id' => $currentFeaturesAlias->id]);
                             foreach ($currentFeatureAliasValues as $cv) {
                                 $featuresAliasesValuesEntity->delete($cv->id);
                             }
@@ -108,14 +106,14 @@ class FeaturesAliasesAdmin extends IndexAdmin
 
                     asort($featuresAliasesIds);
                     $i = 0;
-                    foreach($featuresAliasesIds as $featuresAlias_id) {
-                        $featuresAliasesEntity->update($featuresAliasesIds[$i], array('position'=>$featuresAlias_id));
+                    foreach ($featuresAliasesIds as $featuresAlias_id) {
+                        $featuresAliasesEntity->update($featuresAliasesIds[$i], array('position' => $featuresAlias_id));
                         $i++;
                     }
 
                     $featuresAliases = $featuresAliasesEntity->mappedBy('id')->find();
 
-                    foreach ($featuresAliasesValuesEntity->find(['feature_id'=>$feature->id]) as $fv) {
+                    foreach ($featuresAliasesValuesEntity->find(['feature_id' => $feature->id]) as $fv) {
                         $featuresAliases[$fv->feature_alias_id]->value = $fv;
                     }
 
@@ -132,12 +130,12 @@ class FeaturesAliasesAdmin extends IndexAdmin
                             ]);
                         $this->db->query($delete);
 
-                        $featuresValues = $featuresValuesEntity->mappedBy('id')->find(['feature_id'=>$feature->id]);
+                        $featuresValues = $featuresValuesEntity->mappedBy('id')->find(['feature_id' => $feature->id]);
 
-                        foreach ($optionsAliases as $featureValueId=>$values) {
-                            foreach ($values as $feature_alias_id=>$value) {
+                        foreach ($optionsAliases as $featureValueId => $values) {
+                            foreach ($values as $feature_alias_id => $value) {
                                 if (!empty($value) && isset($featuresAliases[$feature_alias_id]) && isset($featuresValues[$featureValueId])) {
-                                    $optionAlias = new \stdClass;
+                                    $optionAlias = new \stdClass();
                                     $optionAlias->feature_value_id = $featureValueId;
                                     $optionAlias->value    = $value;
                                     $optionAlias->lang_id  = $languagesCore->getLangId();
@@ -177,7 +175,7 @@ class FeaturesAliasesAdmin extends IndexAdmin
                     $filter['limit'] = 10;
                 }
 
-                $this->design->assign('pages_count',  ceil($featuresValuesCount/$filter['limit']));
+                $this->design->assign('pages_count', ceil($featuresValuesCount / $filter['limit']));
                 $this->design->assign('current_page', $filter['page']);
 
                 $featuresValues = $featuresValuesEntity->mappedBy('id')
@@ -191,7 +189,7 @@ class FeaturesAliasesAdmin extends IndexAdmin
 
                 $this->design->assign('features_values', $featuresValues);
 
-                foreach ($featuresAliasesValuesEntity->find(['feature_id'=>$feature->id]) as $fv) {
+                foreach ($featuresAliasesValuesEntity->find(['feature_id' => $feature->id]) as $fv) {
                     $featuresAliases[$fv->feature_alias_id]->value = $fv;
                 }
             }
@@ -206,7 +204,7 @@ class FeaturesAliasesAdmin extends IndexAdmin
         }
 
         $featuresCount = $featuresEntity->count();
-        $features = $featuresEntity->find(['limit'=>$featuresCount]);
+        $features = $featuresEntity->find(['limit' => $featuresCount]);
 
         $this->design->assign('features', $features);
 

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Modules;
-
 
 use Okay\Core\Config;
 use Okay\Core\TemplateConfig\FrontTemplateConfig;
@@ -47,7 +45,7 @@ class ModuleDesign
         $baseDir   = $this->config->get('root_dir') . $moduleDir . '/design/html/';
 
         $files = $this->getFiles($baseDir);
-        foreach($files as $file) {
+        foreach ($files as $file) {
             $file->directory = "html/{$file->directory}";
         }
 
@@ -60,7 +58,7 @@ class ModuleDesign
         $baseDir   = $this->config->get('root_dir') . $moduleDir . '/design/js/';
 
         $files = $this->getFiles($baseDir);
-        foreach($files as $file) {
+        foreach ($files as $file) {
             $file->directory = "js/{$file->directory}";
         }
 
@@ -73,7 +71,7 @@ class ModuleDesign
         $baseDir   = $this->config->get('root_dir') . $moduleDir . '/design/css/';
 
         $files = $this->getFiles($baseDir);
-        foreach($files as $file) {
+        foreach ($files as $file) {
             $file->directory = "css/{$file->directory}";
         }
 
@@ -86,7 +84,7 @@ class ModuleDesign
         $baseDir   = $this->config->get('root_dir') . $moduleDir . '/design/lang/';
 
         $files = $this->getFiles($baseDir);
-        foreach($files as $file) {
+        foreach ($files as $file) {
             $file->directory = "lang/{$file->directory}";
         }
 
@@ -95,8 +93,8 @@ class ModuleDesign
 
     public function cloneFileToTheme($file, $vendor, $moduleName)
     {
-        $moduleFile      = $this->config->get('root_dir').$this->module->getModuleDirectory($vendor, $moduleName)."design/{$file}";
-        $themeModuleFile = $this->config->get('root_dir').$this->getThemeModuleDir($vendor, $moduleName)."/{$file}";
+        $moduleFile      = $this->config->get('root_dir') . $this->module->getModuleDirectory($vendor, $moduleName) . "design/{$file}";
+        $themeModuleFile = $this->config->get('root_dir') . $this->getThemeModuleDir($vendor, $moduleName) . "/{$file}";
 
         if (file_exists($themeModuleFile)) {
             return false;
@@ -112,20 +110,23 @@ class ModuleDesign
         return $result;
     }
 
+    /**
+     * @param list<string> $files
+     */
     public function cloneFileSetToTheme(array $files, $vendor, $moduleName)
     {
         if (empty($files)) {
             return;
         }
 
-        foreach($files as $file) {
+        foreach ($files as $file) {
             $this->cloneFileToTheme($file, $vendor, $moduleName);
         }
     }
 
     private function markClonedToThemeFiles($files, $vendor, $moduleName)
     {
-        foreach($files as $file) {
+        foreach ($files as $file) {
             $file->cloned_to_theme = (int) $this->fileClonedToTheme($file, $vendor, $moduleName);
         }
 
@@ -134,7 +135,7 @@ class ModuleDesign
 
     private function createPathDirToFileIfNeeded($filePath)
     {
-        $themeRootDir          = $this->config->get('root_dir')."design/".$this->frontTemplateConfig->getTheme()."/";
+        $themeRootDir          = $this->config->get('root_dir') . "design/" . $this->frontTemplateConfig->getTheme() . "/";
         $validateRootThemePath = substr($filePath, 0, strlen($themeRootDir));
 
         if ($themeRootDir !== $validateRootThemePath) {
@@ -145,7 +146,7 @@ class ModuleDesign
         $dirNames      = $this->getDirNames($themeFilePath);
 
         $fullPathDir = substr($themeRootDir, 0, -1);
-        foreach($dirNames as $dirName) {
+        foreach ($dirNames as $dirName) {
             $fullPathDir .= "/{$dirName}";
 
             if (is_dir($fullPathDir)) {
@@ -212,6 +213,6 @@ class ModuleDesign
 
     private function fileClonedToTheme($file, $vendor, $moduleName)
     {
-        return file_exists($this->config->get('root_dir').$this->getThemeModuleDir($vendor, $moduleName)."/{$file->directory}/{$file->filename}");
+        return file_exists($this->config->get('root_dir') . $this->getThemeModuleDir($vendor, $moduleName) . "/{$file->directory}/{$file->filename}");
     }
 }

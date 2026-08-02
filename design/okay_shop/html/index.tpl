@@ -180,7 +180,7 @@
     </div>
 
     {* Кнопка на верх *}
-    <div class="fn_to_top to_top"></div>
+    <div class="fn_to_top to_top" data-show-offset="auto"></div>
 
     <div>
         {get_design_block block="front_before_footer_content"}
@@ -278,6 +278,7 @@
                                  <div class="d-flex align-items-center ">
                                     <div class="form__group form__group--subscribe">
                                         <input type="hidden" name="subscribe" value="1"/>
+                                        <input type="hidden" name="customer_csrf_token" value="{$customer_csrf_token|escape}">
                                         <input class="form__input form__input_subscribe" aria-label="subscribe" type="email" name="subscribe_email" value="" data-format="email" placeholder="{$lang->form_email}"/>
                                     </div>
                                     <button class="form__button form__button--subscribe" type="submit"><span data-language="subscribe_button">{$lang->subscribe_button}</span></button>
@@ -285,7 +286,7 @@
                                 <div class="fn_subscribe_success subscribe_success hidden">
                                     <span data-language="subscribe_sent">{$lang->index_subscribe_sent}</span>
                                 </div>
-                                
+
                                 <div class="fn_subscribe_error subscribe_error hidden">
                                      <span class="fn_error_text"></span>
                                 </div>
@@ -349,7 +350,7 @@
 
     {* Форма обратного звонка *}
     {include file='callback.tpl'}
-    
+
     {* Всплывающая корзина *}
     {if $route_name != 'cart'}
     <div id="fn_pop_up_cart_wrap" class="popup_animated" style="display: none;">
@@ -374,36 +375,25 @@
             <span data-language="popup_add_to_wishlist">{$lang->popup_add_to_wishlist}</span>
         </div>
     </div>
-    
-    <script>ut_tracker.start('parsing:body_bottom:scripts');</script>
 
-    {if $controller == 'ProductController' || $controller == "BlogController"}
-        {js file="jssocials.min.js" dir='js_libraries/js_socials/js' defer=true}
-    {/if}
+    {if $config->debug_mode}<script>ut_tracker.start('parsing:body_bottom:scripts');</script>{/if}
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha512-uURl+ZXMBrF4AwGaWmEetzrd+J5/8NRkWAvJx5sbPSSuOb0bZLqf+tOzniObO00BjHa/dD7gub9oCGMLPQHtQA==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js" integrity="sha512-0QDLUJ0ILnknsQdYYjG7v2j8wERkKufvjBNmng/EdR/s/SE7X8cQ9y0+wMzuQT0lfXQ/NhG+zhmHNOWTUS3kMA==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.4.11/jquery.autocomplete.min.js" integrity="sha512-uxCwHf1pRwBJvURAMD/Gg0Kz2F2BymQyXDlTqnayuRyBFE7cisFCh2dSb1HIumZCRHuZikgeqXm8ruUoaxk5tA==" crossorigin="anonymous"></script>
+    {* Загружаем jQuery плагины ПЕРЕД ok_footer, чтобы они были доступны в скриптах *}
+    {* Fancybox, Autocomplete и Validate теперь загружаются через js.php в правильном порядке *}
 
     {$ok_footer}
 
-    {if $controller == 'ProductController' || $controller == "BlogController"}
-        {css file='jssocials.css' dir='js_libraries/js_socials/css'}
-        {if $settings->social_share_theme}
-            {css file="jssocials-theme-{$settings->social_share_theme|escape}.css" dir='js_libraries/js_socials/css'}
-        {/if}
-    {/if}
-    <script>ut_tracker.end('parsing:body_bottom:scripts');</script>
+    {if $config->debug_mode}<script>ut_tracker.end('parsing:body_bottom:scripts');</script>{/if}
 
     {if !empty($counters['body_bottom'])}
-        <script>ut_tracker.start('parsing:body_bottom:counters');</script>
+        {if $config->debug_mode}<script>ut_tracker.start('parsing:body_bottom:counters');</script>{/if}
         {foreach $counters['body_bottom'] as $counter}
             {$counter->code}
         {/foreach}
-        <script>ut_tracker.end('parsing:body_bottom:counters');</script>
+        {if $config->debug_mode}<script>ut_tracker.end('parsing:body_bottom:counters');</script>{/if}
     {/if}
 
-    <script>ut_tracker.end('parsing:page');</script>
+    {if $config->debug_mode}<script>ut_tracker.end('parsing:page');</script>{/if}
 
     <div>
         {get_design_block block="front_after_footer_content"}

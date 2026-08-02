@@ -1,15 +1,15 @@
 <?php
 
-
 namespace Okay\Controllers;
-
 
 use Okay\Core\TemplateConfig\FrontTemplateConfig;
 use Okay\Core\TemplateConfig\JsConfig;
 
 class DynamicJsController extends AbstractController
 {
-    
+    /**
+     * @param string $fileId
+     */
     public function getJs(
         FrontTemplateConfig $frontTemplateConfig,
         $fileId
@@ -17,19 +17,19 @@ class DynamicJsController extends AbstractController
         $dynamicJsFile = "design/" . $frontTemplateConfig->getTheme() . "/html/scripts.tpl";
 
         $dynamicJs = '';
-        
+
         if (is_file($dynamicJsFile)) {
             if (!empty($_SESSION['dynamic_js']['controller'])) {
                 $this->design->assign('controller', $_SESSION['dynamic_js']['controller']);
             }
-    
+
             if (isset($_SESSION['dynamic_js']['vars'])) {
                 // Передаем глобальные переменные в шаблон
                 foreach ($_SESSION['dynamic_js']['vars'] as $var => $value) {
                     $this->design->assign($var, $value);
                 }
             }
-    
+
             $dynamicJs = $this->design->fetch('scripts.tpl');
             $dynamicJs = preg_replace('~<script(.*?)>(.*?)</script>~is', '$2', $dynamicJs);
 
@@ -44,13 +44,16 @@ class DynamicJsController extends AbstractController
                     });
                     });';
             }
-            
+
             $dynamicJs = JsConfig::minifyJs($dynamicJs);
         }
-        
+
         $this->response->setContent($dynamicJs, RESPONSE_JAVASCRIPT);
     }
-    
+
+    /**
+     * @param string $fileId
+     */
     public function getCommonJs(
         FrontTemplateConfig $frontTemplateConfig,
         $fileId
@@ -64,15 +67,15 @@ class DynamicJsController extends AbstractController
             }
 
             $this->design->assign('front_routes', $this->router->getFrontRoutes());
-            
+
             if (isset($_SESSION['common_js']['vars'])) {
                 // Передаем глобальные переменные в шаблон
                 $jsVars = $_SESSION['common_js']['vars'];
-                
-                foreach ($jsVars as $var=>$value) {
+
+                foreach ($jsVars as $var => $value) {
                     $jsVars[$var] = json_encode($value);
                 }
-                
+
                 $this->design->assign('common_js_vars', $jsVars);
                 unset($_SESSION['common_js']);
             }
@@ -82,7 +85,7 @@ class DynamicJsController extends AbstractController
 
             $commonJs = JsConfig::minifyJs($commonJs);
         }
-        
+
         $this->response->setContent($commonJs, RESPONSE_JAVASCRIPT);
     }
 }

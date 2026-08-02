@@ -273,11 +273,13 @@
                     method : 'get',
                     dataType: 'json',
                     success: function(data) {
-                        $.fancybox.open({
-                            src  : '<div>'+data.html+'</div>',
-                            type : 'html',
-                            touch: false
-                        });
+                        if (typeof $.fancybox !== 'undefined' && typeof $.fancybox.open === 'function') {
+                            $.fancybox.open({
+                                src  : '<div>'+data.html+'</div>',
+                                type : 'html',
+                                touch: false
+                            });
+                        }
                     }
                 })
             });

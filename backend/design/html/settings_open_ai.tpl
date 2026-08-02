@@ -70,7 +70,7 @@
                                             <div class="mb-1">
                                                 <select name="open_ai_model" class="selectpicker form-control">
                                                     {foreach $open_ai_models as $model}
-                                                        <option value='{$model['id']}' {if ($settings->open_ai_model == '' && $model['id'] == 'gpt-3.5-turbo') || $settings->open_ai_model == $model['id']}selected{/if}>{$model['id']}</option>
+                                                        <option value='{$model['id']}' {if ($settings->open_ai_model == '' && $model['id'] == 'gpt-4o-mini') || $settings->open_ai_model == $model['id']}selected{/if}>{$model['id']}</option>
                                                     {/foreach}
                                                 </select>
                                             </div>
@@ -159,6 +159,9 @@
                 {*Параметры элемента*}
                 <div class="toggle_body_wrap on fn_card">
                     <div class="row">
+                        <div class="col-md-12 mb-1">
+                            <div class="text_box text_600">{$btr->settings_open_ai_product_placeholders|escape}</div>
+                        </div>
                         <div class="col-md-6">
                             <div class="heading_label">Meta title</div>
                             <div class="mb-1">
@@ -213,6 +216,9 @@
                 {*Параметры элемента*}
                 <div class="toggle_body_wrap on fn_card">
                     <div class="row">
+                        <div class="col-md-12 mb-1">
+                            <div class="text_box text_600">{$btr->settings_open_ai_category_placeholders|escape}</div>
+                        </div>
                         <div class="col-md-6">
                             <div class="heading_label">Meta title</div>
                             <div class="mb-1">
@@ -267,6 +273,9 @@
                 {*Параметры элемента*}
                 <div class="toggle_body_wrap on fn_card">
                     <div class="row">
+                        <div class="col-md-12 mb-1">
+                            <div class="text_box text_600">{$btr->settings_open_ai_brand_placeholders|escape}</div>
+                        </div>
                         <div class="col-md-6">
                             <div class="heading_label">Meta title</div>
                             <div class="mb-1">

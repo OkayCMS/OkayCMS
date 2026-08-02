@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Okay\Core\Routes\Strategies\Product;
 
 use Okay\Core\Database;
@@ -42,6 +41,7 @@ class NoPrefixAndPathStrategy extends AbstractRouteStrategy
     protected $isUsesSqlToGenerate = true;
     protected $cacheInitFromDb = false;
 
+    /** @var array{string, array<string, string>, array<string, string>} */
     private $mockRouteParams = ['{$url}/?{$variantId}', ['{$url}' => '', '{$variantId}' => ''], []];
 
     public function __construct()
@@ -57,14 +57,14 @@ class NoPrefixAndPathStrategy extends AbstractRouteStrategy
         $this->cacheEntity      = $entityFactory->get(RouterCacheEntity::class);
     }
 
-    public function generateSlugUrl($url) : string
+    public function generateSlugUrl($url): string
     {
         if (empty($url)) {
             return '';
         } elseif ($route = ProductRoute::getUrlSlugAlias($url)) {// Может уже указали для этого урла его slug
             return $route;
         } elseif (ProductRoute::getUseSqlToGenerate() === false) {// Если запретили выполнять запросы для генерации урла
-            $this->logger->notice('For generate route to product "'.$url.'" need execute SQL query. Or set url through "Okay\Core\Routes\ProductRoute::setUrlSlugAlias()"');
+            $this->logger->notice('For generate route to product "' . $url . '" need execute SQL query. Or set url through "Okay\Core\Routes\ProductRoute::setUrlSlugAlias()"');
             return '';
         }
 
@@ -80,12 +80,14 @@ class NoPrefixAndPathStrategy extends AbstractRouteStrategy
         }
 
         $product = $this->productsEntity->get((string) $url);
+        /** @var object{url: string, main_category_id?: int|string|null}&\stdClass $product */
         $slug = $product->url;
         if (empty($product->main_category_id)) {
-            $this->logger->warning('Missing "main_category_id" for product "'.$url.'"');
+            $this->logger->warning('Missing "main_category_id" for product "' . $url . '"');
         } else {
             $category = $this->categoriesEntity->get((int) $product->main_category_id);
-            $slug = $category->path_url.'/'.$product->url;
+            /** @var object{path_url: string}&\stdClass $category */
+            $slug = $category->path_url . '/' . $product->url;
         }
 
         // Запоминаем в оперативке slug для этого урла
@@ -101,7 +103,12 @@ class NoPrefixAndPathStrategy extends AbstractRouteStrategy
         return $slug;
     }
 
-    public function generateRouteParams($url) : array
+    /**
+     * @param string $url
+     *
+     * @return array{string, array<string, string>, array<string, string>}
+     */
+    public function generateRouteParams($url): array
     {
         $matchedCategories      = $this->matchCategories($url);
         $mappedParentCategories = $this->mapCategoriesByParents($matchedCategories);
@@ -160,13 +167,18 @@ class NoPrefixAndPathStrategy extends AbstractRouteStrategy
         return array_pad($urlParams, 2, '');
     }
 
-    private function uriNoContainsValidCategoryPathUrl($url, $categoryPathUrl) : bool
+    private function uriNoContainsValidCategoryPathUrl($url, $categoryPathUrl): bool
     {
         $comparePartUri = substr($url, 0, strlen($categoryPathUrl));
         return $comparePartUri !== $categoryPathUrl;
     }
 
-    private function matchCategories($noPrefixUri) : array
+    /**
+     * @param string $noPrefixUri
+     *
+     * @return array<int|string, \stdClass>
+     */
+    private function matchCategories($noPrefixUri): array
     {
         $parts = explode('/', $noPrefixUri);
 
@@ -181,7 +193,7 @@ class NoPrefixAndPathStrategy extends AbstractRouteStrategy
 
     private function findMostNestedCategoryId($mappedByParentCategories)
     {
-        $sortCategories = function($category) use (&$sortCategories, $mappedByParentCategories) {
+        $sortCategories = function ($category) use (&$sortCategories, $mappedByParentCategories) {
             $nestedSortCategories[] = $category;
 
             if (empty($mappedByParentCategories[$category->id])) {
@@ -197,7 +209,7 @@ class NoPrefixAndPathStrategy extends AbstractRouteStrategy
     private function mapCategoriesByParents($categories)
     {
         $categoriesMappedByParent = [];
-        foreach($categories as $category) {
+        foreach ($categories as $category) {
             if (isset($categoriesMappedByParent[$category->parent_id])) {
                 return false;
             }

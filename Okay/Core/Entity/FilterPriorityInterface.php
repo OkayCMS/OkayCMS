@@ -1,12 +1,9 @@
 <?php
 
-
 namespace Okay\Core\Entity;
-
 
 interface FilterPriorityInterface
 {
-    
     /**
      * @param $filterName string
      * @return $this
@@ -37,8 +34,8 @@ interface FilterPriorityInterface
     public function resetPriority();
 
     /**
-     * @var $filter array
-     * @return array
+     * @param array<string, mixed> $filter
+     * @return array<string, mixed>
      */
     public function orderFilterByPriority(array $filter = []);
 }

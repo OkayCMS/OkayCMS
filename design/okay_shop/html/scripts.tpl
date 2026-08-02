@@ -173,11 +173,13 @@
                 $('.fn_features').html(data.features);
                 $('.fn_selected_features').html(data.selected_features);
                 price_slider_init();
-                $(".lazy").each(function(){
-                    let myLazyLoad = new LazyLoad({
-                        elements_selector: ".lazy"
+                if (typeof LazyLoad !== 'undefined') {
+                    $(".lazy").each(function(){
+                        let myLazyLoad = new LazyLoad({
+                            elements_selector: ".lazy"
+                        });
                     });
-                });
+                }
             }
         {/if}
     {/if}
@@ -186,17 +188,19 @@
     $(function(){
         var $main_nav = $('.fn_mobile_menu');
         var $toggle = $('.fn_menu_switch');
-        var defaultData = {
-            maxWidth: false,
-            navClass: 'mobile_nav',
-            customToggle: $toggle,
-            levelTitles: true,
-            insertClose: -1,
-            labelBack: '{$lang->mobile_menu_prev|escape}',
-            labelClose: '{$lang->mobile_menu_close|escape}',
-            closeLevels: false
-        };
-        $main_nav.hcOffcanvasNav(defaultData);
+        if ($main_nav.length && typeof $.fn.hcOffcanvasNav === 'function') {
+            var defaultData = {
+                maxWidth: false,
+                navClass: 'mobile_nav',
+                customToggle: $toggle,
+                levelTitles: true,
+                insertClose: -1,
+                labelBack: '{$lang->mobile_menu_prev|escape}',
+                labelClose: '{$lang->mobile_menu_close|escape}',
+                closeLevels: false
+            };
+            $main_nav.hcOffcanvasNav(defaultData);
+        }
     });
 
     /* Показать все в фильтрах по свойствам и в футере категории */
@@ -227,17 +231,21 @@
     {* Обратный звонок, отправка формы *}
     {if $call_sent}
         $( function() {
-            $.fancybox.open( {
-                src: '#fn_callback_sent',
-                type : 'inline',
-            } );
+            if (typeof $.fancybox !== 'undefined' && typeof $.fancybox.open === 'function') {
+                $.fancybox.open( {
+                    src: '#fn_callback_sent',
+                    type : 'inline',
+                } );
+            }
         } );
     {elseif $call_error}
         $(function() {
-            $.fancybox.open({
-                src: '#fn_callback',
-                type : 'inline'
-            });
+            if (typeof $.fancybox !== 'undefined' && typeof $.fancybox.open === 'function') {
+                $.fancybox.open({
+                    src: '#fn_callback',
+                    type : 'inline'
+                });
+            }
         });
     {/if}
 
@@ -262,13 +270,27 @@
     {/if}
 
     var form_enter_name = "{$lang->form_enter_name|escape}";
+    var form_enter_last_name = "{$lang->form_enter_last_name|escape}";
     var form_enter_phone = "{$lang->form_enter_phone|escape}: {$phone_example}";
     var form_error_captcha = "{$lang->form_error_captcha|escape}";
     var form_enter_email = "{$lang->form_enter_email|escape}";
     var form_enter_password = "{$lang->form_enter_password|escape}";
     var form_enter_message = "{$lang->form_enter_message|escape}";
 
-    if($(".fn_validate_product").length>0) {
+    {literal}
+        if (typeof $.fn.validate !== 'undefined' && $.validator && !$.validator.methods.phone) {
+            $.validator.addMethod('phone', function(value, element) {
+                if (this.optional(element)) {
+                    return true;
+                }
+
+                var normalizedPhone = value.replace(/[^0-9.+]/g, '');
+                return /^[+]?[0-9.]{5,20}$/.test(normalizedPhone);
+            }, form_enter_phone);
+        }
+    {/literal}
+
+    if($(".fn_validate_product").length>0 && typeof $.fn.validate !== 'undefined') {
         $(".fn_validate_product").validate({
             rules: {
                 name: "required",
@@ -282,7 +304,7 @@
             }
         });
     }
-    if($(".fn_validate_callback").length>0) {
+    if($(".fn_validate_callback").length>0 && typeof $.fn.validate !== 'undefined') {
         $(".fn_validate_callback").validate({
             rules: {
                 callback_name: "required",
@@ -297,7 +319,7 @@
 
         });
     }
-    if($(".fn_validate_subscribe").length>0) {
+    if($(".fn_validate_subscribe").length>0 && typeof $.fn.validate !== 'undefined') {
         $(".fn_validate_subscribe").validate({
             rules: {
                 subscribe_email: "required",
@@ -307,7 +329,7 @@
             }
         });
     }
-    if($(".fn_validate_subscribe_blog").length>0) {
+    if($(".fn_validate_subscribe_blog").length>0 && typeof $.fn.validate !== 'undefined') {
         $(".fn_validate_subscribe_blog").validate({
             rules: {
                 subscribe_email: "required",
@@ -317,7 +339,7 @@
             }
         });
     }
-    if($(".fn_validate_post").length>0) {
+    if($(".fn_validate_post").length>0 && typeof $.fn.validate !== 'undefined') {
         $(".fn_validate_post").validate({
             rules: {
                 name: "required",
@@ -332,7 +354,7 @@
         });
     }
 
-    if($(".fn_validate_feedback").length>0) {
+    if($(".fn_validate_feedback").length>0 && typeof $.fn.validate !== 'undefined') {
         $(".fn_validate_feedback").validate({
             rules: {
                 name: "required",
@@ -352,19 +374,26 @@
         });
     }
 
-    if($(".fn_validate_cart").length>0) {
+    if($(".fn_validate_cart").length>0 && typeof $.fn.validate !== 'undefined') {
         $(".fn_validate_cart").validate({
             rules: {
                 name: "required",
+                last_name: "required",
                 email: {
                     required: true,
                     email: true
+                },
+                phone: {
+                    required: true,
+                    phone: true
                 },
                 captcha_code: "required"
             },
             messages: {
                 name: form_enter_name,
+                last_name: form_enter_last_name,
                 email: form_enter_email,
+                phone: form_enter_phone,
                 captcha_code: form_error_captcha
             }
         });
@@ -381,7 +410,7 @@
         });
     }
 
-    if($(".fn_validate_login").length>0) {
+    if($(".fn_validate_login").length>0 && typeof $.fn.validate !== 'undefined') {
         $(".fn_validate_login").validate({
             rules: {
                 email: "required",
@@ -394,7 +423,7 @@
         });
     }
 
-    if($(".fn_validate_register").length>0) {
+    if($(".fn_validate_register").length>0 && typeof $.fn.validate !== 'undefined') {
         $(".fn_validate_register").validate({
             rules: {
                 name: "required",
@@ -415,22 +444,6 @@
     }
 
     {get_design_block block="front_scripts_after_validate"}
-
-    {if $settings->sj_shares}
-         if($(".fn_share").length>0) {
-        {if $js_custom_socials}
-        {*Расширяем функционал кастомными соц. сетями*}
-        {foreach $js_custom_socials as $social=>$params}
-        jsSocials.shares.{$social|escape} = {$params|json_encode};
-        {/foreach}
-            {/if}
-                $(".fn_share").jsSocials({
-                    showLabel: false,
-                    showCount: false,
-                    shares: {$settings->sj_shares|json_encode}
-            });
-        }
-    {/if}
 
     /* Звёздный рейтинг товаров */
     let ratingBlock = $(".fn_rating");
@@ -477,7 +490,7 @@
                 $.ajax({
                     url: opts.postHref,
                     type: "POST",
-                    data: 'id=' + opts.id + '&rating=' + rating,
+                    data: 'id=' + encodeURIComponent(opts.id) + '&rating=' + encodeURIComponent(rating) + '&customer_csrf_token=' + encodeURIComponent(okay.customer_csrf_token),
                     complete: function (req) {
                         if (req.status == 200) { /* success */
                             opts.rating = parseFloat(req.responseText);

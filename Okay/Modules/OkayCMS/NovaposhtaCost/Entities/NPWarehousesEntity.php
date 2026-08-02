@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\NovaposhtaCost\Entities;
-
 
 use Okay\Core\Entity\Entity;
 
@@ -31,6 +29,7 @@ class NPWarehousesEntity extends Entity
     public function add($object)
     {
         $object = (object)$object;
+        /** @var object{updated_at: string}&\stdClass $object */
         $object->updated_at = 'NOW()';
         return parent::add($object);
     }
@@ -38,10 +37,14 @@ class NPWarehousesEntity extends Entity
     public function update($ids, $object)
     {
         $object = (object)$object;
+        /** @var object{updated_at: string}&\stdClass $object */
         $object->updated_at = 'NOW()';
         parent::update($ids, $object);
     }
 
+    /**
+     * @param list<string> $warehousesTypes
+     */
     public function removeRedundant(string $updatedAt, array $warehousesTypes = [])
     {
         $sql = $this->queryFactory->newSqlQuery();
@@ -52,7 +55,8 @@ class NPWarehousesEntity extends Entity
             $sql->bindValue('types', $warehousesTypes);
         }
 
-        $sql->setStatement(sprintf('
+        $sql->setStatement(sprintf(
+            '
                 DELETE npw, l FROM %s npw
                 INNER JOIN %s l ON l.warehouse_id = npw.id
                 WHERE
@@ -69,6 +73,9 @@ class NPWarehousesEntity extends Entity
         $this->db->query($sql);
     }
 
+    /**
+     * @return array<string, int|string>
+     */
     public function countByTypes(): array
     {
         $this->setUp();

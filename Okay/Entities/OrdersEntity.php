@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Phone;
@@ -62,13 +60,13 @@ class OrdersEntity extends Entity
     {
         $this->select->join('LEFT', '__orders_labels AS ol', 'o.id=ol.order_id');
         $this->select->join('LEFT', '__orders_status AS os', 'o.status_id=os.id');
-        
+
         // Устанавливаем группировку по id только если эта колонка есть в запросе
         $selectFields = $this->getAllFieldsKeyLabel();
         if (in_array('id', $selectFields)) {
             $this->select->groupBy(['id']);
         }
-        
+
         return parent::find($filter);
     }
 
@@ -81,7 +79,7 @@ class OrdersEntity extends Entity
     public function update($ids, $order)
     {
         $ids = (array)$ids;
-        
+
         if (is_object($order)) {
             $order = (array)$order;
         }
@@ -101,7 +99,7 @@ class OrdersEntity extends Entity
                 parent::update($changePaidColumnOrderIds, ['payment_date' => (bool)$order['paid'] == true ? 'now()' : null]);
             }
         }
-        
+
         parent::update($ids, $order);
 
         if (!empty($changePaidColumnOrderIds)) {
@@ -113,7 +111,7 @@ class OrdersEntity extends Entity
 
     /**
      * Метод вызывается при отметке или снятии отметки заказов как оплаченных перед обновлением в БД
-     * @param array $ids массив айди заказов только при изменении статуса оплаты
+     * @param list<int> $ids массив айди заказов только при изменении статуса оплаты
      * @param bool $state содержит true в случае смены заказов в "оплачен", false при снятии отметки "оплачен"
      */
     private function markedPaid(array $ids, $state)
@@ -123,24 +121,23 @@ class OrdersEntity extends Entity
 
     /**
      * Метод вызывается при отметке или снятии отметки заказов как оплаченных после обновления всей информации в БД
-     * @param array $ids массив айди заказов только при изменении статуса оплаты
+     * @param list<int> $ids массив айди заказов только при изменении статуса оплаты
      * @param bool $state содержит true в случае смены заказов в "оплачен", false при снятии отметки "оплачен"
      */
     private function afterMarkedPaidUpdate(array $ids, $state)
     {
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
-    
+
     public function delete($ids)
     {
         $ids = (array)$ids;
         if (!empty($ids)) {
-
             // Возвращаем товары на склад
             foreach ($ids as $id) {
                 $this->open($id);
             }
-            
+
             $delete = $this->queryFactory->newDelete();
             $delete->from(PurchasesEntity::getTable())
                 ->where('order_id IN (:order_ids)')
@@ -157,6 +154,9 @@ class OrdersEntity extends Entity
         return parent::delete($ids);
     }
 
+    /**
+     * @param array<string, mixed> $filter
+     */
     public function findOrdersDates(array $filter = [])
     {
         $this->select->join('LEFT', '__orders_labels AS ol', 'o.id=ol.order_id');
@@ -166,7 +166,10 @@ class OrdersEntity extends Entity
         }
         return $result;
     }
-    
+
+    /**
+     * @param array<string, mixed> $filter
+     */
     public function countOrdersByStatuses(array $filter = [])
     {
         $this->select->join('LEFT', '__orders_labels AS ol', 'o.id=ol.order_id');
@@ -176,13 +179,14 @@ class OrdersEntity extends Entity
         $this->mappedBy('status_id');
         return parent::find($filter);
     }
-    
+
     public function add($order)
     {
         /** @var OrderStatusEntity $orderStatusEntity */
         $orderStatusEntity = $this->entity->get(OrderStatusEntity::class);
 
         $order = (object)$order;
+        /** @var object{url?: string, date?: mixed, status_id?: int|string|null}&\stdClass $order */
         $order->url = md5(uniqid($this->config->salt, true));
         if (empty($order->date)) {
             $order->date = 'now()';
@@ -230,14 +234,17 @@ class OrdersEntity extends Entity
 
             foreach ($variantsAmounts as $id => $amount) {
                 $variant = $variantsEntity->get($id);
-                if (empty($variant) || ($variant->stock < $amount)) {
+                if (empty($variant)) {
+                    return ExtenderFacade::execute([static::class, __FUNCTION__], false, func_get_args());
+                }
+                if (!$this->settings->get('is_preorder') && $variant->stock_raw !== null && $variant->stock_raw < $amount) {
                     return ExtenderFacade::execute([static::class, __FUNCTION__], false, func_get_args());
                 }
             }
             foreach ($purchases as $purchase) {
                 $variant = $variantsEntity->get($purchase->variant_id);
-                if (!$variant->infinity) {
-                    $newStock = $variant->stock - $purchase->amount;
+                if ($variant && $variant->stock_is_tracked) {
+                    $newStock = $variant->stock_raw - $purchase->amount;
                     $variantsEntity->update($variant->id, ['stock' => $newStock]);
                 }
             }
@@ -265,8 +272,8 @@ class OrdersEntity extends Entity
             $purchases = $purchasesEntity->find(['order_id' => $order->id]);
             foreach ($purchases as $purchase) {
                 $variant = $variantsEntity->get($purchase->variant_id);
-                if ($variant && !$variant->infinity) {
-                    $newStock = $variant->stock + $purchase->amount;
+                if ($variant && $variant->stock_is_tracked) {
+                    $newStock = $variant->stock_raw + $purchase->amount;
                     $variantsEntity->update($variant->id, ['stock' => $newStock]);
                 }
             }
@@ -316,11 +323,15 @@ class OrdersEntity extends Entity
         $ordersIds = [];
         $this->db->query($nextSelect);
         $id = $this->db->result('id');
-        $ordersIds[$id] = 'next';
+        if (is_scalar($id) && $id !== '') {
+            $ordersIds[(int) $id] = 'next';
+        }
 
         $this->db->query($prevSelect);
         $id = $this->db->result('id');
-        $ordersIds[$id] = 'prev';
+        if (is_scalar($id) && $id !== '') {
+            $ordersIds[(int) $id] = 'prev';
+        }
 
         $result = ['next' => null, 'prev' => null];
         if (!empty($ordersIds)) {
@@ -390,11 +401,11 @@ class OrdersEntity extends Entity
 
     /**
      * Метод ищет другие заказы клиента сравнивая по почте или телефону
-     * 
+     *
      * @param $order
      * @param int $page
      * @param int $perPage
-     * @return array
+     * @return list<object>
      */
     public function findOtherOfClient($order, $page = 1, $perPage = 10)
     {
@@ -431,11 +442,11 @@ class OrdersEntity extends Entity
 
         $sql = $this->queryFactory->newSqlQuery();
         return $sql->setStatement("
-                SELECT 
-                    id, 
-                    IF(o.email IS NOT NULL AND o.email != '' AND o.email = :email, 1, 0) AS `email_match`, 
-                    IF(o.phone IS NOT NULL AND o.phone != '' AND o.phone = :phone, 1, 0) AS `phone_match` 
-                FROM ".self::getTable()." AS o 
+                SELECT
+                    id,
+                    IF(o.email IS NOT NULL AND o.email != '' AND o.email = :email, 1, 0) AS `email_match`,
+                    IF(o.phone IS NOT NULL AND o.phone != '' AND o.phone = :phone, 1, 0) AS `phone_match`
+                FROM " . self::getTable() . " AS o
                 WHERE id <> :order_id
                   AND ( (o.email != '' AND o.email = :email) OR (o.phone != '' AND o.phone = :phone) )
                 ORDER BY id DESC
@@ -453,7 +464,7 @@ class OrdersEntity extends Entity
 
     private function attachFindBy($orders, $matches)
     {
-        foreach($orders as $order) {
+        foreach ($orders as $order) {
             $order->match_by_email = $matches[$order->id]->email_match;
             $order->match_by_phone = $matches[$order->id]->phone_match;
         }
@@ -465,7 +476,7 @@ class OrdersEntity extends Entity
         /** @var OrderStatusEntity $orderStatusEntity */
         $orderStatusEntity = $this->entity->get(OrderStatusEntity::class);
         $orderStatuses = $orderStatusEntity->mappedBy('id')->find();
-        foreach($orders as $order) {
+        foreach ($orders as $order) {
             $order->status_name = $orderStatuses[$order->status_id]->name;
         }
 
@@ -478,9 +489,9 @@ class OrdersEntity extends Entity
 
         $sql = $this->queryFactory->newSqlQuery();
         return $sql->setStatement("
-                SELECT 
-                    COUNT(*) AS count  
-                FROM ".self::getTable()." AS o 
+                SELECT
+                    COUNT(*) AS count
+                FROM " . self::getTable() . " AS o
                 WHERE id <> :order_id
                   AND ( (o.email != '' AND o.email = :email) OR (o.phone != '' AND o.phone = :phone) )
             ")
@@ -501,7 +512,7 @@ class OrdersEntity extends Entity
     protected function filter__label($labelId)
     {
         $this->select->where('ol.label_id = :label_id')
-            ->bindValue('label_id', $labelId);
+            ->bindValue('label_id', (int)$labelId);
     }
 
     protected function filter__from_date($fromDate)
@@ -530,7 +541,7 @@ class OrdersEntity extends Entity
     {
         $keywords = explode(' ', $keywords);
 
-        foreach ($keywords as $keyNum=>$keyword) {
+        foreach ($keywords as $keyNum => $keyword) {
             $this->select->where("(
                 o.id LIKE :keyword_id_{$keyNum}
                 OR o.name LIKE :keyword_name_{$keyNum}

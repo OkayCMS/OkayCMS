@@ -1,16 +1,20 @@
 <?php
 
-
 namespace Okay\Helpers\MetadataHelpers;
-
 
 use Okay\Core\Modules\Extender\ExtenderFacade;
 
+/**
+ * @phpstan-type PostRow object{name: string|null, annotation: string|null, description: string|null, meta_title: string|null, meta_keywords: string|null, meta_description: string|null}&\stdClass
+ */
 class PostMetadataHelper extends CommonMetadataHelper
 {
-    /** @var object */
+    /** @var PostRow */
     private $post;
 
+    /**
+     * @param PostRow $post
+     */
     public function setUp(object $post): void
     {
         $this->post = $post;
@@ -23,10 +27,10 @@ class PostMetadataHelper extends CommonMetadataHelper
         } else {
             $h1 = (string)$this->post->name;
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $h1, func_get_args());
     }
-    
+
     public function getAnnotationTemplate(): string
     {
         if ($pageAnnotation = parent::getAnnotationTemplate()) {
@@ -37,7 +41,7 @@ class PostMetadataHelper extends CommonMetadataHelper
 
         return ExtenderFacade::execute(__METHOD__, $annotation, func_get_args());
     }
-    
+
     public function getDescriptionTemplate(): string
     {
         if ($pageDescription = parent::getDescriptionTemplate()) {
@@ -48,7 +52,7 @@ class PostMetadataHelper extends CommonMetadataHelper
 
         return ExtenderFacade::execute(__METHOD__, $description, func_get_args());
     }
-    
+
     public function getMetaTitleTemplate(): string
     {
         if ($pageTitle = parent::getMetaTitleTemplate()) {
@@ -56,10 +60,10 @@ class PostMetadataHelper extends CommonMetadataHelper
         } else {
             $metaTitle = (string)$this->post->meta_title;
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $metaTitle, func_get_args());
     }
-    
+
     public function getMetaKeywordsTemplate(): string
     {
         if ($pageKeywords = parent::getMetaKeywordsTemplate()) {
@@ -70,7 +74,7 @@ class PostMetadataHelper extends CommonMetadataHelper
 
         return ExtenderFacade::execute(__METHOD__, $metaKeywords, func_get_args());
     }
-    
+
     public function getMetaDescriptionTemplate(): string
     {
         if ($pageMetaDescription = parent::getMetaDescriptionTemplate()) {

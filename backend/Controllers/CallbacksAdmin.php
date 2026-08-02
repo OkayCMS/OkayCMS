@@ -1,36 +1,30 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Admin\Helpers\BackendCallbacksHelper;
 use Okay\Admin\Requests\BackendCallbacksRequest;
 
 class CallbacksAdmin extends IndexAdmin
 {
-    
     public function fetch(
         BackendCallbacksRequest $callbacksRequest,
-        BackendCallbacksHelper  $backendCallbacksHelper
-    ){
+        BackendCallbacksHelper $backendCallbacksHelper
+    ) {
         // Обработка действий
-        if($this->request->method('post')) {
+        if ($this->request->method('post')) {
             // Действия с выбранными
             $ids = $callbacksRequest->postCheck();
-            switch($callbacksRequest->postAction()) {
-                case 'delete': {
+            switch ($callbacksRequest->postAction()) {
+                case 'delete':
                     $backendCallbacksHelper->delete($ids);
                     break;
-                }
-                case 'processed': {
+                case 'processed':
                     $backendCallbacksHelper->processed($ids);
                     break;
-                }
-                case 'unprocessed': {
+                case 'unprocessed':
                     $backendCallbacksHelper->unprocessed($ids);
                     break;
-                }
             }
         }
 
@@ -42,17 +36,16 @@ class CallbacksAdmin extends IndexAdmin
         }
 
         if (isset($filter['keyword'])) {
-            $this->design->assign('keyword',       $filter['keyword']);
+            $this->design->assign('keyword', $filter['keyword']);
         }
 
         $callbacksCount = $backendCallbacksHelper->countCallbacks($filter);
         $callbacks      = $backendCallbacksHelper->findCallbacks($filter);
 
-        $this->design->assign('pages_count',     ceil($callbacksCount/$filter['limit']));
-        $this->design->assign('current_page',    $filter['page']);
-        $this->design->assign('callbacks',       $callbacks);
+        $this->design->assign('pages_count', ceil($callbacksCount / $filter['limit']));
+        $this->design->assign('current_page', $filter['page']);
+        $this->design->assign('callbacks', $callbacks);
         $this->design->assign('callbacks_count', $callbacksCount);
         $this->response->setContent($this->design->fetch('callbacks.tpl'));
     }
-    
 }

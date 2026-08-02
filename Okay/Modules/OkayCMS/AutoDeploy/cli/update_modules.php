@@ -23,11 +23,9 @@ $argv = Request::getArgv();
 $action = !empty($argv[1]) ? $argv[1] : "update";
 
 switch ($action) {
-    case 'update': {
+    case 'update':
         $deployHelper->updateModules();
         break;
-    }
-    default: {
-        echo "error: UNKNOWN ACTION (param1 must be: empty, 'update')".PHP_EOL;
-    }
+    default:
+        echo "error: UNKNOWN ACTION (param1 must be: empty, 'update')" . PHP_EOL;
 }

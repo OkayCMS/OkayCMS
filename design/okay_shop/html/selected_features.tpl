@@ -39,7 +39,7 @@
                     {* Brand filter *}
                     {if $catalog_brands && $selected_catalog_brands_ids}
                         {foreach $catalog_brands as $b}
-                            {if $brand->id == $b->id || in_array($b->id, $selected_catalog_brands_ids)}
+                            {if ($brand && $brand->id == $b->id) || in_array($b->id, $selected_catalog_brands_ids)}
                                 {$furl = {furl params=[brand=>$b->url, page=>null, route=>$furlRoute]}}
                                 <div class="filter__selected_feature">
                                     <form class="filter__selected_feature_item" method="post">

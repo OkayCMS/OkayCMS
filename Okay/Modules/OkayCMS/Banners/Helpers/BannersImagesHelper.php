@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\Banners\Helpers;
-
 
 use Okay\Core\Config;
 use Okay\Core\Database;
@@ -22,7 +20,7 @@ class BannersImagesHelper
      * @var BannersImagesEntity
      */
     private $bannersImagesEntity;
-    
+
     /**
      * @var BannersEntity
      */
@@ -60,12 +58,12 @@ class BannersImagesHelper
 
     public function __construct(
         EntityFactory $entityFactory,
-        Config        $config,
-        Image         $imageCore,
-        QueryFactory  $queryFactory,
-        Database      $db,
-        Request       $request,
-        Languages     $languages
+        Config $config,
+        Image $imageCore,
+        QueryFactory $queryFactory,
+        Database $db,
+        Request $request,
+        Languages $languages
     ) {
         $this->bannersEntity = $entityFactory->get(BannersEntity::class);
         $this->bannersImagesEntity = $entityFactory->get(BannersImagesEntity::class);
@@ -115,7 +113,7 @@ class BannersImagesHelper
     public function getBannerImage($id)
     {
         $bannerImage = $this->bannersImagesEntity->get($id) ?? new \stdClass();
-        
+
         if (!empty($bannerImage->settings)) {
             $bannerImage->settings = unserialize($bannerImage->settings);
         } else {
@@ -133,7 +131,7 @@ class BannersImagesHelper
             $this->config->get('banners_images_dir'),
             $this->config->get('resized_banners_images_dir'),
             $this->languages->getLangId(),
-            BannersImagesEntity::getLangObject().'_id'
+            BannersImagesEntity::getLangObject() . '_id'
         );
 
         return ExtenderFacade::execute(__METHOD__, null, func_get_args());
@@ -149,9 +147,9 @@ class BannersImagesHelper
                 $this->config->get('banners_images_dir'),
                 $this->config->get('resized_banners_images_dir'),
                 $this->languages->getLangId(),
-                BannersImagesEntity::getLangObject().'_id'
+                BannersImagesEntity::getLangObject() . '_id'
             );
-            
+
             if ($isNewBannersImage || !$bannerImage->is_lang_banner) {
                 $currentLangId = $this->languages->getLangId();
                 foreach ($this->languages->getAllLanguages() as $lang) {
@@ -191,8 +189,8 @@ class BannersImagesHelper
         $ids = array_keys($positions);
         sort($positions);
         $positions = array_reverse($positions);
-        foreach ($positions as $i=>$position) {
-            $this->bannersImagesEntity->update($ids[$i], ['position'=>$position]);
+        foreach ($positions as $i => $position) {
+            $this->bannersImagesEntity->update($ids[$i], ['position' => $position]);
         }
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
@@ -211,8 +209,7 @@ class BannersImagesHelper
         }
 
         // Текущий фильтр
-        if ($f = $this->request->get('filter', 'string'))
-        {
+        if ($f = $this->request->get('filter', 'string')) {
             if ($f == 'visible') {
                 $filter['visible'] = 1;
             } elseif ($f == 'hidden') {
@@ -222,7 +219,7 @@ class BannersImagesHelper
         } else {
             $filter['filter'] = null;
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $filter, func_get_args());
     }
 
@@ -233,10 +230,10 @@ class BannersImagesHelper
         $banner = $this->bannersEntity->get($bannerId);
         $filter['banner_id'] = $banner->id;
 
-        $this->bannersImagesEntity->update($ids, ['banner_id'=>$banner->id]);
+        $this->bannersImagesEntity->update($ids, ['banner_id' => $banner->id]);
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
-    
+
     public function countBannersImages($filter)
     {
         $bannerImagesCount = $this->bannersImagesEntity->count($filter);
@@ -250,7 +247,7 @@ class BannersImagesHelper
         }
 
         if ($filter['limit'] > 0) {
-            $pagesCount = ceil($bannersImagesCount/$filter['limit']);
+            $pagesCount = ceil($bannersImagesCount / $filter['limit']);
         } else {
             $pagesCount = 0;
         }
@@ -259,5 +256,4 @@ class BannersImagesHelper
 
         return [$filter, $pagesCount];
     }
-    
 }

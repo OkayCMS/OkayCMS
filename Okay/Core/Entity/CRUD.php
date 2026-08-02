@@ -1,23 +1,20 @@
 <?php
 
-
 namespace Okay\Core\Entity;
-
 
 use Okay\Core\QueryFactory\Select;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 
 trait CRUD
 {
-
     /**
-     * @param array $filter
-     * @return false|string|object
+     * @param array<string, mixed> $filter
+     * @return object|false
      */
     public function findOne(array $filter = [])
     {
         $filter['limit'] = 1;
-        
+
         if (!$results = $this->find($filter)) {
             return false;
         }
@@ -29,7 +26,7 @@ trait CRUD
     /**
      * Данный метод лучше не использовать, он в будущем будет определен как DEPRECATED
      * Вместо него используйте метод findOne()
-     * 
+     *
      * @param $id
      * @return mixed|void|null
      */
@@ -39,9 +36,9 @@ trait CRUD
             $this->flush();
             return ExtenderFacade::execute([static::class, __FUNCTION__], null, func_get_args());
         }
-        
+
         $this->setUp();
-        
+
         if (!is_int($id) && $this->getAlternativeIdField()) {
             $filter[$this->getAlternativeIdField()] = $id;
         } else {
@@ -50,7 +47,7 @@ trait CRUD
 
         $this->buildFilter($filter);
         $this->select->cols($this->getAllFields());
-        
+
         $this->db->query($this->select, $this->debug);
 
         $result = $this->getResult();
@@ -58,7 +55,7 @@ trait CRUD
     }
 
     /**
-     * @param array $filter
+     * @param array<string, mixed> $filter
      * @return Select
      */
     public function getSelect(array $filter = [])
@@ -70,15 +67,15 @@ trait CRUD
         $this->buildFilter($filter);
         $this->select->cols($this->getAllFields());
         $this->select->distinct(true);
-        
+
         $select = clone $this->select;
         $this->flush();
         return $select; // No ExtenderFacade
     }
 
     /**
-     * @param array $filter
-     * @return false|array
+     * @param array<string, mixed> $filter
+     * @return array<int|string, mixed>
      */
     public function find(array $filter = [])
     {
@@ -86,13 +83,13 @@ trait CRUD
         if ($this->noLimit === false) {
             $this->buildPagination($filter);
         }
-        
+
         $this->buildFilter($filter);
         $this->select->distinct(true);
         $this->select->cols($this->getAllFields());
-        
+
         $this->db->query($this->customChangeSelect($this->select), $this->debug);
-        
+
         // Получаем результирующие поля сущности
         $resultFields = $this->getAllFieldsWithoutAlias();
         $field = null;
@@ -102,6 +99,7 @@ trait CRUD
         }
 
         $results = $this->getResults($field, $this->mappedBy);
+
         return ExtenderFacade::execute([static::class, __FUNCTION__], $results, func_get_args());
     }
 
@@ -111,7 +109,7 @@ trait CRUD
     }
 
     /**
-     * @param array $filter
+     * @param array<string, mixed> $filter
      * @return false|string
      */
     public function count(array $filter = [])
@@ -120,7 +118,7 @@ trait CRUD
         $this->buildFilter($filter);
         $this->select->distinct(true);
         $this->select->cols(["COUNT( DISTINCT " . $this->getTableAlias() . ".id) as count"]);
-        
+
         // Уберем группировку и сортировку при подсчете по умолчанию
         $this->select->resetGroupBy();
         $this->select->resetOrderBy();
@@ -131,11 +129,14 @@ trait CRUD
         return ExtenderFacade::execute([static::class, __FUNCTION__], $count, func_get_args());
     }
 
+    /**
+     * @param object|array<string, mixed> $object
+     */
     public function add($object)
     {
         $object = (array)$object;
         unset($object['id']);
-        
+
         $object = (object)$object;
 
         // Проверяем есть ли мультиязычность и забираем описания для перевода
@@ -144,8 +145,8 @@ trait CRUD
 
         $insert = $this->queryFactory->newInsert();
 
-        foreach ($object as $field=>$value) {
-            if (strtolower($value) == 'now()') {
+        foreach ($object as $field => $value) {
+            if (is_scalar($value) && strtolower((string)$value) == 'now()') {
                 $insert->set($field, $value);
                 unset($object->$field);
             }
@@ -169,7 +170,7 @@ trait CRUD
                 ->bindValue('id', $id);
             $this->db->query($update);
         }
-        
+
         // todo last modify
         // Добавляем мультиязычные данные
         if (!empty($result->description)) {
@@ -179,6 +180,10 @@ trait CRUD
         return ExtenderFacade::execute([static::class, __FUNCTION__], (int) $id, func_get_args());
     }
 
+    /**
+     * @param mixed $ids Normalized with (array) before use; callers may pass int or list of ids.
+     * @param object|array<string, mixed> $object
+     */
     public function update($ids, $object)
     {
         $ids = (array)$ids;
@@ -186,7 +191,7 @@ trait CRUD
 
         $object = (array)$object;
         unset($object['id']);
-        
+
         $object = (object)$object;
         $update = $this->queryFactory->newUpdate();
 
@@ -194,13 +199,13 @@ trait CRUD
         $result = $this->getDescription($object);
 
         $funcAsData = false;
-        foreach ($object as $field=>$value) {
+        foreach ($object as $field => $value) {
             if (is_array($value) || is_object($value)) {
                 unset($object->$field);
                 continue;
             }
 
-            if (strtolower($value) == 'now()') {
+            if (is_scalar($value) && strtolower((string)$value) == 'now()') {
                 $update->set($field, $value);
                 unset($object->$field);
                 $funcAsData = true;
@@ -230,13 +235,16 @@ trait CRUD
         return ExtenderFacade::execute([static::class, __FUNCTION__], true, func_get_args());
     }
 
+    /**
+     * @param mixed $ids Normalized with (array) before use.
+     */
     public function delete($ids)
     {
         if (empty($ids)) {
             return ExtenderFacade::execute([static::class, __FUNCTION__], false, func_get_args());
         }
         $ids = (array)$ids;
-        
+
         $delete = $this->queryFactory->newDelete();
         $delete->from($this->getTable())->where('id IN (:ids)');
         $delete->bindValue('ids', $ids);
@@ -254,8 +262,8 @@ trait CRUD
 
     /**
      * Метод регистрирует список колонок, которые нужно достать
-     * 
-     * @param array $cols
+     *
+     * @param array<int|string, string> $cols
      * @return $this
      */
     public function cols(array $cols)
@@ -266,7 +274,7 @@ trait CRUD
 
     /**
      * Метод регистрирует одну колонку, которую нужно достать
-     * 
+     *
      * @param $colName
      * @return $this
      */
@@ -276,10 +284,10 @@ trait CRUD
         if (in_array($colName, $defaultFields)) {
             $this->setSelectFields([$colName]);
         }
-        
+
         return $this;
     }
-    
+
     public function getResult($field = null)
     {
         $results = $this->db->result($field);
@@ -308,5 +316,4 @@ trait CRUD
             $this->select->join('LEFT', $langQuery['join'], $langQuery['cond']);
         }
     }
-    
 }

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\Banners\Extenders;
-
 
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
@@ -11,9 +9,11 @@ use Okay\Core\Modules\Module;
 use Okay\Modules\OkayCMS\Banners\DTO\BannerSettingsDTO;
 use Okay\Modules\OkayCMS\Banners\Helpers\BannersHelper;
 
+/**
+ * @phpstan-type FrontBannerRow object{settings?: string|null, as_individual_shortcode?: int|string|bool|null, group_name: string}&\stdClass
+ */
 class FrontExtender implements ExtensionInterface
 {
-    
     private $entityFactory;
     private $design;
     private $module;
@@ -40,8 +40,12 @@ class FrontExtender implements ExtensionInterface
         }
         $this->design->assign('global_banners', $this->totalBannersHtml);
     }
-    
-    public function metadataGetParts(array $parts = [])
+
+    /**
+     * @param array<string, string> $parts
+     * @return array<string, string>
+     */
+    public function metadataGetParts(array $parts = []): array
     {
         $shortCodeParts = [];
         if (!empty($this->shortCodesParts)) {
@@ -52,14 +56,14 @@ class FrontExtender implements ExtensionInterface
         $parts = array_merge($parts, $shortCodeParts);
         return $parts;
     }
-    
+
     public function init()
     {
         // Устанавливаем директорию HTML из модуля
         $this->design->setModuleDir(__CLASS__);
 
         $showOnFilter = $this->bannersHelper->getShowOnFilter();
-        
+
         if ($this->design->getVar('product')) {
             $bannersFilter = [
                 'visible' => true,
@@ -76,6 +80,7 @@ class FrontExtender implements ExtensionInterface
 
         if (!empty($banners)) {
             foreach ($banners as $banner) {
+                /** @var FrontBannerRow $banner */
                 if (!empty($banner->settings)) {
                     $banner->settings = unserialize($banner->settings);
                 } else {
@@ -91,7 +96,7 @@ class FrontExtender implements ExtensionInterface
                 }
             }
         }
-        
+
         // Вернём обратно стандартную директорию шаблонов
         $this->design->rollbackTemplatesDir();
     }

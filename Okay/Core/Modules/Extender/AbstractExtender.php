@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Modules\Extender;
-
 
 abstract class AbstractExtender
 {
@@ -38,7 +36,7 @@ abstract class AbstractExtender
 
     protected static function compileTrigger($className, $methodName)
     {
-        return $className."::".$methodName;
+        return $className . "::" . $methodName;
     }
 
     protected function checkAndCorrectDeprecatedMethod($trigger)
@@ -49,11 +47,15 @@ abstract class AbstractExtender
             $association = $this->deprecatedMethods[$trigger];
             $result = $association[1];
             if ($association[1] === false) {
-                trigger_error("Method {$association[0][0]}::{$association[0][1]} will be deprecated in the future. Please don't extend it.",
-                    E_USER_WARNING);
+                trigger_error(
+                    "Method {$association[0][0]}::{$association[0][1]} will be deprecated in the future. Please don't extend it.",
+                    E_USER_WARNING
+                );
             } else {
-                trigger_error("Method {$association[0][0]}::{$association[0][1]} is deprecated. Please use {$association[0][0]}::{$association[0][1]}.",
-                    E_USER_DEPRECATED);
+                trigger_error(
+                    "Method {$association[0][0]}::{$association[0][1]} is deprecated. Please use {$association[0][0]}::{$association[0][1]}.",
+                    E_USER_DEPRECATED
+                );
             }
         }
 
@@ -89,5 +91,10 @@ abstract class AbstractExtender
         return [];
     }
 
-    public static function execute($trigger, $output = null, array $input = []) {}
+    /**
+     * @param list<mixed> $input
+     */
+    public static function execute($trigger, $output = null, array $input = [])
+    {
+    }
 }

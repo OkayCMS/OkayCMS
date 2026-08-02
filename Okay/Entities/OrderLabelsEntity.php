@@ -1,15 +1,12 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 
 class OrderLabelsEntity extends Entity
 {
-
     protected static $fields = [
         'id',
         'color',
@@ -31,29 +28,29 @@ class OrderLabelsEntity extends Entity
     protected static $additionalFields = [
         'MAX(ol.order_id) as order_id',
     ];
-    
+
     protected function filter__order_id($orderIds)
     {
         $this->select->where('ol.order_id IN (:order_ids)')
             ->bindValue('order_ids', (array)$orderIds);
     }
-    
+
     public function get($id)
     {
         if (empty($id)) {
             return ExtenderFacade::execute([static::class, __FUNCTION__], null, func_get_args());
         }
-        
+
         $this->select->join('LEFT', '__orders_labels AS ol', 'ol.label_id = lb.id');
         return parent::get($id);
     }
-    
+
     public function count(array $filter = [])
     {
         $this->select->join('LEFT', '__orders_labels AS ol', 'ol.label_id = lb.id');
         return parent::count($filter);
     }
-    
+
     public function find(array $filter = [])
     {
         $this->select->join('LEFT', '__orders_labels AS ol', 'ol.label_id = lb.id');
@@ -88,7 +85,7 @@ class OrderLabelsEntity extends Entity
             ])
             ->where('order_id IN (:orders_ids)')
             ->bindValue('orders_ids', (array)$ordersIds);
-        
+
         $this->db->query($select);
         $labelsIds = [];
         $ordersLabels = [];
@@ -96,20 +93,21 @@ class OrderLabelsEntity extends Entity
             $ordersLabels[$result->order_id][] = $result->label_id;
             $labelsIds[] = $result->label_id;
         }
-        
+
         if (!empty($labelsIds)) {
             $labels = [];
-            foreach ($this->find(['id'=>$labelsIds]) as $label) {
+            foreach ($this->find(['id' => $labelsIds]) as $label) {
                 $labels[$label->id] = $label;
             }
         }
 
         $result = [];
         if (!empty($labels) && !empty($ordersLabels)) {
-            foreach ($ordersLabels as $orderId=>$labelsIds) {
+            foreach ($ordersLabels as $orderId => $labelsIds) {
                 foreach ($labelsIds as $labelId) {
                     if (isset($labels[$labelId])) {
                         $res = clone $labels[$labelId];
+                        /** @var object{order_id: int|string}&\stdClass $res */
                         $res->order_id = $orderId;
                         $result[] = $res;
                     }
@@ -119,8 +117,11 @@ class OrderLabelsEntity extends Entity
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], $result, func_get_args());
     }
-    
+
     /*Обновление меток заказа*/
+    /**
+     * @param list<int> $labelsIds
+     */
     public function updateOrderLabels($orderId, array $labelsIds)
     {
         if (!empty($labelsIds)) {
@@ -144,6 +145,9 @@ class OrderLabelsEntity extends Entity
     }
 
     /*Добавление меток к заказу*/
+    /**
+     * @param list<int> $labelsIds
+     */
     public function addOrderLabels($orderId, array $labelsIds)
     {
         if (!empty($labelsIds)) {
@@ -164,6 +168,9 @@ class OrderLabelsEntity extends Entity
     }
 
     /*Удаление меток с заказа*/
+    /**
+     * @param list<int> $labelsIds
+     */
     public function deleteOrderLabels($orderId, array $labelsIds)
     {
         if (!empty($labelsIds)) {
@@ -178,5 +185,4 @@ class OrderLabelsEntity extends Entity
 
         ExtenderFacade::execute([static::class, __FUNCTION__], null, func_get_args());
     }
-
 }

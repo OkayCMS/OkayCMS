@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Modules;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\DTO\ModificationDTO;
@@ -15,18 +13,20 @@ use Psr\Log\LoggerInterface;
 /**
  * Class Module
  * @package Okay\Core\Modules
- * 
+ *
  * Класс предназначен для получения различной информации по модулю
- * 
+ *
  */
 
 class Module
 {
-    const COMMON_MODULE_NAMESPACE = 'Okay\\Modules';
-    const COMMON_MODULE_DIRECTORY = 'Okay/Modules/';
+    public const COMMON_MODULE_NAMESPACE = 'Okay\\Modules';
+    public const COMMON_MODULE_DIRECTORY = 'Okay/Modules/';
 
     protected LoggerInterface $logger;
     protected LicenseModulesTemplates $licenseModulesTemplates;
+
+    /** @var array<string, mixed> */
     protected array $modulesExpires;
 
     public function __construct(
@@ -37,22 +37,22 @@ class Module
         $this->licenseModulesTemplates = $licenseModulesTemplates;
     }
 
-    private static array $modulesIds;
+    /** @var array<string, array<string, int>> */
+    private static array $modulesIds = [];
 
     /**
-     * @param array $modulesExpires
-     * @return void
+     * @param array<string, mixed> $modulesExpires
      *
      * Метод встановлює інформацію по закінченню терміну доступу до оновлень модулів
      */
-    public function setModulesExpires(array $modulesExpires)
+    public function setModulesExpires(array $modulesExpires): void
     {
         $this->modulesExpires = $modulesExpires;
     }
 
     /**
      * Метод возвращает параметры модуля описанные в module.json
-     * 
+     *
      * @param $vendor
      * @param $moduleName
      * @return ModuleParamsDTO
@@ -64,7 +64,8 @@ class Module
 
         $moduleParamsDTO = new ModuleParamsDTO();
         if (file_exists($moduleJsonFileFile)) {
-            $moduleParams = json_decode(file_get_contents($moduleJsonFileFile), true);
+            $moduleJson = file_get_contents($moduleJsonFileFile);
+            $moduleParams = is_string($moduleJson) ? json_decode($moduleJson, true) : null;
             if (JSON_ERROR_NONE === $code = json_last_error()) {
                 if (isset($moduleParams['modifications']['front'])) {
                     $this->initModifications(
@@ -89,7 +90,10 @@ class Module
             } else {
                 $this->logger->error(sprintf(
                     "Error %d when decoding module.json of %s/%s: %s",
-                    $code, $vendor, $moduleName, json_last_error_msg()
+                    $code,
+                    $vendor,
+                    $moduleName,
+                    json_last_error_msg()
                 ));
             }
         }
@@ -117,12 +121,8 @@ class Module
     }
 
     /**
-     * @param array $modifications
-     * @param ModuleParamsDTO $moduleParamsDTO
-     * @param string $vendor
-     * @param string $moduleName
-     * @param bool $isFrontModification
-     * @return void
+     * @param list<array<string, mixed>> $modifications
+     *
      * @throws \Exception
      */
     private function initModifications(
@@ -131,8 +131,7 @@ class Module
         string $vendor,
         string $moduleName,
         bool $isFrontModification
-    ): void
-    {
+    ): void {
         foreach ($modifications as $modification) {
             $changes = [];
             foreach ($modification['changes'] as $change) {
@@ -200,10 +199,9 @@ class Module
             } else {
                 $moduleParamsDTO->setBackendModification($modificationDTO);
             }
-
         }
     }
-    
+
     /**
      * Получить базовую область видимости для указанного модуля
      * @param string $vendor
@@ -291,10 +289,10 @@ class Module
 
     /**
      * Получить список роутов модуля
-     * @param string $vendor
-     * @param string $moduleName
+     *
+     * @return array<string, array<string, mixed>>
+     *
      * @throws \Exception
-     * @return array
      */
     public function getRoutes(string $vendor, string $moduleName): array
     {
@@ -312,10 +310,10 @@ class Module
 
     /**
      * Получить список сервисов модуля
-     * @param string $vendor
-     * @param string $moduleName
+     *
+     * @return array<string, array<string, mixed>>
+     *
      * @throws \Exception
-     * @return array
      */
     public function getServices(string $vendor, string $moduleName): array
     {
@@ -332,10 +330,10 @@ class Module
 
     /**
      * Получить список параметров модуля
-     * @param string $vendor
-     * @param string $moduleName
+     *
+     * @return array<string, mixed>
+     *
      * @throws \Exception
-     * @return array
      */
     public function getParameters(string $vendor, string $moduleName): array
     {
@@ -352,11 +350,11 @@ class Module
     }
 
     /**
-     * Получить список сервисов модуля
-     * @param string $vendor
-     * @param string $moduleName
+     * Получить список Smarty-плагинов модуля
+     *
+     * @return array<string, array<string, mixed>>
+     *
      * @throws \Exception
-     * @return array
      */
     public function getSmartyPlugins(string $vendor, string $moduleName): array
     {
@@ -433,8 +431,9 @@ class Module
      *      'module' => 'Module',
      *      'controller' => 'Controller',
      * ]
-     * @param $vendorModuleController
-     * @return bool|array
+     *
+     * @return array<string, string>|false
+     *
      * @throws \Exception
      */
     public function getBackendControllerParams($vendorModuleController)
@@ -463,7 +462,15 @@ class Module
 
     public function generateModuleTemplateDir($vendor, $moduleName)
     {
-        return realpath(__DIR__ . '/../../Modules/' . $vendor . '/' . $moduleName . '/design/html/');
+        $moduleTemplateDir = dirname(__DIR__, 3)
+            . '/'
+            . self::COMMON_MODULE_DIRECTORY
+            . $vendor
+            . '/'
+            . $moduleName
+            . '/design/html/';
+
+        return is_dir($moduleTemplateDir) ? $moduleTemplateDir : false;
     }
 
     /**
@@ -528,23 +535,23 @@ class Module
 
     /**
      * Метод возвращает математическое представление версии, которое можно передавать операторам сравнения
-     * 
+     *
      * @param $version
      * @return int
      */
-    public function getMathVersion($version) : int
+    public function getMathVersion($version): int
     {
         $parts = explode('.', $version);
-        
+
         if (count($parts) != 3) {
             return 0;
         }
-        
+
         foreach ($parts as &$part) {
             $part += 100;
         }
         unset($part);
-        return (int)implode('' , $parts);
+        return (int)implode('', $parts);
     }
 
     public function getVersionControl(): VersionControl

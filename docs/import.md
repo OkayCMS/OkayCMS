@@ -1,14 +1,14 @@
-# Импорт (Import)
+# Імпорт (Import)
 
-Из csv файлов можно призводить импорт товаров, категорий и свойств товаров.
-Также можно импортировать данные для [модуля](./modules/README.md). 
+З CSV-файлів можна виконувати імпорт товарів, категорій і властивостей товарів.
+Також можна імпортувати дані для [модуля](./modules/README.md).
 
-### Расширение импорта из модуля
-Для того чтобы дополнить список импортируемх полей, которые выводятся перечнем при запуске импорта, полем из модуля необходимо использовать шортблок import_fields_association.
-Для того чтобы считать из импортируемого файла необходимую информацию можно в [модуле](./modules/README.md) реализовать [экстендер](./modules/extenders.md), который будет расширять метод parseProductData() класса BackendImportHelper.
-В методе экстендера принять вторым аргументом $itemFromCsv и считать необходимую информацию.
+### Розширення імпорту з модуля
+Щоб доповнити список імпортованих полів, який показується переліком під час запуску імпорту, полем із модуля потрібно використати шорт-блок `import_fields_association`.
+Щоб зчитати з імпортованого файла потрібну інформацію, у [модулі](./modules/README.md) можна реалізувати [extender](./modules/extenders.md), який розширюватиме метод `parseProductData()` класу BackendImportHelper.
+У методі extender прийміть другим аргументом `$itemFromCsv` і зчитайте потрібну інформацію.
 
-Пример:
+Приклад:
 
 ```php
 public function extendParseProductData($product, $itemFromCsv)
@@ -20,10 +20,10 @@ public function extendParseProductData($product, $itemFromCsv)
 ```
 
 
-Для того чтобы поля модуля при импорте не добавлялись в качестве новых свойств необходимо расширить метод getModulesColumnsNames() класса BackendImportHelper.
-Метод экстендера принимает в качестве аргумента массив полей из модулей и добавляет свои поля.
+Щоб поля модуля під час імпорту не додавалися як нові властивості, потрібно розширити метод `getModulesColumnsNames()` класу BackendImportHelper.
+Метод extender приймає як аргумент масив полів із модулів і додає свої поля.
 
-Пример:
+Приклад:
 
 ```php
 public function extendModulesColumnsNames($modulesColumnsNames)
@@ -33,4 +33,4 @@ public function extendModulesColumnsNames($modulesColumnsNames)
 }
 ```
  
-Для того чтобы из модуля внести изменения после импорта, необходимо расширить метод afterImportProductProcedure() класса BackendImportHelper. 
+Щоб із модуля внести зміни після імпорту, потрібно розширити метод `afterImportProductProcedure()` класу BackendImportHelper.

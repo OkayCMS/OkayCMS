@@ -3,17 +3,12 @@
 
 namespace TplMod;
 
-
 use Okay\Core\TplMod\Parser;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class TplModParserTest extends \PHPUnit\Framework\TestCase
 {
-
-    /**
-     * @param $string
-     * @param $expectedResult
-     * @dataProvider parseStringDataProvider
-     */
+    #[DataProvider('parseStringDataProvider')]
     public function testParseString($string, $expectedResult)
     {
         $parser = new Parser();
@@ -22,7 +17,7 @@ class TplModParserTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expectedResult, $actualResult);
     }
     
-    public function parseStringDataProvider()
+    public static function parseStringDataProvider()
     {
         return [
             [// Smarty комменты

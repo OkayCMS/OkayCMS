@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\Hotline\Controllers;
-
 
 use Aura\Sql\ExtendedPdo;
 use Okay\Controllers\AbstractController;
@@ -18,26 +16,50 @@ use Okay\Modules\OkayCMS\Hotline\Entities\HotlineRelationsEntity;
 use Okay\Modules\OkayCMS\Hotline\Helpers\HotlineHelper;
 use PDO;
 
+/**
+ * @phpstan-type HotlineFeedRow object{id: int|string, enabled: bool|int|string|null}
+ * @phpstan-type HotlineProductRow \stdClass&object{
+ *     product_id: int|string,
+ *     variant_id: int|string,
+ *     stock: int|float|string|null,
+ *     price: int|float,
+ *     compare_price?: int|float|null,
+ *     currency_id: int|string|null,
+ *     main_category_id: int|string|null,
+ *     url: string,
+ *     slug_url: string,
+ *     brand_name: string,
+ *     product_name: string,
+ *     variant_name?: string|null,
+ *     sku: string,
+ *     images?: list<string>,
+ *     images_string?: string|null,
+ *     features?: array<int|string, array{name: string, values: list<string>, values_string: string}>,
+ *     description: string
+ * }
+ */
 class HotlineController extends AbstractController
 {
     public function render(
-        CategoriesEntity   $categoriesEntity,
-        QueryFactory       $queryFactory,
-        ExtendedPdo        $pdo,
-        HotlineHelper      $hotlineHelper,
-        XmlFeedHelper      $feedHelper,
+        CategoriesEntity $categoriesEntity,
+        QueryFactory $queryFactory,
+        ExtendedPdo $pdo,
+        HotlineHelper $hotlineHelper,
+        XmlFeedHelper $feedHelper,
         HotlineFeedsEntity $feedsEntity,
-        CurrenciesEntity   $currenciesEntity,
-        Money              $money,
+        CurrenciesEntity $currenciesEntity,
+        Money $money,
         $url
     ) {
-        if (!($feed = $feedsEntity->findOne(['url' => $url])) || !$feed->enabled) {
+        /** @var HotlineFeedRow|null $feed */
+        $feed = $feedsEntity->findOne(['url' => $url]);
+        if (!$feed || !$feed->enabled) {
             return false;
         }
-        
+
         if ($currencies = $currenciesEntity->find()) {
             $this->design->assign('main_currency', reset($currencies));
-            
+
             // Передаем валюты, чтобы класс потом не лез в базу за валютами, т.к. мы работаем с небуферизированными запросами
             foreach ($currencies as $c) {
                 $money->setCurrency($c);
@@ -56,13 +78,13 @@ class HotlineController extends AbstractController
 
         $categoriesToFeed = $select->results('entity_id');
         $uploadCategories = $feedHelper->addAllChildrenToList($categoriesToFeed);
-        
+
         $this->design->assign('all_categories', $categoriesEntity->find());
 
         $this->response->setContentType(RESPONSE_XML);
         $this->response->sendHeaders();
         $this->response->sendStream($this->design->fetch('feed_head.xml.tpl'));
-        
+
         // На всякий случай наполним кеш роутов
         Router::generateRouterCache();
 
@@ -72,14 +94,16 @@ class HotlineController extends AbstractController
         // Увеличиваем лимит ф-ции GROUP_CONCAT()
         $query = $queryFactory->newSqlQuery();
         $query->setStatement('SET SESSION group_concat_max_len = 1000000;')->execute();
-        
+
         // Для экономии памяти работаем с небуферизированными запросами
         $pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
         $query = $hotlineHelper->getQuery($feed->id, $uploadCategories);
 
         $prevProductId = null;
         while ($product = $query->result()) {
+            /** @var HotlineProductRow $product */
             $product = $feedHelper->attachFeatures($product);
+            /** @var HotlineProductRow $product */
             $metaParts = $feedHelper->getMetadataParts($product);
             $product = $feedHelper->attachDescriptionByTemplate(
                 $product,
@@ -87,20 +111,23 @@ class HotlineController extends AbstractController
                 $feedHelper->getDescriptionTemplate($product),
                 XmlFeedHelper::DESCRIPTION_FIELD
             );
+            /** @var HotlineProductRow $product */
             $product = $feedHelper->attachDescriptionByTemplate(
                 $product,
                 $metaParts,
                 $feedHelper->getAnnotationTemplate($product),
                 XmlFeedHelper::ANNOTATION_FIELD
             );
+            /** @var HotlineProductRow $product */
             $product = $feedHelper->attachProductImages($product);
+            /** @var HotlineProductRow $product */
 
             $addVariantUrl = false;
             if ($prevProductId === $product->product_id) {
                 $addVariantUrl = true;
             }
             $prevProductId = $product->product_id;
-            
+
             $item = $hotlineHelper->getItem($product, $addVariantUrl);
             $xmlProduct = $feedHelper->compileItem($item, 'item');
             $this->response->sendStream($xmlProduct);

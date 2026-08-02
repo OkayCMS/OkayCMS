@@ -79,6 +79,7 @@
         <form class="sidebar_subscribe__form fn_subscribe_form_blog fn_validate_subscribe_blog" method="post">
             <div class="sidebar_subscribe__group">
                 <input type="hidden" name="subscribe" value="1"/>
+                <input type="hidden" name="customer_csrf_token" value="{$customer_csrf_token|escape}">
                 <input class="form__input form__input--aside_subscribe" aria-label="subscribe" type="email" name="subscribe_email" value="" data-format="email" placeholder="{$lang->form_email}"/>
             </div>
             <button class="button button--basic button--aside_subscribe" type="submit" title="{$lang->subscribe_button}">{include file='svg.tpl' svgId='subscribe_image'}</button>

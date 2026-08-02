@@ -10,9 +10,9 @@ class NPCalcVO
     private float $defaultWeight;
     private float $defaultVolume;
 
-    public function __construct(int $totalPrice, float $defaultWeight, float $defaultVolume)
+    public function __construct(int|float $totalPrice, float $defaultWeight, float $defaultVolume)
     {
-        $this->totalPrice = $totalPrice;
+        $this->totalPrice = (int) round((float) $totalPrice);
         $this->defaultWeight = $defaultWeight;
         $this->defaultVolume = $defaultVolume;
     }

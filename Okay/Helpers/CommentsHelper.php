@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Helpers;
-
 
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
@@ -15,9 +13,11 @@ use Okay\Entities\CommentsEntity;
 use Okay\Entities\ProductsEntity;
 use Okay\Requests\CommonRequest;
 
+/**
+ * @phpstan-type CommentRow object{id: int|string, parent_id: int|string, type: string, object_id: int|string, children?: array<int|string, object>, product?: object, post?: object}&\stdClass
+ */
 class CommentsHelper implements GetListInterface
 {
-
     private $entityFactory;
     private $commentsRequest;
     private $validateHelper;
@@ -28,13 +28,13 @@ class CommentsHelper implements GetListInterface
     private $mainHelper;
 
     public function __construct(
-        EntityFactory  $entityFactory,
-        CommonRequest  $commentsRequest,
+        EntityFactory $entityFactory,
+        CommonRequest $commentsRequest,
         ValidateHelper $validateHelper,
-        Design         $design,
-        Notify         $notify,
-        MainHelper     $mainHelper,
-        Languages      $languages
+        Design $design,
+        Notify $notify,
+        MainHelper $mainHelper,
+        Languages $languages
     ) {
         $this->entityFactory = $entityFactory;
         $this->commentsRequest = $commentsRequest;
@@ -50,10 +50,10 @@ class CommentsHelper implements GetListInterface
      * Метод возвращает комментарии для товаров или записей блога
      *
      * Данный метод остаётся для обратной совместимости, но объявлен как deprecated, и будет удалён в будущих версиях
-     * 
+     *
      * @param string $objectType
      * @param int $objectId
-     * @return array
+     * @return array<int|string, CommentRow>
      * @throws \Exception
      */
     public function getCommentsList($objectType, $objectId)
@@ -70,7 +70,7 @@ class CommentsHelper implements GetListInterface
     /**
      * @param string $objectType
      * @param int $objectId
-     * @return array
+     * @return array<string, mixed>
      */
     public function getCommentsFilter($objectType, $objectId)
     {
@@ -94,10 +94,9 @@ class CommentsHelper implements GetListInterface
     }
 
     /**
-     * @param array $filter
-     * @param string $sortName
-     * @param array $excludedFields
-     * @return array
+     * @param array<string, mixed> $filter
+     * @param array<int, string>|false|null $excludedFields
+     * @return array<int|string, CommentRow>
      * @throws \Exception
      */
     public function getList($filter = [], $sortName = null, $excludedFields = null)
@@ -116,12 +115,13 @@ class CommentsHelper implements GetListInterface
 
         $commentsEntity->order($sortName, $this->getOrderCommentsAdditionalData());
         $comments = $commentsEntity->mappedBy('id')->find($filter);
+        /** @var array<int|string, CommentRow> $comments */
 
         return ExtenderFacade::execute(__METHOD__, $comments, func_get_args());
     }
 
     /**
-     * @return array
+     * @return array<int, string>
      */
     public function getExcludeFields()
     {
@@ -130,7 +130,7 @@ class CommentsHelper implements GetListInterface
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      */
     private function getOrderCommentsAdditionalData()
     {
@@ -139,8 +139,8 @@ class CommentsHelper implements GetListInterface
     }
 
     /**
-     * @param array $comments
-     * @return array mixed
+     * @param array<int|string, CommentRow> $comments
+     * @return array<int|string, CommentRow>
      */
     public function attachAnswers($comments)
     {
@@ -157,10 +157,11 @@ class CommentsHelper implements GetListInterface
                 $filter['composite_object_type_id'][$comment->type][] = $comment->object_id;
             }
             $answers = $commentsEntity->mappedBy('id')->order('id DESC')->find($filter);
+            /** @var array<int|string, CommentRow> $answers */
             foreach ($answers as $answer) {
                 if (isset($answers[$answer->parent_id])) {
                     $answers[$answer->parent_id]->children[$answer->id] = $answer;
-                } else if (isset($comments[$answer->parent_id])) {
+                } elseif (isset($comments[$answer->parent_id])) {
                     $comments[$answer->parent_id]->children[$answer->id] = $answer;
                 }
             }
@@ -183,7 +184,7 @@ class CommentsHelper implements GetListInterface
 
                 /** @var CommentsEntity $commentsEntity */
                 $commentsEntity = $this->entityFactory->get(CommentsEntity::class);
-                
+
                 // Создаем комментарий
                 $comment->object_id = $objectId;
                 $comment->type      = $objectType;
@@ -195,15 +196,15 @@ class CommentsHelper implements GetListInterface
                 } elseif (!empty($user = $this->mainHelper->getCurrentUser()) && !empty($user->id)) {
                     $comment->user_id = $user->id;
                 }
-                
+
                 // Добавляем комментарий в базу
                 $commentId = $commentsEntity->add($comment);
                 // Отправляем email
                 $this->notify->emailCommentAdmin($commentId);
-                
+
                 ExtenderFacade::execute(__METHOD__, $commentId, func_get_args());
-                
-                Response::redirectTo($_SERVER['REQUEST_URI'].'#comment_'.$commentId);
+
+                Response::redirectTo($_SERVER['REQUEST_URI'] . '#comment_' . $commentId);
             }
         }
     }
@@ -216,7 +217,7 @@ class CommentsHelper implements GetListInterface
 
         /** @var BlogEntity $blogEntity */
         $blogEntity = $this->entityFactory->get(BlogEntity::class);
-        
+
         $productsIds = [];
         $postsIds    = [];
         foreach ($comments as $comment) {
@@ -253,5 +254,4 @@ class CommentsHelper implements GetListInterface
 
         return ExtenderFacade::execute(__METHOD__, $comments, func_get_args());
     }
-    
 }

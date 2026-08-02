@@ -236,7 +236,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="row">
         <div class="col-lg-6 col-md-12">
             <div class="boxed fn_toggle_wrap">
@@ -307,18 +307,16 @@
                             <div class="mb-1">
                                 <div class="">
                                     <select name="social_share_theme" class="fn_social_share_theme selectpicker form-control">
-                                        <option value=""{if !$settings->social_share_theme} selected{/if}>default</option>
-                                        <option value="flat"{if $settings->social_share_theme == 'flat'} selected{/if}>flat</option>
-                                        <option value="classic"{if $settings->social_share_theme == 'classic'} selected{/if}>classic</option>
-                                        <option value="minima"{if $settings->social_share_theme == 'minima'} selected{/if}>minima</option>
-                                        <option value="plain"{if $settings->social_share_theme == 'plain'} selected{/if}>plain</option>
+                                        <option value="default"{if !$settings->social_share_theme || $settings->social_share_theme == 'default' || in_array($settings->social_share_theme, ['flat','classic','minima','plain'])} selected{/if}>default</option>
                                     </select>
-                                    <div class="fn_share"></div>
-
-                                    <div style="display: none;">
-                                    {foreach $js_socials as $soc}
-                                        <input type="checkbox" class="fn_{$soc}" name="sj_shares[]"{if in_array($soc, $settings->sj_shares)} checked{/if} value="{$soc}" />
-                                    {/foreach}
+                                    <div class="fn_share d-flex flex-wrap gap-1 mt-1">
+                                        {foreach $share_icons as $icon}
+                                            <label class="fn_share_icon fn_share_icon--selectable mb-0 cursor-pointer rounded border p-1{if in_array($icon.id, $settings->sj_shares)} active{/if}" title="{$icon.label|escape}">
+                                                <img src="{$share_icons_base_url}/{$icon.logo|escape}.svg" width="32" height="32" alt="{$icon.label|escape}" class="fn_share_icon__img" />
+                                                <span class="fn_share_icon__bar"></span>
+                                                <input type="checkbox" class="fn_{$icon.id} hidden_check" name="sj_shares[]" value="{$icon.id|escape}"{if in_array($icon.id, $settings->sj_shares)} checked{/if} />
+                                            </label>
+                                        {/foreach}
                                     </div>
                                 </div>
                             </div>
@@ -378,7 +376,7 @@
                                 <span>{$btr->general_apply|escape}</span>
                             </button>
                         </div>
-                        
+
                     </div>
                 </div>
                 {get_design_block block="settings_theme_css_colors"}
@@ -391,11 +389,6 @@
 <link rel="stylesheet" media="screen" type="text/css" href="design/js/colorpicker/css/colorpicker.css" />
 <script type="text/javascript" src="design/js/colorpicker/js/colorpicker.js"></script>
 
-<script type="text/javascript" src="{$rootUrl}/js_libraries/js_socials/js/jssocials.min.js"></script>
-<link type="text/css" rel="stylesheet" href="{$rootUrl}/js_libraries/js_socials/css/jssocials.css" />
-{if $settings->social_share_theme}
-    <link type="text/css" class="fn_social_share_style" rel="stylesheet" href="{$rootUrl}/js_libraries/js_socials/css/jssocials-theme-{$settings->social_share_theme|escape}.css" />
-{/if}
 <script type="text/javascript" src="design/js/tinymce_jq/tinymce.min.js"></script>
 {literal}
     <script>
@@ -419,55 +412,18 @@
             });
 
         });
-        
-        {/literal}
-        {if $js_custom_socials}
-            {foreach $js_custom_socials as $social=>$params}
-                jsSocials.shares.{$social|escape} = {$params|json_encode};
-            {/foreach}
-        {/if}
-        {literal}
-        
-        $(".fn_share").jsSocials({
-            showLabel: false,
-            showCount: false,
-            shares: {/literal}{$js_socials|json_encode}{literal},
-            on: {
-                click: function(e) {
-                    var $share_checkbox = $('.fn_'+this.share);
-                    if ($share_checkbox.is(':checked')) {
-                        $('.jssocials-share-'+this.share).removeClass('active');
-                        $share_checkbox.prop('checked', false);
-                    } else {
-                        $('.jssocials-share-'+this.share).addClass('active');
-                        $share_checkbox.prop('checked', true);
-                    }
-                    return false;
-                }
+
+        $(document).on('click', '.fn_share_icon', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var $label = $(this);
+            var $cb = $label.find('input[type=checkbox]');
+            if ($cb.length) {
+                $cb.prop('checked', !$cb.prop('checked'));
+                $label.toggleClass('active', $cb.prop('checked'));
             }
         });
-        {/literal}
-        
-        {*Отметим выбранные соц. сети как выбранные*}
-        {if $settings->sj_shares}
-            {foreach $settings->sj_shares as $soc}
-                $('.jssocials-share-{$soc}').addClass('active');
-            {/foreach}
-        {/if}
-        {literal}
-        
-        $(document).on('change', 'select.fn_social_share_theme', function() {
-            if ($(this).val() != '') {
-                if ($('.fn_social_share_style').length > 0) {
-                    $('.fn_social_share_style').prop('href', '{/literal}{$rootUrl}{literal}/js_libraries/js_socials/css/jssocials-theme-' + $(this).val() + '.css')
-                } else {
-                    $('body').append('<link type="text/css" class="fn_social_share_style" rel="stylesheet" href="{/literal}{$rootUrl}{literal}/js_libraries/js_socials/css/jssocials-theme-' + $(this).val() + '.css" />');
-                }
-            } else {
-                $('.fn_social_share_style').remove();
-            }
-        });
-        
+
         $(function(){
             tinyMCE.init({
                 selector: "textarea.editor_small",

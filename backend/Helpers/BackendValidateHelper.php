@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Helpers;
-
 
 use Okay\Core\Entity\UrlUniqueValidator;
 use Okay\Core\Managers;
@@ -50,12 +48,12 @@ class BackendValidateHelper
     private $managers;
 
     public function __construct(
-        EntityFactory      $entityFactory,
-        Settings           $settings,
-        Request            $request,
+        EntityFactory $entityFactory,
+        Settings $settings,
+        Request $request,
         UrlUniqueValidator $urlUniqueValidator,
-        Managers           $managers
-    ){
+        Managers $managers
+    ) {
         $this->entityFactory      = $entityFactory;
         $this->settings           = $settings;
         $this->request            = $request;
@@ -63,6 +61,9 @@ class BackendValidateHelper
         $this->managers           = $managers;
     }
 
+    /**
+     * @param object{id: int|string, name?: string, url: string}&\stdClass $product
+     */
     public function getProductValidateError($product, $productCategories)
     {
         $productsEntity = $this->entityFactory->get(ProductsEntity::class);
@@ -72,14 +73,21 @@ class BackendValidateHelper
             $error = 'empty_name';
         } elseif (empty($product->url)) {
             $error = 'empty_url';
-        } elseif (($p = $productsEntity->get($product->url)) && $p->id != $product->id) {
-            $error = 'url_exists';
-        } elseif ($this->settings->get('global_unique_url') && !$this->urlUniqueValidator->validateGlobal($product->url, ProductsEntity::class, $product->id)) {
-            $error = 'global_url_exists';
-        } elseif (substr($product->url, -1) == '-' || substr($product->url, 0, 1) == '-') {
-            $error = 'url_wrong';
-        } elseif (empty($productCategories)) {
-            $error = 'empty_categories';
+        } else {
+            $p = $productsEntity->get($product->url);
+            /** @var object{id: int|string}|false|null $p */
+            if ($p && $p->id != $product->id) {
+                $error = 'url_exists';
+            } elseif (
+                $this->settings->get('global_unique_url')
+                && !$this->urlUniqueValidator->validateGlobal($product->url, ProductsEntity::class, $product->id)
+            ) {
+                $error = 'global_url_exists';
+            } elseif (substr($product->url, -1) == '-' || substr($product->url, 0, 1) == '-') {
+                $error = 'url_wrong';
+            } elseif (empty($productCategories)) {
+                $error = 'empty_categories';
+            }
         }
 
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
@@ -110,13 +118,13 @@ class BackendValidateHelper
         $brandsEntity = $this->entityFactory->get(BrandsEntity::class);
 
         $error = '';
-        if (($b = $brandsEntity->get($brand->url)) && $b->id!=$brand->id) {
+        if (($b = $brandsEntity->get($brand->url)) && $b->id != $brand->id) {
             $error = 'url_exists';
         } elseif ($this->settings->get('global_unique_url') && !$this->urlUniqueValidator->validateGlobal($brand->url, BrandsEntity::class, $brand->id)) {
             $error = 'global_url_exists';
-        } elseif(empty($brand->name)) {
+        } elseif (empty($brand->name)) {
             $error = 'empty_name';
-        } elseif(empty($brand->url)) {
+        } elseif (empty($brand->url)) {
             $error = 'empty_url';
         }
 
@@ -142,25 +150,28 @@ class BackendValidateHelper
 
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
-    
+
     public function getAuthorsValidateError($author)
     {
         $authorsEntity = $this->entityFactory->get(AuthorsEntity::class);
 
         $error = '';
-        if (($b = $authorsEntity->get($author->url)) && $b->id!=$author->id) {
+        if (($b = $authorsEntity->get($author->url)) && $b->id != $author->id) {
             $error = 'url_exists';
         } elseif ($this->settings->get('global_unique_url') && !$this->urlUniqueValidator->validateGlobal($author->url, AuthorsEntity::class, $author->id)) {
             $error = 'global_url_exists';
-        } elseif(empty($author->name)) {
+        } elseif (empty($author->name)) {
             $error = 'empty_name';
-        } elseif(empty($author->url)) {
+        } elseif (empty($author->url)) {
             $error = 'empty_url';
         }
 
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
 
+    /**
+     * @param object{id: int|string, name?: string, email: string}&\stdClass $user
+     */
     public function getUsersValidateError($user)
     {
         $usersEntity = $this->entityFactory->get(UsersEntity::class);
@@ -170,8 +181,12 @@ class BackendValidateHelper
             $error = 'empty_name';
         } elseif (empty($user->email)) {
             $error = 'empty_email';
-        } elseif (($u = $usersEntity->get($user->email)) && $u->id!=$user->id) {
-            $error = 'login_exists';
+        } else {
+            $u = $usersEntity->get($user->email);
+            /** @var object{id: int|string}|false|null $u */
+            if ($u && $u->id != $user->id) {
+                $error = 'login_exists';
+            }
         }
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
@@ -187,18 +202,18 @@ class BackendValidateHelper
 
     public function getBlogValidateError($post)
     {
-        
+
         /** @var BlogEntity $blogEntity */
         $blogEntity = $this->entityFactory->get(BlogEntity::class);
 
         $error = '';
-        if (($b = $blogEntity->get($post->url)) && $b->id!=$post->id) {
+        if (($b = $blogEntity->get($post->url)) && $b->id != $post->id) {
             $error = 'url_exists';
         } elseif ($this->settings->get('global_unique_url') && !$this->urlUniqueValidator->validateGlobal($post->url, BlogEntity::class, $post->id)) {
             $error = 'global_url_exists';
-        } elseif(empty($post->name)) {
+        } elseif (empty($post->name)) {
             $error = 'empty_name';
-        } elseif(empty($post->url)) {
+        } elseif (empty($post->url)) {
             $error = 'empty_url';
         } elseif (substr($post->url, -1) == '-' || substr($post->url, 0, 1) == '-') {
             $error = 'url_wrong';
@@ -210,7 +225,7 @@ class BackendValidateHelper
     public function getDeliveriesValidateError($delivery)
     {
         $error = '';
-        if(empty($delivery->name)) {
+        if (empty($delivery->name)) {
             $error = 'empty_name';
         }
 
@@ -220,7 +235,7 @@ class BackendValidateHelper
     public function getPaymentValidateError($payment)
     {
         $error = '';
-        if(empty($payment->name)) {
+        if (empty($payment->name)) {
             $error = 'empty_name';
         }
 
@@ -232,9 +247,9 @@ class BackendValidateHelper
         $couponsEntity = $this->entityFactory->get(CouponsEntity::class);
 
         $error = '';
-        if(($a = $couponsEntity->get((string)$coupon->code)) && $a->id != $coupon->id) {
+        if (($a = $couponsEntity->get((string)$coupon->code)) && $a->id != $coupon->id) {
             $error = 'code_exists';
-        } elseif(empty($coupon->code)) {
+        } elseif (empty($coupon->code)) {
             $error = 'empty_code';
         }
 
@@ -253,6 +268,8 @@ class BackendValidateHelper
         $manager = $managersEntity->get($_SESSION['admin']);
         if (! $this->managers->checkPassword($pass, $manager->password)) {
             $error = 'truncate_table_password_failed';
+        } elseif (is_string($pass)) {
+            $managersEntity->rehashPasswordIfNeeded((int)$manager->id, $pass, (string)$manager->password);
         }
 
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
@@ -262,7 +279,7 @@ class BackendValidateHelper
     {
         $error = '';
         if (!empty($_FILES['site_favicon']['name'])) {
-            $ext = pathinfo($_FILES['site_favicon']['name'],PATHINFO_EXTENSION);
+            $ext = pathinfo($_FILES['site_favicon']['name'], PATHINFO_EXTENSION);
             if (!in_array($ext, ['png', 'gif', 'jpg', 'jpeg', 'ico', 'svg'])) {
                 $error = 'wrong_favicon_ext';
             }
@@ -275,7 +292,7 @@ class BackendValidateHelper
     {
         $error = '';
 
-        $ext = pathinfo($_FILES['site_logo']['name'],PATHINFO_EXTENSION);
+        $ext = pathinfo($_FILES['site_logo']['name'], PATHINFO_EXTENSION);
         if (!in_array($ext, ['png', 'gif', 'jpg', 'jpeg', 'ico', 'svg'])) {
             $error = 'wrong_favicon_ext';
         }
@@ -283,14 +300,19 @@ class BackendValidateHelper
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
 
+    /**
+     * @param object{id: int|string, name?: string, url: string, auto_name_id: int|string, auto_value_id: int|string}&\stdClass $feature
+     */
     public function getFeatureValidateError($feature)
     {
         $featuresEntity = $this->entityFactory->get(FeaturesEntity::class);
 
         $error = '';
-        if (($f = $featuresEntity->get($feature->url)) && $f->id!=$feature->id) {
+        $f = $featuresEntity->get($feature->url);
+        /** @var object{id: int|string}|false|null $f */
+        if ($f && $f->id != $feature->id) {
             $error = 'duplicate_url';
-        } elseif(empty($feature->name)) {
+        } elseif (empty($feature->name)) {
             $error = 'empty_name';
         } elseif (!$featuresEntity->checkAutoId($feature->id, $feature->auto_name_id)) {
             $error = 'auto_name_id_exists';
@@ -301,12 +323,17 @@ class BackendValidateHelper
         return ExtenderFacade::execute(__METHOD__, $error, func_get_args());
     }
 
+    /**
+     * @param object{id: int|string, name?: string, url: string}&\stdClass $page
+     */
     public function getPageValidateError($page)
     {
         $pagesEntity = $this->entityFactory->get(PagesEntity::class);
 
         $error = '';
-        if (($p = $pagesEntity->get((string)$page->url)) && $p->id!=$page->id) {
+        $p = $pagesEntity->get((string)$page->url);
+        /** @var object{id: int|string}|false|null $p */
+        if ($p && $p->id != $page->id) {
             $error = 'url_exists';
         } elseif (empty($page->name)) {
             $error = 'empty_name';

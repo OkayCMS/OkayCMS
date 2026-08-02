@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Helpers;
-
 
 use Okay\Core\Cart;
 use Okay\Core\Classes\Discount;
@@ -22,6 +20,10 @@ use Okay\Entities\PaymentsEntity;
 use Okay\Entities\PurchasesEntity;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @phpstan-type CheckoutUserRow object{id?: string|int|null, name?: string|null, last_name?: string|null, email?: string|null, phone?: string|null}&\stdClass
+ * @phpstan-type LastOrderRow object{name?: string|null, last_name?: string|null, email?: string|null, phone?: string|null}&\stdClass
+ */
 class CartHelper
 {
     /** @var EntityFactory */
@@ -29,13 +31,13 @@ class CartHelper
 
     /** @var Money */
     private $moneyCore;
-    
+
     /** @var FrontTemplateConfig */
     private $frontTemplateConfig;
-    
+
     /** @var LoggerInterface */
     private $logger;
-    
+
     /** @var Design */
     private $design;
 
@@ -52,15 +54,15 @@ class CartHelper
     private $checkoutPaymentForm;
 
     public function __construct(
-        EntityFactory       $entityFactory,
-        Money               $moneyCore,
+        EntityFactory $entityFactory,
+        Money $moneyCore,
         FrontTemplateConfig $frontTemplateConfig,
-        LoggerInterface     $logger,
-        Design              $design,
+        LoggerInterface $logger,
+        Design $design,
         CheckoutPaymentForm $checkoutPaymentForm,
-        Cart                $cart,
-        Languages           $languagesCore,
-        DiscountsHelper     $discountsHelper
+        Cart $cart,
+        Languages $languagesCore,
+        DiscountsHelper $discountsHelper
     ) {
         $this->entityFactory       = $entityFactory;
         $this->moneyCore           = $moneyCore;
@@ -73,6 +75,10 @@ class CartHelper
         $this->checkoutPaymentForm = $checkoutPaymentForm;
     }
 
+    /**
+     * @param CheckoutUserRow|false|null $user
+     * @return array{name?: string|null, last_name?: string|null, email?: string|null, phone?: string|null}
+     */
     public function getDefaultCartData($user)
     {
         $defaultData = [];
@@ -80,8 +86,9 @@ class CartHelper
 
             /** @var OrdersEntity $ordersEntity */
             $ordersEntity = $this->entityFactory->get(OrdersEntity::class);
-            
-            $lastOrder = $ordersEntity->findOne(['user_id'=>$user->id]);
+
+            /** @var LastOrderRow|false|null $lastOrder */
+            $lastOrder = $ordersEntity->findOne(['user_id' => $user->id]);
             if ($lastOrder) {
                 $defaultData['name'] = $lastOrder->name;
                 $defaultData['last_name'] = $lastOrder->last_name;
@@ -156,7 +163,7 @@ class CartHelper
         } else {
             $this->logger->error('File "design/' . $this->frontTemplateConfig->getTheme() . '/html/cart_informer.tpl" not found');
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $result, func_get_args());
     }
 
@@ -169,8 +176,9 @@ class CartHelper
     {
         $cart->purchasesToDB = [];
         /** @var Purchase $purchase */
-        foreach ($cart->purchases as $i => $purchase)
+        foreach ($cart->purchases as $i => $purchase) {
             $cart->purchasesToDB[$i] = $purchase->getForDB($orderId);
+        }
 
         return ExtenderFacade::execute(__METHOD__, $cart, func_get_args());
     }
@@ -188,7 +196,7 @@ class CartHelper
         $purchasesEntity = $this->entityFactory->get(PurchasesEntity::class);
         /** @var OrdersEntity $ordersEntity */
         $ordersEntity = $this->entityFactory->get(OrdersEntity::class);
-        foreach($cart->purchasesToDB as $purchaseDB) {
+        foreach ($cart->purchasesToDB as $purchaseDB) {
             $purchaseDB->id = $purchasesEntity->add($purchaseDB);
         }
         $ordersEntity->update($orderId, [

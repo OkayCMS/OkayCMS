@@ -1,28 +1,27 @@
 <?php
 
-
 namespace Okay\Core;
 
-
+use Okay\Core\Filesystem\KeepFolderDirectoryCleaner;
 use Okay\Core\Modules\Module;
 use Okay\Core\Modules\Modules;
 use Okay\Core\TemplateConfig\FrontTemplateConfig;
 use Okay\Core\TplMod\TplMod;
-use Smarty;
-use Mobile_Detect;
+use Detection\MobileDetect;
+use Smarty\Filter\Output\TrimWhitespace;
+use Smarty\Smarty;
 
 class Design
 {
-    
-    const TEMPLATES_DEFAULT = 'default';
-    const TEMPLATES_MODULE = 'module';
-    
+    public const TEMPLATES_DEFAULT = 'default';
+    public const TEMPLATES_MODULE = 'module';
+
     /**
      * @var Smarty
      */
     public $smarty;
 
-    /** @var Mobile_Detect */
+    /** @var MobileDetect */
     public $detect;
 
     /** @var FrontTemplateConfig */
@@ -37,10 +36,13 @@ class Design
     /** @var TplMod */
     private $tplMod;
 
-    /** @var array */
+    /** @var KeepFolderDirectoryCleaner */
+    private $keepFolderDirectoryCleaner;
+
+    /** @var array<string, callable> */
     private $smartyFunctions = [];
-    
-    /** @var array */
+
+    /** @var array<string, callable> */
     private $smartyModifiers = [];
 
     /** @var string */
@@ -55,11 +57,11 @@ class Design
 
     /** @var string */
     private $useTemplateDir = self::TEMPLATES_DEFAULT;
-    
+
     private $smartyHtmlMinify;
-    
+
     /**
-     * @var array
+     * @var list<string>
      */
     private $allowedPhpFunctions = [
         'escape',
@@ -88,10 +90,11 @@ class Design
         'sizeof',
         'is_array',
         'array_intersect',
-        'time',
+        // 'time' - excluded because custom Time plugin is registered
         'array',
         'base64_encode',
-        'implode',
+        'join',  // Smarty 5: use 'join' instead of deprecated 'implode'
+        'implode',  // Keep for backward compatibility, but prefer 'join'
         'explode',
         'preg_replace',
         'preg_match',
@@ -99,7 +102,7 @@ class Design
         'json_encode',
         'json_decode',
         'is_file',
-        'date',
+        // 'date' - excluded because custom Date plugin is registered
         'strip_tags',
         'trim',
         'ltrim',
@@ -115,11 +118,12 @@ class Design
 
     public function __construct(
         Smarty $smarty,
-        Mobile_Detect $mobileDetect,
+        MobileDetect $mobileDetect,
         FrontTemplateConfig $frontTemplateConfig,
         Module $module,
         Modules $modules,
         TplMod $tplMod,
+        KeepFolderDirectoryCleaner $keepFolderDirectoryCleaner,
         $smartyCacheLifetime,
         $smartyCompileCheck,
         $smartyHtmlMinify,
@@ -134,6 +138,7 @@ class Design
         $this->module         = $module;
         $this->modules        = $modules;
         $this->tplMod         = $tplMod;
+        $this->keepFolderDirectoryCleaner = $keepFolderDirectoryCleaner;
         $this->rootDir        = $rootDir;
 
         $this->smarty = $smarty;
@@ -141,51 +146,64 @@ class Design
         $this->smarty->caching         = $smartyCaching;
         $this->smarty->cache_lifetime  = $smartyCacheLifetime;
         $this->smarty->debugging       = $smartyDebugging;
-        $this->smarty->error_reporting = E_ALL & ~E_NOTICE & ~E_WARNING;
+        $this->smarty->error_reporting = E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED;
 
         $theme = $this->frontTemplateConfig->getTheme();
 
         if ($smartySecurity == true) {
             $this->smarty->enableSecurity();
-            $this->smarty->security_policy->php_modifiers = $this->allowedPhpFunctions;
-            $this->smarty->security_policy->php_functions = $this->allowedPhpFunctions;
-            $this->smarty->security_policy->secure_dir = array(
-                $rootDir . 'design/' . $theme,
-                $rootDir . 'backend/design',
-                $rootDir . 'Okay/Modules',
-            );
+            // In Smarty 5, security_policy properties are dynamic
+            // @phpstan-ignore-next-line
+            if (isset($this->smarty->security_policy) && $this->smarty->security_policy !== null) {
+                // @phpstan-ignore-next-line
+                $this->smarty->security_policy->php_modifiers = $this->allowedPhpFunctions;
+                // @phpstan-ignore-next-line
+                $this->smarty->security_policy->php_functions = $this->allowedPhpFunctions;
+                $this->smarty->security_policy->secure_dir = array(
+                    $rootDir . 'design/' . $theme,
+                    $rootDir . 'backend/design',
+                    $rootDir . 'Okay/Modules',
+                );
+            }
         }
 
-        $this->defaultTemplateDir = $rootDir.'design/'.$theme.'/html';
-        $this->smarty->setCompileDir($rootDir.'compiled/'.$theme);
+        $this->defaultTemplateDir = $rootDir . 'design/' . $theme . '/html';
+        $this->smarty->setCompileDir($rootDir . 'compiled/' . $theme);
         $this->smarty->setTemplateDir($this->defaultTemplateDir);
 
         // Создаем папку для скомпилированных шаблонов текущей темы
         if (!is_dir($this->smarty->getCompileDir())) {
             mkdir($this->smarty->getCompileDir(), 0777);
         }
-        
+
         $this->smarty->setCacheDir('cache');
-        
+
         $this->smartyHtmlMinify = $smartyHtmlMinify;
         if ($smartyHtmlMinify) {
-            $this->smarty->loadFilter('output', 'trimwhitespace');
+            $this->smarty->registerFilter('output', [new TrimWhitespace(), 'filter'], 'trimwhitespace');
         }
 
         if ($smartyForceCompile) {
             $smarty->setForceCompile(true);
         }
-        
+
         $this->smarty->registerFilter('pre', [$this, 'applyTplModifiers']);
+
+        foreach ($this->allowedPhpFunctions as $f) {
+            if (function_exists($f)) {
+                $this->smarty->registerPlugin('modifier', $f, $f);
+                $this->smarty->registerPlugin('function', $f, $f);
+            }
+        }
     }
-    
+
     public function applyTplModifiers($content, $s)
     {
-        
+
         $currentFile = $s->_current_file;
-        
+
         // Определяем модификации чего сейчас нам нужны, фронта или бека
-        if (strpos($currentFile, $this->rootDir.'backend'.DIRECTORY_SEPARATOR.'design'.DIRECTORY_SEPARATOR.'html') !== false) {
+        if (strpos($currentFile, $this->rootDir . 'backend' . DIRECTORY_SEPARATOR . 'design' . DIRECTORY_SEPARATOR . 'html') !== false) {
             $modifications = $this->modules->getBackendModulesTplModifications();
         } else {
             $modifications = $this->modules->getFrontModulesTplModifications();
@@ -193,16 +211,16 @@ class Design
         $fileModifications = [];
         if (!empty($modifications)) {
             foreach ($modifications as $modificationDTO) {
-                if (DIRECTORY_SEPARATOR.ltrim($modificationDTO->getFile(), DIRECTORY_SEPARATOR) == substr($currentFile, -strlen(DIRECTORY_SEPARATOR.$modificationDTO->getFile()))) {
+                if (DIRECTORY_SEPARATOR . ltrim($modificationDTO->getFile(), DIRECTORY_SEPARATOR) == substr($currentFile, -strlen(DIRECTORY_SEPARATOR . $modificationDTO->getFile()))) {
                     $fileModifications = array_merge($fileModifications, $modificationDTO->getChanges());
                 }
             }
         }
-        
+
         if (!empty($fileModifications)) {
             $content = $this->tplMod->buildFile($content, $fileModifications);
         }
-        
+
         return $content;
     }
 
@@ -210,13 +228,13 @@ class Design
      * Метод нужен для модулей, если в каком-то экстендере или еще где нужно обработать tpl файл
      * нужно предварительно вызвать этот метод, чтобы переключить директорию tpl файлов.
      * После вызова fetch() нужно обязательно вернуть стандартную директорию методом rollbackTemplatesDir()
-     * 
+     *
      * @param $moduleClassName
      * @throws \Exception
      */
     public function setModuleDir($moduleClassName)
     {
-        
+
         $vendor = $this->module->getVendorName($moduleClassName);
         $name = $this->module->getModuleName($moduleClassName);
 
@@ -229,7 +247,7 @@ class Design
             'prev_module_dir' => $this->getModuleTemplatesDir(),
             'is_use_prev_module_dir' => $this->isUseModuleDir(),
         ];
-        
+
         $this->setModuleTemplatesDir($moduleTemplateDir);
         $this->useModuleDir();
     }
@@ -240,7 +258,7 @@ class Design
      */
     public function rollbackTemplatesDir()
     {
-        
+
         if ($moduleChangeDir = array_pop($this->moduleChangeDir)) {
             if (!empty($moduleChangeDir['prev_module_dir'])) {
                 $this->setModuleTemplatesDir($moduleChangeDir['prev_module_dir']);
@@ -252,13 +270,13 @@ class Design
             $this->useDefaultDir();
         }
     }
-    
+
     /**
      * Проверка существует ли данный файл шаблона
-     * 
+     *
      * @param $tplFile
      * @return bool
-     * @throws \SmartyException
+     * @throws \Smarty\Exception
      */
     public function templateExists($tplFile)
     {
@@ -266,9 +284,10 @@ class Design
 
         $this->setSmartyTemplatesDir();
 
-        return $this->smarty->templateExists(trim(preg_replace('~[\n\r]*~', '', $tplFile)));
+        $normalizedTplFile = preg_replace('~[\n\r]*~', '', $tplFile);
+        return $this->smarty->templateExists(trim(is_string($normalizedTplFile) ? $normalizedTplFile : $tplFile));
     }
-    
+
     public function registerPlugin($type, $tag, $callback)
     {
         switch ($type) {
@@ -286,22 +305,22 @@ class Design
      * @param mixed $value
      * @param bool $dynamicJs Если установить в true, переменная будет доступна в файле scripts.tpl клиентского шаблона,
      * как обычная Smarty переменная
-     * @return \Smarty_Internal_Data
+     * @return \Smarty\Data
      */
     public function assign($var, $value, $dynamicJs = false)
     {
-        
+
         if ($dynamicJs === true) {
             $_SESSION['dynamic_js']['vars'][$var] = $value;
         }
-        
+
         return $this->smarty->assign($var, $value);
     }
 
     /**
      * @param $var
      * @param $value
-     * 
+     *
      * Метод позволяет передать переменную с PHP непосредственно в JS код
      * Считать переменную можно будет как okay.var_name
      */
@@ -313,20 +332,23 @@ class Design
     /*Отображение конкретного шаблона*/
     public function fetch($template, $forceMinify = false)
     {
-        if (!$this->smartyHtmlMinify && $forceMinify === true) {
-            $this->smarty->loadFilter('output', 'trimwhitespace');
-        }
-        
-        $this->registerSmartyPlugins();
+        $useTrimWhitespaceFilter = !$this->smartyHtmlMinify && $forceMinify === true;
 
-        $this->setSmartyTemplatesDir();
-
-        $html = $this->smarty->fetch($template);
-        
-        if (!$this->smartyHtmlMinify && $forceMinify === true) {
-            $this->smarty->unloadFilter('output', 'trimwhitespace');
+        if ($useTrimWhitespaceFilter) {
+            $this->smarty->registerFilter('output', [new TrimWhitespace(), 'filter'], 'trimwhitespace');
         }
-        return $html;
+
+        try {
+            $this->registerSmartyPlugins();
+
+            $this->setSmartyTemplatesDir();
+
+            return $this->smarty->fetch($template);
+        } finally {
+            if ($useTrimWhitespaceFilter) {
+                $this->smarty->unregisterFilter('output', 'trimwhitespace');
+            }
+        }
     }
 
     public function useDefaultDir()
@@ -348,14 +370,14 @@ class Design
         }
         return false;
     }
-    
+
     private function registerSmartyPlugins()
     {
         foreach ($this->smartyModifiers as $tag => $callback) {
             $this->smarty->registerPlugin('modifier', $tag, $callback);
             unset($this->smartyModifiers[$tag]);
         }
-        
+
         foreach ($this->smartyFunctions as $tag => $callback) {
             $this->smarty->registerPlugin('function', $tag, $callback);
             unset($this->smartyFunctions[$tag]);
@@ -364,7 +386,7 @@ class Design
 
     public function getDefaultTemplatesDir()
     {
-        return rtrim($this->defaultTemplateDir , '/');
+        return rtrim($this->defaultTemplateDir, '/');
     }
 
     public function setModuleTemplatesDir($moduleTemplateDir)
@@ -375,17 +397,17 @@ class Design
 
     public function getModuleTemplatesDir()
     {
-        return rtrim($this->moduleTemplateDir , '/');
+        return rtrim((string)$this->moduleTemplateDir, '/');
     }
 
     /*Установка директории файлов шаблона(отображения)*/
     public function setTemplatesDir($dir)
     {
-        $dir = rtrim($dir, '/') . '/';
+        $dir = rtrim((string)$dir, '/') . '/';
         if (!is_string($dir)) {
             throw new \Exception("Param \$dir must be string");
         }
-        
+
         $this->defaultTemplateDir = $dir;
         $this->smarty->setTemplateDir($dir);
     }
@@ -400,6 +422,10 @@ class Design
     public function getTemplatesDir()
     {
         $dirs = $this->smarty->getTemplateDir();
+        if (is_string($dirs)) {
+            return $dirs;
+        }
+
         return reset($dirs);
     }
 
@@ -414,7 +440,7 @@ class Design
     {
         return $this->smarty->getTemplateVars($name);
     }
-    
+
     public function get_var($name)
     {
         trigger_error('Method ' . __METHOD__ . ' is deprecated. Please use getVar', E_USER_DEPRECATED);
@@ -462,29 +488,11 @@ class Design
             ]);
         }
     }
-    
+
     public function clearCompiled()
     {
-        $theme = $this->frontTemplateConfig->getTheme();
-        $dir = $this->rootDir.'compiled/'.$theme;
-        if ($handle = opendir($dir)) {
-            while (false !== ($file = readdir($handle))) {
-                if ($file != "." && $file != "..") {
-                    @unlink($dir."/".$file);
-                }
-            }
-            closedir($handle);
-        }
-
-        $dir = $this->rootDir.'backend/design/compiled/';
-        if ($handle = opendir($dir)) {
-            while (false !== ($file = readdir($handle))) {
-                if ($file != "." && $file != ".." && $file != '.keep_folder') {
-                    @unlink($dir."/".$file);
-                }
-            }
-            closedir($handle);
-        }
+        $this->keepFolderDirectoryCleaner->clearDirectory($this->rootDir . 'compiled');
+        $this->keepFolderDirectoryCleaner->clearDirectory($this->rootDir . 'backend/design/compiled');
     }
 
     private function getModuleVendorByPath($path)
@@ -498,5 +506,4 @@ class Design
         $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
         return preg_replace('~.*/?Okay/Modules/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/?.*~', '$2', $path);
     }
-
 }

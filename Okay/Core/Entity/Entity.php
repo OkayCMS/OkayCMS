@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Entity;
-
 
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Modules\ModulesEntitiesFilters;
@@ -15,32 +13,37 @@ use Okay\Core\EntityFactory;
 use Okay\Core\ServiceLocator;
 use Okay\Core\Settings;
 
+#[\AllowDynamicProperties]
 abstract class Entity implements EntityInterface, FilterPriorityInterface
 {
-    
-    use CRUD, lang, order, filter, entityInfo, filterPriority;
+    use CRUD;
+    use lang;
+    use order;
+    use filter;
+    use entityInfo;
+    use filterPriority;
 
     /**
-     * @var array
+     * @var list<string>
      * Массив полей сущности
      */
     protected static $fields;
 
     /**
-     * @var array
+     * @var list<string>
      * Массив мельтиязычных полей сущности
      */
     protected static $langFields;
 
     /**
-     * @var array
+     * @var list<string>
      * Массив дополнительных полей сущности, с других таблиц или которые как подзапросы идут.
      * К ним префикс таблицы не добавляется
      */
     protected static $additionalFields;
 
     /**
-     * @var array
+     * @var list<string>
      * Массив полей по которым происходит текстовый поиск
      */
     protected static $searchFields;
@@ -70,7 +73,7 @@ abstract class Entity implements EntityInterface, FilterPriorityInterface
     protected static $tableAlias;
 
     /**
-     * @var array
+     * @var list<string>
      * Массив полей по которым происходит сортировка по умолчанию
      */
     protected static $defaultOrderFields;
@@ -82,24 +85,24 @@ abstract class Entity implements EntityInterface, FilterPriorityInterface
     protected static $alternativeIdField;
 
     /**
-     * @var array
+     * @var array<string, string>
      * Массив названий фильтров, которые нужно выполнять в первую очередь (для использования индексов)
      */
     private $highPriorityFilters;
 
     /**
-     * @var array
+     * @var array<string, string>
      * Массив названий фильтров, которые нужно выполнять в последнюю очередь (для НЕ использования индексов)
      */
     private $lowPriorityFilters;
-    
+
     /**
-     * @var array
+     * @var list<string>
      * Когда нужно доставать не все поля сущности, можно через setSelectFields() передать массив названий колонок
      */
     private $selectFields;
-    
-    /** 
+
+    /**
      * @var ServiceLocator
      */
     protected $serviceLocator;
@@ -108,27 +111,27 @@ abstract class Entity implements EntityInterface, FilterPriorityInterface
      * @var QueryFactory
      */
     protected $queryFactory;
-    
+
     /**
      * @var Database
      */
     protected $db;
-    
+
     /**
      * @var Languages
      */
     protected $lang;
-    
+
     /**
      * @var EntityFactory
      */
     protected $entity;
-    
+
     /**
      * @var Config
      */
     protected $config;
-    
+
     /**
      * @var Settings
      */
@@ -138,12 +141,12 @@ abstract class Entity implements EntityInterface, FilterPriorityInterface
      * @var integer
      */
     protected $langId;
-    
+
     /**
      * @var Select
      */
     protected $select;
-    
+
     /**
      * @var ModulesEntitiesFilters
      */
@@ -179,10 +182,10 @@ abstract class Entity implements EntityInterface, FilterPriorityInterface
 
     /**
      * @param string $order
-     * @param array $orderFields массив полей, который определила автоматическая сортировка.
+     * @param array<int|string, string> $orderFields массив полей, который определила автоматическая сортировка.
      * Метод может его переопределить, и обязательно его нужно вернуть
-     * @param array $additionalData просто кастомный массив данных, который может понадобиться
-     * @return array
+     * @param array<string, mixed> $additionalData просто кастомный массив данных, который может понадобиться
+     * @return array<int|string, string>
      * Здесь это метод-заглушка, если нужно применить кастомную сортировку,
      * переопределяем этот метод в нужном Entity классе.
      * Там через switch case описываем кастомные сортировки
@@ -213,7 +216,7 @@ abstract class Entity implements EntityInterface, FilterPriorityInterface
         $this->noLimit = true;
         return $this;
     }
-    
+
     public function flush()
     {
         $this->select = $this->queryFactory->newSelect();
@@ -225,7 +228,7 @@ abstract class Entity implements EntityInterface, FilterPriorityInterface
         $this->noLimit = false;
         $this->selectFields = [];
     }
-    
+
     protected function filter__keyword($keywords)
     {
         $keywords = explode(' ', $keywords);
@@ -234,27 +237,26 @@ abstract class Entity implements EntityInterface, FilterPriorityInterface
         $langAlias = $this->lang->getLangAlias(
             $this->getTableAlias()
         );
-        
+
         $fields = $this->getFields();
         $langFields = $this->getLangFields();
-        
+
         $searchFields = $this->getSearchFields();
-        foreach ($keywords as $keyNum=>$keyword) {
+        foreach ($keywords as $keyNum => $keyword) {
             $keywordFilter = [];
             foreach ($searchFields as $searchField) {
                 $searchFieldWithAlias = $searchField;
-                
+
                 if (in_array($searchField, $fields)) {
                     $searchFieldWithAlias = $tableAlias . "." . $searchField;
                 } elseif (in_array($searchField, $langFields)) {
                     $searchFieldWithAlias = $langAlias . "." . $searchField;
                 }
-                
+
                 $keywordFilter[] = $searchFieldWithAlias . " LIKE :auto_keyword_{$searchField}_{$keyNum}";
                 $this->select->bindValue("auto_keyword_{$searchField}_{$keyNum}", '%' . $keyword . '%');
             }
             $this->select->where('(' . implode(' OR ', $keywordFilter) . ')');
-            
         }
     }
 

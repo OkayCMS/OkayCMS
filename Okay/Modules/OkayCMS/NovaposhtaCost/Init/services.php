@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\NovaposhtaCost;
-
 
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
@@ -14,6 +12,7 @@ use Okay\Core\OkayContainer\Reference\ParameterReference as PR;
 use Okay\Core\OkayContainer\Reference\ServiceReference as SR;
 use Okay\Core\Request;
 use Okay\Core\Settings;
+use Okay\Admin\Helpers\BackendOrdersHelper;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Backend\Helpers\NPBackendHelper;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Backend\Requests\NPBackendRequest;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Extenders\BackendExtender;
@@ -21,6 +20,8 @@ use Okay\Modules\OkayCMS\NovaposhtaCost\Extenders\FrontExtender;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPApiHelper;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPCacheHelper;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPCalcHelper;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPCheckoutCostCalculator;
+use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPCheckoutRequestReader;
 use Okay\Modules\OkayCMS\NovaposhtaCost\Helpers\NPDeliveryDataHelper;
 use Psr\Log\LoggerInterface;
 
@@ -28,11 +29,12 @@ return [
     FrontExtender::class => [
         'class' => FrontExtender::class,
         'arguments' => [
-            new SR(Request::class),
             new SR(EntityFactory::class),
             new SR(FrontTranslations::class),
             new SR(Design::class),
             new SR(NPDeliveryDataHelper::class),
+            new SR(NPCheckoutRequestReader::class),
+            new SR(NPCheckoutCostCalculator::class),
         ],
     ],
     BackendExtender::class => [
@@ -81,6 +83,24 @@ return [
             new SR(NPApiHelper::class),
             new SR(Settings::class),
             new SR(Money::class),
+        ],
+    ],
+    NPCheckoutRequestReader::class => [
+        'class' => NPCheckoutRequestReader::class,
+        'arguments' => [
+            new SR(Request::class),
+            new SR(EntityFactory::class),
+            new SR(Module::class),
+        ],
+    ],
+    NPCheckoutCostCalculator::class => [
+        'class' => NPCheckoutCostCalculator::class,
+        'arguments' => [
+            new SR(EntityFactory::class),
+            new SR(BackendOrdersHelper::class),
+            new SR(Settings::class),
+            new SR(Money::class),
+            new SR(NPCalcHelper::class),
         ],
     ],
     NPDeliveryDataHelper::class => [

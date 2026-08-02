@@ -15,10 +15,10 @@
                     </a>
                 </div>
             </div>
-            
+
             <div class="main_header__item hidden-md-down">
                 <a class="fn_import_banner_open btn btn_blue btn_small add" href="#fn_import_banner">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5"/></svg>                     
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5"/></svg>
                     <span>{$btr->banners_import_button|escape}</span>
                 </a>
             </div>
@@ -200,7 +200,7 @@
         </div>
         <div class="popup__footer">
             <button type="submit" class="btn btn_small btn_blue add">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5"/></svg>                    
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5"/></svg>
                 <span>{$btr->banners_upload_button|escape}</span>
             </button>
         </div>
@@ -209,7 +209,8 @@
 
 {literal}
 <script>
-    $(".fn_import_banner_open").fancybox();
+    if (typeof $.fancybox !== 'undefined' && typeof $.fn.fancybox === 'function') {
+        $(".fn_import_banner_open").fancybox();
+    }
 </script>
 {/literal}
-

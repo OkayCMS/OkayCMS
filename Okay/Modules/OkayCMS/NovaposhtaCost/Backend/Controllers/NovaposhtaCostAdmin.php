@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\NovaposhtaCost\Backend\Controllers;
-
 
 use Okay\Admin\Controllers\IndexAdmin;
 use Okay\Core\BackendTranslations;
@@ -72,10 +70,9 @@ class NovaposhtaCostAdmin extends IndexAdmin
     public function updateData(
         NPCacheHelper $cacheHelper,
         NPApiHelper $apiHelper
-    ): Response
-    {
+    ): Response {
         $page = $this->request->get('updatePage', 'int', 1);
-        $perPage = 500;
+        $perPage = 1000;
         $updateType = $this->request->get('updateType', 'string');
         if (!$updateType || !in_array($updateType, [Init::UPDATE_TYPE_CITIES, Init::UPDATE_TYPE_WAREHOUSES])) {
             return $this->response->setContent(json_encode([

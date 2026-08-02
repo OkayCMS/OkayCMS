@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\DeliveryFields\Backend\Controllers;
-
 
 use Okay\Admin\Controllers\IndexAdmin;
 use Okay\Entities\DeliveriesEntity;
@@ -30,7 +28,7 @@ class DeliveryFieldsAdmin extends IndexAdmin
         $this->design->assign('deliveryFields', $deliveryFields);
         $lastDeliveryFieldIndex = 0;
         if (!empty($deliveryFields)) {
-            $lastDeliveryFieldIndex = max(array_keys($deliveryFields)) + 1;
+            $lastDeliveryFieldIndex = (int)max(array_keys($deliveryFields)) + 1;
         }
         $this->design->assign('lastDeliveryFieldIndex', $lastDeliveryFieldIndex);
 

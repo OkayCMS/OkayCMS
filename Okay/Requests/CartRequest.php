@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Requests;
-
 
 use Okay\Core\Request;
 use Okay\Core\Modules\Extender\ExtenderFacade;
@@ -18,14 +16,14 @@ class CartRequest
 
     public function postOrder()
     {
-        $order = new \stdClass;
+        $order = new \stdClass();
         $order->payment_method_id = $this->request->post('payment_method_id', 'integer');
         $order->delivery_id = $this->request->post('delivery_id', 'integer');
-        $order->name        = $this->request->post('name');
-        $order->last_name   = $this->request->post('last_name');
-        $order->email       = $this->request->post('email');
-        $order->phone       = $this->request->post('phone');
-        $order->comment     = $this->request->post('comment');
+        $order->name        = $this->request->post('name', null, null, true);
+        $order->last_name   = $this->request->post('last_name', null, null, true);
+        $order->email       = $this->request->post('email', null, null, true);
+        $order->phone       = $this->request->post('phone', null, null, true);
+        $order->comment     = $this->request->post('comment', null, null, true);
         $order->ip          = $_SERVER['REMOTE_ADDR'];
 
         return ExtenderFacade::execute(__METHOD__, $order, func_get_args());

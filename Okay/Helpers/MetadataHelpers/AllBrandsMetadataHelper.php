@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Helpers\MetadataHelpers;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\FrontTranslations;
@@ -22,8 +20,9 @@ class AllBrandsMetadataHelper extends CommonMetadataHelper
     public function __construct()
     {
         parent::__construct();
-        
+
         if (!$this->keyword) {
+            /** @var EntityFactory $entityFactory */
             $entityFactory = $this->SL->getService(EntityFactory::class);
             /** @var PagesEntity $pagesEntity */
             $pagesEntity = $entityFactory->get(PagesEntity::class);
@@ -38,7 +37,7 @@ class AllBrandsMetadataHelper extends CommonMetadataHelper
         if ($this->keyword !== null) {
             $h1 .= " «{$this->keyword}»";
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $h1, func_get_args());
     }
 }

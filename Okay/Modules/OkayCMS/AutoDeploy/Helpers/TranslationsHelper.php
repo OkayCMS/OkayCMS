@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\AutoDeploy\Helpers;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\Modules;
@@ -11,9 +9,12 @@ use Okay\Core\TemplateConfig\FrontTemplateConfig;
 use Okay\Entities\LanguagesEntity;
 use Okay\Entities\TranslationsEntity;
 
+/**
+ * @phpstan-type LocalTranslationRow object{value: mixed, type: string}&\stdClass
+ */
 class TranslationsHelper
 {
-    const TRANS_T_LOCAL = 'local';
+    public const TRANS_T_LOCAL = 'local';
 
 
     /** @var FrontTemplateConfig */
@@ -33,16 +34,16 @@ class TranslationsHelper
     private $translationsEntity;
 
 
-    /** @var array all local translations */
+    /** @var array<string, array<string, LocalTranslationRow>> all local translations */
     private $localVars = [];
 
     private $localLangDir;
 
     public function __construct(
         FrontTemplateConfig $frontTemplateConfig,
-        Settings            $settings,
-        EntityFactory       $entityFactory,
-        Modules             $modules
+        Settings $settings,
+        EntityFactory $entityFactory,
+        Modules $modules
     ) {
         $this->frontTemplateConfig = $frontTemplateConfig;
         $this->settings            = $settings;
@@ -99,7 +100,7 @@ class TranslationsHelper
             $translationsToWrite[$label] = $translation->value;
         }
 
-        foreach($translations as $label => $translation) {
+        foreach ($translations as $label => $translation) {
             if (
                 isset($currentTranslations[$label]) &&
                 $currentTranslations[$label]->value != $translation->value
@@ -154,10 +155,10 @@ class TranslationsHelper
 
     /**
      * Метод дополняет переводы локальными
-     * 
-     * @param $translations
-     * @param $langLabel
-     * @return array
+     *
+     * @param array<string, object{value: mixed, type?: string}&\stdClass> $translations
+     * @param string $langLabel
+     * @return array<string, object{value: mixed, type?: string}&\stdClass>
      */
     public function addLocalTranslations($translations, $langLabel)
     {
@@ -171,7 +172,7 @@ class TranslationsHelper
                 }
             }
         }
-        
+
         return $translations;
     }
 

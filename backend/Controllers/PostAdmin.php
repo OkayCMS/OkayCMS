@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Admin\Helpers\BackendBlogCategoriesHelper;
 use Okay\Admin\Helpers\BackendBlogHelper;
@@ -14,11 +12,10 @@ use Okay\Entities\RouterCacheEntity;
 
 class PostAdmin extends IndexAdmin
 {
-    
     public function fetch(
-        BlogEntity            $blogEntity,
-        BackendBlogRequest    $backendBlogRequest,
-        BackendBlogHelper     $backendBlogHelper,
+        BlogEntity $blogEntity,
+        BackendBlogRequest $backendBlogRequest,
+        BackendBlogHelper $backendBlogHelper,
         BackendValidateHelper $backendValidateHelper,
         BackendBlogCategoriesHelper $blogCategoriesHelper,
         RouterCacheEntity $routerCacheEntity,
@@ -31,6 +28,7 @@ class PostAdmin extends IndexAdmin
             $postCategories = $backendBlogRequest->postCategories();
 
             $relatedProducts = $backendBlogRequest->postRelatedProducts();
+            /** @var object{id: int|string|null, url: string}&\stdClass $post */
 
             if ($error = $backendValidateHelper->getBlogValidateError($post)) {
                 $this->design->assign('message_error', $error);
@@ -47,13 +45,13 @@ class PostAdmin extends IndexAdmin
                     $backendBlogHelper->update($preparedPost->id, $post);
 
                     $routerCacheEntity->deleteByUrl(RouterCacheEntity::TYPE_POST, $post->url);
-                    
+
                     $this->postRedirectGet->storeMessageSuccess('updated');
                 }
 
                 $postCategories = $backendBlogHelper->prepareUpdatePostCategories($post, $postCategories);
                 $backendBlogHelper->updatePostCategories($post, $postCategories);
-                
+
                 // Картинка
                 if ($backendBlogRequest->postDeleteImage()) {
                     $backendBlogHelper->deleteImage($post);
@@ -82,7 +80,7 @@ class PostAdmin extends IndexAdmin
         }
 
         $postCategories = $backendBlogHelper->findPostCategories($post);
-        
+
         $relatedProducts = [];
         if (!empty($post->id)) {
             $relatedProducts = $backendBlogHelper->getRelatedProductsList(['post_id' => $post->id]);
@@ -93,12 +91,11 @@ class PostAdmin extends IndexAdmin
         $authorsCount = $authorsEntity->count();
         $authors = $authorsEntity->find(['limit' => $authorsCount]);
 
-        $this->design->assign('authors',    $authors);
+        $this->design->assign('authors', $authors);
         $this->design->assign('categories', $categoriesTree);
-        $this->design->assign('post_categories',  $postCategories);
+        $this->design->assign('post_categories', $postCategories);
         $this->design->assign('related_products', $relatedProducts);
         $this->design->assign('post', $post);
         $this->response->setContent($this->design->fetch('post.tpl'));
     }
-    
 }

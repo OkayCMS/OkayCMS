@@ -36,7 +36,7 @@
                         {* Article author *}
                         {if $post->author}
                         <div class="post_information__item" title="{$lang->blog_author}">
-                            
+
                             <div class="post_information__avatar">
                                 {if $post->author->image}
                                     <img src="{$post->author->image|resize:30:30:false:$config->resized_authors_dir:center:center}" alt="{$post->author->name|escape}">
@@ -137,7 +137,10 @@
                                 {*<div class="share__text post_share__text">
                                 <span data-language="product_share">{$lang->product_share}:</span>
                             </div>*}
-                                <div class="fn_share jssocials share__icons"></div>
+                                {include file='share_links.tpl'
+                                    share_url=$canonical
+                                    share_title=$h1
+                                }
                             </div>
                         </div>
                     </div>

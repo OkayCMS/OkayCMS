@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\NovaposhtaCost\Entities;
-
 
 use Okay\Core\Entity\Entity;
 
@@ -34,6 +32,7 @@ class NPCitiesEntity extends Entity
     public function add($object)
     {
         $object = (object)$object;
+        /** @var object{updated_at: string}&\stdClass $object */
         $object->updated_at = 'NOW()';
         return parent::add($object);
     }
@@ -41,6 +40,7 @@ class NPCitiesEntity extends Entity
     public function update($ids, $object)
     {
         $object = (object)$object;
+        /** @var object{updated_at: string}&\stdClass $object */
         $object->updated_at = 'NOW()';
         parent::update($ids, $object);
     }
@@ -48,7 +48,8 @@ class NPCitiesEntity extends Entity
     public function removeRedundant(string $updatedAt)
     {
         $sql = $this->queryFactory->newSqlQuery();
-        $sql->setStatement(sprintf('
+        $sql->setStatement(sprintf(
+            '
                 DELETE npc, l FROM %s npc
                 INNER JOIN %s l ON l.city_id = npc.id
                 WHERE
@@ -75,7 +76,7 @@ class NPCitiesEntity extends Entity
         ]);
 
         $searchFields = $this->getSearchFields();
-        foreach ($keywords as $keyNum=>$keyword) {
+        foreach ($keywords as $keyNum => $keyword) {
             $keywordFilter = [];
             foreach ($searchFields as $searchField) {
                 $keywordFilter[] = "{$searchField} LIKE :multi_lang_keyword_{$searchField}_{$keyNum}";

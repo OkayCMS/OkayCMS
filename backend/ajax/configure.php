@@ -1,25 +1,26 @@
 <?php
-if(!empty($_SERVER['HTTP_USER_AGENT'])){
-    session_name(md5($_SERVER['HTTP_USER_AGENT']));
-}
-
-//ini_set('display_errors', 'on');
-//error_reporting(E_ALL);
-
-session_start();
-chdir(dirname(dirname(__DIR__)));
 
 use Okay\Core\Request;
 use Okay\Core\Response;
 use Okay\Core\Settings;
 use Okay\Core\Config;
 use Okay\Core\Managers;
+use Okay\Core\Security\AdminSession;
 use Okay\Entities\ManagersEntity;
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\Modules;
 use Okay\Core\BackendTranslations;
 
+//ini_set('display_errors', 'on');
+//error_reporting(E_ALL);
+
+chdir(dirname(dirname(__DIR__)));
 require_once('vendor/autoload.php');
+
+session_name(AdminSession::SESSION_NAME);
+AdminSession::configureCookieParams($_SERVER);
+session_start();
+
 $DI = include 'Okay/Core/config/container.php';
 
 /** @var Config $config */
@@ -44,6 +45,13 @@ $request = $DI->get(Request::class);
 /** @var Response $response */
 $response = $DI->get(Response::class);
 
+if (!$request->checkSession()) {
+    $response->setStatusCode(403);
+    $response->setContent(json_encode(false), RESPONSE_JSON);
+    $response->sendContent();
+    exit;
+}
+
 /** @var Settings $settings */
 $settings = $DI->get(Settings::class);
 
@@ -53,10 +61,10 @@ $managers = $DI->get(Managers::class);
 /** @var ManagersEntity $managersEntity */
 $managersEntity = $entityFactory->get(ManagersEntity::class);
 
-$manager = $managersEntity->get($_SESSION['admin']);
-
-$backendTranslations->initTranslations($manager->lang);
+$manager = !empty($_SESSION['admin']) ? $managersEntity->get($_SESSION['admin']) : null;
 
 if (!$manager) {
     trigger_error('Need to login', E_USER_ERROR); // todo 403
 }
+
+$backendTranslations->initTranslations($manager->lang);

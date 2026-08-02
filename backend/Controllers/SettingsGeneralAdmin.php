@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Giggsey\Locale\Locale;
 use libphonenumber\PhoneNumberUtil;
@@ -13,7 +11,7 @@ use Okay\Core\Phone;
 class SettingsGeneralAdmin extends IndexAdmin
 {
     public function fetch(
-        BackendSettingsHelper  $backendSettingsHelper,
+        BackendSettingsHelper $backendSettingsHelper,
         BackendTranslations $backendTranslations,
         Phone $phone
     ) {
@@ -21,15 +19,15 @@ class SettingsGeneralAdmin extends IndexAdmin
             $backendSettingsHelper->updateGeneralSettings();
             $this->design->assign('message_success', 'saved');
         }
-        
+
         // Передаем название стран
         switch ($backendTranslations->getLangLabel()) {
-            case 'ua';
+            case 'ua':
                 $countries = Locale::getAllCountriesForLocale('uk');
-            break;
-            case 'ru';
+                break;
+            case 'ru':
                 $countries = Locale::getAllCountriesForLocale('ru');
-            break;
+                break;
             default:
                 $countries = Locale::getAllCountriesForLocale('en');
         }
@@ -40,7 +38,7 @@ class SettingsGeneralAdmin extends IndexAdmin
         $this->design->assign('phone_example', $phone->getPhoneExample());
         $this->design->assign('phone_regions', $phoneUtil->getSupportedRegions());
         $this->design->assign('phone_regions_names', $countries);
-        
+
         $this->response->setContent($this->design->fetch('settings_general.tpl'));
     }
 }

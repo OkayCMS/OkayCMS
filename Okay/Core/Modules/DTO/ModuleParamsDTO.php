@@ -20,8 +20,7 @@ class ModuleParamsDTO
     private bool $isLicensed = false;
 
     /**
-     * @param array $params
-     * @return void
+     * @param array<string, mixed> $params
      *
      * Метод заповнює об'єкт даними
      */
@@ -157,11 +156,11 @@ class ModuleParamsDTO
     }
 
     /**
-     * @return array
+     * @return list<ModificationDTO>
      */
     public function getFrontModifications(): array
     {
-        return $this->frontModifications;
+        return array_values($this->frontModifications);
     }
 
     /**
@@ -173,11 +172,11 @@ class ModuleParamsDTO
     }
 
     /**
-     * @return array
+     * @return list<ModificationDTO>
      */
     public function getBackendModifications(): array
     {
-        return $this->backendModifications;
+        return array_values($this->backendModifications);
     }
 
     /**

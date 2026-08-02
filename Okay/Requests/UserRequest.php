@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Requests;
-
 
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Phone;
@@ -25,7 +23,7 @@ class UserRequest
     {
         $user = null;
         if ($this->request->post('register')) {
-            $user = new \stdClass;
+            $user = new \stdClass();
             $user->name         = $this->request->post('name');
             $user->last_name    = $this->request->post('last_name');
             $user->email        = $this->request->post('email');
@@ -44,7 +42,7 @@ class UserRequest
     {
         $user = null;
         if ($this->request->post('user_save')) {
-            $user = new \stdClass;
+            $user = new \stdClass();
             $user->name         = $this->request->post('name');
             $user->last_name    = $this->request->post('last_name');
             $user->email        = $this->request->post('email');
@@ -55,5 +53,4 @@ class UserRequest
 
         return ExtenderFacade::execute(__METHOD__, $user, func_get_args());
     }
-
 }

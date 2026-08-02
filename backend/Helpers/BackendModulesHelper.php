@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Helpers;
-
 
 use Okay\Core\Config;
 use Okay\Core\Request;
@@ -29,14 +27,16 @@ class BackendModulesHelper
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      *
      * Метод повертає інформацію з кешу про закінчення доступу до оновлень модулів
      */
     public function getModulesAccessExpiresFromCache(): array
     {
-        if (($modulesExpires = $this->settings->get('modules_access_expires'))
-            && $this->settings->get('modules_access_check_date') == date('Y-m-d')) {
+        if (
+            ($modulesExpires = $this->settings->get('modules_access_expires'))
+            && $this->settings->get('modules_access_check_date') == date('Y-m-d')
+        ) {
             return $modulesExpires;
         }
         return [];
@@ -58,7 +58,7 @@ class BackendModulesHelper
      */
     public function updateModulesAccessExpiresCache(): void
     {
-        if (empty($this->settings->get('email_for_module'))){
+        if (empty($this->settings->get('email_for_module'))) {
             $this->settings->set('modules_access_expires', '');
         }
 
@@ -94,28 +94,32 @@ class BackendModulesHelper
     public function checkDownloadVersions($accessUrl)
     {
         $pathAccess = parse_url($accessUrl, PHP_URL_PATH);
+        if (!is_string($pathAccess)) {
+            return false;
+        }
+
         $pathAccess = trim($pathAccess, '/');
         return $this->request($this->marketplaceUrl . $pathAccess . '/versions');
     }
 
     /**
      * Download module zip from marketplace to Okay/Modules
-     * 
+     *
      * @param string $downloadUrl
      * @return bool|string
      * @throws \Exception
-     * 
+     *
      */
     public function downloadModule(string $downloadUrl)
     {
         if (!$tempFileToSave = tempnam($this->config->get('tmp_dir'), 'module_zip_')) {
             return false;
         }
-        
+
         if (!$tempDir = $this->tempDir($this->config->get('tmp_dir'))) {
             return false;
         }
-        
+
         if ($this->download($downloadUrl, $tempFileToSave)) {
             $zip = new \ZipArchive();
 
@@ -123,16 +127,15 @@ class BackendModulesHelper
                 $zip->extractTo($tempDir);
                 $zip->close();
                 unlink($tempFileToSave);
-                
+
                 return $tempDir;
             }
         }
         unlink($tempFileToSave);
         $this->rRmdir($tempDir);
         return false;
-        
     }
-    
+
     public function moveModule($moduleTmpDir, $moduleVendor, $moduleName): bool
     {
         if (empty($moduleTmpDir) || empty($moduleVendor) || empty($moduleName)) {
@@ -140,7 +143,7 @@ class BackendModulesHelper
         }
 
         $relatedModuleDir = 'Okay/Modules/' . $moduleVendor . '/' . $moduleName . '/';
-        
+
         $result = false;
         if (!is_dir($relatedModuleDir) && is_dir($moduleTmpDir . '/' . $relatedModuleDir)) {
             $this->rCopy($moduleTmpDir . '/' . $relatedModuleDir, $relatedModuleDir);
@@ -150,36 +153,41 @@ class BackendModulesHelper
         $this->rRmdir($moduleTmpDir);
         return $result;
     }
-    
+
     public function findModules($keyword = '', $page = 1, $perPage = 20)
     {
         $query = [
             'type' => 'module',
             'limit' => $perPage,
         ];
-        
+
         if (!empty($keyword)) {
             $query['query'] = $keyword;
         }
-        
+
         if (!empty($page) && $page > 1) {
             $query['page'] = $page;
         }
-        
+
         return $this->request($this->apiBaseUrl . 'v1/modules/list?' . http_build_query($query));
     }
-    
+
     public function request($url)
     {
         if (time() < ($_SESSION['modules_request_timeout'] ?? 0)) {
             return false;
         }
         $ch = curl_init($url);
+        if ($ch === false) {
+            return false;
+        }
+
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
-        $result = json_decode(curl_exec($ch));
+        $response = curl_exec($ch);
+        $result = is_string($response) ? json_decode($response) : null;
 
         $retryCnt = $_SESSION['modules_request_timeout_try_cnt'] ?? 0;
         if (curl_errno($ch)) {
@@ -192,50 +200,63 @@ class BackendModulesHelper
         }
         $_SESSION['modules_request_timeout_try_cnt'] = $retryCnt;
 
-        curl_close($ch);
         return $result;
     }
-    
+
     private function download($url, $saveTo)
     {
         $cookieFile = tempnam(sys_get_temp_dir(), "CURLCOOKIE");
-        
+        if ($cookieFile === false) {
+            return false;
+        }
+
         $fp = fopen($saveTo, 'w+');
-        
+        if ($fp === false) {
+            return false;
+        }
+
         $url .= '?domain=' . urlencode(base64_encode(Request::getDomainWithProtocol()));
-        
+
         $ch = curl_init($url);
+        if ($ch === false) {
+            fclose($fp);
+            return false;
+        }
+
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 20);
         curl_setopt($ch, CURLOPT_FILE, $fp);
 
-        curl_setopt ($ch, CURLOPT_COOKIEJAR, $cookieFile);
-        curl_setopt ($ch, CURLOPT_COOKIEFILE, $cookieFile);
-        
+        curl_setopt($ch, CURLOPT_COOKIEJAR, $cookieFile);
+        curl_setopt($ch, CURLOPT_COOKIEFILE, $cookieFile);
+
         curl_exec($ch);
 
         $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        
-        curl_close($ch);
+
         fclose($fp);
-        
+
         if ($statusCode == 200) {
             return true;
         }
         return false;
     }
-    
+
     private function rCopy($src, $dst)
     {
         $dir = opendir($src);
+        if ($dir === false) {
+            return;
+        }
+
         @mkdir($dst, 0755, true);
-        
-        while (false !== ( $object = readdir($dir)) ) {
+
+        while (false !== ( $object = readdir($dir))) {
             if ($object != "." && $object != "..") {
                 if (is_dir($src . '/' . $object)) {
-                    $this->rCopy($src . '/' . $object,$dst . '/' . $object);
+                    $this->rCopy($src . '/' . $object, $dst . '/' . $object);
                 } else {
-                    copy($src . '/' . $object,$dst . '/' . $object);
+                    copy($src . '/' . $object, $dst . '/' . $object);
                 }
             }
         }
@@ -263,13 +284,13 @@ class BackendModulesHelper
             rmdir($dir);
         }
     }
-    
+
     private function tempDir($subDir = null)
     {
         if ($subDir === null) {
             $subDir = sys_get_temp_dir();
         }
-        $tempFile = tempnam($subDir,'');
+        $tempFile = tempnam($subDir, '');
         if (file_exists($tempFile)) {
             unlink($tempFile);
         }
@@ -277,8 +298,7 @@ class BackendModulesHelper
         if (is_dir($tempFile)) {
             return $tempFile;
         }
-        
+
         return false;
     }
-    
 }

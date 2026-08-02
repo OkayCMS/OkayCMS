@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\FastOrder\Controllers;
-
 
 use Okay\Core\Cart;
 use Okay\Core\FrontTranslations;
@@ -24,16 +22,16 @@ use Okay\Modules\OkayCMS\FastOrder\Helpers\ValidateHelper;
 class FastOrderController extends AbstractController
 {
     public function createOrder(
-        EntityFactory     $entityFactory,
-        OrdersHelper      $ordersHelper,
-        Languages         $languages,
-        Notify            $notify,
-        Validator         $validator,
+        EntityFactory $entityFactory,
+        OrdersHelper $ordersHelper,
+        Languages $languages,
+        Notify $notify,
+        Validator $validator,
         FrontTranslations $frontTranslations,
-        CartHelper        $cartHelper,
-        VariantsEntity    $variantsEntity,
-        Cart              $cart,
-        BackendExtender   $validateExtend
+        CartHelper $cartHelper,
+        VariantsEntity $variantsEntity,
+        Cart $cart,
+        BackendExtender $validateExtend
     ) {
         if (!$this->request->method('post')) {
             return $this->response->setContent(json_encode(['errors' => ['Request must be post']]), RESPONSE_JSON);
@@ -49,18 +47,25 @@ class FastOrderController extends AbstractController
         $order->ip      = $_SERVER['REMOTE_ADDR'];
         $variantId = $this->request->post('variant_id');
 
-        $order = $ordersHelper->attachUserIfLogin($order, $this->user);
+        /** @var object{phone?: mixed, user_id?: mixed}&\stdClass $orderForUser */
+        $orderForUser = $order;
+        $order = $ordersHelper->attachUserIfLogin($orderForUser, $this->user);
 
-        $errors = $validateExtend->ValidateFastOrder($order,$variantId);
+        $errors = $validateExtend->ValidateFastOrder($order, $variantId);
 
         if (!empty($errors)) {
             return $this->response->setContent(json_encode(['errors' => $errors]), RESPONSE_JSON);
         }
-        
+
         /** @var OrdersEntity $ordersEntity */
         $ordersEntity = $entityFactory->get(OrdersEntity::class);
         $preparedOrder = $ordersHelper->prepareAdd($order);
         $orderId       = $ordersEntity->add($preparedOrder);
+        if ($orderId === false) {
+            return $this->response->setContent(json_encode([
+                'errors' => ['Order creation failed'],
+            ]), RESPONSE_JSON);
+        }
 
         $amount = $this->request->post('amount', 'integer');
         if ($amount <= 0) {

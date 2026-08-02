@@ -8,7 +8,7 @@
             height: 600,
             relative_urls : false,
             plugins: [
-                "advlist autolink quickbars lists link image preview anchor responsivefilemanager emoticons",
+                "advlist autolink quickbars lists link image preview anchor{if $manager->permissions && in_array('images', $manager->permissions)} responsivefilemanager{/if} emoticons",
                 "hr visualchars codesample autosave noneditable searchreplace wordcount visualblocks",
                 "code fullscreen save charmap nonbreaking",
                 "insertdatetime media table paste imagetools",
@@ -58,9 +58,11 @@
             "Trebuchet MS=trebuchet ms,geneva;"+
             "Verdana=verdana,geneva;",
             image_advtab: true,
-            external_filemanager_path:"{$rootUrl}/backend/design/js/filemanager/",
-            filemanager_title:"{$btr->tinymce_init_filemanager|escape}" ,
-            external_plugins: { "filemanager" : "{$rootUrl}/backend/design/js/filemanager/plugin.min.js"},
+            {if $manager->permissions && in_array('images', $manager->permissions)}
+                external_filemanager_path:"{$rootUrl}/backend/design/js/filemanager/",
+                filemanager_title:"{$btr->tinymce_init_filemanager|escape}" ,
+                external_plugins: { "filemanager" : "{$rootUrl}/backend/design/js/filemanager/plugin.min.js"},
+            {/if}
 
             style_formats: [
                 { title: 'Headings', items: [

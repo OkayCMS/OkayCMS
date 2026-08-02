@@ -1,0 +1,71 @@
+<?php
+
+namespace axy\sourcemap;
+
+/**
+ * Stub file for PHPStan to recognize magic properties of SourceMap class
+ *
+ * The SourceMap class uses magic methods (__get/__set) to provide dynamic properties.
+ * This stub file documents these properties so PHPStan can understand them.
+ *
+ * @property string $file The output file path for the source map
+ * @property string|null $sourceRoot The source root directory
+ * @property array<string> $sources List of source files
+ * @property array<string> $names List of symbol names
+ * @property string $mappings The mappings string
+ * @property int $version The source map version (usually 3)
+ */
+class SourceMap
+{
+    /** @var string */
+    public $file;
+
+    /**
+     * @param array<string, mixed>|null $data
+     * @param string|null $filename
+     */
+    public function __construct($data = null, $filename = null)
+    {
+    }
+
+    /**
+     * Load source map from file
+     *
+     * @param string $filename
+     * @return self
+     */
+    public static function loadFromFile($filename)
+    {
+    }
+
+    /**
+     * Concatenate another source map
+     *
+     * @param self $other
+     * @param int $lineOffset
+     * @return void
+     */
+    public function concat(self $other, $lineOffset = 0)
+    {
+    }
+
+    /**
+     * Add a position mapping
+     *
+     * @param \axy\sourcemap\PosMap $position
+     * @return void
+     */
+    public function addPosition(\axy\sourcemap\PosMap $position)
+    {
+    }
+
+    /**
+     * Save source map to file
+     *
+     * @param string $filename
+     * @return void
+     */
+    public function save($filename)
+    {
+    }
+}

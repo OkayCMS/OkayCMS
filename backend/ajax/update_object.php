@@ -114,12 +114,12 @@ switch ($object) {
         break;
     case 'banner':
         if ($managers->access('banners', $manager)) {
-            $entity = $entityFactory->get(\Okay\Entities\BannersEntity::class);
+            $entity = $entityFactory->get(\Okay\Modules\OkayCMS\Banners\Entities\BannersEntity::class);
         }
         break;
     case 'banners_image':
         if ($managers->access('banners', $manager)) {
-            $entity = $entityFactory->get(\Okay\Entities\BannersImagesEntity::class);
+            $entity = $entityFactory->get(\Okay\Modules\OkayCMS\Banners\Entities\BannersImagesEntity::class);
         }
         break;
     case 'callback':
@@ -143,13 +143,13 @@ switch ($object) {
     case 'managers':
         if ($managerMenu = $request->post('manager_menu')) {
             $entity = $entityFactory->get(\Okay\Entities\ManagersEntity::class);
-            $values = ['menu'=>$managerMenu];
+            $values = ['menu' => $managerMenu];
         } elseif ($managers->access('managers', $manager)) {
             $entity = $entityFactory->get(\Okay\Entities\ManagersEntity::class);
             $result = $entity->update($id, $values);
         } elseif (isset($values['menu_status'])) {
             $entity = $entityFactory->get(\Okay\Entities\ManagersEntity::class);
-            $result = $entity->update($id, ['menu_status'=>$values['menu_status']]);
+            $result = $entity->update($id, ['menu_status' => $values['menu_status']]);
         }
         break;
 }

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 use Okay\Entities\UserWishlistItemsEntity;
 use Okay\Entities\VariantsEntity;
@@ -25,8 +23,8 @@ class WishList
     private $productsHelper;
 
     public function __construct(
-        EntityFactory  $entityFactory,
-        MainHelper     $mainHelper,
+        EntityFactory $entityFactory,
+        MainHelper $mainHelper,
         ProductsHelper $productsHelper
     ) {
         $this->entityFactory  = $entityFactory;
@@ -45,7 +43,7 @@ class WishList
             return ExtenderFacade::execute(__METHOD__, $wishList, func_get_args());
         }
 
-        $products = $this->productsHelper->getList(['id'=>$items, 'visible'=>1]);
+        $products = $this->productsHelper->getList(['id' => $items, 'visible' => 1]);
 
         $products_ids = array_keys($products);
 
@@ -78,7 +76,7 @@ class WishList
                 ]);
             }
         }
-        
+
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
@@ -95,7 +93,7 @@ class WishList
         }
         $items = array_values($items);
         $_COOKIE['wishlist'] = json_encode($items);
-        
+
         if ($delayedDispatch === false) {
             $this->save();
         }
@@ -106,17 +104,17 @@ class WishList
 
             $userWishlistItemsEntity->deleteByProductId($user->id, $productId);
         }
-        
+
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
-    
+
     public function save()
     {
         if (!empty($_COOKIE['wishlist'])) {
-            setcookie('wishlist', $_COOKIE['wishlist'], time() + 30 * 24 * 3600, '/');
+            $this->setWishListCookie((string)$_COOKIE['wishlist'], time() + 30 * 24 * 3600);
         }
     }
-    
+
     /*Очистка списка сравнения*/
     public function emptyWishList($onlyLocal = false)
     {
@@ -129,10 +127,26 @@ class WishList
                 $userWishlistItemsEntity->deleteByProductId($user->id, array_keys(json_decode($_COOKIE['wishlist'])));
             }
         }
-        
+
         unset($_COOKIE['wishlist']);
-        setcookie('wishlist', '', time()-3600, '/');
+        $this->setWishListCookie('', time() - 3600);
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
+    }
+
+    private function setWishListCookie(string $value, int $expires): void
+    {
+        setcookie('wishlist', $value, [
+            'expires' => $expires,
+            'path' => '/',
+            'secure' => $this->isHttpsRequest(),
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+    }
+
+    private function isHttpsRequest(): bool
+    {
+        return !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
     }
 }

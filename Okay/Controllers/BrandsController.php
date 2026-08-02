@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Controllers;
-
 
 use Okay\Core\Router;
 use Okay\Core\Routes\RouteFactory;
@@ -14,13 +12,16 @@ use Okay\Helpers\MetadataHelpers\AllBrandsMetadataHelper;
 class BrandsController extends AbstractController
 {
     /*Отображение страницы всех брендов*/
+    /**
+     * @param string $filtersUrl
+     */
     public function render(
-        BrandsHelper            $brandsHelper,
-        FilterHelper            $filterHelper,
+        BrandsHelper $brandsHelper,
+        FilterHelper $filterHelper,
         AllBrandsMetadataHelper $allBrandsMetadataHelper,
-        RouteFactory            $routeFactory,
-        CatalogHelper           $catalogHelper,
-                                $filtersUrl = ''
+        RouteFactory $routeFactory,
+        CatalogHelper $catalogHelper,
+        $filtersUrl = ''
     ) {
         $allBrandsRouteParams = $routeFactory->create('brands')->generateRouteParams();
         $this->design->assign('url', $allBrandsRouteParams->getSlug(), true);
@@ -35,7 +36,7 @@ class BrandsController extends AbstractController
         $filterHelper->setFeaturesValuesFilter(['brand' => true]);
 
         $page = $brandsHelper->getBrandsPage();
-        $this->design->assign('page',$page);
+        $this->design->assign('page', $page);
 
         if (($productsFilter = $brandsHelper->getProductsFilter(null, $filtersUrl)) === null) {
             return false;
@@ -50,7 +51,8 @@ class BrandsController extends AbstractController
         $metaArray = $filterHelper->getMetaArray($filtersUrl);
 
         // Если в строке есть параметры которые не должны быть в фильтре, либо параметры с другой категории, бросаем 404
-        if (!empty($metaArray['features_values'])
+        if (
+            !empty($metaArray['features_values'])
             && array_intersect_key($metaArray['features_values'], $catalogFeatures) !== $metaArray['features_values']
         ) {
             return false;
@@ -59,7 +61,7 @@ class BrandsController extends AbstractController
         $isFilterPage = $brandsHelper->isFilterPage($productsFilter);
         $this->design->assign('is_filter_page', $isFilterPage);
 
-        if (!$this->settings->get('deferred_load_features') || $this->request->get('ajax','boolean')) {
+        if (!$this->settings->get('deferred_load_features') || $this->request->get('ajax', 'boolean')) {
             $brandsHelper->assignBrandsFilterProcedure(
                 $productsFilter,
                 $catalogFeatures
@@ -86,12 +88,14 @@ class BrandsController extends AbstractController
 
         $brandsFilter = $brandsHelper->getBrandsFilter($productsFilter);
 
-        if (!$brandsHelper->paginateBrands(
-            $this->settings->get('products_num'),
-            $currentPage,
-            $brandsFilter,
-            $this->design
-        )) {
+        if (
+            !$brandsHelper->paginateBrands(
+                $this->settings->get('products_num'),
+                $currentPage,
+                $brandsFilter,
+                $this->design
+            )
+        ) {
             return false;
         }
 
@@ -102,7 +106,7 @@ class BrandsController extends AbstractController
 
         $this->design->assign('brands', $brands);
 
-        if ($this->request->get('ajax','boolean')) {
+        if ($this->request->get('ajax', 'boolean')) {
             $this->design->assign('ajax', 1);
             $result = $brandsHelper->getBrandsAjaxFilterData();
             $this->response->setContent(json_encode($result), RESPONSE_JSON);
@@ -124,10 +128,13 @@ class BrandsController extends AbstractController
         $this->response->setContent('brands.tpl');
     }
 
+    /**
+     * @param string $filtersUrl
+     */
     public function getFilter(
         FilterHelper $filterHelper,
         BrandsHelper $brandsHelper,
-                     $filtersUrl = ''
+        $filtersUrl = ''
     ) {
         // Если ленивая отложенная загрузка фильтра отключена, этот метод должен давать 404
         if (!$this->settings->get('deferred_load_features')) {

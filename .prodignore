@@ -1,0 +1,20 @@
+# Production package exclude list (gitignore-style prefix rules).
+# A trailing slash means "this directory and everything under it".
+# Lines without a slash match an exact relative path.
+
+.codex/
+.cursor/
+.ddev/
+.devcontainer/
+.github/
+.history/
+.phpunit.cache/
+.vscode/
+cache/
+compiled/
+dev/
+docs/
+stubs/
+tests/
+var/
+vendor/

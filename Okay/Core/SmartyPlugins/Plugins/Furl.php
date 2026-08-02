@@ -1,8 +1,6 @@
-<?php 
-
+<?php
 
 namespace Okay\Core\SmartyPlugins\Plugins;
-
 
 use Okay\Core\SmartyPlugins\Func;
 use Okay\Core\Router;
@@ -19,26 +17,26 @@ class Furl extends Func
         $this->filterHelper = $filterHelper;
     }
 
-    public function run($params, \Smarty_Internal_Template $smarty)
+    public function run($params, \Smarty\Template $smarty)
     {
 
         if (is_array($params) && is_array(reset($params))) {
             $params = reset($params);
         }
-        
+
         if (!empty($params['route'])) {
             $routeName = $params['route'];
         } else {
             $routeName = $this->router->getCurrentRouteName();
         }
-        
+
         $isAbsolute = false;
-        
+
         if (isset($params['absolute'])) {
             $isAbsolute = (bool)$params['absolute'];
             unset($params['absolute']);
         }
-        
+
         $routeParams = $this->router->getCurrentRouteRequiredParams();
         $baseUrl = $this->router->generateUrl($routeName, $routeParams, $isAbsolute);
         $chpuUrl = $this->filterHelper->filterChpuUrl($params, [], $smarty);

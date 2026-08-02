@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Requests;
-
 
 use Okay\Core\Request;
 use Okay\Core\Modules\Extender\ExtenderFacade;
@@ -22,14 +20,14 @@ class BackendUserGroupsRequest
 
     public function postGroup()
     {
-        $group = new \stdClass;
+        $group = new \stdClass();
         $group->id = $this->request->post('id', 'integer');
         $group->name = $this->request->post('name');
         $group->discount = $this->request->post('discount', 'float');
 
         return ExtenderFacade::execute(__METHOD__, $group, func_get_args());
     }
-    
+
     public function postCheck()
     {
         $check = (array) $this->request->post('check');

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Admin\Helpers\BackendPaymentsHelper;
 use Okay\Admin\Requests\BackendPaymentsRequest;
@@ -10,7 +8,6 @@ use Okay\Entities\PaymentsEntity;
 
 class PaymentMethodsAdmin extends IndexAdmin
 {
-
     public function fetch(BackendPaymentsHelper $backendPaymentsHelper, BackendPaymentsRequest $backendPaymentsRequest)
     {
         // Обработка действий
@@ -22,18 +19,15 @@ class PaymentMethodsAdmin extends IndexAdmin
 
             if (is_array($ids)) {
                 switch ($backendPaymentsRequest->postAction()) {
-                    case 'disable': {
+                    case 'disable':
                         $backendPaymentsHelper->disable($ids);
                         break;
-                    }
-                    case 'enable': {
+                    case 'enable':
                         $backendPaymentsHelper->enable($ids);
                         break;
-                    }
-                    case 'delete': {
+                    case 'delete':
                         $backendPaymentsHelper->delete($ids);
                         break;
-                    }
                 }
             }
         }
@@ -47,5 +41,4 @@ class PaymentMethodsAdmin extends IndexAdmin
         $this->design->assign('payment_methods_count', $paymentMethodsCount);
         $this->response->setContent($this->design->fetch('payment_methods.tpl'));
     }
-    
 }

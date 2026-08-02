@@ -1,22 +1,22 @@
 <?php
 
-
 namespace Okay\Helpers\MetadataHelpers;
-
 
 use Okay\Core\FrontTranslations;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Helpers\MetaRobotsHelper;
 
+/**
+ * @phpstan-type BrandRow object{name: string|null, name_h1?: string|null, annotation: string|null, description: string|null, meta_title: string|null, meta_keywords: string|null, meta_description: string|null}&\stdClass
+ */
 class BrandMetadataHelper extends CommonMetadataHelper
 {
- 
     private $metaArray = [];
     private $metaDelimiter = ', ';
     private $autoMeta;
     private $metaRobots;
 
-    /** @var object */
+    /** @var BrandRow */
     private $brand;
 
     /** @var bool */
@@ -31,6 +31,10 @@ class BrandMetadataHelper extends CommonMetadataHelper
     /** @var string|null */
     private $keyword;
 
+    /**
+     * @param BrandRow $brand
+     * @param array<string, mixed> $metaArray
+     */
     public function setUp(
         $brand,
         bool $isFilterPage = false,
@@ -164,7 +168,7 @@ class BrandMetadataHelper extends CommonMetadataHelper
         } else {
             $metaDescription = (string)$this->brand->meta_description;
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $metaDescription, func_get_args());
     }
 
@@ -186,9 +190,8 @@ class BrandMetadataHelper extends CommonMetadataHelper
         if ($this->metaRobots == ROBOTS_NOINDEX_FOLLOW || $this->metaRobots == ROBOTS_NOINDEX_NOFOLLOW) {
             return false;
         }
-        
+
         if (empty($this->autoMeta)) {
-            
             $autoMeta = [
                 'h1' => '',
                 'meta_title' => '',
@@ -202,10 +205,8 @@ class BrandMetadataHelper extends CommonMetadataHelper
                     switch ($type) {
                         case 'brand': // no break
                         case 'filter':
-                        {
                             $autoMeta['h1'] = $autoMeta['meta_title'] = $autoMeta['meta_keywords'] = $autoMeta['meta_description'] = $autoMeta['description'] = implode($this->metaDelimiter, $_meta_array);
                             break;
-                        }
                     }
                 }
             }
@@ -214,21 +215,22 @@ class BrandMetadataHelper extends CommonMetadataHelper
 
         return $this->autoMeta;
     }
-    
+
     /**
      * @inheritDoc
+     * @return array<string, mixed>
      */
     protected function getParts(): array
     {
         if (!empty($this->parts)) {
             return $this->parts; // no ExtenderFacade
         }
-        
+
         $this->parts = [
             '{$brand}' => ($this->brand->name ? $this->brand->name : ''),
             '{$sitename}' => ($this->settings->get('site_name') ? $this->settings->get('site_name') : ''),
         ];
-        
+
         return $this->parts = ExtenderFacade::execute(__METHOD__, $this->parts, func_get_args());
     }
 }

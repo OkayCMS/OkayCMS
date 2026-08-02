@@ -23,16 +23,13 @@ $argv = Request::getArgv();
 $action = !empty($argv[1]) ? $argv[1] : "update";
 
 switch ($action) {
-    case 'update': {
+    case 'update':
         $deployHelper->executeMigrations();
         break;
-    }
-    case 'create': {
+    case 'create':
         $migrationName = (!empty($argv[2]) ? $argv[2] : '');
         $deployHelper->createMigration($migrationName);
         break;
-    }
-    default: {
-        echo "error: UNKNOWN ACTION (param1 must be: empty, 'update', 'create')".PHP_EOL;
-    }
+    default:
+        echo "error: UNKNOWN ACTION (param1 must be: empty, 'update', 'create')" . PHP_EOL;
 }

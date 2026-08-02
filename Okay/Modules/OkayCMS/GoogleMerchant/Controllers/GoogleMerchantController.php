@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Modules\OkayCMS\GoogleMerchant\Controllers;
-
 
 use Aura\Sql\ExtendedPdo;
 use Okay\Controllers\AbstractController;
@@ -20,22 +18,45 @@ use Okay\Modules\OkayCMS\GoogleMerchant\Helpers\GoogleMerchantHelper;
 use Okay\Modules\OkayCMS\GoogleMerchant\Init\Init;
 use PDO;
 
+/**
+ * @phpstan-type GoogleMerchantFeedRow object{id: int|string, enabled: bool|int|string|null}
+ * @phpstan-type GoogleMerchantProductRow \stdClass&object{
+ *     product_id: int|string,
+ *     variant_id: int|string,
+ *     stock: int|float|string|null,
+ *     price: int|float,
+ *     compare_price: int|float,
+ *     currency_id: int|string|null,
+ *     main_category_id: int|string,
+ *     url: string,
+ *     slug_url: string,
+ *     brand_name: string,
+ *     product_name: string,
+ *     variant_name?: string|null,
+ *     sku: string,
+ *     images?: list<string>,
+ *     images_string?: string|null,
+ *     features?: array<int|string, array{name: string, values: list<string>, values_string: string}>,
+ *     description: string
+ * }
+ */
 class GoogleMerchantController extends AbstractController
 {
-    
     public function render(
-        ExtendedPdo               $pdo,
-        Database                  $db,
-        QueryFactory              $queryFactory,
-        GoogleMerchantHelper      $googleMerchantHelper,
-        XmlFeedHelper             $feedHelper,
-        CategoriesEntity          $categoriesEntity,
+        ExtendedPdo $pdo,
+        Database $db,
+        QueryFactory $queryFactory,
+        GoogleMerchantHelper $googleMerchantHelper,
+        XmlFeedHelper $feedHelper,
+        CategoriesEntity $categoriesEntity,
         GoogleMerchantFeedsEntity $feedsEntity,
-        Money                     $money,
-        CurrenciesEntity          $currenciesEntity,
+        Money $money,
+        CurrenciesEntity $currenciesEntity,
         $url
     ) {
-        if (!($feed = $feedsEntity->findOne(['url' => $url])) || !$feed->enabled) {
+        /** @var GoogleMerchantFeedRow|null $feed */
+        $feed = $feedsEntity->findOne(['url' => $url]);
+        if (!$feed || !$feed->enabled) {
             return false;
         }
 
@@ -83,7 +104,9 @@ class GoogleMerchantController extends AbstractController
 
         $prevProductId = null;
         while ($product = $query->result()) {
+            /** @var GoogleMerchantProductRow $product */
             $product = $feedHelper->attachFeatures($product);
+            /** @var GoogleMerchantProductRow $product */
             $metaParts = $feedHelper->getMetadataParts($product);
             $product = $feedHelper->attachDescriptionByTemplate(
                 $product,
@@ -91,13 +114,16 @@ class GoogleMerchantController extends AbstractController
                 $feedHelper->getDescriptionTemplate($product),
                 XmlFeedHelper::DESCRIPTION_FIELD
             );
+            /** @var GoogleMerchantProductRow $product */
             $product = $feedHelper->attachDescriptionByTemplate(
                 $product,
                 $metaParts,
                 $feedHelper->getAnnotationTemplate($product),
                 XmlFeedHelper::ANNOTATION_FIELD
             );
+            /** @var GoogleMerchantProductRow $product */
             $product = $feedHelper->attachProductImages($product);
+            /** @var GoogleMerchantProductRow $product */
 
             $addVariantUrl = false;
             if ($prevProductId === $product->product_id) {

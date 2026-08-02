@@ -1,9 +1,8 @@
 <?php
 
-
 namespace Okay\Helpers;
 
-
+use Okay\Core\Cart;
 use Okay\Core\Design;
 use Okay\Core\EntityFactory;
 use Okay\Core\FrontTranslations;
@@ -22,7 +21,6 @@ use Psr\Log\LoggerInterface;
 
 class DeliveriesHelper
 {
-
     private $entityFactory;
     private $module;
     private $logger;
@@ -35,12 +33,11 @@ class DeliveriesHelper
     }
 
     /**
-     * @param $delivery
-     * @param $order
-     * @return array
-     * 
+     * @param object{free_from: string|int|float, price: string|int|float, separate_payment: bool|int|string}&\stdClass $delivery
+     * @param object{total_price: string|int|float}&\stdClass $order
+     * @return array{delivery_price: string|int|float, separate_delivery: bool|int|string}|array{}
+     *
      * Метод подготавливает данные для записи стоимости доставки в заказ
-     * 
      */
     public function prepareDeliveryPriceInfo($delivery, $order)
     {
@@ -64,44 +61,59 @@ class DeliveriesHelper
     }
 
     /**
-     * @var $cart
-     * @var $paymentMethods
+     * @param Cart $cart
+     * @param array $paymentMethods
      * @return array
      * @throws \Exception
      *
      * Метод возвращает способы доставки для корзины
      */
+    /**
+     * @param Cart $cart
+     * @param array<int, object> $paymentMethods
+     * @return list<object>
+     * @throws \Exception
+     */
     public function getCartDeliveriesList($cart, $paymentMethods)
     {
         $SL = ServiceLocator::getInstance();
-        
-        /** @var FrontTranslations $frontTranslations */
+
+        /**
+         * @var FrontTranslations $frontTranslations
+         */
         $frontTranslations = $SL->getService(FrontTranslations::class);
-        
-        /** @var EntityFactory $entityFactory */
+
+        /**
+         * @var EntityFactory $entityFactory
+         */
         $entityFactory = $SL->getService(EntityFactory::class);
-        
-        /** @var CurrenciesEntity $currenciesEntity */
+
+        /**
+         * @var CurrenciesEntity $currenciesEntity
+         */
         $currenciesEntity = $entityFactory->get(CurrenciesEntity::class);
         $currency = $currenciesEntity->get((int)$_SESSION['currency_id']);
-        
-        /** @var Money $money */
-        $money = $SL->getService(Money::class);
-        
-        /** @var DeliveriesEntity $deliveriesEntity */
-        $deliveriesEntity = $this->entityFactory->get(DeliveriesEntity::class);
-        $deliveries = $deliveriesEntity->mappedBy('id')->find(['enabled'=>1]);
-        
-        foreach ($deliveries as $delivery) {
 
+        /**
+         * @var Money $money
+         */
+        $money = $SL->getService(Money::class);
+
+        /**
+         * @var DeliveriesEntity $deliveriesEntity
+         */
+        $deliveriesEntity = $this->entityFactory->get(DeliveriesEntity::class);
+        $deliveries = $deliveriesEntity->mappedBy('id')->find(['enabled' => 1]);
+
+        foreach ($deliveries as $delivery) {
             $delivery->is_free_delivery = false;
             if ($cart->total_price > $delivery->free_from) {
                 $delivery->is_free_delivery = true;
             }
-            
+
             // Добавим текст стоимости доставки
             $delivery->delivery_price_text = '';
-            if ($cart->total_price < $delivery->free_from && $delivery->price>0) {
+            if ($cart->total_price < $delivery->free_from && $delivery->price > 0) {
                 $delivery->delivery_price_text = $money->convert($delivery->price) . ' ' . $currency->sign;
                 if ($delivery->separate_payment) {
                     $delivery->delivery_price_text .= ', ' . $frontTranslations->getTranslation('cart_paid_separate');
@@ -113,26 +125,38 @@ class DeliveriesHelper
             if (!$delivery->separate_payment && $cart->total_price < $delivery->free_from) {
                 $delivery->total_price_with_delivery += $delivery->price;
             }
-            
+
             // Сортируем массив id способов оплаты для доставки в соответствии с позициями способов оплаты.
             // Также откинем не активные способы полаты
             $delivery->payment_methods_ids = array_intersect(array_keys($paymentMethods), $deliveriesEntity->getDeliveryPayments($delivery->id));
-            
+
             if (!empty($delivery->settings) && is_string($delivery->settings)) {
-                $delivery->settings = unserialize($delivery->settings);
+                // Безпечна десеріалізація з перевіркою помилок
+                $success = true;
+                set_error_handler(
+                    function (int $errno, string $errstr, string $errfile, int $errline) use (&$success): bool {
+                        $success = false;
+                        return true;
+                    }
+                );
+                $unserialized = unserialize($delivery->settings);
+                restore_error_handler();
+                $delivery->settings = $success && $unserialized !== false ? $unserialized : [];
             }
         }
-        
+
         return ExtenderFacade::execute(__METHOD__, $deliveries, func_get_args());
     }
-    
+
     public function getActiveDeliveryMethod($deliveries, $user)
     {
         $SL = ServiceLocator::getInstance();
 
-        /** @var Request $request */
+        /**
+         * @var Request $request
+         */
         $request = $SL->getService(Request::class);
-        
+
         // Передаём на фронт активный способ доставки
         if (!empty($user->preferred_delivery_id) && isset($deliveries[$user->preferred_delivery_id])) {
             $activeDelivery = $deliveries[$user->preferred_delivery_id];

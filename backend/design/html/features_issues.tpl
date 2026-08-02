@@ -108,13 +108,17 @@
                 } else {
                     toastr.error('', "{/literal}{$btr->toastr_error|escape}{literal}");
                 }
-                $.fancybox.close();
+                if (typeof $.fancybox !== 'undefined' && typeof $.fancybox.close === 'function') {
+                    $.fancybox.close();
+                }
                 $(".fn_preloader").removeClass("ajax_preloader");
                 $("#features_issues").remove();
             },
             error: function (error) {
                 toastr.error('', "{/literal}{$btr->toastr_error|escape}{literal}");
-                $.fancybox.close();
+                if (typeof $.fancybox !== 'undefined' && typeof $.fancybox.close === 'function') {
+                    $.fancybox.close();
+                }
                 $(".fn_preloader").removeClass("ajax_preloader");
                 $("#features_issues").remove();
             }

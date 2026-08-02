@@ -1,30 +1,43 @@
-# Документация OkayCMS
+---
+title: Документація розробника OkayCMS
+type: developer-docs-index
+status: active
+date: 2026-05-15
+verification_status: current
+---
 
-## Основные положения
+# Документація розробника OkayCMS
 
-В документации часто может встречаться запись вида "Okay\Core\Response::setContent()", она значит, что имеется в виду 
-метод "setContent()" класса "Okay\Core\Response". Это не означает что этот метод статический. Если метод статический,
-об этом говорится отдельно.
+Цей розділ містить довідкову документацію для розробників OkayCMS: архітектурні
+точки розширення, модулі, маршрути, сутності, хелпери, шаблони, імпорт,
+експорт і приклади конфігурації.
 
-Если встречаются пути, которые разделенные обратным слешем "\\" это имеется в виду namespace, если пути разделенные
-прямым слешем "/" это имеется в виду путь в файловой системе.
-Пример неймспейса `Okay\Admin\Controllers`, пример пути `backend/Controllers`.
+Документація зберігає початкове призначення: швидко пояснити, як користуватися
+наявними API і структурами проєкту. Для деталей, які очевидно видно з типів,
+сигнатур, PHPDoc або поточної реалізації, першоджерелом лишається код.
 
-## Основные типы классов
+## Розділи
 
-* [Ядро системы (Core)](./core/README.md)
-* [Контроллеры](./controllers.md)
-* [Классы сущностей (Entities)](./entities.md)
-* [Helpers](./helpers.md)
-* [Requests](./requests.md)
-* [Маршруты](./routes.md)
-* [Подключение внешних файлов дизайна](./js_css_files.md)
-* [Smarty плагины](./smarty_plugins.md)
-* [Модульность](./modules/README.md)
-* [Модуль, быстрый старт](./modules/quick_start.md)
-* [Режим разработчика](./dev_mode.md)
-* [Пример конфигурации сервера Nginx](./nginx/nginx.conf)
-* [Импорт](./import.md)
-* [Экспорт](./export.md)
-* [Модификация tpl файлов](./tpl_modifiers.md)
-* [Работа со скидками](./discounts_management.md)
+| Розділ | Точка входу |
+|---|---|
+| Класи ядра | [core/README.md](core/README.md) |
+| Контролери | [controllers.md](controllers.md) |
+| Сутності | [entities.md](entities.md) |
+| Хелпери | [helpers.md](helpers.md) |
+| Requests | [requests.md](requests.md) |
+| Маршрути | [routes.md](routes.md) |
+| Service locator і DI | [service_locator.md](service_locator.md), [di_container.md](di_container.md) |
+| Smarty і шаблони | [smarty_plugins.md](smarty_plugins.md), [tpl_modifiers.md](tpl_modifiers.md) |
+| Модулі | [modules/README.md](modules/README.md), [modules/quick_start.md](modules/quick_start.md) |
+| Імпорт і експорт | [import.md](import.md), [export.md](export.md) |
+| Файли і планувальник | [files.md](files.md), [scheduler.md](scheduler.md) |
+| JS, CSS і візуальні матеріали | [js_css_files.md](js_css_files.md), [images/](images/) |
+| Приклад Nginx | [nginx/nginx.conf](nginx/nginx.conf) |
+| Режим розробника | [dev_mode.md](dev_mode.md) |
+
+## Актуальні джерела
+
+- код у `Okay/`, `backend/`, `design/` і `Okay/Modules/`;
+- конфігурація сервісів у `Okay/Core/config/`;
+- шаблони та ресурси поточної теми;
+- `composer.json` для поточних команд перевірки якості.

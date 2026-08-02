@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core\Entity;
-
 
 use Okay\Core\EntityFactory;
 use Okay\Entities\AuthorsEntity;
@@ -40,6 +38,7 @@ class UrlUniqueValidator
         /** @var BlogEntity $blogEntity */
         $blogEntity = $this->entityFactory->get(BlogEntity::class);
         $post = $blogEntity->findOne(['url' => $url]);
+        /** @var (object{id: int|string}&\stdClass)|false $post */
         if (!empty($post) && $entityName !== BlogEntity::class && $post->id != $id) {
             return false;
         }
@@ -47,6 +46,7 @@ class UrlUniqueValidator
         /** @var BlogCategoriesEntity $blogCategoriesEntity */
         $blogCategoriesEntity = $this->entityFactory->get(BlogCategoriesEntity::class);
         $category = $blogCategoriesEntity->findOne(['url' => $url]);
+        /** @var (object{id: int|string}&\stdClass)|false $category */
         if (!empty($category) && $entityName !== BlogCategoriesEntity::class && $category->id != $id) {
             return false;
         }
@@ -54,6 +54,7 @@ class UrlUniqueValidator
         /** @var BrandsEntity $brandsEntity */
         $brandsEntity = $this->entityFactory->get(BrandsEntity::class);
         $brand = $brandsEntity->findOne(['url' => $url]);
+        /** @var (object{id: int|string}&\stdClass)|false $brand */
         if (!empty($brand) && $entityName !== BrandsEntity::class && $brand->id != $id) {
             return false;
         }
@@ -61,6 +62,7 @@ class UrlUniqueValidator
         /** @var AuthorsEntity $authorsEntity */
         $authorsEntity = $this->entityFactory->get(AuthorsEntity::class);
         $author = $authorsEntity->findOne(['url' => $url]);
+        /** @var (object{id: int|string}&\stdClass)|false $author */
         if (!empty($author) && $entityName !== AuthorsEntity::class && $author->id != $id) {
             return false;
         }

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Requests;
-
 
 use Okay\Core\Request;
 use Okay\Core\Translit;
@@ -21,9 +19,9 @@ class BackendFeaturesRequest
     private $translit;
 
     public function __construct(
-        Request  $request,
+        Request $request,
         Translit $translit
-    ){
+    ) {
         $this->request  = $request;
         $this->translit = $translit;
     }
@@ -43,8 +41,11 @@ class BackendFeaturesRequest
         $feature->description        = $this->request->post('description');
         $feature->show_in_product    = $this->request->post('show_in_product', 'int', 0);
 
-        $feature->url = preg_replace("/[\s]+/ui", '', $feature->url);
-        $feature->url = strtolower(preg_replace("/[^0-9a-z]+/ui", '', $feature->url));
+        $featureUrl = is_string($feature->url) ? $feature->url : '';
+        $featureUrl = preg_replace("/[\s]+/ui", '', $featureUrl);
+        $featureUrl = is_string($featureUrl) ? $featureUrl : '';
+        $featureUrl = preg_replace("/[^0-9a-z]+/ui", '', $featureUrl);
+        $feature->url = strtolower(is_string($featureUrl) ? $featureUrl : '');
 
         if (empty($feature->url)) {
             $feature->url = $this->translit->translitAlpha($feature->name);
@@ -63,10 +64,10 @@ class BackendFeaturesRequest
     {
         $featuresValues = [];
         if ($this->request->post('feature_values')) {
-            foreach ($this->request->post('feature_values') as $n=>$fv) {
-                foreach ($fv as $i=>$v) {
+            foreach ($this->request->post('feature_values') as $n => $fv) {
+                foreach ($fv as $i => $v) {
                     if (empty($featuresValues[$i])) {
-                        $featuresValues[$i] = new \stdClass;
+                        $featuresValues[$i] = new \stdClass();
                     }
                     $featuresValues[$i]->$n = $v;
                 }

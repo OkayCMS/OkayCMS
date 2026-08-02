@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Admin\Controllers;
-
 
 use Okay\Admin\Helpers\BackendFeaturesHelper;
 use Okay\Admin\Helpers\BackendFeaturesValuesHelper;
@@ -13,14 +11,13 @@ use Okay\Admin\Requests\BackendFeaturesValuesRequest;
 
 class FeatureAdmin extends IndexAdmin
 {
-    
     public function fetch(
-        BackendFeaturesRequest       $featuresRequest,
+        BackendFeaturesRequest $featuresRequest,
         BackendFeaturesValuesRequest $featuresValuesRequest,
-        BackendValidateHelper        $backendValidateHelper,
-        BackendFeaturesHelper        $backendFeaturesHelper,
-        BackendCategoriesHelper      $backendCategoriesHelper,
-        BackendFeaturesValuesHelper  $backendFeaturesValuesHelper
+        BackendValidateHelper $backendValidateHelper,
+        BackendFeaturesHelper $backendFeaturesHelper,
+        BackendCategoriesHelper $backendCategoriesHelper,
+        BackendFeaturesValuesHelper $backendFeaturesValuesHelper
     ) {
         if ($this->request->method('post')) {
             $feature           = $featuresRequest->postFeature();
@@ -49,7 +46,8 @@ class FeatureAdmin extends IndexAdmin
                 $neededPostRedirectGet = true;
             }
 
-            $this->settings->set('sort_feature_values_individually_each_lang',
+            $this->settings->set(
+                'sort_feature_values_individually_each_lang',
                 $this->request->post('sort_feature_values_individually_each_lang', 'bool')
             );
 
@@ -95,7 +93,7 @@ class FeatureAdmin extends IndexAdmin
                     $urlRedirectToList = $this->postRedirectGet->getUrlRedirectToList('FeaturesAdmin');
                     $this->postRedirectGet->redirect($urlRedirectToList);
                 }
-                
+
                 $this->postRedirectGet->redirect();
             }
         } else {
@@ -114,10 +112,10 @@ class FeatureAdmin extends IndexAdmin
             $productsCounts = $backendFeaturesValuesHelper->getProductsCountsByValues($featuresValuesFilter, $featuresValues);
 
             $this->design->assign('feature_values_count', $backendFeaturesValuesHelper->count($featuresValuesFilter));
-            $this->design->assign('pages_count',          $backendFeaturesValuesHelper->countPages($featuresValuesFilter, $feature));
-            $this->design->assign('current_page',         $featuresValuesFilter['page']);
-            $this->design->assign('products_counts',      $productsCounts);
-            $this->design->assign('features_values',      $featuresValues);
+            $this->design->assign('pages_count', $backendFeaturesValuesHelper->countPages($featuresValuesFilter, $feature));
+            $this->design->assign('current_page', $featuresValuesFilter['page']);
+            $this->design->assign('products_counts', $productsCounts);
+            $this->design->assign('features_values', $featuresValues);
         }
 
         $featureCategories = $backendFeaturesHelper->getFeatureCategories($feature);
@@ -133,8 +131,8 @@ class FeatureAdmin extends IndexAdmin
     public function analyzeFeatureValuesIssuesCounter(BackendFeaturesValuesHelper $backendFeaturesValuesHelper)
     {
         $result = [
-            'success'=> true,
-            'counter'=> $backendFeaturesValuesHelper->checkValuesDuplicatesCount()
+            'success' => true,
+            'counter' => $backendFeaturesValuesHelper->checkValuesDuplicatesCount()
         ];
 
         $this->response->setContent(json_encode($result), RESPONSE_JSON);
@@ -145,8 +143,8 @@ class FeatureAdmin extends IndexAdmin
         $this->design->assign('feature_values_duplicates', $backendFeaturesValuesHelper->checkValuesDuplicates());
 
         $result = [
-            'success'=> true,
-            'html'=> $this->design->fetch('features_issues.tpl')
+            'success' => true,
+            'html' => $this->design->fetch('features_issues.tpl')
         ];
 
         $this->response->setContent(json_encode($result), RESPONSE_JSON);
@@ -154,6 +152,6 @@ class FeatureAdmin extends IndexAdmin
 
     public function resolveFeatureValuesIssues(BackendFeaturesValuesHelper $backendFeaturesValuesHelper)
     {
-        $this->response->setContent(json_encode(['success'=> $backendFeaturesValuesHelper->resolveDuplicateFeatureValues()]),RESPONSE_JSON);
+        $this->response->setContent(json_encode(['success' => $backendFeaturesValuesHelper->resolveDuplicateFeatureValues()]), RESPONSE_JSON);
     }
 }

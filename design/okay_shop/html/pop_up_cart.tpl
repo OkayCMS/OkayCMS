@@ -21,7 +21,7 @@
                         <div class="purchase__name">
                             <a class="purchase__name_link" href="{url_generator route="product" url=$purchase->product->url}">{$purchase->product->name|escape}</a>
                             <i>{$purchase->variant->name|escape}</i>
-                            {if $purchase->variant->stock == 0}<span class="preorder_label">{$lang->product_pre_order}</span>{/if}
+                            {if $purchase->variant->stock_status == 'backorder'}<span class="preorder_label">{$lang->product_backorder}</span>{/if}
                         </div>
                         <div class="purchase__group">
                             {* Price per unit *}
@@ -37,7 +37,7 @@
                                 </div>
                                 <div class="fn_product_amount purchase__group_content{if $settings->is_preorder} fn_is_preorder{/if} amount">
                                     <span class="fn_minus amount__minus">&minus;</span>
-                                    <input class="amount__input" type="text" data-id="{$purchase->variant->id}" name="amounts[{$purchase->variant->id}]" value="{$purchase->amount}" onblur="ajax_change_amount(this, {$purchase->variant->id});" data-max="{$purchase->variant->stock}">
+                                    <input class="amount__input" type="text" data-id="{$purchase->variant->id}" name="amounts[{$purchase->variant->id}]" value="{$purchase->amount}" onblur="ajax_change_amount(this, {$purchase->variant->id});" data-max="{$purchase->variant->order_amount_limit|default:''}">
                                     <span class="fn_plus amount__plus">&plus;</span>
                                 </div>
                             </div>
@@ -49,16 +49,19 @@
                             </div>
                         </div>
                         {* Remove button *}
-                        <a class="purchase__remove" href="{url_generator route="cart_remove_item" variantId=$purchase->variant->id}" onclick="ajax_remove({$purchase->variant->id});return false;" title="{$lang->cart_remove}">
-                            {include file='svg.tpl' svgId='remove_icon'}
-                        </a>
+                        <form method="post" action="{url_generator route="cart_remove_item" variantId=$purchase->variant->id}">
+                            <input type="hidden" name="customer_csrf_token" value="{$customer_csrf_token|escape}">
+                            <button class="purchase__remove" type="submit" onclick="ajax_remove({$purchase->variant->id});return false;" title="{$lang->cart_remove}">
+                                {include file='svg.tpl' svgId='remove_icon'}
+                            </button>
+                        </form>
                     </div>
                 </div>
             {/foreach}
         </div>
 
         <div class="purchase_detail__item flex-wrap">
-            <a class="form__button form__button--border" href="#" onclick="$.fancybox.close(); return false;">{$lang->cart_continue_shopping}</a>
+            <a class="form__button form__button--border" href="#" onclick="if (typeof $.fancybox !== 'undefined' && typeof $.fancybox.close === 'function') { $.fancybox.close(); } return false;">{$lang->cart_continue_shopping}</a>
 
             <div class="purchase_detail__column_value form form_cart form--boxed_cart">
                 <div class="purchase_detail__price--total">

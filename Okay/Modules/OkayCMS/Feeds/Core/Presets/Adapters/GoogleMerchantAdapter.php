@@ -9,26 +9,54 @@ use Okay\Core\Routes\ProductRoute;
 use Okay\Entities\CurrenciesEntity;
 use Okay\Modules\OkayCMS\Feeds\Core\Presets\AbstractPresetAdapter;
 
+/**
+ * @phpstan-type CurrencyRow object{id: int|string, code: string, rate_from: int|float, rate_to: int|float}
+ * @phpstan-type CategoryPathRow object{name: string}
+ * @phpstan-type CategoryRow object{path: list<CategoryPathRow>}
+ * @phpstan-type GoogleMerchantFeatureRow array{id: int|string, name: string, values_string: string}
+ * @phpstan-type GoogleMerchantProductRow object{
+ *     product_id: int|string,
+ *     id: int|string,
+ *     variant_id: int|string,
+ *     product_name: string,
+ *     variant_name?: string|null,
+ *     slug_url: string,
+ *     url: string,
+ *     description?: string|null,
+ *     annotation?: string|null,
+ *     weight?: int|float|string|null,
+ *     sku?: string|null,
+ *     price: int|float,
+ *     compare_price: int|float,
+ *     currency_id: int|string|null,
+ *     stock: int|string|null,
+ *     brand_name?: string|null,
+ *     features?: array<int|string, GoogleMerchantFeatureRow>,
+ *     main_category_id: int|string|null,
+ *     images?: list<string>,
+ *     total_variants: int|string
+ * }&\stdClass
+ */
 class GoogleMerchantAdapter extends AbstractPresetAdapter
 {
     /** @var string */
-    static protected $headerTemplate = 'presets/google_merchant/header.tpl';
+    protected static $headerTemplate = 'presets/google_merchant/header.tpl';
 
     /** @var string */
-    static protected $footerTemplate = 'presets/google_merchant/footer.tpl';
+    protected static $footerTemplate = 'presets/google_merchant/footer.tpl';
 
     protected function buildCategories($feedId): array
     {
         return ExtenderFacade::execute(__METHOD__, [], func_get_args());
     }
 
-    public function getQuery($feedId): Select
+    public function getQuery(int|string $feedId): Select
     {
         $sql = parent::getQuery(...func_get_args());
 
         if ($this->isSettingParamTrue('use_full_description')) {
             $sql->cols(['lp.description AS description']);
-        } elseif($this->isSettingParamTrue('use_full_description_if_not_exist_annotation')) {
+        } elseif ($this->isSettingParamTrue('use_full_description_if_not_exist_annotation')) {
             $sql->cols(['lp.description AS description']);
             $sql->cols(['lp.annotation AS annotation']);
         } else {
@@ -38,12 +66,12 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
         return ExtenderFacade::execute(__METHOD__, $sql, func_get_args());
     }
 
-    protected function isSettingParamTrue($param): bool
+    protected function isSettingParamTrue(string $param): bool
     {
         return isset($this->feed->settings[$param]) && $this->feed->settings[$param];
     }
 
-    protected function getSubSelect($feedId): Select
+    protected function getSubSelect(int|string $feedId): Select
     {
         $sql = parent::getSubSelect(...func_get_args());
 
@@ -52,7 +80,7 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
             'v.weight'
         ]);
 
-        if ($this->feed->settings['upload_only_products_in_stock']) {
+        if ($this->feed->settings['upload_only_products_in_stock'] && !$this->settings->get('is_preorder')) {
             $sql->where('(v.stock >0 OR v.stock is NULL)');
         }
 
@@ -65,17 +93,17 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
         }
 
         if (($value = $this->feed->settings['filter_price']['value']) !== null) {
-            $operator = $this->feed->settings['filter_price']['operator'];
+            $operator = $this->normalizeComparisonOperator($this->feed->settings['filter_price']['operator'] ?? null);
 
-            $sql->join('left', CurrenciesEntity::getTable().' AS cur', 'cur.id = v.currency_id')
+            $sql->join('left', CurrenciesEntity::getTable() . ' AS cur', 'cur.id = v.currency_id')
                 ->where("(v.price*cur.rate_to/cur.rate_from) {$operator} :filter_price_value")
                 ->bindValues(['filter_price_value' => $value]);
         }
 
         if (($value = $this->feed->settings['filter_stock']['value']) !== null) {
-            $operator = $this->feed->settings['filter_stock']['operator'];
+            $operator = $this->normalizeComparisonOperator($this->feed->settings['filter_stock']['operator'] ?? null);
 
-            $sql->where("IF(v.stock IS NULL, IF ('{$operator}' = '<' OR '{$operator}' = '=', false, true), v.stock {$operator} :filter_stock_value)")
+            $sql->where("v.stock IS NOT NULL AND v.stock {$operator} :filter_stock_value")
                 ->bindValues(['filter_stock_value' => $value]);
         }
 
@@ -84,24 +112,25 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
 
     protected function getItem(object $product, bool $addVariantUrl = false): array
     {
+        /** @var GoogleMerchantProductRow $product */
         if ($this->feed->settings['use_variant_name_like_size']) {
-            $result['title']['data'] = $this->xmlFeedHelper->escape($product->product_name);
+            $result['g:title']['data'] = $this->xmlFeedHelper->escape($product->product_name);
             if (!empty($product->variant_name)) {
                 $result['g:size']['data'] = $this->xmlFeedHelper->escape($product->variant_name);
             }
         } else {
             if (!empty($product->variant_name)) {
-                $result['title']['data'] = $this->xmlFeedHelper->escape($product->product_name . ' ' . $product->variant_name);
+                $result['g:title']['data'] = $this->xmlFeedHelper->escape($product->product_name . ' ' . $product->variant_name);
             } else {
-                $result['title']['data'] = $this->xmlFeedHelper->escape($product->product_name);
+                $result['g:title']['data'] = $this->xmlFeedHelper->escape($product->product_name);
             }
         }
 
         ProductRoute::setUrlSlugAlias($product->url, $product->slug_url);
         if ($addVariantUrl) {
-            $result['link']['data'] = Router::generateUrl('product', ['url' => $product->url, 'variantId' => $product->variant_id], true);
+            $result['g:link']['data'] = Router::generateUrl('product', ['url' => $product->url, 'variantId' => $product->variant_id], true);
         } else {
-            $result['link']['data'] = Router::generateUrl('product', ['url' => $product->url], true);
+            $result['g:link']['data'] = Router::generateUrl('product', ['url' => $product->url], true);
         }
 
         $description = '';
@@ -116,7 +145,7 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
             $description = $product->annotation;
             $canUseCdata = true;
         } elseif ($this->isSettingParamTrue('replace_description_by_name_if_empty')) {
-            $description = $result['title']['data'];
+            $description = $result['g:title']['data'];
         }
 
         if ($canUseCdata && $this->isSettingParamTrue('description_in_html')) {
@@ -125,26 +154,28 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
             $description = $this->xmlFeedHelper->escape($description);
         }
 
-        $result['description']['data'] = $description;
-
-        $result['g:id']['data'] = $this->xmlFeedHelper->escape($product->variant_id);
+        $result['g:description']['data'] = $description;
 
         if (!empty($product->weight > 0)) {
             $result['g:product_weight']['data'] = $this->xmlFeedHelper->escape($product->weight . ' kg');
         }
 
         if (!empty($product->sku)) {
-            $result['g:mpn']['data'] = $this->xmlFeedHelper->escape($product->sku);
+            $result['g:id']['data'] = $this->xmlFeedHelper->escape($product->sku);
+        } else {
+            $result['g:id']['data'] = $this->xmlFeedHelper->escape($product->variant_id);
         }
 
         $result['g:condition']['data'] = 'new';
 
         $price = round($product->price, 2);
         $comparePrice = round($product->compare_price, 2);
-        if (isset($this->allCurrencies[$product->currency_id])) {
+        $currencyId = $product->currency_id;
+        if ($currencyId !== null && isset($this->allCurrencies[$currencyId])) {
             // Переводим в основную валюту сайта
-            $variantCurrency = $this->allCurrencies[$product->currency_id];
-            if (!empty($product->currency_id) && $variantCurrency->rate_from != $variantCurrency->rate_to) {
+            /** @var CurrencyRow $variantCurrency */
+            $variantCurrency = $this->allCurrencies[$currencyId];
+            if ($variantCurrency->rate_from != $variantCurrency->rate_to) {
                 $price = round($product->price * $variantCurrency->rate_to / $variantCurrency->rate_from, 2);
                 if (!empty($product->compare_price)) {
                     $comparePrice = round($product->compare_price * $variantCurrency->rate_to / $variantCurrency->rate_from, 2);
@@ -157,17 +188,23 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
             $comparePrice = $comparePrice + $comparePrice / 100 * $this->feed->settings['price_change'];
         }
 
-        $price = $this->money->convert($price, $this->mainCurrency->id, false);
-        $comparePrice = $this->money->convert($comparePrice, $this->mainCurrency->id, false);
+        /** @var CurrencyRow $mainCurrency */
+        $mainCurrency = $this->mainCurrency;
+        $price = $this->money->convert($price, $mainCurrency->id, false);
+        $comparePrice = $this->money->convert($comparePrice, $mainCurrency->id, false);
 
         if ($product->compare_price > $product->price) {
-            $result['g:price']['data'] = $this->xmlFeedHelper->escape($comparePrice . ' ' . $this->mainCurrency->code);
-            $result['g:sale_price']['data'] = $this->xmlFeedHelper->escape($price . ' ' . $this->mainCurrency->code);
+            $result['g:price']['data'] = $this->xmlFeedHelper->escape($comparePrice . ' ' . $mainCurrency->code);
+            $result['g:sale_price']['data'] = $this->xmlFeedHelper->escape($price . ' ' . $mainCurrency->code);
         } else {
-            $result['g:price']['data'] = $this->xmlFeedHelper->escape($price . ' ' . $this->mainCurrency->code);
+            $result['g:price']['data'] = $this->xmlFeedHelper->escape($price . ' ' . $mainCurrency->code);
         }
 
-        $result['g:availability']['data'] = (!in_array($product->stock, [0, '0'], true) ? 'in stock' : 'out of stock');
+        $availability = $this->googleMerchantAvailability($product->stock);
+        $result['g:availability']['data'] = $availability;
+        if ($availability === 'backorder') {
+            $result['g:availability_date']['data'] = (new \DateTimeImmutable('+1 month'))->format(DATE_ATOM);
+        }
 
         if (!empty($product->brand_name)) {
             $result['g:brand']['data'] = $this->xmlFeedHelper->escape($product->brand_name);
@@ -183,7 +220,8 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
                 if (isset($this->feed->features_settings[$feature['id']]['name_in_feed']) && $this->feed->features_settings[$feature['id']]['name_in_feed']) {
                     $attributeName = $this->xmlFeedHelper->escape($this->feed->features_settings[$feature['id']]['name_in_feed']);
                 }
-                if (isset($attributeName) && $attributeName
+                if (
+                    isset($attributeName) && $attributeName
                     && isset($attributeValue) && $attributeValue
                     && (!isset($this->feed->features_settings[$feature['id']])  //показываем свойство, если под него нет вообще настроек
                         || $this->feed->features_settings[$feature['id']]['to_feed']
@@ -215,6 +253,13 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
             unset($product->features[$featureId]);
         }
 
+        if (($featureId = $this->feed->settings['mpn']) && isset($product->features[$featureId])) {
+            $result['g:mpn']['data'] = $this->xmlFeedHelper->escape($product->features[$featureId]['values_string']);
+            unset($product->features[$featureId]);
+        } elseif (!empty($product->sku)) {
+            $result['g:mpn']['data'] = $this->xmlFeedHelper->escape($product->sku);
+        }
+
         if (($featureId = $this->feed->settings['gender']) && isset($product->features[$featureId])) {
             $result['g:gender']['data'] = $this->xmlFeedHelper->escape($product->features[$featureId]['values_string']);
             unset($product->features[$featureId]);
@@ -232,13 +277,16 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
             }
         }
 
-        if (!empty($this->allCategories[$product->main_category_id])) {
-            $categoryPath = $this->allCategories[$product->main_category_id]->path;
+        $categoryId = $product->main_category_id;
+        if ($categoryId !== null && !empty($this->allCategories[$categoryId])) {
+            /** @var CategoryRow $category */
+            $category = $this->allCategories[$categoryId];
+            $categoryPath = $category->path;
 
             $productType = '';
 
-            foreach($categoryPath as $category) {
-                $productType .= $category->name.' > ';
+            foreach ($categoryPath as $category) {
+                $productType .= $category->name . ' > ';
             }
 
             $result['g:product_type']['data'] = mb_substr($productType, 0, -3);
@@ -260,7 +308,7 @@ class GoogleMerchantAdapter extends AbstractPresetAdapter
             }
         }
 
-        if (($categorySettings = $this->getCategorySettings($product->main_category_id)) && $categorySettings['name_in_feed']) {
+        if ($categoryId !== null && ($categorySettings = $this->getCategorySettings($categoryId)) && $categorySettings['name_in_feed']) {
             $result['g:google_product_category']['data'] = $categorySettings['name_in_feed'];
         }
 

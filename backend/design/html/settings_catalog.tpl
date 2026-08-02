@@ -134,7 +134,22 @@
                                 <div class="boxes_inline">
                                     <div class="okay_switch clearfix">
                                         <label class="switch switch-default">
-                                            <input class="switch-input" name="is_preorder" value='1' type="checkbox" {if $settings->is_preorder}checked=""{/if}/>
+                                            <input class="switch-input fn_is_preorder_setting" name="is_preorder" value='1' type="checkbox" {if $settings->is_preorder}checked=""{/if}/>
+                                            <span class="switch-label"></span>
+                                            <span class="switch-handle"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-md-6 mt-2">
+                            <div class="fn_step-9">
+                                <div class="heading_label boxes_inline">{$btr->settings_catalog_use_backorder_status|escape}</div>
+                                <div class="boxes_inline">
+                                    <div class="okay_switch clearfix">
+                                        <label class="switch switch-default">
+                                            <input class="switch-input fn_use_backorder_status_setting" name="use_backorder_status" value='1' type="checkbox" {if $settings->use_backorder_status && !$settings->is_preorder}checked=""{/if} {if $settings->is_preorder}disabled=""{/if}/>
                                             <span class="switch-label"></span>
                                             <span class="switch-handle"></span>
                                         </label>
@@ -534,5 +549,13 @@
     $(document).on("input", ".fn_rating", function () {
         $(this).closest(".fn_range_wrap").find(".fn_show_range").html($(this).val());
         $(this).closest(".fn_range_wrap").find(".fn_range_value").val($(this).val());
+    });
+    $(document).on("change", ".fn_is_preorder_setting", function () {
+        var backorderStatus = $(".fn_use_backorder_status_setting");
+        if ($(this).is(":checked")) {
+            backorderStatus.prop("checked", false).prop("disabled", true);
+        } else {
+            backorderStatus.prop("disabled", false);
+        }
     });
 </script>

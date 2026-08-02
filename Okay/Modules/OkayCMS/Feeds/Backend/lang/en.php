@@ -1,4 +1,5 @@
 <?php
+
 // Боковое меню
 $lang['okay_cms__feeds__menu'] = "Product feeds";
 
@@ -92,6 +93,7 @@ $lang['okay_cms__feeds__feed__settings__google_merchant__google_merchant__compan
 $lang['okay_cms__feeds__feed__settings__google_merchant__color'] = "Color";
 $lang['okay_cms__feeds__feed__settings__google_merchant__color_notify'] = "Select feature";
 $lang['okay_cms__feeds__feed__settings__google_merchant__gtin'] = "Code GTIN (gtin)";
+$lang['okay_cms__feeds__feed__settings__google_merchant__mpn'] = "Code MPN (mpn)";
 $lang['okay_cms__feeds__feed__settings__google_merchant__gender'] = "Gender (gender)";
 $lang['okay_cms__feeds__feed__settings__google_merchant__material'] = "Material (material)";
 $lang['okay_cms__feeds__feed__settings__google_merchant__full_description_if_not_exist_annotation'] = "Send the full product description to the feed only if there is no short description";

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Core;
-
 
 use Okay\Entities\UserBrowsedProductsEntity;
 use Okay\Helpers\MainHelper;
@@ -15,8 +13,8 @@ class BrowsedProducts
     private $mainHelper;
     private $entityFactory;
 
-    private $maxVisitedProducts = 100; // Максимальное число хранимых товаров в истории
-    
+    private int $maxVisitedProducts = 100; // Максимальное число хранимых товаров в истории
+
     public function __construct(
         ProductsHelper $productsHelper,
         MainHelper $mainHelper,
@@ -35,16 +33,17 @@ class BrowsedProducts
         $browsedProductsIds = array_reverse($browsedProductsIds);
 
         if (!empty($limit)) {
+            $limit = (int)$limit;
             $browsedProductsIds = array_slice($browsedProductsIds, 0, $limit);
         }
-        
+
         if (empty($browsedProductsIds) || !is_array($browsedProductsIds)) {
             return ExtenderFacade::execute(__METHOD__, $browsedProducts, func_get_args());
         }
 
         $products = $this->productsHelper->getList(['id' => $browsedProductsIds]);
 
-        foreach($browsedProductsIds as  $browsedProductId) {
+        foreach ($browsedProductsIds as $browsedProductId) {
             if (!empty($products[$browsedProductId])) {
                 $browsedProducts[$browsedProductId] = $products[$browsedProductId];
             }
@@ -66,7 +65,7 @@ class BrowsedProducts
         $browsedProducts[] = $productId;
         $cookieVal = implode(',', array_slice($browsedProducts, -$this->maxVisitedProducts, $this->maxVisitedProducts));
         $_COOKIE['browsed_products'] = $cookieVal;
-        
+
         if ($delayedDispatch === false) {
             $this->save();
         }
@@ -83,15 +82,30 @@ class BrowsedProducts
                 $userBrowsedProductsEntity->sliceToLimit($user->id, $this->maxVisitedProducts);
             }
         }
-        
+
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }
 
     public function save()
     {
         if (!empty($_COOKIE['browsed_products'])) {
-            setcookie('browsed_products', $_COOKIE['browsed_products'], time() + 60 * 60 * 24 * 30, '/');
+            $this->setBrowsedProductsCookie((string)$_COOKIE['browsed_products'], time() + 60 * 60 * 24 * 30);
         }
     }
-    
+
+    private function setBrowsedProductsCookie(string $value, int $expires): void
+    {
+        setcookie('browsed_products', $value, [
+            'expires' => $expires,
+            'path' => '/',
+            'secure' => $this->isHttpsRequest(),
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+    }
+
+    private function isHttpsRequest(): bool
+    {
+        return !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+    }
 }

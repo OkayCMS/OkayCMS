@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 use Okay\Core\Translit;
@@ -10,7 +8,6 @@ use Okay\Core\Modules\Extender\ExtenderFacade;
 
 class FeaturesValuesEntity extends Entity
 {
-
     protected static $fields = [
         'id',
         'feature_id',
@@ -29,7 +26,7 @@ class FeaturesValuesEntity extends Entity
         'position ASC',
         'value ASC',
     ];
-    
+
     protected static $searchFields = [
         'value',
     ];
@@ -40,9 +37,11 @@ class FeaturesValuesEntity extends Entity
     protected static $tableAlias = 'fv';
 
     /*добавление значения свойства*/
-    public function add($featureValue) {
+    public function add($featureValue)
+    {
 
         $featureValue = (object)$featureValue;
+        /** @var object{value: string|null, feature_id: mixed, translit: string|null}&\stdClass $featureValue */
 
         if ($featureValue->value === null || $featureValue->value === '' || empty($featureValue->feature_id)) {
             return false;
@@ -62,6 +61,7 @@ class FeaturesValuesEntity extends Entity
     public function update($ids, $featureValue)
     {
         $featureValue = (object)$featureValue;
+        /** @var object{value: string|null, translit: string|null}&\stdClass $featureValue */
 
         if (!empty($featureValue->value)) {
             $featureValue->value = trim($featureValue->value);
@@ -85,37 +85,84 @@ class FeaturesValuesEntity extends Entity
 
     public function find(array $filter = [])
     {
-        $this->select->groupBy([$this->getTableAlias().'.id']);
+        $this->select->groupBy([$this->getTableAlias() . '.id']);
 
+        // ВАЖНО: Обробляємо feature_id ПЕРЕД autoFilter, щоб правильно розгорнути масив
+        // autoFilter не розгортає масиви для підзапитів, тому потрібна вручна обробка
+        $featureIdProcessed = false;
+        if (isset($filter['feature_id']) && is_array($filter['feature_id'])) {
+            // Якщо це асоціативний масив (наприклад, {"1":1,"10":10,...}), конвертуємо в простий масив
+            $featureIds = array_values($filter['feature_id']);
+
+            // Розгортаємо масив на окремі плейсхолдери
+            $expandedBindValues = [];
+            $placeholders = [];
+            foreach ($featureIds as $index => $featureId) {
+                $placeholder = 'feature_id_expanded_' . $index;
+                $placeholders[] = ':' . $placeholder;
+                $expandedBindValues[$placeholder] = (int)$featureId;
+            }
+
+            // Додаємо where з розгорнутим списком
+            $tableAlias = $this->getTableAlias();
+            $this->select->where("{$tableAlias}.feature_id IN (" . implode(', ', $placeholders) . ")");
+            $this->select->bindValues($expandedBindValues);
+
+            // Видаляємо feature_id з фільтра, щоб autoFilter не додав свою умову
+            unset($filter['feature_id']);
+            $featureIdProcessed = true;
+        }
+
+        // ВАЖНО: Використовуємо LEFT JOIN для звичайного пошуку значень
+        // Навіть якщо є фільтр по features, нам потрібно використовувати LEFT JOIN,
+        // щоб отримати всі значення властивостей, навіть якщо вони не мають зв'язку з товарами з підзапиту
+        // Фільтрація по товарах з підзапиту відбувається через WHERE pf.product_id IN (subquery)
         $this->select->join('LEFT', '__products_features_values AS pf', 'pf.value_id=fv.id');
-        
+
+        // Нужно фильтр по свойствам и другим параметрам (visible/in_stock/price) применить до остальных JOIN-ов.
+        // JOIN с таблицей __products (алиас p) нужен, если:
+        //  - есть фильтр по свойствам (features), т.к. filter__features использует p.id
+        //  - або є visible/in_stock/price, т.к. соответствующие фильтры звертаються до p.*
+        $needProductsJoin = isset($filter['features'])
+            || isset($filter['visible'])
+            || isset($filter['in_stock'])
+            || isset($filter['price']);
+
+        if ($needProductsJoin) {
+            $this->select->join('LEFT', '__products AS p', 'p.id=pf.product_id');
+        }
+
         // Нужно фильтр по свойствам применить здесь, чтобы он отработал до всех джоинов
         if (isset($filter['features'])) {
             $this->filter__features($filter['features']);
             unset($filter['features']);
         }
-        
+
         $this->select->join('LEFT', '__features AS f', 'f.id=fv.feature_id');
         //$this->select->groupBy(['l.value']); // TODO: разобраться, вроде не нужная группировка
         //$this->select->groupBy(['l.translit']);
 
-        if (isset($filter['visible']) || isset($filter['in_stock']) || isset($filter['price'])) {
-            $this->select->join('LEFT', '__products AS p', 'p.id=pf.product_id');
-        }
-        
-        return parent::find($filter);
+        $result = parent::find($filter);
+
+        return $result;
     }
 
     protected function filter__in_stock()
     {
+        if ($this->settings->get('is_preorder')) {
+            return;
+        }
+
         $this->select->where("(SELECT count(*)>0 FROM __variants pv WHERE pv.product_id=p.id AND (pv.stock IS NULL OR pv.stock>0) LIMIT 1) = 1");
     }
-    
+
     /*Удаление значения свойства*/
     public function delete($ids = null)
     {
         if (parent::delete($ids)) {
             $ids = (array)$ids;
+            /** @var list<int> $ids */
+            $ids = array_values(array_map('intval', $ids));
 
             $this->deleteProductValue(null, $ids);
             $this->deleteAliases($ids);
@@ -124,6 +171,9 @@ class FeaturesValuesEntity extends Entity
         return parent::delete($ids);
     }
 
+    /**
+     * @param list<int> $valuesIds
+     */
     public function countProductsByValueId(array $valuesIds)
     {
         if (empty($valuesIds)) {
@@ -138,7 +188,7 @@ class FeaturesValuesEntity extends Entity
             ->from('__products_features_values')
             ->where('value_id IN (?)', $valuesIds)
             ->groupBy(['value_id']);
-        
+
         $this->db->query($select);
         $count = $this->db->results(null, 'value_id');
 
@@ -150,44 +200,122 @@ class FeaturesValuesEntity extends Entity
         $this->select->where('pf.product_id IN (:products_ids)')
             ->bindValue('products_ids', (array)$productsIds);
     }
-    
+
     protected function filter__brand_id($brandsIds)
     {
         $this->select->where('pf.product_id IN (SELECT id FROM __products WHERE brand_id IN (:brands_ids))')
             ->bindValue('brands_ids', (array)$brandsIds);
     }
-    
+
     protected function filter__features($features)
     {
-        foreach ($features as $featureId=>$value) {
+        // ВАЖНО: Створюємо один підзапит для всіх features, як у ProductsEntity
+        // Це дозволяє уникнути конфліктів bind-значень та проблем з кількома joinSubSelect
+        $subQuery = $this->queryFactory->newSelect();
+        $allValueIds = [];
+        $featuresConditions = [];
 
-            $subQuery = $this->queryFactory->newSelect();
-            $subQuery->from('__products_features_values AS pf')
-                ->cols(['DISTINCT(pf.product_id)'])
-                ->join('LEFT', '__features_values AS fv', 'fv.id=pf.value_id');
-
-            // Алиас для таблицы без языков
-            $optionsPx = 'fv';
-            
-            if (!empty($this->lang->getLangId())) {
-                $subQuery->where('lfv.lang_id=' . (int)$this->lang->getLangId())
-                    ->join('LEFT', '__lang_features_values AS lfv', 'fv.id=lfv.feature_value_id');
-                // Алиас для таблицы с языками
-                $optionsPx = 'lfv';
+        foreach ($features as $featureId => $value) {
+            // ВАЖНО: Структура $features: [featureId => [valueId => translit, ...]]
+            // Тобто $value - це асоціативний масив, де ключі - це ID значень (value_id)
+            // Нам потрібні тільки ключі (ID значень), а не значення (translit)
+            if (empty($value) || !is_array($value)) {
+                continue;
             }
-            
-            $subQuery->where("({$optionsPx}.translit IN (:translit_features_subquery_{$featureId}) AND fv.feature_id=:feature_id_features_subquery_{$featureId})");
 
-            $subQuery->bindValues([
-                "translit_features_subquery_{$featureId}" => (array)$value,
-                "feature_id_features_subquery_{$featureId}" => $featureId,
-            ]);
-            
-            $this->select->where("(fv.feature_id =:feature_id_{$featureId} OR p.id IN (?))", $subQuery);
-            $this->select->bindValue("feature_id_{$featureId}", $featureId);
+            // Отримуємо масив ID значень з ключів асоціативного масиву
+            $valueIds = array_keys($value);
+            $allValueIds = array_merge($allValueIds, $valueIds);
+
+            // Додаємо умову для поточної властивості
+            // ВАЖНО: Використовуємо (int)$featureId для типізації індексів (згідно з docs/migration/aura-74-8.md)
+            $placeholderValueIds = "value_ids_" . (int)$featureId;
+            $placeholderFeatureId = "feature_id_" . (int)$featureId;
+
+            $featuresConditions[] = "(pf_sub.value_id IN (:{$placeholderValueIds}) AND fv_sub.feature_id=:{$placeholderFeatureId})";
+
+            // Прив'язуємо значення до підзапиту
+            // ВАЖНО: Примусове приведення до масиву для безпеки IN (?) (згідно з docs/migration/aura-74-8.md)
+            $subQuery->bindValue($placeholderValueIds, (array)$valueIds);
+            $subQuery->bindValue($placeholderFeatureId, (int)$featureId);
         }
+
+        if (empty($featuresConditions)) {
+            return;
+        }
+
+        // Створюємо один підзапит для всіх features
+        // ВАЖНО: Використовуємо INNER JOIN замість LEFT JOIN, щоб уникнути проблем з NULL значеннями
+        $subQuery->from('__products_features_values AS pf_sub')
+            ->cols(['DISTINCT(pf_sub.product_id) as product_id'])
+            ->where('(' . implode(' OR ', $featuresConditions) . ')')
+            ->join('INNER', '__features_values AS fv_sub', 'fv_sub.id=pf_sub.value_id')
+            ->groupBy(['pf_sub.product_id'])
+            ->having('COUNT(DISTINCT fv_sub.feature_id) >= ' . count($features));
+
+        // ВАЖНО: Розгортаємо масиви в біндінгах для підзапиту, оскільки perform() може не розгорнути
+        // масиви для плейсхолдерів підзапиту (підзапит вже є частиною SQL-рядка)
+        // Метод perform() автоматично замінює IN (:id) на IN (:id_0, :id_1, ...) для масивів,
+        // але це працює тільки для основних запитів, а не для підзапитів
+        $subQueryBindValues = $subQuery->getBindValues();
+        $expandedBindValues = [];
+        foreach ($subQueryBindValues as $key => $value) {
+            if (is_array($value)) {
+                // Розгортаємо масив на окремі плейсхолдери
+                foreach ($value as $index => $item) {
+                    $expandedBindValues[$key . '_' . $index] = $item;
+                }
+            } else {
+                $expandedBindValues[$key] = $value;
+            }
+        }
+
+        // Замінюємо IN (:placeholder) на IN (:placeholder_0, :placeholder_1, ...) в SQL
+        // ВАЖНО: Використовуємо str_ireplace для заміни всіх входжень (якщо є кілька однакових плейсхолдерів)
+        $subQueryStatement = $subQuery->getStatement();
+        foreach ($subQueryBindValues as $key => $value) {
+            if (is_array($value)) {
+                $placeholders = [];
+                foreach ($value as $index => $item) {
+                    $placeholders[] = ':' . $key . '_' . $index;
+                }
+                // Замінюємо всі входження, не тільки перше
+                $subQueryStatement = str_ireplace('IN (:' . $key . ')', 'IN (' . implode(', ', $placeholders) . ')', $subQueryStatement);
+            }
+        }
+
+        // Для поиска значений других свойств в товарах с выбранной свойством
+        // ВАЖНО: Використовуємо joinSubSelect з INNER JOIN замість WHERE p.id IN (subquery)
+        // тому що це дозволяє знайти значення інших властивостей для товарів, які мають обране значення властивості
+        // Використовуємо INNER JOIN, щоб обмежити результати тільки товарами з підзапиту
+        // З'єднуємо підзапит з основним запитом через pf.product_id
+        // ВАЖНО: Передаємо об'єкт Select замість getStatement(), як у інших місцях (AbstractPresetAdapter)
+        // Aura SQL Query автоматично обробить bind-значення з підзапиту
+        // Це дозволяє уникнути проблем з обробкою плейсхолдерів в getStatement()
+        // ВАЖНО: Використовуємо joinSubSelect з getStatement(), як у ProductsEntity
+        // Але передаємо bindValues ДО joinSubSelect, як у ProductsEntity
+        // Це критично важливо для правильної обробки підзапитів в Aura SQL Query
+
+        // ВАЖНО: Об'єднуємо біндінги з попередніми, а не перезаписуємо їх
+        // Це критично важливо, коли є кілька фільтрів по характеристикам
+        $existingBindValues = $this->select->getBindValues();
+        $mergedBindValues = array_merge($existingBindValues, $expandedBindValues);
+
+        // Передаємо об'єднані біндінги в основний запит
+        $this->select->bindValues($mergedBindValues);
+
+        $joinAlias = 'products_with_features';
+        $this->select->joinSubSelect(
+            'INNER',
+            $subQueryStatement,
+            $joinAlias,
+            $joinAlias . '.product_id = pf.product_id'
+        );
     }
 
+    /**
+     * @param array<string, mixed> $price product price filter (e.g. min/max), passed to {@see ProductsEntity::getSelect()}
+     */
     protected function filter__price(array $price)
     {
         $productsEntity = $this->entity->get(ProductsEntity::class);
@@ -202,18 +330,61 @@ class FeaturesValuesEntity extends Entity
             ->join(
                 'LEFT',
                 '__products_features_values AS pfv',
-                'pfv.product_id = '.ProductsEntity::getTableAlias().'.id'
+                'pfv.product_id = ' . ProductsEntity::getTableAlias() . '.id'
             )
             ->cols(['pfv.value_id as product_value_id']);
 
+        // ВАЖНО: Передаємо bindValues ДО joinSubSelect (згідно з docs/migration/aura-74-8.md та FILTER_BUG_SUMMARY.md)
+        // Це критично важливо для правильної обробки підзапитів в Aura SQL Query
+        // Метод getStatement() повертає лише SQL-рядок, тому біндінги потрібно передавати вручну
+        $subQueryBindValues = $productsSelect->getBindValues();
+
+        // ВАЖНО: Розгортаємо масиви в біндінгах для підзапиту, оскільки perform() може не розгорнути
+        // масиви для плейсхолдерів підзапиту (підзапит вже є частиною SQL-рядка)
+        // Метод perform() автоматично замінює IN (:id) на IN (:id_0, :id_1, ...) для масивів,
+        // але це працює тільки для основних запитів, а не для підзапитів
+        $expandedBindValues = [];
+        foreach ($subQueryBindValues as $key => $value) {
+            if (is_array($value)) {
+                // Розгортаємо масив на окремі плейсхолдери
+                foreach ($value as $index => $item) {
+                    $expandedBindValues[$key . '_' . $index] = $item;
+                }
+            } else {
+                $expandedBindValues[$key] = $value;
+            }
+        }
+
+        // Замінюємо IN (:placeholder) на IN (:placeholder_0, :placeholder_1, ...) в SQL
+        // ВАЖНО: Використовуємо str_ireplace для заміни всіх входжень (якщо є кілька однакових плейсхолдерів)
+        $subQueryStatement = $productsSelect->getStatement();
+        foreach ($subQueryBindValues as $key => $value) {
+            if (is_array($value)) {
+                $placeholders = [];
+                foreach ($value as $index => $item) {
+                    $placeholders[] = ':' . $key . '_' . $index;
+                }
+                // Замінюємо всі входження, не тільки перше
+                $subQueryStatement = str_ireplace('IN (:' . $key . ')', 'IN (' . implode(', ', $placeholders) . ')', $subQueryStatement);
+            }
+        }
+
+        // ВАЖНО: Об'єднуємо біндінги з попередніми, а не перезаписуємо їх
+        // Це критично важливо, коли є кілька фільтрів
+        $existingBindValues = $this->select->getBindValues();
+        $mergedBindValues = array_merge($existingBindValues, $expandedBindValues);
+
+        // Передаємо об'єднані біндінги в основний запит
+        $this->select->bindValues($mergedBindValues);
+
         $this->select->joinSubSelect(
             'INNER',
-            $productsSelect,
-            __FUNCTION__.'__'.ProductsEntity::getTableAlias(),
-            __FUNCTION__.'__'.ProductsEntity::getTableAlias().'.product_value_id = fv.id');
-
+            $subQueryStatement,
+            __FUNCTION__ . '__' . ProductsEntity::getTableAlias(),
+            __FUNCTION__ . '__' . ProductsEntity::getTableAlias() . '.product_value_id = fv.id'
+        );
     }
-    
+
     protected function filter__category_id($categoriesIds)
     {
         // Берём значения тех свойств, которые назначены на указанные категории
@@ -226,13 +397,13 @@ class FeaturesValuesEntity extends Entity
         $this->select->join('INNER', '__products_categories AS pc', 'pc.product_id=pf.product_id AND pc.category_id IN (:category_id)')
             ->bindValue('category_id', (array)$categoriesIds);
     }
-    
+
     protected function filter__visible($visible)
     {
         $this->select->where('p.visible=:visible')
             ->bindValue('visible', (int)$visible);
     }
-    
+
     protected function filter__other_filter($filters)
     {
         if (empty($filters)) {
@@ -257,32 +428,21 @@ class FeaturesValuesEntity extends Entity
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], $otherFilter, func_get_args());
     }
-    
-    
+
+
     /**
-     * @param array $features
-     * example $features[feature_id] = [value1_id, value2_id ...]
      * Метод возвращает только мультиязычные поля значений свойств, используется для построения alternate на странице фильтра
-     * @return array
-     * result [
-     *  lang_id => [
-     *          feature1_id => [
-     *              value1_id => $value1,
-     *              value2_id => $value2
-     *          ],
-     *          feature2_id => [
-     *              value3_id => $value3,
-     *              value4_id => $value4
-     *          ]
-     *      ]
-     *  ]
+     *
+     * @param array<int|string, list<int|string>> $features example: $features[feature_id] = [value1_id, value2_id ...]
+     * @return array<int|string, array<int|string, array<int|string, object{translit: string}&\stdClass>>> lang_id => feature_id => value_id => row object
      */
-    public function getFeaturesValuesAllLang($features = []) {
-        
+    public function getFeaturesValuesAllLang($features = [])
+    {
+
         if (empty($features)) {
             return [];
         }
-        
+
         $select = $this->queryFactory->newSelect();
         $select->from('__lang_features_values AS lv')
             ->cols([
@@ -293,8 +453,8 @@ class FeaturesValuesEntity extends Entity
                 'fv.feature_id',
             ])
             ->join('left', '__features_values AS fv', 'fv.id = lv.feature_value_id');
-        
-        foreach ($features as $featureId=>$valuesIds) {
+
+        foreach ($features as $featureId => $valuesIds) {
             if (!empty($valuesIds)) {
                 $select->orWhere("(fv.feature_id=:feature_id_{$featureId} AND feature_value_id IN (:values_ids_{$featureId}))")
                     ->bindValues([
@@ -303,7 +463,7 @@ class FeaturesValuesEntity extends Entity
                     ]);
             }
         }
-        
+
         $result = [];
         $this->db->query($select);
         foreach ($this->db->results() as $res) {
@@ -312,7 +472,7 @@ class FeaturesValuesEntity extends Entity
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], $result, func_get_args());
     }
-    
+
     /*добавление значения свойства товара*/
     public function addProductValue($productId, $valueId)
     {
@@ -342,9 +502,9 @@ class FeaturesValuesEntity extends Entity
 
     /**
      * Метод возвращает ID всех значений свойств товаров
-     * 
-     * @param array $productIds
-     * @return array
+     *
+     * @param list<int> $productIds
+     * @return list<object>
      * @throws \Exception
      */
     public function getProductValuesIds(array $productIds)
@@ -353,7 +513,7 @@ class FeaturesValuesEntity extends Entity
         if (empty($productIds)) {
             return ExtenderFacade::execute([static::class, __FUNCTION__], [], func_get_args());
         }
-        
+
         $select = $this->queryFactory->newSelect();
         $select->from('__products_features_values')
             ->cols([
@@ -362,7 +522,7 @@ class FeaturesValuesEntity extends Entity
             ])
             ->where('product_id IN (:product_id)')
             ->bindValue('product_id', $productIds);
-        
+
         if ($this->db->query($select)) {
             $results = $this->db->results();
             return ExtenderFacade::execute([static::class, __FUNCTION__], $results, func_get_args());
@@ -400,8 +560,8 @@ class FeaturesValuesEntity extends Entity
         $sql = $this->queryFactory->newSqlQuery();
         $sql->setStatement("DELETE `pf`
                                 FROM `__products_features_values` as `pf`
-                                    $featureIdJoin 
-                                WHERE 1 
+                                    $featureIdJoin
+                                WHERE 1
                                     $productIdFilter
                                     $valueIdFilter
                                     $featureIdFilter
@@ -412,7 +572,7 @@ class FeaturesValuesEntity extends Entity
     }
 
     /**
-     * @param array $ids
+     * @param list<int> $ids
      * @throws \Exception
      */
     public function deleteAliases(array $ids): void
@@ -441,15 +601,59 @@ class FeaturesValuesEntity extends Entity
             ->join(
                 'LEFT',
                 '__products_features_values AS pfv',
-                'pfv.product_id = '.ProductsEntity::getTableAlias().'.id'
+                'pfv.product_id = ' . ProductsEntity::getTableAlias() . '.id'
             )
             ->cols(['pfv.value_id as product_value_id']);
 
+        // ВАЖНО: Передаємо bindValues ДО joinSubSelect (згідно з docs/migration/aura-74-8.md та FILTER_BUG_SUMMARY.md)
+        // Це критично важливо для правильної обробки підзапитів в Aura SQL Query
+        // Метод getStatement() повертає лише SQL-рядок, тому біндінги потрібно передавати вручну
+        $subQueryBindValues = $productsSelect->getBindValues();
+
+        // ВАЖНО: Розгортаємо масиви в біндінгах для підзапиту, оскільки perform() може не розгорнути
+        // масиви для плейсхолдерів підзапиту (підзапит вже є частиною SQL-рядка)
+        // Метод perform() автоматично замінює IN (:id) на IN (:id_0, :id_1, ...) для масивів,
+        // але це працює тільки для основних запитів, а не для підзапитів
+        $expandedBindValues = [];
+        foreach ($subQueryBindValues as $key => $value) {
+            if (is_array($value)) {
+                // Розгортаємо масив на окремі плейсхолдери
+                foreach ($value as $index => $item) {
+                    $expandedBindValues[$key . '_' . $index] = $item;
+                }
+            } else {
+                $expandedBindValues[$key] = $value;
+            }
+        }
+
+        // Замінюємо IN (:placeholder) на IN (:placeholder_0, :placeholder_1, ...) в SQL
+        // ВАЖНО: Використовуємо str_ireplace для заміни всіх входжень (якщо є кілька однакових плейсхолдерів)
+        $subQueryStatement = $productsSelect->getStatement();
+        foreach ($subQueryBindValues as $key => $value) {
+            if (is_array($value)) {
+                $placeholders = [];
+                foreach ($value as $index => $item) {
+                    $placeholders[] = ':' . $key . '_' . $index;
+                }
+                // Замінюємо всі входження, не тільки перше
+                $subQueryStatement = str_ireplace('IN (:' . $key . ')', 'IN (' . implode(', ', $placeholders) . ')', $subQueryStatement);
+            }
+        }
+
+        // ВАЖНО: Об'єднуємо біндінги з попередніми, а не перезаписуємо їх
+        // Це критично важливо, коли є кілька фільтрів
+        $existingBindValues = $this->select->getBindValues();
+        $mergedBindValues = array_merge($existingBindValues, $expandedBindValues);
+
+        // Передаємо об'єднані біндінги в основний запит
+        $this->select->bindValues($mergedBindValues);
+
         $this->select->joinSubSelect(
             'INNER',
-            $productsSelect,
-            __FUNCTION__.'__'.ProductsEntity::getTableAlias(),
-            __FUNCTION__.'__'.ProductsEntity::getTableAlias().'.product_value_id = fv.id');
+            $subQueryStatement,
+            __FUNCTION__ . '__' . ProductsEntity::getTableAlias(),
+            __FUNCTION__ . '__' . ProductsEntity::getTableAlias() . '.product_value_id = fv.id'
+        );
     }
 
     protected function filter__brand($value)
@@ -466,32 +670,85 @@ class FeaturesValuesEntity extends Entity
             ->join(
                 'LEFT',
                 '__products_features_values AS pfv',
-                'pfv.product_id = '.ProductsEntity::getTableAlias().'.id'
+                'pfv.product_id = ' . ProductsEntity::getTableAlias() . '.id'
             )
             ->cols(['pfv.value_id as product_value_id']);
 
+        // ВАЖНО: Передаємо bindValues ДО joinSubSelect (згідно з docs/migration/aura-74-8.md та FILTER_BUG_SUMMARY.md)
+        // Це критично важливо для правильної обробки підзапитів в Aura SQL Query
+        // Метод getStatement() повертає лише SQL-рядок, тому біндінги потрібно передавати вручну
+        $subQueryBindValues = $productsSelect->getBindValues();
+
+        // ВАЖНО: Розгортаємо масиви в біндінгах для підзапиту, оскільки perform() може не розгорнути
+        // масиви для плейсхолдерів підзапиту (підзапит вже є частиною SQL-рядка)
+        // Метод perform() автоматично замінює IN (:id) на IN (:id_0, :id_1, ...) для масивів,
+        // але це працює тільки для основних запитів, а не для підзапитів
+        $expandedBindValues = [];
+        foreach ($subQueryBindValues as $key => $value) {
+            if (is_array($value)) {
+                // Розгортаємо масив на окремі плейсхолдери
+                foreach ($value as $index => $item) {
+                    $expandedBindValues[$key . '_' . $index] = $item;
+                }
+            } else {
+                $expandedBindValues[$key] = $value;
+            }
+        }
+
+        // Замінюємо IN (:placeholder) на IN (:placeholder_0, :placeholder_1, ...) в SQL
+        // ВАЖНО: Використовуємо str_ireplace для заміни всіх входжень (якщо є кілька однакових плейсхолдерів)
+        $subQueryStatement = $productsSelect->getStatement();
+        foreach ($subQueryBindValues as $key => $value) {
+            if (is_array($value)) {
+                $placeholders = [];
+                foreach ($value as $index => $item) {
+                    $placeholders[] = ':' . $key . '_' . $index;
+                }
+                // Замінюємо всі входження, не тільки перше
+                $subQueryStatement = str_ireplace('IN (:' . $key . ')', 'IN (' . implode(', ', $placeholders) . ')', $subQueryStatement);
+            }
+        }
+
+        // ВАЖНО: Об'єднуємо біндінги з попередніми, а не перезаписуємо їх
+        // Це критично важливо, коли є кілька фільтрів
+        $existingBindValues = $this->select->getBindValues();
+        $mergedBindValues = array_merge($existingBindValues, $expandedBindValues);
+
+        // Передаємо об'єднані біндінги в основний запит
+        $this->select->bindValues($mergedBindValues);
+
         $this->select->joinSubSelect(
             'INNER',
-            $productsSelect,
-            __FUNCTION__.'__'.ProductsEntity::getTableAlias(),
-            __FUNCTION__.'__'.ProductsEntity::getTableAlias().'.product_value_id = fv.id');
+            $subQueryStatement,
+            __FUNCTION__ . '__' . ProductsEntity::getTableAlias(),
+            __FUNCTION__ . '__' . ProductsEntity::getTableAlias() . '.product_value_id = fv.id'
+        );
     }
 
     protected function filter__selected_features($selectedFeatures)
     {
         $statements = [];
-        $binds = [];
+        $bindValues = [];
 
         foreach ($selectedFeatures as $featureId => $featureValuesTranslits) {
-            $statements[] = "fv.feature_id = ? AND l.translit IN (?)";
-            $binds = array_merge($binds, [
-                $featureId,
-                $featureValuesTranslits
-            ]);
+            // ВАЖНО: Використовуємо іменовані плейсхолдери замість позиційних `?`
+            // Це дозволяє уникнути проблем з числовими індексами в біндінгах
+            // Позиційні плейсхолдери `?` з числовими індексами викликають помилку "Undefined array key" в AbstractQuery.php:437
+            $placeholderFeatureId = "filter_feature_id_" . (int)$featureId;
+            $placeholderTranslit = "filter_translit_" . (int)$featureId;
+
+            $statements[] = "fv.feature_id = :{$placeholderFeatureId} AND l.translit IN (:{$placeholderTranslit})";
+
+            // ВАЖНО: Примусове приведення до масиву для безпеки IN (?) (згідно з docs/migration/aura-74-8.md)
+            $bindValues[$placeholderFeatureId] = (int)$featureId;
+            $bindValues[$placeholderTranslit] = (array)$featureValuesTranslits;
         }
 
         $statement = '((' . implode(') OR (', $statements) . '))';
 
-        $this->select->where($statement, ...$binds);
+        // ВАЖНО: Використовуємо bindValues() замість розгортання масиву через ...$binds
+        // Це дозволяє уникнути проблем з числовими індексами в біндінгах
+        $this->select->where($statement);
+        $this->select->bindValues($bindValues);
     }
 }

@@ -1,14 +1,11 @@
 <?php
 
-
 namespace Okay\Entities;
-
 
 use Okay\Core\Entity\Entity;
 
 class CommentsEntity extends Entity
 {
-
     protected static $fields = [
         'id',
         'parent_id',
@@ -27,7 +24,7 @@ class CommentsEntity extends Entity
     protected static $defaultOrderFields = [
         'id DESC',
     ];
-    
+
     protected static $searchFields = [
         'name',
         'text',
@@ -52,7 +49,9 @@ class CommentsEntity extends Entity
     }
 
     // Фильтровать по IP в чистом виде нам не нужно
-    protected function filter__ip($value) {}
+    protected function filter__ip($value)
+    {
+    }
 
     protected function filter__has_parent($value)
     {
@@ -71,7 +70,7 @@ class CommentsEntity extends Entity
         $this->select->where("({$condition})");
         $this->select->bindValues($binds);
     }
-    
+
     public function delete($ids)
     {
         $ids = (array)$ids;
@@ -80,7 +79,7 @@ class CommentsEntity extends Entity
                 $this->setLastModifyEntities($id);
             }
 
-            $children = $this->cols(['id'])->find(['parent_id'=>$id]);
+            $children = $this->cols(['id'])->find(['parent_id' => $id]);
             foreach ($children as $childId) {
                 $this->delete($childId);
             }
@@ -92,11 +91,12 @@ class CommentsEntity extends Entity
     public function add($comment)
     {
         $comment = (object)$comment;
+        /** @var object{date?: string}&\stdClass $comment */
         $comment->date = 'now()';
         $id = parent::add($comment);
 
         $this->setLastModifyEntities($id);
-        
+
         return $id;
     }
 
@@ -109,7 +109,7 @@ class CommentsEntity extends Entity
 
         return true;
     }
-    
+
     private function setLastModifyEntities($commentId)
     {
         $c = $this->cols([
@@ -119,7 +119,6 @@ class CommentsEntity extends Entity
         ])->get((int)$commentId);
 
         if (!empty($c) && $c->approved == 1) {
-
             if ($c->type == 'blog') {
                 $update = $this->queryFactory->newUpdate();
                 $update->table('__blog')
@@ -137,7 +136,6 @@ class CommentsEntity extends Entity
 
                 $this->db->query($update);
             }
-
         }
     }
 }
