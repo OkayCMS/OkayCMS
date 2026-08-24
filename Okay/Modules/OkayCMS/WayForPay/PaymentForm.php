@@ -69,7 +69,7 @@ class PaymentForm extends AbstractModule implements PaymentFormInterface
         $settings = $paymentsEntity->getPaymentSettings($paymentMethod->id);
 
         $this->design->assign('merchantAccount', $settings['wayforpay_merchant']);
-        $this->design->assign('orderReference', $order->id);
+        $this->design->assign('orderReference', $order->id. '_' . rand(0,9999));
         $this->design->assign('orderDate', strtotime($order->date));
         $this->design->assign('merchantAuthType', 'simpleSignature');
         $this->design->assign('merchantDomainName', $_SERVER['HTTP_HOST']);
