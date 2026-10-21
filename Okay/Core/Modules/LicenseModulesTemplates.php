@@ -102,7 +102,7 @@ class LicenseModulesTemplates
             if ($retryCnt < self::MAX_RETRY) {
                 $retryCnt++;
             }
-            $_SESSION['request_timeout'] = time() + (self::REQUEST_TIMEOUT * $_SESSION['request_timeout_try_cnt']);
+            $_SESSION['request_timeout'] = time() + (self::REQUEST_TIMEOUT * $retryCnt);
             $_SESSION['request_timeout_try_cnt'] = $retryCnt;
         }
 
