@@ -1,4 +1,4 @@
-OkayCMS v4.5.2
+OkayCMS v4.5.3
 ----------------------
 
 OkayCMS is a PHP CMS for creating backend and frontend applications.
@@ -14,7 +14,7 @@ Supported PHP: 7.4, 8.1, 8.2, 8.3, 8.4, 8.5.
 
 | File                  | PHP                          |
 |-----------------------|------------------------------|
-| `composer.lock`       | 8.5 (installs on 8.4.1+)     |
+| `composer.lock`       | 8.5 (same as composer.php85.lock) |
 | `composer.php85.lock` | 8.5                          |
 | `composer.php84.lock` | 8.4                          |
 | `composer.php83.lock` | 8.3                          |
@@ -32,4 +32,4 @@ PHP 7.4 and 8.1 are end-of-life and no longer get security fixes, so don't use t
 
 OkayCMS is released under the LGPL license.
 
-Copyright 2015-2024 OkayCMS
+Copyright 2015-2026 OkayCMS
