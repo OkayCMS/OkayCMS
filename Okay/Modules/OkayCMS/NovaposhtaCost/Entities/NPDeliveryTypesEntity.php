@@ -50,7 +50,7 @@ class NPDeliveryTypesEntity extends Entity
     {
         $deliveryType = parent::get($id);
         if (!empty($deliveryType)) {
-            $deliveryType->warehouses_type_refs = explode(',', $deliveryType->warehouses_type_refs);
+            $deliveryType->warehouses_type_refs = explode(',', (string) $deliveryType->warehouses_type_refs);
         }
         return $deliveryType;
     }
@@ -59,7 +59,7 @@ class NPDeliveryTypesEntity extends Entity
     {
         $result = parent::find($filter);
         foreach ($result as $deliveryType) {
-            $deliveryType->warehouses_type_refs = explode(',', $deliveryType->warehouses_type_refs);
+            $deliveryType->warehouses_type_refs = explode(',', (string) $deliveryType->warehouses_type_refs);
         }
 
         return $result;

@@ -68,7 +68,7 @@ class DefaultStrategy extends AbstractRouteStrategy
 
     private function matchBrandUrlFromUri($url, $prefix) : ?string
     {
-        preg_match("/^{$prefix}\/([^\/]*)/", $url, $matches);
+        preg_match("/^{$prefix}\/([^\/]*)/", (string) $url, $matches);
 
         return $matches[1] ?? null;
     }

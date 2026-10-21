@@ -52,7 +52,7 @@ class NoPrefixStrategy extends AbstractRouteStrategy
 
     private function matchBrandUrl($url)
     {
-        preg_match("~(?:brand_features/?)?([^/]+)~ui", $url, $matches);
+        preg_match("~(?:brand_features/?)?([^/]+)~ui", (string) $url, $matches);
         if (isset($matches[1])) {
             return $matches[1];
         }
@@ -62,10 +62,10 @@ class NoPrefixStrategy extends AbstractRouteStrategy
 
     private function matchFiltersUrl($brandUrl, $url)
     {
-        if (strpos($url, 'brand_features') !== false) {
-            $url = substr($url, strlen('brand_features') + 1);
+        if (strpos((string) $url, 'brand_features') !== false) {
+            $url = substr((string) $url, strlen('brand_features') + 1);
         }
 
-        return substr($url, strlen($brandUrl) + 1);
+        return substr((string) $url, strlen((string) $brandUrl) + 1);
     }
 }

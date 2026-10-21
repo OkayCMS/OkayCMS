@@ -29,6 +29,6 @@ class HotlineFeedsEntity extends Entity
                 ->bindValue('ids', $ids)
                 ->execute();
 
-        parent::delete($ids);
+        return parent::delete($ids);
     }
 }

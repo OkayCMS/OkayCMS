@@ -97,7 +97,7 @@ class ImportOffers extends AbstractImport
         $variant = new \stdClass;
         
         //  Id товара и варианта (если есть) по 1С
-        @list($product1cId, $variant1cId) = explode('#', $xmlVariant->Ид);
+        @list($product1cId, $variant1cId) = explode('#', (string) $xmlVariant->Ид);
         if (empty($variant1cId)) {
             $variant1cId = '';
         }

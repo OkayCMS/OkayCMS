@@ -105,13 +105,13 @@ class BannersHelper
     public function getSelectedEntities($banner)
     {
         if (!empty($banner->categories)) {
-            $banner->category_selected = explode(",", $banner->categories);//Создаем массив категорий
+            $banner->category_selected = explode(",", (string) $banner->categories);//Создаем массив категорий
         }
         if (!empty($banner->brands)) {
-            $banner->brand_selected = explode(",",$banner->brands);//Создаем массив брендов
+            $banner->brand_selected = explode(",",(string) $banner->brands);//Создаем массив брендов
         }
         if (!empty($banner->pages)) {
-            $banner->page_selected = explode(",",$banner->pages);//Создаем массив страниц
+            $banner->page_selected = explode(",",(string) $banner->pages);//Создаем массив страниц
         }
         return ExtenderFacade::execute(__METHOD__, $banner, func_get_args());
     }
@@ -181,9 +181,9 @@ class BannersHelper
             $brands     = $this->entityFactory->get(BrandsEntity::class)->find();
             $pages      = $this->entityFactory->get(PagesEntity::class)->find();
             foreach ($banners as $banner){
-                $banner->category_selected  = explode(",",$banner->categories);//Создаем массив категорий
-                $banner->brand_selected     = explode(",",$banner->brands);//Создаем массив брендов
-                $banner->page_selected      = explode(",",$banner->pages);//Создаем массив страниц
+                $banner->category_selected  = explode(",",(string) $banner->categories);//Создаем массив категорий
+                $banner->brand_selected     = explode(",",(string) $banner->brands);//Создаем массив брендов
+                $banner->page_selected      = explode(",",(string) $banner->pages);//Создаем массив страниц
                 foreach ($brands as $b){
                     if (in_array($b->id, $banner->brand_selected)){
                         $banner->brands_show[] = $b;

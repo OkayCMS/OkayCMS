@@ -84,7 +84,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
             $this->logger->warning('Missing "main_category_id" for post "'.$url.'"');
         } else {
             $category = $this->categoriesEntity->findOne(['id' => $post->main_category_id]);
-            $slug = substr($category->path_url, 1).'/'.$post->url;
+            $slug = substr((string) $category->path_url, 1).'/'.$post->url;
         }
         
         // Запоминаем в оперативке slug для этого урла
@@ -108,7 +108,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
             return $this->getMockRouteParams($prefix);
         }
 
-        $noPrefixUrl            = substr($url, strlen($prefix) + 1);
+        $noPrefixUrl            = substr((string) $url, strlen((string) $prefix) + 1);
         $matchedCategories      = $this->matchCategories($noPrefixUrl);
         $mappedParentCategories = $this->mapCategoriesByParents($matchedCategories);
 
@@ -151,7 +151,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
 
     private function matchPostUrlFromUri($url, $categoryPathUrl)
     {
-        $noCategoryPathUri = substr($url, strlen($categoryPathUrl));
+        $noCategoryPathUri = substr((string) $url, strlen((string) $categoryPathUrl));
 
         if ($noCategoryPathUri === '/') {
             $noCategoryPathUri = substr($noCategoryPathUri, 1);
@@ -173,14 +173,14 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
             $url = '/'.$url;
         }
 
-        $comparePartUri = substr($url, 0, strlen($categoryPathUrl));
+        $comparePartUri = substr((string) $url, 0, strlen((string) $categoryPathUrl));
 
         return $comparePartUri !== $categoryPathUrl;
     }
 
     private function matchCategories($noPrefixUri)
     {
-        $parts = explode('/', $noPrefixUri);
+        $parts = explode('/', (string) $noPrefixUri);
 
         $select = $this->queryFactory->newSelect();
         $select->cols(['id', 'parent_id', 'url'])
@@ -222,7 +222,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
 
     private function prefixIsFailed($prefix, $url)
     {
-        return $prefix !== substr($url, 0, strlen($prefix));
+        return $prefix !== substr((string) $url, 0, strlen((string) $prefix));
     }
 
     private function getPrefix()

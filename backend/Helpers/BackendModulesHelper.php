@@ -68,7 +68,7 @@ class BackendModulesHelper
         }
 
         $emailRequest = urlencode(base64_encode(
-            $this->settings->get('email_for_module')
+            (string) $this->settings->get('email_for_module')
         ));
 
         $modulesExpiresResponse = $this->request(sprintf(
@@ -93,7 +93,7 @@ class BackendModulesHelper
 
     public function checkDownloadVersions($accessUrl)
     {
-        $pathAccess = parse_url($accessUrl, PHP_URL_PATH);
+        $pathAccess = parse_url((string) $accessUrl, PHP_URL_PATH);
         $pathAccess = trim($pathAccess, '/');
         return $this->request($this->marketplaceUrl . $pathAccess . '/versions');
     }
@@ -192,7 +192,7 @@ class BackendModulesHelper
         }
         $_SESSION['modules_request_timeout_try_cnt'] = $retryCnt;
 
-        curl_close($ch);
+        if (PHP_VERSION_ID < 80000) { curl_close($ch); }
         return $result;
     }
     
@@ -216,7 +216,7 @@ class BackendModulesHelper
 
         $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         
-        curl_close($ch);
+        if (PHP_VERSION_ID < 80000) { curl_close($ch); }
         fclose($fp);
         
         if ($statusCode == 200) {

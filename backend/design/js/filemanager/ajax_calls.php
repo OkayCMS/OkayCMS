@@ -82,8 +82,8 @@ if (isset($_GET['action'])) {
 			$info = pathinfo($_POST['name']);
             $image_data = $_POST['url'];
 
-            if (preg_match('/^data:image\/(\w+);base64,/', $image_data, $type)) {
-                $image_data = substr($image_data, strpos($image_data, ',') + 1);
+            if (preg_match('/^data:image\/(\w+);base64,/', (string) $image_data, $type)) {
+                $image_data = substr((string) $image_data, strpos((string) $image_data, ',') + 1);
                 $type = strtolower($type[1]); // jpg, png, gif
 
                 $image_data = base64_decode($image_data);
@@ -466,21 +466,21 @@ if (isset($_GET['action'])) {
                     <tbody>
                         <tr>
                             <td>'.trans('User').'</td>
-                            <td><input id="u_4" type="checkbox" data-value="4" data-group="user" '.(substr($info, 1, 1)=='r' ? " checked" : "").'></td>
-                            <td><input id="u_2" type="checkbox" data-value="2" data-group="user" '.(substr($info, 2, 1)=='w' ? " checked" : "").'></td>
-                            <td><input id="u_1" type="checkbox" data-value="1" data-group="user" '.(substr($info, 3, 1)=='x' ? " checked" : "").'></td>
+                            <td><input id="u_4" type="checkbox" data-value="4" data-group="user" '.(substr((string) $info, 1, 1)=='r' ? " checked" : "").'></td>
+                            <td><input id="u_2" type="checkbox" data-value="2" data-group="user" '.(substr((string) $info, 2, 1)=='w' ? " checked" : "").'></td>
+                            <td><input id="u_1" type="checkbox" data-value="1" data-group="user" '.(substr((string) $info, 3, 1)=='x' ? " checked" : "").'></td>
                         </tr>
                         <tr>
                             <td>'.trans('Group').'</td>
-                            <td><input id="g_4" type="checkbox" data-value="4" data-group="group" '.(substr($info, 4, 1)=='r' ? " checked" : "").'></td>
-                            <td><input id="g_2" type="checkbox" data-value="2" data-group="group" '.(substr($info, 5, 1)=='w' ? " checked" : "").'></td>
-                            <td><input id="g_1" type="checkbox" data-value="1" data-group="group" '.(substr($info, 6, 1)=='x' ? " checked" : "").'></td>
+                            <td><input id="g_4" type="checkbox" data-value="4" data-group="group" '.(substr((string) $info, 4, 1)=='r' ? " checked" : "").'></td>
+                            <td><input id="g_2" type="checkbox" data-value="2" data-group="group" '.(substr((string) $info, 5, 1)=='w' ? " checked" : "").'></td>
+                            <td><input id="g_1" type="checkbox" data-value="1" data-group="group" '.(substr((string) $info, 6, 1)=='x' ? " checked" : "").'></td>
                         </tr>
                         <tr>
                             <td>'.trans('All').'</td>
-                            <td><input id="a_4" type="checkbox" data-value="4" data-group="all" '.(substr($info, 7, 1)=='r' ? " checked" : "").'></td>
-                            <td><input id="a_2" type="checkbox" data-value="2" data-group="all" '.(substr($info, 8, 1)=='w' ? " checked" : "").'></td>
-                            <td><input id="a_1" type="checkbox" data-value="1" data-group="all" '.(substr($info, 9, 1)=='x' ? " checked" : "").'></td>
+                            <td><input id="a_4" type="checkbox" data-value="4" data-group="all" '.(substr((string) $info, 7, 1)=='r' ? " checked" : "").'></td>
+                            <td><input id="a_2" type="checkbox" data-value="2" data-group="all" '.(substr((string) $info, 8, 1)=='w' ? " checked" : "").'></td>
+                            <td><input id="a_1" type="checkbox" data-value="1" data-group="all" '.(substr((string) $info, 9, 1)=='x' ? " checked" : "").'></td>
                         </tr>
                         <tr>
                             <td></td>

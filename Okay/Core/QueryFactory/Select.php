@@ -5,12 +5,13 @@ namespace Okay\Core\QueryFactory;
 
 
 use Aura\SqlQuery\Common\SelectInterface;
-use Aura\SqlQuery\Common\SubselectInterface;
 use Aura\SqlQuery\QueryInterface;
 use Aura\SqlQuery\Common\Select as AuraSelect;
 
-class Select extends AbstractQuery implements SelectInterface, SubselectInterface
+class Select extends AbstractQuery implements SelectInterface
 {
+    use BindPlaceholdersTrait;
+
     /**
      * @var QueryInterface|AuraSelect
      */
@@ -81,25 +82,29 @@ class Select extends AbstractQuery implements SelectInterface, SubselectInterfac
 
     public function join($join, $spec, $cond = null, array $bind = [])
     {
-        $this->queryObject->join($join, $spec, $cond, $bind);
+        list($cond, $named) = $this->bindPlaceholders($cond, $bind);
+        $this->queryObject->join($join, $spec, $cond, $named);
         return $this;
     }
 
     public function innerJoin($spec, $cond = null, array $bind = [])
     {
-        $this->queryObject->innerJoin($spec, $cond, $bind);
+        list($cond, $named) = $this->bindPlaceholders($cond, $bind);
+        $this->queryObject->innerJoin($spec, $cond, $named);
         return $this;
     }
 
     public function leftJoin($spec, $cond = null, array $bind = [])
     {
-        $this->queryObject->leftJoin($spec, $cond, $bind);
+        list($cond, $named) = $this->bindPlaceholders($cond, $bind);
+        $this->queryObject->leftJoin($spec, $cond, $named);
         return $this;
     }
 
     public function joinSubSelect($join, $spec, $name, $cond = null, array $bind = [])
     {
-        $this->queryObject->joinSubSelect($join, $spec, $name, $cond, $bind);
+        list($cond, $named) = $this->bindPlaceholders($cond, $bind);
+        $this->queryObject->joinSubSelect($join, $spec, $name, $cond, $named);
         return $this;
     }
 
@@ -109,15 +114,21 @@ class Select extends AbstractQuery implements SelectInterface, SubselectInterfac
         return $this;
     }
 
-    public function having($cond)
+    public function having($cond, $bind = [])
     {
-        $this->queryObject->having($cond);
+        $binds = array_slice(func_get_args(), 1);
+
+        list($cond, $named) = $this->bindPlaceholders($cond, $binds);
+        $this->queryObject->having($cond, $named);
         return $this;
     }
 
-    public function orHaving($cond)
+    public function orHaving($cond, $bind = [])
     {
-        $this->queryObject->orHaving($cond);
+        $binds = array_slice(func_get_args(), 1);
+
+        list($cond, $named) = $this->bindPlaceholders($cond, $binds);
+        $this->queryObject->orHaving($cond, $named);
         return $this;
     }
 
@@ -196,15 +207,21 @@ class Select extends AbstractQuery implements SelectInterface, SubselectInterfac
         return $this;
     }
 
-    public function where($cond, ...$binds)
+    public function where($cond, $bind = [])
     {
-        $this->queryObject->where(...func_get_args());
+        $binds = array_slice(func_get_args(), 1);
+
+        list($cond, $named) = $this->bindPlaceholders($cond, $binds);
+        $this->queryObject->where($cond, $named);
         return $this;
     }
 
-    public function orWhere($cond)
+    public function orWhere($cond, $bind = [])
     {
-        $this->queryObject->orWhere(...func_get_args());
+        $binds = array_slice(func_get_args(), 1);
+
+        list($cond, $named) = $this->bindPlaceholders($cond, $binds);
+        $this->queryObject->orWhere($cond, $named);
         return $this;
     }
 
@@ -298,4 +315,19 @@ class Select extends AbstractQuery implements SelectInterface, SubselectInterfac
         return $this;
     }
 
+    public function reset()
+    {
+        $this->queryObject->reset();
+        return $this;
+    }
+
+    public function hasCol($col)
+    {
+        return $this->queryObject->hasCol($col);
+    }
+
+    public function isDistinct()
+    {
+        return $this->queryObject->isDistinct();
+    }
 }

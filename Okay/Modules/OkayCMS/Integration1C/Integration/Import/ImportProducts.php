@@ -235,10 +235,10 @@ class ImportProducts extends AbstractImport
         /** @var BrandsEntity $brandsEntity */
         $brandsEntity = $this->integration1C->entityFactory->get(BrandsEntity::class);
         
-        $xmlProduct->Наименование = trim($xmlProduct->Наименование);
+        $xmlProduct->Наименование = trim((string) $xmlProduct->Наименование);
 
         //  Id товара и варианта (если есть) по 1С
-        @list($product1cId, $variant1cId) = explode('#', $xmlProduct->Ид);
+        @list($product1cId, $variant1cId) = explode('#', (string) $xmlProduct->Ид);
         if (empty($variant1cId)) {
             $variant1cId = '';
         }

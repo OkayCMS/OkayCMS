@@ -140,14 +140,14 @@ abstract class AbstractRoute
     {
         $uri = $this->removeLangPrefix($uri);
 
-        return explode('?', $uri)[0];
+        return explode('?', (string) $uri)[0];
     }
 
     private function removeLangPrefix($uri)
     {
         $langLink = $this->languages->getLangLink($this->languages->getLangId());
         if (!empty($langLink)) {
-            return mb_substr($uri, mb_strlen($langLink));
+            return mb_substr((string) $uri, mb_strlen((string) $langLink));
         }
         return $uri;
     }

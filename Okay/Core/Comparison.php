@@ -4,6 +4,7 @@
 namespace Okay\Core;
 
 
+use Okay\Core\Classes\CookieOptions;
 use Okay\Entities\FeaturesValuesEntity;
 use Okay\Entities\FeaturesEntity;
 use Okay\Entities\UserComparisonItemsEntity;
@@ -239,7 +240,7 @@ class Comparison
     public function save()
     {
         if (!empty($_COOKIE['comparison'])) {
-            setcookie('comparison', $_COOKIE['comparison'], time() + 30 * 24 * 3600, '/');
+            Response::setCookie('comparison', $_COOKIE['comparison'], CookieOptions::MONTH);
         }
     }
     
@@ -257,7 +258,7 @@ class Comparison
         }
         
         unset($_COOKIE['comparison']);
-        setcookie('comparison', '', time()-3600, '/');
+        Response::deleteCookie('comparison');
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }

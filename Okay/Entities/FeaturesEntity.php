@@ -157,7 +157,7 @@ class FeaturesEntity extends Entity
                 ->bindValue('feature_id', $ids);
             $this->db->query($delete);
         }
-        parent::delete($ids);
+        return parent::delete($ids);
     }
 
     /**

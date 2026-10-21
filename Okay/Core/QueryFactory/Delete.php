@@ -9,6 +9,8 @@ use Aura\SqlQuery\Common\Delete as AuraDelete;
 
 class Delete extends AbstractQuery
 {
+    use BindPlaceholdersTrait;
+
     /**
      * @var QueryInterface|AuraDelete
      */
@@ -25,15 +27,21 @@ class Delete extends AbstractQuery
         return $this;
     }
 
-    public function where($cond, ...$binds)
+    public function where($cond, $bind = [])
     {
-        $this->queryObject->where(...func_get_args());
+        $binds = array_slice(func_get_args(), 1);
+
+        list($cond, $named) = $this->bindPlaceholders($cond, $binds);
+        $this->queryObject->where($cond, $named);
         return $this;
     }
 
-    function orWhere($cond)
+    public function orWhere($cond, $bind = [])
     {
-        $this->queryObject->orWhere(...func_get_args());
+        $binds = array_slice(func_get_args(), 1);
+
+        list($cond, $named) = $this->bindPlaceholders($cond, $binds);
+        $this->queryObject->orWhere($cond, $named);
         return $this;
     }
 

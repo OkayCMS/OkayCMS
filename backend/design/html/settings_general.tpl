@@ -84,10 +84,9 @@
                             </div>
                             <div class="mb-1">
                                 <select name="phone_default_format" class="selectpicker form-control" data-live-search="false">
-                                    <option value="{libphonenumber\PhoneNumberFormat::E164}" {if $settings->phone_default_format == libphonenumber\PhoneNumberFormat::E164}selected{/if}>{$phone_example|phone:libphonenumber\PhoneNumberFormat::E164}</option>
-                                    <option value="{libphonenumber\PhoneNumberFormat::INTERNATIONAL}" {if $settings->phone_default_format == libphonenumber\PhoneNumberFormat::INTERNATIONAL}selected{/if}>{$phone_example|phone:libphonenumber\PhoneNumberFormat::INTERNATIONAL}</option>
-                                    <option value="{libphonenumber\PhoneNumberFormat::NATIONAL}" {if $settings->phone_default_format == libphonenumber\PhoneNumberFormat::NATIONAL}selected{/if}>{$phone_example|phone:libphonenumber\PhoneNumberFormat::NATIONAL}</option>
-                                    <option value="{libphonenumber\PhoneNumberFormat::RFC3966}" {if $settings->phone_default_format == libphonenumber\PhoneNumberFormat::RFC3966}selected{/if}>{$phone_example|phone:libphonenumber\PhoneNumberFormat::RFC3966}</option>
+                                    {foreach $phone_formats as $phone_format}
+                                        <option value="{$phone_format.value}" {if $settings->phone_default_format == $phone_format.value}selected{/if}>{$phone_format.label|escape}</option>
+                                    {/foreach}
                                 </select>
                             </div>
                         </div>

@@ -77,7 +77,7 @@ class FeedsEntity extends Entity
             $feed->url = str_replace('.', '', $feed->url);
         }
 
-        $feed->url = preg_replace("/[\s]+/ui", '', $feed->url);
+        $feed->url = preg_replace("/[\s]+/ui", '', (string) $feed->url);
 
         while ($this->findOne(['url' => $feed->url])) {
             if(preg_match('/(.+)([0-9]+)$/', $feed->url, $parts)) {

@@ -150,7 +150,7 @@ class ProductMetadataHelper extends CommonMetadataHelper
 
         $brandRoute = '';
         if ($this->brand) {
-            $brandRoute = ltrim(Router::generateUrl('brand', ['url' => $this->brand->url]), '/');
+            $brandRoute = ltrim((string) Router::generateUrl('brand', ['url' => $this->brand->url]), '/');
         }
 
         $this->parts = [

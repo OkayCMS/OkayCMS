@@ -182,7 +182,7 @@
                     </div>
                     <div class="col-md-12">
                         <div class="heading_label">{$btr->topic_message|escape}</div>
-                        <textarea name="comment_text" id="fn_editor" class="form-control okay_textarea editor_small">{$topic_message|nl2br}</textarea>
+                        <textarea name="comment_text" id="fn_editor" class="form-control okay_textarea editor_small">{$topic_message|escape|nl2br}</textarea>
                     </div>
 
                 </div>

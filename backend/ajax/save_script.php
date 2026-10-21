@@ -18,7 +18,7 @@ $theme = $request->post('theme', 'string');
 /*Сохранение скриптов из админки*/
 $file = $config->root_dir.'design/'.$theme.'/js/'.$script;
 
-if (pathinfo($script, PATHINFO_EXTENSION) != 'js' || $file != realpath($file)) {
+if (pathinfo((string) $script, PATHINFO_EXTENSION) != 'js' || $file != realpath($file)) {
     exit();
 }
 

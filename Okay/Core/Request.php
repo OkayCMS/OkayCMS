@@ -178,7 +178,7 @@ class Request
     public function method($method = null)
     {
         if (!empty($method)) {
-            return strtolower($_SERVER['REQUEST_METHOD']) == strtolower($method);
+            return strtolower($_SERVER['REQUEST_METHOD']) == strtolower((string) $method);
         }
         return $_SERVER['REQUEST_METHOD'];
     }
@@ -224,7 +224,7 @@ class Request
         }
         
         if ($type == 'string') {
-            return strval(preg_replace('/[^\p{L}\p{Nd}\d\s_\-.%]/ui', '', $val));
+            return strval(preg_replace('/[^\p{L}\p{Nd}\d\s_\-.%]/ui', '', $val ?? ''));
         }
         
         if ($type == 'integer' || $type == 'int') {
@@ -251,7 +251,7 @@ class Request
             return $val;
         }
         
-        return htmlspecialchars(strip_tags($val));
+        return htmlspecialchars(strip_tags((string) $val));
     }
     
     /**
@@ -276,7 +276,7 @@ class Request
         }
 
         if ($type == 'string') {
-            return strval(preg_replace('/[^\p{L}\p{Nd}\d\s_\-.%]/ui', '', $val));
+            return strval(preg_replace('/[^\p{L}\p{Nd}\d\s_\-.%]/ui', '', (string) $val));
         }
         
         if ($type == 'integer' || $type == 'int') {
@@ -332,12 +332,12 @@ class Request
 
     public static function setSubDir($subDir)
     {
-        self::$subDir = '/' . trim($subDir, '/');
+        self::$subDir = '/' . trim((string) $subDir, '/');
     }
     
     public static function getDomain()
     {
-        return !empty(self::$domain) ? self::$domain : rtrim($_SERVER['HTTP_HOST']);
+        return !empty(self::$domain) ? self::$domain : rtrim($_SERVER['HTTP_HOST'] ?? '');
     }
     
     public static function setDomain($domain)
@@ -367,6 +367,11 @@ class Request
         }
         
         return $protocol;
+    }
+
+    public static function isSecure(): bool
+    {
+        return self::getProtocol() === 'https';
     }
     
     /**

@@ -10,7 +10,11 @@ class RefundAdmin extends IndexAdmin
 {
     public function fetch()
     {
-        $this->response->redirectTo($_SERVER["HTTP_REFERER"]);
+        $this->response->redirectTo(
+            !empty($_SERVER['HTTP_REFERER'])
+                ? $_SERVER['HTTP_REFERER']
+                : $this->request->getBasePathWithDomain() . '/backend/index.php'
+        );
     }
 
     public function execute(Refund $refund)

@@ -31,7 +31,7 @@ class BackendCouponsRequest
 
         $expired = $this->request->post('new_expire');
         if (!empty($expired)) {
-            $coupon->expire = date('Y-m-d', strtotime($expired));
+            $coupon->expire = date('Y-m-d', strtotime((string) $expired));
         } else {
             $coupon->expire = null;
         }

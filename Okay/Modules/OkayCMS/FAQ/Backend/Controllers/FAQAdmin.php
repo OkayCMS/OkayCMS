@@ -24,13 +24,14 @@ class FAQAdmin extends IndexAdmin
 
             if (empty($faq->id)) {
                 $faq->id = $FAQEntity->add($faq);
-                $faq = $FAQEntity->get($faq->id);
-                $this->design->assign('message_success', 'added');
+                $this->postRedirectGet->storeMessageSuccess('added');
+                $this->postRedirectGet->storeNewEntityId($faq->id);
             } else {
                 $FAQEntity->update($faq->id, $faq);
-                $faq = $FAQEntity->get($faq->id);
-                $this->design->assign('message_success', 'updated');
+                $this->postRedirectGet->storeMessageSuccess('updated');
             }
+
+            $this->postRedirectGet->redirect();
         } else {
             $faq->id = $this->request->get('id', 'integer');
             $faq = $FAQEntity->get(intval($faq->id));

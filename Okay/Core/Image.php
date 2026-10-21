@@ -91,7 +91,7 @@ class Image
     public function addResizeObject($originalImgDirDirective, $resizedImgDirDirective)
     {
         if (($originalImgDir = $this->config->get($originalImgDirDirective)) && ($resizedImgDir = $this->config->get($resizedImgDirDirective))) {
-            $object = pathinfo($resizedImgDir, PATHINFO_BASENAME);
+            $object = pathinfo((string) $resizedImgDir, PATHINFO_BASENAME);
             $this->resizeObjects[$object] = [
                 'original_dir' => $originalImgDir,
                 'resized_dir' => $resizedImgDir,
@@ -139,7 +139,7 @@ class Image
         $this->originalsDir = $originalImagesDir;
         
         // Если файл удаленный (https?://), зальем его себе
-        if (preg_match("~^https?://~", $sourceFile)) {
+        if (preg_match("~^https?://~", (string) $sourceFile)) {
             // Имя оригинального файла
             if (!$originalFile = $this->downloadImage($sourceFile)) {
                 return ExtenderFacade::execute(__METHOD__, false, func_get_args());
@@ -160,7 +160,7 @@ class Image
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 $file = curl_exec($ch);
                 $info = curl_getinfo($ch);
-                curl_close($ch);
+                if (PHP_VERSION_ID < 80000) { curl_close($ch); }
                 $fileDestination = $previewDir . $resizedFile;
                 if ($pseudoWebp) {
                     $fileDestination .= '.webp';
@@ -177,7 +177,7 @@ class Image
             return ExtenderFacade::execute(__METHOD__, false, func_get_args());
         }
 
-        if (strtolower(pathinfo($originalFile, PATHINFO_EXTENSION)) == 'svg') {
+        if (strtolower(pathinfo((string) $originalFile, PATHINFO_EXTENSION)) == 'svg') {
             copy($originalsDir . $originalFile, $previewDir . $resizedFile);
             return ExtenderFacade::execute(__METHOD__, $previewDir . $resizedFile, func_get_args());
         }
@@ -267,7 +267,7 @@ class Image
     public function addImagesSize($size, $type) // todo сделать protected
     {
         if ($type == 'product') {
-            $image_sizes = explode('|', $this->settings->get('products_image_sizes'));
+            $image_sizes = explode('|', (string) $this->settings->get('products_image_sizes'));
             if (empty($image_sizes[0])) {
                 $image_sizes = [];
             }
@@ -279,7 +279,7 @@ class Image
                 $this->settings->set('products_image_sizes', implode('|', $image_sizes));
             }
         } else {
-            $image_sizes = explode('|', $this->settings->get('image_sizes'));
+            $image_sizes = explode('|', (string) $this->settings->get('image_sizes'));
             if (empty($image_sizes[0])) {
                 $image_sizes = [];
             }
@@ -304,6 +304,8 @@ class Image
      */
     public function addResizeParams($filename, $width = 0, $height = 0, $setWatermark = false, $cropParams = []) // todo сделать protected
     {
+        $filename = (string) $filename;
+
         if('.' != ($dirname = pathinfo($filename,  PATHINFO_DIRNAME))) {
             $file = $dirname.'/'.pathinfo($filename, PATHINFO_FILENAME);
         } else {
@@ -353,7 +355,7 @@ class Image
             $newName = $this->comeUpUniqueFilename($uploadedFile);
         }
         else {
-            $newName = urldecode($uploadedFile);
+            $newName = urldecode((string) $uploadedFile);
         }
         
         $localFile = $this->rootDir.$this->config->get('original_images_dir').$newName;
@@ -371,7 +373,7 @@ class Image
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $file = curl_exec($ch);
         $info = curl_getinfo($ch);
-        curl_close($ch);
+        if (PHP_VERSION_ID < 80000) { curl_close($ch); }
 
         if ($info['http_code'] === 200 && $info['size_download'] > 0) {
             $fp = fopen($localFile, 'w+');
@@ -401,9 +403,9 @@ class Image
     public function uploadImage($filename, $name, $originalDir = null)
     {
         // Имя оригинального файла
-        $name = preg_replace('~(.+)\.([0-9]*)x([0-9]*)(w)?\.([^.?]+)$~', '${1}.${5}', $name);
+        $name = preg_replace('~(.+)\.([0-9]*)x([0-9]*)(w)?\.([^.?]+)$~', '${1}.${5}', (string) $name);
         $name = $this->correctFilename($name);
-        $uploadedFile = $newName = pathinfo($name, PATHINFO_BASENAME);
+        $uploadedFile = $newName = pathinfo((string) $name, PATHINFO_BASENAME);
         $base = pathinfo($uploadedFile, PATHINFO_FILENAME);
         $ext = pathinfo($uploadedFile, PATHINFO_EXTENSION);
 
@@ -448,7 +450,7 @@ class Image
     private function getResizeParams($filename)
     {
         // Определаяем параметры ресайза
-        if (!preg_match('/(.+)\.([0-9]*)x([0-9]*)(w)?(\.(left|center|right)\.(top|center|bottom))?\.([^.]+)(\.webp)?$/', $filename, $matches)) {
+        if (!preg_match('/(.+)\.([0-9]*)x([0-9]*)(w)?(\.(left|center|right)\.(top|center|bottom))?\.([^.]+)(\.webp)?$/', (string) $filename, $matches)) {
             return false;
         }
 
@@ -622,7 +624,7 @@ class Image
             ->orWhere('filename=:filename_encoded')
             ->limit(1)
             ->bindValue('filename', $filename)
-            ->bindValue('filename_encoded', rawurlencode($filename));
+            ->bindValue('filename_encoded', rawurlencode((string) $filename));
         $this->db->query($select);
 
         if (!$this->db->result()) {
@@ -634,17 +636,17 @@ class Image
 
     private function getOriginalFilenameByResizeName($filename)
     {
-        $basename = preg_replace('~(.+)\.([0-9]*)x([0-9]*)(w)?\.([^.?]+)(\?.*)?$~', '${1}.${5}', $filename);
-        $uploadedFile = pathinfo($basename, PATHINFO_BASENAME);
+        $basename = preg_replace('~(.+)\.([0-9]*)x([0-9]*)(w)?\.([^.?]+)(\?.*)?$~', '${1}.${5}', (string) $filename);
+        $uploadedFile = pathinfo((string) $basename, PATHINFO_BASENAME);
         return $this->correctFilename($uploadedFile);
     }
 
     private function comeUpUniqueFilename($filename)
     {
-        $base = urldecode(pathinfo($filename, PATHINFO_FILENAME));
-        $ext = pathinfo($filename, PATHINFO_EXTENSION);
+        $base = urldecode(pathinfo((string) $filename, PATHINFO_FILENAME));
+        $ext = pathinfo((string) $filename, PATHINFO_EXTENSION);
 
-        $newName = urldecode($filename);
+        $newName = urldecode((string) $filename);
         while (file_exists($this->rootDir.$this->originalsDir.$newName)) {
             $new_base = pathinfo($newName, PATHINFO_FILENAME);
 
@@ -661,7 +663,7 @@ class Image
 
     private function filenameAlreadyUses($filename)
     {
-        return file_exists($this->rootDir.$this->originalsDir.urldecode($filename));
+        return file_exists($this->rootDir.$this->originalsDir.urldecode((string) $filename));
     }
 
 
@@ -681,7 +683,7 @@ class Image
 
     private function isNotHttpsSource($filename)
     {
-        if (!preg_match("~^https://~", $filename)) {
+        if (!preg_match("~^https://~", (string) $filename)) {
             return true;
         }
 
@@ -690,7 +692,7 @@ class Image
 
     public function convertFilenameToWebp($filename)
     {
-        if (pathinfo($filename, PATHINFO_EXTENSION) !== 'webp') {
+        if (pathinfo((string) $filename, PATHINFO_EXTENSION) !== 'webp') {
             $filename = $filename.'.webp';
         }
 

@@ -69,7 +69,7 @@ class UsersEntity extends Entity
             return ExtenderFacade::execute([static::class, __FUNCTION__], false, func_get_args());
         }
 
-        $user->discount = floor($user->discount);
+        $user->discount = floor((float)$user->discount);
 
         return ExtenderFacade::execute([static::class, __FUNCTION__], $user, func_get_args());
     }

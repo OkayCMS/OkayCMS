@@ -60,12 +60,14 @@ class SqlQuery implements QueryInterface
 
     public function getQuoteNamePrefix()
     {
-        // TODO реализовать
+        // Запрос хранит готовый SQL, идентификаторы не квотируются
+        return '';
     }
 
     public function getQuoteNameSuffix()
     {
-        // TODO реализовать
+        // Запрос хранит готовый SQL, идентификаторы не квотируются
+        return '';
     }
 
     public function setStatement($statement)
@@ -96,5 +98,10 @@ class SqlQuery implements QueryInterface
     public function getStatement()
     {
         return $this->statement;
+    }
+
+    public function resetFlags()
+    {
+        return $this;
     }
 }

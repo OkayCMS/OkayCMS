@@ -701,6 +701,7 @@ $lang['coupons_order_from'] = 'Для заказов от';
 $lang['coupons_order_price'] = 'Сумма заказа';
 $lang['coupons_percent'] = 'Процент,%';
 $lang['coupons_qty_uses'] = 'Кол-во использований';
+$lang['coupons_sign_missing'] = 'Знак $ok_coup не указан ни в одном наборе на странице <a href="%s" target="_blank">Настройка скидок</a>, поэтому купоны не применяются в корзине.';
 $lang['coupons_terms'] = 'Срок действия';
 $lang['coupons_updated'] = 'Купон изменен';
 $lang['coupons_valid_until'] = 'Действует до';

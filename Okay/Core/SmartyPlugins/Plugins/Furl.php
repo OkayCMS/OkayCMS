@@ -43,13 +43,13 @@ class Furl extends Func
         $baseUrl = $this->router->generateUrl($routeName, $routeParams, $isAbsolute);
         $chpuUrl = $this->filterHelper->filterChpuUrl($params, [], $smarty);
 
-        $chpuUrl = ltrim($chpuUrl, '/');
+        $chpuUrl = ltrim((string) $chpuUrl, '/');
         if (!empty($chpuUrl)) {
-            $baseUrl = rtrim($baseUrl, '/');
+            $baseUrl = rtrim((string) $baseUrl, '/');
 
             return trim(strip_tags(htmlspecialchars($baseUrl . '/' . $chpuUrl)));
         }
 
-        return trim(strip_tags(htmlspecialchars($baseUrl)));
+        return trim(strip_tags(htmlspecialchars((string) $baseUrl)));
     }
 }

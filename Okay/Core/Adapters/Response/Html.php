@@ -64,7 +64,7 @@ class Html extends AbstractResponse
         if (!empty($wrapper)) {
             print $this->design->fetch($wrapper);
             if (!$this->licenseModulesTemplates->isLicensedTemplate()
-                && preg_match('~/design/\w+/html/~', $this->design->getTemplatesDir())
+                && preg_match('~/design/\w+/html/~', (string) $this->design->getTemplatesDir())
             ) {
                 print $this->licenseModulesTemplates->getTemplateErrorHtml();
             }

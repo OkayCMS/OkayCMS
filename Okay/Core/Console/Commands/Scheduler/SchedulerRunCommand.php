@@ -7,7 +7,9 @@ use Okay\Core\Modules\Modules;
 use Okay\Core\Scheduler\Scheduler;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Logger\ConsoleLogger;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'scheduler:run', description: 'Run scheduled tasks')]
 class SchedulerRunCommand extends Command
 {
     protected static $defaultName = 'scheduler:run';

@@ -176,7 +176,7 @@ class IndexAdmin
             curl_setopt($ch, CURLOPT_TIMEOUT, 10);
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
             $versionData = curl_exec($ch);
-            curl_close($ch);
+            if (PHP_VERSION_ID < 80000) { curl_close($ch); }
             
             if ($versionData) {
                 $versionData = json_decode($versionData, true);
@@ -214,7 +214,7 @@ class IndexAdmin
             $menu = $managerMenu->getMenu($this->manager);
             $activeControllerName = $managerMenu->getActiveControllerName($this->manager, $this->backendController);
             $design->assign('left_menu', $menu);
-            $design->assign('menu_selected', $activeControllerName);
+            $design->assign('menu_selected', (string)$activeControllerName);
             
             if (!empty($menu)) {
                 $subMenu = reset($menu);
@@ -276,7 +276,7 @@ class IndexAdmin
 
         // Запоминаем логин менеджера для работы темы под админом
         if (!empty($this->manager->login)) {
-            setcookie('admin_login', $this->manager->login, time() + 60 * 60 * 24 * 3, '/');
+            setcookie('admin_login', (string) $this->manager->login, time() + 60 * 60 * 24 * 3, '/');
         }
 
         if (isset($_SESSION['show_learn'])) {

@@ -5,6 +5,7 @@ namespace Okay\Core;
 
 
 use Okay\Core\Adapters\Response\AdapterManager;
+use Okay\Core\Classes\CookieOptions;
 use Okay\Core\Modules\LicenseModulesTemplates;
 
 class Response
@@ -16,6 +17,8 @@ class Response
     private $type;
     private $isStream = false;
     private $statusCode = 200;
+
+    private static $cookies = [];
 
     private const STATUS_CODES_MESSAGES = [
         100 => 'Continue',
@@ -101,10 +104,40 @@ class Response
         if (!in_array($responseCode, [301, 302, 303, 307, 308])) {
             throw new \Exception("$responseCode is not a valid redirect response code.");
         }
-        
+
+        self::flushCookies();
+
         $headerContent = 'Location: ' . $resource;
         header($headerContent, false, $responseCode);
         exit;
+    }
+
+    /**
+     * @param array|callable $options CookieOptions::MONTH/SESSION/DELETE.., a raw options array, or callable(array $defaults): array
+     */
+    public static function setCookie(string $name, $value, $options = CookieOptions::SESSION): void
+    {
+        self::$cookies[$name] = CookieOptions::resolve($options, $value);
+    }
+
+    public static function deleteCookie(string $name): void
+    {
+        self::setCookie($name, '', CookieOptions::DELETE);
+    }
+
+    private static function flushCookies(): void
+    {
+        foreach (self::$cookies as $name => $opt) {
+            setcookie($name, $opt['value'], [
+                'expires'  => isset($opt['ttl']) ? time() + $opt['ttl'] : 0,
+                'path'     => $opt['path'],
+                'domain'   => $opt['domain'],
+                'secure'   => $opt['secure'],
+                'httponly' => $opt['httponly'],
+                'samesite' => $opt['samesite'],
+            ]);
+        }
+        self::$cookies = [];
     }
     
     public function setStatusCode($statusCode): self
@@ -164,7 +197,7 @@ class Response
      * @param string $content
      * @param string|null $type
      */
-    public function sendStream(string $content, string $type = null): void
+    public function sendStream(string $content, ?string $type = null): void
     {
         $this->isStream = true;
         
@@ -197,6 +230,7 @@ class Response
     public function sendHeaders(): self
     {
 //        return $this;
+        self::flushCookies();
         $this->commitStatusCode();
         
         /** @var Adapters\Response\AbstractResponse $adapter */

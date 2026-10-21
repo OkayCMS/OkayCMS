@@ -93,5 +93,7 @@ class Init extends AbstractInit
             \Okay\Modules\OkayCMS\Rozetka\ExtendsEntities\ProductsEntity::class,
             self::FILTER_FEEDS
         );
+
+        $this->registerSmartyStaticClass(Init::class);
     }
 }

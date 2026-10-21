@@ -27,7 +27,7 @@ class BackendFeedsRequest
         $feed = (object) [
             'id'       => $this->request->post('id', 'integer'),
             'name'     => $this->request->post('name'),
-            'url'      => trim($this->request->post('url')),
+            'url'      => trim((string) $this->request->post('url')),
             'enabled'  => $this->request->post('enabled', 'boolean'),
             'preset'   => $this->request->post('preset', 'string')
         ];

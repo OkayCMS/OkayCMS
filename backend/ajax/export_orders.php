@@ -8,6 +8,7 @@ use Okay\Core\QueryFactory;
 use Okay\Core\Managers;
 use Okay\Core\Response;
 use Okay\Core\Database;
+use Okay\Helpers\Import\Csv;
 
 require_once 'configure.php';
 
@@ -92,7 +93,7 @@ if (!empty($toDate)) {
 }
 
 if($page == 1) {
-    fputcsv($f, $columnsNames, $columnDelimiter);
+    Csv::write($f, $columnsNames, $columnDelimiter);
 }
 
 $mainCurrency =  $currenciesEntity->getMainCurrency();
@@ -105,7 +106,7 @@ if (!empty($orders)) {
         foreach($columnsNames as $n=>$c) {
             $str[] = $o->$n;
         }
-        fputcsv($f, $str, $columnDelimiter);
+        Csv::write($f, $str, $columnDelimiter);
     }
 }
 

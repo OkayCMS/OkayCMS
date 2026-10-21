@@ -18,7 +18,7 @@ $theme = $request->post('theme', 'string');
 /*Сохранение стилей из админки*/
 $file = $config->root_dir.'design/'.$theme.'/css/'.$style;
 
-if (pathinfo($style, PATHINFO_EXTENSION) != 'css' || $file != realpath($file)) {
+if (pathinfo((string) $style, PATHINFO_EXTENSION) != 'css' || $file != realpath($file)) {
     exit();
 }
 

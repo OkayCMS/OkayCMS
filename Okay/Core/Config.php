@@ -78,7 +78,7 @@ class Config
         $conf = file_get_contents($configFile);
         $conf = preg_replace("/".$name."\s*=.*\n/i", $name.' = '.$value."\r\n", $conf);
         $cf = fopen($configFile, 'w');
-        fwrite($cf, $conf);
+        fwrite($cf, (string) $conf);
         fclose($cf);
         $this->vars[$name] = $value;
     }

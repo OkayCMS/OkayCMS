@@ -41,9 +41,9 @@ class NPApiHelper
         if (!empty($response->success)) {
             $result = [];
             foreach ($response->data as $warehouseTypeData) {
-                $name = $nameRu = htmlspecialchars($warehouseTypeData->Description);
+                $name = $nameRu = htmlspecialchars((string) $warehouseTypeData->Description);
                 if (!empty($warehouseTypeData->DescriptionRu)) {
-                    $nameRu = htmlspecialchars($warehouseTypeData->DescriptionRu);
+                    $nameRu = htmlspecialchars((string) $warehouseTypeData->DescriptionRu);
                 }
                 $result[] = new NPWarehouseTypeDTO(
                     $name,
@@ -87,7 +87,7 @@ class NPApiHelper
                 if ($warehouseData->TypeOfWarehouse != $warehouseType) {
                     continue;
                 }
-                $name = htmlspecialchars($warehouseData->Description);
+                $name = htmlspecialchars((string) $warehouseData->Description);
                 $name = preg_replace('~(?:(№\d+)\S*)~', '$1', $name);
                 $warehouseDTO = new NPWarehouseDTO(
                     $name,
@@ -97,7 +97,7 @@ class NPApiHelper
                     (int)$warehouseData->Number
                 );
                 if (!empty($warehouseData->DescriptionRu)) {
-                    $nameRu = htmlspecialchars($warehouseData->DescriptionRu);
+                    $nameRu = htmlspecialchars((string) $warehouseData->DescriptionRu);
                     $nameRu = preg_replace('~(?:(№\d+)\S*)~', '$1', $nameRu);
                     $warehouseDTO->setNameRu($nameRu);
                 }
@@ -128,11 +128,11 @@ class NPApiHelper
             $citiesDTO = new NPCitiesCollectionDTO();
             foreach ($response->data as $cityData) {
                 $cityDTO = new NPCityDTO(
-                    htmlspecialchars($cityData->Description),
+                    htmlspecialchars((string) $cityData->Description),
                     $cityData->Ref
                 );
                 if (!empty($cityData->DescriptionRu)) {
-                    $cityDTO->setNameRu(htmlspecialchars($cityData->DescriptionRu));
+                    $cityDTO->setNameRu(htmlspecialchars((string) $cityData->DescriptionRu));
                 }
                 $citiesDTO->setCity($cityDTO);
             }
@@ -168,7 +168,7 @@ class NPApiHelper
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestParams));
         curl_setopt($ch, CURLOPT_POST, 1);
         $response = curl_exec($ch);
-        curl_close($ch);
+        if (PHP_VERSION_ID < 80000) { curl_close($ch); }
 
         if ($response === false) {
             $this->lastCallError = 'Error in API call';

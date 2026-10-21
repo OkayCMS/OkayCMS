@@ -154,7 +154,7 @@ class ModulesEntity extends Entity
 
     private function isNotDir($dir)
     {
-        $catalogNames = explode('/', $dir);
+        $catalogNames = explode('/', (string) $dir);
         if (!is_dir($dir) || end($catalogNames) === '.' || end($catalogNames) === '..') {
             return true;
         }

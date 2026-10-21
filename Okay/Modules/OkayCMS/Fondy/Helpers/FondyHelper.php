@@ -21,7 +21,7 @@ class FondyHelper
             $str .= self::SIGNATURE_SEPARATOR . $v;
         }
         if ($encoded) {
-            return sha1($str);
+            return sha1((string) $str);
         } else {
             return $str;
         }

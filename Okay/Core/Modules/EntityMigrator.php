@@ -82,7 +82,7 @@ class EntityMigrator
             return;
         }
         
-        $tableName = '__' . preg_replace('~(__)?(.+)~', '$2', $tableName);
+        $tableName = '__' . preg_replace('~(__)?(.+)~', '$2', (string) $tableName);
         $this->createTable($tableName, $entityFields);
     }
 

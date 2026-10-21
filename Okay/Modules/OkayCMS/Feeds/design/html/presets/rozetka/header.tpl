@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE yml_catalog SYSTEM 'shops.dtd'>
-<yml_catalog date="{date('Y-m-d H:i')}">
+<yml_catalog date="{$smarty.now|date:'Y-m-d H:i'}">
     <shop>
         {if $feed->settings['feed_name']}
             <name>{$feed->settings['feed_name']|escape}</name>

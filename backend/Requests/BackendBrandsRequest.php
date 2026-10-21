@@ -35,7 +35,7 @@ class BackendBrandsRequest
         $brand->annotation       = $this->request->post('annotation');
         $brand->description      = $this->request->post('description');
         $brand->visible          = $this->request->post('visible', 'boolean');
-        $brand->url              = trim($this->request->post('url', 'string'));
+        $brand->url              = trim((string) $this->request->post('url', 'string'));
         $brand->meta_title       = $this->request->post('meta_title');
         $brand->meta_keywords    = $this->request->post('meta_keywords');
         $brand->meta_description = $this->request->post('meta_description');

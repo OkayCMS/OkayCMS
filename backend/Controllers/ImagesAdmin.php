@@ -25,7 +25,7 @@ class ImagesAdmin extends IndexAdmin
             if (is_array($old_names)) {
                 foreach($old_names as $i=>$old_name){
                     $new_name = $new_names[$i];
-                    $new_name = trim(pathinfo($new_name, PATHINFO_FILENAME).'.'.pathinfo($old_name, PATHINFO_EXTENSION), '.');
+                    $new_name = trim(pathinfo((string) $new_name, PATHINFO_FILENAME).'.'.pathinfo((string) $old_name, PATHINFO_EXTENSION), '.');
                     
                     if(is_writable($images_dir) && is_file($images_dir.$old_name) && !is_file($images_dir.$new_name)) {
                         rename($images_dir.$old_name, $images_dir.$new_name);
@@ -35,7 +35,7 @@ class ImagesAdmin extends IndexAdmin
                 }
             }
             
-            $delete_image = trim($this->request->post('delete_image'), '.');
+            $delete_image = trim((string) $this->request->post('delete_image'), '.');
             
             if (!empty($delete_image)) {
                 @unlink($images_dir.$delete_image);

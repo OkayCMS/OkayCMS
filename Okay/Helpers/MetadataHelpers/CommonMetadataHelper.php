@@ -172,7 +172,7 @@ class CommonMetadataHelper implements MetadataInterface
     protected function compileMetadata($pattern)
     {
         $metaData = strtr($pattern, $this->getParts());
-        $metaData = trim(preg_replace('/{\$[^$]*}/', '', $metaData));
+        $metaData = trim((string) preg_replace('/{\$[^$]*}/', '', $metaData));
         return ExtenderFacade::execute([static::class, __FUNCTION__], $metaData, func_get_args());
     }
 }

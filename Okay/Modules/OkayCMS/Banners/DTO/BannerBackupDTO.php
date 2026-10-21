@@ -111,6 +111,7 @@ class BannerBackupDTO implements \JsonSerializable
         $this->bannerImages[] = $bannerImageBackupDTO;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return get_object_vars($this);

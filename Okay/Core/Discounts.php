@@ -67,7 +67,7 @@ class Discounts
      */
     public function registerCartSign($sign, $name, $description)
     {
-        if (isset($this->discountSigns['purchase'][$sign]) && isset($this->discountSigns['cart'][$sign])) {
+        if (isset($this->signs['purchase'][$sign]) && isset($this->signs['cart'][$sign])) {
             throw new \Exception("Sign \"{$sign}\" is already exists");
         } else {
             $signObject = (object) [

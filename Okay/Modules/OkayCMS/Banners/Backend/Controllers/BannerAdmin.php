@@ -52,7 +52,7 @@ class BannerAdmin extends IndexAdmin
 
             // Если пришли с меню быстрого редактирования
             if ($bannerSlideId = $this->request->get('banner_slide_id')) {
-                list($bannerId, $slideId) = explode(':', $bannerSlideId);
+                list($bannerId, $slideId) = explode(':', (string) $bannerSlideId);
             }
             
             $banner   = $bannersHelper->getBanner((int)$bannerId);

@@ -149,7 +149,7 @@ class LicenseModulesTemplates
     public function isLicensedTemplate(): bool
     {
         if ($this->licenseDTO && !is_null($this->licenseDTO->getTemplateLicense())) {
-            return $this->licenseDTO->getTemplateLicense() === md5(Request::getDomain());
+            return $this->licenseDTO->getTemplateLicense() === md5((string) Request::getDomain());
         } elseif ($this->isInitialized) {
             return true;
         }
@@ -327,11 +327,11 @@ class LicenseModulesTemplates
 
         $result = curl_exec($ch);
         if (curl_errno($ch)) {
-            curl_close($ch);
+            if (PHP_VERSION_ID < 80000) { curl_close($ch); }
             return false;
         }
 
-        curl_close($ch);
+        if (PHP_VERSION_ID < 80000) { curl_close($ch); }
 
         $result = json_decode($result);
         if (json_last_error() === JSON_ERROR_NONE) {

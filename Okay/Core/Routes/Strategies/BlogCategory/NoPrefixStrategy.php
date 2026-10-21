@@ -45,7 +45,7 @@ class NoPrefixStrategy extends AbstractRouteStrategy
 
     private function matchCategoryUrl($url)
     {
-        preg_match("/([^\/]+)/ui", $url, $matches);
+        preg_match("/([^\/]+)/ui", (string) $url, $matches);
 
         if (isset($matches[1])) {
             return $matches[1];

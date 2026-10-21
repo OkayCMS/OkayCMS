@@ -54,7 +54,7 @@ class JsSocial
     
     public static function getSocialDomain($link)
     {
-        $socialDomain = preg_replace('~^(https?://)?(www\.)?([^.]+)?\..*$~', '$3', $link);
+        $socialDomain = preg_replace('~^(https?://)?(www\.)?([^.]+)?\..*$~', '$3', (string) $link);
         
         if (isset(self::$socialAliases[$socialDomain])) {
             return self::$socialAliases[$socialDomain];

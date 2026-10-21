@@ -88,7 +88,7 @@ class BackendPostRedirectGet
 
     public function getUrlRedirectToList($controllerNameList): string
     {
-        return htmlspecialchars_decode($this->request->getRootUrl() . urldecode($this->request->get(
+        return htmlspecialchars_decode($this->request->getRootUrl() . urldecode((string) $this->request->get(
                 'return',
                 null,
                 '/backend/index.php?controller=' . $controllerNameList

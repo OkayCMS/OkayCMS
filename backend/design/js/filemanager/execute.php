@@ -93,7 +93,7 @@ if(isset($_POST['paths'])){
 
 }
 
-$info = pathinfo($path);
+$info = pathinfo((string) $path);
 if (isset($info['extension']) && !(isset($_GET['action']) && $_GET['action'] == 'delete_folder') &&
     !check_extension($info['extension'], $config)
     && $_GET['action'] != 'create_file') {
@@ -199,7 +199,7 @@ if (isset($_GET['action'])) {
             }
 
             // check if user supplied extension
-            if (strpos($name, '.') === false) {
+            if (strpos((string) $name, '.') === false) {
                 response(trans('No_Extension') . ' ' . sprintf(trans('Valid_Extensions'), implode(', ', $config['editable_text_file_exts'])) . AddErrorLocation())->send();
                 exit;
             }
@@ -228,7 +228,7 @@ if (isset($_GET['action'])) {
                 unlink($temp);
                 response(trans('File_Save_OK'))->send();
             } else {
-                if (!checkresultingsize(strlen($content))) {
+                if (!checkresultingsize(strlen((string) $content))) {
                     response(sprintf(trans('max_size_reached'), $config['MaxSizeTotal']) . AddErrorLocation())->send();
                     exit;
                 }
@@ -264,7 +264,7 @@ if (isset($_GET['action'])) {
                     rename_file($path_thumb, $name, $ftp, $config);
 
                     if ($config['fixed_image_creation']) {
-                        $info = pathinfo($path);
+                        $info = pathinfo((string) $path);
 
                         foreach ($config['fixed_path_from_filemanager'] as $k => $paths) {
                             if ($paths != "" && $paths[strlen($paths) - 1] != "/") {
@@ -300,7 +300,7 @@ if (isset($_GET['action'])) {
                     duplicate_file($path_thumb, $name, $ftp, $config);
 
                     if (!$ftp && $config['fixed_image_creation']) {
-                        $info = pathinfo($path);
+                        $info = pathinfo((string) $path);
                         foreach ($config['fixed_path_from_filemanager'] as $k => $paths) {
                             if ($paths != "" && $paths[strlen($paths) - 1] != "/") {
                                 $paths .= "/";
@@ -349,13 +349,13 @@ if (isset($_GET['action'])) {
             $pinfo = pathinfo($data['path']);
 
             // user wants to paste to the same dir. nothing to do here...
-            if ($pinfo['dirname'] == rtrim($path, DIRECTORY_SEPARATOR)) {
+            if ($pinfo['dirname'] == rtrim((string) $path, DIRECTORY_SEPARATOR)) {
                 response()->send();
                 exit;
             }
 
             // user wants to paste folder to it's own sub folder.. baaaah.
-            if (is_dir($data['path']) && strpos($path, $data['path']) !== false) {
+            if (is_dir($data['path']) && strpos((string) $path, $data['path']) !== false) {
                 response()->send();
                 exit;
             }
@@ -434,7 +434,7 @@ if (isset($_GET['action'])) {
                 exit;
             }
             // check mode
-            if (!preg_match("/^[0-7]{3}$/", $mode)) {
+            if (!preg_match("/^[0-7]{3}$/", (string) $mode)) {
                 response(trans('File_Permission_Wrong_Mode') . AddErrorLocation())->send();
                 exit;
             }
@@ -483,7 +483,7 @@ if (isset($_GET['action'])) {
                     exit;
                 }
 
-                if (!checkresultingsize(strlen($content))) {
+                if (!checkresultingsize(strlen((string) $content))) {
                     response(sprintf(trans('max_size_reached'), $config['MaxSizeTotal']) . AddErrorLocation())->send();
                     exit;
                 }

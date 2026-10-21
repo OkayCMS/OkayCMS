@@ -34,7 +34,7 @@ class DeployHelper
     public function executeHook($channel): bool
     {
         $requestBody = $this->request->post();
-        $requestBody = json_decode($requestBody);
+        $requestBody = json_decode((string) $requestBody);
         
         $branch = $this->getBranch($channel);
 

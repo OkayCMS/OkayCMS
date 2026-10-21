@@ -237,6 +237,9 @@ class ReportStatEntity extends Entity
         $this->db->query($select);
         $result = [];
         foreach ($this->db->results() as $v) {
+            if ($v->category_id === null) {
+                continue;
+            }
             $result[$v->category_id] = $v;
         }
 

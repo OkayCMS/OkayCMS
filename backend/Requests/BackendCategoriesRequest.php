@@ -26,7 +26,7 @@ class BackendCategoriesRequest
         $category->visible          = $this->request->post('visible', 'boolean');
         $category->on_main          = $this->request->post('on_main', 'boolean');
         $category->show_table_content = $this->request->post('show_table_content', 'integer');
-        $category->url              = trim($this->request->post('url', 'string'));
+        $category->url              = trim((string) $this->request->post('url', 'string'));
         $category->meta_title       = $this->request->post('meta_title');
         $category->meta_keywords    = $this->request->post('meta_keywords');
         $category->meta_description = $this->request->post('meta_description');

@@ -107,7 +107,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
             return $this->getMockRouteParams($prefix);
         }
 
-        $noPrefixUrl            = ltrim(substr($url, strlen($prefix) + 1), '/');
+        $noPrefixUrl            = ltrim(substr((string) $url, strlen($prefix) + 1), '/');
         $matchedCategories      = $this->matchCategories($noPrefixUrl);
         $mappedParentCategories = $this->mapCategoriesByParents($matchedCategories);
 
@@ -117,7 +117,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
 
         $mainCategoryId = $this->findMostNestedCategoryId($mappedParentCategories);
         $category   = $this->categoriesEntity->get((int) $mainCategoryId);
-        $category->path_url = ltrim($category->path_url, '/');
+        $category->path_url = ltrim((string) $category->path_url, '/');
 
         if ($this->uriNoContainsValidCategoryPathUrl($noPrefixUrl, $category->path_url)) {
             return $this->getMockRouteParams($prefix);
@@ -154,7 +154,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
 
     private function matchProductUrlFromUri($url, $categoryPathUrl)
     {
-        $noCategoryPathUri = substr($url, strlen($categoryPathUrl));
+        $noCategoryPathUri = substr((string) $url, strlen((string) $categoryPathUrl));
 
         if ($noCategoryPathUri === '/') {
             $noCategoryPathUri = substr($noCategoryPathUri, 1);
@@ -172,13 +172,13 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
 
     private function uriNoContainsValidCategoryPathUrl($url, $categoryPathUrl) : bool
     {
-        $comparePartUri = substr($url, 0, strlen($categoryPathUrl));
+        $comparePartUri = substr((string) $url, 0, strlen((string) $categoryPathUrl));
         return $comparePartUri !== $categoryPathUrl;
     }
 
     private function matchCategories($noPrefixUri) : array
     {
-        $parts = explode('/', $noPrefixUri);
+        $parts = explode('/', (string) $noPrefixUri);
 
         $select = $this->queryFactory->newSelect();
         $select->cols(['id', 'parent_id', 'url'])
@@ -219,7 +219,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
 
     private function prefixIsFailed($prefix, $url) : bool
     {
-        return $prefix !== substr($url, 0, strlen($prefix));
+        return $prefix !== substr((string) $url, 0, strlen((string) $prefix));
     }
 
     private function getPrefix() : string

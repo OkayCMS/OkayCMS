@@ -369,6 +369,9 @@ class ManagerMenu
         $controllersPermissions = $this->managers->getControllersPermissions();
 
         foreach ($this->leftMenu as $section => $items) {
+             if (empty($manager->menu)) {
+                $manager->menu = [];
+            }
             if (!isset($manager->menu[$section])) {
                 $manager->menu[$section] = $this->prepareItemsForManagerMenu($items);
             }
@@ -377,8 +380,8 @@ class ManagerMenu
                 $mainController = reset($controllers);
                 $controllerMethod = null;
 
-                if (strpos($mainController, '@') !== false) {
-                    list($mainController, $controllerMethod) = explode('@', $mainController, 2);
+                if (strpos((string) $mainController, '@') !== false) {
+                    list($mainController, $controllerMethod) = explode('@', (string) $mainController, 2);
                 }
 
                 /*if (!isset($manager->menu[$section][$title])) {
@@ -506,8 +509,8 @@ class ManagerMenu
             foreach ($this->leftMenu as $section => $items) {
                 foreach ($items as $title => $controllers) {
                     foreach ($controllers as $c) {
-                        if (strpos($c, '@') !== false) {
-                            list($c, $controllerMethod) = explode('@', $c, 2);
+                        if (strpos((string) $c, '@') !== false) {
+                            list($c, $controllerMethod) = explode('@', (string) $c, 2);
                         }
                         if ($controller == $c) {
                             $activeControllerName = $title;

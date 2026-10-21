@@ -51,7 +51,7 @@ class Database
         $this->dbParams     = (object)$dbParams;
         $this->queryFactory = $queryFactory;
 
-        $this->pdo->connect();
+        self::connectPdo($this->pdo);;
 
         if (!empty($this->dbParams->db_names)) {
             $sql = $this->queryFactory->newSqlQuery();
@@ -185,7 +185,7 @@ class Database
             $query = $query->getStatement();
         }
         
-        return preg_replace('/([^"\'0-9a-z_])__([a-z_]+[^"\'])/i', "\$1".$this->dbParams->prefix."\$2", $query);
+        return preg_replace('/([^"\'0-9a-z_])__([a-z_]+[^"\'])/i', "\$1".$this->dbParams->prefix."\$2", (string) $query);
     }
     
     /**
@@ -216,7 +216,7 @@ class Database
         $this->result->setFetchMode(ExtendedPdo::FETCH_OBJ);
         
         foreach ($this->result->fetchAll() as $row) {
-            if (property_exists($row, $mapped)) {
+            if ($row && $mapped && property_exists($row, $mapped)) {
                 $mappedValue = $row->$mapped;
             } elseif (!empty($mapped)) {
                 throw new \Exception("Field named \"{$mapped}\" uses for mapped is not exists");
@@ -329,11 +329,21 @@ class Database
 
     private function isComment($line)
     {
-        return substr($line, 0, 2) == '--';
+        return substr((string) $line, 0, 2) == '--';
     }
 
     private function isQueryEnd($line)
     {
-        return substr(trim($line), -1, 1) == ';';
+        return substr(trim((string) $line), -1, 1) == ';';
+    }
+
+    //php 7.4 legacy
+    public static function connectPdo(ExtendedPdo $pdo)
+    {
+        if (method_exists($pdo, 'lazyConnect')) {
+            $pdo->lazyConnect();
+        } else {
+            $pdo->connect();
+        }
     }
 }

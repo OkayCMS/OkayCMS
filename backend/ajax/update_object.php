@@ -112,16 +112,6 @@ switch ($object) {
             $entity = $entityFactory->get(\Okay\Entities\LanguagesEntity::class);
         }
         break;
-    case 'banner':
-        if ($managers->access('banners', $manager)) {
-            $entity = $entityFactory->get(\Okay\Entities\BannersEntity::class);
-        }
-        break;
-    case 'banners_image':
-        if ($managers->access('banners', $manager)) {
-            $entity = $entityFactory->get(\Okay\Entities\BannersImagesEntity::class);
-        }
-        break;
     case 'callback':
         if ($managers->access('callbacks', $manager)) {
             $entity = $entityFactory->get(\Okay\Entities\CallbacksEntity::class);

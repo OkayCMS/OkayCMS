@@ -14,6 +14,7 @@ use Okay\Entities\FeaturesValuesEntity;
 use Okay\Entities\ImagesEntity;
 use Okay\Entities\ProductsEntity;
 use Okay\Entities\VariantsEntity;
+use Okay\Helpers\Import\Csv;
 
 class BackendExportHelper
 {
@@ -147,7 +148,7 @@ class BackendExportHelper
         }
 
         if($page == 1) {
-            fputcsv($f, $columnsNames, $columnDelimiter);
+            Csv::write($f, $columnsNames, $columnDelimiter);
         }
 
         fclose($f);
@@ -185,7 +186,7 @@ class BackendExportHelper
                     if(isset($featuresValues[$valueId])) {
                         $feature = $featuresValues[$valueId];
                         $tempFeature = $this->featuresEntity->get(intval($feature->feature_id));
-                        $productFeatureValues[$tempFeature->name][] = str_replace(',', '.', trim($feature->value));
+                        $productFeatureValues[$tempFeature->name][] = str_replace(',', '.', trim((string) $feature->value));
                     }
                 }
 
@@ -300,7 +301,7 @@ class BackendExportHelper
                             $res[$internalName] = '';
                         }
                     }
-                    fputcsv($f, $res, $columnDelimiter);
+                    Csv::write($f, $res, $columnDelimiter);
                 }
             }
         }

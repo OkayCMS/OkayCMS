@@ -7,6 +7,7 @@ namespace Okay\Admin\Controllers;
 use Okay\Entities\CategoriesEntity;
 use Okay\Entities\OrderStatusEntity;
 use Okay\Entities\ReportStatEntity;
+use Okay\Helpers\Import\Csv;
 
 class ReportStatsAdmin extends IndexAdmin
 {
@@ -25,12 +26,12 @@ class ReportStatsAdmin extends IndexAdmin
         $filter_check = $this->request->get('filter_check');
         
         if (!empty($date_from)) {
-            $filter['date_from'] = date("Y-m-d 00:00:00", strtotime($date_from));
+            $filter['date_from'] = date("Y-m-d 00:00:00", strtotime((string) $date_from));
             $this->design->assign('date_from', $date_from);
         }
         
         if (!empty($date_to)) {
-            $filter['date_to'] = date("Y-m-d 23:59:59", strtotime($date_to));
+            $filter['date_to'] = date("Y-m-d 23:59:59", strtotime((string) $date_to));
             $this->design->assign('date_to', $date_to);
         }
         $this->design->assign('filter_check', $filter_check);
@@ -116,7 +117,7 @@ class ReportStatsAdmin extends IndexAdmin
 
         $f = fopen($exportFilesDir.$filename, 'ab');
         if ($page == 1) {
-            fputcsv($f, $columnsNames, $columnDelimiter);
+            Csv::write($f, $columnsNames, $columnDelimiter);
         }
 
         $filter = [];
@@ -136,10 +137,10 @@ class ReportStatsAdmin extends IndexAdmin
         }
 
         if (!empty($dateFrom)) {
-            $filter['date_from'] = date("Y-m-d 00:00:00", strtotime($dateFrom));
+            $filter['date_from'] = date("Y-m-d 00:00:00", strtotime((string) $dateFrom));
         }
         if (!empty($dateTo)) {
-            $filter['date_to'] = date("Y-m-d 23:59:59", strtotime($dateTo));
+            $filter['date_to'] = date("Y-m-d 23:59:59", strtotime((string) $dateTo));
         }
         $status = $this->request->get('status', 'integer');
         if (!empty($status)) {
@@ -182,7 +183,7 @@ class ReportStatsAdmin extends IndexAdmin
             foreach($columnsNames as $n=>$c) {
                 $str[] = $u->$n;
             }
-            fputcsv($f, $str, $columnDelimiter);
+            Csv::write($f, $str, $columnDelimiter);
         }
 
         $total = [
@@ -192,7 +193,7 @@ class ReportStatsAdmin extends IndexAdmin
             'amount'        => $totalAmount
         ];
 
-        fputcsv($f, $total, $columnDelimiter);
+        Csv::write($f, $total, $columnDelimiter);
         fclose($f);
 
         mb_substitute_character('none');

@@ -64,7 +64,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
         }
 
         $category = $this->categoriesEntity->get((string) $url);
-        $slug = trim($category->path_url, '/');
+        $slug = trim((string) $category->path_url, '/');
 
         // Запоминаем в оперативке slug для этого урла
         BlogCategoryRoute::setUrlSlugAlias($url, $slug);
@@ -96,7 +96,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
         
         $matchedRoute = null;
         foreach ($categoriesPathUrls as $categoryPathUrl) {
-            $urlPath = trim($categoryPathUrl, '/');
+            $urlPath = trim((string) $categoryPathUrl, '/');
             if ($this->compareUrlStartsNoSuccess($prefix.$urlPath, $url)) {
                 continue;
             }
@@ -132,8 +132,8 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
 
     private function compareUrlStartsNoSuccess($categoryPathUrl, $url)
     {
-        $categoryPathUrl = ltrim($categoryPathUrl, '/');
-        $compareAccessUri = substr($url, 0, strlen($categoryPathUrl));
+        $categoryPathUrl = ltrim((string) $categoryPathUrl, '/');
+        $compareAccessUri = substr((string) $url, 0, strlen($categoryPathUrl));
         return $categoryPathUrl !== $compareAccessUri;
     }
 }

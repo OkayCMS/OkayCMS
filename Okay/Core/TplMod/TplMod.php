@@ -50,9 +50,9 @@ class TplMod
     private function walkByFile(BaseNode $node, array $changes)
     {
         foreach ($changes as $changeDTO) {
-            if (!empty($changeDTO->getFind()) && strpos($node->getOriginalElement(), $changeDTO->getFind()) !== false) {
+            if (!empty($changeDTO->getFind()) && strpos((string) $node->getOriginalElement(), $changeDTO->getFind()) !== false) {
                 $this->applyMod($node, $changeDTO);
-            } elseif (!empty($changeDTO->getLike()) && preg_match('~'.$changeDTO->getLike().'~', $node->getOriginalElement())) {
+            } elseif (!empty($changeDTO->getLike()) && preg_match('~'.$changeDTO->getLike().'~', (string) $node->getOriginalElement())) {
                 $this->applyMod($node, $changeDTO);
             }
         }
@@ -73,13 +73,13 @@ class TplMod
         
         if (!empty($changeDTO->getClosestFind())) {
             while ($node = $node->parent()) {
-                if (strpos($node->getOriginalElement(), $changeDTO->getClosestFind()) !== false) {
+                if (strpos((string) $node->getOriginalElement(), $changeDTO->getClosestFind()) !== false) {
                     break;
                 }
             }
         } elseif (!empty($changeDTO->getClosestLike())) {
             while ($node = $node->parent()) {
-                if (preg_match('~'.$changeDTO->getClosestLike().'~', $node->getOriginalElement())) {
+                if (preg_match('~'.$changeDTO->getClosestLike().'~', (string) $node->getOriginalElement())) {
                     break;
                 }
             }
@@ -174,7 +174,7 @@ class TplMod
         $result = false;
         if ($children = $node->children()) {
             foreach ($children as $child) {
-                if (strpos($child->getOriginalElement(), $search) !== false) {
+                if (strpos((string) $child->getOriginalElement(), (string) $search) !== false) {
                     return $child;
                 }
                 if ($result = $this->findChildNode($child, $search)) {
@@ -190,7 +190,7 @@ class TplMod
         $result = false;
         if ($children = $node->children()) {
             foreach ($children as $child) {
-                if (preg_match('~'.$search.'~', $child->getOriginalElement())) {
+                if (preg_match('~'.$search.'~', (string) $child->getOriginalElement())) {
                     return $child;
                 }
                 if ($result = $this->likeChildNode($child, $search)) {
@@ -206,7 +206,7 @@ class TplMod
         $resultString = '';
         /** @var BaseNode $child */
         foreach ($node->children() as $child) {
-            if (strpos($node->getOriginalElement(), '<textarea') === false) {
+            if (strpos((string) $node->getOriginalElement(), '<textarea') === false) {
                 $resultString .= PHP_EOL;
                 
                 // Добавляем отступы для форматирования
@@ -223,7 +223,7 @@ class TplMod
 
             if (!empty($child->getCloseTag())) {
                 // Добавляем отступы для форматирования
-                if (!empty($child->children()) && strpos($child->getOriginalElement(), '<textarea') === false) {
+                if (!empty($child->children()) && strpos((string) $child->getOriginalElement(), '<textarea') === false) {
                     $resultString .= PHP_EOL;
                     for ($i = 1; $i <= $level; $i++) {
                         $resultString .= '    ';
