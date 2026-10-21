@@ -55,14 +55,18 @@ class TplModTest extends \PHPUnit\Framework\TestCase
         $class = new \ReflectionClass(TplMod::class);
 
         $methodWalkByFile = $class->getMethod('walkByFile');
-        $methodWalkByFile->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $methodWalkByFile->setAccessible(true);
+        }
         $methodWalkByFile->invokeArgs($tplMod, [
             $baseNode,
             [$changeDTO]
         ]);
 
         $methodBuild = $class->getMethod('build');
-        $methodBuild->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $methodBuild->setAccessible(true);
+        }
         $resultHtml = $methodBuild->invokeArgs($tplMod, [
             $baseNode
         ]);
@@ -70,7 +74,7 @@ class TplModTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expectedResult, $resultHtml);
     }
     
-    public function applyModDataProvider(): array
+    public static function applyModDataProvider(): array
     {
         return [
             [

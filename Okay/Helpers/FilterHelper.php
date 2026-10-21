@@ -266,7 +266,7 @@ class FilterHelper
      * @param $filtersUrl
      * @return string|bool
      */
-    public function getCurrentPage(string $filtersUrl = null)
+    public function getCurrentPage(?string $filtersUrl = null)
     {
         if ($filtersUrl === null && ($filtersUrl = $this->getFiltersUrl()) === null) {
             return ExtenderFacade::execute(__METHOD__, false, func_get_args());
@@ -278,7 +278,9 @@ class FilterHelper
             if (empty($v)) {
                 continue;
             }
-            @list($paramName, $paramValues) = explode('-', $v);
+            $parts = explode('-', (string) $v);
+            $paramName = $parts[0];
+            $paramValues = isset($parts[1]) ? $parts[1] : '';
 
             if ($paramName == 'page') {
                 $currentPage = (string)$paramValues;
@@ -292,7 +294,7 @@ class FilterHelper
         return ExtenderFacade::execute(__METHOD__, $currentPage, func_get_args());
     }
 
-    public function getCurrentSort(string $filtersUrl = null)
+    public function getCurrentSort(?string $filtersUrl = null)
     {
         if ($filtersUrl === null && ($filtersUrl = $this->getFiltersUrl()) === null) {
             return ExtenderFacade::execute(__METHOD__, false, func_get_args());
@@ -304,7 +306,9 @@ class FilterHelper
             if (empty($v)) {
                 continue;
             }
-            @list($paramName, $paramValues) = explode('-', $v);
+            $parts = explode('-', (string) $v);
+            $paramName = $parts[0];
+            $paramValues = isset($parts[1]) ? $parts[1] : '';
 
             if ($paramName == 'sort') {
                 $currentSort = (string)$paramValues;
@@ -317,7 +321,7 @@ class FilterHelper
         return ExtenderFacade::execute(__METHOD__, $currentSort, func_get_args());
     }
 
-    public function getCurrentOtherFilters(string $filtersUrl = null)
+    public function getCurrentOtherFilters(?string $filtersUrl = null)
     {
         if ($filtersUrl === null && ($filtersUrl = $this->getFiltersUrl()) === null) {
             return ExtenderFacade::execute(__METHOD__, false, func_get_args());
@@ -329,7 +333,9 @@ class FilterHelper
             if (empty($v)) {
                 continue;
             }
-            @list($paramName, $paramValues) = explode('-', $v);
+            $parts = explode('-', (string) $v);
+            $paramName = $parts[0];
+            $paramValues = isset($parts[1]) ? $parts[1] : '';
 
             if ($paramName == 'filter') {
                 foreach (explode('_', $paramValues) as $f) {
@@ -345,7 +351,7 @@ class FilterHelper
         return ExtenderFacade::execute(__METHOD__, $otherFilter, func_get_args());
     }
 
-    public function getCurrentBrands(string $filtersUrl = null)
+    public function getCurrentBrands(?string $filtersUrl = null)
     {
         if ($filtersUrl === null && ($filtersUrl = $this->getFiltersUrl()) === null) {
             return ExtenderFacade::execute(__METHOD__, false, func_get_args());
@@ -358,9 +364,9 @@ class FilterHelper
                 continue;
             }
 
-            $paramName = explode('-', $v)[0];
+            $paramName = explode('-', (string) $v)[0];
             if ($paramName == 'brand') {
-                $paramValues = mb_substr($v, strlen($paramName) + 1);
+                $paramValues = mb_substr((string) $v, strlen($paramName) + 1);
 
                 foreach (explode('_', $paramValues) as $bv) {
                     if (($brand = $this->getBrand((string)$bv)) && !in_array($brand->id, $currentBrands)) {
@@ -375,7 +381,7 @@ class FilterHelper
         return ExtenderFacade::execute(__METHOD__, $currentBrands, func_get_args());
     }
 
-    public function getCurrentPrices(string $filtersUrl = null)
+    public function getCurrentPrices(?string $filtersUrl = null)
     {
         if ($filtersUrl === null && ($filtersUrl = $this->getFiltersUrl()) === null) {
             return ExtenderFacade::execute(__METHOD__, false, func_get_args());
@@ -388,9 +394,9 @@ class FilterHelper
                 continue;
             }
 
-            $paramName = explode('-', $v)[0];
+            $paramName = explode('-', (string) $v)[0];
             if ($paramName == 'price') {
-                $paramValues = mb_substr($v, strlen($paramName) + 1);
+                $paramValues = mb_substr((string) $v, strlen($paramName) + 1);
 
                 $prices = explode('_', $paramValues);
                 $currentPrices = ['min' => reset($prices), 'max' => end($prices)];
@@ -405,7 +411,7 @@ class FilterHelper
         return ExtenderFacade::execute(__METHOD__, ['brand', 'filter', 'price', 'page', 'sort'], func_get_args());
     }
 
-    public function getCurrentFeatures(string $filtersUrl = null)
+    public function getCurrentFeatures(?string $filtersUrl = null)
     {
         if ($filtersUrl === null && ($filtersUrl = $this->getFiltersUrl()) === null) {
             return ExtenderFacade::execute(__METHOD__, false, func_get_args());
@@ -417,7 +423,9 @@ class FilterHelper
             if (empty($v)) {
                 continue;
             }
-            @list($paramName, $paramValues) = explode('-', $v);
+            $parts = explode('-', (string) $v);
+            $paramName = $parts[0];
+            $paramValues = isset($parts[1]) ? $parts[1] : '';
 
             if (!in_array($paramName, $this->getNotFeaturesParts())) {
                 if (isset($this->featuresByUrl[$paramName])
@@ -486,7 +494,9 @@ class FilterHelper
             if (empty($v)) {
                 continue;
             }
-            @list($paramName, $paramValues) = explode('-', $v);
+            $parts = explode('-', (string) $v);
+            $paramName = $parts[0];
+            $paramValues = isset($parts[1]) ? $parts[1] : '';
 
             if ($res = $this->userGetMetaArray($paramName, $paramValues)) {
                 $metaArray = array_merge($metaArray, $res);
@@ -495,7 +505,7 @@ class FilterHelper
                 switch ($paramName) {
                     case 'brand':
                     {
-                        $paramValues = mb_substr($v, strlen($paramName) + 1);
+                        $paramValues = mb_substr((string) $v, strlen($paramName) + 1);
                         foreach (explode('_', $paramValues) as $bv) {
                             if (($brand = $this->getBrand($bv)) && empty($metaArray['brand'][$brand->id])) {
                                 $metaArray['brand'][$brand->id] = $brand->name;
@@ -591,10 +601,10 @@ class FilterHelper
 
                 $baseUrl = $this->router->generateUrl($this->router->getCurrentRouteName(), $routeParams, true, $l->id);
                 $chpuUrl = $this->filterChpuUrl($furl, $featuresAltLang);
-                $chpuUrl = trim($chpuUrl, '/');
+                $chpuUrl = trim((string) $chpuUrl, '/');
 
                 if (!empty($chpuUrl)) {
-                    $baseUrl = trim($baseUrl, '/');
+                    $baseUrl = trim((string) $baseUrl, '/');
                 }
 
                 $l->url = $baseUrl . (!empty($chpuUrl) ? '/' . $chpuUrl : '');
@@ -675,14 +685,14 @@ class FilterHelper
         if (!empty($this->filtersUrl)) {
             foreach ($uriArray as $k => $v) {
                 
-                list($paramName, $paramValues) = explode('-', $v);
+                list($paramName, $paramValues) = explode('-', (string) $v);
 
                 if ($parsedUrl = $this->filterChpuUrlParseUrl($paramName, $paramValues)) {
                     $resultArray = array_merge($resultArray, $parsedUrl);
                 } else {
                     switch ($paramName) {
                         case 'brand':
-                            $paramValues = mb_substr($v, strlen($paramName) + 1);
+                            $paramValues = mb_substr((string) $v, strlen($paramName) + 1);
                             $resultArray['brand'] = explode('_', $paramValues);
                             break;
                         case 'filter':
@@ -858,7 +868,7 @@ class FilterHelper
 
         $keyword = $this->request->get('keyword');
         if (!empty($keyword)) {
-            $resultString .= '?keyword='.htmlspecialchars(strip_tags($keyword));
+            $resultString .= '?keyword='.htmlspecialchars(strip_tags((string) $keyword));
         }
         if ($smarty !== null) {
             /** @var \Smarty_Internal_Template $smarty */
@@ -871,7 +881,7 @@ class FilterHelper
 
     public function parseFilterUrl($filtersUrl)
     {
-        return explode('/', $filtersUrl);
+        return explode('/', (string) $filtersUrl);
     }
 
     private function getBrand($url)
@@ -975,8 +985,8 @@ class FilterHelper
 
     public function getKeyword(): ?string
     {
-        $keyword = $this->request->get('keyword', null, null, false);
-        if ($keyword = strip_tags($keyword)) {
+        $keyword = $this->request->get('keyword', null, '', false);
+        if ($keyword = $keyword ? strip_tags((string) $keyword) : $keyword) {
             $result = $keyword;
         } else {
             $result = null;

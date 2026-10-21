@@ -91,6 +91,7 @@ return [
         'smarty_force_compile'  => '{$smarty_force_compile}',
         'debug_translation'     => '{$debug_translation}',
         'theme'                 => '{%theme%}',
+        'static_classes'        =>  include(__DIR__ . '/smarty_static_classes.php'),
     ],
     'seo' => [
         'canonical' => [

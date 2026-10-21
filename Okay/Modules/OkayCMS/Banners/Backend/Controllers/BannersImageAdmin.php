@@ -81,9 +81,9 @@ class BannersImageAdmin extends IndexAdmin
 
             // Если пришли с меню быстрого редактирования
             if ($bannerSlideId = $this->request->get('banner_slide_id')) {
-                list($bannerId, $bannersImageId) = explode(':', $bannerSlideId);
+                list($bannerId, $bannersImageId) = explode(':', (string) $bannerSlideId);
             } elseif ($bannerSlideId = $this->request->get('banner_slide_id_add')) {
-                list($bannerId) = explode(':', $bannerSlideId);
+                list($bannerId) = explode(':', (string) $bannerSlideId);
                 $this->design->assign('banner_id', $bannerId);
             }
             

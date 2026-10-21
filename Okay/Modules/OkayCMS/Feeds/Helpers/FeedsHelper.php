@@ -15,6 +15,12 @@ class FeedsHelper
     /** @var MainHelper $mainHelper */
     private $mainHelper;
 
+    private $languages;
+
+    private $firstLanguage;
+
+    private $language;
+
     private $uaLang;
 
     public function __construct(

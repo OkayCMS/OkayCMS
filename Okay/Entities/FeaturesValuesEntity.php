@@ -48,7 +48,7 @@ class FeaturesValuesEntity extends Entity
             return false;
         }
 
-        $featureValue->value = trim($featureValue->value);
+        $featureValue->value = trim((string) $featureValue->value);
 
         if (empty($featureValue->translit)) {
             $featureValue->translit = Translit::translitAlpha($featureValue->value);
@@ -64,7 +64,7 @@ class FeaturesValuesEntity extends Entity
         $featureValue = (object)$featureValue;
 
         if (!empty($featureValue->value)) {
-            $featureValue->value = trim($featureValue->value);
+            $featureValue->value = trim((string) $featureValue->value);
         }
 
         if (empty($featureValue->translit)) {

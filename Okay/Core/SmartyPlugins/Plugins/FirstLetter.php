@@ -12,6 +12,6 @@ class FirstLetter extends Modifier
 
     public function run($str)
     {
-        return function_exists("mb_substr") ? mb_substr($str, 0, 1) : "";
+        return function_exists("mb_substr") ? mb_substr((string) $str, 0, 1) : "";
     }
 }

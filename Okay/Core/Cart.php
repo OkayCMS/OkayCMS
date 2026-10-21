@@ -4,6 +4,7 @@
 namespace Okay\Core;
 
 
+use Okay\Core\Classes\CookieOptions;
 use Okay\Core\Classes\Discount;
 use Okay\Core\Classes\Purchase;
 use Okay\Core\Modules\Extender\ExtenderFacade;
@@ -102,10 +103,40 @@ class Cart
     public $discounts = [];
 
     /**
+     * @var array
+     * Purchases prepared for writing to DB, filled by CartHelper::prepareCart()
+     */
+    public $purchasesToDB = [];
+
+    /**
+     * @var array
+     * Discounts prepared for writing to DB, filled by CartHelper::prepareDiscounts()
+     */
+    public $discountsToDB = [];
+
+    /**
+     * @var array
+     * Lang parts of discounts prepared for writing to DB, filled by CartHelper::prepareDiscounts()
+     */
+    public $langDiscountsToDB = [];
+
+    /**
      * @var bool
      * Whether the cart is currently empty
      */
     public $isEmpty = true;
+
+    /**
+     * @var object|null
+     * Valid coupon from the session
+     */
+    public $coupon = null;
+
+    /**
+     * @var string|null
+     * applied|min_order_price|not_applied
+     */
+    public $couponStatus = null;
 
     /**
      * @var array
@@ -142,7 +173,7 @@ class Cart
     public function init()
     {
         if (empty($_SESSION['user_id'])) {
-            if (!empty($_COOKIE['shopping_cart']) && is_array($items = json_decode($_COOKIE['shopping_cart'], true))) {
+            if (!empty($_COOKIE['shopping_cart']) && is_array($items = $this->decodeCartCookie($_COOKIE['shopping_cart']))) {
                 foreach ($items as $key => $item){
                     if (!empty($_SESSION['shopping_cart'][$key]))
                     {
@@ -172,17 +203,38 @@ class Cart
     public function saveShoppingCart(array $items)
     {
         if (!empty($items)) {
-            $_COOKIE['shopping_cart'] = json_encode($items);
-            setcookie('shopping_cart', $_COOKIE['shopping_cart'], time() + 30 * 24 * 3600, '/');   //  на месяц
+            $_COOKIE['shopping_cart'] = $this->encodeCartCookie($items);
+            Response::setCookie('shopping_cart', $_COOKIE['shopping_cart'], CookieOptions::MONTH);
         } else if (empty($items)) {
             //  And delete the cookie variable when we empty the trash
             if (isset($_COOKIE['shopping_cart'])) {
                 unset($_COOKIE['shopping_cart']);
             }
-            setcookie('shopping_cart', '', time()-3600, '/');
+            Response::deleteCookie('shopping_cart');
         }
 
         ExtenderFacade::execute(__METHOD__, $this, func_get_args());
+    }
+
+    private function encodeCartCookie(array $items): string
+    {
+        $pairs = [];
+        foreach ($items as $variantId => $amount) {
+            $pairs[] = base_convert((string) $variantId, 10, 36) . '-' . base_convert((string) $amount, 10, 36);
+        }
+        return implode('_', $pairs);
+    }
+
+    private function decodeCartCookie(string $raw): array
+    {
+        $items = [];
+        foreach (explode('_', $raw) as $pair) {
+            $parts = explode('-', $pair);
+            if (count($parts) === 2) {
+                $items[(int) base_convert($parts[0], 36, 10)] = (int) base_convert($parts[1], 36, 10);
+            }
+        }
+        return $items;
     }
 
     /**
@@ -318,7 +370,7 @@ class Cart
         //  delete the cookie variable when we empty the trash
         if (isset($_COOKIE['shopping_cart'])) {
             unset($_COOKIE['shopping_cart']);
-            setcookie('shopping_cart', '', time()-3600, '/');
+            Response::deleteCookie('shopping_cart');
         }
 
         $this->purchases = [];
@@ -435,6 +487,8 @@ class Cart
     private function attachDiscounts()
     {
         $this->availableDiscounts = [];
+        $this->coupon             = null;
+        $this->couponStatus       = null;
         if (!$this->isEmpty) {
             $this->attachCouponDiscount();
             $this->attachUserDiscount();
@@ -447,6 +501,7 @@ class Cart
         if (!empty($_SESSION['coupon_code'])) {
             $coupon = $this->couponsEntity->get($_SESSION['coupon_code']);
             if ($coupon && $coupon->valid) {
+                $this->coupon = $coupon;
                 if ($this->basic_total_price >= $coupon->min_order_price) {
                     $discount = new Discount();
                     $discount->sign = 'ok_coup';
@@ -460,6 +515,8 @@ class Cart
                     }
                     $discount = ExtenderFacade::execute(__METHOD__, $discount, func_get_args());
                     $this->availableDiscounts['ok_coup'] = $discount;
+                } else {
+                    $this->couponStatus = 'min_order_price';
                 }
             } else {
                 unset($_SESSION['coupon_code']);
@@ -517,8 +574,30 @@ class Cart
                     }
                 }
             }
+
+            if ($this->coupon !== null && $this->couponStatus === null) {
+                if ($this->hasAppliedDiscount('ok_coup')) {
+                    $this->couponStatus = 'applied';
+                } else {
+                    $this->couponStatus = 'not_applied';
+                    $this->coupon = null;
+                    unset($_SESSION['coupon_code']);
+                }
+            }
         }
         ExtenderFacade::execute(__METHOD__, $this, func_get_args());
+    }
+
+    private function hasAppliedDiscount($sign)
+    {
+        foreach ($this->discounts as $discount) {
+            /** @var $discount Discount */
+            if ($discount->sign === $sign) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function applyPurchasesDiscounts() {

@@ -30,10 +30,10 @@ trait order
             $langFields = $this->getLangFields();
             $fields = $this->getFields();
             foreach ($orderFields as $k => $orderField) {
-                $orderFieldName = preg_replace('~^([\w\.\-]+)?.*$~', '$1', $orderField);
+                $orderFieldName = preg_replace('~^([\w\.\-]+)?.*$~', '$1', (string) $orderField);
 
                 // Если алиас не задали ранее, добавим его сейчас
-                if (strpos($orderFieldName, '.') === false) {
+                if (strpos((string) $orderFieldName, '.') === false) {
                     $tableAlias = $this->getTableAlias();
 
                     // Если сортируют по полю, которое объявлено как мультиленговое, установим соответствующий алиас

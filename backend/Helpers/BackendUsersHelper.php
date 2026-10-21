@@ -91,7 +91,9 @@ class BackendUsersHelper
     {
         $ordersEntity = $this->entityFactory->get(OrdersEntity::class);
         $user = $this->usersEntity->get($id);
-        $user->orders = $ordersEntity->find(['user_id'=>$user->id]);
+        if (!empty($user)) {
+            $user->orders = $ordersEntity->find(['user_id' => $user->id]);
+        }
         return ExtenderFacade::execute(__METHOD__, $user, func_get_args());
     }
     

@@ -7,6 +7,7 @@ use Okay\Core\Response;
 use Okay\Core\QueryFactory;
 use Okay\Entities\UsersEntity;
 use Okay\Entities\SubscribesEntity;
+use Okay\Helpers\Import\Csv;
 
 require_once 'configure.php';
 
@@ -54,7 +55,7 @@ if(empty($page) || $page==1) {
 $f = fopen($exportFilesDir.$filename, 'ab');
 
 if($page == 1) {
-    fputcsv($f, $columnsNames, $columnDelimiter);
+    Csv::write($f, $columnsNames, $columnDelimiter);
 }
 
 $filter = [];
@@ -69,7 +70,7 @@ foreach($subscribesEntity->find($filter) as $s) {
         $str[] = $s->$n;
     }
 
-    fputcsv($f, $str, $columnDelimiter);
+    Csv::write($f, $str, $columnDelimiter);
 }
 
 fclose($f);

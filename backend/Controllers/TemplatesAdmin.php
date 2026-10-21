@@ -37,7 +37,7 @@ class TemplatesAdmin extends IndexAdmin
         // Текущий шаблон
         $templateFile = $this->request->get('file');
         
-        if (!empty($templateFile) && pathinfo($templateFile, PATHINFO_EXTENSION) != 'tpl') {
+        if (!empty($templateFile) && pathinfo((string) $templateFile, PATHINFO_EXTENSION) != 'tpl') {
             exit();
         }
         

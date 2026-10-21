@@ -76,7 +76,7 @@ class BackendValidateHelper
             $error = 'url_exists';
         } elseif ($this->settings->get('global_unique_url') && !$this->urlUniqueValidator->validateGlobal($product->url, ProductsEntity::class, $product->id)) {
             $error = 'global_url_exists';
-        } elseif (substr($product->url, -1) == '-' || substr($product->url, 0, 1) == '-') {
+        } elseif (substr((string) $product->url, -1) == '-' || substr((string) $product->url, 0, 1) == '-') {
             $error = 'url_wrong';
         } elseif (empty($productCategories)) {
             $error = 'empty_categories';
@@ -98,7 +98,7 @@ class BackendValidateHelper
             $error = 'empty_name';
         } elseif (empty($category->url)) {
             $error = 'empty_url';
-        } elseif (substr($category->url, -1) == '-' || substr($category->url, 0, 1) == '-') {
+        } elseif (substr((string) $category->url, -1) == '-' || substr((string) $category->url, 0, 1) == '-') {
             $error = 'url_wrong';
         }
 
@@ -136,7 +136,7 @@ class BackendValidateHelper
             $error = 'empty_name';
         } elseif (empty($category->url)) {
             $error = 'empty_url';
-        } elseif (substr($category->url, -1) == '-' || substr($category->url, 0, 1) == '-') {
+        } elseif (substr((string) $category->url, -1) == '-' || substr((string) $category->url, 0, 1) == '-') {
             $error = 'url_wrong';
         }
 
@@ -200,7 +200,7 @@ class BackendValidateHelper
             $error = 'empty_name';
         } elseif(empty($post->url)) {
             $error = 'empty_url';
-        } elseif (substr($post->url, -1) == '-' || substr($post->url, 0, 1) == '-') {
+        } elseif (substr((string) $post->url, -1) == '-' || substr((string) $post->url, 0, 1) == '-') {
             $error = 'url_wrong';
         }
 

@@ -18,6 +18,8 @@ class CommentsAdmin extends IndexAdmin
             $comment     = $backendCommentsHelper->prepareCommentAnswer();
             $comment->id = $backendCommentsHelper->addCommentAnswer($comment);
             $backendCommentsHelper->notifyCommentAnswerToUser($comment);
+
+            $this->postRedirectGet->redirect();
         }
 
         if ($this->request->method('post')) {

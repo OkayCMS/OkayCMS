@@ -702,6 +702,7 @@ $lang['coupons_order_from'] = 'For orders from';
 $lang['coupons_order_price'] = 'Order price';
 $lang['coupons_percent'] = 'Percent,%';
 $lang['coupons_qty_uses'] = 'Qty of uses';
+$lang['coupons_sign_missing'] = 'The $ok_coup sign is not present in any set on the <a href="%s" target="_blank">Discounts settings</a> page, so coupons are not applied in the cart.';
 $lang['coupons_terms'] = 'Term of use';
 $lang['coupons_updated'] = 'Coupon updated';
 $lang['coupons_valid_until'] = 'Valid until';

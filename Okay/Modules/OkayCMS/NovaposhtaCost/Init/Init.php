@@ -222,6 +222,8 @@ class Init extends AbstractInit
                 ->overlap(false)
                 ->timeout(3600)
         );
+        
+        $this->registerSmartyStaticClass(Init::class);
     }
 
     public function update_1_1_0()

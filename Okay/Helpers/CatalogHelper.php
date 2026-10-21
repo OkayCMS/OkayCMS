@@ -298,7 +298,7 @@ class CatalogHelper
         return ExtenderFacade::execute(__METHOD__, $baseFeaturesValues, func_get_args());
     }
 
-    public function getProductsFilter(string $filtersUrl = null, array $filter = []): ?array
+    public function getProductsFilter(?string $filtersUrl = null, array $filter = []): ?array
     {
         if (($currentFeatures = $this->filterHelper->getCurrentFeatures($filtersUrl)) === false) {
             return ExtenderFacade::execute(__METHOD__, null, func_get_args());
@@ -331,7 +331,7 @@ class CatalogHelper
         $filter['visible'] = 1;
 
         $keyword = $this->request->get('keyword', null, null, false);
-        if ($keyword = strip_tags($keyword)) {
+        if ($keyword = $keyword ? strip_tags((string) $keyword) : $keyword){
             $filter['keyword'] = $keyword;
         }
 

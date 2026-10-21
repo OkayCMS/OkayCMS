@@ -40,7 +40,7 @@ if (!function_exists('http_build_url')) {
         }
 
         // Parse the original URL
-        $parse_url = parse_url($url);
+        $parse_url = parse_url($url ?? '');
 
         // Scheme and Host are always replaced
         if (isset($parts['scheme'])) {
@@ -103,7 +103,7 @@ if(!function_exists('http_build_query')) {
     function http_build_query($data,$prefix=null,$sep='',$key='') {
         $ret = [];
         foreach((array)$data as $k => $v) {
-            $k    = urlencode($k);
+            $k    = urlencode((string) $k);
             if(is_int($k) && $prefix != null) {
                 $k    = $prefix.$k;
             };
@@ -114,7 +114,7 @@ if(!function_exists('http_build_query')) {
             if(is_array($v) || is_object($v)) {
                 array_push($ret,http_build_query($v,"",$sep,$k));
             } else {
-                array_push($ret,$k."=".urlencode($v));
+                array_push($ret,$k."=".urlencode((string) $v));
             };
         };
 

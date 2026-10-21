@@ -36,7 +36,7 @@ class HttpCurl implements ClientInterface
             'Content-Length: ' . strlen($params),
 
         ];
-        $method = strtoupper($method);
+        $method = strtoupper((string) $method);
         $link = self::LINK . $url;
         if (!$this->curlEnabled())
             throw new HttpClientException('Curl not enabled.');
@@ -56,7 +56,7 @@ class HttpCurl implements ClientInterface
         }
         $response = curl_exec($ch);
         $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        if (PHP_VERSION_ID < 80000) { curl_close($ch); }
         return json_decode($response);
     }
 

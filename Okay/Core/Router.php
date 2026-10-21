@@ -136,8 +136,8 @@ class Router {
         $baseRoute = '';
         $label = self::$languages->getLangLink($language->id);
 
-        if (!empty(trim($label, '/'))) {
-            $baseRoute = '/' . trim($label, '/');
+        if (!empty(trim((string) $label, '/'))) {
+            $baseRoute = '/' . trim((string) $label, '/');
         }
 
         foreach ($routes as $routeName => $route) {
@@ -204,7 +204,7 @@ class Router {
                 }
 
                 // If main page after slash has a space(s), like a %20
-                if (preg_match('/^[ ]+$/', $request->getPageUrl(), $matchesSpaces)) {
+                if (preg_match('/^[ ]+$/', (string) $request->getPageUrl(), $matchesSpaces)) {
                     $controllerName = self::DEFAULT_CONTROLLER_NAMESPACE . 'ErrorController';
                     $method = 'pageNotFound';
                 }
@@ -277,8 +277,8 @@ class Router {
         
         foreach ($languages as $language) {
             $label = self::$languages->getLangLink($language->id);
-            if (!empty(trim($label, '/'))) {
-                $pattern = '/' . trim($label, '/') . '(\/.*)?';
+            if (!empty(trim((string) $label, '/'))) {
+                $pattern = '/' . trim((string) $label, '/') . '(\/.*)?';
             } else {
                 $pattern = '/.*';
             }
@@ -292,7 +292,7 @@ class Router {
 
     private function classNameHasNoNamespace($className)
     {
-        return strpos($className, '\\') === false;
+        return strpos((string) $className, '\\') === false;
     }
 
     private function createControllerInstance($controllerName, $methodName, $params = [], $routeVars = [], $defaults = [])
@@ -470,7 +470,7 @@ class Router {
         }
 
         $result = preg_replace('~{\$[^$]*}~', '', $result);
-        $result = trim($result, '/');
+        $result = trim((string) $result, '/');
         
         if ($isAbsolute === true) {
             $result = Request::getRootUrl() . '/' . $result;
@@ -514,7 +514,7 @@ class Router {
     public function getPattern($route, $routeName)
     {
         $pattern = !empty($route['patterns']) ? strtr($route['slug'], $route['patterns']) : $route['slug'];
-        $pattern = trim(preg_replace('~{\$.+?}~', '([^/]+)', $pattern), '/');
+        $pattern = trim((string) preg_replace('~{\$.+?}~', '([^/]+)', (string) $pattern), '/');
         return ExtenderFacade::execute(__METHOD__, !empty($pattern) ? '/' . $pattern : $pattern, func_get_args());
     }
 
@@ -551,7 +551,7 @@ class Router {
         if (!empty($routeVars)) {
             foreach ($routeVars as $key => $routeVar) {
                 $param = $routeParams[$key] ?? null;
-                $param = strip_tags(htmlspecialchars($param));
+                $param = strip_tags(htmlspecialchars((string) $param));
                 
                 $allParams[$routeVar] = (empty($param) && !empty($defaults['{$' . $routeVar . '}']) ? $defaults['{$' . $routeVar . '}'] : $param);
             }
@@ -587,7 +587,7 @@ class Router {
 
     private function getCurrentUri($currentUri, $baseUri)
     {
-        return preg_replace('~^('.$baseUri.'/?)(.*)$~', '$2', $currentUri);
+        return preg_replace('~^('.$baseUri.'/?)(.*)$~', '$2', (string) $currentUri);
     }
 
     /**

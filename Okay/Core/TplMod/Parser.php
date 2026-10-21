@@ -55,13 +55,13 @@ class Parser
         $matchesHtmlComment = [];
         $matchesText = [];
         
-        if (preg_match('~^\s*{\*(.*?)\*}(.*)?~is', $string, $matchesSmartyComment)
-            || preg_match('~^\s*<!--(.*?)-->(.*)?~is', $string, $matchesHtmlComment)
-            || preg_match('~^\s*(<((?:{if\s.+?})?[a-z0-9]+(?:{elseif\s.+?}[a-z0-9]+)?(?:{else}[a-z0-9]+)?(?:{/if})?)(?:[^>]*?(?:{.*?(?:{.+?}.*?)?})?[^>]*?)*?>)+?(.*)?~is', $string, $matchesHtml)
-            || preg_match('~^\s*({(foreach)\s.*?(?:{.+?}.*?)*})+(.*)?~is', $string, $matchesSmartyForeach)
-            || preg_match('~^\s*({(function)\s.*?(?:{.+?}.*?)*})+(.*)?~is', $string, $matchesSmartyFunction)
-            || preg_match('~^\s*({(if)\s.*?(?:{.+?}.*?)*})+(.*)?~is', $string, $matchesSmartyIf)
-            || preg_match('~^\s*((?:<!DOCTYPE.*?>)?.*?)(<.*|{foreach\s.*|{function\s.*|{if\s.*|{/foreach}.*|{/function}.*|{/if}.*)*$~is', $string, $matchesText)) {
+        if (preg_match('~^\s*{\*(.*?)\*}(.*)?~is', (string) $string, $matchesSmartyComment)
+            || preg_match('~^\s*<!--(.*?)-->(.*)?~is', (string) $string, $matchesHtmlComment)
+            || preg_match('~^\s*(<((?:{if\s.+?})?[a-z0-9]+(?:{elseif\s.+?}[a-z0-9]+)?(?:{else}[a-z0-9]+)?(?:{/if})?)(?:[^>]*?(?:{.*?(?:{.+?}.*?)?})?[^>]*?)*?>)+?(.*)?~is', (string) $string, $matchesHtml)
+            || preg_match('~^\s*({(foreach)\s.*?(?:{.+?}.*?)*})+(.*)?~is', (string) $string, $matchesSmartyForeach)
+            || preg_match('~^\s*({(function)\s.*?(?:{.+?}.*?)*})+(.*)?~is', (string) $string, $matchesSmartyFunction)
+            || preg_match('~^\s*({(if)\s.*?(?:{.+?}.*?)*})+(.*)?~is', (string) $string, $matchesSmartyIf)
+            || preg_match('~^\s*((?:<!DOCTYPE.*?>)?.*?)(<.*|{foreach\s.*|{function\s.*|{if\s.*|{/foreach}.*|{/function}.*|{/if}.*)*$~is', (string) $string, $matchesText)) {
             return [
                 $matchesSmartyComment,
                 $matchesHtmlComment,
@@ -120,7 +120,7 @@ class Parser
                 
                 if (mb_strtolower($openTagName) == 'script') { 
                     $matchesScript = [];
-                    preg_match('~^(.*?)(</' . $openTagName . '>.*)$~is', $this->string, $matchesScript);
+                    preg_match('~^(.*?)(</' . $openTagName . '>.*)$~is', (string) $this->string, $matchesScript);
                     if (!empty(trim($matchesScript[1]))) {
                         $childNode = new TextNode(trim($matchesScript[1]));
                         $node->append($childNode);
@@ -132,7 +132,7 @@ class Parser
                 }
 
                 $matchesClose = [];
-                if (!empty($openTagName) && preg_match('~^\s*(</' . $openTagName . '>)(.*)$~is', $this->string, $matchesClose)) {
+                if (!empty($openTagName) && preg_match('~^\s*(</' . $openTagName . '>)(.*)$~is', (string) $this->string, $matchesClose)) {
                     $this->string = $matchesClose[2];
                     $node->setCloseTag($matchesClose[1]);
                 }
@@ -145,7 +145,7 @@ class Parser
                 $this->parseLevel($node, $openTagName);
                 $matchesClose = [];
                 
-                if (!empty($openTagName) && preg_match('~^\s*({/' . $openTagName . '})(.*)$~is', $this->string, $matchesClose)) {
+                if (!empty($openTagName) && preg_match('~^\s*({/' . $openTagName . '})(.*)$~is', (string) $this->string, $matchesClose)) {
                     $this->string = $matchesClose[2];
                     $node->setCloseTag($matchesClose[1]);
                 }
@@ -157,7 +157,7 @@ class Parser
                 $node = new SmartyFunctionNode($openTag);
                 $this->parseLevel($node, $openTagName);
                 $matchesClose = [];
-                if (!empty($openTagName) && preg_match('~^\s*({/' . $openTagName . '})(.*)$~is', $this->string, $matchesClose)) {
+                if (!empty($openTagName) && preg_match('~^\s*({/' . $openTagName . '})(.*)$~is', (string) $this->string, $matchesClose)) {
                     $this->string = $matchesClose[2];
                     $node->setCloseTag($matchesClose[1]);
                 }
@@ -169,7 +169,7 @@ class Parser
                 $node = new SmartyIfNode($openTag);
                 $this->parseLevel($node, $openTagName);
                 $matchesClose = [];
-                if (!empty($openTagName) && preg_match('~^\s*({/' . $openTagName . '})(.*)$~is', $this->string, $matchesClose)) {
+                if (!empty($openTagName) && preg_match('~^\s*({/' . $openTagName . '})(.*)$~is', (string) $this->string, $matchesClose)) {
                     $this->string = $matchesClose[2];
                     $node->setCloseTag($matchesClose[1]);
                 }
@@ -182,7 +182,7 @@ class Parser
             }
 
             // Если долистали до закрывающего родительского тега, выходим из этого уровня
-            if (preg_match('~^\s*(</' . $parentOpenTagName . '>)(.*)$~is', $this->string) || preg_match('~^\s*({/' . $parentOpenTagName . '})(.*)$~is', $this->string)) {
+            if (preg_match('~^\s*(</' . $parentOpenTagName . '>)(.*)$~is', (string) $this->string) || preg_match('~^\s*({/' . $parentOpenTagName . '})(.*)$~is', (string) $this->string)) {
                 return null;
             }
         }

@@ -316,11 +316,15 @@ class OrdersEntity extends Entity
         $ordersIds = [];
         $this->db->query($nextSelect);
         $id = $this->db->result('id');
-        $ordersIds[$id] = 'next';
+        if ($id !== null) {
+            $ordersIds[$id] = 'next';
+        }
 
         $this->db->query($prevSelect);
         $id = $this->db->result('id');
-        $ordersIds[$id] = 'prev';
+        if ($id !== null) {
+            $ordersIds[$id] = 'prev';
+        }
 
         $result = ['next' => null, 'prev' => null];
         if (!empty($ordersIds)) {
@@ -398,7 +402,6 @@ class OrdersEntity extends Entity
      */
     public function findOtherOfClient($order, $page = 1, $perPage = 10)
     {
-        $offset       = $this->calculateOffset($page, $perPage);
         if (!$orderMatches = $this->determineOrderMatchParams($order, $page, $perPage)) {
             return [];
         }
@@ -407,7 +410,7 @@ class OrdersEntity extends Entity
         $filter['id'] = array_keys($orderMatches);
         if ($page !== 'all') {
             $filter['limit']  = $perPage;
-            $filter['offset'] = $offset;
+            $filter['offset'] = $this->calculateOffset($page, $perPage);
         }
 
         $orders = $this->find($filter);
@@ -418,15 +421,24 @@ class OrdersEntity extends Entity
 
     private function calculateOffset($page, $perPage)
     {
-        return $perPage * $page - $perPage;
+        // $page может прийти из запроса нечисловым, приводим к числу
+        return $perPage * max(1, (int)$page) - $perPage;
     }
 
     private function determineOrderMatchParams($order, $page, $perPage)
     {
+        $bindValues = [
+            'order_id'  => $order->id,
+            'email'     => $order->email,
+            'phone'     => Phone::clear($order->phone),
+        ];
+
         if ($page === 'all') {
             $limitOffset = '';
         } else {
             $limitOffset = 'LIMIT :per_page OFFSET :offset';
+            $bindValues['per_page'] = $perPage;
+            $bindValues['offset']   = $this->calculateOffset($page, $perPage);
         }
 
         $sql = $this->queryFactory->newSqlQuery();
@@ -441,13 +453,7 @@ class OrdersEntity extends Entity
                 ORDER BY id DESC
                 {$limitOffset}
             ")
-            ->bindValues([
-                'order_id'  => $order->id,
-                'email'     => $order->email,
-                'phone'     => Phone::clear($order->phone),
-                'per_page'  => $perPage,
-                'offset'    => $this->calculateOffset($page, $perPage)
-            ])
+            ->bindValues($bindValues)
             ->results(null, 'id');
     }
 
@@ -508,7 +514,7 @@ class OrdersEntity extends Entity
     {
         if (!empty($fromDate)) {
             $this->select->where('o.date >= :from_date')
-                ->bindValue('from_date', date('Y-m-d 00:00:00', strtotime($fromDate)));
+                ->bindValue('from_date', date('Y-m-d 00:00:00', strtotime((string) $fromDate)));
         }
     }
 
@@ -516,7 +522,7 @@ class OrdersEntity extends Entity
     {
         if (!empty($toDate)) {
             $this->select->where('o.date < :to_date')
-                ->bindValue('to_date', date('Y-m-d 23:59:59', strtotime($toDate)));
+                ->bindValue('to_date', date('Y-m-d 23:59:59', strtotime((string) $toDate)));
         }
     }
 

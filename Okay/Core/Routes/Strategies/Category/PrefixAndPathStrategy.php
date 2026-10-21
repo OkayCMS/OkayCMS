@@ -64,7 +64,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
         }
 
         $category = $this->categoriesEntity->get((string) $url);
-        $slug = trim($category->path_url, '/');
+        $slug = trim((string) $category->path_url, '/');
 
         // Запоминаем в оперативке slug для этого урла
         CategoryRoute::setUrlSlugAlias($url, $slug);
@@ -96,7 +96,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
         
         $matchedRoute = null;
         foreach ($categoriesPathUrls as $categoryPathUrl) {
-            $urlPath = trim($categoryPathUrl, '/');
+            $urlPath = trim((string) $categoryPathUrl, '/');
             if ($this->compareUrlStartsNoSuccess($prefix.'/'.$urlPath, $url)) {
                 continue;
             }
@@ -107,7 +107,7 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
             if (!empty($urlParts)) {
                 $pathPrefix = implode('/', $urlParts) . '/';
             }
-            $filter = trim($this->matchFiltersUrl($prefix.'/'.$urlPath, $url), '/');
+            $filter = trim((string) $this->matchFiltersUrl($prefix.'/'.$urlPath, $url), '/');
             $matchedRoute = [
                 '/'.$prefix.'/{$url}/?{$filtersUrl}',
                 [
@@ -134,21 +134,21 @@ class PrefixAndPathStrategy extends AbstractRouteStrategy
     private function compareUrlStartsNoSuccess($categoryPathUrl, $url)
     {
 
-        if (strpos($url, 'category_features') !== false) {
-            $url = substr($url, strlen('category_features') + 1);
+        if (strpos((string) $url, 'category_features') !== false) {
+            $url = substr((string) $url, strlen('category_features') + 1);
         }
         
-        $categoryPathUrl = ltrim($categoryPathUrl, '/');
-        $compareAccessUri = substr($url, 0, strlen($categoryPathUrl));
+        $categoryPathUrl = ltrim((string) $categoryPathUrl, '/');
+        $compareAccessUri = substr((string) $url, 0, strlen($categoryPathUrl));
         return $categoryPathUrl !== $compareAccessUri;
     }
 
     private function matchFiltersUrl($categoryPathUrl, $url)
     {
-        if (strpos($url, 'category_features') !== false) {
-            $url = substr($url, strlen('category_features') + 1);
+        if (strpos((string) $url, 'category_features') !== false) {
+            $url = substr((string) $url, strlen('category_features') + 1);
         }
         
-        return substr($url, strlen($categoryPathUrl) + 1);
+        return substr((string) $url, strlen((string) $categoryPathUrl) + 1);
     }
 }

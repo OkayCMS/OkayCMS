@@ -7,7 +7,9 @@ use Okay\Core\Config;
 use Okay\Core\Console\Command;
 use Okay\Core\DataCleaner;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'database:deploy', description: 'Deploys a clean database.')]
 class DatabaseDeployCommand extends Command
 {
     protected static $defaultName = 'database:deploy';
@@ -55,7 +57,7 @@ class DatabaseDeployCommand extends Command
             $name = $this->ask("Enter database NAME({$name}): ", $name);
 
             $pdo = new ExtendedPdo("{$driver}:host={$server};dbname={$name};charset={$charset}", $user, $password);
-            $pdo->connect();
+            \Okay\Core\Database::connectPdo($pdo);
 
             $config->set('db_server', $server);
             $config->set('db_user', $user);
@@ -63,7 +65,7 @@ class DatabaseDeployCommand extends Command
             $config->set('db_name', $name);
         } else {
             $pdo = new ExtendedPdo("{$driver}:host={$server};dbname={$name};charset={$charset}", $user, $password);
-            $pdo->connect();
+            \Okay\Core\Database::connectPdo($pdo);
         }
 
         $this->restore($pdo, $filename);

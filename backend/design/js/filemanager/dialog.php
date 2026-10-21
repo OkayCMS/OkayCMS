@@ -120,7 +120,7 @@ if (!empty($_SESSION['RF']["subfolder"])
     $rfm_subfolder = $_SESSION['RF']['subfolder'];
 }
 
-if ($rfm_subfolder != "" && $rfm_subfolder[strlen($rfm_subfolder) - 1] != "/") {
+if ($rfm_subfolder != "" && $rfm_subfolder[strlen((string) $rfm_subfolder) - 1] != "/") {
     $rfm_subfolder .= "/";
 }
 
@@ -682,7 +682,7 @@ foreach ($files as $k => $file) {
                 $sorted[$k] = array(
                     'is_dir' => true,
                     'file' => $file,
-                    'file_lcase' => strtolower($file),
+                    'file_lcase' => strtolower((string) $file),
                     'date' => $date,
                     'size' => $size,
                     'permissions' => '',
@@ -698,11 +698,11 @@ foreach ($files as $k => $file) {
                 $file_path = $config['current_path'] . $rfm_subfolder . $subdir . $file;
                 $date = filemtime($file_path);
                 $size = filesize($file_path);
-                $file_ext = substr(strrchr($file, '.'), 1);
+                $file_ext = substr(strrchr((string) $file, '.'), 1);
                 $sorted[$k] = array(
                     'is_dir' => false,
                     'file' => $file,
-                    'file_lcase' => strtolower($file),
+                    'file_lcase' => strtolower((string) $file),
                     'date' => $date,
                     'size' => $size,
                     'permissions' => '',
@@ -952,7 +952,7 @@ $files = $sorted;
 
         foreach ($files as $file_array) {
             $file=$file_array['file'];
-            if($file == '.' || ( substr($file, 0, 1) == '.' && isset( $file_array[ 'extension' ] ) && $file_array[ 'extension' ] == fix_strtolower(trans( 'Type_dir' ) )) || (isset($file_array['extension']) && $file_array['extension']!=fix_strtolower(trans('Type_dir'))) || ($file == '..' && $subdir == '') || in_array($file, $config['hidden_folders']) || ($filter!='' && $n_files>$config['file_number_limit_js'] && $file!=".." && stripos($file,$filter)===false)){
+            if($file == '.' || ( substr((string) $file, 0, 1) == '.' && isset( $file_array[ 'extension' ] ) && $file_array[ 'extension' ] == fix_strtolower(trans( 'Type_dir' ) )) || (isset($file_array['extension']) && $file_array['extension']!=fix_strtolower(trans('Type_dir'))) || ($file == '..' && $subdir == '') || in_array($file, $config['hidden_folders']) || ($filter!='' && $n_files>$config['file_number_limit_js'] && $file!=".." && stripos((string) $file,(string) $filter)===false)){
                 continue;
             }
             $new_name=fix_filename($file,$config);
@@ -980,7 +980,7 @@ $files = $sorted;
                 }
 
             ?>
-                <li data-name="<?php echo $file ?>" class="<?php if($file=='..') echo 'back'; else echo 'dir';?> <?php if(!$config['multiple_selection']){ ?>no-selector<?php } ?>" <?php if(($filter!='' && stripos($file,$filter)===false)) echo ' style="display:none;"';?>><?php
+                <li data-name="<?php echo $file ?>" class="<?php if($file=='..') echo 'back'; else echo 'dir';?> <?php if(!$config['multiple_selection']){ ?>no-selector<?php } ?>" <?php if(($filter!='' && stripos((string) $file,(string) $filter)===false)) echo ' style="display:none;"';?>><?php
                 $file_prevent_rename = false;
                 $file_prevent_delete = false;
                 if (isset($filePermissions[$file])) {
@@ -1044,14 +1044,14 @@ $files = $sorted;
             foreach ($files as $nu=>$file_array) {
                 $file=$file_array['file'];
 
-                if($file == '.' || $file == '..' || $file_array['extension']==fix_strtolower(trans('Type_dir')) || !check_extension($file_array['extension'],$config) || ($filter!='' && $n_files>$config['file_number_limit_js'] && stripos($file,$filter)===false))
+                if($file == '.' || $file == '..' || $file_array['extension']==fix_strtolower(trans('Type_dir')) || !check_extension($file_array['extension'],$config) || ($filter!='' && $n_files>$config['file_number_limit_js'] && stripos((string) $file,(string) $filter)===false))
                     continue;
                 foreach ( $config['hidden_files'] as $hidden_file ) {
                     if ( fnmatch($hidden_file, $file, FNM_PATHNAME) ) {
                         continue 2;
                     }
                 }
-                $filename=substr($file, 0, '-' . (strlen($file_array['extension']) + 1));
+                $filename=substr((string) $file, 0, '-' . (strlen($file_array['extension']) + 1));
                 if(strlen($file_array['extension'])===0){
                     $filename = $file;
                 }
@@ -1154,7 +1154,7 @@ $files = $sorted;
                 }
                 if((!($_GET['type']==1 && !$is_img) && !(($_GET['type']==3 && !$is_video) && ($_GET['type']==3 && !$is_audio))) && $class_ext>0){
 ?>
-            <li class="ff-item-type-<?php echo $class_ext;?> file <?php if(!$config['multiple_selection']){ ?>no-selector<?php } ?>"  data-name="<?php echo $file;?>" <?php if(($filter!='' && stripos($file,$filter)===false)) echo ' style="display:none;"';?>><?php
+            <li class="ff-item-type-<?php echo $class_ext;?> file <?php if(!$config['multiple_selection']){ ?>no-selector<?php } ?>"  data-name="<?php echo $file;?>" <?php if(($filter!='' && stripos((string) $file,(string) $filter)===false)) echo ' style="display:none;"';?>><?php
             $file_prevent_rename = false;
             $file_prevent_delete = false;
             if (isset($filePermissions[$file])) {

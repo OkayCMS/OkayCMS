@@ -136,7 +136,7 @@ class CssConfig
             $map = new SourceMap();
             $lineNum = 0;
             foreach ($this->templateCss[$position] as $k=>$fullFilePath) {
-                $inputFileName = pathinfo($fullFilePath, PATHINFO_BASENAME);
+                $inputFileName = pathinfo((string) $fullFilePath, PATHINFO_BASENAME);
                 $tmpMapFile = $inputFileName . '.map';
 
                 $tmpCompiledFilename = $compileCssDir . $inputFileName;
@@ -144,7 +144,7 @@ class CssConfig
 
                 $content = file_get_contents($tmpCompiledFilename);
                 $content = preg_replace('~/\*# sourceMappingURL.*\*/$~s', '', $content);
-                $content = rtrim($content);
+                $content = rtrim((string) $content);
                 $resultFile[] = $content;
 
                 $tmpMap = SourceMap::loadFromFile($compileCssDir . $tmpMapFile);
@@ -180,7 +180,7 @@ class CssConfig
 
             foreach ($this->individualCss[$position] as $k=>$fullFilePath) {
                 $hash = md5(md5_file($fullFilePath) . (file_exists($this->settingsFile) ? md5_file($this->settingsFile) : ''));
-                $compiledFilename = $compileCssDir . (!empty($compiledFilenamePrefix) ? $compiledFilenamePrefix . '.' : '') . pathinfo($fullFilePath, PATHINFO_BASENAME) . '.' . $hash . '.css';
+                $compiledFilename = $compileCssDir . (!empty($compiledFilenamePrefix) ? $compiledFilenamePrefix . '.' : '') . pathinfo((string) $fullFilePath, PATHINFO_BASENAME) . '.' . $hash . '.css';
 
                 if (isset($this->filesAttributes[$fullFilePath])) {
                     $this->filesAttributes[$compiledFilename] = $this->filesAttributes[$fullFilePath];
@@ -205,7 +205,7 @@ class CssConfig
     public function compileIndividual($fullFilePath, $compileCssDir, $compiledFilenamePrefix = null)
     {
         $hash = md5(md5_file($fullFilePath) . (file_exists($this->settingsFile) ? md5_file($this->settingsFile) : ''));
-        $compiledFilename = $compileCssDir . (!empty($compiledFilenamePrefix) ? $compiledFilenamePrefix . '.' : '') . '.' . pathinfo($fullFilePath, PATHINFO_BASENAME) . '.' . $hash . '.css';
+        $compiledFilename = $compileCssDir . (!empty($compiledFilenamePrefix) ? $compiledFilenamePrefix . '.' : '') . '.' . pathinfo((string) $fullFilePath, PATHINFO_BASENAME) . '.' . $hash . '.css';
 
         if (file_exists($compiledFilename)) {
             // Обновляем дату редактирования файла, чтобы он не инвалидировался
@@ -264,8 +264,8 @@ class CssConfig
 
             if ($blockComment === false) {
 
-                $lenPre = strlen($line);
-                $line = ltrim($line);
+                $lenPre = strlen((string) $line);
+                $line = ltrim((string) $line);
                 $generatedStrLen = strlen($line);
                 $sourceLenLine = $lenPre - $generatedStrLen;
 
@@ -297,36 +297,43 @@ class CssConfig
         }
 
         // Вычисляем директорию, для подключения ресурсов из css файла (background-image: url() etc.)
-        $subDir = trim(str_replace($this->rootDir, '', pathinfo($file, PATHINFO_DIRNAME)), "/\\");
+        $subDir = trim(str_replace($this->rootDir, '', pathinfo((string) $file, PATHINFO_DIRNAME)), "/\\");
         $subDir = dirname($subDir);
 
         // Переназначаем переменные из файла настроек шаблона
-        $var = trim(preg_replace('~^.+?\s*:\s*var\((.+)?\).*$~', '$1', $cssLine));
+        $var = trim((string) preg_replace('~^.+?\s*:\s*var\((.+)?\).*$~', '$1', (string) $cssLine));
 
         if (isset($this->cssVariables[trim($var)])) {
             $cssLine = str_replace("var({$var})", $this->cssVariables[trim($var)], $cssLine);
         }
 
         // Перебиваем в файле все относительные пути
-        if (strpos($cssLine, 'url') !== false && strpos($cssLine, '..') !== false) {
+        if (strpos((string) $cssLine, 'url') !== false && strpos((string) $cssLine, '..') !== false) {
             $cssLine = strtr($cssLine, ['../' => '../../' . $subDir . '/']);
         }
-//        if (strpos($cssLine, 'url') !== false) {
-//            //$cssLine = preg_replace('~url\s*\(\s*(\'|")(?!data)~', 'url($1../../' . $subDir . '/', $cssLine);
-//            $cssLine = preg_replace('~url\s*\(\s*(\'|")?(?!data)(.*?)\1?\)~', 'url($1../../' . $subDir . '/$2$1)', $cssLine);
-//        }
 
         return $cssLine;
     }
-    
-    private function initCssVariables()
+
+        private function initCssVariables()
     {
         if (empty($this->cssVariables) && file_exists($this->settingsFile)) {
             $oCssParser = new Parser(file_get_contents($this->settingsFile));
             $oCssDocument = $oCssParser->parse();
+
             foreach ($oCssDocument->getAllRuleSets() as $oBlock) {
                 foreach ($oBlock->getRules() as $r) {
-                    $css_value = (string)$r->getValue();
+                    $value = $r->getValue();
+
+                    if ($value instanceof \Sabberworm\CSS\Value\RuleValueList) {
+                        $css_value = implode(
+                            $value->getListSeparator(),
+                            array_map([$this, 'renderCssValue'], $value->getListComponents())
+                        );
+                    } else {
+                        $css_value = $this->renderCssValue($value);
+                    }
+
                     if (strpos($r->getRule(), '--') === 0) {
                         $this->cssVariables[$r->getRule()] = $css_value;
                     }
@@ -334,7 +341,16 @@ class CssConfig
             }
         }
     }
-    
+    private function renderCssValue($value)
+    {
+        if (is_object($value) && method_exists($value, 'render')) {
+            return $value->render(new OutputFormat());
+        }
+
+        return (string) $value;
+    }
+
+
     /**
      * @param $content
      * @param $file

@@ -372,7 +372,7 @@ class BackendImportHelper
             }
 
             $featuresNames[$featureId]  = $featureName;
-            $featuresValues[$featureId] = explode($this->import->getValuesDelimiter(), $featureValue);
+            $featuresValues[$featureId] = explode($this->import->getValuesDelimiter(), (string) $featureValue);
 
             foreach ($featuresValues[$featureId] as $value) {
                 $valuesTranslits[] = Translit::translitAlpha($value);
@@ -497,7 +497,7 @@ class BackendImportHelper
         $delimiter = $this->import->getSubcategoryDelimiter();
         $regex = "/\\DELIMITER((?:[^\\\\\DELIMITER]|\\\\.)*)/";
         $regex = str_replace('DELIMITER', $delimiter, $regex);
-        $names = preg_split($regex, $category, 0, PREG_SPLIT_DELIM_CAPTURE);
+        $names = preg_split($regex, (string) $category, 0, PREG_SPLIT_DELIM_CAPTURE);
         $id = null;
         $parent = 0;
 

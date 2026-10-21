@@ -175,8 +175,8 @@ if ( ! function_exists('get_extension_from_mime'))
 {
 	function get_extension_from_mime($mime){
 		global $mime_types;
-		if(strpos($mime, ';')!==FALSE){
-			$mime = substr($mime, 0,strpos($mime, ';'));
+		if(strpos((string) $mime, ';')!==FALSE){
+			$mime = substr((string) $mime, 0,strpos((string) $mime, ';'));
 		}
 		if(isset($mime_types[$mime])){
 			return $mime_types[$mime];
@@ -193,7 +193,7 @@ if ( ! function_exists('get_file_mime_type'))
 		{
 			$fileinfo = finfo_open(FILEINFO_MIME_TYPE);
 			$mime_type = finfo_file($fileinfo, $filename);
-			finfo_close($fileinfo);
+ if (PHP_VERSION_ID < 80000) { finfo_close($fileinfo); }
 
 			if ( ! empty($mime_type))
 			{
@@ -224,7 +224,7 @@ if ( ! function_exists('get_file_mime_type'))
 		global $mime_types;
 		$mime_types = array_flip($mime_types);
 
-		$tmp_array = explode('.', $filename);
+		$tmp_array = explode('.', (string) $filename);
 		$ext = strtolower(array_pop($tmp_array));
 
 		if ( ! empty($mime_types[ $ext ]))

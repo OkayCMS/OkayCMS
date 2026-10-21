@@ -399,11 +399,15 @@ class BackendOrdersHelper
             }
 
             foreach ($purchases as $purchase) {
-                if(!empty($products[$purchase->product_id])) {
+                if ($purchase->product_id !== null && !empty($products[$purchase->product_id])) {
                     $purchase->product = $products[$purchase->product_id];
+                } else {
+                    $purchase->product = null;
                 }
-                if (!empty($variants[$purchase->variant_id])) {
+                if ($purchase->variant_id !== null && !empty($variants[$purchase->variant_id])) {
                     $purchase->variant = $variants[$purchase->variant_id];
+                } else {
+                    $purchase->variant = null;
                 }
                 if (isset($sortedDiscounts[$purchase->id])) {
                     list($purchase->discounts) = $this->discountsHelper->calculateDiscounts($this->discountsHelper->buildFromDB($sortedDiscounts[$purchase->id]), $purchase->undiscounted_price);
@@ -624,8 +628,9 @@ class BackendOrdersHelper
 
     public function determineCurrentPage($page)
     {
-        if (empty($page)) {
-            $page = 1;
+        // 'all' - показать все, любое другое значение должно быть числом страницы
+        if ($page !== 'all') {
+            $page = max(1, (int)$page);
         }
         return ExtenderFacade::execute(__METHOD__, $page, func_get_args());
     }

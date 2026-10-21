@@ -72,7 +72,9 @@ class TopicAdmin extends IndexAdmin {
                         if (isset($result->topic_id)) {
                             $topic->id = $result->topic_id;
                         }
-                        $this->design->assign('message_success', 'added');
+                        $this->postRedirectGet->storeMessageSuccess('added');
+                        $this->postRedirectGet->storeNewEntityId($topic->id);
+                        $this->postRedirectGet->redirect();
                     }
                 }
             } elseif ($this->request->post('close_topic') && $topic->id) {
@@ -82,7 +84,9 @@ class TopicAdmin extends IndexAdmin {
                 } elseif (!$result->success) {
                     $this->design->assign('message_error', $result->error ? $result->error : 'unknown_error');
                 } else {
-                    $this->design->assign('message_success', 'closed');
+                    $this->postRedirectGet->storeMessageSuccess('closed');
+                    $this->postRedirectGet->storeNewEntityId($topic->id);
+                    $this->postRedirectGet->redirect();
                 }
             }
         } else {

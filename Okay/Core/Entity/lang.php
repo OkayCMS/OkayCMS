@@ -33,7 +33,7 @@ trait lang
             $langFields = [];
             $customFields = [];
             foreach ($this->selectFields as $f) {
-                preg_match('~^([\w`\.]*\.)?`?(.+?)`?(:? as (.+))?$~i', $f, $matches);
+                preg_match('~^([\w`\.]*\.)?`?(.+?)`?(:? as (.+))?$~i', (string) $f, $matches);
                 $fieldName = $matches[2];
 
                 if (in_array($fieldName, $this->getLangFields())) {
@@ -69,7 +69,7 @@ trait lang
         $allFields = $this->getAllFields();
 
         foreach ($allFields as &$f) {
-            preg_match('~^([\w`\.]*\.)?`?(.+?)`?(:? as (.+))?$~i', $f, $matches);
+            preg_match('~^([\w`\.]*\.)?`?(.+?)`?(:? as (.+))?$~i', (string) $f, $matches);
             $f = isset($matches[4]) ? $matches[4] : $matches[2];
         }
         unset($f);
@@ -131,16 +131,16 @@ trait lang
 
     protected function removeAlias($field)
     {
-        if (!preg_match('~^\w{1,5}\..+$~', $field)) {
+        if (!preg_match('~^\w{1,5}\..+$~', (string) $field)) {
             return $field;
         }
 
-        return explode('.', $field)[1];
+        return explode('.', (string) $field)[1];
     }
 
     private function hasTableAlias($field) 
     {
-        if (preg_match('~^\w{1,5}\..+$~', $field)) {
+        if (preg_match('~^\w{1,5}\..+$~', (string) $field)) {
             return true;
         }
 

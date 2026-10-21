@@ -14,7 +14,7 @@ class OpenSearchController extends AbstractController
         $this->design->setCompiledDir('Okay/xml/compiled');
         
         if ($this->settings->get('site_favicon')) {
-            $ext = pathinfo($this->settings->get('site_favicon'), PATHINFO_EXTENSION);
+            $ext = pathinfo((string) $this->settings->get('site_favicon'), PATHINFO_EXTENSION);
             $faviconMime = '';
 
             switch ($ext) {

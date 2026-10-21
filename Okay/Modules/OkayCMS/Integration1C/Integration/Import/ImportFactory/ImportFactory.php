@@ -12,7 +12,7 @@ class ImportFactory extends AbstractFactory
     
     public function create($importType)
     {
-        $importType = strtolower($importType);
+        $importType = strtolower((string) $importType);
         switch ($importType) {
             case 'orders':
                 if (class_exists(\Okay\Modules\OkayCMS\Integration1C\Integration\Import\Overrides\ImportOrders::class)) {

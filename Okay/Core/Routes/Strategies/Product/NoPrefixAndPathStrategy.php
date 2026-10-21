@@ -112,7 +112,7 @@ class NoPrefixAndPathStrategy extends AbstractRouteStrategy
 
         $mainCategoryId = $this->findMostNestedCategoryId($mappedParentCategories);
         $category   = $this->categoriesEntity->get((int) $mainCategoryId);
-        $category->path_url = ltrim($category->path_url, '/');
+        $category->path_url = ltrim((string) $category->path_url, '/');
 
         if ($this->uriNoContainsValidCategoryPathUrl($url, $category->path_url)) {
             return $this->mockRouteParams;
@@ -144,7 +144,7 @@ class NoPrefixAndPathStrategy extends AbstractRouteStrategy
 
     private function matchProductUrlFromUri($url, $categoryPathUrl)
     {
-        $noCategoryPathUri = substr($url, strlen($categoryPathUrl));
+        $noCategoryPathUri = substr((string) $url, strlen((string) $categoryPathUrl));
 
         if ($noCategoryPathUri === '/') {
             $noCategoryPathUri = substr($noCategoryPathUri, 1);
@@ -162,13 +162,13 @@ class NoPrefixAndPathStrategy extends AbstractRouteStrategy
 
     private function uriNoContainsValidCategoryPathUrl($url, $categoryPathUrl) : bool
     {
-        $comparePartUri = substr($url, 0, strlen($categoryPathUrl));
+        $comparePartUri = substr((string) $url, 0, strlen((string) $categoryPathUrl));
         return $comparePartUri !== $categoryPathUrl;
     }
 
     private function matchCategories($noPrefixUri) : array
     {
-        $parts = explode('/', $noPrefixUri);
+        $parts = explode('/', (string) $noPrefixUri);
 
         $select = $this->queryFactory->newSelect();
         $select->cols(['id', 'parent_id', 'url'])

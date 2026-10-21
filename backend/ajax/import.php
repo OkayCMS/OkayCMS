@@ -5,6 +5,7 @@ use Okay\Entities\ManagersEntity;
 use Okay\Core\QueryFactory;
 use Okay\Core\Import;
 use Okay\Admin\Helpers\BackendImportHelper;
+use Okay\Helpers\Import\Csv;
 
 require_once 'configure.php';
 
@@ -26,7 +27,7 @@ if (!$managers->access('import', $managersEntity->get($_SESSION['admin']))) {
     exit;
 }
 
-$fields = $_SESSION['csv_fields'];
+$fields = $_SESSION['csv_fields'] ?? [];
 session_write_close();
 unset($_SESSION['lang_id']);
 unset($_SESSION['admin_lang_id']);
@@ -38,7 +39,7 @@ $result = new \stdClass();
 
 // Определяем колонки из первой строки файла
 $f = fopen($import->getImportFilesDir() . $import->getImportFile(), 'r');
-$import->setColumns(fgetcsv($f, null, $import->getColumnDelimiter()));
+$import->setColumns(Csv::read($f, $import->getColumnDelimiter()));
 $import->initInternalColumns($fields);
 
 // Если нет названия товара - не будем импортировать
@@ -64,7 +65,7 @@ $importedItems = [];
 // или пока не импортировано достаточно строк для одного запроса
 for($k=0; !feof($f) && $k < $productsCount; $k++) {
     // Читаем строку
-    $line = fgetcsv($f, 0, $import->getColumnDelimiter());
+    $line = Csv::read($f, $import->getColumnDelimiter());
 
     $product = null;
     if(is_array($line) && !empty($line)) {

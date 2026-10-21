@@ -11,17 +11,27 @@
                     {$lang->cart_empty_coupon_error}
                 {/if}
             </div>
+        {elseif $cart->couponStatus == 'min_order_price'}
+            {* Купон принят, но сумма заказа не дотягивает до минимальной *}
+            <div class="message_error">
+                {$lang->cart_coupon} {$cart->coupon->code|escape} {$lang->cart_coupon_min} {$cart->coupon->min_order_price|convert} {$currency->sign|escape}
+            </div>
+        {elseif $cart->couponStatus == 'not_applied'}
+            {* Купон действующий, но не входит ни в один набор скидок *}
+            <div class="message_error">
+                {$lang->cart_coupon_error}
+            </div>
         {/if}
 
-        {if $cart->coupon->min_order_price > 0}
+        {if $cart->couponStatus == 'applied' && $cart->coupon->min_order_price > 0}
             <div class="message_success">
                 {$lang->cart_coupon} {$cart->coupon->code|escape} {$lang->cart_coupon_min} {$cart->coupon->min_order_price|convert} {$currency->sign|escape}
             </div>
         {/if}
 
         <div class="d-flex align-items-center coupon__group">
-            <div class="form__group form__group--coupon {if !$coupon_error}filled{/if}">
-                <input class="fn_coupon form__input form__input--coupon form__placeholder--focus" type="text" name="coupon_code" value="{$cart->coupon->code|escape}">
+            <div class="form__group form__group--coupon {if !empty($cart->coupon)}filled{/if}">
+                <input class="fn_coupon form__input form__input--coupon form__placeholder--focus" type="text" name="coupon_code" value="{if !empty($cart->coupon)}{$cart->coupon->code|escape}{/if}">
                 <span class="form__placeholder">{$lang->cart_coupon}</span>
             </div>
             <input class="form__button form__button--coupon fn_sub_coupon" type="button" value="{$lang->cart_purchases_coupon_apply}">

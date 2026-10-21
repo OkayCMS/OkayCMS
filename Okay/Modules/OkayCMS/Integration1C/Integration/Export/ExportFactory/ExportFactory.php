@@ -12,7 +12,7 @@ class ExportFactory extends AbstractFactory
     
     public function create($exportType)
     {
-        $exportType = strtolower($exportType);
+        $exportType = strtolower((string) $exportType);
         switch ($exportType) {
             case 'orders':
                 if (class_exists(\Okay\Modules\OkayCMS\Integration1C\Integration\Export\Overrides\ExportOrders::class)) {

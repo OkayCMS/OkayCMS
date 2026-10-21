@@ -224,7 +224,7 @@ class imageLib {
 
 		// *** Save the image file name. Only store this incase you want to display it
 		$this->fileName = $fileName;
-		$this->fileExtension = fix_strtolower(strrchr($fileName, '.'));
+		$this->fileExtension = fix_strtolower(strrchr((string) $fileName, '.'));
 
 		// *** Open up the file
 		$this->image = $this->openImage($fileName);
@@ -327,10 +327,10 @@ class imageLib {
 		}
 		else
 		{
-			if (strpos($option, '-') !== false)
+			if (strpos((string) $option, '-') !== false)
 			{
 				// *** Or pass in a hyphen seperated option
-				$optionPiecesArray = explode('-', $option);
+				$optionPiecesArray = explode('-', (string) $option);
 				$cropPos = end($optionPiecesArray);
 			}
 		}
@@ -955,7 +955,7 @@ class imageLib {
 		}
 		else
 		{
-			if (strpos($option, 'crop') !== false)
+			if (strpos((string) $option, 'crop') !== false)
 			{
 				return 'crop';
 			}
@@ -1920,7 +1920,7 @@ class imageLib {
 
 		// *** Format the apperture value
 		$ev = $exifData['ApertureValue'];
-		$apPeicesArray = explode('/', $ev);
+		$apPeicesArray = explode('/', (string) $ev);
 		if (count($apPeicesArray) == 2)
 		{
 			$apertureValue = round($apPeicesArray[0] / $apPeicesArray[1], 2, PHP_ROUND_HALF_DOWN) . ' EV';
@@ -1932,7 +1932,7 @@ class imageLib {
 
 		// *** Format the focal length
 		$focalLength = $exifData['FocalLength'];
-		$flPeicesArray = explode('/', $focalLength);
+		$flPeicesArray = explode('/', (string) $focalLength);
 		if (count($flPeicesArray) == 2)
 		{
 			$focalLength = $flPeicesArray[0] / $flPeicesArray[1] . '.0 mm';
@@ -1944,7 +1944,7 @@ class imageLib {
 
 		// *** Format fNumber
 		$fNumber = $exifData['FNumber'];
-		$fnPeicesArray = explode('/', $fNumber);
+		$fnPeicesArray = explode('/', (string) $fNumber);
 		if (count($fnPeicesArray) == 2)
 		{
 			$fNumber = $fnPeicesArray[0] / $fnPeicesArray[1];
@@ -2332,7 +2332,7 @@ class imageLib {
 		#       http://php.net/manual/en/function.iptcembed.php
 		#
 	{
-		$len = strlen($val);
+		$len = strlen((string) $val);
 		if ($len < 0x8000)
 		{
 			return chr(0x1c) . chr($rec) . chr($dat) .
@@ -2398,7 +2398,7 @@ class imageLib {
 		$fontColor = imagecolorallocate($this->imageResized, $r, $g, $b);
 
 		// *** Add text
-		imagettftext($this->imageResized, $fontSize, $angle, $x, $y, $fontColor, $font, $text);
+		imagettftext($this->imageResized, $fontSize, $angle, $x, $y, $fontColor, $font, (string) $text);
 	}
 
 	## --------------------------------------------------------
@@ -2445,7 +2445,7 @@ class imageLib {
 	{
 
 		// *** Define box (so we can get the width)
-		$box = @imageTTFBbox($fontSize, $angle, $font, $text);
+		$box = @imageTTFBbox($fontSize, $angle, $font, (string) $text);
 
 		// ***  Get width of text from dimensions
 		$textWidth = abs($box[4] - $box[0]);
@@ -2502,7 +2502,7 @@ class imageLib {
 		$y = $posArray['height'];
 
 		// *** Set watermark opacity
-		if (fix_strtolower(strrchr($watermarkImage, '.')) == '.png')
+		if (fix_strtolower(strrchr((string) $watermarkImage, '.')) == '.png')
 		{
 
 			$opacity = $this->invertTransparency($opacity, 100);
@@ -2799,7 +2799,7 @@ class imageLib {
 				throw new Exception();
 			}
 		}
-		$fileInfoArray = pathInfo($savePath);
+		$fileInfoArray = pathInfo((string) $savePath);
 		clearstatcache();
 		if ( ! is_writable($fileInfoArray['dirname']))
 		{
@@ -2814,7 +2814,7 @@ class imageLib {
 		}
 
 		// *** Get extension
-		$extension = strrchr($savePath, '.');
+		$extension = strrchr((string) $savePath, '.');
 		$extension = fix_strtolower($extension);
 
 		$error = '';
@@ -3396,7 +3396,7 @@ class imageLib {
 	function checkStringStartsWith($needle, $haystack)
 		# Check if a string starts with a specific pattern
 	{
-		return (substr($haystack, 0, strlen($needle)) == $needle);
+		return (substr((string) $haystack, 0, strlen((string) $needle)) == $needle);
 	}
 
 

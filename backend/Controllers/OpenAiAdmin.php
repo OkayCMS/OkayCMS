@@ -19,6 +19,11 @@ class OpenAiAdmin extends IndexAdmin
         $name = $this->request->get('name');
         $entityId = $this->request->get('entityId', 'int');
         $format = $this->request->get('format', 'string') == 'true';
+
+        if (!is_string($entity) || $entity === '') {
+            return $this->response->setContent("event: stop\ndata: stopped\n\n", RESPONSE_GPT_STREAM);
+        }
+
         $aiRequest = $openAiEntityHelper->getRequest($entity, $entityId, $name);
         if (!$aiRequest) {
             return $this->response->setContent("event: stop\ndata: stopped\n\n", RESPONSE_GPT_STREAM);

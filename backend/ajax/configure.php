@@ -53,10 +53,11 @@ $managers = $DI->get(Managers::class);
 /** @var ManagersEntity $managersEntity */
 $managersEntity = $entityFactory->get(ManagersEntity::class);
 
-$manager = $managersEntity->get($_SESSION['admin']);
-
-$backendTranslations->initTranslations($manager->lang);
+$manager = $managersEntity->get($_SESSION['admin'] ?? '');
 
 if (!$manager) {
-    trigger_error('Need to login', E_USER_ERROR); // todo 403
+    http_response_code(403);
+    exit('Need to login');
 }
+
+$backendTranslations->initTranslations($manager->lang);

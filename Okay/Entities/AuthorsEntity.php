@@ -80,7 +80,7 @@ class AuthorsEntity extends Entity
             $author->url = str_replace('.', '', $author->url);
         }
 
-        $author->url = preg_replace("/[\s]+/ui", '', $author->url);
+        $author->url = preg_replace("/[\s]+/ui", '', (string) $author->url);
 
         while ($this->findOne(['url' => $author->url])) {
             if(preg_match('/(.+)([0-9]+)$/', $author->url, $parts)) {
@@ -119,7 +119,7 @@ class AuthorsEntity extends Entity
             ->bindValue('author_id', $ids);
         $this->db->query($update);
 
-        parent::delete($ids);
+        return parent::delete($ids);
     }
 
     public function duplicate($authorId)

@@ -87,7 +87,7 @@ class Recaptcha
         curl_setopt($curl, CURLOPT_TIMEOUT, 10);
 
         $response = curl_exec($curl);
-        curl_close($curl);
+        if (PHP_VERSION_ID < 80000) { curl_close($curl); }
         
         return json_decode($response, true);
     }

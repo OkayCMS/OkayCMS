@@ -67,7 +67,9 @@ class ModulesInstallerTest extends TestCase
         // Т.к. метод приватный, доступ к нему получаем через рефлексию
         $reflector = new \ReflectionClass(Installer::class);
         $method = $reflector->getMethod('getUpdateMethods');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
 
         $installer = new Installer($entityFactoryStub, $moduleStub);
 
@@ -297,7 +299,7 @@ class ModulesInstallerTest extends TestCase
         
     }
 
-    public function updateDataProvider() : array
+    public static function updateDataProvider() : array
     {
         return [
             [
@@ -338,7 +340,7 @@ class ModulesInstallerTest extends TestCase
         ];
     }
     
-    public function installDataProvider() : array
+    public static function installDataProvider() : array
     {
         return [
             [
@@ -359,7 +361,7 @@ class ModulesInstallerTest extends TestCase
         ];
     }
     
-    public function getUpdateMethodsDataProvider() : array
+    public static function getUpdateMethodsDataProvider() : array
     {
         return [
             [

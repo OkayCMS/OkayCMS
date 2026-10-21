@@ -5,6 +5,7 @@ namespace Okay\Core\Modules;
 
 
 use Okay\Admin\Controllers\IndexAdmin;
+use Okay\Core\Design;
 use Okay\Core\DesignBlocks;
 use Okay\Core\Discounts;
 use Okay\Core\Entity\Entity;
@@ -563,6 +564,14 @@ abstract class AbstractInit
         /** @var DesignBlocks $designBlocks */
         $designBlocks = $serviceLocator->getService(DesignBlocks::class);
         $designBlocks->registerBlock($blockName, $blockTplFile, $callback);
+    }
+
+    public function registerSmartyStaticClass($class)
+    {
+        $serviceLocator = ServiceLocator::getInstance();
+        /** @var Design $design */
+        $design = $serviceLocator->getService(Design::class);
+        $design->addStaticClass($class);
     }
 
     /**

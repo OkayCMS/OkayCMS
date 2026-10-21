@@ -8,6 +8,7 @@ use Okay\Core\Entity\Entity;
 use Okay\Core\Image;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Translit;
+use Okay\Helpers\Import\Csv;
 
 class CategoriesEntity extends Entity
 {
@@ -111,7 +112,7 @@ class CategoriesEntity extends Entity
             $category->url = str_replace('.', '', $category->url);
         }
 
-        $category->url = preg_replace("/[\s]+/ui", '', $category->url);
+        $category->url = preg_replace("/[\s]+/ui", '', (string) $category->url);
 
         while ($this->get((string)$category->url)) {
             if (preg_match('/(.+)([0-9]+)$/', $category->url, $parts)) {
@@ -342,14 +343,14 @@ class CategoriesEntity extends Entity
     /*Выборка категорий яндекс маркета*/
     public function getMarket($query = '')
     {
-        $query = mb_strtolower($query);
+        $query = mb_strtolower((string) $query);
         $marketCats = [];
         $file = 'files/downloads/market_categories.csv';
         if (file_exists($file)) {
             $f = fopen($file, 'r');
-            fgetcsv($f, 0, '^');
+            Csv::read($f, '^');
             while (!feof($f)) {
-                $line = fgetcsv($f, 0, '^');
+                $line = Csv::read($f, '^');
                 if (empty($query) || strpos(mb_strtolower($line[0]), $query) !== false) {
                     $marketCats[] = $line[0];
                 }

@@ -118,7 +118,7 @@ class ModulesAdmin extends IndexAdmin
     ) {
         $response = [];
         if ($accessUrl = $this->request->post('access_url')) {
-            if (!($accessDomain = parse_url($accessUrl, PHP_URL_HOST)) || $accessDomain != parse_url($this->config->get('marketplace_url'), PHP_URL_HOST)) {
+            if (!($accessDomain = parse_url((string) $accessUrl, PHP_URL_HOST)) || $accessDomain != parse_url((string) $this->config->get('marketplace_url'), PHP_URL_HOST)) {
                 $response = [
                     'error' => $backendTranslations->getTranslation('m_modules_wrong_marketplace_domain') . ' (' . $this->config->get('marketplace_url') . ')',
                 ];
@@ -127,14 +127,14 @@ class ModulesAdmin extends IndexAdmin
                 $downloadVersionsData = $backendModulesHelper->checkDownloadVersions($accessUrl);
 
                 if (!empty($downloadVersionsData->error)) {
-                    
+
                     switch ($downloadVersionsData->error) {
                         case 'Resource not found':
                             $response['error'] = $backendTranslations->getTranslation('m_modules_resource_not_found');
                             break;
                     }
-                    
-                
+
+
                 // Проверяем может у нас установлен этот модуль
                 } elseif (!empty($downloadVersionsData->meta->vendor_name) 
                     && !empty($downloadVersionsData->meta->module_name)
@@ -146,7 +146,7 @@ class ModulesAdmin extends IndexAdmin
                     foreach ($downloadVersionsData->versions as $downloadVersion) {
                         
                         preg_match('~^(?:\w+_)?(\d+?\.\d+?)\.\d+?(?:\.\d+?)?$~', $this->config->version, $okayVersionMatches);
-                        preg_match('~^(?:\w+_)?(\d+?\.\d+?)\.\d+?(?:\.\d+?)?$~', $downloadVersion->okay_version, $moduleVersionMatches);
+                        preg_match('~^(?:\w+_)?(\d+?\.\d+?)\.\d+?(?:\.\d+?)?$~', (string) $downloadVersion->okay_version, $moduleVersionMatches);
 
                         $okayMinorVersion = $okayVersionMatches[1];
                         $moduleOkayMinorVersion = $moduleVersionMatches[1];
@@ -218,7 +218,7 @@ class ModulesAdmin extends IndexAdmin
     public function ajaxPagination(BackendModulesHelper $backendModulesHelper, ModulesEntity $modulesEntity)
     {
         if ($nextPage = $this->request->get('next_page')) {
-            $searchData = $backendModulesHelper->request(htmlspecialchars_decode($nextPage));
+            $searchData = $backendModulesHelper->request(htmlspecialchars_decode((string) $nextPage));
             
             $this->design->assign('search_modules', $searchData);
 

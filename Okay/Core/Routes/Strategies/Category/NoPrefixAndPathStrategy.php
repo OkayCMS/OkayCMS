@@ -61,7 +61,7 @@ class NoPrefixAndPathStrategy extends AbstractRouteStrategy
         }
         
         $category = $this->categoriesEntity->get((string) $url);
-        $slug = trim($category->path_url, '/');
+        $slug = trim((string) $category->path_url, '/');
 
         // Запоминаем в оперативке slug для этого урла
         CategoryRoute::setUrlSlugAlias($url, $slug);
@@ -96,7 +96,7 @@ class NoPrefixAndPathStrategy extends AbstractRouteStrategy
                 continue;
             }
             
-            $urlPath = trim($categoryPathUrl, '/');
+            $urlPath = trim((string) $categoryPathUrl, '/');
 
             $urlParts = explode('/', $urlPath);
             $lastPart = array_pop($urlParts);
@@ -104,7 +104,7 @@ class NoPrefixAndPathStrategy extends AbstractRouteStrategy
             if (!empty($urlParts)) {
                 $pathPrefix = implode('/', $urlParts) . '/';
             }
-            $filter = trim($this->matchFiltersUrl($urlPath, $url), '/');
+            $filter = trim((string) $this->matchFiltersUrl($urlPath, $url), '/');
             $matchedRoute = [
                 '/{$url}/?{$filtersUrl}',
                 [
@@ -126,21 +126,21 @@ class NoPrefixAndPathStrategy extends AbstractRouteStrategy
     private function compareUrlStartsNoSuccess($categoryPathUrl, $url)
     {
 
-        if (strpos($url, 'category_features') !== false) {
-            $url = substr($url, strlen('category_features') + 1);
+        if (strpos((string) $url, 'category_features') !== false) {
+            $url = substr((string) $url, strlen('category_features') + 1);
         }
         
-        $categoryPathUrl = ltrim($categoryPathUrl, '/');
-        $compareAccessUri = substr($url, 0, strlen($categoryPathUrl));
+        $categoryPathUrl = ltrim((string) $categoryPathUrl, '/');
+        $compareAccessUri = substr((string) $url, 0, strlen($categoryPathUrl));
         return $categoryPathUrl !== $compareAccessUri;
     }
 
     private function matchFiltersUrl($categoryPathUrl, $url)
     {
-        if (strpos($url, 'category_features') !== false) {
-            $url = substr($url, strlen('category_features') + 1);
+        if (strpos((string) $url, 'category_features') !== false) {
+            $url = substr((string) $url, strlen('category_features') + 1);
         }
         
-        return substr($url, strlen($categoryPathUrl));
+        return substr((string) $url, strlen((string) $categoryPathUrl));
     }
 }

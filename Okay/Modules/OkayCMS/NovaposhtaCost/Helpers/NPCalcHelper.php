@@ -127,7 +127,7 @@ class NPCalcHelper
 
         $response = $this->apiHelper->request($request);
         if (!empty($response->success)) {
-            $term = strtotime($response->data[0]->DeliveryDate->date);
+            $term = strtotime((string) $response->data[0]->DeliveryDate->date);
 
             //От НП приходит дата доставки, рассчитываем сколько это дней от сегодня
             return (int)ceil(($term - time()) / 86400);

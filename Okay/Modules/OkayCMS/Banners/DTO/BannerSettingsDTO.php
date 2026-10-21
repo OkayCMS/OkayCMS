@@ -109,6 +109,7 @@ class BannerSettingsDTO implements \JsonSerializable
         $this->rotationSpeed = $rotationSpeed;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return get_object_vars($this);

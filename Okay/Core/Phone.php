@@ -63,7 +63,7 @@ class Phone
      */
     public static function clear($phoneNumber): string
     {
-        return substr(preg_replace('~[^0-9.+]~', '', $phoneNumber), 0, PhoneNumberUtil::MAX_LENGTH_FOR_NSN);
+        return substr((string) preg_replace('~[^0-9.+]~', '', (string) $phoneNumber), 0, PhoneNumberUtil::MAX_LENGTH_FOR_NSN);
     }
 
     /**
@@ -81,8 +81,8 @@ class Phone
         ];
         
         foreach ($wrongPrefixes as $prefix) {
-            if (strpos($phoneNumber, $prefix) === 0) {
-                $phoneNumber = ltrim($phoneNumber, '+');
+            if (strpos((string) $phoneNumber, $prefix) === 0) {
+                $phoneNumber = ltrim((string) $phoneNumber, '+');
             }
         }
         
@@ -94,7 +94,7 @@ class Phone
             return false;
         }
         
-        if (($len = mb_strlen(trim($phoneNumber, '+'))) < 5 || $len > 20) {
+        if (($len = mb_strlen(trim((string) $phoneNumber, '+'))) < 5 || $len > 20) {
             return false;
         }
         
@@ -122,8 +122,8 @@ class Phone
      */
     public static function format($phoneNumber, $numberFormat = null): string
     {
-        if (substr($phoneNumber, 0, 2) == '+0') {
-            $phoneNumber = substr($phoneNumber, 1);
+        if (substr((string) $phoneNumber, 0, 2) == '+0') {
+            $phoneNumber = substr((string) $phoneNumber, 1);
         }
 
         if (!$phoneNumber = self::clear($phoneNumber)) {
@@ -141,8 +141,33 @@ class Phone
         if ($numberFormat === null) {
             $numberFormat = $settings->get('phone_default_format');
         }
+        $numberFormat = self::normalizeFormat($numberFormat);
 
         $phoneObject = $phoneUtil->parse($phoneNumber, $defaultRegion);
         return $phoneUtil->format($phoneObject, $numberFormat);
+    }
+
+    /**
+     * @param int|PhoneNumberFormat $numberFormat
+     * @return int|PhoneNumberFormat
+     */
+    private static function normalizeFormat($numberFormat)
+    {
+        if (function_exists('enum_exists') && enum_exists(PhoneNumberFormat::class)) {
+            if (!$numberFormat instanceof PhoneNumberFormat) {
+                $numberFormat = PhoneNumberFormat::from((int) $numberFormat);
+            }
+            return $numberFormat;
+        }
+
+        return (int) $numberFormat;
+    }
+
+    /**
+     * @param int|PhoneNumberFormat $numberFormat
+     */
+    public static function formatValue($numberFormat): int
+    {
+        return is_int($numberFormat) ? $numberFormat : $numberFormat->value;
     }
 }

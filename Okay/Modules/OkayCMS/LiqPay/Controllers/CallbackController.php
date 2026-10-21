@@ -28,9 +28,9 @@ class CallbackController extends AbstractController
         $signature      = $this->request->post('signature');
         $data           = $this->request->post('data');
 
-        $payment_data = json_decode(base64_decode($data));
+        $payment_data = json_decode(base64_decode((string) $data));
 
-        $orderId = intval(substr($payment_data->order_id, 0, strpos($payment_data->order_id, '-')));
+        $orderId = intval(substr((string) $payment_data->order_id, 0, strpos((string) $payment_data->order_id, '-')));
         $currency = $payment_data->currency;
         $status = $payment_data->status;
         $type = $payment_data->type;

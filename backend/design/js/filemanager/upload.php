@@ -69,7 +69,7 @@ try {
         $url = $_POST['url'];
         $urlPattern = '/^(https?:\/\/)?([\da-z\.-]+\.[a-z\.]{2,6}|[\d\.]+)([\/?=&#]{1}[\da-z\.-]+)*[\/\?]?$/i';
 
-        if (preg_match($urlPattern, $url)) {
+        if (preg_match($urlPattern, (string) $url)) {
             $temp = tempnam('/tmp','RF');
 
             $ch = curl_init($url);
@@ -78,10 +78,10 @@ try {
             curl_setopt($ch, CURLOPT_HEADER, 0);
             curl_exec($ch);
             if (curl_errno($ch)) {
-                curl_close($ch);
+                if (PHP_VERSION_ID < 80000) { curl_close($ch); }
                 throw new Exception('Invalid URL');
             }
-            curl_close($ch);
+            if (PHP_VERSION_ID < 80000) { curl_close($ch); }
             fclose($fp);
 
             $_FILES['files'] = array(

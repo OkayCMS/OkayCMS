@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<shop date="{date('Y-m-d H:i')}">
+<shop date="{$smarty.now|date:'Y-m-d H:i'}">
     {if $feed->settings['feed_name']}
         <name>{$feed->settings['feed_name']|escape}</name>
     {/if}

@@ -669,7 +669,7 @@ class FtpClient implements Countable
         if (false == $recursive) {
 
             foreach ($list as $path => $item) {
-                $chunks = preg_split("/\s+/", $item);
+                $chunks = preg_split("/\s+/", (string) $item);
 
                 // if not "name"
                 if (empty($chunks[8]) || $chunks[8] == '.' || $chunks[8] == '..') {
@@ -700,7 +700,7 @@ class FtpClient implements Countable
         $path = '';
 
         foreach ($list as $item) {
-            $len = strlen($item);
+            $len = strlen((string) $item);
 
             if (!$len
 
@@ -714,7 +714,7 @@ class FtpClient implements Countable
                 continue;
             }
 
-            $chunks = preg_split("/\s+/", $item);
+            $chunks = preg_split("/\s+/", (string) $item);
 
             // if not "name"
             if (empty($chunks[8]) || $chunks[8] == '.' || $chunks[8] == '..') {
@@ -764,7 +764,7 @@ class FtpClient implements Countable
         $path  = '';
 
         foreach ($rawlist as $key => $child) {
-            $chunks = preg_split("/\s+/", $child);
+            $chunks = preg_split("/\s+/", (string) $child);
 
             if (isset($chunks[8]) && ($chunks[8] == '.' or $chunks[8] == '..')) {
                 continue;

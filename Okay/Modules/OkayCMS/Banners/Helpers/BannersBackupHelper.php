@@ -294,7 +294,7 @@ class BannersBackupHelper
             $bannerBackupDTO->setName($banner->name);
             $bannerBackupDTO->setGroupName($banner->group_name);
             $bannerBackupDTO->setAsIndividualShortcode((bool)$banner->as_individual_shortcode);
-            foreach (explode(',', $banner->pages) as $pageId) {
+            foreach (explode(',', (string) $banner->pages) as $pageId) {
                 if (isset($pages[$pageId])) {
                     $bannerBackupDTO->setPage($pages[$pageId]->url);
                 }

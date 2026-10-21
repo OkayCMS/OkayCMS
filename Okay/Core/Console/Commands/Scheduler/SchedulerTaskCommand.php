@@ -8,7 +8,9 @@ use Okay\Core\Scheduler\Scheduler;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Logger\ConsoleLogger;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'scheduler:task', description: 'Run single task')]
 class SchedulerTaskCommand extends Command
 {
     protected static $defaultName = 'scheduler:task';

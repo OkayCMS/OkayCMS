@@ -144,14 +144,14 @@ class BackendFeaturesHelper
                 $value = trim($newFeaturesValues[$i]);
                 if (!empty($name) && !empty($value)) {
                     $featuresIds = $this->featuresEntity->cols(['id'])->find([
-                        'name' => trim($name),
+                        'name' => trim((string) $name),
                         'limit' => 1,
                     ]);
 
                     $featureId = reset($featuresIds);
 
                     if (empty($featureId)) {
-                        $featureId = $this->featuresEntity->add(['name' => trim($name)]);
+                        $featureId = $this->featuresEntity->add(['name' => trim((string) $name)]);
                     }
 
                     $this->featuresEntity->addFeatureCategory($featureId, reset($productsCategories)->id);

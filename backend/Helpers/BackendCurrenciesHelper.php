@@ -67,7 +67,7 @@ class BackendCurrenciesHelper
         $wrongIso = [];
 
         foreach ($currencies as $currency) {
-            if (!preg_match('(^[a-zA-Z]{1,3}$)', $currency->code)) {
+            if (!preg_match('(^[a-zA-Z]{1,3}$)', (string) $currency->code)) {
                 $wrongIso[] = $currency->name;
             }
         }
@@ -176,7 +176,7 @@ class BackendCurrenciesHelper
     {
         $wrongIso = [];
         foreach ($currencies as $currency) {
-            if (!preg_match('(^[a-zA-Z]{1,3}$)', $currency->code)) {
+            if (!preg_match('(^[a-zA-Z]{1,3}$)', (string) $currency->code)) {
                 $wrongIso[] = $currency->name;
             }
         }

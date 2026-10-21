@@ -199,7 +199,7 @@ class ProductsEntity extends Entity implements RelatedProductsInterface
 
     private function removeAllResizes($file)
     {
-        $parts = explode('.', $file);
+        $parts = explode('.', (string) $file);
         $ext = end($parts);
 
         array_pop($parts);

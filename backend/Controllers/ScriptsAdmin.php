@@ -29,7 +29,7 @@ class ScriptsAdmin extends IndexAdmin
         // Текущий скрипт
         $script_file = $this->request->get('file');
 
-        if (!empty($script_file) && pathinfo($script_file, PATHINFO_EXTENSION) != 'js') {
+        if (!empty($script_file) && pathinfo((string) $script_file, PATHINFO_EXTENSION) != 'js') {
             exit();
         }
 

@@ -27,7 +27,9 @@ class MetaRobotsHelperTest extends TestCase
         // Т.к. метод приватный, доступ к нему получаем через рефлексию
         $reflector = new \ReflectionClass(MetaRobotsHelper::class);
         $method = $reflector->getMethod('getBaseCatalogRobots');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
 
         $metaRobotsHelper = new MetaRobotsHelper;
 
@@ -195,7 +197,9 @@ class MetaRobotsHelperTest extends TestCase
         // Т.к. метод приватный, доступ к нему получаем через рефлексию
         $reflector = new \ReflectionClass(MetaRobotsHelper::class);
         $method = $reflector->getMethod('getCatalogRobotsExecutor');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
 
         $metaRobotsHelper = new MetaRobotsHelper;
 
@@ -206,7 +210,7 @@ class MetaRobotsHelperTest extends TestCase
         $this->assertEquals($expectedResult, $actualResult);
     }
 
-    public function getCatalogFeaturesFilterDataProvider() : array
+    public static function getCatalogFeaturesFilterDataProvider() : array
     {
         return [
             [
@@ -335,7 +339,7 @@ class MetaRobotsHelperTest extends TestCase
         ];
     }
     
-    public function getBaseCatalogOtherFiltersDataProvider() : array
+    public static function getBaseCatalogOtherFiltersDataProvider() : array
     {
         return [
             [
@@ -442,7 +446,7 @@ class MetaRobotsHelperTest extends TestCase
      * Немного кейсов определения robots в категории при разных условиях
      * @return array[]
      */
-    public function getCatalogPaginationFullFiltersDataProvider() : array
+    public static function getCatalogPaginationFullFiltersDataProvider() : array
     {
         return [
             [
@@ -952,7 +956,7 @@ class MetaRobotsHelperTest extends TestCase
         ];
     }
     
-    public function setAvailableFeaturesDataProvider() : array
+    public static function setAvailableFeaturesDataProvider() : array
     {
         return [
             [

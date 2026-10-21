@@ -13,7 +13,7 @@ class ResizeController extends AbstractController
     public function resize(Image $image, ResizeHelper $resizeHelper, $object, $filename)
     {
 
-        $filename = rawurldecode($filename);
+        $filename = rawurldecode((string) $filename);
         
         $originalImgDir = null;
         $resizedImgDir = null;

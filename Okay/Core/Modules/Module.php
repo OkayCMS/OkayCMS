@@ -374,7 +374,7 @@ class Module
 
     public function isModuleClass($className)
     {
-        return preg_match('~Okay\\\\Modules\\\\([a-zA-Z0-9]+)\\\\([a-zA-Z0-9]+)\\\\?.*~', $className);
+        return preg_match('~Okay\\\\Modules\\\\([a-zA-Z0-9]+)\\\\([a-zA-Z0-9]+)\\\\?.*~', (string) $className);
     }
 
     public function getVendorName($className)
@@ -382,7 +382,7 @@ class Module
         if (!$this->isModuleClass($className)) {
             throw new \Exception('Wrong module name');
         }
-        return preg_replace('~Okay\\\\Modules\\\\([a-zA-Z0-9]+)\\\\([a-zA-Z0-9]+)\\\\?.*~', '$1', $className);
+        return preg_replace('~Okay\\\\Modules\\\\([a-zA-Z0-9]+)\\\\([a-zA-Z0-9]+)\\\\?.*~', '$1', (string) $className);
     }
 
     public function getModuleName($className)
@@ -391,17 +391,17 @@ class Module
             throw new \Exception('Wrong module name');
         }
 
-        return preg_replace('~Okay\\\\Modules\\\\([a-zA-Z0-9]+)\\\\([a-zA-Z0-9]+)\\\\?.*~', '$2', $className);
+        return preg_replace('~Okay\\\\Modules\\\\([a-zA-Z0-9]+)\\\\([a-zA-Z0-9]+)\\\\?.*~', '$2', (string) $className);
     }
 
     public function isModuleController($controllerName)
     {
-        return preg_match('~Okay\\\\Modules\\\\([a-zA-Z0-9]+)\\\\([a-zA-Z0-9]+)\\\\Controllers\\\\?.*~', $controllerName);
+        return preg_match('~Okay\\\\Modules\\\\([a-zA-Z0-9]+)\\\\([a-zA-Z0-9]+)\\\\Controllers\\\\?.*~', (string) $controllerName);
     }
 
     public function isBackendControllerName($backendController)
     {
-        return preg_match('/[a-zA-Z]+\.[a-zA-Z]+\.[a-zA-Z]+/', $backendController);
+        return preg_match('/[a-zA-Z]+\.[a-zA-Z]+\.[a-zA-Z]+/', (string) $backendController);
     }
 
     public function getVendorNameByBackendControllerName($backendController)
@@ -410,7 +410,7 @@ class Module
             throw new \Exception('Incorrect module backend controller name');
         }
 
-        $nameParts = explode('.', $backendController);
+        $nameParts = explode('.', (string) $backendController);
         return $nameParts[0];
     }
 
@@ -420,7 +420,7 @@ class Module
             throw new \Exception('Incorrect module backend controller name');
         }
 
-        $nameParts = explode('.', $backendController);
+        $nameParts = explode('.', (string) $backendController);
         return $nameParts[1];
     }
 
@@ -439,7 +439,7 @@ class Module
      */
     public function getBackendControllerParams($vendorModuleController)
     {
-        if (preg_match('~([a-zA-Z0-9]+)\.([a-zA-Z0-9]+)\.([a-zA-Z0-9]+)+~', $vendorModuleController, $matches)) {
+        if (preg_match('~([a-zA-Z0-9]+)\.([a-zA-Z0-9]+)\.([a-zA-Z0-9]+)+~', (string) $vendorModuleController, $matches)) {
             $vendor = $matches[1];
             $moduleName = $matches[2];
             $controllerName = $matches[3];
@@ -523,7 +523,7 @@ class Module
 
     private function fileHasAllowImageExtension($file)
     {
-        return preg_match('/\.(jpeg|jpg|png|gif|svg)$/ui', $file);
+        return preg_match('/\.(jpeg|jpg|png|gif|svg)$/ui', (string) $file);
     }
 
     /**
@@ -534,7 +534,7 @@ class Module
      */
     public function getMathVersion($version) : int
     {
-        $parts = explode('.', $version);
+        $parts = explode('.', (string) $version);
         
         if (count($parts) != 3) {
             return 0;

@@ -145,7 +145,7 @@ trait CRUD
         $insert = $this->queryFactory->newInsert();
 
         foreach ($object as $field=>$value) {
-            if (strtolower($value) == 'now()') {
+            if (strtolower((string)$value) == 'now()') {
                 $insert->set($field, $value);
                 unset($object->$field);
             }
@@ -200,7 +200,7 @@ trait CRUD
                 continue;
             }
 
-            if (strtolower($value) == 'now()') {
+            if (strtolower($value ?? '') == 'now()') {
                 $update->set($field, $value);
                 unset($object->$field);
                 $funcAsData = true;

@@ -9,6 +9,7 @@ use Okay\Entities\BrandsEntity;
 use Okay\Entities\ManagersEntity;
 use Okay\Entities\CategoriesEntity;
 use Okay\Entities\ReportStatEntity;
+use Okay\Helpers\Import\Csv;
 
 require_once 'configure.php';
 
@@ -22,6 +23,8 @@ $columnsNames = [
 ];
 
 $columnDelimiter = ';';
+// Используется как global ниже, но нигде не инициализировался
+$subcategoryDelimiter = '/';
 $exportFilesDir  = 'backend/files/export/';
 $filename        = 'export_stat.csv';
 
@@ -69,7 +72,7 @@ $f = fopen($exportFilesDir.$filename, 'ab');
 
 // Если начали сначала - добавим в первую строку названия колонок
 if ($page == 1) {
-    fputcsv($f, $columnsNames, $columnDelimiter);
+    Csv::write($f, $columnsNames, $columnDelimiter);
 }
 
 $filter = [];
@@ -95,10 +98,10 @@ $dateTo = $request->get('date_to');
 
 if (!empty($dateFrom) || !empty($dateTo)) {
     if (!empty($dateFrom)) {
-        $filter['date_from'] = date("Y-m-d 00:00:01", strtotime($dateFrom));
+        $filter['date_from'] = date("Y-m-d 00:00:01", strtotime((string) $dateFrom));
     }
     if (!empty($dateTo)) {
-        $filter['date_to'] = date("Y-m-d 23:59:00", strtotime($dateTo));
+        $filter['date_to'] = date("Y-m-d 23:59:00", strtotime((string) $dateTo));
     }
 }
 
@@ -111,7 +114,7 @@ if (!empty($category)) {
     $categories_list = cat_tree($categories, $purchases);
 }
 foreach ($categories_list as $c) {
-    fputcsv($f, $c, $columnDelimiter);
+    Csv::write($f, $c, $columnDelimiter);
 }
 
 $total = [
@@ -120,7 +123,7 @@ $total = [
     'price'=>$totalPrice
 ];
 
-fputcsv($f, $total, $columnDelimiter);
+Csv::write($f, $total, $columnDelimiter);
 fclose($f);
 
 mb_substitute_character('none');
