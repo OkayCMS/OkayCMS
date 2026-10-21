@@ -304,7 +304,11 @@
                         <div class="share__text">
                             <span data-language="product_share">{$lang->product_share}:</span>
                         </div>
-                        <div class="fn_share jssocials share__icons"></div>
+
+                        {include file='share_links.tpl'
+                            share_url="{$rootUrl}/products/{$product->url}"
+                            share_title=$product->name
+                        }
                     </div>
                 </div>
             </div>

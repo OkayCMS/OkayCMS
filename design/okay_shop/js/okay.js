@@ -982,6 +982,58 @@ $(function () {
   });
 });
 
+/* Share copy link */
+document.addEventListener("DOMContentLoaded", () => {
+  const $btns = $(".fn_button_copy");
+  if (!$btns.length) return;
+
+  const showSuccess = ($btn) => {
+    const $icon = $btn.find(".copy_url__icon");
+    const $ok = $btn.find(".copy_url__icon_success");
+
+    $icon.addClass("hidden");
+    $ok.removeClass("hidden");
+
+    clearTimeout($btn.data("copyTimer"));
+    $btn.data("copyTimer", setTimeout(() => {
+      $icon.removeClass("hidden");
+      $ok.addClass("hidden");
+    }, 2000));
+  };
+
+  const fallbackCopy = (text) => {
+    const $temp = $("<input>").val(text).appendTo("body").select();
+    document.execCommand("copy");
+    $temp.remove();
+  };
+
+  const copyText = async (text) => {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+    fallbackCopy(text);
+  };
+
+  $(document).on("click", ".fn_button_copy", async function (e) {
+    e.preventDefault();
+
+    const $btn = $(this);
+    const text = String($btn.data("content") || "");
+    if (!text) return;
+
+    try {
+      await copyText(text);
+      showSuccess($btn);
+    } catch (err) {
+      try {
+        fallbackCopy(text);
+      } catch (e2) {}
+      showSuccess($btn);
+    }
+  });
+});
+
 /* Обновление блоков: cart_informer, cart_purchases, cart_deliveries */
 function ajax_set_result(data) {
   $("#cart_informer").html(data.cart_informer);

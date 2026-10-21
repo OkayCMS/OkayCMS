@@ -416,22 +416,6 @@
 
     {get_design_block block="front_scripts_after_validate"}
 
-    {if $settings->sj_shares}
-         if($(".fn_share").length>0) {
-        {if $js_custom_socials}
-        {*Расширяем функционал кастомными соц. сетями*}
-        {foreach $js_custom_socials as $social=>$params}
-        jsSocials.shares.{$social|escape} = {$params|json_encode};
-        {/foreach}
-            {/if}
-                $(".fn_share").jsSocials({
-                    showLabel: false,
-                    showCount: false,
-                    shares: {$settings->sj_shares|json_encode}
-            });
-        }
-    {/if}
-
     /* Звёздный рейтинг товаров */
     let ratingBlock = $(".fn_rating");
     if (ratingBlock.length>0) {
