@@ -38,12 +38,13 @@ class MenuAdmin extends IndexAdmin
                     $preparedMenu = $backendMenuHelper->prepareAdd($menu);
                     $menu->id  = $backendMenuHelper->add($preparedMenu);
 
-                    $this->design->assign('message_success', 'added');
+                    $this->postRedirectGet->storeMessageSuccess('added');
+                    $this->postRedirectGet->storeNewEntityId($menu->id);
                 } else {
                     $preparedMenu = $backendMenuHelper->prepareUpdate($menu);
                     $backendMenuHelper->update($preparedMenu);
-                    
-                    $this->design->assign('message_success', 'updated');
+
+                    $this->postRedirectGet->storeMessageSuccess('updated');
                 }
                 
                 if ($menu->id) {
@@ -96,6 +97,8 @@ class MenuAdmin extends IndexAdmin
                     $menuItems = $backendMenuHelper->getMenuItemsTree((int)$menu->id);
                 }
                 $menu = $backendMenuHelper->getMenu($menu->id);
+
+                $this->postRedirectGet->redirect();
             }
         } else {
             /*Отображение меню*/

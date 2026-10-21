@@ -185,7 +185,7 @@
                 streetAutocomplete = true;
             },
             onSelect: function(suggestion){
-                $('input[name=novaposhta_street_name]').val(suggestion.street);
+                $('input[name=novaposhta_street_name]').val(suggestion.value);
             },
             formatResult: function(suggestion, currentValue) {
                 var reEscape = new RegExp( '(\\' + ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'].join( '|\\' ) + ')', 'g' );

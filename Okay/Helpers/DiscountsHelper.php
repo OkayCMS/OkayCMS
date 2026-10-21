@@ -75,7 +75,7 @@ class DiscountsHelper
     public function parseSet($set)
     {
         $registeredSigns = $this->discountsCore->getRegisteredSigns();
-        preg_match_all('/\$(<?[A-z0-9][A-z0-9]*)/', $set->set, $matches);
+        preg_match_all('/\$(<?[A-z0-9][A-z0-9]*)/', (string) $set->set, $matches);
         $signs = [];
         if ($matches) {
             foreach ($matches[1] as $match) {

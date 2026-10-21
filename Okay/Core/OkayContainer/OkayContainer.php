@@ -80,7 +80,7 @@ class OkayContainer implements ContainerInterface
 
     public function bindParameters(array $parameters)
     {
-        $this->parameters = array_merge_recursive($this->parameters, $parameters);
+        $this->parameters = array_replace_recursive($this->parameters, $parameters);
     }
 
     public function bindService($name, $service)
@@ -156,11 +156,15 @@ class OkayContainer implements ContainerInterface
 
         $entry['lock'] = true;
 
-        $arguments = isset($entry['arguments']) ? $this->resolveArguments($entry['arguments']) : [];
+        try {
+            $arguments = isset($entry['arguments']) ? $this->resolveArguments($entry['arguments']) : [];
 
-        $reflector = new \ReflectionClass($entry['class']);
-        $service = $reflector->newInstanceArgs($arguments);
-        unset($reflector);
+            $reflector = new \ReflectionClass($entry['class']);
+            $service = $reflector->newInstanceArgs($arguments);
+            unset($reflector);
+        } finally {
+            unset($this->services[$name]['lock']);
+        }
 
         return $service;
     }

@@ -39,7 +39,7 @@ class NPWarehousesEntity extends Entity
     {
         $object = (object)$object;
         $object->updated_at = 'NOW()';
-        parent::update($ids, $object);
+        return parent::update($ids, $object);
     }
 
     public function removeRedundant(string $updatedAt, array $warehousesTypes = [])

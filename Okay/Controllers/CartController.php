@@ -122,7 +122,11 @@ class CartController extends AbstractController
                         $this->design->assign('coupon_error', 'invalid');
                     } else {
                         $cart->applyCoupon($couponCode);
-                        $this->response->redirectTo(Router::generateUrl('cart', [], true));
+                        if ($cart->couponStatus === 'not_applied') {
+                            $this->design->assign('coupon_error', 'invalid');
+                        } else {
+                            $this->response->redirectTo(Router::generateUrl('cart', [], true));
+                        }
                     }
                 }
             }
@@ -187,7 +191,7 @@ class CartController extends AbstractController
         /*Рабтаем с товарами в корзине*/
         if ($cart->isEmpty === false) {
             if (isset($_GET['coupon_code'])) {
-                $couponCode = trim($request->get('coupon_code', 'string'));
+                $couponCode = trim((string) $request->get('coupon_code', 'string'));
                 if (empty($couponCode)) {
                     $cart->applyCoupon('');
                     if ($this->request->get('action') == 'coupon_apply') {

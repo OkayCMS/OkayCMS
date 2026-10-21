@@ -90,7 +90,7 @@ class NoPrefixAndCategoryStrategy extends AbstractRouteStrategy
 
     public function generateRouteParams($url)
     {
-        $url = rtrim($url, '/');
+        $url = rtrim((string) $url, '/');
         $parts = explode('/', $url);
 
         if (count($parts) != 2) {

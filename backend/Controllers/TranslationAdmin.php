@@ -24,7 +24,7 @@ class TranslationAdmin extends IndexAdmin
         if(!$locked_theme && $this->request->method('post')) {
             // id - предыдущий label
             $translation->id    = $this->request->post('id');
-            $translation->label = trim($this->request->post('label'));
+            $translation->label = trim((string) $this->request->post('label'));
             $translation->label = str_replace(" ", '_', $translation->label);
             $translation->label = preg_replace("/[^a-z0-9\-_]/i", "", $translation->label);
             

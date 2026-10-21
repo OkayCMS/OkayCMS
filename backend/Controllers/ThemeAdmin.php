@@ -65,7 +65,7 @@ class ThemeAdmin extends IndexAdmin
                     $new_name = $this->settings->get('theme');
                     while (is_dir($this->themes_dir.$new_name) || is_file($this->themes_dir.$new_name)) {
                         $parts = [];
-                        if (preg_match('/(.+)_([0-9]+)$/', $new_name, $parts)) {
+                        if (preg_match('/(.+)_([0-9]+)$/', (string) $new_name, $parts)) {
                             $new_name = $parts[1].'_'.($parts[2]+1);
                         } else {
                             $new_name = $new_name.'_1';

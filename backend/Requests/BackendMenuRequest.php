@@ -20,11 +20,11 @@ class BackendMenuRequest
     {
         $menu = new \stdClass();
         $menu->id       = $this->request->post('id', 'integer');
-        $menu->group_id = trim($this->request->post('group_id', 'string'));
+        $menu->group_id = trim((string) $this->request->post('group_id', 'string'));
         $menu->name     = $this->request->post('name');
         $menu->visible  = $this->request->post('visible', 'integer');
         $menu->group_id = preg_replace("/[\s]+/ui", '', $menu->group_id);
-        $menu->group_id = strtolower(preg_replace("/[^0-9a-z_]+/ui", '', $menu->group_id));
+        $menu->group_id = strtolower((string) preg_replace("/[^0-9a-z_]+/ui", '', (string) $menu->group_id));
 
         return ExtenderFacade::execute(__METHOD__, $menu, func_get_args());
     }
@@ -52,14 +52,14 @@ class BackendMenuRequest
             if ($item1->parent_index == $item2->parent_index) {
                 return $item1->i_tm - $item2->i_tm;
             }
-            return strcmp($item1->parent_index, $item2->parent_index);
+            return strcmp((string) $item1->parent_index, (string) $item2->parent_index);
         });
         $tm = [];
 
-        $local = [trim($this->request->getRootUrl(), "/"), trim(preg_replace("~^https?://~", "", $this->request->getRootUrl()), "/")];
+        $local = [trim($this->request->getRootUrl(), "/"), trim((string) preg_replace("~^https?://~", "", $this->request->getRootUrl()), "/")];
         foreach ($menuItems as $key => $item) {
             foreach ($local as $l) {
-                $item->url = preg_replace("~^$l/?~", "", $item->url);
+                $item->url = preg_replace("~^$l/?~", "", (string) $item->url);
             }
             $tm[$item->index] = $item;
         }

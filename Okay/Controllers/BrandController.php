@@ -186,9 +186,9 @@ class BrandController extends AbstractController
         if ($canonicalData) {
             $canonical = Router::generateUrl('brand', ['url' => $brand->url], true);
             $chpuUrl = $filterHelper->filterChpuUrl($canonicalData);
-            $chpuUrl = ltrim($chpuUrl, '/');
+            $chpuUrl = ltrim((string) $chpuUrl, '/');
             if (!empty($chpuUrl)) {
-                $canonical = rtrim($canonical, '/') . '/' . $chpuUrl;
+                $canonical = rtrim((string) $canonical, '/') . '/' . $chpuUrl;
             }
 
             $this->design->assign('canonical', $canonical);

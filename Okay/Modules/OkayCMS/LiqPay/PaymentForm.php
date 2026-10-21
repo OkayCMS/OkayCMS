@@ -57,7 +57,7 @@ class PaymentForm extends AbstractModule implements PaymentFormInterface
 
         $privateKey = $settings['liq_pay_private_key'];
         $publicKey = $settings['liq_pay_public_key'];
-        $paymentType = $settings['pay_types'];
+        $paymentType = $settings['pay_types'] ?? null;
 
         $data_array = [
             'version'      => 3,

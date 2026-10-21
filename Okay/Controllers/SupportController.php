@@ -16,7 +16,7 @@ class SupportController extends AbstractController
         }
 
         $data = $this->request->post();
-        $data = json_decode($data);
+        $data = json_decode((string) $data);
 
         $invalidResult = $this->preValidateData($data);
         if (!empty($invalidResult)) {
@@ -27,7 +27,7 @@ class SupportController extends AbstractController
         $result = ['success' => 0];
         switch ($data->action) {
             case 'new_keys': {
-                if (empty($info->temp_key) || empty($info->temp_time) || strtotime($info->temp_time)+300 < time()) {
+                if (empty($info->temp_key) || empty($info->temp_time) || strtotime((string) $info->temp_time)+300 < time()) {
                     $supportInfoEntity->updateInfo(['temp_key'=>null, 'temp_time'=>null]);
                     $result['error'] = 'rule_1';
                     break;
@@ -37,7 +37,7 @@ class SupportController extends AbstractController
                     break;
                 }                
 
-                $info->temp_time = strtotime($info->temp_time);
+                $info->temp_time = strtotime((string) $info->temp_time);
                 $supportInfoEntity->updateInfo([
                     'private_key'  => $data->private_key,
                     'public_key'   => $data->public_key,

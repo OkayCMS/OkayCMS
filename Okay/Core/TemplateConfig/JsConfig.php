@@ -83,7 +83,7 @@ class JsConfig
             }
 
             foreach ($this->templateJs[$position] as $k=>$file) {
-                $filename = pathinfo($file, PATHINFO_BASENAME);
+                $filename = pathinfo((string) $file, PATHINFO_BASENAME);
 
                 $resultFile .= '/*! #File ' . $filename . ' */' . PHP_EOL;
                 $resultFile .= file_get_contents($file) . PHP_EOL . PHP_EOL;
@@ -116,7 +116,7 @@ class JsConfig
 
             foreach ($this->individualJs[$position] as $k=>$fullFilePath) {
 
-                $compiledFilename = $compileJsDir . (!empty($compiledFilenamePrefix) ? $compiledFilenamePrefix . '.' : '') . pathinfo($fullFilePath, PATHINFO_BASENAME) . '.' . md5_file($fullFilePath) . '.js';
+                $compiledFilename = $compileJsDir . (!empty($compiledFilenamePrefix) ? $compiledFilenamePrefix . '.' : '') . pathinfo((string) $fullFilePath, PATHINFO_BASENAME) . '.' . md5_file($fullFilePath) . '.js';
                 $result[$fullFilePath] = $compiledFilename;
 
                 if (isset($this->deferJsFiles[$fullFilePath])) {
@@ -150,7 +150,7 @@ class JsConfig
 
     public function compileIndividual($fullFilePath, $compileCssDir, $compiledFilenamePrefix = null)
     {
-        $compiledFilename = $compileCssDir . (!empty($compiledFilenamePrefix) ? $compiledFilenamePrefix . '.' : '') . pathinfo($fullFilePath, PATHINFO_BASENAME) . '.' . md5_file($fullFilePath) . '.js';
+        $compiledFilename = $compileCssDir . (!empty($compiledFilenamePrefix) ? $compiledFilenamePrefix . '.' : '') . pathinfo((string) $fullFilePath, PATHINFO_BASENAME) . '.' . md5_file($fullFilePath) . '.js';
 
         if (file_exists($compiledFilename)) {
             // Обновляем дату редактирования файла, чтобы он не инвалидировался

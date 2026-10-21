@@ -4,6 +4,7 @@
 namespace Okay\Core;
 
 
+use Okay\Core\Classes\CookieOptions;
 use Okay\Entities\UserWishlistItemsEntity;
 use Okay\Entities\VariantsEntity;
 use Okay\Entities\ProductsEntity;
@@ -113,7 +114,7 @@ class WishList
     public function save()
     {
         if (!empty($_COOKIE['wishlist'])) {
-            setcookie('wishlist', $_COOKIE['wishlist'], time() + 30 * 24 * 3600, '/');
+            Response::setCookie('wishlist', $_COOKIE['wishlist'], CookieOptions::MONTH);
         }
     }
     
@@ -131,7 +132,7 @@ class WishList
         }
         
         unset($_COOKIE['wishlist']);
-        setcookie('wishlist', '', time()-3600, '/');
+        Response::deleteCookie('wishlist');
 
         ExtenderFacade::execute(__METHOD__, null, func_get_args());
     }

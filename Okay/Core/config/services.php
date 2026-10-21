@@ -45,7 +45,7 @@ use Okay\Core\Modules\Extender\ChainExtender;
 use Okay\Core\Modules\Extender\QueueExtender;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\UserReferer\UserReferer;
-use Snowplow\RefererParser\Parser;
+use Okay\Core\UserReferer\RefererParser;
 use Okay\Core\TplMod\Parser as TplParser;
 
 $services = [
@@ -201,6 +201,7 @@ $services = [
             new PR('design.smarty_security'),
             new PR('design.smarty_caching'),
             new PR('design.smarty_force_compile'),
+            new PR('design.static_classes'),
             new PR('root_dir'),
         ],
     ],
@@ -504,16 +505,15 @@ $services = [
             new SR(Response::class),
         ],
     ],
-    Parser::class => [
-        'class' => Parser::class,
+    RefererParser::class => [
+        'class' => RefererParser::class,
         'arguments' => [
-            UserReferer::createConfigReader(),
         ],
     ],
     UserReferer::class => [
         'class' => UserReferer::class,
         'arguments' => [
-            new SR(Parser::class),
+            new SR(RefererParser::class),
         ],
     ],
     Phone::class => [

@@ -9,6 +9,7 @@ use Okay\Core\Cart;
 use Okay\Core\Comparison;
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\Extender\ExtenderFacade;
+use Okay\Core\Response;
 use Okay\Core\WishList;
 use Okay\Entities\DeliveriesEntity;
 use Okay\Entities\PaymentsEntity;
@@ -287,7 +288,7 @@ class UserHelper
         }
 
         if ($onlyToLocal === true) {
-            setcookie("browsed_products", '', time()-3600, "/");
+            Response::deleteCookie('browsed_products');
             $_COOKIE['browsed_products'] = '';
         }
         

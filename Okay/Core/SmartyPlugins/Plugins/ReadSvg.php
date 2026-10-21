@@ -24,7 +24,7 @@ class ReadSvg extends Modifier
 
     public function run($filename, $resizedDir = null)
     {
-        if (strtolower(pathinfo($filename, PATHINFO_EXTENSION)) != 'svg') {
+        if (strtolower(pathinfo((string) $filename, PATHINFO_EXTENSION)) != 'svg') {
             return '';
         }
         

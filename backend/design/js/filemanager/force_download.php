@@ -29,7 +29,7 @@ if ($ftp) {
 }
 
 $name = $_POST['name'];
-$info = pathinfo($name);
+$info = pathinfo((string) $name);
 
 if (!check_extension($info['extension'], $config)) {
     response(trans('wrong extension') . AddErrorLocation(), 400)->send();

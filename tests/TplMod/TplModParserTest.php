@@ -22,7 +22,7 @@ class TplModParserTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expectedResult, $actualResult);
     }
     
-    public function parseStringDataProvider()
+    public static function parseStringDataProvider()
     {
         return [
             [// Smarty комменты

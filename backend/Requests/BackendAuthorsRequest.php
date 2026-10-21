@@ -34,7 +34,7 @@ class BackendAuthorsRequest
         $author->position_name    = $this->request->post('position_name');
         $author->description      = $this->request->post('description');
         $author->visible          = $this->request->post('visible', 'boolean');
-        $author->url              = trim($this->request->post('url', 'string'));
+        $author->url              = trim((string) $this->request->post('url', 'string'));
         $author->meta_title       = $this->request->post('meta_title');
         $author->meta_keywords    = $this->request->post('meta_keywords');
         $author->meta_description = $this->request->post('meta_description');

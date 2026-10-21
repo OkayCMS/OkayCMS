@@ -86,7 +86,7 @@ class CategoriesHelper
         return ExtenderFacade::execute(__METHOD__, $this->filterHelper->isFilterPage($filter), func_get_args());
     }
 
-    public function getProductsFilter(object $category, string $filtersUrl = null, array $filter = []): ?array
+    public function getProductsFilter(object $category, ?string $filtersUrl = null, array $filter = []): ?array
     {
         if (($filter = $this->catalogHelper->getProductsFilter($filtersUrl, $filter)) === null) {
             return ExtenderFacade::execute(__METHOD__, null, func_get_args());
@@ -130,7 +130,7 @@ class CategoriesHelper
 
         $tableOfContent = [];
         $items = [];
-        preg_match_all("~<([hH]([1-6]))(.*?)>(.*?)</[hH]([1-6])>~", $text, $items);
+        preg_match_all("~<([hH]([1-6]))(.*?)>(.*?)</[hH]([1-6])>~", (string) $text, $items);
 
         if (!empty($items[4])) {
             $parts = [];
@@ -139,7 +139,7 @@ class CategoriesHelper
                 $sourceHeader = $items[0][$key];
 
                 $id = Translit::translit(strip_tags($string));
-                $id = preg_replace('~^[^a-zA-Z]*(.+?)[^a-zA-Z0-9]*$~', '$1', $id);
+                $id = preg_replace('~^[^a-zA-Z]*(.+?)[^a-zA-Z0-9]*$~', '$1', (string) $id);
                 $anchorUrl = $objectUrl . '#' . $id;
 
                 // формируем массив где ключ оригинальный заголовок (H) значение заголовок со вставленным в него якорем

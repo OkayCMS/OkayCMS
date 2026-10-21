@@ -22,7 +22,7 @@ if ($request->post("email")) {
 /*Сохранение файлов шаблона из админки*/
 $file = $config->root_dir.'design/'.$theme.'/html/'.$template;
 
-if (pathinfo($template, PATHINFO_EXTENSION) != 'tpl' || $file != realpath($file)) {
+if (pathinfo((string) $template, PATHINFO_EXTENSION) != 'tpl' || $file != realpath($file)) {
     exit();
 }
 

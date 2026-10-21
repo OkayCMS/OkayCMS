@@ -14,7 +14,7 @@ class Config
 {
 
     /*Версия системы*/
-    public string $version = '4.5.2';
+    public string $version = '4.5.3';
     /*Тип системы*/
     public string $version_type = 'pro';
 
@@ -78,7 +78,7 @@ class Config
         $conf = file_get_contents($configFile);
         $conf = preg_replace("/".$name."\s*=.*\n/i", $name.' = '.$value."\r\n", $conf);
         $cf = fopen($configFile, 'w');
-        fwrite($cf, $conf);
+        fwrite($cf, (string) $conf);
         fclose($cf);
         $this->vars[$name] = $value;
     }

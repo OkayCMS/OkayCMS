@@ -83,9 +83,9 @@ class Translit
             $res = str_replace($from, $to, $res);
         }
 
-        $res = preg_replace("/[\s]+/ui", '-', $res);
-        $res = preg_replace("/[^a-zA-Z0-9\.\-\_]+/ui", '', $res);
-        $res = strtolower($res);
+        $res = preg_replace("/[\s]+/ui", '-', (string) $res);
+        $res = preg_replace("/[^a-zA-Z0-9\.\-\_]+/ui", '', (string) $res);
+        $res = strtolower((string) $res);
         return $res;
     }
 
@@ -101,9 +101,9 @@ class Translit
             $res = str_replace($pair['from'], $pair['to'], $res);
         }
 
-        $res = preg_replace("/[\s]+/ui", '', $res);
-        $res = preg_replace("/[^a-zA-Z0-9]+/ui", '', $res);
-        $res = strtolower($res);
+        $res = preg_replace("/[\s]+/ui", '', (string) $res);
+        $res = preg_replace("/[^a-zA-Z0-9]+/ui", '', (string) $res);
+        $res = strtolower((string) $res);
         return $res;
     }
 

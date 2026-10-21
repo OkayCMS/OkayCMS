@@ -22,6 +22,27 @@ docker run -d -p 80:80 -v /var/run/docker.sock:/tmp/docker.sock:ro --net okay_ne
 Після запуска можна буде заходити по http на хост, вказаний в .env VIRTUAL_HOST на 80 порт (не залежно який порт
 вказаний в HTTP_PORT)
 
+## Версія PHP
+Підтримуються PHP 7.4, 8.1, 8.2, 8.3, 8.4 і 8.5. Версія задається в .env змінною PHP_VERSION (за замовчуванням 8.5).
+Щоб перемкнути версію, змініть PHP_VERSION і перезапустіть оточення:
+```shell
+docker compose up -d
+```
+Образ кожної версії збирається один раз і зберігається як okaycms-dev-php:<версія>, тож повторне
+перемикання відбувається без перезбирання. Після змін у docker/php/Dockerfile треба запускати `docker compose up -d --build`.
+
+Директорія vendor спільна з хостом, тому після перемикання версії залежності треба перевстановити під неї:
+```shell
+docker compose exec php composer install
+```
+composer.lock зібраний під PHP 8.5 (працює з 8.4.1). Для інших версій у корені лежать окремі локи:
+```shell
+cp composer.php83.lock composer.lock   # або composer.php84.lock / composer.php85.lock
+docker compose exec php composer install
+git checkout composer.lock
+```
+Для 7.4, 8.1 і 8.2 готових локів немає, потрібен `composer update` (змінений composer.lock не комітити).
+
 ## База даних
 При створенні контейнера, в нього заливається дефолтний дамп бази (1DB_changes/okay_clean.sql).
 Також при кожному підніманні контейнера створюється або оновлюється менеджер адмін-панелі (admin).

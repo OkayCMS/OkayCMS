@@ -4,6 +4,7 @@
 namespace Okay\Core;
 
 
+use Okay\Core\Classes\CookieOptions;
 use Okay\Entities\UserBrowsedProductsEntity;
 use Okay\Helpers\MainHelper;
 use Okay\Core\Modules\Extender\ExtenderFacade;
@@ -90,7 +91,7 @@ class BrowsedProducts
     public function save()
     {
         if (!empty($_COOKIE['browsed_products'])) {
-            setcookie('browsed_products', $_COOKIE['browsed_products'], time() + 60 * 60 * 24 * 30, '/');
+            Response::setCookie('browsed_products', $_COOKIE['browsed_products'], CookieOptions::MONTH);
         }
     }
     

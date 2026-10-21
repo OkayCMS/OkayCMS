@@ -111,7 +111,7 @@ $( ".fn_delivery_novaposhta input.city_novaposhta_for_door" ).devbridgeAutocompl
                     streetAutocomplete = true;
                 },
                 onSelect: function(suggestion){
-                    delivery_block.find('input[name=novaposhta_street_name]').val(suggestion.street);
+                    delivery_block.find('input[name=novaposhta_street_name]').val(suggestion.value);
                 },
                 formatResult: function(suggestion, currentValue) {
                     var reEscape = new RegExp( '(\\' + ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'].join( '|\\' ) + ')', 'g' );

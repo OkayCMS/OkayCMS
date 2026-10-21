@@ -1,14 +1,19 @@
 version: '3.8'
 services:
-  php74:
-    build: ./docker/php/7.4
+  php:
+    build:
+      context: ./docker/php
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.5}
+    image: okaycms-dev-php:${PHP_VERSION:-8.5}
     container_name: ${APP_NAME:?err}-php
     environment:
       - TEST_INTERNAL_EMAIL=${TEST_INTERNAL_EMAIL:-}
       - PRODUCTION_DOMAIN=${PRODUCTION_DOMAIN:-}
     volumes:
       - '..:/var/www/html'
-      - './config/php:/usr/local/etc/php'
+      - './config/php/php.ini:/usr/local/etc/php/php.ini:ro'
+      - './config/php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/zz-xdebug.ini:ro'
     links:
       - mariadb
     expose:
@@ -23,7 +28,7 @@ services:
     ports:
       - '${HTTP_PORT:?err}:80'
     links:
-      - php74
+      - php
     volumes:
       - '..:/var/www/html'
       - './config/nginx:/etc/nginx/conf.d'

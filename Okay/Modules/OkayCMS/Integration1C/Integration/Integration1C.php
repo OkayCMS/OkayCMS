@@ -176,7 +176,7 @@ class Integration1C
 
             $remoteUser = !empty($_SERVER["REMOTE_USER"]) ? $_SERVER["REMOTE_USER"] : $_SERVER['REDIRECT_REMOTE_USER'];
             
-            $remoteUser = base64_decode(substr($remoteUser,6)) ;
+            $remoteUser = base64_decode(substr((string) $remoteUser,6)) ;
             if ((strlen($remoteUser) > 0) || ( strcasecmp($remoteUser, ":" ) > 0)) {
                 list($name, $password) = explode(':', $remoteUser);
                 $_SERVER['PHP_AUTH_USER'] = $name;
@@ -229,13 +229,13 @@ class Integration1C
     
     public function getFullPath($filename)
     {
-        return $this->dir . preg_replace('~\.\./~', '', $filename);
+        return $this->dir . preg_replace('~\.\./~', '', (string) $filename);
     }
     
     public function validateFile($xml_file)
     {
         $is_valid = true;
-        $ext = pathinfo($xml_file, PATHINFO_EXTENSION);
+        $ext = pathinfo((string) $xml_file, PATHINFO_EXTENSION);
 
         if (empty($ext) || !in_array($ext, $this->allowed_extensions)) {
             $is_valid = false;

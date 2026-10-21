@@ -110,7 +110,10 @@ class Design
         'strpos',
         'sprintf',
         'vsprintf',
+        'preg_match'
     ];
+
+    private $smartyStaticClasses = [];
 
 
     public function __construct(
@@ -127,6 +130,7 @@ class Design
         $smartySecurity,
         $smartyCaching,
         $smartyForceCompile,
+        $smartyStaticClasses,
         $rootDir
     ) {
         $this->frontTemplateConfig = $frontTemplateConfig;
@@ -160,9 +164,12 @@ class Design
         $this->smarty->setCompileDir($rootDir.'compiled/'.$theme);
         $this->smarty->setTemplateDir($this->defaultTemplateDir);
 
-        // Создаем папку для скомпилированных шаблонов текущей темы
-        if (!is_dir($this->smarty->getCompileDir())) {
-            mkdir($this->smarty->getCompileDir(), 0777);
+        $compileDir = $this->smarty->getCompileDir();
+        if (!is_dir($compileDir) && !@mkdir($compileDir, 0777, true) && !is_dir($compileDir)) {
+            throw new \RuntimeException(sprintf(
+                'Cannot create the Smarty compile directory "%s". Without it no page can be rendered.',
+                $compileDir
+            ));
         }
         
         $this->smarty->setCacheDir('cache');
@@ -175,6 +182,9 @@ class Design
         if ($smartyForceCompile) {
             $smarty->setForceCompile(true);
         }
+        if (!empty($smartyStaticClasses)) {
+            $this->smartyStaticClasses = $smartyStaticClasses;
+        }
         
         $this->smarty->registerFilter('pre', [$this, 'applyTplModifiers']);
     }
@@ -185,7 +195,7 @@ class Design
         $currentFile = $s->_current_file;
         
         // Определяем модификации чего сейчас нам нужны, фронта или бека
-        if (strpos($currentFile, $this->rootDir.'backend'.DIRECTORY_SEPARATOR.'design'.DIRECTORY_SEPARATOR.'html') !== false) {
+        if (strpos((string) $currentFile, $this->rootDir.'backend'.DIRECTORY_SEPARATOR.'design'.DIRECTORY_SEPARATOR.'html') !== false) {
             $modifications = $this->modules->getBackendModulesTplModifications();
         } else {
             $modifications = $this->modules->getFrontModulesTplModifications();
@@ -193,7 +203,7 @@ class Design
         $fileModifications = [];
         if (!empty($modifications)) {
             foreach ($modifications as $modificationDTO) {
-                if (DIRECTORY_SEPARATOR.ltrim($modificationDTO->getFile(), DIRECTORY_SEPARATOR) == substr($currentFile, -strlen(DIRECTORY_SEPARATOR.$modificationDTO->getFile()))) {
+                if (DIRECTORY_SEPARATOR.ltrim($modificationDTO->getFile(), DIRECTORY_SEPARATOR) == substr((string) $currentFile, -strlen(DIRECTORY_SEPARATOR.$modificationDTO->getFile()))) {
                     $fileModifications = array_merge($fileModifications, $modificationDTO->getChanges());
                 }
             }
@@ -262,11 +272,11 @@ class Design
      */
     public function templateExists($tplFile)
     {
-        $tplFile = mb_strcut($tplFile, 0, 250);
+        $tplFile = mb_strcut((string) $tplFile, 0, 250);
 
         $this->setSmartyTemplatesDir();
 
-        return $this->smarty->templateExists(trim(preg_replace('~[\n\r]*~', '', $tplFile)));
+        return $this->smarty->templateExists(trim((string) preg_replace('~[\n\r]*~', '', $tplFile)));
     }
     
     public function registerPlugin($type, $tag, $callback)
@@ -318,6 +328,8 @@ class Design
         }
         
         $this->registerSmartyPlugins();
+        $this->registerAllowedPhpFunctions();
+        $this->registerStaticClasses();
 
         $this->setSmartyTemplatesDir();
 
@@ -351,14 +363,104 @@ class Design
     
     private function registerSmartyPlugins()
     {
+   
         foreach ($this->smartyModifiers as $tag => $callback) {
-            $this->smarty->registerPlugin('modifier', $tag, $callback);
+            if (!isset($this->smarty->registered_plugins['modifier'][$tag])) {
+                $this->smarty->registerPlugin('modifier', $tag, $callback);
+            }
             unset($this->smartyModifiers[$tag]);
         }
-        
+
         foreach ($this->smartyFunctions as $tag => $callback) {
-            $this->smarty->registerPlugin('function', $tag, $callback);
+            if (!isset($this->smarty->registered_plugins['function'][$tag])) {
+                $this->smarty->registerPlugin('function', $tag, $callback);
+            }
             unset($this->smartyFunctions[$tag]);
+        }
+    }
+
+    private function registerAllowedPhpFunctions()
+    {
+        foreach ($this->allowedPhpFunctions as $func) {
+            if (!function_exists($func)) {
+                continue;
+            }
+
+            $callback = $this->wrapIfPassedByReference($func);
+
+            foreach (['modifier', 'function'] as $type) {
+                if (!isset($this->smarty->registered_plugins[$type][$func])) {
+                    $this->smarty->registerPlugin($type, $func, $callback);
+                }
+            }
+        }
+    }
+
+    /**
+     * Функции, первый параметр которых принимается по ссылке (reset и подобные),
+     * нельзя регистрировать плагином напрямую: Smarty вызывает плагины через
+     * call_user_func_array(), то есть по значению, и PHP 8 бросает
+     * "Argument #1 must be passed by reference, value given", а вместо результата
+     * в шаблон попадает сам массив. Оборачиваем такие функции, чтобы ссылка
+     * бралась от локальной копии внутри обёртки.
+     *
+     * @param string $func
+     * @return string|\Closure
+     */
+    private function wrapIfPassedByReference($func)
+    {
+        try {
+            $parameters = (new \ReflectionFunction($func))->getParameters();
+        } catch (\ReflectionException $e) {
+            return $func;
+        }
+
+        if (empty($parameters) || !$parameters[0]->isPassedByReference()) {
+            return $func;
+        }
+
+        return static function ($value, ...$args) use ($func) {
+            return $func($value, ...$args);
+        };
+    }
+
+    private function registerStaticClasses()
+    {
+        foreach ($this->smartyStaticClasses as $staticClass) {
+            $className = ltrim($staticClass, '\\');
+            if (!class_exists($className)) {
+                continue;
+            }
+
+            // Шаблоны обращаются к статическому классу и по полному имени
+            // (Okay\Core\UserReferer\UserReferer::CHANNEL_EMAIL), и по короткому
+            // (BannerImageSettingsDTO::SHOW_DEFAULT). Регистрируем обе формы:
+            // короткое имя иначе резолвится в глобальное пространство имён
+            // и падает с "Class not found".
+            $names = [$staticClass];
+
+            $separatorPosition = strrpos($className, '\\');
+            $shortName = $separatorPosition === false
+                ? $className
+                : substr($className, $separatorPosition + 1);
+            if (!in_array($shortName, $names, true)) {
+                $names[] = $shortName;
+            }
+
+            foreach ($names as $name) {
+                if (!isset($this->smarty->registered_classes[$name])) {
+                    $this->smarty->registerClass($name, $className);
+                }
+            }
+        }
+    }
+
+    public function addStaticClass($class)
+    {
+        if (!empty($class)) {
+            $this->smartyStaticClasses[] = $class;
+        } else {
+            throw new \InvalidArgumentException('Class name cannot be empty');
         }
     }
 
@@ -375,13 +477,13 @@ class Design
 
     public function getModuleTemplatesDir()
     {
-        return rtrim($this->moduleTemplateDir , '/');
+        return rtrim((string)$this->moduleTemplateDir , '/');
     }
 
     /*Установка директории файлов шаблона(отображения)*/
     public function setTemplatesDir($dir)
     {
-        $dir = rtrim($dir, '/') . '/';
+        $dir = rtrim((string) $dir, '/') . '/';
         if (!is_string($dir)) {
             throw new \Exception("Param \$dir must be string");
         }
@@ -456,7 +558,7 @@ class Design
              * Стандартная директория дизайна
              */
             $this->smarty->setTemplateDir([
-                dirname($this->getDefaultTemplatesDir()) . "/modules/{$vendor}/{$moduleName}/html",
+                dirname((string) $this->getDefaultTemplatesDir()) . "/modules/{$vendor}/{$moduleName}/html",
                 $this->getModuleTemplatesDir(),
                 $this->getDefaultTemplatesDir(),
             ]);

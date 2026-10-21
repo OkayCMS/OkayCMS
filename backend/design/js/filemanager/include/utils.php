@@ -58,7 +58,7 @@ if ( ! function_exists('trans'))
 
 		if ($lang != $config['default_language'])
 		{
-			$path_parts = pathinfo($lang);
+			$path_parts = pathinfo((string) $lang);
 			$lang = $path_parts['basename'];
 			$languages = include 'lang/languages.php';
 		}
@@ -96,12 +96,12 @@ if ( ! function_exists('trans'))
 
 
 function checkRelativePathPartial($path){
-	if (strpos($path, '../') !== false
-        || strpos($path, './') !== false
-        || strpos($path, '/..') !== false
-        || strpos($path, '..\\') !== false
-        || strpos($path, '\\..') !== false
-        || strpos($path, '.\\') !== false
+	if (strpos((string) $path, '../') !== false
+        || strpos((string) $path, './') !== false
+        || strpos((string) $path, '/..') !== false
+        || strpos((string) $path, '..\\') !== false
+        || strpos((string) $path, '\\..') !== false
+        || strpos((string) $path, '.\\') !== false
         || $path === ".."
     ){
 		return false;
@@ -175,7 +175,7 @@ function deleteFile($path,$path_thumb,$config){
 		if (!$ftp && $config['relative_image_creation']){
 			foreach($config['relative_path_from_current_pos'] as $k=>$path)
 			{
-				if ($path!="" && $path[strlen($path)-1]!="/") $path.="/";
+				if ($path!="" && $path[strlen((string) $path)-1]!="/") $path.="/";
 
 				if (file_exists($info['dirname']."/".$path.$config['relative_image_creation_name_to_prepend'][$k].$info['filename'].$config['relative_image_creation_name_to_append'][$k].".".$info['extension']))
 				{
@@ -188,7 +188,7 @@ function deleteFile($path,$path_thumb,$config){
 		{
 			foreach($config['fixed_path_from_filemanager'] as $k=>$path)
 			{
-				if ($path!="" && $path[strlen($path)-1] != "/") $path.="/";
+				if ($path!="" && $path[strlen((string) $path)-1] != "/") $path.="/";
 
 				$base_dir=$path.substr_replace($info['dirname']."/", '', 0, strlen($config['current_path']));
 				if (file_exists($base_dir.$config['fixed_image_creation_name_to_prepend'][$k].$info['filename'].$config['fixed_image_creation_to_append'][$k].".".$info['extension']))
@@ -682,7 +682,7 @@ function check_files_extensions_on_phar($phar, &$files, $basepath, $config)
 */
 function fix_get_params($str)
 {
-	return strip_tags(preg_replace("/[^a-zA-Z0-9\.\[\]_| -]/", '', $str));
+	return strip_tags((string) preg_replace("/[^a-zA-Z0-9\.\[\]_| -]/", '', $str));
 }
 
 
@@ -740,7 +740,7 @@ function fix_filename($str, $config, $is_folder = false)
 	{
 		if (!mb_detect_encoding($str, 'UTF-8', true))
 		{
-			$str = utf8_encode($str);
+			$str = mb_convert_encoding($str, 'UTF-8', 'ISO-8859-1');
 		}
 		if (function_exists('transliterator_transliterate'))
 		{
@@ -820,7 +820,7 @@ function fix_strtolower($str)
 
 function fix_path($path, $config)
 {
-	$info = pathinfo($path);
+	$info = pathinfo((string) $path);
 	$tmp_path = $info['dirname'];
 	$str = fix_filename($info['filename'], $config);
 	if ($tmp_path != "")
@@ -910,7 +910,7 @@ function image_check_memory_usage($img, $max_breedte, $max_hoogte)
 if(!function_exists('ends_with')){
 	function ends_with($haystack, $needle)
 	{
-		return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
+		return $needle === "" || substr((string) $haystack, -strlen((string) $needle)) === $needle;
 	}
 }
 
@@ -944,13 +944,13 @@ function new_thumbnails_creation($targetPath, $targetFile, $name, $current_path,
 	//create relative thumbs
 	$all_ok = true;
 
-	$info = pathinfo($name);
+	$info = pathinfo((string) $name);
 	$info['filename'] = fix_filename($info['filename'],$config);
 	if ($config['relative_image_creation'])
 	{
 		foreach ($config['relative_path_from_current_pos'] as $k => $path)
 		{
-			if ($path != "" && $path[ strlen($path) - 1 ] != "/")
+			if ($path != "" && $path[ strlen((string) $path) - 1 ] != "/")
 			{
 				$path .= "/";
 			}
@@ -973,11 +973,11 @@ function new_thumbnails_creation($targetPath, $targetFile, $name, $current_path,
 	{
 		foreach ($config['fixed_path_from_filemanager'] as $k => $path)
 		{
-			if ($path != "" && $path[ strlen($path) - 1 ] != "/")
+			if ($path != "" && $path[ strlen((string) $path) - 1 ] != "/")
 			{
 				$path .= "/";
 			}
-			$base_dir = $path . substr_replace($targetPath, '', 0, strlen($current_path));
+			$base_dir = $path . substr_replace($targetPath, '', 0, strlen((string) $current_path));
 			if ( ! file_exists($base_dir))
 			{
 				create_folder($base_dir, false);
@@ -1024,7 +1024,7 @@ function get_file_by_url($url)
 	curl_setopt($ch, CURLOPT_URL, $url);
 
 	$data = curl_exec($ch);
-	curl_close($ch);
+    if (PHP_VERSION_ID < 80000) { curl_close($ch); }
 
 	return $data;
 }

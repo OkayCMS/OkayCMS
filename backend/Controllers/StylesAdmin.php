@@ -30,7 +30,7 @@ class StylesAdmin extends IndexAdmin
         // Текущий шаблон
         $style_file = $this->request->get('file');
         
-        if (!empty($style_file) && pathinfo($style_file, PATHINFO_EXTENSION) != 'css') {
+        if (!empty($style_file) && pathinfo((string) $style_file, PATHINFO_EXTENSION) != 'css') {
             exit();
         }
         

@@ -54,7 +54,7 @@ class AuthorsHelper implements GetListInterface
         
         if (is_array($author->socials)) {
             return ExtenderFacade::execute(__METHOD__, $author->socials, func_get_args());
-        } elseif ($socials = json_decode($author->socials, true)) {
+        } elseif ($socials = json_decode((string) $author->socials, true)) {
             foreach ($socials as $k=>$social) {
                 $socials[$k]['domain'] = JsSocial::getSocialDomain($social['url']);
             }

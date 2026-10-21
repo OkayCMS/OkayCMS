@@ -541,7 +541,7 @@ class FrontTemplateConfig
     private function checkFile($filename, $type, $dir = null)
     {
         // файлы по http регистрировать нельзя
-        if (preg_match('~^(https?:)?//~', $filename)) {
+        if (preg_match('~^(https?:)?//~', (string) $filename)) {
             return false;
         }
 
@@ -635,7 +635,7 @@ class FrontTemplateConfig
             // Регистрируем css файлы из библиотеки
             foreach ($debugBarRenderer->getAssets('css', $debugBarRenderer::RELATIVE_PATH) as $cssFilePath) {
                 $this->cssConfig->register(
-                    (new Css('debug_bar_'.pathinfo($cssFilePath, PATHINFO_BASENAME)))
+                    (new Css('debug_bar_'.pathinfo((string) $cssFilePath, PATHINFO_BASENAME)))
                         ->setPosition('footer')
                         ->setIndividual(true),
                     $cssFilePath
@@ -645,7 +645,7 @@ class FrontTemplateConfig
             // Регистрируем js файлы из библиотеки
             foreach ($debugBarRenderer->getAssets('js', $debugBarRenderer::RELATIVE_PATH) as $jsFilePath) {
                 $this->jsConfig->register(
-                    (new Js('debug_bar_'.pathinfo($jsFilePath, PATHINFO_BASENAME)))
+                    (new Js('debug_bar_'.pathinfo((string) $jsFilePath, PATHINFO_BASENAME)))
                         ->setPosition('footer')
                         ->setIndividual(true),
                     $jsFilePath

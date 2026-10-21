@@ -64,7 +64,7 @@ class TranslationsHelper
             unset($this->localVars[$langLabel]);
         }
 
-        if (!isset($this->themeVars[$langLabel])) {
+        if (!isset($this->localVars[$langLabel])) {
             $this->localVars[$langLabel] = [];
             $langFile = $this->localLangDir . 'local.' . $langLabel . '.php';
             if (file_exists($langFile)) {
@@ -81,6 +81,20 @@ class TranslationsHelper
         }
 
         return $this->localVars[$langLabel];
+    }
+
+    /**
+     * actual cache
+     */
+    private function setLocalVars($langLabel, array $translations)
+    {
+        $this->localVars[$langLabel] = [];
+        foreach ($translations as $label => $value) {
+            $this->localVars[$langLabel][$label] = (object) [
+                'value' => $value,
+                'type'  => self::TRANS_T_LOCAL
+            ];
+        }
     }
 
     public function writeThemeTranslations($langLabel, $translations)
@@ -109,6 +123,7 @@ class TranslationsHelper
         }
 
         $this->translationsEntity->writeTranslationsToLangFile($langFile, $translationsToWrite);
+        $this->setLocalVars($langLabel, $translationsToWrite);
         $this->translationsEntity->initTranslations(true);
 
         // Удалим временный файл
@@ -146,6 +161,7 @@ class TranslationsHelper
         }
 
         $this->translationsEntity->writeTranslationsToLangFile($langFile, $translationsToWrite);
+        $this->setLocalVars($langLabel, $translationsToWrite);
         $this->translationsEntity->initTranslations(true);
 
         // Удалим временный файл

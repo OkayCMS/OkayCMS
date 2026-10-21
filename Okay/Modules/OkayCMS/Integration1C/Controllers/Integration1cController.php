@@ -106,9 +106,9 @@ class Integration1cController extends AbstractController
             if ($this->request->get('mode') == 'import') {
                 $filename = $this->request->get('filename');
                 // Определяем какую фабрику импорта создать, импорта товаров или предложений
-                if (preg_match('~^.*import.*\.xml$~', $filename)) {
+                if (preg_match('~^.*import.*\.xml$~', (string) $filename)) {
                     $import = $importFactory->create('products');
-                } elseif (preg_match('~^.*(offers|prices|rests).*\.xml$~', $filename)) {
+                } elseif (preg_match('~^.*(offers|prices|rests).*\.xml$~', (string) $filename)) {
                     $import = $importFactory->create('offers');
                 } else {
                     throw new \Exception('Wrong filename "' . $filename . '"');

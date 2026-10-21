@@ -224,9 +224,9 @@ class XmlFeedHelper
     ): object
     {
         if (!empty($product->{$featuresParamName}) && !empty($product->{$valuesParamName})) {
-            $features = explode('@|@', $product->{$featuresParamName});
+            $features = explode('@|@', (string) $product->{$featuresParamName});
             $values = [];
-            foreach (explode('@|@', $product->{$valuesParamName}) as $value) {
+            foreach (explode('@|@', (string) $product->{$valuesParamName}) as $value) {
                 list($featureId, $val) = explode('!-', $value, 2);
                 $values[$featureId][] = $val;
             }
@@ -282,7 +282,7 @@ class XmlFeedHelper
             && empty($product->{$descriptionFieldName})
         ) {
             $metaData = strtr($descriptionTemplate, $metaParts);
-            $product->{$descriptionFieldName} = trim(preg_replace('/{\$[^$]*}/', '', $metaData));
+            $product->{$descriptionFieldName} = trim((string) preg_replace('/{\$[^$]*}/', '', $metaData));
         }
         
         return $product; // No ExtenderFacade
@@ -395,7 +395,7 @@ class XmlFeedHelper
     public function attachProductImages($product)
     {
         if (!empty($product->images_string)) {
-            $images = explode('@|@', $product->images_string);
+            $images = explode('@|@', (string) $product->images_string);
             $product->images = array_slice($images, 0, 10);
         }
 
@@ -404,7 +404,7 @@ class XmlFeedHelper
 
     public function escape($str)
     {
-        return htmlspecialchars(strip_tags($str)); // no ExtenderFacade
+        return htmlspecialchars(strip_tags((string) $str)); // no ExtenderFacade
     }
 
     /**

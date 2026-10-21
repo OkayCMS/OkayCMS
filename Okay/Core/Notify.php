@@ -106,11 +106,11 @@ class Notify
         if ($this->PHPMailer->Port == 465) {
             $this->PHPMailer->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
             // Добавляем протокол, если не указали
-            $this->PHPMailer->Host = (strpos($this->PHPMailer->Host, "ssl://") === false) ? "ssl://".$this->PHPMailer->Host : $this->PHPMailer->Host;
+            $this->PHPMailer->Host = (strpos((string) $this->PHPMailer->Host, "ssl://") === false) ? "ssl://".$this->PHPMailer->Host : $this->PHPMailer->Host;
         } elseif ($this->PHPMailer->Port == 587) {
             $this->PHPMailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             // Добавляем протокол, если не указали
-            $this->PHPMailer->Host = (strpos($this->PHPMailer->Host, "tls://") === false) ? "tls://".$this->PHPMailer->Host : $this->PHPMailer->Host;
+            $this->PHPMailer->Host = (strpos((string) $this->PHPMailer->Host, "tls://") === false) ? "tls://".$this->PHPMailer->Host : $this->PHPMailer->Host;
         }
         $this->PHPMailer->Username   = $this->settings->get('smtp_user');
         $this->PHPMailer->Password   = $this->settings->get('smtp_pass');
@@ -127,7 +127,7 @@ class Notify
         $this->PHPMailer->MsgHTML($message);
         $this->PHPMailer->addCustomHeader("MIME-Version: 1.0\n");
 
-        $recipients = explode(',',$to);
+        $recipients = explode(',',(string) $to);
         if (!empty($recipients)) {
             foreach ($recipients as $i=>$r) {
                 $this->PHPMailer->AddAddress($r);
@@ -175,12 +175,12 @@ class Notify
             $headers .= "reply-to: $replyTo\r\n";
         }
         
-        $subject = "=?utf-8?B?".base64_encode($subject)."?=";
+        $subject = "=?utf-8?B?".base64_encode((string) $subject)."?=";
 
         if ($this->settings->get('use_smtp')) {
             $this->SMTP($to, $subject, $message, $from, $replyTo);
         } else {
-            mail($to, $subject, $message, $headers);
+            mail((string) $to, $subject, (string) $message, $headers);
         }
     }
 

@@ -145,11 +145,15 @@ class OrdersHelper
         }
 
         foreach ($purchases as $purchase) {
-            if (!empty($products[$purchase->product_id])) {
+            if ($purchase->product_id !== null && !empty($products[$purchase->product_id])) {
                 $purchase->product = $products[$purchase->product_id];
+            } else {
+                $purchase->product = null;
             }
-            if (!empty($variants[$purchase->variant_id])) {
+            if ($purchase->variant_id !== null && !empty($variants[$purchase->variant_id])) {
                 $purchase->variant = $variants[$purchase->variant_id];
+            } else {
+                $purchase->variant = null;
             }
             if (isset($sortedDiscounts[$purchase->id])) {
                 list($purchase->discounts) = $this->discountsHelper->calculateDiscounts($this->discountsHelper->buildFromDB($sortedDiscounts[$purchase->id]), $purchase->undiscounted_price);

@@ -102,7 +102,7 @@ class PagesEntity extends Entity
 
     private function formattedUrl($url)
     {
-        $url = trim($url);
+        $url = trim((string) $url);
 
         if (empty($url)) {
             return $url;
@@ -133,7 +133,7 @@ class PagesEntity extends Entity
             $page->url = str_replace('.', '', $page->url);
         }
 
-        $page->url = preg_replace("/[\s]+/ui", '', $page->url);
+        $page->url = preg_replace("/[\s]+/ui", '', (string) $page->url);
 
         while ($this->get((string)$page->url)) {
             if(preg_match('/(.+)([0-9]+)$/', $page->url, $parts)) {

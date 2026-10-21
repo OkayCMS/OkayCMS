@@ -70,7 +70,7 @@ preload_footer_js = false
 
 [images]
 ;Указываем какую библиотеку использовать для нарезки изображений. Варианты: Gregwar, Imagick или GD. Это имя класса адаптера
-resize_adapter = Gregwar
+resize_adapter = GD
 
 ;Директория общих изображений дизайна (лого, фавикон...)
 design_images = files/images/

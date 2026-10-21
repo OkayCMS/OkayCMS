@@ -45,16 +45,16 @@ class BackendBlogRequest
         $post->author_id = $this->request->post('author_id', 'integer');
         $post->read_time = $this->request->post('read_time', 'integer');
         $post->name      = $this->request->post('name');
-        $post->date      = date('Y-m-d H:i:s', strtotime($this->request->post('date')));
+        $post->date      = date('Y-m-d H:i:s', strtotime((string) $this->request->post('date')));
         $post->rating = $this->request->post('rating', 'float');
         $post->votes  = $this->request->post('votes', 'integer');
         
-        if (($time = strtotime($this->request->post('updated_date'))) > 0) {
+        if (($time = strtotime((string) $this->request->post('updated_date'))) > 0) {
             $post->updated_date = date('Y-m-d', $time);
         } else {
             $post->updated_date = null;
         }
-        $post->url              = trim($this->request->post('url', 'string'));
+        $post->url              = trim((string) $this->request->post('url', 'string'));
         $post->visible          = $this->request->post('visible', 'integer');
         $post->show_table_content = $this->request->post('show_table_content', 'integer');
         $post->meta_title       = $this->request->post('meta_title');

@@ -49,7 +49,7 @@ class NoPrefixStrategy extends AbstractRouteStrategy
 
     private function matchProductUrlFromUri($url) : array
     {
-        $urlParams = explode('/', trim($url, '/'));
+        $urlParams = explode('/', trim((string) $url, '/'));
         return array_pad($urlParams, 2, '');
     }
 }

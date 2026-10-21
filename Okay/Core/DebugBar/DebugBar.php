@@ -197,8 +197,8 @@ class DebugBar
     public static function startExtensionExecution($trigger, $extension)
     {
         if (!is_null(self::$debugBar)) {
-            $vendorName = preg_replace('~Okay\\\\Modules\\\\([a-zA-Z0-9]+)\\\\([a-zA-Z0-9]+)\\\\?.*~', '$1', $extension->class);
-            $moduleName = preg_replace('~Okay\\\\Modules\\\\([a-zA-Z0-9]+)\\\\([a-zA-Z0-9]+)\\\\?.*~', '$2', $extension->class);
+            $vendorName = preg_replace('~Okay\\\\Modules\\\\([a-zA-Z0-9]+)\\\\([a-zA-Z0-9]+)\\\\?.*~', '$1', (string) $extension->class);
+            $moduleName = preg_replace('~Okay\\\\Modules\\\\([a-zA-Z0-9]+)\\\\([a-zA-Z0-9]+)\\\\?.*~', '$2', (string) $extension->class);
 
             self::startMeasure("$vendorName/$moduleName", "Module $vendorName/$moduleName", null, true);
         }
@@ -207,8 +207,8 @@ class DebugBar
     public static function finishExtensionExecution($trigger, $extension)
     {
         if (!is_null(self::$debugBar)) {
-            $vendorName = preg_replace('~Okay\\\\Modules\\\\([a-zA-Z0-9]+)\\\\([a-zA-Z0-9]+)\\\\?.*~', '$1', $extension->class);
-            $moduleName = preg_replace('~Okay\\\\Modules\\\\([a-zA-Z0-9]+)\\\\([a-zA-Z0-9]+)\\\\?.*~', '$2', $extension->class);
+            $vendorName = preg_replace('~Okay\\\\Modules\\\\([a-zA-Z0-9]+)\\\\([a-zA-Z0-9]+)\\\\?.*~', '$1', (string) $extension->class);
+            $moduleName = preg_replace('~Okay\\\\Modules\\\\([a-zA-Z0-9]+)\\\\([a-zA-Z0-9]+)\\\\?.*~', '$2', (string) $extension->class);
 
             self::stopMeasure("$vendorName/$moduleName", ['Extension' => "$trigger -> $extension->class::$extension->method"]);
         }
@@ -217,8 +217,8 @@ class DebugBar
     public static function startDesignBlockFetch($blockTplFile)
     {
         if (!is_null(self::$debugBar)) {
-            $vendorName = preg_replace('~Okay/Modules/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/?.*~', '$1', $blockTplFile);
-            $moduleName = preg_replace('~Okay/Modules/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/?.*~', '$2', $blockTplFile);
+            $vendorName = preg_replace('~Okay/Modules/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/?.*~', '$1', (string) $blockTplFile);
+            $moduleName = preg_replace('~Okay/Modules/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/?.*~', '$2', (string) $blockTplFile);
 
             self::startMeasure("$vendorName/$moduleName", "Module $vendorName/$moduleName", null, true);
         }
@@ -227,10 +227,10 @@ class DebugBar
     public static function finishDesignBlockFetch($blockName, $blockTplFile)
     {
         if (!is_null(self::$debugBar)) {
-            $vendorName = preg_replace('~Okay/Modules/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/?.*~', '$1', $blockTplFile);
-            $moduleName = preg_replace('~Okay/Modules/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/?.*~', '$2', $blockTplFile);
+            $vendorName = preg_replace('~Okay/Modules/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/?.*~', '$1', (string) $blockTplFile);
+            $moduleName = preg_replace('~Okay/Modules/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/?.*~', '$2', (string) $blockTplFile);
 
-            self::stopMeasure("$vendorName/$moduleName", ['Design block' => "$blockName -> ".pathinfo($blockTplFile, PATHINFO_FILENAME)]);
+            self::stopMeasure("$vendorName/$moduleName", ['Design block' => "$blockName -> ".pathinfo((string) $blockTplFile, PATHINFO_FILENAME)]);
         }
     }
 }

@@ -102,7 +102,7 @@ class BlogCategoriesEntity extends Entity
             $category->url = str_replace('.', '', $category->url);
         }
 
-        $category->url = preg_replace("/[\s]+/ui", '', $category->url);
+        $category->url = preg_replace("/[\s]+/ui", '', (string) $category->url);
 
         while ($this->get((string)$category->url)) {
             if(preg_match('/(.+)([0-9]+)$/', $category->url, $parts)) {

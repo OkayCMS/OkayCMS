@@ -3,7 +3,9 @@
 namespace Okay\Core\Console\Commands\Module;
 
 use Okay\Core\Console\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'module:create', description: 'Creates a file structure for a new module.')]
 class ModuleCreateCommand extends Command
 {
     protected static $defaultName = 'module:create';
@@ -75,7 +77,7 @@ class ModuleCreateCommand extends Command
                 $this->output->writeln('<error>Please enter module name<error>');
             }
 
-            $module = $this->formatCamelCase($module, 'camel');
+            $module = $this->formatCamelCase($module);
 
             $valid = preg_match('/^[A-Z][a-zA-Z0-9]*$/', $module);
             if (!$valid) {
@@ -99,7 +101,7 @@ class ModuleCreateCommand extends Command
 
     private function formatSnakeCase(string $name): string
     {
-        return strtolower(preg_replace('/([a-z])([A-Z]+)/', '$1_$2', $name));
+        return strtolower((string) preg_replace('/([a-z])([A-Z]+)/', '$1_$2', $name));
     }
 
     private function createModuleFiles(string $vendor, string $module)

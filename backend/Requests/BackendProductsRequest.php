@@ -25,7 +25,7 @@ class BackendProductsRequest
         $product->featured = $this->request->post('featured', 'integer');
         $product->brand_id = $this->request->post('brand_id', 'integer');
 
-        $product->url              = trim($this->request->post('url', 'string'));
+        $product->url              = trim((string) $this->request->post('url', 'string'));
         $product->meta_title       = $this->request->post('meta_title');
         $product->meta_keywords    = $this->request->post('meta_keywords');
         $product->meta_description = $this->request->post('meta_description');
@@ -63,8 +63,8 @@ class BackendProductsRequest
         foreach($productVariants as $key => $variant) {
             if (empty($variant->name)         &&
                 empty($variant->sku)          &&
-                trim($variant->price)         === "" &&
-                trim($variant->compare_price) === ""
+                trim((string) $variant->price)         === "" &&
+                trim((string) $variant->compare_price) === ""
             ) {
                 unset($productVariants[$key]);
             }

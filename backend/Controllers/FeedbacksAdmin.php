@@ -38,6 +38,8 @@ class FeedbacksAdmin extends IndexAdmin
             if (!empty($answerFeedbackId)) {
                 $backendNotifyHelper->feedbackAnswerNotify($answerFeedbackId);
             }
+
+            $this->postRedirectGet->redirect();
         }
         
         // Отображение

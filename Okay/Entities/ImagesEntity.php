@@ -42,8 +42,8 @@ class ImagesEntity extends Entity
                 
                 // Если это изображение не используется у других товаров, удалим и файлы
                 if ($this->count(['filename' => $filename]) == 0) {
-                    $file = pathinfo($filename, PATHINFO_FILENAME);
-                    $ext = pathinfo($filename, PATHINFO_EXTENSION);
+                    $file = pathinfo((string) $filename, PATHINFO_FILENAME);
+                    $ext = pathinfo((string) $filename, PATHINFO_EXTENSION);
 
                     // Удалить все ресайзы
                     $resizedImages = glob($this->config->root_dir . $this->config->resized_images_dir . $file . '.*x*.' . $ext);

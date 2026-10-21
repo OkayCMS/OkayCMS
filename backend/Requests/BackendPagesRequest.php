@@ -25,7 +25,7 @@ class BackendPagesRequest
         $page->id               = $this->request->post('id', 'integer');
         $page->name             = $this->request->post('name');
         $page->name_h1          = $this->request->post('name_h1');
-        $page->url              = trim($this->request->post('url'));
+        $page->url              = trim((string) $this->request->post('url'));
         $page->visible          = $this->request->post('visible', 'boolean');
         $page->meta_title       = $this->request->post('meta_title');
         $page->meta_keywords    = $this->request->post('meta_keywords');

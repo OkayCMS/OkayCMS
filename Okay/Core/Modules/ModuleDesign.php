@@ -135,13 +135,13 @@ class ModuleDesign
     private function createPathDirToFileIfNeeded($filePath)
     {
         $themeRootDir          = $this->config->get('root_dir')."design/".$this->frontTemplateConfig->getTheme()."/";
-        $validateRootThemePath = substr($filePath, 0, strlen($themeRootDir));
+        $validateRootThemePath = substr((string) $filePath, 0, strlen($themeRootDir));
 
         if ($themeRootDir !== $validateRootThemePath) {
             throw new \Exception("Incorrect absolute path to file {$filePath}");
         }
 
-        $themeFilePath = substr($filePath, strlen($themeRootDir));
+        $themeFilePath = substr((string) $filePath, strlen($themeRootDir));
         $dirNames      = $this->getDirNames($themeFilePath);
 
         $fullPathDir = substr($themeRootDir, 0, -1);
@@ -159,7 +159,7 @@ class ModuleDesign
 
     private function getDirNames($filePath)
     {
-        $parts = explode('/', $filePath);
+        $parts = explode('/', (string) $filePath);
 
         end($parts);
         $fileIndex = key($parts);

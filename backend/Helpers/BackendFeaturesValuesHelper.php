@@ -344,7 +344,7 @@ class BackendFeaturesValuesHelper
     public function generateUniqueTranslitForValue($featureId, $translit, $valueId = null)
     {
         while ($this->getUniqueTranslitForLangTable($featureId, $translit, $valueId)) {
-            if(preg_match('/(.+)rptd([0-9]+)$/', $translit, $parts)) {
+            if(preg_match('/(.+)rptd([0-9]+)$/', (string) $translit, $parts)) {
                 $translit = $parts[1].'rptd'.($parts[2]+1);
             } else {
                 $translit = $translit.'rptd2';

@@ -179,7 +179,7 @@ class BackendTemplateConfig
     private function checkFile($filename, $type, $dir = null)
     {
         // файлы по http регистрировать нельзя
-        if (preg_match('~^(https?:)?//~', $filename)) {
+        if (preg_match('~^(https?:)?//~', (string) $filename)) {
             return false;
         }
 

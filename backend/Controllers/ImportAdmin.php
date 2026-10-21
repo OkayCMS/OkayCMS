@@ -69,7 +69,7 @@ class ImportAdmin extends IndexAdmin
                     foreach ($this->importCore->getColumnsNames() as $columns) {
                         $cnt = 0;
                         foreach ($columns as $column) {
-                            if (in_array(mb_strtolower($column), $lcColumns) && ++$cnt > 1) {
+                            if (in_array(mb_strtolower((string) $column), $lcColumns) && ++$cnt > 1) {
                                 $duplicatedColumns_pairs[] = $columns;
                             }
                         }
@@ -114,7 +114,7 @@ class ImportAdmin extends IndexAdmin
     
     private function convertFile($source, $dest) {
         // Узнаем какая кодировка у файла
-        $testString = file_get_contents($source, null, null, null, 1000000);
+        $testString = file_get_contents($source, false, null, 0, 1000000);
 
         if ($this->isUtf8Encoding($testString)) {
             return copy($source, $dest);
@@ -131,7 +131,7 @@ class ImportAdmin extends IndexAdmin
 
         while (($line = fgets($src, 4096)) !== false) {
             $line = $this->winToRtf($line);
-            fwrite($dst, $line);
+            fwrite($dst, (string) $line);
         }
         fclose($src);
         fclose($dst);
@@ -140,7 +140,7 @@ class ImportAdmin extends IndexAdmin
 
     private function isUtf8Encoding($data)
     {
-        if (preg_match('//u', $data)) {
+        if (preg_match('//u', (string) $data)) {
             return true;
         }
 
@@ -152,7 +152,7 @@ class ImportAdmin extends IndexAdmin
             return @mb_convert_encoding($text, 'UTF-8', 'Windows-1251');
         } else {
             $t = '';
-            for($i=0, $m=strlen($text); $i<$m; $i++) {
+            for($i=0, $m=strlen((string) $text); $i<$m; $i++) {
                 $c=ord($text[$i]);
                 if ($c<=127) {$t.=chr($c); continue; }
                 if ($c>=192 && $c<=207) {$t.=chr(208).chr($c-48);  continue; }

@@ -147,6 +147,8 @@ class Init extends AbstractInit
 
         $this->extendUpdateObject('okay_cms__banners', self::PERMISSION, BannersEntity::class);
         $this->extendUpdateObject('okay_cms__banners_images', self::PERMISSION, BannersImagesEntity::class);
+
+        $this->registerSmartyStaticClass(BannerImageSettingsDTO::class);
     }
     
     public function update_1_0_1()

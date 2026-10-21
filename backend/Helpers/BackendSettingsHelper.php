@@ -85,6 +85,11 @@ class BackendSettingsHelper
 
     private $allowedImageExtensions = ['png', 'gif', 'jpg', 'jpeg', 'ico', 'svg'];
 
+     /**
+     * @var LicenseModulesTemplates
+     */
+    private $licenseModulesTemplates;
+
     public function __construct(
         Settings $settings,
         Request $request,
@@ -314,31 +319,31 @@ class BackendSettingsHelper
     public function updateRouterSettings()
     {
         $this->settings->set('category_routes_template', $this->request->post('category_routes_template'));
-        $this->settings->set('category_routes_template__default', trim($this->request->post('category_routes_template__default')));
-        $this->settings->set('category_routes_template__prefix_and_path', trim($this->request->post('category_routes_template__prefix_and_path')));
+        $this->settings->set('category_routes_template__default', trim((string) $this->request->post('category_routes_template__default')));
+        $this->settings->set('category_routes_template__prefix_and_path', trim((string) $this->request->post('category_routes_template__prefix_and_path')));
         $this->settings->set('category_routes_template_slash_end', $this->request->post('category_routes_template_slash_end'));
 
         $this->settings->set('product_routes_template', $this->request->post('product_routes_template'));
-        $this->settings->set('product_routes_template__prefix_and_path', trim($this->request->post('product_routes_template__prefix_and_path')));
-        $this->settings->set('product_routes_template__default', trim($this->request->post('product_routes_template__default')));
+        $this->settings->set('product_routes_template__prefix_and_path', trim((string) $this->request->post('product_routes_template__prefix_and_path')));
+        $this->settings->set('product_routes_template__default', trim((string) $this->request->post('product_routes_template__default')));
         $this->settings->set('product_routes_template_slash_end', $this->request->post('product_routes_template_slash_end'));
 
         $this->settings->set('brand_routes_template', $this->request->post('brand_routes_template'));
-        $this->settings->set('brand_routes_template__default', trim($this->request->post('brand_routes_template__default')));
+        $this->settings->set('brand_routes_template__default', trim((string) $this->request->post('brand_routes_template__default')));
         $this->settings->set('brand_routes_template_slash_end', $this->request->post('brand_routes_template_slash_end'));
 
         $this->settings->set('blog_category_routes_template', $this->request->post('blog_category_routes_template'));
-        $this->settings->set('blog_category_routes_template__default', trim($this->request->post('blog_category_routes_template__default')));
-        $this->settings->set('blog_category_routes_template__prefix_and_path', trim($this->request->post('blog_category_routes_template__prefix_and_path')));
+        $this->settings->set('blog_category_routes_template__default', trim((string) $this->request->post('blog_category_routes_template__default')));
+        $this->settings->set('blog_category_routes_template__prefix_and_path', trim((string) $this->request->post('blog_category_routes_template__prefix_and_path')));
         $this->settings->set('blog_category_routes_template_slash_end', $this->request->post('blog_category_routes_template_slash_end'));
 
         $this->settings->set('post_routes_template', $this->request->post('post_routes_template'));
-        $this->settings->set('post_routes_template__prefix_and_path', trim($this->request->post('post_routes_template__prefix_and_path')));
-        $this->settings->set('post_routes_template__default', trim($this->request->post('post_routes_template__default')));
+        $this->settings->set('post_routes_template__prefix_and_path', trim((string) $this->request->post('post_routes_template__prefix_and_path')));
+        $this->settings->set('post_routes_template__default', trim((string) $this->request->post('post_routes_template__default')));
         $this->settings->set('post_routes_template_slash_end', $this->request->post('post_routes_template_slash_end'));
 
-        $this->settings->set('all_brands_routes_template__default', trim($this->request->post('all_brands_routes_template__default')));
-        $this->settings->set('all_blog_routes_template__default', trim($this->request->post('all_blog_routes_template__default')));
+        $this->settings->set('all_brands_routes_template__default', trim((string) $this->request->post('all_brands_routes_template__default')));
+        $this->settings->set('all_blog_routes_template__default', trim((string) $this->request->post('all_blog_routes_template__default')));
 
         $this->settings->set('all_brands_routes_template_slash_end', $this->request->post('all_brands_routes_template_slash_end'));
         $this->settings->set('all_blog_routes_template_slash_end', $this->request->post('all_blog_routes_template_slash_end'));
@@ -445,7 +450,7 @@ class BackendSettingsHelper
         @unlink($designImagesDir . $this->settings->get('site_favicon'));
         if (move_uploaded_file($tmpName, $designImagesDir . $siteFaviconName)) {
             $this->settings->set('site_favicon', $siteFaviconName);
-            $siteFaviconVersion = ltrim($this->settings->get('site_favicon_version'), '0');
+            $siteFaviconVersion = ltrim((string) $this->settings->get('site_favicon_version'), '0');
 
             if (!$siteFaviconVersion) {
                 $siteFaviconVersion = 0;
@@ -535,7 +540,7 @@ class BackendSettingsHelper
 
                 // Загружаем новое лого
                 if (move_uploaded_file($tmpName, $designImagesDir . $siteLogoName)) {
-                    $siteLogoVersion = ltrim($this->settings->get('site_logo_version'), '0');
+                    $siteLogoVersion = ltrim((string) $this->settings->get('site_logo_version'), '0');
                     if (!$siteLogoVersion) {
                         $siteLogoVersion = 0;
                     }
@@ -557,7 +562,7 @@ class BackendSettingsHelper
         // Если раньше лого было не мультиязычным, а теперь будет, нужно его продублировать на все языки
         if ($this->settings->get('multilang_logo') == 0 && $multiLangLogo == 1) {
             $currentLang = $this->languagesEntity->get($this->languages->getLangId());
-            $ext = pathinfo($siteLogoName, PATHINFO_EXTENSION);
+            $ext = pathinfo((string) $siteLogoName, PATHINFO_EXTENSION);
 
             foreach ($this->languagesEntity->find() as $language) {
                 $this->languages->setLangId($language->id);
@@ -582,7 +587,7 @@ class BackendSettingsHelper
         elseif ($this->settings->get('multilang_logo') == 1 && $multiLangLogo == 0) {
             $currentLangId = $this->languages->getLangId();
             $mainLang = $this->languagesEntity->getMainLanguage();
-            $ext = pathinfo($siteLogoName, PATHINFO_EXTENSION);
+            $ext = pathinfo((string) $siteLogoName, PATHINFO_EXTENSION);
             $langLogoName = 'logo_' . $mainLang->label . '.' . $ext;
             $siteLogoName = 'logo.' . $ext;
 

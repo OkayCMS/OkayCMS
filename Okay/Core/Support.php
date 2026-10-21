@@ -97,7 +97,7 @@ class Support
     public function getNewKeys($email = '') {
         $supportInfoEntity = $this->entityFactory->get(SupportInfoEntity::class);        
         $info = $supportInfoEntity->getInfo();
-        $info->temp_time = strtotime($info->temp_time);
+        $info->temp_time = strtotime((string) $info->temp_time);
         
         $invalidTempToken = !empty($info->temp_time) && $info->temp_time+300 < time();
         if ($invalidTempToken) {
@@ -172,7 +172,7 @@ class Support
         }
         $_SESSION['support_request_timeout_try_cnt'] = $retryCnt;
 
-        curl_close($ch);
+        if (PHP_VERSION_ID < 80000) { curl_close($ch); }
         $response = json_decode($response);
         if ($response && isset($response->balance) && $response->balance != $info->balance) {
             $supportInfoEntity->updateInfo(['balance'=>$response->balance]);

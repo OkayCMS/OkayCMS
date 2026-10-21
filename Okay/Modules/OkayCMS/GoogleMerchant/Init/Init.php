@@ -93,6 +93,8 @@ class Init extends AbstractInit
             \Okay\Modules\OkayCMS\GoogleMerchant\ExtendsEntities\ProductsEntity::class,
             self::FILTER_FEEDS
         );
+
+        $this->registerSmartyStaticClass(Init::class);
     }
     
 }

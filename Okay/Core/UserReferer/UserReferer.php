@@ -5,9 +5,7 @@ namespace Okay\Core\UserReferer;
 
 
 use Okay\Core\Request;
-use Snowplow\RefererParser\Config\JsonConfigReader;
-use Snowplow\RefererParser\Parser;
-use Snowplow\RefererParser\Referer;
+use Okay\Core\Response;
 
 class UserReferer
 {
@@ -18,12 +16,12 @@ class UserReferer
     const CHANNEL_REFERRAL = 'referral';
     const CHANNEL_UNKNOWN = 'unknown';
     
-    /** @var Parser */
+    /** @var RefererParser */
     private $parser;
     
     private static $userReferer;
     
-    public function __construct(Parser $parser)
+    public function __construct(RefererParser $parser)
     {
         $this->parser = $parser;
     }
@@ -37,30 +35,14 @@ class UserReferer
         );
 
         if ($referer->isKnown()) {
-            switch ($referer->getMedium()) {
-                case self::CHANNEL_EMAIL :
-                    $userReferer = [
-                        'medium' => self::CHANNEL_EMAIL,
-                        'source' => $referer->getSource(),
-                    ];
-                    break;
-                case self::CHANNEL_SEARCH :
-                    $userReferer = [
-                        'medium' => self::CHANNEL_SEARCH,
-                        'source' => $referer->getSource(),
-                    ];
-                    break;
-                case self::CHANNEL_SOCIAL :
-                    $userReferer = [
-                        'medium' => self::CHANNEL_SOCIAL,
-                        'source' => $referer->getSource(),
-                    ];
-                    break;
-            }
+            $userReferer = [
+                'medium' => $referer->getMedium(),
+                'source' => $referer->getSource(),
+            ];
         } elseif (($referer = Request::getReferer()) && !$this->isInternalUrl($referer)) {
             $userReferer = [
                 'medium' => self::CHANNEL_REFERRAL,
-                'source' => parse_url($referer, PHP_URL_HOST),
+                'source' => parse_url((string) $referer, PHP_URL_HOST),
             ];
         } else {
             $userReferer = [
@@ -75,12 +57,12 @@ class UserReferer
     private function saveUserReferer(array $referer)
     {
         self::$userReferer = $referer;
-        setcookie('userReferer', base64_encode(json_encode($referer)), time()+60*60*24*3, '/', '', false, false);
+        Response::setCookie('userReferer', base64_encode(json_encode($referer)), ['ttl' => 60*60*24*3, 'secure' => false, 'httponly' => false]);
     }
     
     public function isInternalUrl($url)
     {
-        return parse_url($url, PHP_URL_HOST) == Request::getDomain();
+        return parse_url((string) $url, PHP_URL_HOST) == Request::getDomain();
     }
     
     public static function getUserReferer()
@@ -92,10 +74,5 @@ class UserReferer
         }
         
         return null;
-    }
-    
-    public static function createConfigReader()
-    {
-        return new JsonConfigReader(__DIR__ . '/data/referers.json');
     }
 }

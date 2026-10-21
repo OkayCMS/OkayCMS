@@ -45,7 +45,7 @@ class ManagerAdmin extends IndexAdmin
                     if($this->request->post('password') != "" && $this->request->post('password') == $this->request->post('password_check')) {
                         $manager->password = $this->request->post('password');
                     } elseif($this->request->post('password') != $this->request->post('password_check')) {
-                        $this->design->assign('message_error', 'password_wrong');
+                        $this->postRedirectGet->storeMessageError('password_wrong');
                     }
 
                     // Обновляем права только другим менеджерам
@@ -64,15 +64,18 @@ class ManagerAdmin extends IndexAdmin
                     /*Добавление/Обновление менеджера*/
                     if (empty($manager->id)) {
                         $manager->id = $managersEntity->add($manager);
-                        $this->design->assign('message_success', 'added');
+                        $this->postRedirectGet->storeMessageSuccess('added');
+                        $this->postRedirectGet->storeNewEntityId($manager->id);
                     } else {
                         $managersEntity->update($manager->id, $manager);
-                        $this->design->assign('message_success', 'updated');
+                        $this->postRedirectGet->storeMessageSuccess('updated');
                         if ($manager->lang != $m->lang) {
                             $this->response->redirectTo($this->request->getRootUrl() . '/backend/index.php?controller=ManagerAdmin&id=' . $manager->id);
                         }
                     }
                     $manager = $managersEntity->get($manager->login);
+
+                    $this->postRedirectGet->redirect();
                 }
             }
         } else {

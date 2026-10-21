@@ -47,7 +47,7 @@ class BlogHelper implements GetListInterface
         
         $tableOfContent = [];
         $items = [];
-        preg_match_all("~<([hH]([1-6]))(.*?)>(.*?)</[hH]([1-6])>~", $text, $items);
+        preg_match_all("~<([hH]([1-6]))(.*?)>(.*?)</[hH]([1-6])>~", (string) $text, $items);
         
         if (!empty($items[4])) {
             $parts = [];
@@ -56,7 +56,7 @@ class BlogHelper implements GetListInterface
                 $sourceHeader = $items[0][$key];
                 
                 $id = Translit::translit(strip_tags($string));
-                $id = preg_replace('~^[^a-zA-Z]*(.+?)[^a-zA-Z0-9]*$~', '$1', $id);
+                $id = preg_replace('~^[^a-zA-Z]*(.+?)[^a-zA-Z0-9]*$~', '$1', (string) $id);
                 $anchorUrl = $postUrl . '#' . $id;
                 
                 // формируем массив где ключ оригинальный заголовок (H) значение заголовок со вставленным в него якорем

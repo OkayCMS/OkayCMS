@@ -37,7 +37,7 @@ class EntityField
 
     public function __construct($name)
     {
-        $this->fieldName = preg_replace('~[\W]~', '', $name);
+        $this->fieldName = preg_replace('~[\W]~', '', (string) $name);
     }
 
     public function isLangField()

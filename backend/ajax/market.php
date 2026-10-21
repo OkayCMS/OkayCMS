@@ -24,7 +24,7 @@ $module = (!$module ? $request->get('module') : $module);
 switch ($module) {
     case 'search_market': {
         $keyword = $request->get('query');
-        $keywords = explode(' ', $keyword);
+        $keywords = explode(' ', (string) $keyword);
         $categories = $categoriesEntity->getMarket($keyword);
 
         $suggestions = array();

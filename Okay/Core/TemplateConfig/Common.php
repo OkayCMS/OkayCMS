@@ -41,7 +41,7 @@ class Common
             throw new \Exception("Dir \"{$dir}\" not exists");
         }
 
-        $this->dir = rtrim($dir, '/') . '/';
+        $this->dir = rtrim((string) $dir, '/') . '/';
         return $this;
     }
     

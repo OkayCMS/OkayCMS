@@ -70,7 +70,7 @@ class PaymentForm extends AbstractModule implements PaymentFormInterface
 
         $this->design->assign('merchantAccount', $settings['wayforpay_merchant']);
         $this->design->assign('orderReference', $order->id);
-        $this->design->assign('orderDate', strtotime($order->date));
+        $this->design->assign('orderDate', strtotime((string) $order->date));
         $this->design->assign('merchantAuthType', 'simpleSignature');
         $this->design->assign('merchantDomainName', $_SERVER['HTTP_HOST']);
 
@@ -103,7 +103,7 @@ class PaymentForm extends AbstractModule implements PaymentFormInterface
 
     private function separateFullNameOnFirstNameAndLastName($fullName)
     {
-        $parts = explode(' ', $fullName);
+        $parts = explode(' ', (string) $fullName);
         $firstName = isset($parts[0]) ? $parts[0] : '';
         $lastName  = isset($parts[1]) ? $parts[1] : '';
         return [$firstName, $lastName];

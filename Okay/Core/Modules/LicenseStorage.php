@@ -57,7 +57,7 @@ class LicenseStorage
     {
         return sprintf('%s%s.license',
             $this->compileCodeDir,
-            md5(Request::getDomain())
+            md5((string) Request::getDomain())
         );
     }
 }

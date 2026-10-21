@@ -20,6 +20,21 @@
     </div>
 </div>
 
+{*Знак $ok_coup не подключён к наборам скидок — купоны не сработают*}
+{if $coupon_sign_missing}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="alert alert--icon alert--warning">
+                <div class="alert__content">
+                    <div class="alert__title">{$btr->alert_warning|escape}</div>
+                    {assign var='discountsSettingsAdmin' value="{url controller=DiscountsSettingsAdmin keyword=null page=null id=null}"}
+                    <p>{sprintf($btr->coupons_sign_missing, $discountsSettingsAdmin)}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{/if}
+
 {*Вывод успешных сообщений*}
 {if $message_success}
     <div class="row">

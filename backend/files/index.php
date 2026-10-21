@@ -37,7 +37,7 @@ if (empty($manager)) {
 }
 
 $file = $_GET['file'];
-$file = preg_replace("/[^A-Za-z0-9_]+/", "", $file);
+$file = preg_replace("/[^A-Za-z0-9_]+/", "", (string) $file);
 $folder = $_GET['folder'];
 $ext = $_GET['ext'];
 if (empty($file) || empty($folder) || empty($ext)) {

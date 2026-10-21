@@ -32,8 +32,8 @@ class Date extends Modifier
     
     public function run($date, $format = null) 
     {
-        if (is_numeric($date) || (!$time = strtotime($date))) {
-            $time = $date;
+        if (is_numeric($date) || (!$time = strtotime((string) $date))) {
+            $time = (int) $date;
         }
         if ($format !== null) {
             $language = $this->langEntity->get($this->languages->getLangId());
@@ -43,11 +43,11 @@ class Date extends Modifier
             $day_num = date('N', $time);
             $mon_num = date('n', $time);
             $custom_format = [
-                'cD'  => addcslashes($translations["date_D_".$day_num]->value, 'A..z'), // Дни недели сокращенно
-                'cl'  => addcslashes($translations["date_l_".$day_num]->value, 'A..z'), // Дни недели полностью
-                'cS'  => addcslashes($translations["date_S_".$mon_num]->value, 'A..z'), // Месяцы сокращенно
-                'cF'  => addcslashes($translations["date_F_".$mon_num]->value, 'A..z'), // Месяцы полностью
-                'cFR' => addcslashes($translations["date_FR_".$mon_num]->value, 'A..z'), // Месяцы полностью, родительный падеж
+                'cD'  => addcslashes((string) $translations["date_D_".$day_num]->value, 'A..z'), // Дни недели сокращенно
+                'cl'  => addcslashes((string) $translations["date_l_".$day_num]->value, 'A..z'), // Дни недели полностью
+                'cS'  => addcslashes((string) $translations["date_S_".$mon_num]->value, 'A..z'), // Месяцы сокращенно
+                'cF'  => addcslashes((string) $translations["date_F_".$mon_num]->value, 'A..z'), // Месяцы полностью
+                'cFR' => addcslashes((string) $translations["date_FR_".$mon_num]->value, 'A..z'), // Месяцы полностью, родительный падеж
             ];
     
             $format = strtr($format, $custom_format);

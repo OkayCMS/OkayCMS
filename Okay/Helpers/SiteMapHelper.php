@@ -116,7 +116,7 @@ class SiteMapHelper
                 }
                 $lastModify[] = $p->last_modify;
                 $lastModify = max($lastModify);
-                $lastModify = substr($lastModify, 0, 10);
+                $lastModify = substr((string) $lastModify, 0, 10);
                 
                 $page = [
                     'url' => Router::generateUrl('page', ['url' => $p->url], true),
@@ -139,7 +139,7 @@ class SiteMapHelper
         $postsCount = $blogEntity->count(['visible'=>1]);
         foreach ($blogEntity->find(['visible'=>1, 'limit'=>$postsCount]) as $p) {
             $url = Router::generateUrl('post', ['url' => $p->url], true);
-            $lastModify = substr($p->last_modify, 0, 10);
+            $lastModify = substr((string) $p->last_modify, 0, 10);
 
             $post = [
                 'url' => $url,
@@ -170,7 +170,7 @@ class SiteMapHelper
                 ]);
 
                 $lastModify[] = $c->last_modify;
-                $lastModify = substr(max($lastModify), 0, 10);
+                $lastModify = substr((string) max($lastModify), 0, 10);
 
                 $category = [
                     'url' => $url,
@@ -201,7 +201,7 @@ class SiteMapHelper
                 'limit'=>1,
             ]);
             $lastModify[] = $b->last_modify;
-            $lastModify = substr(max($lastModify), 0, 10);
+            $lastModify = substr((string) max($lastModify), 0, 10);
             $brand = [
                 'url' => $url,
                 'lastmod' => $lastModify,
@@ -224,7 +224,7 @@ class SiteMapHelper
         ])->find(['visible' => 1]);
         foreach ($products as $p) {
             $url = Router::generateUrl('product', ['url' => $p->url], true);
-            $lastModify = substr($p->last_modify, 0, 10);
+            $lastModify = substr((string) $p->last_modify, 0, 10);
 
             $product = [
                 'url' => $url,
