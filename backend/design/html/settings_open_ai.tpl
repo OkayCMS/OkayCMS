@@ -159,6 +159,9 @@
                 {*Параметры элемента*}
                 <div class="toggle_body_wrap on fn_card">
                     <div class="row">
+                        <div class="col-md-12 mb-1">
+                            <div class="text_box text_600">{$btr->settings_open_ai_product_placeholders|escape}</div>
+                        </div>
                         <div class="col-md-6">
                             <div class="heading_label">Meta title</div>
                             <div class="mb-1">
@@ -213,6 +216,9 @@
                 {*Параметры элемента*}
                 <div class="toggle_body_wrap on fn_card">
                     <div class="row">
+                        <div class="col-md-12 mb-1">
+                            <div class="text_box text_600">{$btr->settings_open_ai_category_placeholders|escape}</div>
+                        </div>
                         <div class="col-md-6">
                             <div class="heading_label">Meta title</div>
                             <div class="mb-1">
@@ -267,6 +273,9 @@
                 {*Параметры элемента*}
                 <div class="toggle_body_wrap on fn_card">
                     <div class="row">
+                        <div class="col-md-12 mb-1">
+                            <div class="text_box text_600">{$btr->settings_open_ai_brand_placeholders|escape}</div>
+                        </div>
                         <div class="col-md-6">
                             <div class="heading_label">Meta title</div>
                             <div class="mb-1">

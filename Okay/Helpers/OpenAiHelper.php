@@ -13,8 +13,8 @@ class OpenAiHelper
 
     private string $model;
     private float $temperature;
-    private int $frequencyPenalty;
-    private int $presencePenalty;
+    private float $frequencyPenalty;
+    private float $presencePenalty;
     private int $maxTokens;
     private Settings $settings;
 
@@ -25,14 +25,14 @@ class OpenAiHelper
         $this->settings = $settings;
         $this->response = $response;
         $this->openAi = new OpenAi((string)$settings->get('open_ai_api_key'));
-        $this->model = ((string)$settings->get('open_ai_model')) ?:'gpt-3.5-turbo';
+        $this->model = ((string)$settings->get('open_ai_model')) ?: 'gpt-3.5-turbo';
         $this->maxTokens = ((int)$settings->get('open_ai_max_tokens')) ?: 1000;
-        $this->temperature = ((float)$settings->get('open_ai_temperature')) ?: 1.0;
-        $this->frequencyPenalty = ((float)$settings->get('open_ai_frequency_penalty')) ?: 0;
-        $this->presencePenalty = ((float)$settings->get('open_ai_presence_penalty')) ?: 0;
+        $this->temperature = $this->floatSetting('open_ai_temperature', 1.0);
+        $this->frequencyPenalty = $this->floatSetting('open_ai_frequency_penalty', 0.0);
+        $this->presencePenalty = $this->floatSetting('open_ai_presence_penalty', 0.0);
     }
 
-    public function streamMetadata(string $userMessage, string $assistantMessage = '', bool $format = false)
+    public function streamMetadata(string $userMessage, string $contextMessage = '', bool $format = false)
     {
         $this->response->setContentType(RESPONSE_GPT_STREAM);
         $this->response->sendHeaders();
@@ -41,10 +41,11 @@ class OpenAiHelper
         }
         ignore_user_abort(true);
 
+        $hasError = false;
         $this->aiChat(
             $userMessage,
-            $assistantMessage,
-            function ($ch, $data) use ($format) {
+            $contextMessage,
+            function ($ch, $data) use ($format, &$hasError) {
                 $deltas = explode("\n", $data);
                 foreach ($deltas as $data2) {
                     if (strpos($data2, 'data: ') !== 0) {
@@ -54,14 +55,21 @@ class OpenAiHelper
                     if (json_last_error() && trim($data2) != 'data: [DONE]') {
                         continue;
                     }
+                    if (isset($json->error->message)) {
+                        $hasError = true;
+                        $this->sendError((string)$json->error->message);
+                        return 0;
+                    }
                     if (isset($json->choices[0]->delta)) {
                         $content = $json->choices[0]->delta->content ?? '';
-                    } elseif (isset($json->error->message)) {
-                        $content = $json->error->message;
                     } elseif (trim($data2) == 'data: [DONE]') {
                         $content = '';
                     } else {
                         $content = '';
+                    }
+
+                    if ($content === '') {
+                        continue;
                     }
 
                     if ($format && !empty(trim($content)) && strpos($content, "\n") !== false) {
@@ -77,14 +85,19 @@ class OpenAiHelper
             }
         );
 
-        if ($format) {
+        if (!$hasError && $format) {
             $this->response->sendStream('data: </p>');
         }
         $this->response->sendStream("event: stop\ndata: stopped\n\n");
     }
 
-    private function aiChat(string $userMessage, string $assistantMessage = '', ?callable $stream = null): ?string
+    private function aiChat(string $userMessage, string $contextMessage = '', ?callable $stream = null): ?string
     {
+        $content = $userMessage;
+        if ($contextMessage !== '') {
+            $content .= "\n\n" . $contextMessage;
+        }
+
         $messages = [
             [
                 "role" => "system",
@@ -92,16 +105,9 @@ class OpenAiHelper
             ],
             [
                 "role" => "user",
-                "content" => $userMessage,
+                "content" => $content,
             ]
         ];
-
-        if (!empty($assistantMessage)) {
-            $messages[] = [
-                "role" => "assistant",
-                "content" => $assistantMessage
-            ];
-        }
 
         $chat = $this->openAi->chat([
             'model' => $this->model,
@@ -118,6 +124,25 @@ class OpenAiHelper
             return $response->choices[0]->message->content ?? null;
         }
         return null;
+    }
+
+    private function sendError(string $message): void
+    {
+        $lines = explode("\n", str_replace("\r", '', $message));
+        $payload = implode("\n", array_map(static function (string $line): string {
+            return 'data: ' . $line;
+        }, $lines));
+        $this->response->sendStream("event: error\n" . $payload . "\n\n");
+    }
+
+    private function floatSetting(string $param, float $default): float
+    {
+        $raw = $this->settings->get($param);
+        if ($raw === null || $raw === '') {
+            return $default;
+        }
+
+        return (float)$raw;
     }
 
     private function getModels(): ?array
