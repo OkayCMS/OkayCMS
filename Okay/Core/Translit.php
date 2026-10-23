@@ -3,14 +3,15 @@
 
 namespace Okay\Core;
 
+use Okay\Core\Modules\Extender\ExtenderFacade;
 
 class Translit
 {
     private static $translitPairs = [
-        // Cyrillic
+        // Cyrillic (Ukrainian orthography by default)
         [
             'from'  => "А-а-Б-б-В-в-Ґ-ґ-Г-г-Д-д-Е-е-Ё-ё-Є-є-Ж-ж-З-з-И-и-І-і-Ї-ї-Й-й-К-к-Л-л-М-м-Н-н-О-о-П-п-Р-р-С-с-Т-т-У-у-Ф-ф-Х-х-Ц-ц-Ч-ч-Ш-ш-Щ-щ-Ъ-ъ-Ы-ы-Ь-ь-Э-э-Ю-ю-Я-я",
-            'to'    => "A-a-B-b-V-v-G-g-G-g-D-d-E-e-E-e-E-e-ZH-zh-Z-z-I-i-I-i-I-i-J-j-K-k-L-l-M-m-N-n-O-o-P-p-R-r-S-s-T-t-U-u-F-f-H-h-TS-ts-CH-ch-SH-sh-SCH-sch---Y-y---E-e-YU-yu-YA-ya"
+            'to'    => "A-a-B-b-V-v-G-g-H-h-D-d-E-e-E-e-IE-ie-ZH-zh-Z-z-Y-y-I-i-I-i-I-i-K-k-L-l-M-m-N-n-O-o-P-p-R-r-S-s-T-t-U-u-F-f-KH-kh-TS-ts-CH-ch-SH-sh-SHCH-shch---Y-y---E-e-IU-iu-IA-ia"
         ],
         // Georgian
         [
@@ -69,11 +70,14 @@ class Translit
 
     ];
 
+    // Хук для модулів: свій registerChainExtension([Translit::class, 'getTranslitPairs'], ...)
+    // може повернути інший масив пар (інша мова/стандарт за замовчуванням, інший порядок
+    // алфавітів) — Ukrainian-за-замовчуванням лишається тут, решта хай розбираються самі.
     public static function getTranslitPairs()
     {
-        return self::$translitPairs;
+        return ExtenderFacade::execute([static::class, __FUNCTION__], self::$translitPairs, func_get_args());
     }
-    
+
     public static function translit($text)
     {
         $res = $text;
