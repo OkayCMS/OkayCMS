@@ -191,7 +191,7 @@ class BackendTemplateConfig
     {
         $directory =  $this->rootDir;
         if ($dir !== null) {
-            $directory .= trim($dir, ' \t\n\r\0\x0B/') . '/';
+            $directory .= trim($dir, " \t\n\r\0\x0B/") . '/';
         } else {
             $directory .= 'backend/design/' . $type . '/';
         }
