@@ -553,7 +553,7 @@ class FrontTemplateConfig
     {
         $directory =  $this->rootDir;
         if ($dir !== null) {
-            $directory .= trim($dir, ' \t\n\r\0\x0B/') . '/';
+            $directory .= trim($dir, " \t\n\r\0\x0B/") . '/';
         } else {
             $directory .= 'design/' . $this->getTheme() . '/' . $type . '/';
         }
