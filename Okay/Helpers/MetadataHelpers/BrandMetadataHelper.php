@@ -225,7 +225,7 @@ class BrandMetadataHelper extends CommonMetadataHelper
         }
         
         $this->parts = [
-            '{$brand}' => ($this->brand->name ? $this->brand->name : ''),
+            '{$brand}' => ($this->brand->name ?? ''),
             '{$sitename}' => ($this->settings->get('site_name') ? $this->settings->get('site_name') : ''),
         ];
         

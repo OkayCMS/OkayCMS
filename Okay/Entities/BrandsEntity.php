@@ -45,7 +45,17 @@ class BrandsEntity extends Entity
     protected static $langTable = 'brands';
     protected static $tableAlias = 'b';
     protected static $alternativeIdField = 'url';
-    
+
+    public function get($id)
+    {
+        return ExtenderFacade::execute([static::class, __FUNCTION__], parent::get($id), func_get_args());
+    }
+
+    public function findOne(array $filter = [])
+    {
+        return ExtenderFacade::execute([static::class, __FUNCTION__], parent::findOne($filter), func_get_args());
+    }
+
     public function find(array $filter = [])
     {
         $this->select->distinct(true);
