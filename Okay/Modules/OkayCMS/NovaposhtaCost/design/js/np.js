@@ -105,8 +105,9 @@ $( ".fn_delivery_novaposhta input.city_novaposhta_for_door" ).devbridgeAutocompl
         if (true) {
             $(".fn_delivery_novaposhta input.fn_street").devbridgeAutocomplete({
                 serviceUrl: okay.router['OkayCMS_NovaposhtaCost_find_street'] + "?city_ref=" + suggestion.ref,
-                minChars:1,
+                minChars:2,
                 noCache: false,
+                preventBadQueries: false,
                 onSearchStart: function(params) {
                     streetAutocomplete = true;
                 },
